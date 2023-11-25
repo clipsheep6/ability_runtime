@@ -376,5 +376,22 @@ HWTEST_F(JsEnvironmentTest, SetRequestAotCallback_0100, TestSize.Level0)
     };
     jsEnv->SetRequestAotCallback(callback);
 }
+
+/**
+ * @tc.name: SetDeviceDisconnectCallback_0100
+ * @tc.desc: Js environment SetDeviceDisconnectCallback.
+ * @tc.type: FUNC
+ * @tc.require: issueI82L1A
+ */
+HWTEST_F(JsEnvironmentTest, SetDeviceDisconnectCallback_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+
+    std::function<bool()> task = [&]() {
+        return true;
+    };
+    jsEnv->SetDeviceDisconnectCallback(task);
+}
 } // namespace JsEnv
 } // namespace OHOS

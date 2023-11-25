@@ -357,9 +357,78 @@ HWTEST_F(JsRuntimeTest, RuntimeSavePreloadedTest_0100, TestSize.Level0)
 {
     HILOG_INFO("SavePreloaded start");
 
-    Runtime::SavePreloaded(nullptr);
+    auto runtime = AbilityRuntime::Runtime::Create(options_);
+    EXPECT_TRUE(runtime != nullptr);
+    runtime->SavePreloaded(nullptr);
 
     HILOG_INFO("SavePreloaded end");
+}
+
+/**
+ * @tc.name: RuntimeSetModuleLoadCheckerTest_0100
+ * @tc.desc: Runtime test for SetModuleLoadChecker.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, RuntimeSetModuleLoadCheckerTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("SetModuleLoadChecker start");
+
+    auto runtime = AbilityRuntime::Runtime::Create(options_);
+    EXPECT_TRUE(runtime != nullptr);
+    runtime->SetModuleLoadChecker(nullptr);
+
+    HILOG_INFO("SetModuleLoadChecker end");
+}
+
+/**
+ * @tc.name: JsRuntimeSuspendVMTest_0100
+ * @tc.desc: JsRuntime test for SuspendVM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeSuspendVMTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("SuspendVM start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    auto result = runtime->SuspendVM(gettid());
+    EXPECT_EQ(result, false);
+
+    HILOG_INFO("SuspendVM end");
+}
+
+/**
+ * @tc.name: JsRuntimeResumeVMTest_0100
+ * @tc.desc: JsRuntime test for ResumeVM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeResumeVMTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("ResumeVM start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    EXPECT_TRUE(runtime != nullptr);
+    runtime->ResumeVM(gettid());
+
+    HILOG_INFO("ResumeVM end");
+}
+
+/**
+ * @tc.name: JsRuntimeSetDeviceDisconnectCallbackTest_0100
+ * @tc.desc: JsRuntime test for SetDeviceDisconnectCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeSetDeviceDisconnectCallbackTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("SetDeviceDisconnectCallback start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    EXPECT_TRUE(runtime != nullptr);
+    std::function<bool()> task = [&]() {
+        return true;
+    };
+    runtime->SetDeviceDisconnectCallback(task);
+
+    HILOG_INFO("SetDeviceDisconnectCallback end");
 }
 
 /**
