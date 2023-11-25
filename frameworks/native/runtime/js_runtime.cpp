@@ -803,6 +803,10 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Load module(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, std::unique_ptr<NativeReference>());
+    // use for debugger, js engine need to know load module to handle debug event
+    panda::JSNApi::NotifyLoadModule(vm);
     auto env = GetNapiEnv();
     CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
