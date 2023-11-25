@@ -41,6 +41,8 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 const std::string DEBUG_APP = "debugApp";
+const std::string FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
+const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -202,6 +204,10 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     auto abilityRecord = GetServiceRecordByElementNameInner(element.GetURI());
+    if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
+        abilityRecord = GetServiceRecordByElementNameInner(
+            element.GetURI() + std::to_string(abilityRequest.want.GetIntParam(FRS_APP_INDEX, 0)));
+    }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     if (abilityRecord->IsTerminating()) {
@@ -228,8 +234,17 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
     auto serviceMapIter = serviceMap_.find(element.GetURI());
+    std::string frsKey = "";
+    if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
+        frsKey = element.GetURI() + std::to_string(abilityRequest.want.GetIntParam(FRS_APP_INDEX, 0));
+        serviceMapIter = serviceMap_.find(frsKey);
+    }
     if (noReuse && serviceMapIter != serviceMap_.end()) {
-        serviceMap_.erase(element.GetURI());
+        if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
+            serviceMap_.erase(frsKey);
+        } else {
+            serviceMap_.erase(element.GetURI());
+        }
     }
     if (noReuse || serviceMapIter == serviceMap_.end()) {
         targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
@@ -250,7 +265,11 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
             targetService->SetRestartTime(abilityRequest.restartTime);
             targetService->SetRestartCount(abilityRequest.restartCount);
         }
-        serviceMap_.emplace(element.GetURI(), targetService);
+        if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
+            serviceMap_.emplace(frsKey, targetService);
+        } else {
+            serviceMap_.emplace(element.GetURI(), targetService);
+        }
         isLoadedAbility = false;
     } else {
         targetService = serviceMapIter->second;
@@ -1999,7 +2018,12 @@ void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRe
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name,
         abilityInfo.moduleName);
     terminatingExtensionMap_.emplace(element.GetURI(), abilityRecord);
-    serviceMap_.erase(element.GetURI());
+    if (FRS_BUNDLE_NAME == abilityInfo.bundleName) {
+        serviceMap_.erase(
+            element.GetURI() + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0)));
+    } else {
+        serviceMap_.erase(element.GetURI());
+    }
 }
 
 void AbilityConnectManager::AddUIExtWindowDeathRecipient(const sptr<IRemoteObject> &session)
