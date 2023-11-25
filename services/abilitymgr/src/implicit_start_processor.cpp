@@ -186,6 +186,14 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
             return "";
         }
         type = uri.substr(suffixIndex);
+        if (type == ".dlp") {
+            auto suffixDlpIndex = uri.rfind('.', suffixIndex - 1);
+            if (suffixDlpIndex == std::string::npos) {
+                HILOG_ERROR("Get suffix failed, uri is %{public}s", uri.c_str());
+                return "";
+            }
+            type = uri.substr(suffixDlpIndex, suffixIndex - suffixDlpIndex);
+        }
     }
     return type;
 }
