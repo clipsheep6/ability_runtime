@@ -25,14 +25,14 @@ namespace OHOS {
 namespace AppExecFwk {
 BundleMgrHelper::BundleMgrHelper()
 {
-    HILOG_ERROR("create BundleMgrHelper");
+    HILOG_INFO("create BundleMgrHelper");
 }
 
 BundleMgrHelper::~BundleMgrHelper()
 {
-	HILOG_ERROR("destroy BundleMgrHelper");
-	if (bundleMgr_ != nullptr && deathRecipient_ != nullptr) {
-		bundleMgr_->AsObject()->RemoveDeathRecipient(deathRecipient_);
+    HILOG_ERROR("destroy BundleMgrHelper");
+    if (bundleMgr_ != nullptr && deathRecipient_ != nullptr) {
+        bundleMgr_->AsObject()->RemoveDeathRecipient(deathRecipient_);
     }
 }
 

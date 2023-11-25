@@ -58,7 +58,6 @@ public:
 
     sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
     sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
-
 };
 
 void ContextDealTest::SetUpTestCase(void)

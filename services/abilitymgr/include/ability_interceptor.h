@@ -98,10 +98,10 @@ public:
 private:
     bool CheckControl(std::shared_ptr<AppExecFwk::BundleMgrHelper> &undleMgrHelper, const Want &want, int32_t userId,
         AppExecFwk::AppJumpControlRule &controlRule);
-    bool CheckIfJumpExempt(std::shared_ptr<AppExecFwk::BundleMgrHelper> &undleMgrHelper, AppExecFwk::AppJumpControlRule &controlRule,
-        int32_t userId);
-    bool CheckIfExemptByBundleName(std::shared_ptr<AppExecFwk::BundleMgrHelper> &undleMgrHelper, const std::string &bundleName,
-        const std::string &permission, int32_t userId);
+    bool CheckIfJumpExempt(std::shared_ptr<AppExecFwk::BundleMgrHelper> &undleMgrHelper,
+        AppExecFwk::AppJumpControlRule &controlRule, int32_t userId);
+    bool CheckIfExemptByBundleName(std::shared_ptr<AppExecFwk::BundleMgrHelper> &undleMgrHelper,
+        const std::string &bundleName, const std::string &permission, int32_t userId);
     bool LoadAppLabelInfo(std::shared_ptr<AppExecFwk::BundleMgrHelper> &undleMgrHelper, Want &want,
         AppExecFwk::AppJumpControlRule &controlRule, int32_t userId);
 };

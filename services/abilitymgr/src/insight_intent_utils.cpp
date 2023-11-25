@@ -44,8 +44,8 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
 
     // Get json profile firstly
     std::string profile;
-    auto ret = IN_PROCESS_CALL(bundleMgrHelper->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName, profile,
-        AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
+    auto ret = IN_PROCESS_CALL(bundleMgrHelper->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName,
+        profile, AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
     if (ret != ERR_OK) {
         HILOG_ERROR("Get json profile failed, error code: %{public}d.", ret);
         return std::string("");
