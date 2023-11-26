@@ -24,8 +24,10 @@
 
 #include "hilog_wrapper.h"
 #include "want.h"
+#include "mock_window.h"
 
 using namespace testing::ext;
+using namespace OHOS::Rosen;
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -214,5 +216,42 @@ HWTEST_F(UIExtensionContextTest, GenerateCurRequestCode_0100, TestSize.Level1)
 
     HILOG_INFO("GenerateCurRequestCode_0100 end");
 }
+
+
+/**
+ * @tc.number: GetWidow_0100
+ * @tc.name: GetWidow
+ * @tc.desc: GetWidow.
+ */
+HWTEST_F(UIExtensionContextTest, GetWidow_0100, TestSize.Level1)
+{
+    HILOG_INFO("GetWidow_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    EXPECT_TRUE(context->GetWindow() != nullptr);
+
+    HILOG_INFO("GetWidow_0100 end");
+}
+
+/**
+ * @tc.number: GetUIContent_0100
+ * @tc.name: GetUIContent
+ * @tc.desc: GetUIContent.
+ */
+HWTEST_F(UIExtensionContextTest, GetUIContent_0100, TestSize.Level1)
+{
+    HILOG_INFO("GetUIContent_0100 start");
+
+    auto context = std::make_shared<UIExtensionContext>();
+    sptr<MockWindow> window(new (std::nothrow) MockWindow());
+    context->SetWindow(window);
+    Ace::UIContent* content = context->GetUIContent();
+    EXPECT_TRUE(content == nullptr);
+
+    HILOG_INFO("GetUIContent_0100 end");
+}
+
 } // namespace AbilityRuntime
 } // namespace OHOS
