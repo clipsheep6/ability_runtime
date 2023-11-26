@@ -58,6 +58,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
 
 bool g_debugMode = false;
+bool g_debugApp = false;
 bool g_jsFramework = false;
 std::mutex g_mutex;
 }
@@ -89,12 +90,13 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         auto instanceId = gettid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceName);
-        auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
         auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
             nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
         };
         panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
-        panda::JSNApi::StartDebugger(vm, debugOption, instanceId, workerPostTask);
+        auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
+        panda::JSNApi::NotifyDebugMode(
+            instanceId, vm, ARK_DEBUGGER_LIB_PATH, debugOption, instanceId, workerPostTask, g_debugApp, needBreakPoint);
     }
 }
 
@@ -426,6 +428,11 @@ ContainerScope::UpdateCurrent(-1);
 void StartDebuggerInWorkerModule()
 {
     g_debugMode = true;
+}
+
+void SetDebuggerApp(bool isDebugApp)
+{
+    g_debugApp = isDebugApp;
 }
 
 void SetJsFramework()

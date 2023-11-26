@@ -24,6 +24,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 void StartDebuggerInWorkerModule();
+void SetDebuggerApp(bool isDebugApp);
 void InitWorkerFunc(NativeEngine* nativeEngine);
 void OffWorkerFunc(NativeEngine* nativeEngine);
 int32_t GetContainerId();

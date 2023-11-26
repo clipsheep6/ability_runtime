@@ -27,7 +27,7 @@ public:
     MockJsRuntime() = default;
     ~MockJsRuntime() = default;
 
-    void StartDebugMode(bool needBreakPoint, bool isDebug = true)
+    void StartDebugMode(bool needBreakPoint, bool debug, const std::string &processName)
     {}
     void FinishPreload()
     {

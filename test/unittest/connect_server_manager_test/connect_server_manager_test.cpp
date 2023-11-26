@@ -64,7 +64,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0200, TestSize.Level
     HILOG_INFO("ConnectServerManagerTest_0200 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     const std::string bundleName = "StartServer";
-    connectServerManager.StartConnectServer(bundleName);
+    uint32_t socketFd = 0;
+    connectServerManager.StartConnectServer(bundleName, socketFd, true);
     EXPECT_TRUE(connectServerManager.bundleName_ == "StartServer");
     HILOG_INFO("ConnectServerManagerTest_0200 is end");
 }
@@ -170,7 +171,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     const std::string bundleName = "StartServer";
-    connectServerManager.StartConnectServer(bundleName);
+    uint32_t socketFd = 0;
+    connectServerManager.StartConnectServer(bundleName, socketFd, true);
     EXPECT_FALSE(connectServerManager.AddInstance(TWO, instanceName));
     HILOG_INFO("ConnectServerManagerTest_0700 is end");
 }
@@ -187,7 +189,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0800, TestSize.Level
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     const std::string bundleName = "StartServer";
-    connectServerManager.StartConnectServer(bundleName);
+    uint32_t socketFd = 0;
+    connectServerManager.StartConnectServer(bundleName, socketFd, true);
     connectServerManager.RemoveInstance(TWO);
     EXPECT_TRUE(connectServerManager.instanceMap_.find(TWO) == connectServerManager.instanceMap_.end());
     HILOG_INFO("ConnectServerManagerTest_0800 is end");
@@ -205,7 +208,8 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0900, TestSize.Level
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     const std::string bundleName = "StartServer";
-    connectServerManager.StartConnectServer(bundleName);
+    uint32_t socketFd = 0;
+    connectServerManager.StartConnectServer(bundleName, socketFd, true);
     const std::string jsonTreeStr = "jsonTreeStr";
     const std::string jsonSnapshotStr = "jsonSnapshotStr";
     connectServerManager.SendInspector(jsonTreeStr, jsonSnapshotStr);
