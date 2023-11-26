@@ -43,6 +43,7 @@
 #include "bundle_constants.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "data_ability_manager.h"
+#include "dialog_session_record.h"
 #include "event_report.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
@@ -63,6 +64,7 @@
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #include "window_focus_changed_listener.h"
+#include "dialog_session_record.h"
 #endif
 
 namespace OHOS {
@@ -1353,6 +1355,16 @@ public:
      */
     int32_t DetachAppDebug(const std::string &bundleName) override;
 
+    virtual int GetDialogSessionInfo(const std::string dialogSessionId,
+        sptr<DialogSessionInfo> &dialogSessionInfo) override;
+
+    bool GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
+
+    int CreateModalDialog(const Want &replaceWant, const sptr<IRemoteObject> &callerToken, std::string dialogSessionId);
+
+    virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed) override;
+
     /**
      * @brief Execute intent.
      * @param key The key of intent executing client.
@@ -1886,6 +1898,8 @@ private:
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
 
+    std::shared_ptr<DialogSessionRecord> dialogSessionRecord_;
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
@@ -1893,6 +1907,7 @@ private:
     sptr<AbilityBundleEventCallback> abilityBundleEventCallback_;
 
 #ifdef SUPPORT_GRAPHICS
+private:
     int32_t ShowPickerDialog(const Want& want, int32_t userId, const sptr<IRemoteObject> &token);
     bool CheckWindowMode(int32_t windowMode, const std::vector<AppExecFwk::SupportWindowMode>& windowModes) const;
     void InitFocusListener();

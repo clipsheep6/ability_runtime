@@ -60,15 +60,6 @@ const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 const std::string UNREGISTER_EVENT_TASK = "unregister event task";
 constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 5000;
 
-AbilityInterceptor::~AbilityInterceptor()
-{}
-
-CrowdTestInterceptor::CrowdTestInterceptor()
-{}
-
-CrowdTestInterceptor::~CrowdTestInterceptor()
-{}
-
 ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
     if (CheckCrowdtest(want, userId)) {
@@ -121,12 +112,6 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
     return false;
 }
 
-ControlInterceptor::ControlInterceptor()
-{}
-
-ControlInterceptor::~ControlInterceptor()
-{}
-
 ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
     AppExecFwk::AppRunningControlRuleResult controlRule;
@@ -175,12 +160,6 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     }
     return true;
 }
-
-DisposedRuleInterceptor::DisposedRuleInterceptor()
-{}
-
-DisposedRuleInterceptor::~DisposedRuleInterceptor()
-{}
 
 ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
@@ -297,47 +276,34 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     return isAllowed;
 }
 
-EcologicalRuleInterceptor::EcologicalRuleInterceptor()
-{}
-
-EcologicalRuleInterceptor::~EcologicalRuleInterceptor()
-{}
-
 ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {
-    bool isStartIncludeAtomicService = AbilityUtil::IsStartIncludeAtomicService(want, userId);
-    if (!isStartIncludeAtomicService) {
-        HILOG_DEBUG("This startup does not contain atomic service, keep going.");
-        return ERR_OK;
-    }
-
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
 #ifdef SUPPORT_ERMS
     GetEcologicalCallerInfo(want, callerInfo, userId);
     int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
         callerInfo, rule));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("check ecological rule failed, keep going.");
+        return ERR_OK;
+    }
 #else
     int ret = CheckRule(want, callerInfo, rule);
-#endif
     if (!ret) {
         HILOG_ERROR("check ecological rule failed, keep going.");
         return ERR_OK;
     }
-
+#endif
     HILOG_DEBUG("check ecological rule success");
     if (rule.isAllow) {
         HILOG_ERROR("ecological rule is allow, keep going.");
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
-    if (isForeground && (rule.replaceWant != nullptr)) {
-        int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*rule.replaceWant,
-            requestCode, userId));
-        if (ret != ERR_OK) {
-            HILOG_ERROR("ecological start replace want failed.");
-            return ret;
-        }
+    if (isForeground && rule.replaceWant) {
+        (const_cast<Want &>(want)) = *rule.replaceWant;
+        (const_cast<Want &>(want)).SetParam("isReplaceWantExist", true);
     }
 #endif
     return ERR_ECOLOGICAL_CONTROL_STATUS;
@@ -413,12 +379,6 @@ bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &call
     return true;
 }
 #endif
-
-AbilityJumpInterceptor::AbilityJumpInterceptor()
-{}
-
-AbilityJumpInterceptor::~AbilityJumpInterceptor()
-{}
 
 ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
 {

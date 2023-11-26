@@ -78,6 +78,7 @@
 #include "uri_permission_manager_client.h"
 #include "xcollie/watchdog.h"
 #ifdef SUPPORT_GRAPHICS
+#include "dialog_session_record.h"
 #include "application_anr_listener.h"
 #include "display_manager.h"
 #include "input_manager.h"
@@ -377,6 +378,8 @@ bool AbilityManagerService::Init()
     InitStartAbilityChain();
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
+
+    dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
 
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
@@ -900,11 +903,30 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
+    Want newWant = abilityRequest.want;
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
-    if (result != ERR_OK) {
-        HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
+    bool isReplaceWantExist = newWant.GetBoolParam("isReplaceWantExist", false);
+    newWant.RemoveParam("isReplaceWantExist");
+    if (result != ERR_OK && isReplaceWantExist == false) {
+        HILOG_INFO("afterCheckExecuter_ is nullptr or DoProcess return error");
         return result;
+    }
+    if (result != ERR_OK && isReplaceWantExist) {
+        std::string dialogSessionId;
+        std::vector<DialogAppInfo> dialogAppInfos(1);
+        dialogAppInfos.front().bundleName = abilityInfo.bundleName;
+        dialogAppInfos.front().moduleName = abilityInfo.moduleName;
+        dialogAppInfos.front().abilityName = abilityInfo.name;
+        dialogAppInfos.front().iconId = abilityInfo.iconId;
+        dialogAppInfos.front().labelId = abilityInfo.labelId;
+        if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos)) {
+            HILOG_DEBUG("create dialog by ui extension");
+            return CreateModalDialog(newWant, callerToken, dialogSessionId);
+        } else {
+            HILOG_ERROR("create dialog by ui extension failed");
+            return ERR_INVALID_VALUE;
+        }
     }
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
@@ -1123,7 +1145,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         UpdateCallerInfo(abilityRequest.want, callerToken);
-        abilityRequest.userId = oriValidUserId;
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1515,7 +1536,6 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityInfo);
-        abilityRequest.userId = oriValidUserId;
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -9091,6 +9111,76 @@ int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
         return ERR_COLLABORATOR_NOT_REGISTER;
     }
     return collaborator->OpenFile(uri, flag);
+}
+
+int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionId,
+    sptr<DialogSessionInfo> &dialogSessionInfo)
+{
+    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
+    dialogSessionInfo = dialogSessionRecord_->GetDialogSessionInfo(dialogSessionId);
+    if (dialogSessionInfo) {
+        HILOG_DEBUG("success");
+        return ERR_OK;
+    }
+    HILOG_DEBUG("fail");
+    return ERR_ECOLOGICAL_CONTROL_STATUS;
+}
+
+bool AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
+    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos)
+{
+    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
+    return dialogSessionRecord_->GenerateDialogSessionRecord(abilityRequest, userId,
+        dialogSessionId, dialogAppInfos, OHOS::system::GetDeviceType());
+}
+
+int AbilityManagerService::CreateModalDialog(const Want &replaceWant, const sptr<IRemoteObject> &callerToken,
+    std::string dialogSessionId)
+{
+    if (callerToken == nullptr) {
+        HILOG_ERROR("want or callerToken is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (!callerRecord) {
+        HILOG_ERROR("callerRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> token;
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
+    if (ret != ERR_OK || token == nullptr) {
+        HILOG_ERROR("token is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE && token == callerToken) {
+        HILOG_DEBUG("create modal ui extension for application");
+        (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
+        return callerRecord->CreateModalUIExtension(replaceWant);
+    }
+    HILOG_DEBUG("create modal ui extension for system");
+    // mock modal system by wms
+    return ERR_OK;
+}
+
+int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
+{
+    if (!isAllowed) {
+        HILOG_INFO("user refuse to jump");
+        return ERR_ECOLOGICAL_CONTROL_STATUS;
+    }
+    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
+    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId);
+    if (dialogCallerInfo == nullptr) {
+        HILOG_ERROR("dialog caller info is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto targetWant = dialogCallerInfo->targetWant;
+    targetWant.SetElement(want.GetElement());
+    sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
+    return StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
+        dialogCallerInfo->requestCode);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

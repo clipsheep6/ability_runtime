@@ -26,6 +26,7 @@
 #ifdef SUPPORT_ERMS
 #include "ecological_rule_mgr_service_client.h"
 #endif
+#include "dialog_session_record.h"
 
 namespace OHOS {
 namespace AAFwk {
