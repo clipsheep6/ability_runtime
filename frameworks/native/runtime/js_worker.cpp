@@ -35,7 +35,7 @@
 #include "system_ability_definition.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
-#include "native_engine/impl/ark/ark_native_engine.h"
+#include "native_engine/native_engine.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 
 #ifdef SUPPORT_GRAPHICS
@@ -80,7 +80,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
 
-    auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
+    auto arkNativeEngine = static_cast<NativeEngine*>(nativeEngine);
     // load jsfwk
     if (g_jsFramework && !arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
         HILOG_ERROR("Failed to load js framework!");
@@ -111,7 +111,7 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
     if (g_debugMode) {
         auto instanceId = gettid();
         ConnectServerManager::Get().RemoveInstance(instanceId);
-        auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
+        auto arkNativeEngine = static_cast<NativeEngine*>(nativeEngine);
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
         panda::JSNApi::StopDebugger(vm);
     }
