@@ -32,6 +32,7 @@ namespace {
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 constexpr int RESET_RATIO = 2;
 
+constexpr int32_t BACKGROUND_REPORT_COUNT_MAX = 5;
 #ifdef SUPPORT_ASAN
 constexpr uint32_t CHECK_INTERVAL_TIME = 45000;
 #else
@@ -96,6 +97,7 @@ void Watchdog::AllowReportEvent()
 {
     needReport_.store(true);
     isSixSecondEvent_.store(false);
+    backgroundReportCount_.store(0);
 }
 
 bool Watchdog::IsReportEvent()
@@ -122,11 +124,6 @@ void Watchdog::Timer()
     }
     if (!needReport_) {
         HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
-        return;
-    }
-
-    if (isInBackground_) {
-        appMainThreadIsAlive_.store(true);
         return;
     }
 
@@ -159,6 +156,15 @@ void Watchdog::ReportEvent()
             static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
         return;
     }
+
+    if (isInBackground_ && backgroundReportCount_.load() < BACKGROUND_REPORT_COUNT_MAX) {
+        HILOG_INFO("In Background, thread may be blocked in, do not report this time. "
+            "currTime: %{public}" PRIu64 ", lastTime: %{public}" PRIu64 "",
+            static_cast<uint64_t>(now), static_cast<uint64_t>(lastWatchTime_));
+        backgroundReportCount_++;
+        return;
+    }
+    backgroundReportCount_++;
 
     if (!needReport_) {
         return;
