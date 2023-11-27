@@ -233,6 +233,7 @@ APP_FOREGROUND:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
   CALLER_BUNDLENAME: {type: STRING, desc: caller bundle name}
+  PROCESS_TYPE: {type: INT32, desc: type of process}
 
 APP_BACKGROUND:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: PowerStats, desc: background app}
@@ -242,6 +243,7 @@ APP_BACKGROUND:
   PROCESS_NAME: {type: STRING, desc: process name}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   BUNDLE_TYPE: {type: INT32, desc: 'type of componment, atomic service or normal app'}
+  PROCESS_TYPE: {type: INT32, desc: type of process}
 
 APP_TERMINATE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: terminate app}
