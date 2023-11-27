@@ -2007,6 +2007,44 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
 }
 
+int AbilityManagerService::RequestModalUIExtension(const Want &want)
+{
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    return RequestModalUIExtensionInner(want);
+}
+
+int AbilityManagerService::RequestModalUIExtensionInner(const Want &want){
+    sptr<IRemoteObject> token;
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
+    if (ret != ERR_OK || token == nullptr) {
+        HILOG_ERROR("token is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    // Gets the record corresponding to the current focus appliaction
+    auto Record = Token::GetAbilityRecordToken(token);
+
+    // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
+    EventInfo focusInfo;
+    focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
+    focusInfo.abilityName = Record->GetAbilityInfo().name;
+    focusInfo.moduleName = Record->GetApplicationInfo().moduleInfos.moduleName;
+
+    // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
+    EventInfo callerInfo;
+    callerInfo.bundleName = want.GetElement().GetBundleName();
+    callerInfo.abilityName = want.GetElement().GetAbilityName();
+    callerInfo.moduleName = want.GetElement().GetModuleName();
+
+    // Compare 
+    if (focusInfo.bundleName == callerInfo.bundleName 
+        && focusInfo.abilityName == callerInfo.abilityName 
+        && focusInfo.moduleName == callerInfo.moduleName) {
+        return Record->CreateModalUIExtension;
+    }
+    return wms::ModalSystem(want);
+}
+
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType, bool checkSystemCaller)
 {

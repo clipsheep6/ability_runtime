@@ -362,6 +362,9 @@ enum class AbilityManagerInterfaceCode {
     // start ability by insigt intent
     START_ABILITY_BY_INSIGHT_INTENT = 1053,
 
+    // request modal UIExtension by want
+    REQUESET_MODAL_UIEXTENSION = 1054,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
