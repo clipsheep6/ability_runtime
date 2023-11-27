@@ -62,11 +62,9 @@ export default class TipsServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
-      } else {
-        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
-      }
+      let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
+        window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
+      this.createWindow('TipsDialog' + startId, windowType, navigationBarRect);
       winNum++;
     });
   }
@@ -82,13 +80,15 @@ export default class TipsServiceExtensionAbility extends extension {
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.tipsExtensionContext, name, windowType);
-      await win.bindDialogTarget(globalThis.callerToken.value, () => {
-        win.destroyWindow();
-        winNum--;
-        if (winNum === 0) {
-          globalThis.tipsExtensionContext.terminateSelf();
-        }
-      });
+      if (windowType === window.WindowType.TYPE_DIALOG) {
+        await win.bindDialogTarget(globalThis.callerToken.value, () => {
+          win.destroyWindow();
+          winNum--;
+          if (winNum === 0) {
+            globalThis.tipsExtensionContext.terminateSelf();
+          }
+        });
+      }
       await win.hideNonSystemFloatingWindows(true);
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);

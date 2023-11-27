@@ -184,14 +184,9 @@ export default class SelectorServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        this.createWindow('SelectorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
-      } else {
-        console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-        let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
-          window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
-        this.createWindow('SelectorDialog' + startId, windowType, navigationBarRect);
-      }
+      let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
+        window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
+      this.createWindow('SelectorDialog' + startId, windowType, navigationBarRect);
       winNum++;
     });
   }
@@ -207,7 +202,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.selectExtensionContext, name, windowType);
-      if (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) {
+      if (windowType === window.WindowType.TYPE_DIALOG) {
         await win.bindDialogTarget(globalThis.callerToken.value, () => {
           win.destroyWindow();
           winNum--;
