@@ -124,6 +124,9 @@ constexpr char EVENT_KEY_HAPPEN_TIME[] = "HAPPEN_TIME";
 constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
+constexpr char EVENT_KEY_NAME[] = "NAME";
+constexpr char EVENT_KEY_MESSAGE[] = "MESSAGE";
+constexpr char EVENT_KEY_STACK[] = "STACK";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
@@ -1356,7 +1359,10 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_HAPPEN_TIME, timet,
                 EVENT_KEY_REASON, errorObj.name,
                 EVENT_KEY_JSVM, JSVM_TYPE,
-                EVENT_KEY_SUMMARY, summary);
+                EVENT_KEY_SUMMARY, summary,
+                EVENT_KEY_NAME, errorObj.name,
+                EVENT_KEY_MESSAGE, errorObj.message,
+                EVENT_KEY_STACK, errorObj.stack);
             ErrorObject appExecErrorObj = {
                 .name = errorObj.name,
                 .message = errorObj.message,
