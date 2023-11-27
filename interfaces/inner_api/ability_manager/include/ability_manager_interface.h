@@ -1286,14 +1286,14 @@ public:
      * @param listener App debug listener.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) = 0;
+    virtual int32_t RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener) = 0;
 
     /**
      * @brief Unregister app debug listener.
      * @param listener App debug listener.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener) = 0;
+    virtual int32_t UnregisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener) = 0;
 
     /**
      * @brief Attach app debug.
