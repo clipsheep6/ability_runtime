@@ -19,8 +19,8 @@
 #include <regex>
 
 #include "app_mgr_client.h"
-#include "bundle_mgr_helper.h"
 #include "application_context.h"
+#include "bundle_mgr_helper.h"
 #include "bundle_mgr_proxy.h"
 #include "common_event_manager.h"
 #include "configuration_convertor.h"

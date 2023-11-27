@@ -17,11 +17,11 @@
 
 #include <regex>
 
-#include "bundle_mgr_helper.h"
-#include "constants.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "app_context.h"
+#include "bundle_mgr_helper.h"
+#include "constants.h"
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"

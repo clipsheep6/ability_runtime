@@ -42,7 +42,6 @@
 #endif
 #include "bundle_constants.h"
 #include "bundle_mgr_helper.h"
-#include "bundlemgr/bundle_mgr_interface.h"
 #include "data_ability_manager.h"
 #include "event_report.h"
 #include "free_install_manager.h"

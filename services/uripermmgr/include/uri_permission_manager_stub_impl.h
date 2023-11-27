@@ -22,7 +22,6 @@
 
 #include "app_mgr_interface.h"
 #include "bundle_mgr_helper.h"
-#include "bundlemgr/bundle_mgr_interface.h"
 #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
