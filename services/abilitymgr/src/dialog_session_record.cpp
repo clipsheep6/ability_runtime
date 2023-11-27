@@ -21,6 +21,8 @@
 #include "ability_record.h"
 #include "ability_util.h"
 #include "hilog_wrapper.h"
+#include "int_wrapper.h"
+#include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
 
@@ -114,8 +116,8 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         HILOG_ERROR("query dialog app info failed");
         return false;
     }
-    dialogSessionInfo->parameters.SetParam("deviceType", String::Box(deviceType));
-    dialogSessionInfo->parameters.SetParam("userId", Integer::Box(userId));
+    dialogSessionInfo->parameters.SetParam("deviceType", AAFwk::String::Box(deviceType));
+    dialogSessionInfo->parameters.SetParam("userId", AAFwk::Integer::Box(userId));
 
     for (auto &dialogAppInfo : dialogAppInfos) {
         DialogAbilityInfo targetDialogAbilityInfo;
@@ -132,8 +134,8 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
     }
     if (dialogAppInfos.size() > 1) {
-        dialogSessionInfo->parameters.SetParam("action", String::Box(abilityRequest.want.GetAction()));
-        dialogSessionInfo->parameters.SetParam("wantType", String::Box(abilityRequest.want.GetType()));
+        dialogSessionInfo->parameters.SetParam("action", AAFwk::String::Box(abilityRequest.want.GetAction()));
+        dialogSessionInfo->parameters.SetParam("wantType", AAFwk::String::Box(abilityRequest.want.GetType()));
     }
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
     dialogCallerInfo->callerToken = callerToken;
