@@ -353,6 +353,8 @@ config("extensionkit_public_config") {
 }
 
 ohos_shared_library("extensionkit_native") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
@@ -591,6 +593,8 @@ ohos_shared_library("ability_thread") {
 }
 
 ohos_shared_library("form_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   if (ability_runtime_graphics) {
     include_dirs = [
       "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -659,6 +663,8 @@ ohos_shared_library("form_extension_module") {
 }
 
 ohos_shared_library("service_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",

@@ -211,6 +211,8 @@ ohos_shared_library("ability_start_setting") {
 }
 
 ohos_shared_library("ability_connect_callback_stub") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "include/",
     "${ability_base_kits_path}/want/include",
