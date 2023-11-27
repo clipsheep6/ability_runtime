@@ -1818,6 +1818,8 @@ private:
 
     void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
 
+    void SetAutoFillElementName(const sptr<SessionInfo> &extensionSessionInfo);
+
     /**
      * @brief Start extension ability with insight intent
      * @param want, the want of the ability to start.

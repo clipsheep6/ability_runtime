@@ -26,9 +26,6 @@ namespace {
 const std::string WANT_PARAMS_AUTO_FILL_CMD = "fill";
 const std::string WANT_PARAMS_AUTO_SAVE_CMD = "save";
 const std::string WANT_PARAMS_EXTENSION_TYPE = "autoFill/password";
-constexpr static char AUTO_FILL_BUNDLE_NAME[] = "com.ohos.passwordbox";
-constexpr static char AUTO_FILL_MODULE_NAME[] = "entry";
-constexpr static char AUTO_FILL_ABILITY_NAME[] = "AutoFillAbility";
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.autoFillCmd";
 constexpr static char WANT_PARAMS_EXTENSION_TYPE_KEY[] = "ability.want.params.uiExtensionType";
@@ -81,8 +78,6 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     }
 
     AAFwk::Want want;
-    want.SetElementName(AUTO_FILL_BUNDLE_NAME, AUTO_FILL_ABILITY_NAME);
-    want.SetModuleName(AUTO_FILL_MODULE_NAME);
     want.SetParam(WANT_PARAMS_EXTENSION_TYPE_KEY, WANT_PARAMS_EXTENSION_TYPE);
     want.SetParam(WANT_PARAMS_VIEW_DATA_KEY, viewdata.ToJsonString());
 
