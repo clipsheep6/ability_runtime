@@ -113,7 +113,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     if (UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)
         && abilityRequest.sessionInfo && abilityRequest.sessionInfo->sessionToken) {
         auto &remoteObj = abilityRequest.sessionInfo->sessionToken;
-        uiExtensionMap_.emplace(remoteObj, UIExtWindowMapValType(targetService, abilityRequest.sessionInfo));
+        uiExtensionMap_[remoteObj] = UIExtWindowMapValType(targetService, abilityRequest.sessionInfo);
         AddUIExtWindowDeathRecipient(remoteObj);
     }
 
@@ -125,7 +125,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         targetService->SetWant(abilityRequest.want);
         CommandAbility(targetService);
     } else if (UIExtensionUtils::IsUIExtension(targetService->GetAbilityInfo().extensionAbilityType)
-        && targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING)) {
+        && targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING)
+        && !targetService->IsAbilityState(AbilityState::BACKGROUNDING)
+        && targetService->IsAbilityWindowReady()) {
         targetService->SetWant(abilityRequest.want);
         CommandAbilityWindow(targetService, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
     } else {
@@ -755,6 +757,7 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
             HILOG_WARN("not supported ability cmd");
             break;;
     }
+    abilityRecord->SetAbilityWindowState(sessionInfo, winCmd, true);
 
     CompleteStartServiceReq(element);
     return ERR_OK;
@@ -1129,6 +1132,7 @@ void AbilityConnectManager::HandleCommandWindowTimeoutTask(const std::shared_ptr
     HILOG_DEBUG("start");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
+    abilityRecord->SetAbilityWindowState(sessionInfo, winCmd, true);
     // manage queued request
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
@@ -1284,6 +1288,7 @@ void AbilityConnectManager::CommandAbilityWindow(const std::shared_ptr<AbilityRe
     CHECK_POINTER(sessionInfo);
     HILOG_DEBUG("ability: %{public}s, persistentId: %{private}d, wincmd: %{public}d",
         abilityRecord->GetAbilityInfo().name.c_str(), sessionInfo->persistentId, winCmd);
+    abilityRecord->SetAbilityWindowState(sessionInfo, winCmd, false);
     if (taskHandler_ != nullptr) {
         int recordId = abilityRecord->GetRecordId();
         std::string taskName = std::string("CommandWindowTimeout_") + std::to_string(recordId) + std::string("_") +
@@ -1298,6 +1303,51 @@ void AbilityConnectManager::CommandAbilityWindow(const std::shared_ptr<AbilityRe
         // scheduling command ability
         abilityRecord->CommandAbilityWindow(sessionInfo, winCmd);
     }
+}
+
+void AbilityConnectManager::ForegroundAbilityWindowLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<SessionInfo> &sessionInfo)
+{
+    std::lock_guard guard(Lock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return;
+    }
+    CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_FOREGROUND);
+}
+
+void AbilityConnectManager::BackgroundAbilityWindowLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<SessionInfo> &sessionInfo)
+{
+    std::lock_guard guard(Lock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return;
+    }
+    CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_BACKGROUND);
+}
+
+void AbilityConnectManager::TerminateAbilityWindowLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<SessionInfo> &sessionInfo)
+{
+    std::lock_guard guard(Lock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return;
+    }
+    CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_DESTROY);
 }
 
 void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -1936,6 +1986,10 @@ void AbilityConnectManager::CompleteBackground(const std::shared_ptr<AbilityReco
     }
 
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
+        abilityInfo.name, abilityInfo.moduleName);
+    CompleteStartServiceReq(element.GetURI());
     // send application state to AppMS.
     // notify AppMS to update application state.
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());

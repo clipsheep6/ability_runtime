@@ -291,6 +291,16 @@ enum ResolveResultType {
     OK_HAS_REMOTE_OBJ,
     NG_INNER_ERROR,
 };
+
+enum class AbilityWindowState {
+    FOREGROUND = 0,
+    BACKGROUND,
+    TERMINATE,
+    FOREGROUNDING,
+    BACKGROUNDING,
+    TERMINATING
+};
+
 /**
  * @class AbilityRecord
  * AbilityRecord records ability info and states and used to schedule ability life.
@@ -900,6 +910,16 @@ public:
     bool IsDebugApp() const;
     bool IsDebug() const;
 
+    void AddAbilityWindowStateMap(int64_t uiExtensionComponentId,
+        AbilityWindowState abilityWindowState);
+
+    void RemoveAbilityWindowStateMap(int64_t uiExtensionComponentId);
+
+    bool IsAbilityWindowReady();
+
+    void SetAbilityWindowState(const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd, bool isFinished);
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1071,6 +1091,8 @@ private:
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
     std::unordered_set<uint64_t> sessionIds_;
+
+    std::map<int64_t, AbilityWindowState> abilityWindowStateMap_;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
