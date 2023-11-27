@@ -202,6 +202,16 @@ RState GetMediaByName(const char *name, std::string &outValue, uint32_t density)
     return SUCCESS;
 }
 
+RState GetSymbolById(uint32_t id, uint32_t &outValue)
+{
+    return SUCCESS;
+}
+
+RState GetSymbolByName(const char *name, uint32_t &outValue)
+{
+    return SUCCESS;
+}
+
 RState GetRawFilePathByName(const std::string &name, std::string &outValue)
 {
     return SUCCESS;
