@@ -881,7 +881,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("Window visibility info is nullptr.");
             continue;
         }
-        auto appRecord = GetAppRunningRecordByPidInner(info->pid_);
+        auto appRecord = GetAppRunningRecordByPid(info->pid_);
         if (appRecord == nullptr) {
             HILOG_ERROR("App running record is nullptr.");
             return;
