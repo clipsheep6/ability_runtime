@@ -52,7 +52,7 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
 }
 
-
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t INDEX_ZERO = 0;
@@ -99,6 +99,10 @@ public:
     static napi_value NotifySaveAsResult(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifySaveAsResult);
+    }
+    static napi_value GetForegroundUIAbilities(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnGetForegroundUIAbilities);
     }
 
     static napi_value On(napi_env env, napi_callback_info info)
@@ -452,9 +456,29 @@ private:
 
         napi_value lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnNotifySaveAsResult",
-            env, CreateAsyncTaskWithLastParam(env,
-            lastParam, std::move(execute), std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnNotifySaveAsResult", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
+    napi_value OnGetForegroundUIAbilities(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        NapiAsyncTask::CompleteCallback complete = [](napi_env env, NapiAsyncTask &task, int32_t status) {
+            std::vector<AppExecFwk::AbilityStateData> list;
+            int32_t ret = AbilityManagerClient::GetInstance()->GetForegroundUIAbilities(list);
+            if (ret == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsAbilityStateDataArray(env, list));
+            } else {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+            }
+        };
+
+        napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsAbilityManager::OnGetForegroundUIAbilities", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };
@@ -479,6 +503,8 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "getTopAbility", moduleName, JsAbilityManager::GetTopAbility);
     BindNativeFunction(env, exportObj, "acquireShareData", moduleName, JsAbilityManager::AcquireShareData);
     BindNativeFunction(env, exportObj, "notifySaveAsResult", moduleName, JsAbilityManager::NotifySaveAsResult);
+    BindNativeFunction(
+        env, exportObj, "getForegroundUIAbilities", moduleName, JsAbilityManager::GetForegroundUIAbilities);
     BindNativeFunction(env, exportObj, "on", moduleName, JsAbilityManager::On);
     BindNativeFunction(env, exportObj, "off", moduleName, JsAbilityManager::Off);
     HILOG_INFO("JsAbilityManagerInit end");

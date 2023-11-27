@@ -169,6 +169,11 @@ public:
         return 0;
     }
 
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
+
     int LogoutUser(int32_t userId) override
     {
         return 0;

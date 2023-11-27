@@ -64,6 +64,10 @@ public:
     {
         return 0;
     }
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
     int TerminateAbility(
         const sptr<IRemoteObject>& token, int resultCode = -1, const Want* resultWant = nullptr) override;
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,

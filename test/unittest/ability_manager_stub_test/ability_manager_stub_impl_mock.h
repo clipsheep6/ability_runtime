@@ -89,6 +89,11 @@ public:
 
     int code_ = 0;
 
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
+
     virtual int StartAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;

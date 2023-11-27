@@ -153,6 +153,10 @@ public:
     {
         return 0;
     }
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
     virtual int StopSyncRemoteMissions(const std::string& devId) override
     {
         return 0;

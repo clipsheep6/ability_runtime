@@ -224,6 +224,10 @@ public:
     {
         return;
     }
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override
     {

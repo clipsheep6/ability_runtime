@@ -9067,6 +9067,45 @@ int32_t AbilityManagerService::ExecuteInsightIntentDone(const sptr<IRemoteObject
         intentId, result.innerErr, result);
 }
 
+int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+{
+    HILOG_DEBUG("Called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+    if (!isPerm) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    std::vector<AbilityRunningInfo> abilityRunningInfos;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->GetAbilityRunningInfos(abilityRunningInfos, isPerm, GetUserId());
+    } else {
+        if (currentMissionListManager_ == nullptr) {
+            HILOG_ERROR("Current mission list manager is nullptr.");
+            return ERR_NULL_OBJECT;
+        }
+        currentMissionListManager_->GetAbilityRunningInfos(abilityRunningInfos, isPerm);
+    }
+
+    for (auto &info : abilityRunningInfos) {
+        if (info.abilityState != AbilityState::FOREGROUND) {
+            continue;
+        }
+
+        AppExecFwk::AbilityStateData abilityData;
+        abilityData.bundleName = info.ability.GetBundleName();
+        abilityData.moduleName = info.ability.GetModuleName();
+        abilityData.abilityName = info.ability.GetAbilityName();
+        abilityData.abilityState = info.abilityState;
+        abilityData.pid = info.pid;
+        abilityData.uid = info.uid;
+        abilityData.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
+        list.push_back(abilityData);
+    }
+    HILOG_DEBUG("Get foreground ui abilities end, list.size = %{public}zu.", list.size());
+    return ERR_OK;
+}
 
 void AbilityManagerService::HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid)
 {

@@ -15,21 +15,21 @@
 
 #include "ability_manager_client.h"
 
-#include "string_ex.h"
 #include "ability_manager_interface.h"
+#include "string_ex.h"
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "scene_board_judgement.h"
 #include "session_info.h"
+#include "session_manager.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "hitrace_meter.h"
-#include "scene_board_judgement.h"
-#include "session_manager.h"
 #include "ws_common.h"
 
 namespace OHOS {
@@ -1644,6 +1644,14 @@ ErrCode AbilityManagerClient::ExecuteInsightIntentDone(sptr<IRemoteObject> token
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteInsightIntentDone(token, intentId, result);
+}
+
+int32_t AbilityManagerClient::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->GetForegroundUIAbilities(list);
 }
 
 int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)

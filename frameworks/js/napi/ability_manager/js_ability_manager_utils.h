@@ -34,6 +34,8 @@ napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunn
 napi_value AbilityStateInit(napi_env env);
 napi_value CreateJsElementName(napi_env env, const AppExecFwk::ElementName &elementName);
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData);
+napi_value CreateJsAbilityStateDataArray(
+    napi_env env, const std::vector<AppExecFwk::AbilityStateData> &abilityStateDatas);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H

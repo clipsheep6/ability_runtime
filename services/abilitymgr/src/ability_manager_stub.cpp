@@ -32,7 +32,8 @@ namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
 const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
-}
+constexpr int32_t CYCLE_LIMIT = 1000;
+} // namespace
 AbilityManagerStub::AbilityManagerStub()
 {
     FirstStepInit();
@@ -390,6 +391,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::IsAutoStartupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
         &AbilityManagerStub::GetConnectionDataInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
+        &AbilityManagerStub::GetForegroundUIAbilitiesInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2902,5 +2905,36 @@ int32_t AbilityManagerStub::OpenFileInner(MessageParcel &data, MessageParcel &re
     reply.WriteFileDescriptor(fd);
     return ERR_OK;
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::vector<AppExecFwk::AbilityStateData> abilityStateDatas;
+    int32_t result = GetForegroundUIAbilities(abilityStateDatas);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Get foreground uI abilities is failed.");
+        return result;
+    }
+    auto infoSize = abilityStateDatas.size();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("Info size exceeds the limit.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(infoSize)) {
+        HILOG_ERROR("Write data size failed.");
+        return ERR_INVALID_VALUE;
+    }
+    for (auto &it : abilityStateDatas) {
+        if (!reply.WriteParcelable(&it)) {
+            HILOG_ERROR("Write parcelable failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return result;
+}
+} // namespace AAFwk
+} // namespace OHOS

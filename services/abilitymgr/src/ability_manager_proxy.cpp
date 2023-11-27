@@ -4626,6 +4626,30 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error: %{public}d.", error);
+        return error;
+    }
+
+    auto errorCode = GetParcelableInfos<AppExecFwk::AbilityStateData>(reply, list);
+    if (errorCode != NO_ERROR) {
+        HILOG_ERROR("Get foreground ui abilities error: %{public}d.", errorCode);
+        return errorCode;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
 {
     MessageParcel data;
@@ -4663,5 +4687,5 @@ ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, Messa
 
     return remote->SendRequest(static_cast<uint32_t>(code), data, reply, option);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+} // namespace AAFwk
+} // namespace OHOS

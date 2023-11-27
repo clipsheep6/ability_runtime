@@ -162,6 +162,10 @@ public:
     int BlockAmsService();
     int BlockAbility(int32_t abilityRecordId);
     int BlockAppService();
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
 #ifdef ABILITY_COMMAND_FOR_TEST
     int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override;
 #endif
@@ -303,6 +307,10 @@ public:
     int StartAbilityByCall(const Want& want, const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken, int32_t accountId = DEFAULT_INVAL_VALUE) override;
     void CallRequestDone(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& callStub) override;
+    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+    {
+        return 0;
+    }
     int ReleaseCall(const sptr<IAbilityConnection>& connect,
         const AppExecFwk::ElementName& element) override;
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
