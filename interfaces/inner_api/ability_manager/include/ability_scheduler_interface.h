@@ -35,7 +35,9 @@ class DataAbilityOperation;
 namespace AAFwk {
 using OHOS::AppExecFwk::PacMap;
 class IDataAbilityObserver;
+#ifdef SUPPORT_GRAPHICS
 class SessionInfo;
+#endif
 
 /**
  * @class IAbilityScheduler
@@ -45,6 +47,7 @@ class IAbilityScheduler : public OHOS::IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.AbilityScheduler");
 
+#ifdef SUPPORT_GRAPHICS
     /*
      * ScheduleAbilityTransaction,  schedule ability to transform life state.
      *
@@ -54,6 +57,7 @@ public:
      */
     virtual void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
         sptr<SessionInfo> sessionInfo = nullptr) = 0;
+#endif
 
     /*
      * ScheduleShareData,  schedule ability to share data.
@@ -88,8 +92,10 @@ public:
      */
     virtual void ScheduleCommandAbility(const Want &want, bool restart, int startId) = 0;
 
+#ifdef SUPPORT_GRAPHICS
     virtual void ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd) = 0;
+#endif
 
     /**
      * SchedulePrepareTerminateAbility, schedule ability to prepare terminate.

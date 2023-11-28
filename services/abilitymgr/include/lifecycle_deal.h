@@ -46,19 +46,25 @@ public:
      *
      */
     void Activate(const Want &want, LifeCycleStateInfo &stateInfo);
+#ifdef SUPPORT_GRAPHICS
     void Inactivate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo = nullptr);
+#endif
     void MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo);
     void ConnectAbility(const Want &want);
     void DisconnectAbility(const Want &want);
     void Terminate(const Want &want, LifeCycleStateInfo &stateInfo);
     void CommandAbility(const Want &want, bool reStart, int startId);
+#ifdef SUPPORT_GRAPHICS
     void CommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
+#endif
     void SaveAbilityState();
     void RestoreAbilityState(const PacMap &inState);
+#ifdef SUPPORT_GRAPHICS
     void ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
         sptr<SessionInfo> sessionInfo = nullptr);
     void BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
         sptr<SessionInfo> sessionInfo = nullptr);
+#endif
     void ContinueAbility(const std::string& deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
     void ShareData(const int32_t &uniqueId);

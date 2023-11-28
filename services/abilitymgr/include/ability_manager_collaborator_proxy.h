@@ -53,12 +53,14 @@ public:
      */
     virtual int32_t NotifyMissionCreated(int32_t missionId, const Want &want) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Notify when mission is created.
      * @param sessionInfo sessionInfo.
      * @return 0 when notify mission created success or else failed.
      */
     virtual int32_t NotifyMissionCreated(const sptr<SessionInfo> &sessionInfo) override;
+#endif
 
     /**
      * @brief Notify when start loading ability record.
@@ -70,6 +72,7 @@ public:
     virtual int32_t NotifyLoadAbility(const AppExecFwk::AbilityInfo &abilityInfo,
         int32_t missionId, const Want &want) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Notify when start loading ability record.
      * @param AbilityInfo ability info from bms.
@@ -78,6 +81,7 @@ public:
     */
     virtual int32_t NotifyLoadAbility(
         const AppExecFwk::AbilityInfo &abilityInfo, const sptr<SessionInfo> &sessionInfo) override;
+#endif
 
     /**
      * @brief Notify when notify app to background.
@@ -122,11 +126,13 @@ public:
      */
     virtual void UpdateMissionInfo(InnerMissionInfoDto &info) override;
 
+#ifdef SUPPORT_GRAPHICS
     /**
      * @brief Update mission info to real element by broker.
      * @param sessionInfo sessionInfo.
      */
     virtual void UpdateMissionInfo(sptr<SessionInfo> &sessionInfo) override;
+#endif
 
     /**
      * @brief Check the call permission from shell assistant.

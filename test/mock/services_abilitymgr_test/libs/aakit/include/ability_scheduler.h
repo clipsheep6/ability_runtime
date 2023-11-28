@@ -30,8 +30,10 @@ public:
     AbilityScheduler();
     virtual ~AbilityScheduler();
 
+#ifdef SUPPORT_GRAPHICS
     void ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState,
         sptr<SessionInfo> sessionInfo = nullptr) override;
+#endif
 
     void ScheduleShareData(const int32_t &uniqueId) override;
 
@@ -47,8 +49,10 @@ public:
 
     void ScheduleCommandAbility(const Want& want, bool restart, int startId) override;
 
+#ifdef SUPPORT_GRAPHICS
     void ScheduleCommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd) override;
+#endif
 
     void ScheduleSaveAbilityState() override;
 
