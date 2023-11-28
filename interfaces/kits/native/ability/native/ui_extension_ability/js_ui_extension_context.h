@@ -56,6 +56,7 @@ private:
     std::weak_ptr<UIExtensionContext> context_;
     int32_t screenMode_ = AAFwk::IDLE_SCREEN_MODE;
     friend class JsEmbeddableUIAbilityContext;
+
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
 };

@@ -32,7 +32,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsEmbeddableUIAbilityContext final {
 public:
-    explicit JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& context, int32_t screenMode);
+    explicit JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& uiContext,
+        const std::shared_ptr<UIExtensionContext>& uiExtContext, int32_t screenMode);
     virtual ~JsEmbeddableUIAbilityContext() = default;
     static void Finalizer(napi_env env, void* data, void* hint);
     static napi_value StartAbility(napi_env env, napi_callback_info info);
@@ -41,10 +42,14 @@ public:
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
-    static napi_value CreateJsEmbeddableUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context,
-        int32_t screenMode);
+    static napi_value CreateJsEmbeddableUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> uiContext,
+        std::shared_ptr<UIExtensionContext> uiExtContext, int32_t screenMode);
 
 private:
+    static void WrapJsUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> uiContext,
+        napi_value &objValue, int32_t screenMode);
+    static void WrapJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> uiExtContext,
+        napi_value &objValue, int32_t screenMode);
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);

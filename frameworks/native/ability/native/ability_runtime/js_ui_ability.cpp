@@ -193,8 +193,8 @@ void JsUIAbility::SetAbilityContext(const std::shared_ptr<AbilityInfo> &abilityI
     if (screenMode == AAFwk::IDLE_SCREEN_MODE) {
         contextObj = CreateJsAbilityContext(env, abilityContext_);
     } else {
-        contextObj =
-            JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env, abilityContext_, screenMode);
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
+            abilityContext_, nullptr, screenMode);
     }
     shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
         env, "application.AbilityContext", &contextObj, 1).release());

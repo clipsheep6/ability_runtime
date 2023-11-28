@@ -41,11 +41,12 @@ namespace AbilityRuntime {
         return nullptr;                              \
     }
 
-JsEmbeddableUIAbilityContext::JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& context,
-    int32_t screenMode)
+JsEmbeddableUIAbilityContext::JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& uiContext,
+    const std::shared_ptr<UIExtensionContext>& uiExtContext, int32_t screenMode)
 {
     HILOG_INFO("JsEmbeddableUIAbilityContext::%{public}s, called", __func__);
-    jsAbilityContext_ = std::make_shared<JsAbilityContext>(context);
+    jsAbilityContext_ = std::make_shared<JsAbilityContext>(uiContext);
+    jsUIExtensionContext_ = std::make_shared<JsUIExtensionContext>(uiExtContext);
     screenMode_ = screenMode;
 }
 
@@ -95,7 +96,7 @@ napi_value JsEmbeddableUIAbilityContext::OnStartAbility(napi_env env, NapiCallba
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
         HILOG_INFO("OnStartAbility Half screen mode");
-        return nullptr;
+        return jsUIExtensionContext_->OnStartAbility(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnStartAbility(env, info);
@@ -105,7 +106,7 @@ napi_value JsEmbeddableUIAbilityContext::OnStartAbilityForResult(napi_env env, N
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
         HILOG_INFO("OnStartAbilityForResult Half screen mode");
-        return nullptr;
+        return jsUIExtensionContext_->OnStartAbilityForResult(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnStartAbilityForResult(env, info);
@@ -115,7 +116,7 @@ napi_value JsEmbeddableUIAbilityContext::OnConnectAbility(napi_env env, NapiCall
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
         HILOG_INFO("OnConnectAbility Half screen mode");
-        return nullptr;
+        return jsUIExtensionContext_->OnConnectAbility(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnConnectAbility(env, info);
@@ -125,7 +126,7 @@ napi_value JsEmbeddableUIAbilityContext::OnDisconnectAbility(napi_env env, NapiC
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
         HILOG_INFO("OnDisconnectAbility Half screen mode");
-        return nullptr;
+        return jsUIExtensionContext_->OnDisconnectAbility(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnDisconnectAbility(env, info);
@@ -135,7 +136,7 @@ napi_value JsEmbeddableUIAbilityContext::OnTerminateSelf(napi_env env, NapiCallb
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
         HILOG_INFO("OnTerminateSelf Half screen mode");
-        return nullptr;
+        return jsUIExtensionContext_->OnTerminateSelf(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnTerminateSelf(env, info);
@@ -145,30 +146,63 @@ napi_value JsEmbeddableUIAbilityContext::OnTerminateSelfWithResult(napi_env env,
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
         HILOG_INFO("OnTerminateSelfWithResult Half screen mode");
-        return nullptr;
+        return jsUIExtensionContext_->OnTerminateSelfWithResult(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnTerminateSelfWithResult(env, info);
 }
 
-napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi_env env,
-    std::shared_ptr<AbilityContext> context, int32_t screenMode)
+void JsEmbeddableUIAbilityContext::WrapJsUIAbilityContext(napi_env env,
+    std::shared_ptr<AbilityContext> uiContext, napi_value &objValue, int32_t screenMode)
 {
-    HILOG_INFO("CreateJsEmbeddableUIAbilityContext begin");
-    napi_value objValue = CreateJsBaseContext(env, context);
-
+    objValue = CreateJsBaseContext(env, uiContext);
     std::unique_ptr<JsEmbeddableUIAbilityContext> jsContext = std::make_unique<JsEmbeddableUIAbilityContext>(
-        context, screenMode);
+        uiContext, nullptr, screenMode);
     napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
 
-    auto abilityInfo = context->GetAbilityInfo();
+    auto abilityInfo = uiContext->GetAbilityInfo();
     if (abilityInfo != nullptr) {
         napi_set_named_property(env, objValue, "abilityInfo", CreateJsAbilityInfo(env, *abilityInfo));
     }
 
-    auto configuration = context->GetConfiguration();
+    auto configuration = uiContext->GetConfiguration();
     if (configuration != nullptr) {
         napi_set_named_property(env, objValue, "config", CreateJsConfiguration(env, *configuration));
+    }
+}
+
+void JsEmbeddableUIAbilityContext::WrapJsUIExtensionContext(napi_env env,
+    std::shared_ptr<UIExtensionContext> uiExtContext, napi_value &objValue, int32_t screenMode)
+{
+    objValue = CreateJsBaseContext(env, uiExtContext);
+    std::unique_ptr<JsEmbeddableUIAbilityContext> jsContext = std::make_unique<JsEmbeddableUIAbilityContext>(
+        nullptr , uiExtContext, screenMode);
+    napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
+
+    auto abilityInfo = uiExtContext->GetAbilityInfo();
+    if (abilityInfo != nullptr) {
+        napi_set_named_property(env, objValue, "abilityInfo", CreateJsAbilityInfo(env, *abilityInfo));
+    }
+
+    auto configuration = uiExtContext->GetConfiguration();
+    if (configuration != nullptr) {
+        napi_set_named_property(env, objValue, "config", CreateJsConfiguration(env, *configuration));
+    }
+}
+
+napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi_env env,
+    std::shared_ptr<AbilityContext> uiContext, std::shared_ptr<UIExtensionContext> uiExtContext, int screenMode)
+{
+    HILOG_DEBUG("CreateJsEmbeddableUIAbilityContext begin");
+    if (uiContext == nullptr && uiExtContext == nullptr) {
+        HILOG_ERROR("Contexts are both null.");
+        return nullptr;
+    }
+    napi_value objValue = nullptr;
+    if (screenMode == AAFwk::FULL_SCREEN_MODE) {
+        WrapJsUIAbilityContext(env, uiContext, objValue, screenMode);
+    } else if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+        WrapJsUIExtensionContext(env, uiExtContext, objValue, screenMode);
     }
 
     const char *moduleName = "JsEmbeddableUIAbilityContext";
