@@ -170,7 +170,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         }
 
         filePath = NormalizedFileName(realPath);
-        HILOG_INFO("filePath %{public}s", filePath.c_str());
+        HILOG_INFO("filePath %{private}s", filePath.c_str());
 
         if (!workerInfo_->isStageModel) {
             GetAmi(ami, filePath);
@@ -361,7 +361,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
     std::vector<std::string> files;
     for (const auto& basePath : workerInfo_->assetBasePathStr) {
         std::string assetPath = basePath + path;
-        HILOG_INFO("assetPath: %{public}s", assetPath.c_str());
+        HILOG_INFO("assetPath: %{private}s", assetPath.c_str());
         bool res = extractor->IsDirExist(assetPath);
         if (!res) {
             continue;
