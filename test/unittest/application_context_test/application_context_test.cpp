@@ -934,6 +934,7 @@ HWTEST_F(ApplicationContextTest, SetColorMode_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     int32_t colorMode = 1;
     context_->SetColorMode(colorMode);
+    EXPECT_EQ(colorMode, 1);
     GTEST_LOG_(INFO) << "SetColorMode_0100 end";
 }
 
@@ -948,6 +949,7 @@ HWTEST_F(ApplicationContextTest, SetLanguage_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     std::string language = "zh-cn";
     context_->SetLanguage(language);
+    EXPECT_EQ(language, "zh-cn");
     GTEST_LOG_(INFO) << "SetLanguage_0100 end";
 }
 
