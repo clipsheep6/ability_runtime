@@ -193,13 +193,14 @@ void JsUIAbility::SetAbilityContext(const std::shared_ptr<AbilityInfo> &abilityI
         HILOG_ERROR("Want is nullptr.");
         return;
     }
-    // bool isHalfScreenMode = want->GetBoolParam("IsHalfScreenFlag", false); //TODO：get from want
-    bool isHalfScreenMode = false;
+    //TODO:魔鬼数
+    int isHalfScreenMode = want->GetIntParam("isHalfScreen", -1);
     napi_value contextObj = nullptr;
-    if (isHalfScreenMode) { //TODO: 若TS设置了isHalfScreenMode，进入这里一定为false
+    if (isHalfScreenMode == -1) {
         contextObj = CreateJsAbilityContext(env, abilityContext_);
     } else {
-        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env, abilityContext_, isHalfScreenMode);
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env, abilityContext_,
+            nullptr, isHalfScreenMode);
     }
     shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
         env, "application.AbilityContext", &contextObj, 1).release());

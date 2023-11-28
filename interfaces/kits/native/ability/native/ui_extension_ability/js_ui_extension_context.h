@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+class JsEmbeddableUIAbilityContext;
 struct NapiCallbackInfo;
 class JsUIExtensionContext {
 public:
@@ -47,6 +48,7 @@ protected:
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
+    friend class JsEmbeddableUIAbilityContext;
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;

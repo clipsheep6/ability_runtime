@@ -36,11 +36,12 @@
 namespace OHOS {
 namespace AbilityRuntime {
 
-JsEmbeddableUIAbilityContext::JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& context,
-    bool isHalfScreenMode)
+JsEmbeddableUIAbilityContext::JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& uiContext,
+    const std::shared_ptr<UIExtensionContext>& uiExtContext, bool isHalfScreenMode)
 {
     HILOG_INFO("JsEmbeddableUIAbilityContext::%{public}s, called", __func__);
-    jsAbilityContext_ = std::make_shared<JsAbilityContext>(context);
+    jsAbilityContext_ = std::make_shared<JsAbilityContext>(uiContext);
+    jsUIExtensionContext_ = std::make_shared<JsUIExtensionContext>(uiExtContext);
     isHalfScreenMode_ = isHalfScreenMode;
 }
 
@@ -186,9 +187,7 @@ napi_value JsEmbeddableUIAbilityContext::OnStartAbility(napi_env env, NapiCallba
 {
     if (isHalfScreenMode_) {
         HILOG_INFO("Half Screen StartMode");
-        return nullptr;
-        //TODO 半屏
-        //return jsUIExtensionContext_->OnStartAbility(env, info);
+        return jsUIExtensionContext_->OnStartAbility(env, info);
     } else {
         return jsAbilityContext_->OnStartAbility(env, info);
     }
@@ -199,8 +198,7 @@ napi_value JsEmbeddableUIAbilityContext::OnStartAbilityForResult(napi_env env, N
     if (isHalfScreenMode_) {
         HILOG_INFO("Half Screen StartMode");
         return nullptr;
-        //TODO:半屏
-        //return jsUIExtensionContext_->OnStartAbilityForResult(env, info);
+        return jsUIExtensionContext_->OnStartAbilityForResult(env, info);
     } else {
         return jsAbilityContext_->OnStartAbilityForResult(env, info);
     }
@@ -211,8 +209,7 @@ napi_value JsEmbeddableUIAbilityContext::OnConnectAbility(napi_env env, NapiCall
     if (isHalfScreenMode_) {
         HILOG_INFO("Half Screen StartMode");
         return nullptr;
-        // TODO:半屏
-        // return jsUIExtensionContext_->OnConnectAbility(env, info);
+        return jsUIExtensionContext_->OnConnectAbility(env, info);
     } else {
         return jsAbilityContext_->OnConnectAbility(env, info);
     }
@@ -223,8 +220,7 @@ napi_value JsEmbeddableUIAbilityContext::OnDisconnectAbility(napi_env env, NapiC
     if (isHalfScreenMode_) {
         HILOG_INFO("Half Screen StartMode");
         return nullptr;
-        //TODO:半屏
-        //return jsUIExtensionContext_->OnDisconnectAbility(env, info);
+        return jsUIExtensionContext_->OnDisconnectAbility(env, info);
     } else {
         return jsAbilityContext_->OnDisconnectAbility(env, info);
     }
@@ -454,23 +450,45 @@ napi_value JsEmbeddableUIAbilityContext::OnSetMissionIcon(napi_env env, NapiCall
 #endif
 
 napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi_env env,
-    std::shared_ptr<AbilityContext> context, bool isHalfScreenMode)
+    std::shared_ptr<AbilityContext> uiContext, std::shared_ptr<UIExtensionContext> uiExtContext, int isHalfScreenMode)
 {
     HILOG_DEBUG("CreateJsEmbeddableUIAbilityContext begin");
-    napi_value objValue = CreateJsBaseContext(env, context);
-
-    std::unique_ptr<JsEmbeddableUIAbilityContext> jsContext = std::make_unique<JsEmbeddableUIAbilityContext>(
-        context, isHalfScreenMode);
-    napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
-
-    auto abilityInfo = context->GetAbilityInfo();
-    if (abilityInfo != nullptr) {
-        napi_set_named_property(env, objValue, "abilityInfo", CreateJsAbilityInfo(env, *abilityInfo));
+    if (uiContext == nullptr && uiExtContext == nullptr) {
+        HILOG_ERROR("Contexts are both null.");
+        return nullptr;
     }
+    napi_value objValue = nullptr;
+    //TODO: 判断有点挫, 待改进
+    if (isHalfScreenMode == 0) {
+        objValue = CreateJsBaseContext(env, uiContext);
+        std::unique_ptr<JsEmbeddableUIAbilityContext> jsContext = std::make_unique<JsEmbeddableUIAbilityContext>(
+            uiContext, nullptr, isHalfScreenMode);
+        napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
 
-    auto configuration = context->GetConfiguration();
-    if (configuration != nullptr) {
-        napi_set_named_property(env, objValue, "config", CreateJsConfiguration(env, *configuration));
+        auto abilityInfo = uiContext->GetAbilityInfo();
+        if (abilityInfo != nullptr) {
+            napi_set_named_property(env, objValue, "abilityInfo", CreateJsAbilityInfo(env, *abilityInfo));
+        }
+
+        auto configuration = uiContext->GetConfiguration();
+        if (configuration != nullptr) {
+            napi_set_named_property(env, objValue, "config", CreateJsConfiguration(env, *configuration));
+        }
+    } else if (isHalfScreenMode == 1) {
+        objValue = CreateJsBaseContext(env, uiExtContext);
+        std::unique_ptr<JsEmbeddableUIAbilityContext> jsContext = std::make_unique<JsEmbeddableUIAbilityContext>(
+            nullptr , uiExtContext, isHalfScreenMode);
+        napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
+
+        auto abilityInfo = uiExtContext->GetAbilityInfo();
+        if (abilityInfo != nullptr) {
+            napi_set_named_property(env, objValue, "abilityInfo", CreateJsAbilityInfo(env, *abilityInfo));
+        }
+
+        auto configuration = uiExtContext->GetConfiguration();
+        if (configuration != nullptr) {
+            napi_set_named_property(env, objValue, "config", CreateJsConfiguration(env, *configuration));
+        }
     }
 
     const char *moduleName = "JsEmbeddableUIAbilityContext";

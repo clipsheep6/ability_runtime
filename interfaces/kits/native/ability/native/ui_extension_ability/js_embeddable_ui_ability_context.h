@@ -34,7 +34,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsEmbeddableUIAbilityContext final {
 public:
-    explicit JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& context, bool isHalfScreenMode);
+    explicit JsEmbeddableUIAbilityContext(const std::shared_ptr<AbilityContext>& uiContext,
+        const std::shared_ptr<UIExtensionContext>& uiExtContext, bool isHalfScreenMode);
     virtual ~JsEmbeddableUIAbilityContext() = default;
     static void Finalizer(napi_env env, void* data, void* hint);
     static napi_value StartAbility(napi_env env, napi_callback_info info);
@@ -60,8 +61,8 @@ public:
     static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
     static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
 
-    static napi_value CreateJsEmbeddableUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context,
-        bool isHalfScreenMode);
+    static napi_value CreateJsEmbeddableUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> uiContext,
+        std::shared_ptr<UIExtensionContext> uiExtContext, int isHalfScreenMode);
 
 private:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
