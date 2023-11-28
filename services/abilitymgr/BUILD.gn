@@ -18,6 +18,7 @@ import(
     "//foundation/ability/ability_runtime/services/abilitymgr/abilitymgr.gni")
 import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 import("//foundation/resourceschedule/background_task_mgr/bgtaskmgr.gni")
+import("//foundation/window/window_manager/scene_board_enabled.gni")
 
 group("abilityms_target") {
   deps = [
@@ -63,9 +64,14 @@ config("abilityms_config") {
     "${bgtaskmgr_frameworks_path}/include",
     "${init_path}/interfaces/innerkits/include/syspara/",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include",
+    "${windowmanager_path}/wmserver/include",
   ]
 
   defines = []
+
+  if (scene_board_enabled) {
+    defines += [ "SCENE_BOARD_ENABLED" ]
+  }
 
   if (is_asan) {
     defines += [ "SUPPORT_ASAN" ]
@@ -171,8 +177,11 @@ ohos_shared_library("abilityms") {
     "samgr:samgr_proxy",
     "window_manager:libwsutils",
     "window_manager:scene_session",
-    "window_manager:sms",
   ]
+
+  if (scene_board_enabled) {
+    external_deps += [ "window_manager:group_wms:sms" ]
+  }
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

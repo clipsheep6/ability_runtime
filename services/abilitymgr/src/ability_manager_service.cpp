@@ -59,7 +59,10 @@
 #include "itest_observer.h"
 #include "mission_info.h"
 #include "mission_info_mgr.h"
+#ifdef SCENE_BOARD_ENABLED
 #include "mock_session_manager_service.h"
+#endif
+
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "permission_constants.h"
@@ -8515,13 +8518,14 @@ int32_t AbilityManagerService::SetSessionManagerService(const sptr<IRemoteObject
         HILOG_ERROR("Not sceneboard called, not allowed.");
         return ERR_WRONG_INTERFACE_CALL;
     }
-
+#ifdef SCENE_BOARD_ENABLED
     HILOG_INFO("Call SetSessionManagerService of WMS.");
     auto ret = Rosen::MockSessionManagerService::GetInstance().SetSessionManagerService(sessionManagerService);
     if (ret) {
         HILOG_DEBUG("Call SetSessionManagerService of WMS.");
         return ERR_OK;
     }
+#endif
     HILOG_ERROR("SMS SetSessionManagerService return false.");
     return ERR_OK;
 }

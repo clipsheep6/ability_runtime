@@ -27,7 +27,10 @@
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#ifdef SCENE_BOARD_ENABLED
 #include "mock_session_manager_service.h"
+#endif
+
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
 #include "ui_extension_utils.h"
@@ -1314,8 +1317,10 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
     IN_PROCESS_CALL_WITHOUT_RET(abilityRecord->RevokeUriPermission());
     abilityRecord->RemoveAbilityDeathRecipient();
     if (IsSceneBoard(abilityRecord)) {
+#ifdef SCENE_BOARD_ENABLED
         HILOG_INFO("SceneBoard exit normally.");
         Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
+#endif
     }
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
     RemoveServiceAbility(abilityRecord);
