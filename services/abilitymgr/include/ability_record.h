@@ -920,6 +920,9 @@ public:
     void SetAbilityWindowState(const sptr<SessionInfo> &sessionInfo,
         WindowCommand winCmd, bool isFinished);
 
+    void SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId);
+    int32_t GetUIExtensionAbilityId() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1004,6 +1007,7 @@ private:
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id
+    int32_t uiExtensionAbilityId_ = 0;                // uiextension ability id
     AppExecFwk::AbilityInfo abilityInfo_ = {};             // the ability info get from BMS
     AppExecFwk::ApplicationInfo applicationInfo_ = {};     // the ability info get from BMS
     std::weak_ptr<AbilityRecord> preAbilityRecord_ = {};   // who starts this ability record
@@ -1090,7 +1094,6 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
-    std::unordered_set<uint64_t> sessionIds_;
 
     std::map<int64_t, AbilityWindowState> abilityWindowStateMap_;
 

@@ -944,7 +944,17 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int32_t userId = data.ReadInt32();
-    int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId);
+
+    sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr;
+    if (data.ReadBool()) {
+        connectInfo = data.ReadParcelable<UIExtensionAbilityConnectInfo>();
+    }
+
+    int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId, connectInfo);
+    if (connectInfo != nullptr && !reply.WriteParcelable(connectInfo)) {
+        HILOG_ERROR("connectInfo write failed.");
+    }
+
     reply.WriteInt32(result);
     if (want != nullptr) {
         delete want;

@@ -433,7 +433,7 @@ ErrCode AbilityManagerClient::ConnectExtensionAbility(const Want &want, sptr<IAb
 }
 
 ErrCode AbilityManagerClient::ConnectUIExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
-    sptr<SessionInfo> sessionInfo, int32_t userId)
+    sptr<SessionInfo> sessionInfo, int32_t userId, sptr<UIExtensionAbilityConnectInfo> connectInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -447,7 +447,7 @@ ErrCode AbilityManagerClient::ConnectUIExtensionAbility(const Want &want, sptr<I
     HILOG_INFO("name:%{public}s %{public}s, uri:%{public}s.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
         want.GetUriString().c_str());
-    return abms->ConnectUIExtensionAbility(want, connect, sessionInfo, userId);
+    return abms->ConnectUIExtensionAbility(want, connect, sessionInfo, userId, connectInfo);
 }
 
 ErrCode AbilityManagerClient::DisconnectAbility(sptr<IAbilityConnection> connect)

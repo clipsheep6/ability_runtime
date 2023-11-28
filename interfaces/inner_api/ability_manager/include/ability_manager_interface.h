@@ -49,6 +49,7 @@
 #include "start_options.h"
 #include "stop_user_callback.h"
 #include "system_memory_attr.h"
+#include "ui_extension_ability_connect_info.h"
 #include "ui_extension_window_command.h"
 #include "uri.h"
 #include "want.h"
@@ -64,6 +65,7 @@ namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
+using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -466,10 +468,12 @@ public:
      * @param connect, callback used to notify caller the result of connecting or disconnecting.
      * @param sessionInfo the extension session info of the ability to connect.
      * @param userId, the extension runs in.
+     * @param connectInfo the connect info.
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
-        const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE)
+        const sptr<SessionInfo> &sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE,
+        sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr)
     {
         return 0;
     }

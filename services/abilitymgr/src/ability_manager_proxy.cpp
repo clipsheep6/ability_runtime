@@ -894,7 +894,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
 }
 
 int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
-    const sptr<SessionInfo> &sessionInfo, int32_t userId)
+    const sptr<SessionInfo> &sessionInfo, int32_t userId, sptr<UIExtensionAbilityConnectInfo> connectInfo)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -935,11 +935,33 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
         HILOG_ERROR("UserId write failed.");
         return INNER_ERR;
     }
+
+    if (connectInfo != nullptr) {
+        if (!data.WriteBool(true) || !data.WriteParcelable(connectInfo)) {
+            HILOG_ERROR("flag and connectInfo write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
     }
+
+    if (connectInfo != nullptr) {
+        sptr<UIExtensionAbilityConnectInfo> replyInfo = reply.ReadParcelable<UIExtensionAbilityConnectInfo>();
+        if (replyInfo != nullptr) {
+            connectInfo->uiExtensionAbilityId = replyInfo->uiExtensionAbilityId;
+            HILOG_DEBUG("UIExtensionAbilityId is %{public}d.", connectInfo->uiExtensionAbilityId);
+        }
+    }
+
     return reply.ReadInt32();
 }
 

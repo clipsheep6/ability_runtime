@@ -3112,5 +3112,15 @@ int32_t AbilityRecord::CreateModalUIExtension(const Want &want)
     CHECK_POINTER_AND_RETURN(scheduler_, INNER_ERR);
     return scheduler_->CreateModalUIExtension(want);
 }
+
+void AbilityRecord::SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId)
+{
+    uiExtensionAbilityId_ = uiExtensionAbilityId;
+}
+
+int32_t AbilityRecord::GetUIExtensionAbilityId() const
+{
+    return uiExtensionAbilityId_;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

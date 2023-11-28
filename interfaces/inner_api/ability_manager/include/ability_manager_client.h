@@ -435,10 +435,12 @@ public:
      * @param connect, callback used to notify caller the result of connecting or disconnecting.
      * @param sessionInfo the extension session info of the ability to connect.
      * @param userId, the extension runs in.
+     * @param connectInfo the connect info.
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ConnectUIExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
-        sptr<SessionInfo> sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE);
+        sptr<SessionInfo> sessionInfo, int32_t userId = DEFAULT_INVAL_VALUE,
+        sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
     /**
      * DisconnectAbility, disconnect session with service ability.
