@@ -2013,7 +2013,8 @@ int AbilityManagerService::RequestModalUIExtension(const Want &want)
     return RequestModalUIExtensionInner(want);
 }
 
-int AbilityManagerService::RequestModalUIExtensionInner(const Want &want){
+int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
+{
     sptr<IRemoteObject> token;
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
@@ -2022,27 +2023,37 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want){
     }
 
     // Gets the record corresponding to the current focus appliaction
-    auto Record = Token::GetAbilityRecordToken(token);
+    auto Record = Token::GetAbilityRecordByToken(token);
+    if (!Record) {
+        HILOG_ERROR("Record is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
 
     // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
     EventInfo focusInfo;
     focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
     focusInfo.abilityName = Record->GetAbilityInfo().name;
-    focusInfo.moduleName = Record->GetApplicationInfo().moduleInfos.moduleName;
+    std::vector<ModuleInfo> focusModuleInfos = Record->GetApplicationInfo().moduleInfos;
+    HILOG_INFO("focusbundlname: %{public}s, focusabilityName: %{public}s.",
+        focusInfo.bundleName.c_str(),
+        focusInfo.abilityName.c_str());
 
     // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
     EventInfo callerInfo;
-    callerInfo.bundleName = want.GetElement().GetBundleName();
-    callerInfo.abilityName = want.GetElement().GetAbilityName();
-    callerInfo.moduleName = want.GetElement().GetModuleName();
+    callerInfo.bundleName = want.GetParams().GetStringParam("bundleName");
+    HILOG_INFO("callerbundlname: %{public}s, callerabilityName: %{public}s, callermoduleName: %{public}s.",
+        callerInfo.bundleName.c_str(),
+        callerInfo.abilityName.c_str(),
+        callerInfo.moduleName.c_str());
 
-    // Compare 
-    if (focusInfo.bundleName == callerInfo.bundleName 
-        && focusInfo.abilityName == callerInfo.abilityName 
-        && focusInfo.moduleName == callerInfo.moduleName) {
-        return Record->CreateModalUIExtension;
+    // Compare
+    if (focusInfo.bundleName == callerInfo.bundleName) {
+        HILOG_INFO("CreateModalUIExtension called!");
+        return Record->CreateModalUIExtension(want);
     }
-    return wms::ModalSystem(want);
+    // return wms::ModalSystem(want);
+    HILOG_INFO("Window Modal System Create UIExtension called!");
+    return ERR_OK;
 }
 
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,

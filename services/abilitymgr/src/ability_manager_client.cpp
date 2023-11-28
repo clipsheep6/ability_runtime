@@ -258,7 +258,8 @@ ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     HILOG_INFO("name:%{public}s %{public}s %{public}s.",
-        want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), 
+        want.GetElement().GetAbilityName().c_str(),
+        want.GetElement().GetBundleName().c_str(),
         want.GetElement().GetModuleName().c_str());
     return abms->RequestModalUIExtension(want);
 }

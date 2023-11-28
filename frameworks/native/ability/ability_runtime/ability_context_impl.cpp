@@ -795,7 +795,8 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
 ErrCode AbilityContextImpl::RequestModalUIExtension(const AAFwk::Want& want)
 {
     HILOG_INFO("name:%{public}s %{public}s %{public}s",
-        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), 
+        want.GetElement().GetBundleName().c_str(),
+        want.GetElement().GetAbilityName().c_str(),
         want.GetElement().GetModuleName().c_str());
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
     if (err != ERR_OK) {

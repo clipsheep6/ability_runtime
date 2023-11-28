@@ -778,8 +778,6 @@ int AbilityManagerStub::RequestModalUIExtensionInner(MessageParcel &data, Messag
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
-
-    int32_t userId = data.ReadInt32();
     int32_t result = RequestModalUIExtension(*want);
     reply.WriteInt32(result);
     delete want;
