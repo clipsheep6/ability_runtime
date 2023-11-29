@@ -105,7 +105,6 @@ ohos_moduletest("ability_timeout_module_test") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "window_manager:libwsutils",
-    "window_manager:sms",
   ]
 
   if (efficiency_manager) {
