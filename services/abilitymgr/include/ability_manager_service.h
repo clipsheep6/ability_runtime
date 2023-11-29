@@ -1852,7 +1852,7 @@ private:
      */
     void StopSwitchUserDialogInner(const Want &want, const int32_t stopUserId);
 
-    void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo);
+    void SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId);
 
     void SetAutoFillElementName(const sptr<SessionInfo> &extensionSessionInfo);
 

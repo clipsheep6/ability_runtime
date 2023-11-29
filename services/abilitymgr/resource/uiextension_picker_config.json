@@ -1,0 +1,8 @@
+{
+    "uiextension":[
+        {
+            "type": "share",
+            "typePicker": "sysPicker/share"
+        }
+    ]
+}

@@ -159,6 +159,7 @@ ohos_shared_library("abilityms") {
     "c_utils:utils",
     "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
+    "config_policy:configpolicy_util",
     "dsoftbus:softbus_client",
     "ffrt:libffrt",
     "hicollie:libhicollie",
@@ -228,6 +229,15 @@ ohos_prebuilt_etc("ams_service_config.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("uiextension_picker_config.json") {
+  source = "resource/uiextension_picker_config.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
-  deps = [ ":ams_service_config.json" ]
+  deps = [
+    ":ams_service_config.json",
+    ":uiextension_picker_config.json",
+  ]
 }
