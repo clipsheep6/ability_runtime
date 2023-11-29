@@ -473,6 +473,11 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for register session handler
     REGISTER_SESSION_HANDLER = 6010,
+
+    // ipc id for set application auto startup by EDM
+    SET_APPLICATION_AUTO_STARTUP_BY_EDM = 6113,
+    // ipc id for cancel application auto startup by EDM
+    CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6114,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -292,6 +292,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
 #ifdef ABILITY_COMMAND_FOR_TEST

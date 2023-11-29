@@ -267,6 +267,9 @@ private:
     int32_t DetachAppDebugInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteIntentInner(MessageParcel &data, MessageParcel &reply);
 
+    int32_t SetApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
+    int32_t CancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
+
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
     int32_t OpenFileInner(MessageParcel &data, MessageParcel &reply);
 

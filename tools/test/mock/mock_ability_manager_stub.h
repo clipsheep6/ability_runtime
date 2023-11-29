@@ -259,6 +259,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     MOCK_METHOD2(ForceTimeoutForTest, int(const std::string& abilityName, const std::string& state));
 
