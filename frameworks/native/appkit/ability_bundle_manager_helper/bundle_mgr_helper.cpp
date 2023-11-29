@@ -662,6 +662,19 @@ ErrCode BundleMgrHelper::GetUidByBundleName(const std::string &bundleName, const
     return bundleMgr->GetUidByBundleName(bundleName, userId);
 }
 
+ErrCode BundleMgrHelper::QueryExtensionAbilityInfosOnlyWithTypeName(const std::string &extensionTypeName,
+    const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    return bundleMgr->QueryExtensionAbilityInfosOnlyWithTypeName(extensionTypeName, flag, userId, extensionInfos);
+}
+
 sptr<IDefaultApp> BundleMgrHelper::GetDefaultAppProxy()
 {
     HILOG_DEBUG("Called.");

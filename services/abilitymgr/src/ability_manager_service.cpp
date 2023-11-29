@@ -2250,36 +2250,39 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     return eventInfo.errCode;
 }
 
-void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo)
+void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extensionSessionInfo, int32_t userId)
 {
     CHECK_POINTER_IS_NULLPTR(extensionSessionInfo);
     std::string targetType = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TARGET_TYPE_KEY);
     if (extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
         extensionSessionInfo->want.GetElement().GetAbilityName().empty() && !targetType.empty()) {
-        nlohmann::json jsonObject = AmsConfigurationParameter::GetInstance().GetPickerJsonObject();
         std::string abilityName;
         std::string bundleName;
         std::string pickerType;
-        if (jsonObject.contains(targetType) &&
-            jsonObject.at(targetType).contains(AmsConfig::ABILITY_NAME) &&
-            jsonObject.at(targetType).at(AmsConfig::ABILITY_NAME).is_string()) {
-            abilityName = jsonObject.at(targetType).at(AmsConfig::ABILITY_NAME).get<std::string>();
+        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+        auto pickerMap = AmsConfigurationParameter::GetInstance().GetPickerMap();
+        auto it = pickerMap.find(targetType);
+        if (it == pickerMap.end()) {
+            HILOG_ERROR("can not find the targetType: %{public}s", targetType.c_str());
+            return;
         }
-        if (jsonObject.contains(targetType) &&
-            jsonObject.at(targetType).contains(AmsConfig::BUNDLE_NAME) &&
-            jsonObject.at(targetType).at(AmsConfig::BUNDLE_NAME).is_string()) {
-            bundleName = jsonObject.at(targetType).at(AmsConfig::BUNDLE_NAME).get<std::string>();
+        pickerType = it->second;
+        auto bms = GetBundleManager();
+        CHECK_POINTER(bms);
+        int32_t validUserId = GetValidUserId(userId);
+        HILOG_INFO("targetType: %{public}s, pickerType: %{public}s, userId: %{public}d",
+            targetType.c_str(), pickerType.c_str(), validUserId);
+        auto ret = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfosOnlyWithTypeName(pickerType,
+            static_cast<int32_t>(AppExecFwk::GetExtensionAbilityInfoFlag::GET_EXTENSION_ABILITY_INFO_WITH_PERMISSION),
+            validUserId,
+            extensionInfos));
+        if (ret != ERR_OK) {
+            HILOG_ERROR("QueryExtensionAbilityInfosOnlyWithTypeName failed");
+            return;
         }
-        if (jsonObject.contains(targetType) &&
-            jsonObject.at(targetType).contains(AmsConfig::PICKER_TYPE) &&
-            jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).is_string()) {
-            pickerType = jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).get<std::string>();
-        }
-        if (targetType == SYSTEM_SHARE) {
-            bundleName = OHOS::system::GetParameter(SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY, bundleName);
-            abilityName = OHOS::system::GetParameter(SHARE_PICKER_UIEXTENSION_NAME_KEY, abilityName);
-            pickerType = SYSTEM_SHARE_TYPE;
-        }
+        abilityName = extensionInfos[0].name;
+        bundleName = extensionInfos[0].bundleName;
+        HILOG_INFO("abilityName: %{public}s, bundleName: %{public}s", abilityName.c_str(), bundleName.c_str());
         extensionSessionInfo->want.SetElementName(bundleName, abilityName);
         WantParams &parameters = const_cast<WantParams &>(extensionSessionInfo->want.GetParams());
         parameters.SetParam(UIEXTENSION_TYPE_KEY, AAFwk::String::Box(pickerType));
@@ -2308,7 +2311,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
 {
     HILOG_DEBUG("Start ui extension ability come");
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
-    SetPickerElementName(extensionSessionInfo);
+    SetPickerElementName(extensionSessionInfo, userId);
     SetAutoFillElementName(extensionSessionInfo);
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
