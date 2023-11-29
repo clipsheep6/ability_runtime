@@ -933,10 +933,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos)) {
             HILOG_DEBUG("create dialog by ui extension");
             return CreateModalDialog(newWant, callerToken, dialogSessionId);
-        } else {
-            HILOG_ERROR("create dialog by ui extension failed");
-            return ERR_INVALID_VALUE;
         }
+        HILOG_ERROR("create dialog by ui extension failed");
+        return INNER_ERR;
     }
 
     if (!AbilityUtil::IsSystemDialogAbility(abilityInfo.bundleName, abilityInfo.name)) {
@@ -9213,6 +9212,7 @@ int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
 int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionId,
     sptr<DialogSessionInfo> &dialogSessionInfo)
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
     CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     dialogSessionInfo = dialogSessionRecord_->GetDialogSessionInfo(dialogSessionId);
     if (dialogSessionInfo) {
@@ -9220,7 +9220,7 @@ int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionI
         return ERR_OK;
     }
     HILOG_DEBUG("fail");
-    return ERR_ECOLOGICAL_CONTROL_STATUS;
+    return INNER_ERR;
 }
 
 bool AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
@@ -9235,7 +9235,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, const sptr
     std::string dialogSessionId)
 {
     if (callerToken == nullptr) {
-        HILOG_ERROR("want or callerToken is nullptr");
+        HILOG_ERROR("callerToken is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -9263,9 +9263,10 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, const sptr
 
 int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
     if (!isAllowed) {
         HILOG_INFO("user refuse to jump");
-        return ERR_ECOLOGICAL_CONTROL_STATUS;
+        return ERR_OK;
     }
     CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId);
