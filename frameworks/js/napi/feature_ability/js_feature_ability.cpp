@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,11 +23,13 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
-const std::string RESULT_DATA_TAG = "resultData";
+namespace {
+static const std::string RESULT_DATA_TAG = "resultData"; 
+}
 
 void JsFeatureAbility::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_INFO("JsFeatureAbility::Finalizer is called");
+    HILOG_INFO("called");
     std::unique_ptr<JsFeatureAbility>(static_cast<JsFeatureAbility*>(data));
 }
 
@@ -88,7 +90,7 @@ napi_value JsFeatureAbility::UnsubscribeMsg(napi_env env, napi_callback_info inf
 
 napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     if (info.argc != 1) {
         HILOG_ERROR("arguments not match");
         return CreateJsUndefined(env);
@@ -107,11 +109,10 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
     }
 
     Want want = GetWant(requestParam);
-    NapiAsyncTask::CompleteCallback complete =
-        [want, ability](napi_env env, NapiAsyncTask &task, int32_t status) {
-            auto errcode = ability->StartAbility(want);
-            task.Resolve(env, JsFeatureAbility::CreateJsResult(env, errcode, "Start Ability failed."));
-        };
+    NapiAsyncTask::CompleteCallback complete = [want, ability](napi_env env, NapiAsyncTask &task, int32_t status) {
+        auto errcode = ability->StartAbility(want);
+        task.Resolve(env, JsFeatureAbility::CreateJsResult(env, errcode, "Start Ability failed."));
+    };
 
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JSFeatureAbility::OnStartAbility",
@@ -121,7 +122,7 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
 
 napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     if (info.argc != 1) {
         HILOG_ERROR("Params not match");
         return CreateJsUndefined(env);
@@ -166,7 +167,7 @@ napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackI
 
 napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     if (info.argc != 1) {
         HILOG_ERROR("Params not match");
         return CreateJsUndefined(env);
@@ -211,11 +212,10 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
     want.SetParam(RESULT_DATA_TAG, resultStr);
     ability->SetResult(code, want);
 
-    NapiAsyncTask::CompleteCallback complete =
-        [ability](napi_env env, NapiAsyncTask &task, int32_t status) {
-            auto errCode = ability->TerminateAbility();
-            task.Resolve(env, JsFeatureAbility::CreateJsResult(env, errCode, "FinishWithResult failed."));
-        };
+    NapiAsyncTask::CompleteCallback complete = [ability](napi_env env, NapiAsyncTask &task, int32_t status) {
+        auto errCode = ability->TerminateAbility();
+        task.Resolve(env, JsFeatureAbility::CreateJsResult(env, errCode, "FinishWithResult failed."));
+    };
 
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JSFeatureAbility::OnFinishWithResult",
@@ -225,49 +225,49 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
 
 napi_value JsFeatureAbility::OnGetDeviceList(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnCallAbility(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnContinueAbility(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnUnsubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSendMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSubscribeMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnUnsubscribeMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_DEBUG("called");
     return CreateJsUndefined(env);
 }
 
@@ -279,8 +279,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("JsFeatureAbility::GetAbility, get_global=%{public}d err:%{public}s",
-            ret, errorInfo->error_message);
+        HILOG_ERROR("get_global=%{public}d err:%{public}s", ret, errorInfo->error_message);
         return nullptr;
     }
 
@@ -288,8 +287,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("JsFeatureAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
-            ret, errorInfo->error_message);
+        HILOG_ERROR("get_named_property=%{public}d err:%{public}s", ret, errorInfo->error_message);
         return nullptr;
     }
 
@@ -297,8 +295,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("JsFeatureAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
-            ret, errorInfo->error_message);
+        HILOG_ERROR("get_value_external=%{public}d err:%{public}s", ret, errorInfo->error_message);
     return nullptr;
     }
 
@@ -360,10 +357,7 @@ Want JsFeatureAbility::GetWant(DistributeReqParam &requestParam)
     return want;
 }
 
-void JsFeatureAbility::GetExtraParams(const DistributeReqParam &requestParam, const Want &want)
-{
-    return;
-}
+void JsFeatureAbility::GetExtraParams(const DistributeReqParam &requestParam, const Want &want) {}
 
 bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &requestParam, Uri &uri)
 {
@@ -387,10 +381,10 @@ bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &request
 
 bool JsFeatureAbility::UnWrapRequestParams(napi_env env, napi_value param, DistributeReqParam &requestParam)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        HILOG_ERROR("Params is invalid.");
         return false;
     }
 
@@ -474,8 +468,7 @@ napi_value JsFeatureAbility::CreateJsFeatureAbility(napi_env env)
     BindNativeFunction(env, object, "callAbility", moduleName, JsFeatureAbility::CallAbility);
     BindNativeFunction(env, object, "continueAbility", moduleName, JsFeatureAbility::ContinueAbility);
     BindNativeFunction(env, object, "subscribeAbilityEvent", moduleName, JsFeatureAbility::SubscribeAbilityEvent);
-    BindNativeFunction(env, object, "unsubscribeAbilityEvent", moduleName,
-        JsFeatureAbility::UnsubscribeAbilityEvent);
+    BindNativeFunction(env, object, "unsubscribeAbilityEvent", moduleName, JsFeatureAbility::UnsubscribeAbilityEvent);
     BindNativeFunction(env, object, "sendMsg", moduleName, JsFeatureAbility::SendMsg);
     BindNativeFunction(env, object, "subscribeMsg", moduleName, JsFeatureAbility::SubscribeMsg);
     BindNativeFunction(env, object, "unsubscribeMsg", moduleName, JsFeatureAbility::UnsubscribeMsg);

@@ -27,13 +27,13 @@ namespace AbilityRuntime {
 namespace { // nameless
 class JsDialogRequestCallback {
 public:
-    explicit JsDialogRequestCallback(const sptr<IDialogRequestCallback> remoteObj) :callback_(remoteObj) {}
+    explicit JsDialogRequestCallback(const sptr<IDialogRequestCallback> remoteObj) : callback_(remoteObj) {}
 
     virtual ~JsDialogRequestCallback() = default;
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("JsDialogRequestCallback::Finalizer is called.");
+        HILOG_DEBUG("called");
         std::unique_ptr<JsDialogRequestCallback>(static_cast<JsDialogRequestCallback*>(data));
     }
 
@@ -50,7 +50,7 @@ public:
 private:
     napi_value OnSetRequestResult(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("function called");
+        HILOG_INFO("called");
         if (info.argc < 1) {
             HILOG_ERROR("Params not match");
             ThrowTooFewParametersError(env);
@@ -82,7 +82,7 @@ private:
         }
 
         if (callback_ == nullptr) {
-            HILOG_ERROR("JsDialogRequestCallback::%{public}s, callback_ is nullptr", __func__);
+            HILOG_ERROR("callback_ is nullptr");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
@@ -98,7 +98,7 @@ private:
 
 napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequestCallback> &remoteObj)
 {
-    HILOG_INFO("CreateJsDialogRequestCallback");
+    HILOG_INFO("called");
     if (!remoteObj) {
         HILOG_ERROR("remoteObj is invalid.");
         return CreateJsUndefined(env);
@@ -116,7 +116,7 @@ napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequest
     const char *moduleName = "JsDialogRequestCallback";
     BindNativeFunction(env, objValue, "setRequestResult", moduleName, JsDialogRequestCallback::SetRequestResult);
 
-    HILOG_INFO("CreateJsDialogRequestCallback end");
+    HILOG_INFO("end");
     return objValue;
 }
 } // AbilityRuntime

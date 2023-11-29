@@ -1,0 +1,67 @@
+# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/insight_intent"
+
+ohos_unittest("ability_manager_service_insight_intent_test") {
+  module_out_path = module_output_path
+
+  include_dirs = [
+    "${ability_runtime_test_path}/mock_base/mock_insight_intent_execute_manager",
+    "${ability_runtime_test_path}/mock_base/mock_ability_record",
+    "${ability_runtime_test_path}/mock_base/mock_ability_auto_startup_service",
+    "${ability_runtime_test_path}/mock_base/mock_ability_bundle_event_callback",
+  ]
+
+  include_dirs += [
+    "${ability_runtime_abilitymgr_path}/include",
+#    "${ability_runtime_innerkits_path}/app_manager/include",
+#    "${ability_runtime_innerkits_path}/ability_manager/include",
+#    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+#    "${ability_runtime_innerkits_path}/common/include",
+#    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+#    "${ability_runtime_innerkits_path}/connectionobs_manager/include",
+  ]
+
+  sources = [
+    "${ability_runtime_abilitymgr_path}/src/ability_manager_service.cpp",
+    "ability_manager_service_insight_intent_test.cpp",
+  ]
+
+  deps = [
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+#    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
+#    "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
+#    "${ability_runtime_services_path}/common:task_handler_wrap",
+  ]
+
+  external_deps = [
+#    "ability_base:configuration",
+#    "ability_base:session_info",
+#    "ability_base:want",
+#    "bundle_framework:appexecfwk_core",
+#    "common_event_service:cesfwk_innerkits",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_single",
+    "ffrt:libffrt",
+#    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+}
