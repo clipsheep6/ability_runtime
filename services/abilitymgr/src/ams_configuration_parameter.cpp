@@ -14,6 +14,7 @@
  */
 
 #include "ams_configuration_parameter.h"
+#include "config_policy_utils.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -41,6 +42,16 @@ using json = nlohmann::json;
 void AmsConfigurationParameter::Parse()
 {
     auto ref = LoadAmsConfiguration(AmsConfig::AMS_CONFIG_FILE_PATH);
+
+    char buf[MAX_PATH_LEN] = { 0 };
+    char *filePath = GetOneCfgFile(AmsConfig::PICKER_CONFIG_FILE_PATH, buf, MAX_PATH_LEN);
+    if (filePath == nullptr || filePath[0] == '\0' || strlen(filePath) > MAX_PATH_LEN) {
+        HILOG_ERROR("Can not get config file");
+        LoadUIExtensionPickerConfig(AmsConfig::PICKER_CONFIG_FILE_PATH_DEFAULT);
+    }
+    std::string customConfig = filePath;
+    HILOG_INFO("The configuration file path is :%{private}s", customConfig.c_str());
+    LoadUIExtensionPickerConfig(customConfig);
     HILOG_INFO("load config ref : %{public}d", ref);
 }
 
@@ -107,6 +118,63 @@ void AmsConfigurationParameter::SetPickerJsonObject(nlohmann::json Object)
 nlohmann::json AmsConfigurationParameter::GetPickerJsonObject() const
 {
     return pickerJsonObject_;
+}
+
+const std::map<std::string, std::string>& AmsConfigurationParameter::GetPickerMap() const
+{
+    return picker_;
+}
+
+void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &filePath)
+{
+    HILOG_INFO("%{public}s", __func__);
+    std::ifstream inFile;
+    inFile.open(filePath, std::ios::in);
+    if (!inFile.is_open()) {
+        HILOG_ERROR("read picker config error");
+        return;
+    }
+
+    json pickerJson;
+    inFile >> pickerJson;
+    inFile.close();
+    if (pickerJson.is_discarded()) {
+        HILOG_ERROR("json discarded error");
+        return;
+    }
+
+    if (pickerJson.is_null() || pickerJson.empty()) {
+        HILOG_ERROR("invalid jsonObj");
+        return;
+    }
+
+    if (!pickerJson.contains(AmsConfig::UIEATENSION)) {
+        HILOG_ERROR("json config not contains the key");
+        return;
+    }
+
+    if (pickerJson[AmsConfig::UIEATENSION].is_null()
+        || !pickerJson[AmsConfig::UIEATENSION].is_array()
+        || pickerJson[AmsConfig::UIEATENSION].empty()) {
+        HILOG_ERROR("invalid obj");
+        return;
+    }
+
+   for (auto extension : pickerJson[AmsConfig::UIEATENSION]) {
+        if (extension[AmsConfig::UIEATENSION_TYPE].is_null()
+            || !extension[AmsConfig::UIEATENSION_TYPE].is_string()
+            || extension[AmsConfig::UIEATENSION_TYPE_PICKER].is_null()
+            || !extension[AmsConfig::UIEATENSION_TYPE_PICKER].is_string()) {
+            HILOG_ERROR("invalid key or value");
+            continue;
+        }
+        std::string type = extension[AmsConfig::UIEATENSION_TYPE].get<std::string>();
+        std::string typePicker = extension[AmsConfig::UIEATENSION_TYPE_PICKER].get<std::string>();
+        HILOG_INFO("type is %{public}s, typePicker is %{public}s", type.c_str(), typePicker.c_str());
+        picker_[type] = typePicker;
+    }
+    pickerJson.clear();
+    HILOG_INFO("read config success");
 }
 
 int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
