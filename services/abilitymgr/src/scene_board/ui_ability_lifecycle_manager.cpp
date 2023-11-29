@@ -1258,9 +1258,6 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
             abilityRecord->SetWant(abilityRequest.want);
             abilityRecord->SetIsNewWant(true);
             UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord);
-            if (callerAbility == nullptr) {
-                callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-            }
             MoveAbilityToFront(abilityRequest, abilityRecord, callerAbility);
             NotifyRestartSpecifiedAbility(abilityRequest, abilityRecord->GetToken());
             return;
