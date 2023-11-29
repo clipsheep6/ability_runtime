@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "sender_info.h"
+
+#include "hilog_wrapper.h"
+#include "nlohmann/json.hpp"
+#include "string_ex.h"
+
+#include "ipc_types.h"
+#include "iremote_object.h"
+
+namespace OHOS {
+namespace AAFwk {
+bool SenderInfo::ReadFromParcel(Parcel &parcel)
+{
+    HILOG_INFO("call");
+
+    code = parcel.ReadInt32();
+    std::unique_ptr<Want> wantResquest(parcel.ReadParcelable<Want>());
+    if (wantResquest == nullptr) {
+        HILOG_ERROR("%{public}s:wantResquest is nullptr.", __func__);
+        return false;
+    }
+    want = *wantResquest;
+    resolvedType = Str16ToStr8(parcel.ReadString16());
+    sptr<IRemoteObject> finishedReceiverResquest = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    if (finishedReceiverResquest != nullptr) {
+        finishedReceiver = iface_cast<IWantReceiver>(finishedReceiverResquest);
+        if (!finishedReceiver) {
+            return false;
+        }
+    } else {
+        HILOG_ERROR("nullptr.");
+    }
+
+    requiredPermission = Str16ToStr8(parcel.ReadString16());
+    return true;
+}
+
+SenderInfo *SenderInfo::Unmarshalling(Parcel &parcel)
+{
+    HILOG_INFO("call");
+
+    SenderInfo *info = new (std::nothrow) SenderInfo();
+    if (info == nullptr) {
+        HILOG_ERROR("senderInfo is nullptr.");
+        return nullptr;
+    }
+
+    if (!info->ReadFromParcel(parcel)) {
+        HILOG_ERROR("ReadFromParcel failed.");
+        delete info;
+        info = nullptr;
+    }
+    return info;
+}
+
+bool SenderInfo::Marshalling(Parcel &parcel) const
+{
+    HILOG_INFO("call");
+
+    parcel.WriteInt32(code);
+    parcel.WriteParcelable(&want);
+    parcel.WriteString16(Str8ToStr16(resolvedType));
+    if (finishedReceiver != nullptr) {
+        (static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(finishedReceiver->AsObject());
+    } else {
+        parcel.WriteParcelable(nullptr);
+    }
+    parcel.WriteString16(Str8ToStr16(requiredPermission));
+    return true;
+}
+}  // namespace AAFwk
+}  // namespace OHOS
