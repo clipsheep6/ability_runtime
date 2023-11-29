@@ -24,6 +24,7 @@
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
+#include "scene_board_judgement.h"
 #include "want.h"
 #ifdef SUPPORT_ERMS
 #include "ecological_rule_mgr_service_client.h"
@@ -115,11 +116,21 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             HILOG_INFO("hint dialog doesn't generate.");
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+            return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+        }
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
         want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     } else if (dialogAppInfos.size() == 0 && deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            std::string type = MatchTypeAndUri(request.want);
+            want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type,
+                userId, request.callerToken);
+            return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+        }
         std::vector<DialogAppInfo> dialogAllAppInfos;
         bool isMoreHapList = true;
         ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, deviceType, isMoreHapList);
@@ -156,6 +167,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+        }
         ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
@@ -169,10 +183,26 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     std::string type = MatchTypeAndUri(request.want);
 
     want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+    }
     ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return ret;
+}
+
+int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+    std::vector<DialogAppInfo> &dialogAppInfos)
+{
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    std::string dialogSessionId;
+    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos)) {
+        HILOG_DEBUG("create dialog by ui extension");
+        return abilityMgr->CreateModalDialog(want, abilityRequest.callerToken, dialogSessionId);
+    }
+    HILOG_ERROR("create dialog by ui extension failed");
+    return INNER_ERR;
 }
 
 std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
@@ -214,7 +244,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (IPCSkeleton::GetCallingUid() == 1027 && !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
         HILOG_INFO("The NFCNeed caller source is NFC");
-        
+
         ImplicitStartProcessor::queryBmsAppInfos(request, userId, dialogAppInfos);
         return ERR_OK;
     }
