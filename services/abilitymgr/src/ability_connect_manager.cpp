@@ -1426,6 +1426,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
     if (IsSceneBoard(abilityRecord)) {
         HILOG_INFO("SceneBoard exit normally.");
         Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
+        KillProcessesByUserId();
     }
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
     RemoveServiceAbility(abilityRecord);
@@ -1473,10 +1474,6 @@ void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRe
         abilityInfo.moduleName);
     HILOG_DEBUG("Remove service(%{public}s) from terminating map.", element.GetURI().c_str());
     terminatingExtensionMap_.erase(element.GetURI());
-    if (IsSceneBoard(abilityRecord)) {
-        HILOG_INFO("To kill processes because SceneBoard exit.");
-        KillProcessesByUserId();
-    }
 }
 
 void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
