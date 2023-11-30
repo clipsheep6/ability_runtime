@@ -107,6 +107,7 @@ constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
+constexpr int32_t START_HIGH_SENSITIVE = 1;
 constexpr int32_t UNSPECIFIED_USERID = -2;
 
 enum class SignalType {
@@ -2794,7 +2795,12 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
         }
         appThread->ChangeAppGcState(state);
     };
-    mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
+
+    if (state == START_HIGH_SENSITIVE) {
+        ChangeAppGcState(state);
+    } else {
+        mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
+    }
     return NO_ERROR;
 }
 
