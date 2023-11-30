@@ -2033,7 +2033,6 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     EventInfo focusInfo;
     focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
     focusInfo.abilityName = Record->GetAbilityInfo().name;
-    std::vector<ModuleInfo> focusModuleInfos = Record->GetApplicationInfo().moduleInfos;
     HILOG_INFO("focusbundlname: %{public}s, focusabilityName: %{public}s.",
         focusInfo.bundleName.c_str(),
         focusInfo.abilityName.c_str());
@@ -2041,18 +2040,16 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
     EventInfo callerInfo;
     callerInfo.bundleName = want.GetParams().GetStringParam("bundleName");
-    HILOG_INFO("callerbundlname: %{public}s, callerabilityName: %{public}s, callermoduleName: %{public}s.",
-        callerInfo.bundleName.c_str(),
-        callerInfo.abilityName.c_str(),
-        callerInfo.moduleName.c_str());
+    HILOG_INFO("callerbundlname: %{public}s.", callerInfo.bundleName.c_str());
 
     // Compare
     if (focusInfo.bundleName == callerInfo.bundleName) {
-        HILOG_INFO("CreateModalUIExtension called!");
+        HILOG_INFO("CreateModalUIExtension is called!");
         return Record->CreateModalUIExtension(want);
     }
+    
     // return wms::ModalSystem(want);
-    HILOG_INFO("Window Modal System Create UIExtension called!");
+    HILOG_INFO("Window Modal System Create UIExtension is called!");
     return ERR_OK;
 }
 
