@@ -253,6 +253,17 @@ ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, sptr<IRemo
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
 
+ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("name:%{public}s %{public}s %{public}s.",
+        want.GetElement().GetAbilityName().c_str(),
+        want.GetElement().GetBundleName().c_str(),
+        want.GetElement().GetModuleName().c_str());
+    return abms->RequestModalUIExtension(want);
+}
+
 ErrCode AbilityManagerClient::StartUIExtensionAbility(sptr<SessionInfo> extensionSessionInfo, int32_t userId)
 {
     auto abms = GetAbilityManager();

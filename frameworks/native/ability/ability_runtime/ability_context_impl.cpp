@@ -791,5 +791,18 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
     return ERR_OK;
 }
 #endif
+
+ErrCode AbilityContextImpl::RequestModalUIExtension(const AAFwk::Want& want)
+{
+    HILOG_INFO("name:%{public}s %{public}s %{public}s",
+        want.GetElement().GetBundleName().c_str(),
+        want.GetElement().GetAbilityName().c_str(),
+        want.GetElement().GetModuleName().c_str());
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
+    if (err != ERR_OK) {
+        HILOG_ERROR("RequestModalUIExtension is failed %{public}d", err);
+    }
+    return err;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
