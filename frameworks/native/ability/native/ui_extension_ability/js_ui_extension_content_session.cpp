@@ -107,7 +107,7 @@ JsUIExtensionContentSession::JsUIExtensionContentSession(
     } else if (sessionInfo == nullptr) {
         HILOG_ERROR("sessionInfo is nullptr");
     } else {
-        abilityResultListeners->AddListener(sessionInfo->sessionToken, listener_);
+        abilityResultListeners->AddListener(sessionInfo->uiExtensionComponentId, listener_);
     }
 }
 

@@ -2245,8 +2245,10 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     result = GenerateExtensionAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
     CHECK_POINTER_AND_RETURN(abilityRequest.sessionInfo, ERR_INVALID_VALUE);
     abilityRequest.sessionInfo->uiExtensionComponentId = (
-        static_cast<int64_t>(callerRecord->GetAbilityRecordId()) << OFFSET) |
-        static_cast<int64_t>(abilityRequest.sessionInfo->persistentId);
+        static_cast<uint64_t>(callerRecord->GetRecordId()) << OFFSET) |
+        static_cast<uint64_t>(abilityRequest.sessionInfo->persistentId);
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
+        abilityRequest.sessionInfo->uiExtensionComponentId, extensionSessionInfo->want.GetElement().GetURI().c_str());
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
@@ -2579,8 +2581,10 @@ int AbilityManagerService::TerminateUIExtensionAbility(const sptr<SessionInfo> &
         return ERR_WRONG_INTERFACE_CALL;
     }
     extensionSessionInfo->uiExtensionComponentId = (
-        static_cast<int64_t>(abilityRecord->GetAbilityRecordId()) << OFFSET) |
-        static_cast<int64_t>(extensionSessionInfo->persistentId);
+        static_cast<uint64_t>(abilityRecord->GetRecordId()) << OFFSET) |
+        static_cast<uint64_t>(extensionSessionInfo->persistentId);
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
+        extensionSessionInfo->uiExtensionComponentId, extensionSessionInfo->want.GetElement().GetURI().c_str());
     connectManager->TerminateAbilityWindowLocked(targetRecord, extensionSessionInfo);
     return ERR_OK;
 }
@@ -2822,8 +2826,10 @@ int AbilityManagerService::MinimizeUIExtensionAbility(const sptr<SessionInfo> &e
         return ERR_WRONG_INTERFACE_CALL;
     }
     extensionSessionInfo->uiExtensionComponentId = (
-        static_cast<int64_t>(abilityRecord->GetAbilityRecordId()) << OFFSET) |
-        static_cast<int64_t>(extensionSessionInfo->persistentId);
+        static_cast<uint64_t>(abilityRecord->GetRecordId()) << OFFSET) |
+        static_cast<uint64_t>(extensionSessionInfo->persistentId);
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
+        extensionSessionInfo->uiExtensionComponentId, extensionSessionInfo->want.GetElement().GetURI().c_str());
     connectManager->BackgroundAbilityWindowLocked(targetRecord, extensionSessionInfo);
     return ERR_OK;
 }

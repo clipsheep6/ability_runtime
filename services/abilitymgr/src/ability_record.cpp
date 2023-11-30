@@ -3054,7 +3054,7 @@ void AbilityRecord::SetAttachDebug(const bool isAttachDebug)
     isAttachDebug_ = isAttachDebug;
 }
 
-void AbilityRecord::AddAbilityWindowStateMap(int64_t uiExtensionComponentId,
+void AbilityRecord::AddAbilityWindowStateMap(uint64_t uiExtensionComponentId,
     AbilityWindowState abilityWindowState)
 {
     if (abilityWindowState == AbilityWindowState::FOREGROUNDING ||
@@ -3063,7 +3063,7 @@ void AbilityRecord::AddAbilityWindowStateMap(int64_t uiExtensionComponentId,
     }
 }
 
-void AbilityRecord::RemoveAbilityWindowStateMap(int64_t uiExtensionComponentId)
+void AbilityRecord::RemoveAbilityWindowStateMap(uint64_t uiExtensionComponentId)
 {
     if (abilityWindowStateMap_.find(uiExtensionComponentId) != abilityWindowStateMap_.end()) {
         abilityWindowStateMap_.erase(uiExtensionComponentId);

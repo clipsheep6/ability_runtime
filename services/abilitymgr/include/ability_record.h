@@ -910,10 +910,10 @@ public:
     bool IsDebugApp() const;
     bool IsDebug() const;
 
-    void AddAbilityWindowStateMap(int64_t uiExtensionComponentId,
+    void AddAbilityWindowStateMap(uint64_t uiExtensionComponentId,
         AbilityWindowState abilityWindowState);
 
-    void RemoveAbilityWindowStateMap(int64_t uiExtensionComponentId);
+    void RemoveAbilityWindowStateMap(uint64_t uiExtensionComponentId);
 
     bool IsAbilityWindowReady();
 
@@ -1095,7 +1095,7 @@ private:
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
 
-    std::map<int64_t, AbilityWindowState> abilityWindowStateMap_;
+    std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
