@@ -1287,6 +1287,7 @@ void JsRuntime::InitWorkerModule(const Options& options)
     workerInfo->assetBasePathStr = options.assetBasePathStr;
     workerInfo->hapPath = options.hapPath;
     workerInfo->isStageModel = options.isStageModel;
+    workerInfo->moduleName = options.moduleName;
     if (options.isJsFramework) {
         SetJsFramework();
     }

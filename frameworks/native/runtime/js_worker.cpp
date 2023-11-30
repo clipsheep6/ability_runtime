@@ -156,7 +156,8 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         // the @bundle:bundlename/modulename only exist in esmodule.
         // 1.1 start with /modulename
         // 1.2 start with ../
-        // 1.3 start with modulename
+        // 1.3 start with @namespace
+        // 1.4 start with modulename
         HILOG_DEBUG("The application is packaged using jsbundle mode.");
         if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
@@ -164,6 +165,9 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
             HILOG_DEBUG("uri start with ../");
             realPath = uri.substr(PATH_THREE);
+        } else if (uri.find_first_of("@") == 0) {
+            HILOG_DEBUG("uri start with @namespace");
+            realPath = workerInfo_->moduleName + uri;
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
@@ -189,7 +193,8 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
     } else {
         // 2.1 start with @bundle:bundlename/modulename
         // 2.2 start with /modulename
-        // 2.3 start with modulename
+        // 2.3 start with @namespace
+        // 2.4 start with modulename
         HILOG_DEBUG("The application is packaged using esmodule mode.");
         if (uri.find(BUNDLE_NAME_FLAG) == 0) {
             HILOG_DEBUG("uri start with @bundle:");
@@ -205,6 +210,9 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         } else if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
             realPath = uri.substr(1);
+        } else if (uri.find_first_of("@") == 0) {
+            HILOG_DEBUG("uri start with @namespace");
+            realPath = workerInfo_->moduleName + uri;
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
