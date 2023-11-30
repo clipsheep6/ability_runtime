@@ -216,6 +216,15 @@ bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
     return false;
 }
 
+bool PermissionVerification::VerifyStartRecentAbilityPermission() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_RECENT_ABILITY)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_START_RECENT_ABILITY);
+        return true;
+    }
+    return VerifyMissionPermission();
+}
+
 int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo, bool isShell) const
 {
     if ((verificationInfo.apiTargetVersion > API8 || isShell) &&
