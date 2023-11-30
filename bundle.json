@@ -18,10 +18,10 @@
         "SystemCapability.Ability.AbilityRuntime.AbilityCore",
         "SystemCapability.Ability.AbilityRuntime.Mission",
         "SystemCapability.Ability.AbilityRuntime.QuickFix",
-        "SystemCapability.Ability.AbilityRuntime.AutoFill",
         "SystemCapability.Ability.AbilityTools.AbilityAssistant"
       ],
       "features": [
+        "ability_runtime_auto_fill_ability",
         "ability_runtime_graphics",
         "ability_runtime_power"
       ],
