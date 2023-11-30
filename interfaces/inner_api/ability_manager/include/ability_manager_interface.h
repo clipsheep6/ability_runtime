@@ -255,6 +255,16 @@ public:
         return 0;
     }
 
+  /**
+     * Create UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int RequestModalUIExtension(const Want &want)
+    {
+        return 0;
+    }
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *

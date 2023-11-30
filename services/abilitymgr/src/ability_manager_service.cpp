@@ -60,6 +60,7 @@
 #include "mission_info.h"
 #include "mission_info_mgr.h"
 #include "mock_session_manager_service.h"
+#include "modal_system_ui_extension.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
 #include "permission_constants.h"
@@ -2005,6 +2006,50 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
 {
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
+}
+
+int AbilityManagerService::RequestModalUIExtension(const Want &want)
+{
+    return RequestModalUIExtensionInner(want);
+}
+
+int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
+{
+    sptr<IRemoteObject> token = nullptr;
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
+    if (ret != ERR_OK || token == nullptr) {
+        HILOG_ERROR("token is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    // Gets the record corresponding to the current focus appliaction
+    auto Record = Token::GetAbilityRecordByToken(token);
+    if (!Record) {
+        HILOG_ERROR("Record is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
+    EventInfo focusInfo;
+    focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
+    focusInfo.abilityName = Record->GetAbilityInfo().name;
+
+    // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
+    EventInfo callerInfo;
+    callerInfo.bundleName = want.GetParams().GetStringParam("bundleName");want.GetElement().GetBundleName()
+    HILOG_INFO("focusbundlname: %{public}s, callerbundlname: %{public}s.",
+    focusInfo.bundleName.c_str(), callerInfo.bundleName.c_str());
+
+    // Compare
+    if (focusInfo.bundleName == callerInfo.bundleName) {
+        HILOG_DEBUG("CreateModalUIExtension is called!");
+        return Record->CreateModalUIExtension(want);
+    }
+
+    HILOG_DEBUG("Window Modal System Create UIExtension is called!");
+    // auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
+    // return connection->CreateModalUIExtension(want);
+    return ERR_OK;
 }
 
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
