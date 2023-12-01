@@ -16,33 +16,33 @@
 let ExtensionAbility = requireNapi('app.ability.ExtensionAbility');
 
 class AutoFillExtensionAbility extends ExtensionAbility {
-    onCreate() {
-        console.log('onCreate');
-    }
+  onCreate() {
+    console.log('onCreate');
+  }
 
-    onFillRequest(session, request, callback) {
-        console.log('onFillRequest');
-    }
+  onFillRequest(session, request, callback) {
+    console.log('onFillRequest');
+  }
 
-    onSaveRequest(session, request, callback) {
-        console.log('onSaveRequest');
-    }
+  onSaveRequest(session, request, callback) {
+    console.log('onSaveRequest');
+  }
 
-    onSessionDestroy(session) {
-        console.log('onSessionDestroy');
-    }
+  onSessionDestroy(session) {
+    console.log('onSessionDestroy');
+  }
 
-    onForeground() {
-        console.log('onForeground');
-    }
+  onForeground() {
+    console.log('onForeground');
+  }
 
-    onBackground() {
-        console.log('onBackground');
-    }
+  onBackground() {
+    console.log('onBackground');
+  }
 
-    onDestroy() {
-        console.log('onDestroy');
-    }
+  onDestroy() {
+    console.log('onDestroy');
+  }
 }
 
 export default AutoFillExtensionAbility;
