@@ -26,6 +26,7 @@ class AppUtils {
 public:
     static AppUtils &GetInstance();
     bool IsLauncher(const std::string &bundleName) const;
+    bool JudgePCDevice() const;
 
 private:
     AppUtils();
