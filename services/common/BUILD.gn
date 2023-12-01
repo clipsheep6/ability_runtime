@@ -113,6 +113,7 @@ ohos_shared_library("app_util") {
 
   external_deps = [
     "hilog:libhilog",
+    "init:libbegetutil",
     "window_manager:libwsutils",
   ]
 

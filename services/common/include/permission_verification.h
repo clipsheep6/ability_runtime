@@ -92,6 +92,8 @@ struct VerificationInfo {
 
     bool VerifyPrepareTerminatePermission(const int &tokenId) const;
 
+    bool VerifyStartAbilityWithAnimationPermission() const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

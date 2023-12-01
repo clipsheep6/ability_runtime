@@ -16,6 +16,7 @@
 #include "app_utils.h"
 
 #include "hilog_wrapper.h"
+#include "parameters.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
@@ -45,6 +46,15 @@ bool AppUtils::IsLauncher(const std::string &bundleName) const
     }
 
     return bundleName == BUNDLE_NAME_LAUNCHER;
+}
+
+bool AppUtils::JudgePCDevice() const
+{
+    auto deviceType = system::GetDeviceType();
+    if (deviceType.compare("2in1") != 0 || deviceType.compare("pc") != 0) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
