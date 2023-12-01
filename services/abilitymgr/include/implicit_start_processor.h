@@ -54,6 +54,9 @@ public:
 
     void ResetCallingIdentityAsCaller(int32_t tokenId);
 
+    int NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+        std::vector<DialogAppInfo> &dialogAppInfos);
+
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
         std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
