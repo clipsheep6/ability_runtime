@@ -1095,5 +1095,22 @@ HWTEST_F(ApplicationContextTest, SetApplicationInfoUpdateFlag_0100, TestSize.Lev
     context_->SetApplicationInfoUpdateFlag(flag);
     GTEST_LOG_(INFO) << "SetApplicationInfoUpdateFlag_0100 end";
 }
+
+/**
+ * @tc.number: CreateModuleResourceManager_0100
+ * @tc.name: CreateModuleResourceManager
+ * @tc.desc: Create ModuleContext failed
+ */
+HWTEST_F(ApplicationContextTest, CreateModuleResourceManager_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::string moduleName = "moduleName";
+    std::string bundleName = "com.test.bundleName";
+    auto ret = context_->CreateModuleResourceManager(bundleName, moduleName);
+    EXPECT_EQ(ret, nullptr);
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 end";
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
