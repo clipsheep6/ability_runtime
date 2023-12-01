@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
+#include "singleton.h"
 #include "system_ability_definition.h"
 
 
@@ -42,23 +43,17 @@ void RemoteClientManager::SetSpawnClient(const std::shared_ptr<AppSpawnClient> &
     appSpawnClient_ = appSpawnClient;
 }
 
-sptr<IBundleMgr> RemoteClientManager::GetBundleManager()
+std::shared_ptr<BundleMgrHelper> RemoteClientManager::GetBundleManagerHelper()
 {
-    if (bundleManager_ == nullptr) {
-        sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (systemManager != nullptr) {
-            bundleManager_ =
-                iface_cast<AppExecFwk::IBundleMgr>(systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID));
-        } else {
-            HILOG_ERROR("AppMgrServiceInner::GetBundleManager fail to get SAMGR");
-        }
+    if (bundleManagerHelper_ == nullptr) {
+        bundleManagerHelper_  = DelayedSingleton<BundleMgrHelper>::GetInstance();
     }
-    return bundleManager_;
+    return bundleManagerHelper_;
 }
 
-void RemoteClientManager::SetBundleManager(sptr<IBundleMgr> bundleManager)
+void RemoteClientManager::SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper)
 {
-    bundleManager_ = bundleManager;
+    bundleManagerHelper_ = bundleMgrHelper;
 }
 
 std::shared_ptr<AppSpawnClient> RemoteClientManager::GetNWebSpawnClient()

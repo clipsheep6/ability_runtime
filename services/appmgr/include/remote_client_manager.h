@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,7 @@
 #include "refbase.h"
 
 #include "app_spawn_client.h"
-#include "bundlemgr/bundle_mgr_interface.h"
+#include "bundle_mgr_helper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -48,20 +48,20 @@ public:
      *
      * @return the bundle management services instance.
      */
-    sptr<IBundleMgr> GetBundleManager();
+    std::shared_ptr<BundleMgrHelper> GetBundleManagerHelper();
 
     /**
      * @brief Setting bundle management instance.
      *
      * @param appSpawnClient, the bundle management instance.
      */
-    void SetBundleManager(sptr<IBundleMgr> bundleManager);
+    void SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper);
 
     std::shared_ptr<AppSpawnClient> GetNWebSpawnClient();
 
 private:
     std::shared_ptr<AppSpawnClient> appSpawnClient_;
-    sptr<IBundleMgr> bundleManager_;
+    std::shared_ptr<BundleMgrHelper> bundleManagerHelper_;
     std::shared_ptr<AppSpawnClient> nwebSpawnClient_;
 };
 }  // namespace AppExecFwk

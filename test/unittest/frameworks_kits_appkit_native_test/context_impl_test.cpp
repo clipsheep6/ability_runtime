@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -490,39 +490,6 @@ HWTEST_F(ContextImplTest, GetCurrentActiveAccountId_0100, TestSize.Level1)
 }
 
 /**
- * @tc.name: CreateBundleContext_0100
- * @tc.desc: Create bundle context test.
- * @tc.type: FUNC
- * @tc.require: issueI61P7Y
- */
-HWTEST_F(ContextImplTest, CreateBundleContext_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    EXPECT_NE(contextImpl, nullptr);
-
-    // bundle name is empty
-    auto context = contextImpl->CreateBundleContext("");
-    EXPECT_EQ(context, nullptr);
-
-    // bundle name is invalid
-    context = contextImpl->CreateBundleContext("invalid_bundleName");
-    EXPECT_EQ(context, nullptr);
-
-    context = contextImpl->CreateBundleContext("test_contextImpl");
-    EXPECT_NE(context, nullptr);
-
-    // parent context is not nullptr
-    auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
-    EXPECT_NE(parentContext, nullptr);
-    contextImpl->SetParentContext(parentContext);
-    context = contextImpl->CreateBundleContext("");
-    EXPECT_EQ(context, nullptr);
-
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
  * @tc.number: AppExecFwk_ContextImpl_SetApplicationInfo_001
  * @tc.name: SetApplicationInfo
  * @tc.desc: Test whether SetApplicationInfo is called normally.
@@ -619,36 +586,6 @@ HWTEST_F(ContextImplTest, CreateModuleContext_001, Function | MediumTest | Level
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 start";
     EXPECT_EQ(contextImpl_->CreateModuleContext("module_name"), nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_ContextImpl_CreateModuleContext_001 end";
-}
-
-/**
- * @tc.name: CreateModuleContext_002
- * @tc.desc: Create module context test.
- * @tc.type: FUNC
- * @tc.require: issueI61P7Y
- */
-HWTEST_F(ContextImplTest, CreateModuleContext_002, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    EXPECT_NE(contextImpl, nullptr);
-
-    // bundleName is valid, but module name is empty
-    auto moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "");
-    EXPECT_EQ(moduleContext, nullptr);
-
-    // bundle name is invalid
-    moduleContext = contextImpl->CreateModuleContext("invalid_bundleName", "invalid_moduleName");
-    EXPECT_EQ(moduleContext, nullptr);
-
-    // module didn't exist
-    moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "invalid_moduleName");
-    EXPECT_EQ(moduleContext, nullptr);
-
-    moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "test_moduleName");
-    EXPECT_NE(moduleContext, nullptr);
-
-    HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**

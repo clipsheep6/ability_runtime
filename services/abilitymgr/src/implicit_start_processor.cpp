@@ -233,8 +233,8 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 {
     HILOG_DEBUG("%{public}s", __func__);
     // get abilityinfos from bms
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    auto bundleMgrHelper = GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
     std::vector<AppExecFwk::AbilityInfo> abilityInfos;
@@ -249,7 +249,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         return ERR_OK;
     }
 
-    IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
 
     HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu",
@@ -274,7 +274,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     std::vector<std::string> infoNames;
     if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
+        IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
             withDefault, implicitAbilityInfos, implicitExtensionInfos));
         if (implicitAbilityInfos.size() != 0 && typeName != TYPE_ONLY_MATCH_WILDCARD) {
             for (auto implicitAbilityInfo : implicitAbilityInfos) {
@@ -339,7 +339,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 }
 
 int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {
-    auto bms = GetBundleManager();
+    auto bundleMgrHelper  = GetBundleManagerHelper();
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
@@ -353,7 +353,7 @@ int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t us
         Want want;
         want.SetElementName(bundleName, abilityName);
 
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag,
+        IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper ->QueryAbilityInfo(want, abilityInfoFlag,
             userId, abilityInfo));
             
         bmsApps.emplace_back(abilityInfo);
@@ -457,20 +457,20 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     return ret;
 }
 
-sptr<AppExecFwk::IBundleMgr> ImplicitStartProcessor::GetBundleManager()
+std::shared_ptr<AppExecFwk::BundleMgrHelper> ImplicitStartProcessor::GetBundleManagerHelper()
 {
-    if (iBundleManager_ == nullptr) {
-        iBundleManager_ = AbilityUtil::GetBundleManager();
+    if (iBundleManagerHelper_ == nullptr) {
+        iBundleManagerHelper_ = AbilityUtil::GetBundleManagerHelper();
     }
-    return iBundleManager_;
+    return iBundleManagerHelper_;
 }
 
 sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 {
-    auto bundleMgr = GetBundleManager();
-    auto defaultAppProxy = bundleMgr->GetDefaultAppProxy();
+    auto bundleMgrHelper = GetBundleManagerHelper();
+    auto defaultAppProxy = bundleMgrHelper->GetDefaultAppProxy();
     if (defaultAppProxy == nullptr) {
-        HILOG_ERROR("GetDefaultAppProxy failed.");
+        HILOG_ERROR("Get default app proxy failed.");
         return nullptr;
     }
     return defaultAppProxy;
@@ -510,15 +510,15 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
     callerInfo.targetAppType = TYPE_HARMONY_INVALID;
     callerInfo.callerAppType = TYPE_HARMONY_INVALID;
 
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Get Bubndle manager helper failed.");
         return;
     }
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+    bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed.");
@@ -533,13 +533,13 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
     }
 
     std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
         HILOG_ERROR("Get callerBundleName failed.");
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+    bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_DEBUG("Get callerAppInfo failed.");

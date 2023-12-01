@@ -17,10 +17,11 @@
 
 #include <regex>
 
-#include "constants.h"
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "app_context.h"
+#include "bundle_mgr_helper.h"
+#include "constants.h"
 #include "directory_ex.h"
 #include "file_ex.h"
 #include "hilog_wrapper.h"
@@ -124,16 +125,14 @@ void ContextDeal::SetContext(const std::shared_ptr<Context> &context)
     abilityContext_ = context;
 }
 
-sptr<IBundleMgr> ContextDeal::GetBundleManager() const
+std::shared_ptr<BundleMgrHelper> ContextDeal::GetBundleManager() const
 {
-    auto bundleObj =
-        OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleObj == nullptr) {
+    std::shared_ptr<BundleMgrHelper> bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("failed to get bundle manager service");
         return nullptr;
     }
-    sptr<IBundleMgr> bms = iface_cast<IBundleMgr>(bundleObj);
-    return bms;
+    return bundleMgrHelper;
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextDeal::GetResourceManager() const
@@ -220,7 +219,7 @@ sptr<AAFwk::IAbilityManager> ContextDeal::GetAbilityManager()
 
 std::string ContextDeal::GetAppType()
 {
-    sptr<IBundleMgr> ptr = GetBundleManager();
+    auto ptr = GetBundleManager();
     if (ptr == nullptr) {
         HILOG_ERROR("GetAppType failed to get bundle manager service");
         return "";
@@ -454,7 +453,7 @@ int ContextDeal::GetColorMode()
 
 bool ContextDeal::HapModuleInfoRequestInit()
 {
-    sptr<IBundleMgr> ptr = GetBundleManager();
+    auto ptr = GetBundleManager();
     if (ptr == nullptr) {
         HILOG_ERROR("GetHapModuleInfo failed to get bundle manager service");
         return false;

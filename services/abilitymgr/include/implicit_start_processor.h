@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,7 @@
 #include <unordered_set>
 
 #include "ability_record.h"
-#include "bundle_mgr_interface.h"
+#include "bundle_mgr_helper.h"
 #include "system_dialog_scheduler.h"
 #ifdef SUPPORT_ERMS
 #include "ecological_rule_mgr_service_client.h"
@@ -61,7 +61,7 @@ private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
         std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper();
     std::vector<std::string> splitStr(const std::string& str, char delimiter);
     int queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos);
 
@@ -87,7 +87,7 @@ private:
 private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;
-    sptr<AppExecFwk::IBundleMgr> iBundleManager_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> iBundleManagerHelper_;
     ffrt::mutex identityListLock_;
     std::list<IdentityNode> identityList_;
 };

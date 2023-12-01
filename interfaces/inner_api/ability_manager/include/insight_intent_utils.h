@@ -24,7 +24,6 @@ namespace OHOS {
 namespace AbilityRuntime {
 class InsightIntentUtils {
 public:
-    static sptr<AppExecFwk::IBundleMgr> GetBundleManagerProxy();
     static std::string GetSrcEntry(const std::string &bundleName, const std::string &moduleName,
         const std::string &intentName);
 };

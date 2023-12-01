@@ -813,7 +813,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
         }
     }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
+    auto bundleMgr = remoteClientManager->GetBundleManagerHelper();
     std::string callerBundleName;
     if (bundleMgr != nullptr &&
         IN_PROCESS_CALL(bundleMgr->GetNameForUid(appRecord->GetCallerUid(), callerBundleName)) == ERR_OK) {

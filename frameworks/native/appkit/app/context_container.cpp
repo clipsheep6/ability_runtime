@@ -16,11 +16,12 @@
 
 #include <regex>
 
-#include "constants.h"
 #include "ability_manager_client.h"
 #include "ability_manager_errors.h"
 #include "app_context.h"
 #include "bundle_constants.h"
+#include "bundle_mgr_helper.h"
+#include "constants.h"
 #include "hilog_wrapper.h"
 #include "parameters.h"
 
@@ -112,7 +113,7 @@ std::shared_ptr<Context> ContextContainer::GetContext()
     }
 }
 
-sptr<IBundleMgr> ContextContainer::GetBundleManager() const
+std::shared_ptr<BundleMgrHelper> ContextContainer::GetBundleManager() const
 {
     if (baseContext_ != nullptr) {
         return baseContext_->GetBundleManager();
@@ -247,7 +248,7 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
         return GetApplicationContext();
     }
 
-    sptr<IBundleMgr> bundleMgr = GetBundleManager();
+    std::shared_ptr<BundleMgrHelper> bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
         HILOG_ERROR("ContextContainer::CreateBundleContext GetBundleManager is nullptr");
         return nullptr;

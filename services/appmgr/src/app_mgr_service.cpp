@@ -298,14 +298,14 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
 {
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("GetBundleManager is nullptr");
+    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Get bundle manager helper is nullptr.");
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+    auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
     if (result != ERR_OK) {
         HILOG_ERROR("GetBundleName failed: %{public}d", result);
         return ERR_INVALID_OPERATION;
@@ -486,14 +486,14 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
         return ERR_INVALID_OPERATION;
     }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
-    if (bundleMgr == nullptr) {
+    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("AppMgrService::FinishUserTest GetBundleManager is nullptr");
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+    auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
     if (result == ERR_OK) {
         HILOG_INFO("FinishUserTest callingPid_ is %{public}s", callerBundleName.c_str());
         if (bundleName != callerBundleName) {

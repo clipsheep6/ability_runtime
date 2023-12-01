@@ -107,13 +107,10 @@ private:
         DialogPosition &position, float densityPixels, int lineNums) const;
     void DialogPositionAdaptive(DialogPosition &position, int lineNums) const;
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleManager();
-
     void GetAppNameFromResource(int32_t labelId,
         const std::string &bundleName, int32_t userId, std::string &appName);
 
 private:
-    sptr<AppExecFwk::IBundleMgr> iBundleManager_;
     std::string deviceType_ = {};
 };
 }  // namespace AAFwk

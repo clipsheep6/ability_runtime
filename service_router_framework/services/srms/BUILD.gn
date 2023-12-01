@@ -19,7 +19,10 @@ group("srms_target") {
 }
 
 config("srms_config") {
-  include_dirs = [ "include" ]
+  include_dirs = [
+    "include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+  ]
 }
 
 ohos_shared_library("libsrms") {
@@ -41,6 +44,7 @@ ohos_shared_library("libsrms") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${srms_inner_api_path}:srms_fwk",
   ]
 

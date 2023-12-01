@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -116,12 +116,12 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appSpawnSocket.ReadMessage(reinterpret_cast<void*>(*data), len);
     appSpawnSocket.CloseAppSpawnConnection();
     RemoteClientManager remoteClientManager;
-    sptr<IBundleMgr> bundleManager = nullptr;
-    remoteClientManager.SetBundleManager(bundleManager);
+    std::shared_ptr<BundleMgrHelper> bundleManagerHelper = nullptr;
+    remoteClientManager.SetBundleManagerHelper(bundleManagerHelper);
     std::shared_ptr<AppSpawnClient> appSpawnClientptr;
     remoteClientManager.SetSpawnClient(appSpawnClientptr);
     remoteClientManager.GetSpawnClient();
-    remoteClientManager.GetBundleManager();
+    remoteClientManager.GetBundleManagerHelper();
     remoteClientManager.GetNWebSpawnClient();
     std::shared_ptr<AppMgrServiceInner> owner;
     WindowFocusChangedListener windowFocusChangedListener(owner, handler);
