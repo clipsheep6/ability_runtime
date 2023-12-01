@@ -51,6 +51,7 @@ constexpr size_t ARGC_THREE = 3;
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOSAVE = "save";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "fill";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
+constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {
@@ -474,6 +475,11 @@ void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         uiWindow->Show();
         HILOG_DEBUG("UI window show.");
         foregroundWindows_.emplace(obj);
+
+        AAFwk::WantParams wantParams;
+        wantParams.SetParam(WANT_PARAMS_AUTO_FILL_EVENT_KEY, AAFwk::Integer::Box(
+            static_cast<int32_t>(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_REMOVE_TIME_OUT)));
+        uiWindow->TransferExtensionData(wantParams);
     }
 }
 

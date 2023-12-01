@@ -13,24 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H
-#define OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H
+#include "auto_fill_event_handler.h"
+
+#include "auto_fill_manager.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-namespace AutoFill {
-enum {
-    AUTO_FILL_SUCCESS = 0,
-    AUTO_FILL_FAILED,
-    AUTO_FILL_CANCEL,
-    AUTO_FILL_CANCEL_TIME_OUT,
-    AUTO_FILL_RELEASE_FAILED,
-    AUTO_FILL_ON_ERROR,
-    AUTO_FILL_OBJECT_IS_NULL,
-    AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED,
-    AUTO_FILL_REQUEST_TIME_OUT,
-};
-} // namespace AutoFill
+AutoFillEventHandler::AutoFillEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &taskHandler)
+    : EventHandlerWrap(taskHandler)
+{}
+
+void AutoFillEventHandler::ProcessEvent(const AAFwk::EventWrap &event)
+{
+    HILOG_DEBUG("Called.");
+    AutoFillManager::GetInstance().HandleTimeOut(event.GetEventId());
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H

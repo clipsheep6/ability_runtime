@@ -203,6 +203,7 @@ ohos_source_set("abilityms_test_source") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:view_data",
     "ability_base:want",
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",

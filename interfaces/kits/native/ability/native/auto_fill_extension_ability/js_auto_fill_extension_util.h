@@ -45,6 +45,7 @@ public:
         CALLBACK_SUCESS = 0,
         CALLBACK_FAILED,
         CALLBACK_CANCEL,
+        CALLBACK_REMOVE_TIME_OUT,
         CALLBACK_FAILED_INVALID_PARAM,
     };
 };

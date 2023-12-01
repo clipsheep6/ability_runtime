@@ -148,6 +148,7 @@ ohos_shared_library("abilityms") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
+    "ability_base:view_data",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",

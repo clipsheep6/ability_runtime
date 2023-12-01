@@ -43,16 +43,16 @@
 #include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
-#include "extension_config.h"
 #include "errors.h"
+#include "extension_config.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hisysevent.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
-#include "insight_intent_execute_manager.h"
 #include "in_process_call_wrapper.h"
 #include "insight_intent_execute_callback_proxy.h"
+#include "insight_intent_execute_manager.h"
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "iservice_registry.h"
@@ -77,6 +77,7 @@
 #include "ui_extension_ability_connect_manager.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
+#include "view_data.h"
 #include "xcollie/watchdog.h"
 #ifdef SUPPORT_GRAPHICS
 #include "application_anr_listener.h"
@@ -152,6 +153,7 @@ constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
 constexpr size_t INDEX_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
+constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 
 constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
@@ -7931,12 +7933,18 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         return ERR_OK;
     }
     if (extensionType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD) {
-        if (abilityRequest.appInfo.isSystemApp) {
-            HILOG_DEBUG("Is system app.");
-            return ERR_OK;
+        if (!abilityRequest.appInfo.isSystemApp) {
+            HILOG_ERROR("The application requesting the call is a non system application.");
+            return CHECK_PERMISSION_FAILED;
         }
-        HILOG_ERROR("The application requesting the call is a non system application.");
-        return CHECK_PERMISSION_FAILED;
+        std::string jsonDataStr = abilityRequest.want.GetStringParam(WANT_PARAMS_VIEW_DATA_KEY);
+        AbilityBase::ViewData viewData;
+        viewData.FromJsonString(jsonDataStr.c_str());
+        if (!CheckCallingTokenId(viewData.bundleName)) {
+            HILOG_ERROR("Not %{public}s called, not allowed.", viewData.bundleName.c_str());
+            return ERR_WRONG_INTERFACE_CALL;
+        }
+        return ERR_OK;
     }
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
         return ERR_OK;
