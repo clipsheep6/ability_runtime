@@ -362,6 +362,12 @@ enum class AbilityManagerInterfaceCode {
     // start ability by insigt intent
     START_ABILITY_BY_INSIGHT_INTENT = 1053,
 
+    // get dialog session info
+    GET_DIALOG_SESSION_INFO = 1054,
+
+    // send dialog result
+    SEND_DIALOG_RESULT = 1055,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

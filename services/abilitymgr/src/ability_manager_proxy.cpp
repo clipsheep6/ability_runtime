@@ -2844,6 +2844,60 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
 
     return reply.ReadInt32();
 }
+
+int AbilityManagerProxy::GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface fail.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(dialogSessionId)) {
+        HILOG_ERROR("write dialogSessionId fail.");
+        return ERR_INVALID_VALUE;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
+        return error;
+    }
+    info = reply.ReadParcelable<DialogSessionInfo>();
+    if (!info) {
+        HILOG_ERROR("read IRemoteObject failed.");
+        return ERR_UNKNOWN_OBJECT;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string dialogSessionId, const bool isAllow)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString(dialogSessionId)) {
+        HILOG_ERROR("write dialogSessionId fail.");
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(isAllow)) {
+        HILOG_ERROR("write dialogSessionId fail.");
+        return INNER_ERR;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
 #endif
 
 int AbilityManagerProxy::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)
