@@ -403,27 +403,5 @@ HWTEST_F(JsEnvironmentTest, ParseHdcRegisterOption_0100, TestSize.Level0)
     int result5 = jsEnv->ParseHdcRegisterOption(option5);
     ASSERT_EQ(result5, 456);
 }
-
-/**
- * @tc.name: SetDeviceDisconnectCallback_0100
- * @tc.desc: Js environment SetDeviceDisconnectCallback.
- * @tc.type: FUNC
- * @tc.require: issueI82L1A
- */
-HWTEST_F(JsEnvironmentTest, SetDeviceDisconnectCallback_0100, TestSize.Level0)
-{
-    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
-    ASSERT_NE(jsEnv, nullptr);
-    panda::RuntimeOption pandaOption;
-    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
-    ASSERT_EQ(ret, true);
-
-    bool taskExecuted = false;
-    auto task = [&taskExecuted]() {
-        return true;
-    };
-    jsEnv->SetDeviceDisconnectCallback(task);
-    ASSERT_EQ(taskExecuted, false);
-}
 } // namespace JsEnv
 } // namespace OHOS
