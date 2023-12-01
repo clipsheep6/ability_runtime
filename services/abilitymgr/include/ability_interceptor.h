@@ -40,7 +40,7 @@ using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
 
 class AbilityInterceptor {
 public:
-    virtual ~AbilityInterceptor();
+    virtual ~AbilityInterceptor() = default;
 
     /**
      * Excute interception processing.
@@ -52,8 +52,8 @@ public:
 // start ability interceptor
 class CrowdTestInterceptor : public AbilityInterceptor {
 public:
-    CrowdTestInterceptor();
-    ~CrowdTestInterceptor();
+    CrowdTestInterceptor() = default;
+    ~CrowdTestInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
@@ -65,8 +65,8 @@ private:
 
 class ControlInterceptor : public AbilityInterceptor {
 public:
-    ControlInterceptor();
-    ~ControlInterceptor();
+    ControlInterceptor() = default;
+    ~ControlInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
@@ -78,8 +78,8 @@ private:
 
 class DisposedRuleInterceptor : public AbilityInterceptor {
 public:
-    DisposedRuleInterceptor();
-    ~DisposedRuleInterceptor();
+    DisposedRuleInterceptor() = default;
+    ~DisposedRuleInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
@@ -94,8 +94,8 @@ private:
 
 class EcologicalRuleInterceptor : public AbilityInterceptor {
 public:
-    EcologicalRuleInterceptor();
-    ~EcologicalRuleInterceptor();
+    EcologicalRuleInterceptor() = default;
+    ~EcologicalRuleInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
@@ -112,8 +112,8 @@ private:
 // ability jump interceptor
 class AbilityJumpInterceptor : public AbilityInterceptor {
 public:
-    AbilityJumpInterceptor();
-    ~AbilityJumpInterceptor();
+    AbilityJumpInterceptor() = default;
+    ~AbilityJumpInterceptor() = default;
     ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {

@@ -30,6 +30,7 @@
 #include "locale_config.h"
 #include "parameters.h"
 #include "resource_manager.h"
+#include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {
@@ -109,6 +110,9 @@ const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
+const std::string ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG = "AppSelectorExtensionAbility";
+const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+const std::string UIEXTENSION_SYS_COMMON_UI = "sys/commonUI";
 const std::string CALLER_TOKEN = "callerToken";
 const std::string ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG = "JumpInterceptorDialog";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
@@ -358,7 +362,20 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
         HILOG_DEBUG("set callertoken to targetWant");
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
-
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("GetBundleManager failed");
+            return targetWant;
+        }
+        std::string bundleName;
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
+            targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+            return targetWant;
+        }
+    }
     return targetWant;
 }
 
@@ -404,6 +421,20 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
         targetWant.RemoveParam(CALLER_TOKEN);
     } else {
         targetWant.SetParam(CALLER_TOKEN, callerToken);
+    }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("GetBundleManager failed");
+            return targetWant;
+        }
+        std::string bundleName;
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
+            targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+            return targetWant;
+        }
     }
     return targetWant;
 }
