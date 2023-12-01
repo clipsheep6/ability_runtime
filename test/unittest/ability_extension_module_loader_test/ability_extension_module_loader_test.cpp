@@ -120,5 +120,50 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_GetToken_0100, TestSize.L
     EXPECT_EQ(requestInfo->GetToken(), nullptr);
     HILOG_INFO("RequestInfo_GetToken_0100 end");
 }
+
+/**
+ * @tc.number: RequestInfo_CreateJsWindowRect_0100
+ * @tc.name: CreateJsWindowRect
+ * @tc.desc: CreateJsWindowRect
+ */
+HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_CreateJsWindowRect_0100, TestSize.Level1)
+{
+    HILOG_INFO("RequestInfo_CreateJsWindowRect_0100 start");
+    sptr<IRemoteObject> token = nullptr;
+    int32_t left = 0, top = 0, width = 0, height = 0;
+    auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
+    EXPECT_EQ(requestInfo->CreateJsWindowRect(nullptr, left, top, width, height), nullptr);
+    HILOG_INFO("RequestInfo_CreateJsWindowRect_0100 end");
+}
+
+/**
+ * @tc.number: RequestInfo_WrapRequestInfo_0100
+ * @tc.name: WrapRequestInfo
+ * @tc.desc: WrapRequestInfo
+ */
+HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_WrapRequestInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("RequestInfo_WrapRequestInfo_0100 start");
+    sptr<IRemoteObject> token = nullptr;
+    int32_t left = 0, top = 0, width = 0, height = 0;
+    auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
+    EXPECT_EQ(requestInfo->WrapRequestInfo(nullptr, nullptr), nullptr);
+    HILOG_INFO("RequestInfo_WrapRequestInfo_0100 end");
+}
+
+/**
+ * @tc.number: RequestInfo_UnwrapRequestInfo_0100
+ * @tc.name: UnwrapRequestInfo
+ * @tc.desc: UnwrapRequestInfo
+ */
+HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_UnwrapRequestInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("RequestInfo_UnwrapRequestInfo_0100 start");
+    sptr<IRemoteObject> token = nullptr;
+    int32_t left = 0, top = 0, width = 0, height = 0;
+    auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
+    EXPECT_EQ(requestInfo->UnwrapRequestInfo(nullptr, nullptr), nullptr);
+    HILOG_INFO("RequestInfo_UnwrapRequestInfo_0100 end");
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
