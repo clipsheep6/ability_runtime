@@ -202,6 +202,11 @@ napi_value JsAbilityContext::StartAbilityByType(napi_env env, napi_callback_info
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnStartAbilityByType);
 }
 
+napi_value JsAbilityContext::RequestModalUIExtension(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnRequestModalUIExtension);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -1364,6 +1369,8 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::SetMissionContinueState);
     BindNativeFunction(env, object, "startAbilityByType", moduleName,
         JsAbilityContext::StartAbilityByType);
+    BindNativeFunction(env, object, "requestModalUIExtension", moduleName,
+        JsAbilityContext::RequestModalUIExtension);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1774,6 +1781,45 @@ napi_value JsAbilityContext::OnStartAbilityByType(napi_env env, NapiCallbackInfo
     napi_value lastParam = (info.argc > ARGC_THREE) ? info.argv[INDEX_THREE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByType",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+napi_value JsAbilityContext::OnRequestModalUIExtension(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+
+    if (info.argc < ARGC_ONE) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+        HILOG_ERROR("Failed to parse want!");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto errcode = context->RequestModalUIExtension(want);
+            if (errcode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnRequestModalUIExtension",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

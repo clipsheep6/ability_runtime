@@ -187,6 +187,9 @@ class AbilityContext extends Context {
     return this.__context_impl__.startAbilityByType(type, wantParam, abilityStartCallback, callback);
   }
 
+  requestModalUIExtension(want, callback) {
+    return this.__context_impl__.requestModalUIExtension(want, callback);
+  }
 }
 
 export default AbilityContext;
