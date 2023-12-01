@@ -56,6 +56,7 @@
 #include "want_receiver_interface.h"
 #include "want_sender_info.h"
 #include "want_sender_interface.h"
+#include "dialog_session_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window_manager_service_handler.h"
 #endif
@@ -170,7 +171,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE)
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isSendDialogResult = false)
     {
         return 0;
     }
@@ -783,6 +785,17 @@ public:
     {
         return 0;
     }
+
+    virtual int GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &dialogSessionInfo)
+    {
+        return 0;
+    }
+
+    virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow)
+    {
+        return 0;
+    }
+
 #endif
 
     virtual int GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info) = 0;

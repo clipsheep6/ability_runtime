@@ -340,6 +340,10 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::ConnectUIExtensionAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY)] =
         &AbilityManagerStub::PrepareTerminateAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO)] =
+        &AbilityManagerStub::GetDialogSessionInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT)] =
+        &AbilityManagerStub::SendDialogResultInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
@@ -846,7 +850,9 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
     }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode);
+    bool isSendDialogResult = data.ReadBool();
+    int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode,
+        isSendDialogResult);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -2443,6 +2449,42 @@ int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, Messag
     int result = PrepareTerminateAbility(token, callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("end faild. err: %{public}d", result);
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call");
+    std::string dialogSessionId = data.ReadString();
+    sptr<DialogSessionInfo> info;
+    int result = GetDialogSessionInfo(dialogSessionId, info);
+    if (result != ERR_OK || info == nullptr) {
+        HILOG_ERROR("not find dialogSessionInfo");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteParcelable(info)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SendDialogResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call");
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::string dialogSessionId = data.ReadString();
+    bool isAllow = data.ReadBool();
+    int result = SendDialogResult(*want, dialogSessionId, isAllow);
+    if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
