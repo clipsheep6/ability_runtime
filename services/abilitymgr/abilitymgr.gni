@@ -63,7 +63,9 @@ abilityms_files = [
 
   # new ability manager service here
   "src/task_data_persistence_mgr.cpp",
-  "src/ui_extension_ability_connect_manager.cpp",
+  "src/extension_record_manager.cpp",
+  "src/extension_record.cpp",
+  "src/ui_extension_record.cpp",
   "src/start_options.cpp",
   "src/stop_user_callback_proxy.cpp",
   "src/stop_user_callback_stub.cpp",

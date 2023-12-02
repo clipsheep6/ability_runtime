@@ -75,7 +75,7 @@
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
-#include "ui_extension_ability_connect_manager.h"
+#include "extension_record_manager.h"
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #include "view_data.h"

@@ -30,7 +30,7 @@
 #include "mock_session_manager_service.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
-#include "ui_extension_ability_record.h"
+#include "extension_record.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {
@@ -69,7 +69,7 @@ const std::unordered_set<std::string> FROZEN_WHITE_LIST {
 
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
 {
-    uiExtensionAbilityRecordMgr_ = std::make_unique<AbilityRuntime::UIExtensionAbilityConnectManager>(userId);
+    uiExtensionAbilityRecordMgr_ = std::make_unique<AbilityRuntime::ExtensionRecordManager>(userId);
 }
 
 AbilityConnectManager::~AbilityConnectManager()
@@ -136,7 +136,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         if (IsUIExtensionAbility(targetService) && abilityRequest.sessionInfo != nullptr) {
             std::string hostBundleName = abilityRequest.abilityInfo.bundleName;
             int32_t inputId = abilityRequest.sessionInfo->want.GetIntParam(UIEXTENSION_ABILITY_ID,
-                INVALID_UI_EXTENSION_ABILITY_ID);
+                INVALID_EXTENSION_RECORD_ID);
             auto uiExtensionAbilityId = AddUIExtensionAbilityRecord(targetService, hostBundleName, inputId);
             HILOG_DEBUG("UIExtensionAbility id %{public}d.", uiExtensionAbilityId);
         }
@@ -723,7 +723,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
     abilityRecord->RemoveConnectRecordFromList(connect);
     if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
         if (IsUIExtensionAbility(abilityRecord) && CheckUIExtensionAbilitySessionExistLocked(abilityRecord)) {
-            HILOG_INFO("There exist ui extension component, don't terminate when disconnet.");
+            HILOG_INFO("There exist ui extension component, don't terminate when disconnect.");
         } else {
             HILOG_INFO("Service ability has no any connection, and not started, need terminate.");
             TerminateRecord(abilityRecord);
@@ -2190,12 +2190,15 @@ void AbilityConnectManager::HandleUIExtWindowDiedTask(const sptr<IRemoteObject> 
 
 bool AbilityConnectManager::IsUIExtensionFocused(uint32_t uiExtensionTokenId, const sptr<IRemoteObject>& focusToken)
 {
+    HILOG_DEBUG("called, id: %{public}u", uiExtensionTokenId);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, false);
     std::lock_guard guard(Lock_);
     for (auto& item: uiExtensionMap_) {
         auto uiExtension = item.second.first.lock();
         auto sessionInfo = item.second.second;
         if (uiExtension && uiExtension->GetApplicationInfo().accessTokenId == uiExtensionTokenId
-            && sessionInfo && sessionInfo->callerToken == focusToken) {
+            && uiExtensionAbilityRecordMgr_->IsFocused(uiExtension->GetUIExtensionAbilityId(), focusToken)) {
+            HILOG_INFO("id: %{public}u, isFocused.", uiExtensionTokenId);
             return true;
         }
     }
@@ -2302,7 +2305,7 @@ void AbilityConnectManager::HandleExtensionDisconnectTask(const std::shared_ptr<
     }
 }
 
-bool AbilityConnectManager::IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> abilityRecord)
+bool AbilityConnectManager::IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER_AND_RETURN(abilityRecord, false);
     return UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType);
@@ -2314,20 +2317,20 @@ bool AbilityConnectManager::CheckUIExtensionAbilityLoaded(const AbilityRequest &
     CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, false);
 
     int32_t uiExtensionAbilityId = abilityRequest.sessionInfo->want.GetIntParam(UIEXTENSION_ABILITY_ID,
-        INVALID_UI_EXTENSION_ABILITY_ID);
-    if (uiExtensionAbilityId == INVALID_UI_EXTENSION_ABILITY_ID) {
+        INVALID_EXTENSION_RECORD_ID);
+    if (uiExtensionAbilityId == INVALID_EXTENSION_RECORD_ID) {
         HILOG_DEBUG("Didn't carry uiextension ability id when start.");
         return true;
     }
 
-    auto ret = uiExtensionAbilityRecordMgr_->CheckUIExtensionAbilityLoaded(
+    auto ret = uiExtensionAbilityRecordMgr_->CheckExtensionLoaded(
         uiExtensionAbilityId, abilityRequest.abilityInfo.bundleName);
     HILOG_DEBUG("UIExtensionAbility loaded status: %{public}s.", ret ? "true" : "false");
     return ret;
 }
 
 bool AbilityConnectManager::CheckUIExtensionAbilitySessionExistLocked(
-    const std::shared_ptr<AbilityRecord> abilityRecord)
+    const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER_AND_RETURN(abilityRecord, false);
 
@@ -2342,26 +2345,21 @@ bool AbilityConnectManager::CheckUIExtensionAbilitySessionExistLocked(
     return false;
 }
 
-int32_t AbilityConnectManager::AddUIExtensionAbilityRecord(const std::shared_ptr<AAFwk::AbilityRecord> abilityRecord,
-    const std::string hostBundleName, const int32_t inputId) const
+int32_t AbilityConnectManager::AddUIExtensionAbilityRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
+    const std::string &hostBundleName, const int32_t inputId) const
 {
-    CHECK_POINTER_AND_RETURN(abilityRecord, INVALID_UI_EXTENSION_ABILITY_ID);
-    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, INVALID_UI_EXTENSION_ABILITY_ID);
-
-    auto uiExtensionAbilityId = uiExtensionAbilityRecordMgr_->GenerateUIExtensionAbilityId(inputId);
-    HILOG_DEBUG("Generated id is %{public}d.", uiExtensionAbilityId);
-    abilityRecord->SetUIExtensionAbilityId(uiExtensionAbilityId);
-    auto uiExtensionAbilityRecord = std::make_shared<UIExtensionAbilityRecord>(abilityRecord,
-        hostBundleName, uiExtensionAbilityId);
-    uiExtensionAbilityRecordMgr_->AddUIExtensionAbilityRecord(uiExtensionAbilityId, uiExtensionAbilityRecord);
+    CHECK_POINTER_AND_RETURN(abilityRecord, INVALID_EXTENSION_RECORD_ID);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, INVALID_EXTENSION_RECORD_ID);
+    int32_t uiExtensionAbilityId = inputId;
+    uiExtensionAbilityRecordMgr_->CreateExtensionRecord(abilityRecord, hostBundleName, uiExtensionAbilityId);
     return uiExtensionAbilityId;
 }
 
-void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> abilityRecord)
+void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(uiExtensionAbilityRecordMgr_);
-    uiExtensionAbilityRecordMgr_->RemoveUIExtensionAbilityRecord(abilityRecord->GetUIExtensionAbilityId());
+    uiExtensionAbilityRecordMgr_->RemoveExtensionRecord(abilityRecord->GetUIExtensionAbilityId());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

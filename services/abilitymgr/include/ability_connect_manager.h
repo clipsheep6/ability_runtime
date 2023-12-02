@@ -32,7 +32,7 @@
 #include "connection_record.h"
 #include "element_name.h"
 #include "ui_extension_ability_connect_info.h"
-#include "ui_extension_ability_connect_manager.h"
+#include "extension_record_manager.h"
 #include "want.h"
 #include "iremote_object.h"
 #include "nocopyable.h"
@@ -41,7 +41,7 @@ namespace OHOS {
 namespace AAFwk {
 using OHOS::AppExecFwk::AbilityType;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
-using UIExtensionAbilityConnectManager = AbilityRuntime::UIExtensionAbilityConnectManager;
+using UIExtensionAbilityConnectManager = AbilityRuntime::ExtensionRecordManager;
 
 /**
  * @class AbilityConnectManager
@@ -502,12 +502,12 @@ private:
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
     bool IsSceneBoard(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
-    inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> abilityRecord);
+    inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
-    inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> abilityRecord);
-    inline int32_t AddUIExtensionAbilityRecord(const std::shared_ptr<AAFwk::AbilityRecord> abilityRecord,
-        const std::string hostBundleName, const int32_t inputId) const;
-    inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> abilityRecord);
+    inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    inline int32_t AddUIExtensionAbilityRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
+        const std::string &hostBundleName, const int32_t inputId) const;
+    inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

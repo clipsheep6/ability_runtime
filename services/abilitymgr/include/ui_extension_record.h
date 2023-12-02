@@ -13,31 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_UI_EXTENSION_ABILITY_RECORD_H
-#define OHOS_ABILITY_RUNTIME_UI_EXTENSION_ABILITY_RECORD_H
+#ifndef OHOS_ABILITY_RUNTIME_UI_EXTENSION_RECORD_H
+#define OHOS_ABILITY_RUNTIME_UI_EXTENSION_RECORD_H
 
 #include <atomic>
 #include <map>
 #include <memory>
 #include <string>
 
-#include "ability_record.h"
+#include "extension_record.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class UIExtensionAbilityRecord : public std::enable_shared_from_this<UIExtensionAbilityRecord> {
+class UIExtensionRecord : public ExtensionRecord {
 public:
-    UIExtensionAbilityRecord(const std::shared_ptr<AAFwk::AbilityRecord> abilityRecord, std::string hostBundleName,
-        int32_t uiExtensionAbilityId)
-        : abilityRecord_(abilityRecord), hostBundleName_(hostBundleName), uiExtensionAbilityId_(uiExtensionAbilityId)
-    {}
+    UIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
+        const std::string &hostBundleName, int32_t extensionRecordId);
 
-    virtual ~UIExtensionAbilityRecord() = default;
+    ~UIExtensionRecord() override;
 
-    std::shared_ptr<AAFwk::AbilityRecord> abilityRecord_ = nullptr;
-    std::string hostBundleName_ = "";
-    int32_t uiExtensionAbilityId_ = 0;
+    bool ContinueToGetCallerToken() override;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_UI_EXTENSION_ABILITY_RECORD_H
+#endif // OHOS_ABILITY_RUNTIME_UI_EXTENSION_RECORD_H

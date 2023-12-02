@@ -428,8 +428,11 @@ bool JsUIExtension::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
 
     auto context = GetContext();
     InsightIntentExecutorInfo executorInfo;
-    executorInfo.hapPath = context->GetAbilityInfo()->hapPath;
-    executorInfo.windowMode = context->GetAbilityInfo()->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = context->GetAbilityInfo();
+    if (abilityInfo != nullptr) {
+        executorInfo.hapPath = abilityInfo->hapPath;
+        executorInfo.windowMode = abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    }
     executorInfo.token = context->GetToken();
     executorInfo.pageLoader = contentSessions_[sessionInfo->uiExtensionComponentId];
     executorInfo.executeParam = std::make_shared<InsightIntentExecuteParam>();
