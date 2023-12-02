@@ -346,18 +346,21 @@ bool AbilityManagerService::Init()
 
     AmsConfigurationParameter::GetInstance().Parse();
     HILOG_INFO("ams config parse");
+    std::string deviceType = OHOS::system::GetDeviceType();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
-        std::string deviceType = OHOS::system::GetDeviceType();
         uiAbilityLifecycleManager_->SetDevice(deviceType);
     } else {
         InitMissionListManager(MAIN_USER_ID, true);
     }
     SwitchManagers(U0_USER_ID, false);
 #ifdef SUPPORT_GRAPHICS
-    auto anrListener = std::make_shared<ApplicationAnrListener>();
-    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
-    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
+    auto anrListenerTask = []() {
+        auto anrListener = std::make_shared<ApplicationAnrListener>();
+        MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
+    };
+    taskHandler_->SubmitTask(anrListenerTask, "AnrListenerTask");
+    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();
@@ -379,12 +382,9 @@ bool AbilityManagerService::Init()
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
-    HILOG_ERROR("GetBoolParameter -> isAppJumpEnabled:%{public}s", (isAppJumpEnabled ? "true" : "false"));
     if (isAppJumpEnabled) {
         HILOG_INFO("App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
         interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
-    } else {
-        HILOG_INFO("App jump intercetor disabled");
     }
     InitStartAbilityChain();
 
