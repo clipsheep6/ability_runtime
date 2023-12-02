@@ -333,7 +333,6 @@ bool AbilityManagerService::Init()
     taskHandler_ = TaskHandlerWrap::CreateQueueHandler(AbilityConfig::NAME_ABILITY_MGR_SERVICE);
     eventHandler_ = std::make_shared<AbilityEventHandler>(taskHandler_, weak_from_this());
     freeInstallManager_ = std::make_shared<FreeInstallManager>(weak_from_this());
-    CHECK_POINTER_RETURN_BOOL(freeInstallManager_);
 
     // init user controller.
     userController_ = std::make_shared<UserController>();
@@ -344,22 +343,28 @@ bool AbilityManagerService::Init()
     InitPendWantManager(MAIN_USER_ID, true);
     systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
 
-    AmsConfigurationParameter::GetInstance().Parse();
-    HILOG_INFO("ams config parse");
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    std::string deviceType = OHOS::system::GetDeviceType();
+    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
+    auto configParseTask = []() {
+        AmsConfigurationParameter::GetInstance().Parse();
+    };
+    taskHandler_->SubmitTask(configParseTask, "ConfigParseTask");
+    isSceneBoard_ = Rosen::SceneBoardJudgement::IsSceneBoardEnabled();
+    if (isSceneBoard_) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
-        std::string deviceType = OHOS::system::GetDeviceType();
         uiAbilityLifecycleManager_->SetDevice(deviceType);
     } else {
         InitMissionListManager(MAIN_USER_ID, true);
     }
     SwitchManagers(U0_USER_ID, false);
 #ifdef SUPPORT_GRAPHICS
-    auto anrListener = std::make_shared<ApplicationAnrListener>();
-    MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
-    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(OHOS::system::GetDeviceType());
+    auto anrListenerTask = []() {
+        auto anrListener = std::make_shared<ApplicationAnrListener>();
+        MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
+    };
+    taskHandler_->SubmitTask(anrListenerTask, "AnrListenerTask");
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    if (!isSceneBoard_) {
         InitFocusListener();
     }
 #endif
@@ -379,13 +384,11 @@ bool AbilityManagerService::Init()
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
-    HILOG_ERROR("GetBoolParameter -> isAppJumpEnabled:%{public}s", (isAppJumpEnabled ? "true" : "false"));
     if (isAppJumpEnabled) {
         HILOG_INFO("App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
         interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
-    } else {
-        HILOG_INFO("App jump intercetor disabled");
     }
+
     InitStartAbilityChain();
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
