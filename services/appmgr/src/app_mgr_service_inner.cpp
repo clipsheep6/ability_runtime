@@ -4318,7 +4318,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
                 .bundleName = bundleName,
                 .processName = bundleName,
             };
-            AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandle(faultData, info);
+            AppExecFwk::AppfreezeManager::GetInstance()->AppfreezeHandleWithStack(faultData, info);
         }
 
         HILOG_WARN("FaultData is: name: %{public}s, faultType: %{public}d, uid: %{public}d, pid: %{public}d,"

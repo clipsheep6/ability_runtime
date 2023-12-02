@@ -317,7 +317,8 @@ std::string AppfreezeManager::CatcherStacktrace(int pid) const
     HiviewDFX::DfxDumpCatcher dumplog;
     std::string ret;
     std::string msg;
-    if (!dumplog.DumpCatch(pid, 0, msg)) {
+    size_t defaultMaxFaultNum = 256;
+    if (!dumplog.DumpCatch(pid, 0, msg, defaultMaxFaultNum, true)) {
         ret = "Failed to dump stacktrace for " + std::to_string(pid) + "\n" + msg;
     } else {
         ret = msg;
