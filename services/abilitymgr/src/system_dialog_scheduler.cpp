@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "ability_record.h"
 #include "ability_util.h"
+#include "app_gallery_enable_util.h"
 #include "app_scheduler.h"
 #include "dm_common.h"
 #include "display_manager.h"
@@ -362,7 +363,7 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
         HILOG_DEBUG("set callertoken to targetWant");
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto bms = GetBundleManager();
         if (!bms) {
             HILOG_ERROR("GetBundleManager failed");
@@ -422,7 +423,7 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
     } else {
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto bms = GetBundleManager();
         if (!bms) {
             HILOG_ERROR("GetBundleManager failed");
