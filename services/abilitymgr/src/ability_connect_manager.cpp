@@ -114,6 +114,12 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
+    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) &&
+        !CheckUIExtensionAbilityLoaded(abilityRequest)) {
+        HILOG_WARN("Start uiextensionability with invalid id.");
+        return ERR_INVALID_VALUE;
+    }
+
     std::shared_ptr<AbilityRecord> targetService;
     bool isLoadedAbility = false;
     GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
@@ -147,8 +153,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     } else if (IsUIExtensionAbility(targetService) &&
         targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING) &&
         !targetService->IsAbilityState(AbilityState::BACKGROUNDING) &&
-        targetService->IsAbilityWindowReady() &&
-        CheckUIExtensionAbilityLoaded(abilityRequest)) {
+        targetService->IsAbilityWindowReady()) {
         targetService->SetWant(abilityRequest.want);
         CommandAbilityWindow(targetService, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
     } else {
@@ -2323,6 +2328,7 @@ bool AbilityConnectManager::CheckUIExtensionAbilityLoaded(const AbilityRequest &
         return true;
     }
 
+    HILOG_INFO("UIExtensionAbility id: %{public}d.", uiExtensionAbilityId);
     auto ret = uiExtensionAbilityRecordMgr_->CheckExtensionLoaded(
         uiExtensionAbilityId, abilityRequest.abilityInfo.bundleName);
     HILOG_DEBUG("UIExtensionAbility loaded status: %{public}s.", ret ? "true" : "false");
