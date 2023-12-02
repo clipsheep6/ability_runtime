@@ -7530,7 +7530,7 @@ ErrCode AbilityManagerService::ProcessMultiParam(std::vector<std::string>& argsS
             }
             (void)StrToInt(*it, userID);
             if (userID < 0) {
-                HILOG_ERROR("ARGS_USER_ID id invalid");
+                HILOG_ERROR("ARGS_USER_ID id invalid, userID is : %{public}d", userID);
                 return ERR_AAFWK_HIDUMP_INVALID_ARGS;
             }
             isUser = true;
