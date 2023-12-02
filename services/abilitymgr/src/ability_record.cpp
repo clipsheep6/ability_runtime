@@ -1229,57 +1229,34 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
         isAbilityForegrounding_ = false;
     }
 
-    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-        collaboratorType_);
-    if (collaborator != nullptr) {
-        HILOG_INFO("start notify collaborator, missionId:%{public}d, state:%{public}d", missionId_,
-            static_cast<int32_t>(state));
-        int ret = ERR_OK;
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            if (sessionInfo_ == nullptr) {
-                HILOG_ERROR("sessionInfo_ is nullptr");
-                return;
-            }
-            int32_t persistentId = sessionInfo_->persistentId;
-            switch (state) {
-                case AbilityState::BACKGROUNDING: {
-                    ret = collaborator->NotifyMoveMissionToBackground(persistentId);
-                    break;
-                }
-                case AbilityState::TERMINATING: {
-                    ret = collaborator->NotifyTerminateMission(persistentId);
-                    break;
-                }
-                default:
-                    break;
-            }
-            if (ret != ERR_OK) {
-                HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
-            }
-            return;
-        }
-        switch (state) {
-            case AbilityState::FOREGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToForeground(missionId_);
-                break;
-            }
-            case AbilityState::BACKGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToBackground(missionId_);
-                break;
-            }
-            case AbilityState::TERMINATING: {
-                ret = collaborator->NotifyTerminateMission(missionId_);
-                break;
-            }
-            default:
-                break;
-        }
-        if (ret != ERR_OK) {
-            HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
-        }
+    if (collaboratorType_ == CollaboratorType::DEFAULT_TYPE) {
+        DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+        return;
     }
 
-    DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
+    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+        collaboratorType_);
+    if (collaborator == nullptr || sessionInfo_ == nullptr) {
+        HILOG_ERROR("collaborator or sessionInfo_ is nullptr");
+        return;
+    }
+    int32_t persistentId = sessionInfo_->persistentId;
+    int32_t ret = ERR_OK;
+    switch (state) {
+        case AbilityState::BACKGROUNDING: {
+            ret = collaborator->NotifyMoveMissionToBackground(persistentId);
+            break;
+        }
+        case AbilityState::TERMINATING: {
+            ret = collaborator->NotifyTerminateMission(persistentId);
+            break;
+        }
+        default:
+            break;
+    }
+    if (ret != ERR_OK) {
+        HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
+    }
 }
 
 bool AbilityRecord::GetAbilityForegroundingFlag() const
@@ -2052,13 +2029,6 @@ void AbilityRecord::DumpAbilityState(
     info.push_back(dumpInfo);
     if (isLauncherRoot_) {
         dumpInfo = "        can restart num #" + std::to_string(restartCount_);
-        info.push_back(dumpInfo);
-    }
-
-    auto mission = GetMission();
-    if (mission) {
-        std::string missionAffinity = mission->GetMissionAffinity();
-        dumpInfo = "        missionAffinity: " + missionAffinity;
         info.push_back(dumpInfo);
     }
 

@@ -113,25 +113,6 @@ std::shared_ptr<Mission> MissionList::GetRecentStandardMission(const std::string
     return result;
 }
 
-std::shared_ptr<Mission> MissionList::GetRecentStandardMissionWithAffinity(const std::string &missionAffinity) const
-{
-    if (missionAffinity.empty()) {
-        return nullptr;
-    }
-
-    std::string missionTime = "0";
-    std::shared_ptr<Mission> result = nullptr;
-    for (auto& mission : missions_) {
-        if (mission && mission->IsStandardAbility() && mission->GetMissionAffinity() == missionAffinity &&
-            mission->GetMissionTime() >= missionTime) {
-            result = mission;
-            missionTime = mission->GetMissionTime();
-        }
-    }
-
-    return result;
-}
-
 std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const
 {
     for (auto mission : missions_) {
