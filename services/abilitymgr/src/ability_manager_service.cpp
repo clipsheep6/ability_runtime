@@ -2101,7 +2101,14 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     abilityRequest.Voluation(extensionSessionInfo->want, DEFAULT_INVAL_VALUE, callerToken);
     abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
     abilityRequest.sessionInfo = extensionSessionInfo;
-    result = GenerateExtensionAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
+
+    if(extensionSessionInfo->want.GetIntParam("HalfScreenFlag",0)){
+        result = GenerateAbilityRequest(extensionSessionInfo->want, -1 ,abilityRequest, callerToken, validUserId);
+        abilityRequest.abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+        abilityRequest.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UI;
+    }else{
+        result = GenerateExtensionAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
+    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;

@@ -138,6 +138,21 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCod
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbility");
+    if(want.GetIntParam("HalfScreenFlag",0)){
+        auto uiContent = GetUIContent();
+        if (uiContent == nullptr) {
+            HILOG_ERROR("uiContent is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        Ace::ModalUIExtensionCallbacks callback;
+        Ace::ModalUIExtensionConfig config;
+        int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+        if (sessionId == 0) {
+            HILOG_ERROR("CreateModalUIExtension is failed");
+            return ERR_INVALID_VALUE;
+        }
+        return ERR_OK;
+    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbility. ret=%{public}d", err);
