@@ -1670,8 +1670,7 @@ private:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
-    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-        uint32_t callerTokenId, bool isData = false, bool isSaCall = false);
+    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller, uint32_t callerTokenId);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
@@ -1713,7 +1712,7 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start DataAbility.
      */
-    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell, bool IsSACall = false);
+    int CheckCallDataAbilityPermission(AbilityRequest &abilityRequest, bool isShell);
 
     /**
      * Check if Caller is allowed to start ServiceExtension(Stage) or DataShareExtension(Stage).
@@ -1774,8 +1773,7 @@ private:
 
     void UpdateFocusState(std::vector<AbilityRunningInfo> &info);
 
-    AAFwk::PermissionVerification::VerificationInfo CreateVerificationInfo(
-        const AbilityRequest &abilityRequest, bool isData = false, bool isShell = false, bool isSA = false);
+    AAFwk::PermissionVerification::VerificationInfo CreateVerificationInfo(const AbilityRequest &abilityRequest);
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 

@@ -34,10 +34,6 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 [[maybe_unused]]static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
 #ifdef WITH_DLP
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return true;
-    }
     if (callerToken == nullptr) {
         return true;
     }
