@@ -19,6 +19,7 @@
 
 #include "ability_info.h"
 #include "ability_manager_errors.h"
+#include "ability_record.h"
 #include "accesstoken_kit.h"
 #include "app_jump_control_rule.h"
 #include "app_running_control_rule_result.h"
@@ -68,7 +69,8 @@ const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
 constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 5000;
 
-ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+    const sptr<IRemoteObject> &callerToken)
 {
     if (CheckCrowdtest(want, userId)) {
         HILOG_ERROR("Crowdtest expired.");
@@ -120,7 +122,8 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
     return false;
 }
 
-ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+    const sptr<IRemoteObject> &callerToken)
 {
     AppExecFwk::AppRunningControlRuleResult controlRule;
     if (CheckControl(want, userId, controlRule)) {
@@ -184,20 +187,39 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     return true;
 }
 
-ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+    const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("Call");
     AppExecFwk::DisposedRule disposedRule;
     if (CheckControl(want, userId, disposedRule)) {
         HILOG_INFO("The target ability is intercpted.");
 #ifdef SUPPORT_GRAPHICS
-        if (isForeground && disposedRule.want != nullptr
-            && disposedRule.disposedType != AppExecFwk::DisposedType::NON_BLOCK
-            && disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
+        if (!isForeground || disposedRule.want == nullptr
+            || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
+            HILOG_ERROR("Can not start disposed want");
+            if (disposedRule.isEdm) {
+                return ERR_EDM_APP_CONTROLLED;
+            }
+            return ERR_APP_CONTROLLED;
+        }
+        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
                 requestCode, userId));
             if (ret != ERR_OK) {
                 HILOG_ERROR("DisposedRuleInterceptor start ability failed.");
+                return ret;
+            }
+        }
+        if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
+            auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+            if (!abilityRecord) {
+                HILOG_ERROR("abilityRecord is nullptr");
+                return ERR_INVALID_VALUE;
+            }
+            int ret = abilityRecord->CreateModalUIExtension(*disposedRule.want);
+            if (ret != ERR_OK) {
+                HILOG_ERROR("failed to start disposed UIExtension");
                 return ret;
             }
         }
@@ -299,7 +321,8 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     return isAllowed;
 }
 
-ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+    const sptr<IRemoteObject> &callerToken)
 {
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "false");
     if (supportErms == "false") {
@@ -408,7 +431,8 @@ bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &call
 }
 #endif
 
-ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+    const sptr<IRemoteObject> &callerToken)
 {
     if (!isForeground) {
         HILOG_INFO("This startup is not foreground, keep going.");

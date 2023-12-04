@@ -920,7 +920,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     Want newWant = abilityRequest.want;
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true, callerToken);
     bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
     newWant.RemoveParam("queryWantFromErms");
     if (result != ERR_OK && isReplaceWantExist == false) {
@@ -1124,7 +1124,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1371,7 +1371,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1563,7 +1563,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1655,7 +1655,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, sessionInfo->callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -2160,7 +2160,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -2350,7 +2350,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -3235,7 +3235,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -5994,7 +5994,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     }
 
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false);
+        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
