@@ -109,9 +109,11 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param userId the user id.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) = 0;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
+        const int32_t userId = -1) = 0;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.

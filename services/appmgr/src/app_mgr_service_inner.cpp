@@ -170,6 +170,8 @@ constexpr int32_t BLUETOOTH_GROUPID = 1002;
 constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 #endif
 
+constexpr int32_t DEFAULT_INVAL_VALUE = -1;
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -1037,12 +1039,16 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
     return result;
 }
 
-void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName, int32_t callerUid, pid_t callerPid)
+void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
+    int32_t callerUid, pid_t callerPid, const int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    auto userId = GetUserIdByUid(callerUid);
+    int32_t newUserId = userId;
+    if (userId == DEFAULT_INVAL_VALUE) {
+        newUserId = GetUserIdByUid(callerUid);
+    }
     HILOG_INFO("userId:%{public}d", userId);
-    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, userId);
+    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
 }
 
 void AppMgrServiceInner::ClearUpApplicationDataByUserId(
@@ -1052,7 +1058,7 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
         HILOG_ERROR("invalid callerPid:%{public}d", callerPid);
         return;
     }
-    if (callerUid <= 0) {
+    if (callerUid < 0) {
         HILOG_ERROR("invalid callerUid:%{public}d", callerUid);
         return;
     }

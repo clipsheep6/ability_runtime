@@ -260,7 +260,8 @@ public:
      *
      * @return
      */
-    virtual void ClearUpApplicationData(const std::string &bundleName, const int32_t callerUid, const pid_t callerPid);
+    virtual void ClearUpApplicationData(const std::string &bundleName,
+        const int32_t callerUid, const pid_t callerPid,  const int32_t userId = -1);
 
     /**
      * GetAllRunningProcesses, Obtains information about application processes that are running on the device.

@@ -130,7 +130,7 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData& appData)
     HILOG_INFO("Test AppScheduler::OnAppStateChanged()");
 }
 
-int AppScheduler::ClearUpApplicationData(const std::string& bundleName)
+int AppScheduler::ClearUpApplicationData(const std::string& bundleName, const int32_t userId)
 {
     HILOG_INFO("Test AppScheduler::ClearUpApplicationData()");
     return ERR_OK;

@@ -653,7 +653,8 @@ int AbilityManagerStub::KillProcessInner(MessageParcel &data, MessageParcel &rep
 int AbilityManagerStub::ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string bundleName = Str16ToStr8(data.ReadString16());
-    int result = ClearUpApplicationData(bundleName);
+    int32_t userId = data.ReadInt32();
+    int result = ClearUpApplicationData(bundleName, userId);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("ClearUpApplicationData error");
         return ERR_INVALID_VALUE;

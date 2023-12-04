@@ -115,7 +115,7 @@ public:
     MOCK_METHOD2(SetMissionLabel, int(const sptr<IRemoteObject>& token, const std::string& label));
     MOCK_METHOD2(SetMissionIcon, int(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon));
-    MOCK_METHOD1(ClearUpApplicationData, int(const std::string&));
+    MOCK_METHOD2(ClearUpApplicationData, int(const std::string&, int32_t userId));
     MOCK_METHOD1(GetAbilityRunningInfos, int(std::vector<AbilityRunningInfo>& info));
     MOCK_METHOD2(GetExtensionRunningInfos, int(int upperLimit, std::vector<ExtensionRunningInfo>& info));
     MOCK_METHOD1(GetProcessRunningInfos, int(std::vector<AppExecFwk::RunningProcessInfo>& info));

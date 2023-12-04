@@ -175,9 +175,11 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param userId, the user id.
      * @return
      */
-    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName);
+    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName,
+        const int32_t userId = -1);
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.

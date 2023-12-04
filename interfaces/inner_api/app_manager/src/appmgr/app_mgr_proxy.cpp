@@ -154,7 +154,7 @@ sptr<IAmsMgr> AppMgrProxy::GetAmsMgr()
     return amsMgr;
 }
 
-int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName)
+int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -165,6 +165,10 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName)
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("parcel WriteString failed");
         return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return ERR_INVALID_VALUE;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA, data, reply, option);
     if (ret != NO_ERROR) {

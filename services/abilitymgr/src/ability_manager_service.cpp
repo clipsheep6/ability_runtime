@@ -5308,11 +5308,11 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
     return ERR_OK;
 }
 
-int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName)
+int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     HILOG_DEBUG("ClearUpApplicationData, bundleName: %{public}s", bundleName.c_str());
     CHECK_CALLER_IS_SYSTEM_APP;
-    int ret = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName);
+    int ret = DelayedSingleton<AppScheduler>::GetInstance()->ClearUpApplicationData(bundleName, userId);
     if (ret != ERR_OK) {
         return CLEAR_APPLICATION_DATA_FAIL;
     }
