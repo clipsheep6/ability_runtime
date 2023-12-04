@@ -212,7 +212,7 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 void JSAppStateObserver::CallJsFunction(
     napi_value value, const char *methodName, napi_value* argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction start, method:%{public}s", methodName);
+    HILOG_DEBUG("CallJsFunction start, method:%{public}s", methodName);
     if (value == nullptr) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -226,7 +226,7 @@ void JSAppStateObserver::CallJsFunction(
     }
     napi_value callResult = nullptr;
     napi_call_function(env_, value, method, argc, argv, &callResult);
-    HILOG_INFO("CallJsFunction finish");
+    HILOG_DEBUG("CallJsFunction finish");
 }
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject)

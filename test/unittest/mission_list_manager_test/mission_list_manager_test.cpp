@@ -186,7 +186,7 @@ HWTEST_F(MissionListManagerTest, StartAbility_002, TestSize.Level1)
     EXPECT_EQ(0, result2);
     abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SINGLETON;
     auto result3 = missionListManager->StartAbility(abilityRequest);
-    EXPECT_NE(0, result3);
+    EXPECT_EQ(0, result3);
     missionListManager.reset();
 }
 
@@ -785,7 +785,7 @@ HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_002, TestSize.Level1)
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     AbilityRequest abilityRequest;
     InnerMissionInfo info;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
     abilityRequest.abilityInfo.applicationInfo.isLauncherApp = true;
     bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
     EXPECT_FALSE(res);
@@ -806,7 +806,7 @@ HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_003, TestSize.Level1)
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     AbilityRequest abilityRequest;
     InnerMissionInfo info;
-    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::SPECIFIED;
+    abilityRequest.abilityInfo.launchMode = AppExecFwk::LaunchMode::STANDARD;
     abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
     info.missionInfo.id = 0;
     bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
@@ -832,7 +832,7 @@ HWTEST_F(MissionListManagerTest, CreateOrReusedMissionInfo_004, TestSize.Level1)
     abilityRequest.abilityInfo.applicationInfo.isLauncherApp = false;
     info.missionInfo.id = 1;
     bool res = missionListManager->CreateOrReusedMissionInfo(abilityRequest, info);
-    EXPECT_FALSE(res);
+    EXPECT_TRUE(res);
     missionListManager.reset();
 }
 

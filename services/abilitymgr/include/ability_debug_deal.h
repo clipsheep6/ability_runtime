@@ -23,7 +23,7 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityDebugDeal : public std::enable_shared_from_this<AbilityDebugDeal>  {
 public:
-    AbilityDebugDeal();
+    AbilityDebugDeal() = default;
     ~AbilityDebugDeal() = default;
 
     /**
@@ -37,6 +37,11 @@ public:
      * @param tokens The token of ability records.
      */
     void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens);
+
+    /**
+     * @brief Register debug response in attach mode.
+     */
+    void RegisterAbilityDebugResponse();
 
 private:
     sptr<AppExecFwk::IAbilityDebugResponse> abilityDebugResponse_;

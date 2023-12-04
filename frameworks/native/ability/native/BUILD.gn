@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
@@ -90,6 +89,7 @@ config("ability_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/recovery/",
+    "${accessibility_path}/interfaces/innerkits/common/include/",
     "//third_party/libuv/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
     "${ability_runtime_innerkits_path}/ability_manager/include/continuation",
@@ -287,12 +287,6 @@ ohos_shared_library("abilitykit_native") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (purgeable_ashmem_enable && defined(global_parts_info) &&
-      defined(global_parts_info.resourceschedule_memmgr_plugin)) {
-    defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
-    external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
-  }
-
   if (efficiency_manager) {
     external_deps += [ "efficiency_manager:suspend_manager_client" ]
     defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
@@ -359,6 +353,8 @@ config("extensionkit_public_config") {
 }
 
 ohos_shared_library("extensionkit_native") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
@@ -597,6 +593,8 @@ ohos_shared_library("ability_thread") {
 }
 
 ohos_shared_library("form_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   if (ability_runtime_graphics) {
     include_dirs = [
       "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -665,6 +663,8 @@ ohos_shared_library("form_extension_module") {
 }
 
 ohos_shared_library("service_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
@@ -684,7 +684,9 @@ ohos_shared_library("service_extension") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/ability/native:insight_intent_executor",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/insight_intent/insight_intent_context:insightintentcontext",
   ]
 
   external_deps = [
@@ -906,6 +908,7 @@ group("extension_blocklist_config") {
 group("extension_module") {
   deps = [
     ":action_extension_module",
+    ":auto_fill_extension_module",
     ":service_extension_module",
     ":share_extension_module",
     ":ui_extension_module",
@@ -1143,6 +1146,89 @@ ohos_shared_library("action_extension_module") {
 
   deps = [
     ":action_extension",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:session_info",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_core",
+    "hilog:libhilog",
+    "napi:ace_napi",
+  ]
+
+  relative_install_dir = "extensionability/"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+config("auto_fill_extension_config") {
+  visibility = [ ":*" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/auto_fill_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+  ]
+}
+
+ohos_shared_library("auto_fill_extension") {
+  configs = [ ":auto_fill_extension_config" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/auto_fill_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension_context.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_auto_fill_extension_util.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_fill_request_callback.cpp",
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/js_save_request_callback.cpp",
+  ]
+
+  deps = [
+    ":abilitykit_native",
+    ":insight_intent_executor",
+    ":ui_extension",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_napi_path}/inner/napi_common:napi_common",
+    "${ability_runtime_native_path}/ability:ability_context_native",
+    "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/appkit:app_context",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:view_data",
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libtokenid_sdk",
+    "ace_engine:ace_uicontent",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "hitrace:hitrace_meter",
+    "ipc:ipc_core",
+    "ipc:ipc_napi_common",
+    "napi:ace_napi",
+  ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("auto_fill_extension_module") {
+  sources = [ "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/auto_fill_extension_module_loader.cpp" ]
+
+  configs = [
+    ":ability_config",
+    ":auto_fill_extension_config",
+  ]
+
+  deps = [
+    ":auto_fill_extension",
     "${ability_runtime_innerkits_path}/runtime:runtime",
   ]
 

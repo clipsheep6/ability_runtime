@@ -313,24 +313,6 @@ ErrCode AccessibilityAbilityShellCommand::CreateMessageMap()
 ErrCode AccessibilityAbilityShellCommand::CreateCommandMap()
 {
     commandMap_ = {
-        {"help", std::bind(&AccessibilityAbilityShellCommand::RunAsHelpCommand, this)},
-        {"enable", std::bind(&AccessibilityAbilityShellCommand::RunAsEnableAbility, this)},
-        {"disable", std::bind(&AccessibilityAbilityShellCommand::RunAsDisableAbility, this)},
-        {"list", std::bind(&AccessibilityAbilityShellCommand::RunAsGetInstalledAbilities, this)},
-        {"setShortKeyState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetShortKeyState, this)},
-        {"setMouseKeyState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetMouseKeyState, this)},
-        {"setCaptionState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetCaptionState, this)},
-        {"setMouseAutoClick", std::bind(&AccessibilityAbilityShellCommand::RunAsSetMouseAutoClick, this)},
-        {"setShortKeyTarget", std::bind(&AccessibilityAbilityShellCommand::RunAsSetShortKeyTarget, this)},
-        {"setHighContrastTextState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetHighContrastTextState, this)},
-        {"setInvertColorState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetInvertColorState, this)},
-        {"setDaltonizationColorFilter",
-            std::bind(&AccessibilityAbilityShellCommand::RunAsSetDaltonizationColorFilter, this)},
-        {"setContentTimeout", std::bind(&AccessibilityAbilityShellCommand::RunAsSetContentTimeout, this)},
-        {"setAnimationOffState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetAnimationOffState, this)},
-        {"setBrightnessDiscount", std::bind(&AccessibilityAbilityShellCommand::RunAsSetBrightnessDiscount, this)},
-        {"setAudioMonoState", std::bind(&AccessibilityAbilityShellCommand::RunAsSetAudioMonoState, this)},
-        {"setAudioBalance", std::bind(&AccessibilityAbilityShellCommand::RunAsSetAudioBalance, this)},
     };
 
     return OHOS::ERR_OK;

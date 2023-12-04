@@ -74,7 +74,7 @@ ErrCode WantAgentClient::GetWantSender(
     return ERR_OK;
 }
 
-ErrCode WantAgentClient::SendWantSender(const sptr<IWantSender> &target, const SenderInfo &senderInfo)
+ErrCode WantAgentClient::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
 {
     CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();
@@ -177,7 +177,7 @@ ErrCode WantAgentClient::GetPendingWantCode(const sptr<IWantSender> &target, int
     return ERR_OK;
 }
 
-ErrCode WantAgentClient::GetPendingWantType(const sptr<IWantSender> &target, int32_t &type)
+ErrCode WantAgentClient::GetPendingWantType(sptr<IWantSender> target, int32_t &type)
 {
     CHECK_POINTER_AND_RETURN(target, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
     auto abms = GetAbilityManager();

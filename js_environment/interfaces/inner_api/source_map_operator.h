@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_JS_ENVIRONMENT_SOURCE_MAP_OPERATOR_H
 #define OHOS_ABILITY_JS_ENVIRONMENT_SOURCE_MAP_OPERATOR_H
 #include <memory>
+#include <set>
 #include <string>
 
 #include "js_env_logger.h"
@@ -25,27 +26,46 @@ namespace OHOS {
 namespace JsEnv {
 class SourceMapOperator {
 public:
-    SourceMapOperator(const std::string hapPath, bool isModular)
-        : hapPath_(hapPath), isModular_(isModular) {}
+    SourceMapOperator(const std::string bundleName, bool isModular)
+        : bundleName_(bundleName), isModular_(isModular) {}
 
     ~SourceMapOperator() = default;
 
     std::string TranslateBySourceMap(const std::string& stackStr)
     {
         SourceMap sourceMapObj;
-        sourceMapObj.Init(isModular_, hapPath_);
+        std::vector<std::string> res;
+        std::set<std::string> hapNames;
+        sourceMapObj.ExtractStackInfo(stackStr, res);
+        for (uint32_t i = 0; i < res.size(); i++) {
+            size_t start = res[i].find_first_of("(");
+            size_t end = res[i].find_first_of("/");
+            if (start != std::string::npos && end != std::string::npos) {
+                hapNames.insert(res[i].substr(start + 1, end - start - 1));
+            }
+        }
+        for (auto &hapName : hapNames) {
+            std::string hapPath = sourceMapObj.GetHapPath(hapName, bundleName_);
+            if (!hapPath.empty()) {
+                sourceMapObj.Init(isModular_, hapPath);
+            }
+        }
         return sourceMapObj.TranslateBySourceMap(stackStr);
     }
 
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
     {
         SourceMap sourceMapObj;
-        sourceMapObj.Init(isModular_, hapPath_);
+        size_t pos = url.find_first_of("/");
+        if (pos != std::string::npos) {
+            std::string hapPath = sourceMapObj.GetHapPath(url.substr(0, pos), bundleName_);
+            sourceMapObj.Init(isModular_, hapPath);
+        }
         return sourceMapObj.TranslateUrlPositionBySourceMap(url, line, column);
     }
 
 private:
-    const std::string hapPath_;
+    const std::string bundleName_;
     bool isModular_ = false;
 };
 } // namespace JsEnv

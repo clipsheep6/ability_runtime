@@ -3082,14 +3082,71 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_001, TestSize.Level1)
     bool isFocused = connectManager->IsUIExtensionFocused(
         serviceRecord_->GetApplicationInfo().accessTokenId, serviceRecord1_->GetToken());
     EXPECT_EQ(isFocused, false);
+    connectManager.reset();
+}
 
-    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
-    sessionInfo->callerToken = serviceRecord1_->GetToken();
+/*
+ * Feature: AbilityConnectManager
+ * Function: IsUIExtensionFocused
+ * SubFunction: IsUIExtensionFocused
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager IsUIExtensionFocused
+ */
+HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    connectManager->uiExtensionMap_.clear();
+
+    std::string device = "device";
+    std::string abilityName = "uiExtensionUserAbility";
+    std::string appName = "uiExtensionUser";
+    std::string bundleName = "com.ix.uiExtensionUser";
+    std::string moduleName = "entry";
+    auto request = GenerateAbilityRequest(device, abilityName, appName, bundleName, moduleName);
+    auto uiExtensionUser = AbilityRecord::CreateAbilityRecord(request);
+    EXPECT_NE(uiExtensionUser, nullptr);
+
+    std::string abilityName1 = "uiExtensionAbility1";
+    std::string appName1 = "uiExtensionProvider1";
+    std::string bundleName1 = "com.ix.uiExtensionProvider1";
+    std::string moduleName1 = "entry";
+    auto request1 = GenerateAbilityRequest(device, abilityName1, appName1, bundleName1, moduleName1);
+    auto uiExtension1 = AbilityRecord::CreateAbilityRecord(request1);
+    EXPECT_NE(uiExtension1, nullptr);
+    uiExtension1->abilityInfo_.extensionAbilityType = ExtensionAbilityType::SYS_COMMON_UI;
+    sptr<SessionInfo> sessionInfo1 = new (std::nothrow) SessionInfo();
+    sessionInfo1->callerToken = uiExtensionUser->GetToken();
+    uiExtension1->sessionInfo_ = sessionInfo1;
     connectManager->uiExtensionMap_.emplace(
-        callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(serviceRecord_, sessionInfo));
-    isFocused = connectManager->IsUIExtensionFocused(
-        serviceRecord_->GetApplicationInfo().accessTokenId, serviceRecord1_->GetToken());
-    EXPECT_EQ(isFocused, true);
+        callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(uiExtension1, sessionInfo1));
+    int32_t extensionId1 = 1;
+    int32_t ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension1, "", extensionId1);
+    EXPECT_EQ(ret, ERR_OK);
+    bool isFocused1 = connectManager->IsUIExtensionFocused(
+        uiExtension1->GetApplicationInfo().accessTokenId, uiExtensionUser->GetToken());
+    EXPECT_EQ(isFocused1, true);
+
+    std::string abilityName2 = "uiExtensionAbility2";
+    std::string appName2 = "uiExtensionProvider2";
+    std::string bundleName2 = "com.ix.uiExtensionProvider2";
+    std::string moduleName2 = "entry";
+    auto request2 = GenerateAbilityRequest(device, abilityName2, appName2, bundleName2, moduleName2);
+    auto uiExtension2 = AbilityRecord::CreateAbilityRecord(request2);
+    EXPECT_NE(uiExtension2, nullptr);
+    uiExtension2->abilityInfo_.extensionAbilityType = ExtensionAbilityType::SYS_COMMON_UI;
+    sptr<SessionInfo> sessionInfo2 = new (std::nothrow) SessionInfo();
+    sessionInfo2->callerToken = uiExtension1->GetToken();
+    uiExtension2->sessionInfo_ = sessionInfo2;
+    connectManager->uiExtensionMap_.emplace(
+        callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(uiExtension2, sessionInfo2));
+    int32_t extensionId2 = 2;
+    ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension2, "", extensionId2);
+    EXPECT_EQ(ret, ERR_OK);
+    bool isFocused2 = connectManager->IsUIExtensionFocused(
+        uiExtension2->GetApplicationInfo().accessTokenId, uiExtensionUser->GetToken());
+    EXPECT_EQ(isFocused2, true);
     connectManager.reset();
 }
 

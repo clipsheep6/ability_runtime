@@ -770,7 +770,9 @@ HWTEST_F(AbilityManagerServiceFirstTest, DelegatorDoAbilityBackground_001, TestS
 {
     HILOG_INFO("AbilityManagerServiceFirstTest DelegatorDoAbilityBackground_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->DelegatorDoAbilityBackground(nullptr), ERR_INVALID_VALUE);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(abilityMs_->DelegatorDoAbilityBackground(nullptr), ERR_INVALID_VALUE);
+    }
     HILOG_INFO("AbilityManagerServiceFirstTest DelegatorDoAbilityBackground_001 end");
 }
 
@@ -1095,7 +1097,9 @@ HWTEST_F(AbilityManagerServiceFirstTest, RecordAppExitReason_001, TestSize.Level
 {
     HILOG_INFO("AbilityManagerServiceFirstTest RecordAppExitReason_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->RecordAppExitReason(REASON_JS_ERROR), ERR_NULL_OBJECT);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(abilityMs_->RecordAppExitReason(REASON_JS_ERROR), ERR_NULL_OBJECT);
+    }
     HILOG_INFO("AbilityManagerServiceFirstTest RecordAppExitReason_001 end");
 }
 

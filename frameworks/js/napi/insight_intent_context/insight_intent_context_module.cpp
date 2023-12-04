@@ -25,8 +25,8 @@ extern const char _binary_insight_intent_context_abc_end[];
  */
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.InsightIntentContext",
     .nm_filename = "app/ability/insightintentcontext_napi.so",
+    .nm_modname = "app.ability.InsightIntentContext",
 };
 
 /*

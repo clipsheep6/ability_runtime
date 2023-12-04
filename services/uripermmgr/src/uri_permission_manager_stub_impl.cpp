@@ -90,38 +90,20 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int autoremove, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d.", appIndex);
     std::vector<Uri> uriVec = { uri };
-    return GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
+    return GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int autoremove, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
-    // reject sandbox to grant uri permission
-    ConnectManager(appMgr_, APP_MGR_SERVICE_ID);
-    if (appMgr_ == nullptr) {
-        HILOG_ERROR("Get BundleManager failed!");
-        return INNER_ERR;
-    }
-    auto callerPid = IPCSkeleton::GetCallingPid();
-    bool isSandbox = false;
-    auto ret = appMgr_->JudgeSandboxByPid(callerPid, isSandbox);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("JudgeSandboxByPid failed.");
-        return INNER_ERR;
-    }
-    if (isSandbox) {
-        HILOG_ERROR("Sandbox application can not grant URI permission.");
-        return ERR_CODE_GRANT_URI_PERMISSION;
-    }
-
-    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
-        return ERR_CODE_INVALID_URI_FLAG;
+    auto checkResult = CheckRule(flag);
+    if (checkResult != ERR_OK) {
+        return checkResult;
     }
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
@@ -129,6 +111,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
     // autoremove will be set to 1 if the process name is foundation.
     HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
+    int autoremove = 0;
     if (nativeInfo.processName == "foundation") {
         autoremove = 1;
     }
@@ -147,7 +130,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
         HILOG_DEBUG("uriVecMap is empty");
         return INNER_ERR;
     }
-    ret = INNER_ERR;
+    int ret = INNER_ERR;
     for (const auto &item : uriVecMap) {
         auto tempRet = GrantBatchUriPermissionImpl(item.second, item.first, fromTokenIdVecMap[item.first],
             targetTokenId, autoremove);
@@ -157,6 +140,32 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
         }
     }
     return ret;
+}
+
+int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
+{
+    // reject sandbox to grant uri permission
+    ConnectManager(appMgr_, APP_MGR_SERVICE_ID);
+    if (appMgr_ == nullptr) {
+        HILOG_ERROR("Get BundleManager failed!");
+        return INNER_ERR;
+    }
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    bool isSandbox = false;
+    if (appMgr_->JudgeSandboxByPid(callerPid, isSandbox) != ERR_OK) {
+        HILOG_ERROR("JudgeSandboxByPid failed.");
+        return INNER_ERR;
+    }
+    if (isSandbox) {
+        HILOG_ERROR("Sandbox application can not grant URI permission.");
+        return ERR_CODE_GRANT_URI_PERMISSION;
+    }
+
+    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
+        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
+        return ERR_CODE_INVALID_URI_FLAG;
+    }
+    return ERR_OK;
 }
 
 int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned int flag,
@@ -306,7 +315,7 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
 {
     Uri uri_inner = uri;
     auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
+    if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
@@ -331,7 +340,7 @@ void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<U
     for (const auto &uri : uriVec) {
         Uri uri_inner = uri;
         auto&& scheme = uri_inner.GetScheme();
-        if (scheme != "file") {
+        if (scheme != "file" && scheme != "content") {
             HILOG_WARN("only support file uri.");
             continue;
         }
@@ -498,7 +507,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     auto uriStr = uri.ToString();
     auto&& authority = uri_inner.GetAuthority();
     auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file") {
+    if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }

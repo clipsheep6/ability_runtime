@@ -39,7 +39,7 @@ public:
     PendingWant(const sptr<AAFwk::IWantSender> &target, const sptr<IRemoteObject> whitelistToken);
     virtual ~PendingWant() = default;
 
-    WantAgentConstant::OperationType GetType(const sptr<AAFwk::IWantSender> &target);
+    WantAgentConstant::OperationType GetType(sptr<AAFwk::IWantSender> target);
 
     /**
      * Retrieve a PendingWant that will start a new ability.

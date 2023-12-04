@@ -1144,6 +1144,12 @@ public:
      */
     Ace::UIContent* GetUIContent() override;
 
+    /**
+     * @brief create modal UIExtension.
+     * @param want Create modal UIExtension with want object.
+     */
+    int CreateModalUIExtension(const Want &want);
+
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:

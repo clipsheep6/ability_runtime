@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -362,6 +362,11 @@ enum {
      * Result(2097220) for starting invalid component.
      */
     ERR_INSIGHT_INTENT_START_INVALID_COMPONENT,
+
+    /**
+     * Result(2097221) for developer mode.
+     */
+    ERR_NOT_DEVELOPER_MODE,
 };
 
 enum {

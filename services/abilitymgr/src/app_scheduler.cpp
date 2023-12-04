@@ -174,7 +174,7 @@ void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
 
 void AppScheduler::KillProcessesByUserId(int32_t userId)
 {
-    HILOG_DEBUG("Kill process by user id.");
+    HILOG_INFO("User id: %{public}d.", userId);
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->KillProcessesByUserId(userId);
 }
@@ -207,6 +207,13 @@ void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const 
     CHECK_POINTER(callback);
     appAbilityState_ = ConvertToAppAbilityState(static_cast<int32_t>(state));
     callback->OnAbilityRequestDone(token, static_cast<int32_t>(state));
+}
+
+void AppScheduler::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+    auto callback = callback_.lock();
+    CHECK_POINTER(callback);
+    callback->NotifyConfigurationChange(config, userId);
 }
 
 int AppScheduler::KillApplication(const std::string &bundleName)

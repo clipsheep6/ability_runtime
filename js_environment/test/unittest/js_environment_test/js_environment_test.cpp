@@ -257,10 +257,12 @@ HWTEST_F(JsEnvironmentTest, StartDebugger_0100, TestSize.Level0)
     auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);
 
+    std::string option = "ark:1234@Debugger";
     const char* libraryPath = "LIBRARYPATH";
+    uint32_t socketFd = 10;
     bool needBreakPoint = true;
     uint32_t instanceId = 10;
-    bool result = jsEnv->StartDebugger(libraryPath, needBreakPoint, instanceId);
+    bool result = jsEnv->StartDebugger(option, libraryPath, socketFd, needBreakPoint, instanceId);
     EXPECT_EQ(result, false);
 }
 
@@ -309,7 +311,7 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0100, TestSize.Level1)
     ASSERT_NE(jsEnv, nullptr);
 
     const char* libraryPath = "LIBRARYPATH";
-    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0);
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, 0);
     ASSERT_EQ(jsEnv->GetVM(), nullptr);
 }
 
@@ -328,7 +330,7 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0200, TestSize.Level1)
     ASSERT_EQ(ret, true);
 
     const char* libraryPath = "LIBRARYPATH";
-    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0);
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0, 0);
     ASSERT_NE(jsEnv->GetVM(), nullptr);
 }
 
@@ -374,6 +376,54 @@ HWTEST_F(JsEnvironmentTest, SetRequestAotCallback_0100, TestSize.Level0)
         return 0;
     };
     jsEnv->SetRequestAotCallback(callback);
+}
+
+/**
+ * @tc.name: ParseHdcRegisterOption_0100
+ * @tc.desc: Js environment ParseHdcRegisterOption.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, ParseHdcRegisterOption_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+    std::string option1 = "";
+    int result1 = jsEnv->ParseHdcRegisterOption(option1);
+    ASSERT_EQ(result1, -1);
+    std::string option2 = "@";
+    int result2 = jsEnv->ParseHdcRegisterOption(option2);
+    ASSERT_EQ(result2, -1);
+    std::string option3 = ":";
+    int result3 = jsEnv->ParseHdcRegisterOption(option3);
+    ASSERT_EQ(result3, -1);
+    std::string option4 = "ark:123@Debugger";
+    int result4 = jsEnv->ParseHdcRegisterOption(option4);
+    ASSERT_EQ(result4, 123);
+    std::string option5 = "ark:123@456@Debugger";
+    int result5 = jsEnv->ParseHdcRegisterOption(option5);
+    ASSERT_EQ(result5, 456);
+}
+
+/**
+ * @tc.name: SetDeviceDisconnectCallback_0100
+ * @tc.desc: Js environment SetDeviceDisconnectCallback.
+ * @tc.type: FUNC
+ * @tc.require: issueI82L1A
+ */
+HWTEST_F(JsEnvironmentTest, SetDeviceDisconnectCallback_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
+    panda::RuntimeOption pandaOption;
+    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    ASSERT_EQ(ret, true);
+
+    bool taskExecuted = false;
+    auto task = [&taskExecuted]() {
+        return true;
+    };
+    jsEnv->SetDeviceDisconnectCallback(task);
+    ASSERT_EQ(taskExecuted, false);
 }
 } // namespace JsEnv
 } // namespace OHOS

@@ -43,6 +43,35 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
         startOptions.SetDisplayID(displayId);
     }
 
+    bool withAnimation = true;
+    if (UnwrapBooleanByPropertyName(env, param, "withAnimation", withAnimation)) {
+        startOptions.SetWithAnimation(withAnimation);
+    }
+
+    int32_t windowLeft = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "windowLeft", windowLeft)) {
+        startOptions.SetWindowLeft(windowLeft);
+        startOptions.windowLeftUsed_ = true;
+    }
+
+    int32_t windowTop = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "windowTop", windowTop)) {
+        startOptions.SetWindowTop(windowTop);
+        startOptions.windowTopUsed_ = true;
+    }
+
+    int32_t windowWidth = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "windowWidth", windowWidth)) {
+        startOptions.SetWindowWidth(windowWidth);
+        startOptions.windowWidthUsed_ = true;
+    }
+
+    int32_t windowHeight = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "windowHeight", windowHeight)) {
+        startOptions.SetWindowHeight(windowHeight);
+        startOptions.windowHeightUsed_ = true;
+    }
+
     return true;
 }
 EXTERN_C_END

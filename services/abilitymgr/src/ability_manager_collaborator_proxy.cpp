@@ -14,6 +14,7 @@
  */
 
 #include "ability_manager_collaborator_proxy.h"
+#include "configuration.h"
 #include "errors.h"
 #include "hilog_wrapper.h"
 
@@ -189,7 +190,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToBackground(int32_t m
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
@@ -240,7 +241,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyMoveMissionToForeground(int32_t m
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
@@ -263,7 +264,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyTerminateMission(int32_t missionI
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
@@ -309,7 +310,7 @@ int32_t AbilityManagerCollaboratorProxy::NotifyRemoveShellProcess(int32_t pid, i
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
+    MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
@@ -422,6 +423,57 @@ int32_t AbilityManagerCollaboratorProxy::CheckCallAbilityPermission(const Want &
         return ret;
     }
     return reply.ReadInt32();
+}
+
+bool AbilityManagerCollaboratorProxy::UpdateConfiguration(const AppExecFwk::Configuration &config, int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+    if (!data.WriteParcelable(&config)) {
+        HILOG_ERROR("Write config failed.");
+        return false;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("Write usr failed.");
+        return false;
+    }
+    auto error = SendTransactCmd(IAbilityManagerCollaborator::UPDATE_CONFIGURATION, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send config error: %{public}d", error);
+        return true;
+    }
+    return true;
+}
+
+int32_t AbilityManagerCollaboratorProxy::OpenFile(const Uri& uri, uint32_t flag)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("Write uri failed.");
+        return false;
+    }
+    if (!data.WriteInt32(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return false;
+    }
+
+    int32_t ret = SendTransactCmd(IAbilityManagerCollaborator::OPEN_FILE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", ret);
+        return -1;
+    }
+    return reply.ReadFileDescriptor();
 }
 
 int32_t AbilityManagerCollaboratorProxy::SendTransactCmd(uint32_t code, MessageParcel &data,

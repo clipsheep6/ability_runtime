@@ -98,13 +98,13 @@ std::shared_ptr<MockAbilitySchedulerTools> MockAbilitySchedulerTools::instance_ 
 namespace OHOS {
 namespace AAFwk {
 sptr<AAFwk::IAbilityScheduler> AAFwk::AbilityManagerClient::AcquireDataAbility(
-    const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken)
+    const Uri& uri, bool tryBind, sptr<IRemoteObject> callerToken)
 {
     return AppExecFwk::MockAbilitySchedulerTools::GetInstance()->GetAbilitySchedulerProxy();
 }
 
 ErrCode AbilityManagerClient::ReleaseDataAbility(
-    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken)
+    sptr<IAbilityScheduler> dataAbilityScheduler, sptr<IRemoteObject> callerToken)
 {
     return ERR_OK;
 }

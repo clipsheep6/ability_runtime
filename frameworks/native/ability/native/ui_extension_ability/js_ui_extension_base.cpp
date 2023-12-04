@@ -259,10 +259,13 @@ bool JsUIExtensionBase::ForegroundWindowWithInsightIntent(const AAFwk::Want &wan
     });
 
     InsightIntentExecutorInfo executorInfo;
-    executorInfo.hapPath = context_->GetAbilityInfo()->hapPath;
-    executorInfo.windowMode = context_->GetAbilityInfo()->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = context_->GetAbilityInfo();
+    if (abilityInfo != nullptr) {
+        executorInfo.hapPath = abilityInfo->hapPath;
+        executorInfo.windowMode = abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    }
     executorInfo.token = context_->GetToken();
-    executorInfo.pageLoader = contentSessions_[sessionInfo->sessionToken];
+    executorInfo.pageLoader = contentSessions_[sessionInfo->uiExtensionComponentId];
     executorInfo.executeParam = std::make_shared<InsightIntentExecuteParam>();
     InsightIntentExecuteParam::GenerateFromWant(want, *executorInfo.executeParam);
     executorInfo.executeParam->executeMode_ = UI_EXTENSION_ABILITY;
@@ -301,9 +304,14 @@ void JsUIExtensionBase::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sess
 void JsUIExtensionBase::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
     const AppExecFwk::InsightIntentExecuteResult &result)
 {
-    HILOG_DEBUG("called.");
-    auto obj = sessionInfo->sessionToken;
-    auto res = uiWindowMap_.find(obj);
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("Invalid sessionInfo.");
+        return;
+    }
+
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    auto res = uiWindowMap_.find(componentId);
     if (res != uiWindowMap_.end() && res->second != nullptr) {
         WantParams params;
         params.SetParam(INSIGHT_INTENT_EXECUTE_RESULT_CODE, Integer::Box(result.innerErr));
@@ -328,7 +336,7 @@ void JsUIExtensionBase::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo
         }
 
         res->second->Show();
-        foregroundWindows_.emplace(obj);
+        foregroundWindows_.emplace(componentId);
     }
     HILOG_DEBUG("end.");
 }
@@ -372,7 +380,7 @@ void JsUIExtensionBase::OnBackground()
 }
 
 bool JsUIExtensionBase::CallJsOnSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
-    const sptr<Rosen::Window> &uiWindow, const sptr<IRemoteObject> &sessionToken)
+    const sptr<Rosen::Window> &uiWindow, const uint64_t &uiExtensionComponentId)
 {
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
@@ -394,7 +402,7 @@ bool JsUIExtensionBase::CallJsOnSessionCreate(const AAFwk::Want &want, const spt
     napi_ref ref = nullptr;
     napi_create_reference(env, nativeContentSession, 1, &ref);
     contentSessions_.emplace(
-        sessionToken, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+        uiExtensionComponentId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     napi_value argv[] = { napiWant, nativeContentSession };
     CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
     return true;
@@ -402,13 +410,19 @@ bool JsUIExtensionBase::CallJsOnSessionCreate(const AAFwk::Want &want, const spt
 
 bool JsUIExtensionBase::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("called");
-    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+    if (sessionInfo == nullptr || sessionInfo->uiExtensionComponentId == 0) {
         HILOG_ERROR("Invalid sessionInfo.");
         return false;
     }
-    auto obj = sessionInfo->sessionToken;
-    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
+        sessionInfo->uiExtensionComponentId, want.GetElement().GetURI().c_str());
+    if (sessionInfo == nullptr || sessionInfo->uiExtensionComponentId == 0) {
+        HILOG_ERROR("Invalid sessionInfo.");
+        return false;
+    }
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
         if (context_ == nullptr || context_->GetAbilityInfo() == nullptr) {
             HILOG_ERROR("Failed to get context");
@@ -423,10 +437,10 @@ bool JsUIExtensionBase::HandleSessionCreate(const AAFwk::Want &want, const sptr<
             HILOG_ERROR("create ui window error.");
             return false;
         }
-        if (!CallJsOnSessionCreate(want, sessionInfo, uiWindow, obj)) {
+        if (!CallJsOnSessionCreate(want, sessionInfo, uiWindow, componentId)) {
             return false;
         }
-        uiWindowMap_[obj] = uiWindow;
+        uiWindowMap_[componentId] = uiWindow;
     }
     return true;
 }
@@ -437,57 +451,60 @@ void JsUIExtensionBase::ForegroundWindow(const AAFwk::Want &want, const sptr<AAF
         HILOG_ERROR("HandleSessionCreate failed.");
         return;
     }
-    auto obj = sessionInfo->sessionToken;
-    auto &uiWindow = uiWindowMap_[obj];
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    auto &uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Show();
-        foregroundWindows_.emplace(obj);
+        foregroundWindows_.emplace(componentId);
     }
 }
 
 void JsUIExtensionBase::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("called");
-    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+    if (sessionInfo == nullptr) {
         HILOG_ERROR("Invalid sessionInfo.");
         return;
     }
-    auto obj = sessionInfo->sessionToken;
-    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         HILOG_ERROR("Fail to find uiWindow");
         return;
     }
-    auto &uiWindow = uiWindowMap_[obj];
+    auto &uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Hide();
-        foregroundWindows_.erase(obj);
+        foregroundWindows_.erase(componentId);
     }
 }
 
 void JsUIExtensionBase::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
-    HILOG_DEBUG("called");
-    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+    if (sessionInfo == nullptr) {
         HILOG_ERROR("Invalid sessionInfo.");
         return;
     }
-    auto obj = sessionInfo->sessionToken;
-    if (uiWindowMap_.find(obj) == uiWindowMap_.end()) {
+
+    HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
+    auto componentId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
         HILOG_ERROR("Fail to find uiWindow");
         return;
     }
-    if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
+    if (contentSessions_.find(componentId) != contentSessions_.end() && contentSessions_[componentId] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        napi_value argv[] = { contentSessions_[obj]->GetNapiValue() };
+        napi_value argv[] = { contentSessions_[componentId]->GetNapiValue() };
         CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
     }
-    auto &uiWindow = uiWindowMap_[obj];
+    auto &uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
         uiWindow->Destroy();
     }
-    uiWindowMap_.erase(obj);
-    foregroundWindows_.erase(obj);
-    contentSessions_.erase(obj);
+    uiWindowMap_.erase(componentId);
+    foregroundWindows_.erase(componentId);
+    contentSessions_.erase(componentId);
 }
 
 napi_value JsUIExtensionBase::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)

@@ -32,7 +32,8 @@ using WantParams = OHOS::AAFwk::WantParams;
 enum ExecuteMode {
     UI_ABILITY_FOREGROUND = 0,
     UI_ABILITY_BACKGROUND,
-    UI_EXTENSION_ABILITY
+    UI_EXTENSION_ABILITY,
+    SERVICE_EXTENSION_ABILITY,
 };
 
 constexpr char INSIGHT_INTENT_EXECUTE_PARAM_NAME[] = "ohos.insightIntent.executeParam.name";

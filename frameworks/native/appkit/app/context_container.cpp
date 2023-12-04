@@ -288,20 +288,20 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         HILOG_ERROR("InitResourceManager deal is nullptr");
         return;
     }
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    std::string moduleName;
+    std::string hapPath;
+    std::vector<std::string> overlayPaths;
+    int32_t appType;
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+        appType = TYPE_RESERVE;
+    } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        appType = TYPE_OTHERS;
+    } else {
+        appType = 0;
+    }
     if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
         bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-        std::string moduleName;
-        std::string hapPath;
-        std::vector<std::string> overlayPaths;
-        int32_t appType;
-        if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
-            appType = TYPE_RESERVE;
-        } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-            appType = TYPE_OTHERS;
-        } else {
-            appType = 0;
-        }
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
             bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
         if (resourceManager == nullptr) {
@@ -312,7 +312,8 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         return;
     }
 
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
     if (resourceManager == nullptr) {
         HILOG_ERROR("ContextContainer::InitResourceManager create resourceManager failed");
         return;
@@ -338,7 +339,6 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
         }
     }
 
-    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     resConfig->SetLocaleInfo("zh", "Hans", "CN");
 #ifdef SUPPORT_GRAPHICS
     if (resConfig->GetLocaleInfo() != nullptr) {

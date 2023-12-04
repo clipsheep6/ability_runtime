@@ -155,6 +155,8 @@ public:
      */
     void HandleShareData(int32_t uniqueId);
 
+    void HandleExecuteInsightIntentBackground(const AAFwk::Want &want, bool onlyExecuteIntent = false);
+
 #ifdef SUPPORT_GRAPHICS
 public:
 
@@ -224,6 +226,12 @@ private:
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
     inline void ExecuteInsightIntentMoveToForeground(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+    inline void ExecuteInsightIntentBackgroundByColdBoot(const Want &want,
+        const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+        std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
+    inline void ExecuteInsightIntentBackgroundAlreadyStart(const Want &want,
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         std::unique_ptr<InsightIntentExecutorAsyncCallback> callback);
 

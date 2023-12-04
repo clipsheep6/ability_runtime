@@ -50,6 +50,7 @@ constexpr const char *EVENT_KEY_CALLER_VERSION_CODE = "CALLER_VERSION_CODE";
 constexpr const char *EVENT_KEY_URI = "URI";
 constexpr const char *EVENT_KEY_RESTART_TIME = "RESTART_TIME";
 constexpr const char *EVENT_KEY_APP_UID = "APP_UID";
+constexpr const char *EVENT_KEY_PROCESS_TYPE = "PROCESS_TYPE";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -152,7 +153,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
-                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+                EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
             break;
         case EventName::APP_BACKGROUND:
             HiSysEventWrite(
@@ -164,7 +166,8 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_VERSION_NAME, eventInfo.versionName,
                 EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
                 EVENT_KEY_PROCESS_NAME, eventInfo.processName,
-                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType);
+                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+                EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
             break;
         case EventName::DRAWN_COMPLETED:
             HILOG_INFO("HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",

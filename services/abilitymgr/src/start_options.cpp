@@ -21,6 +21,15 @@ StartOptions::StartOptions(const StartOptions &other)
 {
     windowMode_ = other.windowMode_;
     displayId_ = other.displayId_;
+    withAnimation_ = other.withAnimation_;
+    windowLeft_ = other.windowLeft_;
+    windowTop_ = other.windowTop_;
+    windowWidth_ = other.windowWidth_;
+    windowHeight_ = other.windowHeight_;
+    windowLeftUsed_ = other.windowLeftUsed_;
+    windowTopUsed_ = other.windowTopUsed_;
+    windowWidthUsed_ = other.windowWidthUsed_;
+    windowHeightUsed_ = other.windowHeightUsed_;
 }
 
 StartOptions &StartOptions::operator=(const StartOptions &other)
@@ -28,6 +37,15 @@ StartOptions &StartOptions::operator=(const StartOptions &other)
     if (this != &other) {
         windowMode_ = other.windowMode_;
         displayId_ = other.displayId_;
+        withAnimation_ = other.withAnimation_;
+        windowLeft_ = other.windowLeft_;
+        windowTop_ = other.windowTop_;
+        windowWidth_ = other.windowWidth_;
+        windowHeight_ = other.windowHeight_;
+        windowLeftUsed_ = other.windowLeftUsed_;
+        windowTopUsed_ = other.windowTopUsed_;
+        windowWidthUsed_ = other.windowWidthUsed_;
+        windowHeightUsed_ = other.windowHeightUsed_;
     }
     return *this;
 }
@@ -36,6 +54,15 @@ bool StartOptions::ReadFromParcel(Parcel &parcel)
 {
     SetWindowMode(parcel.ReadInt32());
     SetDisplayID(parcel.ReadInt32());
+    SetWithAnimation(parcel.ReadBool());
+    SetWindowLeft(parcel.ReadInt32());
+    SetWindowTop(parcel.ReadInt32());
+    SetWindowWidth(parcel.ReadInt32());
+    SetWindowHeight(parcel.ReadInt32());
+    windowLeftUsed_ = parcel.ReadBool();
+    windowTopUsed_ = parcel.ReadBool();
+    windowWidthUsed_ = parcel.ReadBool();
+    windowHeightUsed_ = parcel.ReadBool();
     return true;
 }
 
@@ -58,6 +85,15 @@ bool StartOptions::Marshalling(Parcel &parcel) const
 {
     parcel.WriteInt32(GetWindowMode());
     parcel.WriteInt32(GetDisplayID());
+    parcel.WriteBool(GetWithAnimation());
+    parcel.WriteInt32(GetWindowLeft());
+    parcel.WriteInt32(GetWindowTop());
+    parcel.WriteInt32(GetWindowWidth());
+    parcel.WriteInt32(GetWindowHeight());
+    parcel.WriteBool(windowLeftUsed_);
+    parcel.WriteBool(windowTopUsed_);
+    parcel.WriteBool(windowWidthUsed_);
+    parcel.WriteBool(windowHeightUsed_);
     return true;
 }
 
@@ -79,6 +115,56 @@ void StartOptions::SetDisplayID(int32_t id)
 int32_t StartOptions::GetDisplayID() const
 {
     return displayId_;
+}
+
+void StartOptions::SetWithAnimation(bool withAnimation)
+{
+    withAnimation_ = withAnimation;
+}
+
+bool StartOptions::GetWithAnimation() const
+{
+    return withAnimation_;
+}
+
+void StartOptions::SetWindowLeft(int32_t windowLeft)
+{
+    windowLeft_ = windowLeft;
+}
+
+int32_t StartOptions::GetWindowLeft() const
+{
+    return windowLeft_;
+}
+
+void StartOptions::SetWindowTop(int32_t windowTop)
+{
+    windowTop_ = windowTop;
+}
+
+int32_t StartOptions::GetWindowTop() const
+{
+    return windowTop_;
+}
+
+void StartOptions::SetWindowWidth(int32_t windowWidth)
+{
+    windowWidth_ = windowWidth;
+}
+
+int32_t StartOptions::GetWindowWidth() const
+{
+    return windowWidth_;
+}
+
+void StartOptions::SetWindowHeight(int32_t windowHeight)
+{
+    windowHeight_ = windowHeight;
+}
+
+int32_t StartOptions::GetWindowHeight() const
+{
+    return windowHeight_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

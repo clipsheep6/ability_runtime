@@ -49,7 +49,7 @@ void InsightIntentExecuteCallbackProxy::OnExecuteDone(uint64_t key, int32_t resu
     }
 
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option(MessageOption::TF_ASYNC);
     int error = remote->SendRequest(ON_INSIGHT_INTENT_EXECUTE_DONE, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);

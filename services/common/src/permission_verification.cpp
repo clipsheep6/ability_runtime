@@ -216,6 +216,15 @@ bool PermissionVerification::VerifyGetBundleInfoPrivilegedPermission() const
     return false;
 }
 
+bool PermissionVerification::VerifyStartRecentAbilityPermission() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_RECENT_ABILITY)) {
+        HILOG_INFO("Verify permission %{public}s succeed.", PermissionConstants::PERMISSION_START_RECENT_ABILITY);
+        return true;
+    }
+    return VerifyMissionPermission();
+}
+
 int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo, bool isShell) const
 {
     if ((verificationInfo.apiTargetVersion > API8 || isShell) &&
@@ -405,6 +414,17 @@ bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId
     }
     HILOG_DEBUG("verify AccessToken success");
     return true;
+}
+
+bool PermissionVerification::VerifyStartAbilityWithAnimationPermission() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILITY_WITH_ANIMATION)) {
+        HILOG_INFO("Verify permission %{public}s succeed.",
+            PermissionConstants::PERMISSION_START_ABILITY_WITH_ANIMATION);
+        return true;
+    }
+    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_START_ABILITY_WITH_ANIMATION);
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

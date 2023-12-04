@@ -59,6 +59,7 @@ static napi_value InitLaunchReasonObject(napi_env env)
     NAPI_CALL(env, SetEnumItem(env, object, "APP_RECOVERY", LAUNCHREASON_APP_RECOVERY));
     NAPI_CALL(env, SetEnumItem(env, object, "SHARE", LAUNCHREASON_SHARE));
     NAPI_CALL(env, SetEnumItem(env, object, "AUTO_STARTUP", LAUNCHREASON_AUTO_STARTUP));
+    NAPI_CALL(env, SetEnumItem(env, object, "INSIGHT_INTENT", LAUNCHREASON_INSIGHT_INTENT));
 
     HILOG_DEBUG("end");
     return object;

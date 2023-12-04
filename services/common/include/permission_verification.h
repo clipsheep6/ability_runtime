@@ -66,6 +66,8 @@ struct VerificationInfo {
 
     bool VerifyGetBundleInfoPrivilegedPermission() const;
 
+    bool VerifyStartRecentAbilityPermission() const;
+
     int CheckCallDataAbilityPermission(const VerificationInfo &verificationInfo, bool isShell) const;
 
     int CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const;
@@ -85,10 +87,12 @@ struct VerificationInfo {
     bool JudgeCallerIsAllowedToUseSystemAPI() const;
 
     bool IsSystemAppCall() const;
-    
+
     bool VerifyPrepareTerminatePermission() const;
 
     bool VerifyPrepareTerminatePermission(const int &tokenId) const;
+
+    bool VerifyStartAbilityWithAnimationPermission() const;
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);

@@ -75,6 +75,14 @@ void UserController::Init()
     eventHandler_ = std::make_shared<UserEventHandler>(handler, shared_from_this());
 }
 
+void UserController::ClearAbilityUserItems(int32_t userId)
+{
+    std::lock_guard<ffrt::mutex> guard(userLock_);
+    if (userItems_.count(userId)) {
+        userItems_.erase(userId);
+    }
+}
+
 int32_t UserController::StartUser(int32_t userId, bool isForeground)
 {
     if (userId < 0 || userId == USER_ID_NO_HEAD) {
@@ -179,6 +187,32 @@ int32_t UserController::StopUser(int32_t userId)
     abilityManagerService->ClearUserData(userId);
 
     BroadcastUserStopped(userId);
+    return 0;
+}
+
+int32_t UserController::LogoutUser(int32_t userId)
+{
+    if (userId < 0 || userId == USER_ID_NO_HEAD) {
+        HILOG_ERROR("userId is invalid:%{public}d", userId);
+        return INVALID_USERID_VALUE;
+    }
+    if (!IsExistOsAccount(userId)) {
+        HILOG_ERROR("not exist such account:%{public}d", userId);
+        return INVALID_USERID_VALUE;
+    }
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (!appScheduler) {
+        HILOG_ERROR("appScheduler is null");
+        return INVALID_USERID_VALUE;
+    }
+    appScheduler->KillProcessesByUserId(userId);
+    auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityManagerService) {
+        HILOG_ERROR("abilityManagerService is null");
+        return -1;
+    }
+    abilityManagerService->ClearUserData(userId);
+    ClearAbilityUserItems(userId);
     return 0;
 }
 

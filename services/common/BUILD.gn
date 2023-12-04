@@ -104,3 +104,19 @@ ohos_shared_library("task_handler_wrap") {
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
+
+ohos_shared_library("app_util") {
+  public_configs = [ ":common_config" ]
+  include_dirs = [ "include" ]
+
+  sources = [ "src/app_utils.cpp" ]
+
+  external_deps = [
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "window_manager:libwsutils",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

@@ -49,6 +49,7 @@ struct EventInfo {
     uint32_t callerVersionCode = -1;
     std::string callerVersionName;
     std::string uri;
+    int32_t processType = -1;
 };
 
 enum class EventName {

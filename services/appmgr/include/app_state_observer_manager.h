@@ -18,23 +18,30 @@
 
 #include <map>
 #include <mutex>
+#include <set>
 #include <string>
-#include <vector>
-#include "cpp/mutex.h"
 
+#include "ability_foreground_state_observer_interface.h"
+#include "app_foreground_state_observer_interface.h"
 #include "app_running_record.h"
 #include "app_state_data.h"
+#include "cpp/mutex.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
 #include "page_state_data.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "singleton.h"
-#include "uri_permission_manager_client.h"
 #include "task_handler_wrap.h"
+#include "uri_permission_manager_client.h"
 
 namespace OHOS {
 namespace AppExecFwk {
+enum class ObserverType {
+    APPLICATION_STATE_OBSERVER,
+    APP_FOREGROUND_STATE_OBSERVER,
+    ABILITY_FOREGROUND_STATE_OBSERVER,
+};
 class AppStateObserverManager : public std::enable_shared_from_this<AppStateObserverManager> {
     DECLARE_DELAYED_SINGLETON(AppStateObserverManager)
 public:
@@ -42,9 +49,14 @@ public:
     int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
         const std::vector<std::string> &bundleNameList = {});
     int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
-    void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
+    void StateChangedNotifyObserver(
+        const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
-        bool needNotifyApp);
+        bool needNotifyApp, bool isFromWindowFocusChanged);
     void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
     void OnProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -57,20 +69,23 @@ public:
     void OnPageHide(const PageStateData pageStateData);
 private:
     void HandleAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
-        bool needNotifyApp);
+        bool needNotifyApp, bool isFromWindowFocusChanged);
     void HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
-    void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
+    void HandleStateChangedNotifyObserver(
+        const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged);
     void HandleOnAppProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessDied(const std::shared_ptr<RenderRecord> &RenderRecord);
-    bool ObserverExist(const sptr<IApplicationStateObserver> &observer);
-    void AddObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
-    void RemoveObserverDeathRecipient(const sptr<IApplicationStateObserver> &observer);
+    bool ObserverExist(const sptr<IRemoteBroker> &observer);
+    bool IsAppForegroundObserverExist(const sptr<IRemoteBroker> &observer);
+    bool IsAbilityForegroundObserverExist(const sptr<IRemoteBroker> &observer);
+    void AddObserverDeathRecipient(const sptr<IRemoteBroker> &observer, const ObserverType &type);
+    void RemoveObserverDeathRecipient(const sptr<IRemoteBroker> &observer);
     ProcessData WrapProcessData(const std::shared_ptr<AppRunningRecord> &appRecord);
     ProcessData WrapRenderProcessData(const std::shared_ptr<RenderRecord> &renderRecord);
-    void OnObserverDied(const wptr<IRemoteObject> &remote);
+    void OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type);
     AppStateData WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
     const ApplicationState state);
     void HandleOnProcessCreated(const ProcessData &data);
@@ -82,9 +97,14 @@ private:
 
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;
+    int32_t dummyCode_ = 0;
     ffrt::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
+    ffrt::mutex appForegroundObserverLock_;
+    std::set<sptr<IAppForegroundStateObserver>> appForegroundStateObserverSet_;
+    ffrt::mutex abilityforegroundObserverLock_;
+    std::set<sptr<IAbilityForegroundStateObserver>> abilityforegroundObserverSet_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

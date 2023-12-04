@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,20 +23,21 @@
 #include "acquire_share_data_callback_stub.h"
 #include "app_mgr_interface.h"
 #include "errors.h"
+#include "event_runner.h"
 #include "hilog_wrapper.h"
+#include "if_system_ability_manager.h"
+#include "ipc_skeleton.h"
+#include "iservice_registry.h"
+#include "js_ability_foreground_state_observer.h"
+#include "js_ability_manager_utils.h"
 #include "js_error_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
-#include "if_system_ability_manager.h"
-#include "ipc_skeleton.h"
-#include "iservice_registry.h"
-#include "system_ability_definition.h"
-#include "js_ability_manager_utils.h"
-#include "event_runner.h"
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
+#include "system_ability_definition.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -51,11 +52,12 @@ OHOS::sptr<OHOS::AppExecFwk::IAppMgr> GetAppManagerInstance()
     return OHOS::iface_cast<OHOS::AppExecFwk::IAppMgr>(appObject);
 }
 
-
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t INDEX_ZERO = 0;
 constexpr size_t INDEX_ONE = 1;
+constexpr const char *ON_OFF_TYPE_ABILITY_FOREGROUND_STATE = "abilityForegroundState";
 static std::shared_ptr<AppExecFwk::EventHandler> mainHandler_ = nullptr;
 
 class JsAbilityManager final {
@@ -98,8 +100,125 @@ public:
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifySaveAsResult);
     }
+    static napi_value GetForegroundUIAbilities(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnGetForegroundUIAbilities);
+    }
+
+    static napi_value On(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnOn);
+    }
+
+    static napi_value Off(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnOff);
+    }
 
 private:
+    sptr<OHOS::AbilityRuntime::JSAbilityForegroundStateObserver> observerForeground_ = nullptr;
+    sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
+
+    std::string ParseParamType(const napi_env &env, size_t argc, const napi_value *argv)
+    {
+        std::string type;
+        if (argc > INDEX_ZERO && ConvertFromJsValue(env, argv[INDEX_ZERO], type)) {
+            return type;
+        }
+        return "";
+    }
+
+    napi_value OnOn(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        std::string type = ParseParamType(env, argc, argv);
+        if (type == ON_OFF_TYPE_ABILITY_FOREGROUND_STATE) {
+            OnOnAbilityForeground(env, argc, argv);
+        }
+
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnOnAbilityForeground(napi_env env, size_t argc, napi_value *argv)
+    {
+        if (observerForeground_ == nullptr) {
+            observerForeground_ = new (std::nothrow) JSAbilityForegroundStateObserver(env);
+            if (observerForeground_ == nullptr) {
+                HILOG_ERROR("observerForeground_ is nullptr.");
+                ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+                return CreateJsUndefined(env);
+            }
+        }
+
+        if (observerForeground_->IsEmpty()) {
+            int32_t ret = GetAppManagerInstance()->RegisterAbilityForegroundStateObserver(observerForeground_);
+            if (ret != NO_ERROR) {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                ThrowErrorByNativeErr(env, ret);
+                return CreateJsUndefined(env);
+            }
+        }
+        observerForeground_->AddJsObserverObject(argv[INDEX_ONE]);
+
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnOff(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_ONE) {
+            HILOG_ERROR("Not enough params when off.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (argc == ARGC_TWO && !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        std::string type = ParseParamType(env, argc, argv);
+        if (type == ON_OFF_TYPE_ABILITY_FOREGROUND_STATE) {
+            OnOffAbilityForeground(env, argc, argv);
+        }
+        return CreateJsUndefined(env);
+    }
+
+    napi_value OnOffAbilityForeground(napi_env env, size_t argc, napi_value *argv)
+    {
+        if (observerForeground_ == nullptr) {
+            HILOG_ERROR("Observer is nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+        if (argc == ARGC_TWO) {
+            observerForeground_->RemoveJsObserverObject(argv[INDEX_ONE]);
+        } else {
+            observerForeground_->RemoveAllJsObserverObject();
+        }
+
+        if (observerForeground_->IsEmpty()) {
+            int32_t ret = GetAppManagerInstance()->UnregisterAbilityForegroundStateObserver(observerForeground_);
+            if (ret != NO_ERROR) {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                ThrowErrorByNativeErr(env, ret);
+                return CreateJsUndefined(env);
+            }
+        }
+        return CreateJsUndefined(env);
+    }
+
     napi_value OnGetAbilityRunningInfos(napi_env env, NapiCallbackInfo& info)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
@@ -337,9 +456,29 @@ private:
 
         napi_value lastParam = (info.argc == ARGC_TWO) ? nullptr : info.argv[ARGC_TWO];
         napi_value result = nullptr;
-        NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnNotifySaveAsResult",
-            env, CreateAsyncTaskWithLastParam(env,
-            lastParam, std::move(execute), std::move(complete), &result));
+        NapiAsyncTask::ScheduleHighQos("JsAbilityManager::OnNotifySaveAsResult", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
+    napi_value OnGetForegroundUIAbilities(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        NapiAsyncTask::CompleteCallback complete = [](napi_env env, NapiAsyncTask &task, int32_t status) {
+            std::vector<AppExecFwk::AbilityStateData> list;
+            int32_t ret = AbilityManagerClient::GetInstance()->GetForegroundUIAbilities(list);
+            if (ret == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsAbilityStateDataArray(env, list));
+            } else {
+                HILOG_ERROR("Failed error: %{public}d.", ret);
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+            }
+        };
+
+        napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsAbilityManager::OnGetForegroundUIAbilities", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
 };
@@ -364,6 +503,10 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "getTopAbility", moduleName, JsAbilityManager::GetTopAbility);
     BindNativeFunction(env, exportObj, "acquireShareData", moduleName, JsAbilityManager::AcquireShareData);
     BindNativeFunction(env, exportObj, "notifySaveAsResult", moduleName, JsAbilityManager::NotifySaveAsResult);
+    BindNativeFunction(
+        env, exportObj, "getForegroundUIAbilities", moduleName, JsAbilityManager::GetForegroundUIAbilities);
+    BindNativeFunction(env, exportObj, "on", moduleName, JsAbilityManager::On);
+    BindNativeFunction(env, exportObj, "off", moduleName, JsAbilityManager::Off);
     HILOG_INFO("JsAbilityManagerInit end");
     return CreateJsUndefined(env);
 }

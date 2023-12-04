@@ -41,5 +41,16 @@ ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode,
     }
     return result;
 }
+
+void AbilityInterceptorExecuter::SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    for (auto &interceptor : interceptorList_) {
+        if (interceptor == nullptr) {
+            continue;
+        }
+        interceptor->SetTaskHandler(taskHandler);
+    }
+}
 } // namespace AAFwk
 } // namespace OHOS

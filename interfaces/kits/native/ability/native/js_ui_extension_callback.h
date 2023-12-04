@@ -37,8 +37,8 @@ public:
 private:
     napi_env env_ = nullptr;
     std::unique_ptr<NativeReference> jsCallbackObject_ = nullptr;
-    int32_t sessionId_;
-    Ace::UIContent* uiContent_;
+    int32_t sessionId_ = 0;
+    Ace::UIContent* uiContent_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

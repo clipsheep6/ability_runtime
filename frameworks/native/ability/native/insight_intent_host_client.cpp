@@ -58,14 +58,20 @@ void InsightIntentHostClient::OnExecuteDone(uint64_t key, int32_t resultCode,
 {
     HILOG_DEBUG("called.");
 
-    std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
-    auto iter = callbackMap_.find(key);
-    if (iter == callbackMap_.end()) {
-        HILOG_INFO("InsightIntent execute callback not found");
-    } else {
-        std::shared_ptr<InsightIntentExecuteCallbackInterface> &callback = iter->second;
+    std::shared_ptr<InsightIntentExecuteCallbackInterface> callback = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
+        auto iter = callbackMap_.find(key);
+        if (iter == callbackMap_.end()) {
+            HILOG_INFO("InsightIntent execute callback not found");
+        } else {
+            callback = iter->second;
+            callbackMap_.erase(key);
+        }
+    }
+
+    if (callback != nullptr) {
         callback->ProcessInsightIntentExecute(resultCode, executeResult);
-        callbackMap_.erase(key);
     }
 }
 } // namespace AbilityRuntime

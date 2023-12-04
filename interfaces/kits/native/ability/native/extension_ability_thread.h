@@ -215,6 +215,16 @@ private:
     void HandleAttachInner(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
+    /**
+     * @brief Handle the current command of Extension.
+     * @param want The Want object to command to.
+     */
+    void HandleInsightIntent(const Want &want);
+
+    void ScheduleCommandAbilityInner(const Want &want, bool restart, int32_t startId);
+
+    void ScheduleInsightIntentInner(const Want &want);
+
     std::shared_ptr<ExtensionImpl> extensionImpl_ = nullptr;
     std::shared_ptr<Extension> currentExtension_ = nullptr;
 };

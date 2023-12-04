@@ -58,6 +58,9 @@ public:
 
     std::shared_ptr<Context> CreateBundleContext(const std::string &bundleName) override;
 
+    std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
+        const std::string &bundleName, const std::string &moduleName) override;
+
     sptr<AppExecFwk::IBundleMgr> GetBundleManager() const;
 
     void SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info);

@@ -15,6 +15,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 #define OHOS_ABILITY_RUNTIME_IMPLICIT_START_PROCESSOR_H
 
+#include <list>
 #include <vector>
 #include <string>
 #include <unordered_set>
@@ -28,6 +29,12 @@
 
 namespace OHOS {
 namespace AAFwk {
+struct IdentityNode {
+    int32_t tokenId;
+    std::string identity;
+    IdentityNode(int tokenId, std::string identity) : tokenId(tokenId), identity(identity)
+    {}
+};
 #ifdef SUPPORT_ERMS
 using namespace OHOS::EcologicalRuleMgrService;
 using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
@@ -45,11 +52,18 @@ public:
 
     int ImplicitStartAbility(AbilityRequest &request, int32_t userId);
 
+    void ResetCallingIdentityAsCaller(int32_t tokenId);
+
+    int NotifyCreateModalDialog(AbilityRequest &abilityRequest, const Want &want, int32_t userId,
+        std::vector<DialogAppInfo> &dialogAppInfos);
+
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
         std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
     sptr<AppExecFwk::IBundleMgr> GetBundleManager();
+    std::vector<std::string> splitStr(const std::string& str, char delimiter);
+    int queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos);
 
     using StartAbilityClosure = std::function<int32_t()>;
     int CallStartAbilityInner(int32_t userId, const Want &want, const StartAbilityClosure &callBack,
@@ -68,10 +82,14 @@ private:
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
 #endif
 
+    void AddIdentity(int32_t tokenId, std::string identity);
+
 private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
+    ffrt::mutex identityListLock_;
+    std::list<IdentityNode> identityList_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -20,6 +20,7 @@
 #undef private
 #include "ability_manager_client.h"
 #include "appexecfwk_errors.h"
+#include "app_utils.h"
 #include "form_mgr.h"
 #include "form_mgr_errors.h"
 #include "hilog_wrapper.h"

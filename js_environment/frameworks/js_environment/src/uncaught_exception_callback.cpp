@@ -18,6 +18,7 @@
 
 #include "js_env_logger.h"
 #include "native_engine/native_engine.h"
+#include "ui_content.h"
 
 namespace OHOS {
 namespace JsEnv {
@@ -84,6 +85,10 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
         return;
     }
     summary += error + "Stacktrace:\n" + sourceMapOperator_->TranslateBySourceMap(errorStack);
+    std::string str = Ace::UIContent::GetCurrentUIStackInfo();
+    if (!str.empty()) {
+        summary.append(str);
+    }
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }

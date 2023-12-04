@@ -95,6 +95,7 @@ export default class JumpInterceptorServiceExtAbility extends extension {
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.jumpInterceptorExtensionContext, name, windowType);
+      await win.hideNonSystemFloatingWindows(true);
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       await win.loadContent('pages/jumpInterceptorDialog');

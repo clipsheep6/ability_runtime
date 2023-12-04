@@ -291,6 +291,16 @@ enum ResolveResultType {
     OK_HAS_REMOTE_OBJ,
     NG_INNER_ERROR,
 };
+
+enum class AbilityWindowState {
+    FOREGROUND = 0,
+    BACKGROUND,
+    TERMINATE,
+    FOREGROUNDING,
+    BACKGROUNDING,
+    TERMINATING
+};
+
 /**
  * @class AbilityRecord
  * AbilityRecord records ability info and states and used to schedule ability life.
@@ -608,7 +618,7 @@ public:
      * get the want for start ability.
      *
      */
-    const Want &GetWant() const;
+    Want GetWant() const;
 
     /**
      * get request code of the ability to start.
@@ -894,6 +904,24 @@ public:
     bool GetLockedState();
 
     void SetAttachDebug(const bool isAttachDebug);
+    int32_t CreateModalUIExtension(const Want &want);
+
+    AppExecFwk::ElementName GetElementName() const;
+    bool IsDebugApp() const;
+    bool IsDebug() const;
+
+    void AddAbilityWindowStateMap(uint64_t uiExtensionComponentId,
+        AbilityWindowState abilityWindowState);
+
+    void RemoveAbilityWindowStateMap(uint64_t uiExtensionComponentId);
+
+    bool IsAbilityWindowReady();
+
+    void SetAbilityWindowState(const sptr<SessionInfo> &sessionInfo,
+        WindowCommand winCmd, bool isFinished);
+
+    void SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId);
+    int32_t GetUIExtensionAbilityId() const;
 
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
@@ -932,7 +960,8 @@ private:
     {
         callerAccessTokenId_ = callerAccessTokenId;
     }
-    bool IsDebug() const;
+
+    bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -978,6 +1007,7 @@ private:
 
     static int64_t abilityRecordId;
     int recordId_ = 0;                                // record id
+    int32_t uiExtensionAbilityId_ = 0;                // uiextension ability id
     AppExecFwk::AbilityInfo abilityInfo_ = {};             // the ability info get from BMS
     AppExecFwk::ApplicationInfo applicationInfo_ = {};     // the ability info get from BMS
     std::weak_ptr<AbilityRecord> preAbilityRecord_ = {};   // who starts this ability record
@@ -1012,6 +1042,7 @@ private:
     bool isAbilityForegrounding_ = false;
 
     // service(ability) can be connected by multi-pages(abilites), so need to store this service's connections
+    mutable ffrt::mutex connRecordListMutex_;
     std::list<std::shared_ptr<ConnectionRecord>> connRecordList_ = {};
     // service(ability) onConnect() return proxy of service ability
     sptr<IRemoteObject> connRemoteObject_ = {};
@@ -1055,6 +1086,7 @@ private:
     ffrt::mutex lock_;
     mutable ffrt::mutex dumpInfoLock_;
     mutable ffrt::mutex dumpLock_;
+    mutable ffrt::mutex wantLock_;
     mutable ffrt::condition_variable dumpCondition_;
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
@@ -1062,7 +1094,8 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
-    std::unordered_set<uint64_t> sessionIds_;
+
+    std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
