@@ -16,16 +16,15 @@
 #include <gtest/gtest.h>
 #define private public
 #define protected public
-#include "ability_connect_manager.h"
 #include "ability_manager_client.h"
 #include "ability_manager_stub_mock_test.h"
+#include "ability_connect_manager.h"
 #undef private
 #undef protected
 
 #include "hilog_wrapper.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_manager_collaborator.h"
-#include "mock_app_debug_listener_stub.h"
 #include "session/host/include/session.h"
 #include "scene_board_judgement.h"
 
@@ -1682,7 +1681,7 @@ HWTEST_F(AbilityManagerClientBranchTest, IsAbilityControllerStart_0100, TestSize
     EXPECT_TRUE(result);
 }
 
-/*
+/**
  * @tc.name: AbilityManagerClient_RegisterAutoStartupSystemCallback_0100
  * @tc.desc: RegisterAutoStartupSystemCallback
  * @tc.type: FUNC
