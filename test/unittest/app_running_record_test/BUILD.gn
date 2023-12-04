@@ -61,6 +61,7 @@ ohos_unittest("app_running_record_test") {
     "memory_utils:libmeminfo",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libwm",
     "window_manager:libwsutils",
   ]
 }

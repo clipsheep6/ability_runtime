@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
-ohos_unittest("AppDebugManagerTest") {
+ohos_unittest("app_debug_manager_test") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -50,5 +50,5 @@ ohos_unittest("AppDebugManagerTest") {
 group("unittest") {
   testonly = true
 
-  deps = [ ":AppDebugManagerTest" ]
+  deps = [ ":app_debug_manager_test" ]
 }
