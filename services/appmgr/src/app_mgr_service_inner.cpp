@@ -1189,7 +1189,7 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
     if (!isSaCall && !isGatewayCall) {
-        HILOG_ERROR("callerToken not SA %{public}s", __func__);
+        HILOG_ERROR("Not sa or gateway call");
         return ERR_INVALID_VALUE;
     }
     if (!(level == OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_MODERATE ||
@@ -1208,9 +1208,8 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 
 int32_t AppMgrServiceInner::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("callerToken not SA %{public}s", __func__);
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return ERR_INVALID_VALUE;
     }
     if (pid < 0) {
@@ -2625,6 +2624,7 @@ void AppMgrServiceInner::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
 {
     HILOG_DEBUG("called");
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return;
     }
 
@@ -3503,7 +3503,7 @@ int AppMgrServiceInner::GetAbilityRecordsByProcessID(const int pid, std::vector<
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto callingPid = IPCSkeleton::GetCallingPid();
     if (!isSaCall && callingPid != pid) {
-        HILOG_ERROR("Permission verify failed.");
+        HILOG_ERROR("Not sa call and pid isn't itself");
         return ERR_PERMISSION_DENIED;
     }
     for (auto &item : appRecord->GetAbilities()) {
@@ -3518,7 +3518,7 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     if (!isSaCall && !isShellCall) {
-        HILOG_ERROR("no permissions.");
+        HILOG_ERROR("Not sa or shell call");
         return ERR_PERMISSION_DENIED;
     }
     auto appRecord = GetAppRunningRecordByPid(pid);
@@ -3539,11 +3539,6 @@ int AppMgrServiceInner::GetApplicationInfoByProcessID(const int pid, AppExecFwk:
 
 int AppMgrServiceInner::VerifyProcessPermission() const
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-
     if (VerifyAPL()) {
         return ERR_OK;
     }
@@ -3556,11 +3551,6 @@ int AppMgrServiceInner::VerifyProcessPermission() const
 int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) const
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    if (isSaCall || isShellCall) {
-        return ERR_OK;
-    }
 
     if (VerifyAPL()) {
         return ERR_OK;
@@ -3589,10 +3579,6 @@ int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) c
 int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token) const
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
 
     if (VerifyAPL()) {
         return ERR_OK;
@@ -3648,11 +3634,6 @@ bool AppMgrServiceInner::VerifyAPL() const
 
 int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionName, const int userId) const
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-
     if (userId != currentUserId_) {
         auto isCallingPermAccount = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS);
@@ -4209,9 +4190,8 @@ int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName, c
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 int32_t AppMgrServiceInner::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        HILOG_ERROR("callerToken not SA %{public}s", __func__);
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
         return ERR_INVALID_VALUE;
     }
 
