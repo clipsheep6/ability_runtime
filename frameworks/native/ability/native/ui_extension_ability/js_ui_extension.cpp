@@ -40,6 +40,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 namespace {
+constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 }
@@ -477,8 +478,14 @@ void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::
         napi_create_reference(env, nativeContentSession, 1, &ref);
         contentSessions_.emplace(
             obj, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
-        napi_value argv[] = {napiWant, nativeContentSession};
-        CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        if(want.GetIntParam("HalfScreenFlag",0)){
+            isHalfScreen_ = true;
+            napi_value argv[] = {nullptr};
+            CallObjectMethod("onWindowStageCreate", argv, ARGC_ONE);
+        }else{
+            napi_value argv[] = {napiWant, nativeContentSession};
+            CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        }
         uiWindowMap_[obj] = uiWindow;
     }
     auto& uiWindow = uiWindowMap_[obj];
@@ -523,8 +530,14 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
     }
     if (contentSessions_.find(obj) != contentSessions_.end() && contentSessions_[obj] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        napi_value argv[] = {contentSessions_[obj]->GetNapiValue()};
-        CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
+        if(want.GetIntParam("HalfScreenFlag",0)){
+            isHalfScreen_ = true;
+            napi_value argv[] = {nullptr};
+            CallObjectMethod("onWindowStageCreate", argv, ARGC_ONE);
+        }else{
+            napi_value argv[] = {napiWant, nativeContentSession};
+            CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        }
     }
     auto& uiWindow = uiWindowMap_[obj];
     if (uiWindow) {

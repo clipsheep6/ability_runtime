@@ -205,6 +205,7 @@ private:
     std::set<sptr<IRemoteObject>> foregroundWindows_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<NativeReference>> contentSessions_;
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
+    bool isHalfScreen_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -45,7 +45,7 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     sptr<AbilityThread> thread = nullptr;
     if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
         thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
-    } else if (abilityInfo->type == AbilityType::EXTENSION) {
+    } else if (abilityInfo->type == AbilityType::EXTENSION || abilityRecord->GetWant()->GetIntParam("HalfScreenFlag",0)) {
         thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     } else {
         thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
@@ -78,7 +78,7 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     sptr<AbilityThread> thread = nullptr;
     if (abilityInfo->type == AbilityType::PAGE && abilityInfo->isStageBasedModel) {
         thread = new (std::nothrow) AbilityRuntime::UIAbilityThread();
-    } else if (abilityInfo->type == AbilityType::EXTENSION) {
+    } else if (abilityInfo->type == AbilityType::EXTENSION || abilityRecord->GetWant()->GetIntParam("HalfScreenFlag",0)) {
         thread = new (std::nothrow) AbilityRuntime::ExtensionAbilityThread();
     } else {
         thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
