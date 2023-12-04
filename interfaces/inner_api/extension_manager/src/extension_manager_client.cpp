@@ -104,7 +104,7 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE,
-        userId, true);
+        userId, false);
 }
 
 ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
@@ -120,7 +120,7 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(
-        want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId, true);
+        want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId, false);
 }
 
 ErrCode ExtensionManagerClient::ConnectEnterpriseAdminExtensionAbility(const Want &want,
