@@ -2532,7 +2532,7 @@ HWTEST_F(MainThreadTest, DetachAppDebug_0100, TestSize.Level1)
  */
 HWTEST_F(MainThreadTest, DetachAppDebug_0200, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "DetachAppDebug_0100 called";
+    GTEST_LOG_(INFO) << "DetachAppDebug_0200 called";
     EXPECT_TRUE(mainThread_ != nullptr);
     mainThread_->watchdog_ = std::make_shared<Watchdog>();
     EXPECT_TRUE(mainThread_->watchdog_ != nullptr);
