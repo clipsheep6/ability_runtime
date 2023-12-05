@@ -50,6 +50,7 @@ const std::string STR_DEFAULT = "default";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 const std::string SHOW_DEFAULT_PICKER_FLAG = "ohos.ability.params.showDefaultPicker";
 const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+const int NFC_CALLER_UID = 1027;
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -243,7 +244,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     bool withDefault = false;
     withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
 
-    if (IPCSkeleton::GetCallingUid() == 1027 && !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
+    if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID && !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
         HILOG_INFO("The NFCNeed caller source is NFC");
 
         ImplicitStartProcessor::queryBmsAppInfos(request, userId, dialogAppInfos);
@@ -353,23 +354,24 @@ int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t us
         std::string abilityName = appInfos[1];
         Want want;
         want.SetElementName(bundleName, abilityName);
-
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag,
             userId, abilityInfo));
-            
-        bmsApps.emplace_back(abilityInfo);
+        if (!abilityInfo.name.empty() && !abilityInfo.bundleName.empty() && !abilityInfo.moduleName.empty()) {
+            bmsApps.emplace_back(abilityInfo);
+        }
     }
-
-    for (const auto &abilityInfo : bmsApps) {
-        DialogAppInfo dialogAppInfo;
-        dialogAppInfo.abilityName = abilityInfo.name;
-        dialogAppInfo.bundleName = abilityInfo.bundleName;
-        dialogAppInfo.moduleName = abilityInfo.moduleName;
-        dialogAppInfo.iconId = abilityInfo.iconId;
-        dialogAppInfo.labelId = abilityInfo.labelId;
-        dialogAppInfos.emplace_back(dialogAppInfo);
+    if (!bmsApps.empty()) {
+        for (const auto &abilityInfo : bmsApps) {
+            DialogAppInfo dialogAppInfo;
+            dialogAppInfo.abilityName = abilityInfo.name;
+            dialogAppInfo.bundleName = abilityInfo.bundleName;
+            dialogAppInfo.moduleName = abilityInfo.moduleName;
+            dialogAppInfo.iconId = abilityInfo.iconId;
+            dialogAppInfo.labelId = abilityInfo.labelId;
+            dialogAppInfos.emplace_back(dialogAppInfo);
+        }
     }
-    return ERR_OK;;
+    return ERR_OK;
 }
 
 std::vector<std::string> ImplicitStartProcessor::splitStr(const std::string& str, char delimiter) {
