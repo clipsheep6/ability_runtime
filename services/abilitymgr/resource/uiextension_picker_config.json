@@ -1,0 +1,12 @@
+{
+    "uiextension":[
+        {
+            "type": "photoEditor",
+            "typePicker": "photoEditorPicker"
+        },
+        {
+            "type": "map",
+            "typePicker": "mapPicker"
+        }
+    ]
+}
