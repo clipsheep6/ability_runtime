@@ -195,7 +195,7 @@ void AbilityProcess::RequestPermissionsFromUser(
         HILOG_DEBUG("permission: %{public}s.", permission.c_str());
         PermissionListState permState;
         permState.permissionName = permission;
-        permState.state = -1;
+        permState.state = Security::AccessToken::SETTING_OPER;
         permList.emplace_back(permState);
     }
     HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
