@@ -523,7 +523,8 @@ private:
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
 
-    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type);
+    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
+        const std::shared_ptr<AbilityRecord> &callerAbility);
 
     int userId_;
     mutable ffrt::mutex managerLock_;
