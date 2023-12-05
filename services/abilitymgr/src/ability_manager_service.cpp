@@ -135,9 +135,12 @@ const std::string DLP_BUNDLE_NAME = "com.ohos.dlpmanager";
 // UIExtension type
 const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+const std::string SYSTEM_SHARE = "share";
+const std::string SYSTEM_SHARE_TYPE = "sysPicker/share";
 // Share picker params
 constexpr char SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY[] = "const.system.sharePicker.bundleName";
 constexpr char SHARE_PICKER_DIALOG_ABILITY_NAME_KEY[] = "const.system.sharePicker.abilityName";
+constexpr char SHARE_PICKER_UIEXTENSION_NAME_KEY[] = "const.system.sharePicker.UIExtensionAbilityName";
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_BUNDLE_NAME[] = "com.ohos.sharepickerdialog";
 constexpr char SHARE_PICKER_DIALOG_DEFAULY_ABILITY_NAME[] = "PickerDialog";
 constexpr char TOKEN_KEY[] = "ohos.ability.params.token";
@@ -2218,6 +2221,11 @@ void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extens
             jsonObject.at(targetType).contains(AmsConfig::PICKER_TYPE) &&
             jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).is_string()) {
             pickerType = jsonObject.at(targetType).at(AmsConfig::PICKER_TYPE).get<std::string>();
+        }
+        if (targetType == SYSTEM_SHARE) {
+            bundleName = OHOS::system::GetParameter(SHARE_PICKER_DIALOG_BUNDLE_NAME_KEY, bundleName);
+            abilityName = OHOS::system::GetParameter(SHARE_PICKER_UIEXTENSION_NAME_KEY, abilityName);
+            pickerType = SYSTEM_SHARE_TYPE;
         }
         extensionSessionInfo->want.SetElementName(bundleName, abilityName);
         WantParams &parameters = const_cast<WantParams &>(extensionSessionInfo->want.GetParams());
