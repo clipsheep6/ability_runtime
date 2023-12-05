@@ -1676,7 +1676,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
     ReportAbilitStartInfoToRSS(abilityInfo);
     ReportAbilitAssociatedStartInfoToRSS(abilityInfo, static_cast<int64_t>(
-        ResourceSchedule::ResType::AssociatedStartType::SCB_START_ABILITY));
+        ResourceSchedule::ResType::AssociatedStartType::SCB_START_ABILITY), sessionInfo->callerToken);
     return uiAbilityLifecycleManager_->StartUIAbility(abilityRequest, sessionInfo);
 }
 
@@ -2032,11 +2032,21 @@ void AbilityManagerService::ReportAbilitStartInfoToRSS(const AppExecFwk::Ability
 }
 
 void AbilityManagerService::ReportAbilitAssociatedStartInfoToRSS(
-    const AppExecFwk::AbilityInfo &abilityInfo, int64_t type)
+    const AppExecFwk::AbilityInfo &abilityInfo, int64_t type, const sptr<IRemoteObject> &callerToken)
 {
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    if (callerToken == nullptr) {
+        HILOG_WARN("associated start caller token is nullptr");
+        return;
+    }
+
+    auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
+    if (callerAbility == nullptr) {
+        HILOG_WARN("associated start caller  ability is nullptr");
+        return;
+    }
+    int32_t callerUid = callerAbility->GetUid();
+    int32_t callerPid = callerAbility->GetPid();
     std::unordered_map<std::string, std::string> eventParams {
         { "name", "associated_start" },
         { "caller_uid", std::to_string(callerUid) },
@@ -2180,7 +2190,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
         EventReport::SendExtensionEvent(EventName::START_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
     }
     ReportAbilitAssociatedStartInfoToRSS(abilityRequest.abilityInfo, static_cast<int64_t>(
-        ResourceSchedule::ResType::AssociatedStartType::EXTENSION_START_ABILITY));
+        ResourceSchedule::ResType::AssociatedStartType::EXTENSION_START_ABILITY), callerToken);
     return eventInfo.errCode;
 }
 

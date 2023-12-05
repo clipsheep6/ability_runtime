@@ -1690,7 +1690,8 @@ private:
     void UnsubscribeBundleEventCallback();
 
     void ReportAbilitStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo);
-    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type);
+    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
+        const sptr<IRemoteObject> &callerToken);
 
     void ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo);
     void RegisterSuspendObserver();
