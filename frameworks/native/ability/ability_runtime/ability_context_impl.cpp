@@ -37,6 +37,7 @@ namespace AbilityRuntime {
 const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+const std::string FLAG_AUTH_READ_URI_PERMISSION = "ability.want.params.uriPermissionFlag";
 
 struct RequestResult {
     int32_t resultCode {0};
@@ -754,6 +755,11 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     wantParams.SetParam(UIEXTENSION_TARGET_TYPE_KEY, AAFwk::String::Box(type));
     AAFwk::Want want;
     want.SetParams(wantParams);
+    if (wantParams.HasParam(FLAG_AUTH_READ_URI_PERMISSION)) {
+        int32_t flag = wantParams.GetIntParam(FLAG_AUTH_READ_URI_PERMISSION, 0);
+        want.SetFlags(flag);
+        wantParams.Remove(FLAG_AUTH_READ_URI_PERMISSION);
+    }
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
     callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease, uiExtensionCallbacks, std::placeholders::_1);
