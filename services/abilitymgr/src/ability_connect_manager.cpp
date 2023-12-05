@@ -1952,6 +1952,22 @@ void AbilityConnectManager::PauseExtensions()
     }
 }
 
+void AbilityConnectManager::RemoveLauncherDeathRecipient()
+{
+    HILOG_INFO("Call.");
+    std::lock_guard guard(Lock_);
+    for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
+        auto targetExtension = it->second;
+        if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
+            (IsLauncher(targetExtension) || IsSceneBoard(targetExtension))) {
+            targetExtension->RemoveAbilityDeathRecipient();
+            break;
+        } else {
+            it++;
+        }
+    }
+}
+
 bool AbilityConnectManager::IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const
 {
     if (serviceExtension == nullptr) {
