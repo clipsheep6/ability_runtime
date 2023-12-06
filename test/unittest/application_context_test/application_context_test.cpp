@@ -364,6 +364,35 @@ HWTEST_F(ApplicationContextTest, GetTempDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetResourceDir_0100
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get Resource Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetResourceDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetResourceDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetResourceDir_0100 end";
+}
+
+/**
+ * @tc.number: GetResourceDir_0200
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get Resource Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetResourceDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetResourceDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "/resfile");
+    GTEST_LOG_(INFO) << "GetResourceDir_0200 end";
+}
+
+/**
  * @tc.number: GetGroupDir_0100
  * @tc.name: GetGroupDir
  * @tc.desc: Get Group Dir failed

@@ -740,6 +740,30 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetTempDir_0200, Function 
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_GetResourceDir_0100
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get resource Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetResourceDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "/resfile");
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetResourceDir_0200
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get resource Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetResourceDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "");
+}
+
+/**
  * @tc.number: Ability_Context_Impl_GetGroupDir_0100
  * @tc.name: GetGroupDir
  * @tc.desc: Get Group Dir sucess

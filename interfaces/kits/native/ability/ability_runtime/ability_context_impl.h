@@ -36,6 +36,7 @@ public:
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
+    std::string GetResourceDir() override;
     std::string GetFilesDir() override;
     bool IsUpdatingConfigurations() override;
     bool PrintDrawnCompleted() override;

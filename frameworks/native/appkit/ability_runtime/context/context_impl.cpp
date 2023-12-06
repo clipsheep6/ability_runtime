@@ -67,6 +67,7 @@ const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
+const std::string ContextImpl::CONTEXT_RESOURCE_END = "/resources/resfile";
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
@@ -254,6 +255,20 @@ std::string ContextImpl::GetTempDir()
     CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetTempDir:%{public}s", dir.c_str());
     return dir;
+}
+
+std::string ContextImpl::GetResourceDir()
+{
+    std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfoPtr = GetHapModuleInfo();
+    if (hapModuleInfoPtr == nullptr || hapModuleInfoPtr->moduleName.empty()) {
+        return "";
+    }
+    std::string dir = std::string(LOCAL_CODE_PATH)   +
+        CONTEXT_FILE_SEPARATOR  + hapModuleInfoPtr->moduleName + CONTEXT_RESOURCE_END;
+    if (OHOS::FileExists(dir)) {
+        return dir;
+    }
+    return "";
 }
 
 std::string ContextImpl::GetFilesDir()

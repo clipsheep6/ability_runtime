@@ -38,6 +38,8 @@ public:
 
     std::string GetTempDir() override;
 
+    std::string GetResourceDir() override;
+
     std::string GetFilesDir() override;
 
     std::string GetDatabaseDir() override;
