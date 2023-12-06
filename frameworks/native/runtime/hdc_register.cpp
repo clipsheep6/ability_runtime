@@ -21,7 +21,8 @@
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
-using StartRegister = void (*)(const std::string& processName, const std::string& pkgName, bool debugApp, const HdcRegisterCallback& callbac);
+using StartRegister = void (*)(const std::string& processName, const std::string& pkgName, bool isDebug,
+    const HdcRegisterCallback& callback);
 using StopRegister = void (*)();
 
 HdcRegister::~HdcRegister()
@@ -35,7 +36,8 @@ HdcRegister& HdcRegister::Get()
     return hdcRegister;
 }
 
-void HdcRegister::StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp, HdcRegisterCallback callback)
+void HdcRegister::StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp,
+    HdcRegisterCallback callback)
 {
     HILOG_DEBUG("HdcRegister::StartHdcRegister begin");
 

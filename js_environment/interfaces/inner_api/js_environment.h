@@ -70,7 +70,8 @@ public:
 
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
-    bool StartDebugger(std::string& option, const char* libraryPath, uint32_t socketFd, bool needBreakPoint, uint32_t instanceId);
+    bool StartDebugger(
+        std::string& option, const char* libraryPath, uint32_t socketFd, bool needBreakPoint, uint32_t instanceId);
 
     void StopDebugger();
 
@@ -99,7 +100,7 @@ public:
 
     bool GetDebugMode() const;
 
-    int ParseHdcRegisterOption(std::string& option);
+    int32_t ParseHdcRegisterOption(std::string& option);
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;

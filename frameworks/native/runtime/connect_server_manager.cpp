@@ -86,7 +86,8 @@ void ConnectServerManager::StartConnectServer(const std::string& bundleName, int
         startServer(bundleName_);
         return;
     }
-    auto startServerForSocketPair = reinterpret_cast<StartServerForSocketPair>(dlsym(handlerConnectServerSo_, "StartServerForSocketPair"));
+    auto startServerForSocketPair =
+        reinterpret_cast<StartServerForSocketPair>(dlsym(handlerConnectServerSo_, "StartServerForSocketPair"));
     if (startServerForSocketPair == nullptr) {
         HILOG_ERROR("ConnectServerManager::StartServerForSocketPair failed to find symbol 'StartServer'");
         return;

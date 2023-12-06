@@ -86,8 +86,8 @@ public:
     bool RunScript(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
 
     void PreloadSystemModule(const std::string& moduleName) override;
-    void StartDebugMode(bool needBreakPoint, bool isDebugApp) override;
-    void StartDebugMode(bool needBreakPoint, bool isDebugApp, const std::string &processName = "") override;
+
+    void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true) override;
     void StopDebugMode();
     bool LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath) override;
     bool UnLoadRepairPatch(const std::string& hqfFile) override;
@@ -108,7 +108,8 @@ public:
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
     void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
-    void StartProfiler(const std::string &perfCmd, bool needBreakPoint, bool isDebugApp, const std::string &processName = "") override;
+    void StartProfiler(
+        const std::string &perfCmd, bool needBreakPoint, const std::string &processName, bool isDebug = true) override;
 
     void ReloadFormComponent(); // Reload ArkTS-Card component
     void DoCleanWorkAfterStageCleaned() override;
