@@ -43,7 +43,7 @@ bool RemoveResource(const std::string &path, const std::vector<std::string> &ove
     return true;
 }
 
-RState UpdateResConfig(ResConfig &resConfig)
+RState UpdateResConfig(ResConfig &resConfig, bool isUpdateTheme = false)
 {
     return SUCCESS;
 }
