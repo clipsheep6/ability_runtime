@@ -62,13 +62,19 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
         return CreateJsUndefined(env);
     }
 
-    if (jsSaveRequestCallback_ == nullptr) {
-        jsSaveRequestCallback_ = std::make_shared<JsSaveRequestCallback>(env);
-        if (jsSaveRequestCallback_ == nullptr) {
-            HILOG_ERROR("jsSaveRequestCallback_ is nullptr.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
-            return CreateJsUndefined(env);
-        }
+    auto saveCallback = GetCallbackByInstanceId(instanceId);
+    if (saveCallback != nullptr) {
+        HILOG_ERROR("There are other requests in progress.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+
+    auto autoSaveMangerFunc = std::bind(&JsAutoFillManager::OnRequestAutoSaveDone, this, std::placeholders::_1);
+    saveCallback = std::make_shared<JsSaveRequestCallback>(env, instanceId, autoSaveMangerFunc);
+    if (saveCallback == nullptr) {
+        HILOG_ERROR("saveCallback is nullptr.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
     }
 
     if (info.argc != ARGC_ONE) {
@@ -77,17 +83,17 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
-        jsSaveRequestCallback_->Register(info.argv[INDEX_ONE]);
+        saveCallback->Register(info.argv[INDEX_ONE]);
     }
-    OnRequestAutoSaveInner(env, instanceId);
+    OnRequestAutoSaveInner(env, instanceId, saveCallback);
     return CreateJsUndefined(env);
 }
 
-void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId)
+void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
+    const std::shared_ptr<JsSaveRequestCallback> &saveRequestCallback)
 {
     auto uiContent = Ace::UIContent::GetUIContent(instanceId);
     if (uiContent == nullptr) {
-        jsSaveRequestCallback_ = nullptr;
         HILOG_ERROR("UIContent is nullptr.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return;
@@ -95,13 +101,33 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId)
     if (uiContent->CheckNeedAutoSave()) {
         AbilityBase::ViewData viewData;
         uiContent->DumpViewData(viewData);
-        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, viewData, jsSaveRequestCallback_);
+        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, viewData, saveRequestCallback);
         if (ret != ERR_OK) {
-            jsSaveRequestCallback_ = nullptr;
             HILOG_ERROR("Request auto save error[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
             return;
         }
+        std::lock_guard<std::mutex> lock(mutexLock_);
+        saveRequestObject_.emplace(instanceId, saveRequestCallback);
+    }
+}
+
+std::shared_ptr<JsSaveRequestCallback> JsAutoFillManager::GetCallbackByInstanceId(int32_t instanceId)
+{
+    std::lock_guard<std::mutex> lock(mutexLock_);
+    auto iter = saveRequestObject_.find(instanceId);
+    if (iter != saveRequestObject_.end()) {
+        return iter->second.lock();
+    }
+    return nullptr;
+}
+
+void JsAutoFillManager::OnRequestAutoSaveDone(int32_t instanceId)
+{
+    std::lock_guard<std::mutex> lock(mutexLock_);
+    auto iter = saveRequestObject_.find(instanceId);
+    if (iter != saveRequestObject_.end()) {
+        saveRequestObject_.erase(iter);
     }
 }
 
