@@ -89,11 +89,6 @@ public:
 
     int code_ = 0;
 
-    virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
-    {
-        return 0;
-    }
-
     virtual int StartAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1)
     {
         return 0;
@@ -407,6 +402,30 @@ public:
     int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
     {
         return 0;
+    }
+
+    int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list) override
+    {
+        AppExecFwk::AbilityStateData abilityStateDataOne;
+        abilityStateDataOne.bundleName = "com.example.getforegrounduiabilitiesone";
+        abilityStateDataOne.moduleName = "entry";
+        abilityStateDataOne.abilityName = "EntryAbility";
+        abilityStateDataOne.abilityState = AbilityState::FOREGROUND;
+        abilityStateDataOne.pid = 3000;
+        abilityStateDataOne.uid = 11291450;
+        abilityStateDataOne.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
+        list.emplace_back(abilityStateDataOne);
+
+        AppExecFwk::AbilityStateData abilityStateDataTwo;
+        abilityStateDataTwo.bundleName = "com.example.getforegrounduiabilitiestwo";
+        abilityStateDataTwo.moduleName = "entry";
+        abilityStateDataTwo.abilityName = "EntryAbility";
+        abilityStateDataTwo.abilityState = AbilityState::INACTIVE;
+        abilityStateDataTwo.pid = 3001;
+        abilityStateDataTwo.uid = 11291506;
+        abilityStateDataTwo.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
+        list.emplace_back(abilityStateDataTwo);
+        return ERR_OK;
     }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
