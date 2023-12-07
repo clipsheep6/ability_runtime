@@ -1767,7 +1767,7 @@ int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, 
     std::string deviceId = data.ReadString();
     if (deviceId.empty()) {
         HILOG_ERROR("AbilityManagerStub: RegisterRemoteMissionListenerInner deviceId empty!");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
@@ -1818,7 +1818,7 @@ int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data
     std::string deviceId = data.ReadString();
     if (deviceId.empty()) {
         HILOG_ERROR("AbilityManagerStub: UnRegisterRemoteMissionListenerInner deviceId empty!");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
