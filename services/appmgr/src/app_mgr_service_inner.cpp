@@ -210,7 +210,7 @@ bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissio
 bool ShouldUseMultipleRenderProcess(std::string& deviceType) {
     // The "default" device type means phone.
     return deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1" ||
-           deviceType == "default";
+           deviceType == "default" || deviceType == "phone";
 }
 
 }  // namespace
