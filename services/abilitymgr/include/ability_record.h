@@ -667,6 +667,8 @@ public:
      */
     void SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller);
 
+    bool NeedConnectAfterCommand();
+
     /**
      * add connect record to the list.
      *
@@ -1115,6 +1117,7 @@ private:
     bool lockedState_ = false;
     bool isAttachDebug_ = false;
     bool isAppAutoStartup_ = false;
+    bool isConnected = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

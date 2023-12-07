@@ -1508,7 +1508,11 @@ void AbilityRecord::ConnectAbility()
 {
     HILOG_INFO("Connect ability.");
     CHECK_POINTER(lifecycleDeal_);
+    if (isConnected) {
+        HILOG_WARN("connect state error.");
+    }
     lifecycleDeal_->ConnectAbility(GetWant());
+    isConnected = true;
 }
 
 void AbilityRecord::DisconnectAbility()
@@ -1517,6 +1521,7 @@ void AbilityRecord::DisconnectAbility()
     HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->DisconnectAbility(GetWant());
+    isConnected = false;
 }
 
 void AbilityRecord::CommandAbility()
@@ -1744,6 +1749,11 @@ void SystemAbilityCallerRecord::SendResultToSystemAbility(int requestCode,
     if (result != ERR_OK) {
         HILOG_ERROR("SendResultToSystemAbility error = %{public}d", result);
     }
+}
+
+bool AbilityRecord::NeedConnectAfterCommand()
+{
+    return !IsConnectListEmpty() && !isConnected;
 }
 
 void AbilityRecord::AddConnectRecordToList(const std::shared_ptr<ConnectionRecord> &connRecord)

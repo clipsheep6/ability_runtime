@@ -868,6 +868,9 @@ void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
                                     abilityInfo.name, abilityInfo.moduleName);
     CompleteStartServiceReq(element.GetURI());
+    if (abilityRecord->NeedConnectAfterCommand()) {
+        ConnectAbility(abilityRecord);
+    }
 }
 
 void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUri)
