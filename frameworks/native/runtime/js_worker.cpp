@@ -58,6 +58,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 #endif
 
 bool g_debugMode = false;
+bool g_debugApp = false;
 bool g_jsFramework = false;
 std::mutex g_mutex;
 }
@@ -89,12 +90,13 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         auto instanceId = gettid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceName);
-        auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
         auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
             nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
         };
         panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
-        panda::JSNApi::StartDebugger(vm, debugOption, instanceId, workerPostTask);
+        auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
+        panda::JSNApi::NotifyDebugMode(
+            instanceId, vm, ARK_DEBUGGER_LIB_PATH, debugOption, instanceId, workerPostTask, g_debugApp, needBreakPoint);
     }
 }
 
@@ -154,7 +156,8 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         // the @bundle:bundlename/modulename only exist in esmodule.
         // 1.1 start with /modulename
         // 1.2 start with ../
-        // 1.3 start with modulename
+        // 1.3 start with @namespace
+        // 1.4 start with modulename
         HILOG_DEBUG("The application is packaged using jsbundle mode.");
         if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
@@ -162,13 +165,16 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
             HILOG_DEBUG("uri start with ../");
             realPath = uri.substr(PATH_THREE);
+        } else if (uri.find_first_of("@") == 0) {
+            HILOG_DEBUG("uri start with @namespace");
+            realPath = workerInfo_->moduleName + uri;
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
         }
 
         filePath = NormalizedFileName(realPath);
-        HILOG_INFO("filePath %{public}s", filePath.c_str());
+        HILOG_INFO("filePath %{private}s", filePath.c_str());
 
         if (!workerInfo_->isStageModel) {
             GetAmi(ami, filePath);
@@ -187,7 +193,8 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
     } else {
         // 2.1 start with @bundle:bundlename/modulename
         // 2.2 start with /modulename
-        // 2.3 start with modulename
+        // 2.3 start with @namespace
+        // 2.4 start with modulename
         HILOG_DEBUG("The application is packaged using esmodule mode.");
         if (uri.find(BUNDLE_NAME_FLAG) == 0) {
             HILOG_DEBUG("uri start with @bundle:");
@@ -203,6 +210,9 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         } else if (uri.find_first_of("/") == 0) {
             HILOG_DEBUG("uri start with /modulename");
             realPath = uri.substr(1);
+        } else if (uri.find_first_of("@") == 0) {
+            HILOG_DEBUG("uri start with @namespace");
+            realPath = workerInfo_->moduleName + uri;
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
@@ -359,7 +369,7 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
     std::vector<std::string> files;
     for (const auto& basePath : workerInfo_->assetBasePathStr) {
         std::string assetPath = basePath + path;
-        HILOG_INFO("assetPath: %{public}s", assetPath.c_str());
+        HILOG_INFO("assetPath: %{private}s", assetPath.c_str());
         bool res = extractor->IsDirExist(assetPath);
         if (!res) {
             continue;
@@ -426,6 +436,11 @@ ContainerScope::UpdateCurrent(-1);
 void StartDebuggerInWorkerModule()
 {
     g_debugMode = true;
+}
+
+void SetDebuggerApp(bool isDebugApp)
+{
+    g_debugApp = isDebugApp;
 }
 
 void SetJsFramework()

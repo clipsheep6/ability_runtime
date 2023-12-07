@@ -57,12 +57,14 @@ public:
     std::condition_variable condition;
 };
 
+static std::mutex g_connectsMutex;
 static std::map<ConnectionKey, sptr<JSServiceExtensionConnection>, key_compare> g_connects;
 static int64_t g_serialNumber = 0;
 
 void RemoveConnection(int64_t connectId)
 {
     HILOG_DEBUG("enter");
+    std::lock_guard guard(g_connectsMutex);
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
@@ -701,14 +703,17 @@ private:
         }
         connection->SetJsConnectionObject(value);
         ConnectionKey key;
-        key.id = g_serialNumber;
-        key.want = want;
-        connection->SetConnectionId(key.id);
-        g_connects.emplace(key, connection);
-        if (g_serialNumber < INT32_MAX) {
-            g_serialNumber++;
-        } else {
-            g_serialNumber = 0;
+        {
+            std::lock_guard guard(g_connectsMutex);
+            key.id = g_serialNumber;
+            key.want = want;
+            connection->SetConnectionId(key.id);
+            g_connects.emplace(key, connection);
+            if (g_serialNumber < INT32_MAX) {
+                g_serialNumber++;
+            } else {
+                g_serialNumber = 0;
+            }
         }
         HILOG_DEBUG("Unable to find connection, make new one");
         return true;
@@ -765,6 +770,7 @@ private:
     void FindConnection(AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId) const
     {
         HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
+        std::lock_guard guard(g_connectsMutex);
         auto item = std::find_if(g_connects.begin(),
             g_connects.end(),
             [&connectId](const auto &obj) {
@@ -1125,21 +1131,24 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
     }
 
     // release connect
-    HILOG_DEBUG("OnAbilityDisconnectDone g_connects.size:%{public}zu", g_connects.size());
-    std::string bundleName = element.GetBundleName();
-    std::string abilityName = element.GetAbilityName();
-    auto item = std::find_if(g_connects.begin(),
-        g_connects.end(),
-        [bundleName, abilityName, connectionId = connectionId_](
-            const auto &obj) {
-            return (bundleName == obj.first.want.GetBundle()) &&
-                   (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
-                   connectionId == obj.first.id;
-        });
-    if (item != g_connects.end()) {
-        // match bundlename && abilityname
-        g_connects.erase(item);
-        HILOG_DEBUG("OnAbilityDisconnectDone erase g_connects.size:%{public}zu", g_connects.size());
+    {
+        std::lock_guard guard(g_connectsMutex);
+        HILOG_DEBUG("OnAbilityDisconnectDone g_connects.size:%{public}zu", g_connects.size());
+        std::string bundleName = element.GetBundleName();
+        std::string abilityName = element.GetAbilityName();
+        auto item = std::find_if(g_connects.begin(),
+            g_connects.end(),
+            [bundleName, abilityName, connectionId = connectionId_](
+                const auto &obj) {
+                return (bundleName == obj.first.want.GetBundle()) &&
+                    (abilityName == obj.first.want.GetElement().GetAbilityName()) &&
+                    connectionId == obj.first.id;
+            });
+        if (item != g_connects.end()) {
+            // match bundlename && abilityname
+            g_connects.erase(item);
+            HILOG_DEBUG("OnAbilityDisconnectDone erase g_connects.size:%{public}zu", g_connects.size());
+        }
     }
     napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
 }

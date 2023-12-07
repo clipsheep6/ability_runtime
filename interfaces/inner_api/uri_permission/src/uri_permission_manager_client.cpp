@@ -35,18 +35,18 @@ UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int autoremove, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("targetBundleName :%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, autoremove, appIndex);
+        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, appIndex);
     }
     return INNER_ERR;
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int autoremove, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(), uriVec.size());
     if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
@@ -55,7 +55,7 @@ int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVe
     }
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, autoremove, appIndex);
+        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
     }
     return INNER_ERR;
 }
@@ -200,8 +200,12 @@ void UriPermissionManagerClient::OnLoadSystemAbilityFail()
 void UriPermissionManagerClient::ClearProxy()
 {
     HILOG_DEBUG("UriPermissionManagerClient::ClearProxy is called.");
-    std::lock_guard<std::mutex> lock(mutex_);
-    uriPermMgr_ = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        uriPermMgr_ = nullptr;
+    }
+    std::unique_lock<std::mutex> lock(saLoadMutex_);
+    saLoadFinished_ = false;
 }
 
 void UriPermissionManagerClient::UpmsDeathRecipient::OnRemoteDied([[maybe_unused]] const wptr<IRemoteObject>& remote)

@@ -176,6 +176,28 @@ public:
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
 
     /**
+     * OnStartSpecifiedProcessResponse.
+     *
+     * @param want the want of the ability to start.
+     * @param abilityRequest target ability request.
+     */
+    void OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag);
+
+    /**
+     * OnStartSpecifiedAbilityTimeoutResponse.
+     *
+     * @param want the want of the ability to start.
+     */
+    void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
+
+    /**
+     * OnStartSpecifiedProcessTimeoutResponse.
+     *
+     * @param want the want of the ability to start.
+     */
+    void OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want);
+
+    /**
      * Start specified ability by SCB.
      *
      * @param want Want information.
@@ -271,6 +293,11 @@ public:
 
     int MoveMissionToFront(int32_t sessionId, std::shared_ptr<StartOptions> startOptions = nullptr);
 
+    void SetDevice(std::string deviceType);
+
+    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
+        const int32_t oriValidUserId);
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
@@ -335,6 +362,7 @@ private:
     std::queue<AbilityRequest> abilityQueue_;
     std::queue<SpecifiedInfo> specifiedInfoQueue_;
     sptr<ISessionHandler> handler_;
+    bool isPcDevice_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

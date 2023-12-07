@@ -29,8 +29,8 @@ public:
 
     static std::shared_ptr<ChildProcess> Create(const std::unique_ptr<Runtime> &runtime);
 
-    virtual void Init(const std::shared_ptr<ChildProcessStartInfo> &info) override;
-    virtual void OnStart() override;
+    bool Init(const std::shared_ptr<ChildProcessStartInfo> &info) override;
+    void OnStart() override;
 
 private:
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0);

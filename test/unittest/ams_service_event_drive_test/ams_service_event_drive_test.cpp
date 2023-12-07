@@ -188,16 +188,11 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_006, TestSize.Level1)
 {
     HILOG_INFO("ams_service_event_drive_test_006 start");
 
-    std::shared_ptr<MockAppMgrServiceInner> innerService = std::make_shared<MockAppMgrServiceInner>();
-    appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
 
-    EXPECT_CALL(*innerService, ClearUpApplicationData(_, _, _))
-        .WillOnce(InvokeWithoutArgs(innerService.get(), &MockAppMgrServiceInner::Post));
-
-    std::string appName = "appName";
-    appMgrService_->ClearUpApplicationData(appName);
-    innerService->Wait();
+    std::string bundleName = "bundleName";
+    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     HILOG_INFO("ams_service_event_drive_test_006 end");
 }
@@ -362,10 +357,9 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_014, TestSize.Level1)
     std::shared_ptr<MockAppMgrServiceInner> innerService = std::make_shared<MockAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
 
-    EXPECT_CALL(*innerService, ClearUpApplicationData(_, _, _)).Times(0);
-
-    std::string appName = "appName";
-    appMgrService_->ClearUpApplicationData(appName);
+    std::string bundleName = "bundleName";
+    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     HILOG_INFO("ams_service_event_drive_test_014 end");
 }
@@ -532,10 +526,9 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_022, TestSize.Level1)
     appMgrService_->OnStart();
     appMgrService_->OnStop();
 
-    EXPECT_CALL(*innerService, ClearUpApplicationData(_, _, _)).Times(0);
-
-    std::string appName = "appName";
-    appMgrService_->ClearUpApplicationData(appName);
+    std::string bundleName = "bundleName";
+    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     HILOG_INFO("ams_service_event_drive_test_022 end");
 }

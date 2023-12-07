@@ -32,10 +32,11 @@ public:
 
     MOCK_METHOD2(StartAbility, int(const Want& want, int requestCode));
     MOCK_METHOD3(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken, int requestCode));
-    MOCK_METHOD4(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+    MOCK_METHOD6(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
+    MOCK_METHOD6(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken, sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD5(StartAbilityAsCaller, int(const Want &want, const StartOptions &startOptions,
-        const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode));
 
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     MOCK_METHOD3(ConnectAbility,
@@ -60,7 +61,7 @@ public:
     MOCK_METHOD3(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken, int requestCode));
     MOCK_METHOD2(
         GetWantSender, sptr<IWantSender>(const WantSenderInfo& wantSenderInfo, const sptr<IRemoteObject>& callerToken));
-    MOCK_METHOD2(SendWantSender, int(const sptr<IWantSender>& target, const SenderInfo& senderInfo));
+    MOCK_METHOD2(SendWantSender, int(sptr<IWantSender> target, const SenderInfo& senderInfo));
     MOCK_METHOD1(CancelWantSender, void(const sptr<IWantSender>& sender));
     MOCK_METHOD1(GetPendingWantUid, int(const sptr<IWantSender>& target));
     MOCK_METHOD1(GetPendingWantBundleName, std::string(const sptr<IWantSender>& target));

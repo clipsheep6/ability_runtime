@@ -658,5 +658,28 @@ HWTEST_F(ExtensionImplTest, AaFwk_ExtensionImpl_2900, Function | MediumTest | Le
     impl->CommandExtensionWindow(want, session, AAFwk::WIN_CMD_FOREGROUND);
     GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_2900 end";
 }
+
+/**
+ * @tc.number: AaFwk_ExtensionImpl_3000
+ * @tc.name: HandleInsightIntent
+ * @tc.desc: Validation HandleInsightIntent succeeded.
+ */
+HWTEST_F(ExtensionImplTest, AaFwk_ExtensionImpl_3000, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_3000 start";
+    auto application = std::make_shared<AppExecFwk::OHOSApplication>();
+    std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
+    sptr<IRemoteObject> token = new AppExecFwk::MockAbilityToken();
+    auto record = std::make_shared<AppExecFwk::AbilityLocalRecord>(info, token);
+    auto extension = std::make_shared<AbilityRuntime::Extension>();
+    std::shared_ptr<EventRunner> runner;
+    auto handler = std::make_shared<AppExecFwk::AbilityHandler>(runner);
+
+    auto impl = std::make_shared<AbilityRuntime::ExtensionImpl>();
+    impl->Init(application, record, extension, handler, token);
+    Want want;
+    impl->HandleInsightIntent(want);
+    GTEST_LOG_(INFO) << "AaFwk_ExtensionImpl_3000 end";
+}
 } // namespace AppExecFwk
 } // namespace OHOS

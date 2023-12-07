@@ -19,19 +19,26 @@
 #include <string>
 #include "native_engine/native_reference.h"
 
-
 namespace OHOS {
+namespace Ace {
+class UIContent;
+}
 namespace AbilityRuntime {
 class JsUIExtensionCallback : public std::enable_shared_from_this<JsUIExtensionCallback> {
 public:
     explicit JsUIExtensionCallback(napi_env env) : env_(env) {}
     ~JsUIExtensionCallback();
     void OnError(int32_t number);
+    void OnRelease(int32_t code);
     void SetJsCallbackObject(napi_value jsCallbackObject);
     void CallJsError(int32_t number);
+    void SetSessionId(int32_t sessionId);
+    void SetUIContent(Ace::UIContent* uiContent);
 private:
     napi_env env_ = nullptr;
     std::unique_ptr<NativeReference> jsCallbackObject_ = nullptr;
+    int32_t sessionId_ = 0;
+    Ace::UIContent* uiContent_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

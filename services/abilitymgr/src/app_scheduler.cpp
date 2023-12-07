@@ -174,7 +174,7 @@ void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject> &token)
 
 void AppScheduler::KillProcessesByUserId(int32_t userId)
 {
-    HILOG_DEBUG("Kill process by user id.");
+    HILOG_INFO("User id: %{public}d.", userId);
     CHECK_POINTER(appMgrClient_);
     appMgrClient_->KillProcessesByUserId(userId);
 }
@@ -209,6 +209,13 @@ void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const 
     callback->OnAbilityRequestDone(token, static_cast<int32_t>(state));
 }
 
+void AppScheduler::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+    auto callback = callback_.lock();
+    CHECK_POINTER(callback);
+    callback->NotifyConfigurationChange(config, userId);
+}
+
 int AppScheduler::KillApplication(const std::string &bundleName)
 {
     HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
@@ -235,10 +242,10 @@ int AppScheduler::KillApplicationByUid(const std::string &bundleName, int32_t ui
     return ERR_OK;
 }
 
-int AppScheduler::ClearUpApplicationData(const std::string &bundleName)
+int AppScheduler::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
-    int ret = (int)appMgrClient_->ClearUpApplicationData(bundleName);
+    int ret = (int)appMgrClient_->ClearUpApplicationData(bundleName, userId);
     if (ret != ERR_OK) {
         HILOG_ERROR("Fail to clear application data.");
         return INNER_ERR;
@@ -315,6 +322,25 @@ void StartSpecifiedAbilityResponse::OnTimeoutResponse(const AAFwk::Want &want)
 {
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedAbilityTimeoutResponse(want);
 }
+
+void AppScheduler::StartSpecifiedProcess(
+    const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    CHECK_POINTER(appMgrClient_);
+    IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->StartSpecifiedProcess(want, abilityInfo));
+}
+
+void StartSpecifiedAbilityResponse::OnNewProcessRequestResponse(
+    const AAFwk::Want &want, const std::string &flag)
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessResponse(want, flag);
+}
+
+void StartSpecifiedAbilityResponse::OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want)
+{
+    DelayedSingleton<AbilityManagerService>::GetInstance()->OnStartSpecifiedProcessTimeoutResponse(want);
+}
+
 int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info)
 {
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);

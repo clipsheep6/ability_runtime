@@ -24,12 +24,29 @@ namespace AppExecFwk {
 using namespace std::placeholders;
 StartSpecifiedAbilityResponseStub::StartSpecifiedAbilityResponseStub()
 {
-    auto a = std::bind(&StartSpecifiedAbilityResponseStub::HandleOnAcceptWantResponse, this, _1, _2);
+    auto handleOnAcceptWantResponse =
+        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnAcceptWantResponse, this, _1, _2);
     responseFuncMap_.emplace(static_cast<uint32_t>(
-        IStartSpecifiedAbilityResponse::Message::ON_ACCEPT_WANT_RESPONSE), std::move(a));
-    auto b = std::bind(&StartSpecifiedAbilityResponseStub::HandleOnTimeoutResponse, this, _1, _2);
+        IStartSpecifiedAbilityResponse::Message::ON_ACCEPT_WANT_RESPONSE),
+        std::move(handleOnAcceptWantResponse));
+
+    auto handleOnTimeoutResponse =
+        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnTimeoutResponse, this, _1, _2);
     responseFuncMap_.emplace(static_cast<uint32_t>(
-        IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE), std::move(b));
+        IStartSpecifiedAbilityResponse::Message::ON_TIMEOUT_RESPONSE),
+        std::move(handleOnTimeoutResponse));
+
+    auto handleOnNewProcessRequestResponse =
+        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestResponse, this, _1, _2);
+    responseFuncMap_.emplace(static_cast<uint32_t>(
+        IStartSpecifiedAbilityResponse::Message::ON_NEW_PROCESS_REQUEST_RESPONSE),
+        std::move(handleOnNewProcessRequestResponse));
+
+    auto handleOnNewProcessRequestTimeoutResponse =
+        std::bind(&StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestTimeoutResponse, this, _1, _2);
+    responseFuncMap_.emplace(static_cast<uint32_t>(
+        IStartSpecifiedAbilityResponse::Message::ON_NEW_PROCESS_REQUEST_TIMEOUT_RESPONSE),
+        std::move(handleOnNewProcessRequestTimeoutResponse));
 }
 
 StartSpecifiedAbilityResponseStub::~StartSpecifiedAbilityResponseStub()
@@ -60,6 +77,34 @@ int32_t StartSpecifiedAbilityResponseStub::HandleOnTimeoutResponse(MessageParcel
     }
 
     OnTimeoutResponse(*want);
+    delete want;
+    return NO_ERROR;
+}
+
+int32_t StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestResponse(MessageParcel &data, MessageParcel &reply)
+{
+    AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto flag = Str16ToStr8(data.ReadString16());
+    OnNewProcessRequestResponse(*want, flag);
+    delete want;
+    return NO_ERROR;
+}
+
+int32_t StartSpecifiedAbilityResponseStub::HandleOnNewProcessRequestTimeoutResponse(MessageParcel &data,
+    MessageParcel &reply)
+{
+    AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    OnNewProcessRequestTimeoutResponse(*want);
     delete want;
     return NO_ERROR;
 }

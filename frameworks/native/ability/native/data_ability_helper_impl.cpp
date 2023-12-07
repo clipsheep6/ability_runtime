@@ -580,8 +580,8 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
             HILOG_INFO("uri_ is nullptr, no need check.");
             return true;
         }
-
-        if (!CheckOhosUri(*uri_)) {
+        Uri checkUri(uri_->ToString());
+        if (!CheckOhosUri(checkUri)) {
             HILOG_ERROR("Check ohos uri failed, uri_: %{public}s.", uri_->ToString().c_str());
             return false;
         }
@@ -599,22 +599,22 @@ bool DataAbilityHelperImpl::CheckUriParam(const Uri &uri)
     return true;
 }
 
-bool DataAbilityHelperImpl::CheckOhosUri(const Uri &uri)
+bool DataAbilityHelperImpl::CheckOhosUri(const Uri &checkUri)
 {
-    Uri checkUri(uri.ToString());
-    if (checkUri.GetScheme() != SchemeOhos) {
+    Uri uri(checkUri);
+    if (uri.GetScheme() != SchemeOhos) {
         HILOG_ERROR("Input uri is not a dataability one, uri: %{public}s.", uri.ToString().c_str());
         return false;
     }
 
     std::vector<std::string> segments;
-    checkUri.GetPathSegments(segments);
+    uri.GetPathSegments(segments);
     if (segments.empty()) {
         HILOG_ERROR("There is no segments in the uri, uri: %{public}s.", uri.ToString().c_str());
         return false;
     }
 
-    if (checkUri.GetPath() == "") {
+    if (uri.GetPath() == "") {
         HILOG_ERROR("The path in the uri is empty, uri: %{public}s.", uri.ToString().c_str());
         return false;
     }

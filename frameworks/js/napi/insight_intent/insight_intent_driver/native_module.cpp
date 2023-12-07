@@ -21,9 +21,9 @@
  */
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.insightIntentDriver",
     .nm_filename = nullptr,
     .nm_register_func = OHOS::AbilityRuntime::JsInsightIntentDriverInit,
+    .nm_modname = "app.ability.insightIntentDriver",
 };
 
 /*

@@ -518,11 +518,11 @@ bool UnwrapParamVerifySelfPermission(
 
 void VerifySelfPermissionExecuteCallbackWork(napi_env env, void *data)
 {
-    HILOG_INFO("called.");
+    HILOG_INFO("start.");
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("called. asyncCallbackInfo is null");
+        HILOG_INFO("called. asyncCallbackInfo is nullptr");
         return;
     }
 
@@ -1450,7 +1450,7 @@ napi_value GetProcessInfoWrap(napi_env env, napi_callback_info info, ProcessInfo
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, argument count fail.", __func__);
         return nullptr;
     }
 
@@ -1695,7 +1695,7 @@ napi_value GetElementNameWrap(napi_env env, napi_callback_info info, ElementName
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, argument count fail.", __func__);
         return nullptr;
     }
 
@@ -1886,7 +1886,7 @@ napi_value GetProcessNameWrap(napi_env env, napi_callback_info info, ProcessName
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, parameter count error.", __func__);
         return nullptr;
     }
 
@@ -2078,7 +2078,7 @@ napi_value GetCallingBundleWrap(napi_env env, napi_callback_info info, CallingBu
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("%{public}s, parameter count fail.", __func__);
         return nullptr;
     }
 
@@ -3258,12 +3258,12 @@ napi_value NapiJsContext::OnGetBundleName(napi_env env, napi_callback_info info)
     auto execute = [obj = this, name = bundleName, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("task execute wrong, the ability is nullptr");
             return;
         }
         if (name == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            HILOG_ERROR("task execute error, name is nullptr");
+            HILOG_ERROR("task execute wrong, name is nullptr");
             return;
         }
         name->name = obj->ability_->GetBundleName();
@@ -3491,12 +3491,12 @@ napi_value NapiJsContext::OnGetProcessName(napi_env env, napi_callback_info info
     auto execute = [obj = this, name = processName, value = errorVal] () {
         if (obj->ability_ == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr");
+            HILOG_ERROR("task execute error, the ability is null");
             return;
         }
         if (name == nullptr) {
             *value = static_cast<int32_t>(NAPI_ERR_ABILITY_CALL_INVALID);
-            HILOG_ERROR("task execute error, name is nullptr");
+            HILOG_ERROR("task execute error, name is null");
             return;
         }
         name->name = obj->ability_->GetProcessName();

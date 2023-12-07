@@ -21,6 +21,7 @@
 
 #include "ability_debug_response_interface.h"
 #include "ability_info.h"
+#include "ability_manager_client.h"
 #include "app_debug_listener_interface.h"
 #include "application_info.h"
 #include "appmgr/app_mgr_client.h"
@@ -86,6 +87,8 @@ public:
     virtual void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const int32_t state) = 0;
 
     virtual void OnAppStateChanged(const AppInfo &info) = 0;
+
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
 };
 
 class StartSpecifiedAbilityResponse : public AppExecFwk::StartSpecifiedAbilityResponseStub {
@@ -95,6 +98,9 @@ public:
 
     virtual void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag) override;
     virtual void OnTimeoutResponse(const AAFwk::Want &want) override;
+
+    virtual void OnNewProcessRequestResponse(const AAFwk::Want &want, const std::string &flag) override;
+    virtual void OnNewProcessRequestTimeoutResponse(const AAFwk::Want &want) override;
 };
 
 /**
@@ -238,7 +244,7 @@ public:
      *
      * @param bundleName.
      */
-    int ClearUpApplicationData(const std::string &bundleName);
+    int ClearUpApplicationData(const std::string &bundleName, const int32_t userId = -1);
 
     void AttachTimeOut(const sptr<IRemoteObject> &token);
 
@@ -263,6 +269,8 @@ public:
 
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
     int GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo> &info);
+
+    void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
 
     /**
      * Start a user test
@@ -405,6 +413,13 @@ protected:
      * @param appProcessData Process data
      */
     virtual void OnAppStateChanged(const AppExecFwk::AppProcessData &appData) override;
+
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
 
 private:
     std::mutex lock_;

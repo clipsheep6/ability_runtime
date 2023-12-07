@@ -42,6 +42,7 @@ const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity"
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
+const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -194,7 +195,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
-        std::string element = abilityRecord->GetWant().GetElement().GetURI();
+        std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
         abilityRecord->ForegroundAbility();
     }
@@ -212,7 +213,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     auto abilityRecord = GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 
     if (targetState == AbilityState::BACKGROUND) {
@@ -226,6 +227,14 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    auto abilityInfo = abilityRequest.abilityInfo;
+    bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
+    if (abilityInfo.isolationProcess && isPcDevice_ && isUIAbility) {
+        HILOG_INFO("StartSpecifiedProcess");
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(abilityRequest.want, abilityInfo);
+        return ERR_OK;
+    }
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
         EnqueueAbilityToFront(abilityRequest);
@@ -294,7 +303,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
             }
             selfObj->CompleteForegroundSuccess(abilityRecord);
         };
-        taskHandler->SubmitTask(task);
+        taskHandler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
     } else {
         auto task = [self, abilityRecord, state]() {
             auto selfObj = self.lock();
@@ -312,7 +321,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
             }
             selfObj->HandleForegroundFailed(abilityRecord, state);
         };
-        taskHandler->SubmitTask(task);
+        taskHandler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
     }
     return ERR_OK;
 }
@@ -334,7 +343,7 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
     g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
-    handler->SubmitTask(task);
+    handler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 
     return ERR_OK;
 }
@@ -353,7 +362,7 @@ int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRe
     handler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
-    handler->SubmitTask(task);
+    handler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 
     return ERR_OK;
 }
@@ -366,7 +375,7 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     CHECK_POINTER(abilityRecord);
     // ability do not save window mode
     abilityRecord->RemoveWindowMode();
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s", element.c_str());
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
 
@@ -404,6 +413,9 @@ void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<Abi
         HILOG_ERROR("this ability is not foregrounding state.");
         return;
     }
+
+    NotifySCBToHandleException(ability,
+        static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleForegroundTimeout");
 
     EraseAbilityRecord(ability);
     // foreground failed, notify appMs force terminate the ability
@@ -579,6 +591,24 @@ int UIAbilityLifecycleManager::ResolveLocked(const AbilityRequest &abilityReques
     return CallAbilityLocked(abilityRequest, userId);
 }
 
+bool UIAbilityLifecycleManager::IsAbilityStarted(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &targetRecord, const int32_t oriValidUserId)
+{
+    HILOG_DEBUG("Call.");
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    bool reuse = false;
+    auto persistentId = GetPersistentIdByAbilityRequest(abilityRequest, reuse, oriValidUserId);
+    if (persistentId == 0) {
+        return false;
+    }
+    targetRecord = sessionAbilityMap_.at(persistentId);
+    if (targetRecord) {
+        targetRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
+        targetRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
+    }
+    return true;
+}
+
 int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId)
 {
     HILOG_DEBUG("Call.");
@@ -597,7 +627,6 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
     } else {
         uiAbilityRecord = sessionAbilityMap_.at(persistentId);
     }
-
     uiAbilityRecord->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
     uiAbilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CALL);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
@@ -875,7 +904,7 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetWant().GetElement().GetURI();
+    std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_INFO("call, from ability: %{public}s", element.c_str());
     if (abilityRecord->IsTerminating() && !abilityRecord->IsForeground()) {
         HILOG_INFO("ability is on terminating");
@@ -1208,6 +1237,10 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
 
     AbilityRequest abilityRequest = abilityQueue_.front();
     abilityQueue_.pop();
+    if (abilityRequest.callSpecifiedFlagTimeout) {
+        HILOG_ERROR("The abilityRequest call onAcceptWant timeout.");
+        return;
+    }
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         return;
     }
@@ -1225,9 +1258,6 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
             abilityRecord->SetWant(abilityRequest.want);
             abilityRecord->SetIsNewWant(true);
             UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord);
-            if (callerAbility == nullptr) {
-                callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-            }
             MoveAbilityToFront(abilityRequest, abilityRecord, callerAbility);
             NotifyRestartSpecifiedAbility(abilityRequest, abilityRecord->GetToken());
             return;
@@ -1235,6 +1265,61 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
     }
     NotifyStartSpecifiedAbility(abilityRequest, want);
     StartAbilityBySpecifed(abilityRequest, callerAbility);
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (abilityQueue_.empty()) {
+        return;
+    }
+    AbilityRequest &abilityRequest = abilityQueue_.front();
+    abilityRequest.callSpecifiedFlagTimeout = true;
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
+{
+    HILOG_DEBUG("call.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (abilityQueue_.empty()) {
+        return;
+    }
+    AbilityRequest abilityRequest = abilityQueue_.front();
+    abilityQueue_.pop();
+    std::string specifiedProcessFlag = flag;
+    if (abilityRequest.callSpecifiedFlagTimeout) {
+        HILOG_ERROR("The abilityRequest call onNewProcessRequest timeout.");
+        specifiedProcessFlag = "";
+    }
+    abilityRequest.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, specifiedProcessFlag);
+    auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
+    if (isSpecified) {
+        EnqueueAbilityToFront(abilityRequest);
+        DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedAbility(
+            abilityRequest.want, abilityRequest.abilityInfo);
+        return;
+    }
+    auto sessionInfo = CreateSessionInfo(abilityRequest);
+    sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse,
+        abilityRequest.userId);
+    sessionInfo->userId = abilityRequest.userId;
+    HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, abilityRequest.userId);
+    NotifySCBPendingActivation(sessionInfo, abilityRequest);
+}
+
+void UIAbilityLifecycleManager::OnStartSpecifiedProcessTimeoutResponse(const AAFwk::Want &want)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    HILOG_DEBUG("abilityQueue_.size() = %{public}zu", abilityQueue_.size());
+    if (abilityQueue_.empty()) {
+        return;
+    }
+    AbilityRequest &abilityRequest = abilityQueue_.front();
+    abilityRequest.callSpecifiedFlagTimeout = true;
 }
 
 void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int32_t userId)
@@ -1877,6 +1962,11 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
     CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
     HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
+}
+
+void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
+{
+    isPcDevice_ = (deviceType == "pc" || deviceType == "2in1");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

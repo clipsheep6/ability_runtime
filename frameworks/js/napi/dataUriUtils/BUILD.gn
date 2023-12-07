@@ -13,6 +13,7 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
+import("//build/templates/abc/ohos_abc.gni")
 
 es2abc_gen_abc("gen_data_uri_utils_abc") {
   src_js = rebase_path("data_uri_utils.js")
@@ -34,17 +35,11 @@ gen_js_obj("data_uri_utils_abc") {
   dep = ":gen_data_uri_utils_abc"
 }
 
-ohos_shared_library("datauriutils_napi") {
-  sources = [ "data_uri_utils_module.cpp" ]
-
-  deps = [
-    ":data_uri_utils_abc",
-    ":data_uri_utils_js",
-  ]
-
-  external_deps = [ "napi:ace_napi" ]
-
-  relative_install_dir = "module/ability"
+ohos_abc("datauriutils_napi") {
+  sources = [ "data_uri_utils.js" ]
+  output_name = "datauriutils"
+  install_images = [ "system" ]
+  module_install_dir = "etc/abc/ability"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

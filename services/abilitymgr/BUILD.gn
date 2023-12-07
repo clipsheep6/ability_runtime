@@ -34,6 +34,7 @@ config("abilityms_config") {
   include_dirs = [
     "include/",
     "${ability_runtime_innerkits_path}/ability_manager/include",
+    "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_innerkits_path}/app_manager/include",
     "${ability_runtime_innerkits_path}/connectionobs_manager/include",
     "${ability_runtime_innerkits_path}/deps_wrapper/include",
@@ -113,6 +114,8 @@ config("abilityms_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
+  cflags +=
+      [ "-DKEY_AUTO_FILL_ABILITY=\"${ability_runtime_auto_fill_ability}\"" ]
 }
 
 ohos_shared_library("abilityms") {
@@ -123,6 +126,7 @@ ohos_shared_library("abilityms") {
     ":abilityms_config",
     ":abilityms_exception_config",
   ]
+  include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
@@ -134,6 +138,7 @@ ohos_shared_library("abilityms") {
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
     "${ability_runtime_services_path}/common:task_handler_wrap",
@@ -144,6 +149,7 @@ ohos_shared_library("abilityms") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
+    "ability_base:view_data",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",

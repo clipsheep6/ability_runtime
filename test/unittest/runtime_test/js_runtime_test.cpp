@@ -357,9 +357,78 @@ HWTEST_F(JsRuntimeTest, RuntimeSavePreloadedTest_0100, TestSize.Level0)
 {
     HILOG_INFO("SavePreloaded start");
 
-    Runtime::SavePreloaded(nullptr);
+    auto runtime = AbilityRuntime::Runtime::Create(options_);
+    runtime->SavePreloaded(nullptr);
+    EXPECT_TRUE(runtime != nullptr);
 
     HILOG_INFO("SavePreloaded end");
+}
+
+/**
+ * @tc.name: RuntimeSetModuleLoadCheckerTest_0100
+ * @tc.desc: Runtime test for SetModuleLoadChecker.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, RuntimeSetModuleLoadCheckerTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("SetModuleLoadChecker start");
+
+    auto runtime = AbilityRuntime::Runtime::Create(options_);
+    runtime->SetModuleLoadChecker(nullptr);
+    EXPECT_TRUE(runtime != nullptr);
+
+    HILOG_INFO("SetModuleLoadChecker end");
+}
+
+/**
+ * @tc.name: JsRuntimeSuspendVMTest_0100
+ * @tc.desc: JsRuntime test for SuspendVM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeSuspendVMTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("SuspendVM start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    auto result = runtime->SuspendVM(gettid());
+    EXPECT_EQ(result, false);
+
+    HILOG_INFO("SuspendVM end");
+}
+
+/**
+ * @tc.name: JsRuntimeResumeVMTest_0100
+ * @tc.desc: JsRuntime test for ResumeVM.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeResumeVMTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("ResumeVM start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    runtime->ResumeVM(gettid());
+    EXPECT_TRUE(runtime != nullptr);
+
+    HILOG_INFO("ResumeVM end");
+}
+
+/**
+ * @tc.name: JsRuntimeSetDeviceDisconnectCallbackTest_0100
+ * @tc.desc: JsRuntime test for SetDeviceDisconnectCallback.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeSetDeviceDisconnectCallbackTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("SetDeviceDisconnectCallback start");
+
+    auto runtime = AbilityRuntime::JsRuntime::Create(options_);
+    std::function<bool()> task = [&]() {
+        return true;
+    };
+    runtime->SetDeviceDisconnectCallback(task);
+    EXPECT_TRUE(runtime != nullptr);
+
+    HILOG_INFO("SetDeviceDisconnectCallback end");
 }
 
 /**
@@ -414,7 +483,9 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
     EXPECT_TRUE(jsRuntime != nullptr);
 
     bool needBreakPoint = true;
-    jsRuntime->StartDebugMode(needBreakPoint);
+    bool debugApp = true;
+    const std::string processName = "test";
+    jsRuntime->StartDebugMode(needBreakPoint, processName, debugApp);
     jsRuntime->StopDebugMode();
 
     HILOG_INFO("StartDebugMode end");
@@ -821,8 +892,10 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
     uint32_t instanceId = 1;
     jsRuntime->StartDebugger(needBreakPoint, instanceId);
 
-    std::string perfCmd = "profile jsperf 100";
-    jsRuntime->StartProfiler(perfCmd);
+    const std::string perfCmd = "profile jsperf 100";
+    bool debugApp = true;
+    const std::string processName = "test";
+    jsRuntime->StartProfiler(perfCmd, needBreakPoint, processName, debugApp);
     ASSERT_NE(jsRuntime, nullptr);
 }
 

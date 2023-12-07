@@ -42,15 +42,20 @@ config("appmgr_core_config") {
 ohos_shared_library("app_manager") {
   include_dirs = [
     "//third_party/json/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
+    "${ability_runtime_services_path}/appdfr/include",
     "${ability_runtime_services_path}/appmgr/include",
     "${ability_runtime_services_path}/common/include",
   ]
 
   sources = [
+    "${ability_runtime_services_path}/appdfr/src/appfreeze_manager.cpp",
     "src/appmgr/ability_controller_proxy.cpp",
     "src/appmgr/ability_controller_stub.cpp",
     "src/appmgr/ability_debug_response_proxy.cpp",
     "src/appmgr/ability_debug_response_stub.cpp",
+    "src/appmgr/ability_foreground_state_observer_proxy.cpp",
+    "src/appmgr/ability_foreground_state_observer_stub.cpp",
     "src/appmgr/ability_info_callback_proxy.cpp",
     "src/appmgr/ability_info_callback_stub.cpp",
     "src/appmgr/ability_state_data.cpp",
@@ -59,6 +64,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/app_debug_info.cpp",
     "src/appmgr/app_debug_listener_proxy.cpp",
     "src/appmgr/app_debug_listener_stub.cpp",
+    "src/appmgr/app_foreground_state_observer_proxy.cpp",
+    "src/appmgr/app_foreground_state_observer_stub.cpp",
     "src/appmgr/app_launch_data.cpp",
     "src/appmgr/app_malloc_info.cpp",
     "src/appmgr/app_mgr_client.cpp",
@@ -66,6 +73,8 @@ ohos_shared_library("app_manager") {
     "src/appmgr/app_mgr_stub.cpp",
     "src/appmgr/app_process_data.cpp",
     "src/appmgr/app_record_id.cpp",
+    "src/appmgr/app_running_status_proxy.cpp",
+    "src/appmgr/app_running_status_stub.cpp",
     "src/appmgr/app_scheduler_host.cpp",
     "src/appmgr/app_scheduler_proxy.cpp",
     "src/appmgr/app_service_manager.cpp",
@@ -73,7 +82,6 @@ ohos_shared_library("app_manager") {
     "src/appmgr/app_state_callback_proxy.cpp",
     "src/appmgr/app_state_data.cpp",
     "src/appmgr/app_task_info.cpp",
-    "src/appmgr/appfreeze_manager.cpp",
     "src/appmgr/application_state_observer_proxy.cpp",
     "src/appmgr/application_state_observer_stub.cpp",
     "src/appmgr/component_interception_proxy.cpp",

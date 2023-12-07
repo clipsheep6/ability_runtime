@@ -17,6 +17,9 @@
 #define OHOS_ABILITY_RUNTIME_JS_SERVICE_EXTENSION_H
 
 #include "configuration.h"
+#include "insight_intent_execute_param.h"
+#include "insight_intent_execute_result.h"
+#include "insight_intent_executor_info.h"
 #ifdef SUPPORT_GRAPHICS
 #include "display_manager.h"
 #include "system_ability_status_change_stub.h"
@@ -122,6 +125,13 @@ public:
      * value of startId is 6.
      */
     virtual void OnCommand(const AAFwk::Want &want, bool restart, int startId) override;
+    
+    /**
+     * @brief Called back when Service is started by intent driver.
+     *
+     * @param want Indicates the want of intent to handle.
+     */
+    bool HandleInsightIntent(const AAFwk::Want &want) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_STOP</b> state.
@@ -168,6 +178,12 @@ private:
     bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
 
     void ListenWMS();
+    
+    bool GetInsightIntentExecutorInfo(const Want &want,
+        const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
+        InsightIntentExecutorInfo &executorInfo);
+
+    bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result) override;
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

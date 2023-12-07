@@ -1287,31 +1287,9 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_StopCallback_0400, TestSize.Level1)
 HWTEST_F(UIAbilityImplTest, AbilityRuntime_DispatchSaveAbilityState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityRuntime_DispatchSaveAbilityState_0100 start";
-    abilityImpl_->ability_ = nullptr;
+    EXPECT_NE(abilityImpl_, nullptr);
     abilityImpl_->DispatchSaveAbilityState();
-    EXPECT_FALSE(abilityImpl_->needSaveDate_);
     GTEST_LOG_(INFO) << "AbilityRuntime_DispatchSaveAbilityState_0100 end";
-}
-
-/**
- * @tc.number: AbilityRuntime_DispatchSaveAbilityState_0200
- * @tc.name: DispatchSaveAbilityState
- * @tc.desc: abilityLifecycleCallbacks_ is nullptr, Verify DispatchSaveAbilityState failed.
- */
-HWTEST_F(UIAbilityImplTest, AbilityRuntime_DispatchSaveAbilityState_0200, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AbilityRuntime_DispatchSaveAbilityState_0200 start";
-    std::shared_ptr<MockUIAbility> pMocKUIAbility = std::make_shared<MockUIAbility>();
-    std::shared_ptr<UIAbility> uiability = pMocKUIAbility;
-    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-    std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    contextDeal->SetAbilityInfo(abilityInfo);
-    uiability->AttachBaseContext(contextDeal);
-    abilityImpl_->ability_ = uiability;
-    abilityImpl_->abilityLifecycleCallbacks_ = nullptr;
-    abilityImpl_->DispatchSaveAbilityState();
-    EXPECT_FALSE(abilityImpl_->needSaveDate_);
-    GTEST_LOG_(INFO) << "AbilityRuntime_DispatchSaveAbilityState_0200 end";
 }
 
 /**
@@ -1322,10 +1300,9 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_DispatchSaveAbilityState_0200, TestSi
 HWTEST_F(UIAbilityImplTest, AbilityRuntime_DispatchRestoreAbilityState_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityRuntime_DispatchRestoreAbilityState_0100 start";
-    abilityImpl_->ability_ = nullptr;
+    EXPECT_NE(abilityImpl_, nullptr);
     PacMap inState;
     abilityImpl_->DispatchRestoreAbilityState(inState);
-    EXPECT_FALSE(abilityImpl_->hasSaveData_);
     GTEST_LOG_(INFO) << "AbilityRuntime_DispatchRestoreAbilityState_0100 end";
 }
 

@@ -19,6 +19,7 @@
 #include <regex>
 
 #include "app_mgr_client.h"
+#include "application_context.h"
 #include "bundle_mgr_proxy.h"
 #include "common_event_manager.h"
 #include "configuration_convertor.h"
@@ -65,7 +66,7 @@ const std::string ContextImpl::CONTEXT_DATABASE("database");
 const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
-const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2"};
+const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
@@ -219,7 +220,7 @@ std::string ContextImpl::GetPreferencesDir()
 int32_t ContextImpl::GetGroupDirWithCheck(const std::string &groupId, bool checkExist, std::string &groupDir)
 {
     if (currArea_ == CONTEXT_ELS[0]) {
-        HILOG_ERROR("GroupDir currently only supports the el2 level");
+        HILOG_ERROR("GroupDir currently can't supports the el1 level");
         return ERR_INVALID_VALUE;
     }
     int errCode = GetBundleManager();
@@ -339,7 +340,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
         ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
         if (ret != ERR_OK) {
-            HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%d", ret);
+            HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%{public}d", ret);
             return nullptr;
         }
     }
@@ -362,6 +363,86 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     InitResourceManager(bundleInfo, appContext, GetBundleName() == bundleName, moduleName);
     appContext->SetApplicationInfo(std::make_shared<AppExecFwk::ApplicationInfo>(bundleInfo.applicationInfo));
     return appContext;
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    HILOG_DEBUG("begin, bundleName: %{public}s, moduleName: %{public}s", bundleName.c_str(), moduleName.c_str());
+    if (bundleName.empty() || moduleName.empty()) {
+        HILOG_ERROR("bundleName is %{public}s, moduleName is %{public}s", bundleName.c_str(), moduleName.c_str());
+        return nullptr;
+    }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    bool currentBundle = false;
+    if (GetBundleInfo(bundleName, bundleInfo, currentBundle) != ERR_OK) {
+        HILOG_ERROR("Failed to GetBundleInfo, bundleName: %{public}s", bundleName.c_str());
+        return nullptr;
+    }
+
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
+        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        std::shared_ptr<Global::Resource::ResourceManager> resourceManager = InitOthersResourceManagerInner(
+            bundleInfo, currentBundle, moduleName);
+        if (resourceManager == nullptr) {
+            HILOG_ERROR("InitOthersResourceManagerInner create resourceManager failed");
+        }
+        return resourceManager;
+    }
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = InitResourceManagerInner(
+        bundleInfo, currentBundle, moduleName);
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("InitResourceManagerInner create resourceManager failed");
+        return nullptr;
+    }
+    UpdateResConfig(resourceManager);
+    return resourceManager;
+}
+
+int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo,
+    bool &currentBundle)
+{
+    std::string currentBundleName;
+    auto appContext = ApplicationContext::GetInstance();
+    if (appContext != nullptr) {
+        currentBundleName = appContext->GetBundleName();
+    }
+    currentBundle = bundleName == currentBundleName;
+
+    int errCode = GetBundleManager();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("GetBundleManager failed, errCode: %{public}d.", errCode);
+        return errCode;
+    }
+
+    if (currentBundle) {
+        bundleMgr_->GetBundleInfoForSelf((
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
+    } else {
+        int accountId = GetCurrentAccountId();
+        if (accountId == 0) {
+            accountId = GetCurrentActiveAccountId();
+        }
+        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    }
+
+    if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
+        HILOG_WARN("GetBundleInfo is error");
+        ErrCode ret = bundleMgr_->GetUninstalledBundleInfo(bundleName, bundleInfo);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetUninstalledBundleInfo failed:%{public}d", ret);
+            return ret;
+        }
+    }
+    return ERR_OK;
 }
 
 int ContextImpl::GetArea()
@@ -491,21 +572,21 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         HILOG_ERROR("InitResourceManager appContext is nullptr");
         return;
     }
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    std::string hapPath;
+    std::vector<std::string> overlayPaths;
+    int32_t appType;
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+        appType = TYPE_RESERVE;
+    } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        appType = TYPE_OTHERS;
+    } else {
+        appType = 0;
+    }
     if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
         bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-        std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-        std::string hapPath;
-        std::vector<std::string> overlayPaths;
-        int32_t appType;
-        if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
-            appType = TYPE_RESERVE;
-        } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-            appType = TYPE_OTHERS;
-        } else {
-            appType = 0;
-        }
-        std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
-            bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
+        std::shared_ptr<Global::Resource::ResourceManager> resourceManager = InitOthersResourceManagerInner(
+            bundleInfo, currentBundle, moduleName);
         if (resourceManager == nullptr) {
             HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
             return;
@@ -514,23 +595,57 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         return;
     }
 
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = InitResourceManagerInner(
+        bundleInfo, currentBundle, moduleName);
     if (resourceManager == nullptr) {
-        HILOG_ERROR("InitResourceManager create resourceManager failed");
         return;
     }
+    UpdateResConfig(resourceManager);
+    appContext->SetResourceManager(resourceManager);
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitOthersResourceManagerInner(
+    const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName)
+{
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    std::string hapPath;
+    std::vector<std::string> overlayPaths;
+    int32_t appType;
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+        appType = TYPE_RESERVE;
+    } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        appType = TYPE_OTHERS;
+    } else {
+        appType = 0;
+    }
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
+    return resourceManager;
+}
+
+std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceManagerInner(
+    const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName)
+{
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = InitOthersResourceManagerInner(
+        bundleInfo, currentBundle, moduleName);
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("Create resourceManager failed");
+        return resourceManager;
+    }
     if (!moduleName.empty() || !bundleInfo.applicationInfo.multiProjects) {
-        HILOG_DEBUG("InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
+        HILOG_DEBUG("hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
         std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + GetBundleName());
         std::regex outer_pattern(ABS_CODE_PATH);
         std::regex hsp_pattern(std::string(ABS_CODE_PATH) + FILE_SEPARATOR + bundleInfo.name + PATTERN_VERSION);
         std::string hsp_sandbox = std::string(LOCAL_CODE_PATH) + FILE_SEPARATOR + bundleInfo.name + FILE_SEPARATOR;
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            HILOG_DEBUG("hapModuleInfo abilityInfo size: %{public}zu", hapModuleInfo.abilityInfos.size());
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }
             std::string loadPath =  hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
             if (loadPath.empty()) {
+                HILOG_DEBUG("loadPath is empty");
                 continue;
             }
             if (currentBundle) {
@@ -541,7 +656,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
             }
 
-            HILOG_DEBUG("ContextImpl::InitResourceManager loadPath: %{public}s", loadPath.c_str());
+            HILOG_DEBUG("loadPath: %{public}s", loadPath.c_str());
             // getOverlayPath
             std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos;
             auto res = GetOverlayModuleInfos(bundleInfo.name, hapModuleInfo.moduleName, overlayModuleInfos);
@@ -550,7 +665,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             }
             if (overlayModuleInfos.size() == 0) {
                 if (!resourceManager->AddResource(loadPath.c_str())) {
-                    HILOG_ERROR("InitResourceManager AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
+                    HILOG_ERROR("AddResource fail, moduleResPath: %{public}s", loadPath.c_str());
                 }
             } else {
                 std::vector<std::string> overlayPaths;
@@ -561,7 +676,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
                         it.hapPath = std::regex_replace(it.hapPath, outer_pattern, LOCAL_BUNDLES);
                     }
                     if (it.state == AppExecFwk::OverlayState::OVERLAY_ENABLE) {
-                        HILOG_DEBUG("ContextImpl::InitResourceManager hapPath: %{public}s", it.hapPath.c_str());
+                        HILOG_DEBUG("hapPath: %{public}s", it.hapPath.c_str());
                         overlayPaths.emplace_back(it.hapPath);
                     }
                 }
@@ -578,7 +693,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
                     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
                     subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
                     auto callback = [this, resourceManager, bundleName = bundleInfo.name, moduleName =
-                        hapModuleInfo.moduleName, loadPath](const EventFwk::CommonEventData &data) {
+                    hapModuleInfo.moduleName, loadPath](const EventFwk::CommonEventData &data) {
                         HILOG_INFO("On overlay changed.");
                         this->OnOverlayChanged(data, resourceManager, bundleName, moduleName, loadPath);
                     };
@@ -589,7 +704,11 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
             }
         }
     }
+    return resourceManager;
+}
 
+void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
         HILOG_ERROR("ContextImpl::InitResourceManager create ResConfig failed");
@@ -609,7 +728,6 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
 #endif
     resConfig->SetDeviceType(GetDeviceType());
     resourceManager->UpdateResConfig(*resConfig);
-    appContext->SetResourceManager(resourceManager);
 }
 
 ErrCode ContextImpl::GetBundleManager()

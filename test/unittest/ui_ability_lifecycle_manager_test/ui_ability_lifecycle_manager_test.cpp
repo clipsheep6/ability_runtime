@@ -21,6 +21,7 @@
 #include "ability_record.h"
 #include "ability_start_setting.h"
 #include "app_scheduler.h"
+#include "app_utils.h"
 #include "scene_board/ui_ability_lifecycle_manager.h"
 #undef protected
 #undef private

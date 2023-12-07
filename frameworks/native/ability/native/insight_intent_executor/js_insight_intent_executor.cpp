@@ -132,6 +132,7 @@ bool JsInsightIntentExecutor::HandleExecuteIntent(
                 ReplyFailedInner();
                 STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
             }
+            HILOG_DEBUG("ExecuteInsightIntentUIAbilityBackground");
             successful = ExecuteInsightIntentUIAbilityBackground(name, param);
             break;
         case InsightIntentExecuteMode::UIEXTENSION_ABILITY:

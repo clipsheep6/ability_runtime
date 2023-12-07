@@ -53,8 +53,10 @@ namespace {
 #ifdef SUPPORT_GRAPHICS
 const std::string PAGE_STACK_PROPERTY_NAME = "pageStack";
 const std::string SUPPORT_CONTINUE_PAGE_STACK_PROPERTY_NAME = "ohos.extra.param.key.supportContinuePageStack";
+const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
-const int32_t BASE_DISPLAY_ID_NUM (10); // Numerical base (radix) that determines the valid characters and their interpretation.
+// Numerical base (radix) that determines the valid characters and their interpretation.
+const int32_t BASE_DISPLAY_ID_NUM (10);
 
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
 {
@@ -248,10 +250,13 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
 
     napi_set_named_property(env, obj, "launchWant", jsWant);
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
-
+    auto launchParam = GetLaunchParam();
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
     napi_value argv[] = {
         jsWant,
-        CreateJsLaunchParam(env, GetLaunchParam()),
+        CreateJsLaunchParam(env, launchParam),
     };
     std::string methodName = "OnStart";
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
@@ -316,6 +321,7 @@ void JsUIAbility::OnStop()
         abilityContext_->SetTerminating(true);
     }
     UIAbility::OnStop();
+    HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
     OnStopCallback();
     HILOG_DEBUG("End.");
@@ -425,6 +431,7 @@ void JsUIAbility::OnSceneRestored()
 {
     UIAbility::OnSceneRestored();
     HILOG_DEBUG("called.");
+    HandleScope handleScope(jsRuntime_);
     auto jsAppWindowStage = CreateAppWindowStage();
     if (jsAppWindowStage == nullptr) {
         HILOG_ERROR("JsAppWindowStage is nullptr.");
@@ -446,7 +453,7 @@ void JsUIAbility::onSceneDestroyed()
 {
     HILOG_DEBUG("Begin ability is %{public}s.", GetAbilityName().c_str());
     UIAbility::onSceneDestroyed();
-
+    HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onWindowStageDestroy");
 
     if (scene_ != nullptr) {
@@ -526,6 +533,7 @@ void JsUIAbility::OnBackground()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin ability is %{public}s.", GetAbilityName().c_str());
     std::string methodName = "OnBackground";
+    HandleScope handleScope(jsRuntime_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
     CallObjectMethod("onBackground");
     AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::BACKGROUND, methodName);
@@ -550,7 +558,7 @@ bool JsUIAbility::OnBackPress()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin ability: %{public}s.", GetAbilityName().c_str());
     UIAbility::OnBackPress();
-
+    HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true);
     bool ret = false;
@@ -567,7 +575,7 @@ bool JsUIAbility::OnPrepareTerminate()
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin ability: %{public}s.", GetAbilityName().c_str());
     UIAbility::OnPrepareTerminate();
-
+    HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onPrepareToTerminate", nullptr, 0, true);
     bool ret = false;
@@ -672,6 +680,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
     }
 
     HILOG_INFO("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
     HILOG_DEBUG("End.");
 }
@@ -679,7 +688,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
 void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
 {
     scene_ = std::make_shared<Rosen::WindowScene>();
-    int32_t displayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+    int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
     if (setting_ != nullptr) {
         std::string strDisplayId = setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
         std::regex formatRegex("[0-9]{0,9}$");
@@ -732,10 +741,8 @@ void JsUIAbility::RequestFocus(const Want &want)
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
         HILOG_DEBUG("Set window mode is %{public}d.", windowMode);
     }
-    std::string methodName = "RequestFocus";
-    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
+    AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
-    AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);
     HILOG_INFO("Lifecycle: end.");
 }
 
@@ -850,13 +857,52 @@ void JsUIAbility::ExecuteInsightIntentMoveToForeground(const Want &want,
     }
 }
 
+void JsUIAbility::ExecuteInsightIntentBackground(const Want &want,
+    const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
+    std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
+{
+    HILOG_DEBUG("called.");
+    if (executeParam == nullptr) {
+        HILOG_WARN("Intent execute param invalid.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback), ERR_OK);
+        return;
+    }
+
+    if (abilityInfo_) {
+        jsRuntime_.UpdateModuleNameAndAssetPath(abilityInfo_->moduleName);
+    }
+
+    InsightIntentExecutorInfo executeInfo;
+    auto ret = GetInsightIntentExecutorInfo(want, executeParam, executeInfo);
+    if (!ret) {
+        HILOG_ERROR("Get Intent executor failed.");
+        InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
+            static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+        return;
+    }
+
+    ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
+        jsRuntime_, executeInfo, std::move(callback));
+    if (!ret) {
+        // callback has removed, release in insight intent executor.
+        HILOG_ERROR("Execute insight intent failed.");
+    }
+}
+
 bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
     const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
     InsightIntentExecutorInfo& executeInfo)
 {
     HILOG_DEBUG("called.");
+
     auto context = GetAbilityContext();
-    if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr || jsWindowStageObj_ == nullptr) {
+    if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
+        HILOG_ERROR("Param invalid.");
+        return false;
+    }
+
+    if (executeParam->executeMode_ == AppExecFwk::ExecuteMode::UI_ABILITY_FOREGROUND
+        && jsWindowStageObj_ == nullptr) {
         HILOG_ERROR("Param invalid.");
         return false;
     }
@@ -867,7 +913,9 @@ bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
     executeInfo.esmodule = abilityInfo_->compileMode == AppExecFwk::CompileMode::ES_MODULE;
     executeInfo.windowMode = windowMode_;
     executeInfo.token = context->GetToken();
-    executeInfo.pageLoader = jsWindowStageObj_;
+    if (jsWindowStageObj_ != nullptr) {
+        executeInfo.pageLoader = jsWindowStageObj_;
+    }
     executeInfo.executeParam = executeParam;
     return true;
 }
@@ -1037,10 +1085,13 @@ void JsUIAbility::OnNewWant(const Want &want)
     }
 
     napi_set_named_property(env, obj, "lastRequestWant", jsWant);
-
+    auto launchParam = GetLaunchParam();
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        launchParam.launchReason = AAFwk::LaunchReason::LAUNCHREASON_INSIGHT_INTENT;
+    }
     napi_value argv[] = {
         jsWant,
-        CreateJsLaunchParam(env, GetLaunchParam()),
+        CreateJsLaunchParam(env, launchParam),
     };
     std::string methodName = "OnNewWant";
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, methodName);

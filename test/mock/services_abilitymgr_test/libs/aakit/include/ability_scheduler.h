@@ -108,6 +108,12 @@ public:
     {
         return;
     };
+    virtual void OnExecuteIntent(const Want &want) override
+    {};
+    virtual int CreateModalUIExtension(const Want &want) override
+    {
+        return 0;
+    };
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int BlockAbility() override
     {

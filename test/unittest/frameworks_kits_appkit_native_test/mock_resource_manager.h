@@ -43,7 +43,7 @@ bool RemoveResource(const std::string &path, const std::vector<std::string> &ove
     return true;
 }
 
-RState UpdateResConfig(ResConfig &resConfig)
+RState UpdateResConfig(ResConfig &resConfig, bool isUpdateTheme = false)
 {
     return SUCCESS;
 }
@@ -202,6 +202,16 @@ RState GetMediaByName(const char *name, std::string &outValue, uint32_t density)
     return SUCCESS;
 }
 
+RState GetSymbolById(uint32_t id, uint32_t &outValue)
+{
+    return SUCCESS;
+}
+
+RState GetSymbolByName(const char *name, uint32_t &outValue)
+{
+    return SUCCESS;
+}
+
 RState GetRawFilePathByName(const std::string &name, std::string &outValue)
 {
     return SUCCESS;
@@ -320,6 +330,18 @@ RState GetResId(const std::string &resTypeName, uint32_t &resId)
 }
 
 void GetLocales(std::vector<std::string> &outValue, bool includeSystem = false) {}
+
+RState GetDrawableInfoById(uint32_t id, std::tuple<std::string, size_t, std::string> &drawableInfo,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t iconType, uint32_t density = 0)
+{
+    return SUCCESS;
+}
+
+RState GetDrawableInfoByName(const char *name, std::tuple<std::string, size_t, std::string> &drawableInfo,
+    std::unique_ptr<uint8_t[]> &outValue, uint32_t iconType, uint32_t density = 0)
+{
+    return SUCCESS;
+}
 };
 }  // namespace Resource
 }  // namespace Global

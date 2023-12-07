@@ -307,12 +307,12 @@ QuickFixManagerApplyTask::~QuickFixManagerApplyTask()
     HILOG_DEBUG("destroyed.");
 }
 
-void QuickFixManagerApplyTask::Run(const std::vector<std::string> &quickFixFiles)
+void QuickFixManagerApplyTask::Run(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Run apply task.");
     taskType_ = TaskType::QUICK_FIX_APPLY;
-    PostDeployQuickFixTask(quickFixFiles);
+    PostDeployQuickFixTask(quickFixFiles, isDebug);
 }
 
 void QuickFixManagerApplyTask::RunRevoke()
@@ -385,12 +385,12 @@ void QuickFixManagerApplyTask::HandlePatchDeleted()
     RemoveSelf();
 }
 
-void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles)
+void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     sptr<AppExecFwk::IQuickFixStatusCallback> callback = new (std::nothrow) QuickFixManagerStatusCallback(
         shared_from_this());
     std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
-    auto deployTask = [thisWeakPtr, quickFixFiles, callback]() {
+    auto deployTask = [thisWeakPtr, quickFixFiles, callback, isDebug]() {
         auto applyTask = thisWeakPtr.lock();
         if (applyTask == nullptr) {
             HILOG_ERROR("PostDeployQuickFixTask, Apply task is nullptr.");
@@ -404,7 +404,8 @@ void QuickFixManagerApplyTask::PostDeployQuickFixTask(const std::vector<std::str
             return;
         }
 
-        auto ret = applyTask->bundleQfMgr_->DeployQuickFix(quickFixFiles, callback);
+        HILOG_DEBUG("isDebug is %d", isDebug);
+        auto ret = applyTask->bundleQfMgr_->DeployQuickFix(quickFixFiles, callback, isDebug);
         if (ret != 0) {
             HILOG_ERROR("PostDeployQuickFixTask, Deploy quick fix failed with %{public}d.", ret);
             applyTask->NotifyApplyStatus(QUICK_FIX_DEPLOY_FAILED);

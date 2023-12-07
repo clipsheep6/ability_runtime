@@ -134,6 +134,22 @@ public:
      * @return 0 when check permission success or else failed.
      */
     virtual int32_t CheckCallAbilityPermission(const Want &want) override;
+
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     * @return Return true to notify changes successfully, or false to failed.
+     */
+    virtual bool UpdateConfiguration(const AppExecFwk::Configuration &config, int32_t userId) override;
+
+    /**
+     * @brief Open file by uri.
+     * @param uri The file uri.
+     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
+     * @return int The file descriptor.
+     */
+    virtual int OpenFile(const Uri& uri, uint32_t flag) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
     int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

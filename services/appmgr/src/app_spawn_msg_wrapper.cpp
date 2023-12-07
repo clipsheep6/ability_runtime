@@ -83,8 +83,8 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         return false;
     }
     msg_->code = static_cast<AppSpawn::ClientSocket::AppOperateCode>(startMsg.code);
-    if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT) {
-        // || msg_->code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
+    if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT ||
+        msg_->code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
         msg_->uid = startMsg.uid;
         msg_->gid = startMsg.gid;
         msg_->gidCount = startMsg.gids.size() + startMsg.dataGroupInfoList.size();
@@ -92,6 +92,10 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->setAllowInternet = startMsg.setAllowInternet;
         msg_->allowInternet = startMsg.allowInternet;
         msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
+        if (strcpy_s(msg_->ownerId, sizeof(msg_->ownerId), startMsg.ownerId.c_str()) != EOK) {
+            HILOG_ERROR("failed to transform ownerId!");
+            return false;
+        }
         for (uint32_t i = 0; i < startMsg.gids.size(); ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
         }
@@ -155,7 +159,8 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
 
 bool AppSpawnMsgWrapper::VerifyMsg(const AppSpawnStartMsg &startMsg) const
 {
-    if (startMsg.code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT) {
+    if (startMsg.code == AppSpawn::ClientSocket::AppOperateCode::DEFAULT ||
+        startMsg.code == AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS) {
         if (startMsg.uid < 0) {
             HILOG_ERROR("invalid uid! [%{public}d]", startMsg.uid);
             return false;

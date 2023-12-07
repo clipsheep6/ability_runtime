@@ -24,6 +24,12 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+    class Configuration;
+}
+}
+
+namespace OHOS {
+namespace AppExecFwk {
 class IAppStateCallback : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.AppStateCallback");
@@ -43,9 +49,17 @@ public:
      */
     virtual void OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AbilityState state) = 0;
 
+    /**
+     * @brief Notify application update system environment changes.
+     * @param config System environment change parameters.
+     * @param userId userId Designation User ID.
+     */
+    virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
+
     enum class Message {
         TRANSACT_ON_APP_STATE_CHANGED = 0,
         TRANSACT_ON_ABILITY_REQUEST_DONE,
+        TRANSACT_ON_NOTIFY_CONFIG_CHANGE,
     };
 };
 }  // namespace AppExecFwk

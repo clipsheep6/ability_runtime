@@ -82,6 +82,10 @@ class Context {
     return this.__context_impl__.createModuleContext(bundleName, moduleName);
   }
 
+  createModuleResourceManager(bundleName, moduleName) {
+    return this.__context_impl__.createModuleResourceManager(bundleName, moduleName);
+  }
+
   getApplicationContext() {
     return this.__context_impl__.getApplicationContext();
   }

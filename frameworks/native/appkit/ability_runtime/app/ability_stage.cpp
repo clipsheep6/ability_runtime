@@ -96,6 +96,12 @@ std::string AbilityStage::OnAcceptWant(const AAFwk::Want &want)
     return "";
 }
 
+std::string AbilityStage::OnNewProcessRequest(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("AbilityStage::OnNewProcessRequest come");
+    return "";
+}
+
 void AbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     HILOG_DEBUG("%{public}s called.", __func__);

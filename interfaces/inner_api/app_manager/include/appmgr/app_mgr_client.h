@@ -23,6 +23,7 @@
 #include "app_mem_info.h"
 #include "app_mgr_constants.h"
 #include "app_mgr_interface.h"
+#include "app_running_status_listener_interface.h"
 #include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
@@ -174,9 +175,11 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param userId, the user id.
      * @return
      */
-    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName);
+    virtual AppMgrResultCode ClearUpApplicationData(const std::string &bundleName,
+        const int32_t userId = -1);
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -346,6 +349,23 @@ public:
      * @param response Response of start specified ability.
      */
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response);
+
+    /**
+     * Start specified process.
+     *
+     * @param want Want contains information wish to start.
+     * @param abilityInfo Ability information.
+     */
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo);
+
+    /**
+     * Schedule new process request done.
+     *
+     * @param recordId Application record.
+     * @param want Want.
+     * @param flag flag get from OnNewProcessRequest.
+     */
+    virtual void ScheduleNewProcessRequest(const int32_t recordId, const AAFwk::Want &want, const std::string &flag);
 
     /**
      * Schedule accept want done.
@@ -546,6 +566,22 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
+
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener);
 
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);

@@ -1133,7 +1133,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0100, TestSize.Lev
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 1;
     int32_t userId = 2;
-    EXPECT_EQ(client_->StartAbilityAsCaller(want, callerToken, requestCode, userId), ERR_OK);
+    EXPECT_EQ(client_->StartAbilityAsCaller(want, callerToken, nullptr, requestCode, userId), ERR_OK);
     GTEST_LOG_(INFO) << "StartAbilityAsCaller_0100 end";
 }
 
@@ -1150,7 +1150,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0200, TestSize.Lev
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 1;
     int32_t userId = 2;
-    EXPECT_EQ(client_->StartAbilityAsCaller(want, startOptions, callerToken, requestCode, userId), ERR_OK);
+    EXPECT_EQ(client_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr, requestCode, userId), ERR_OK);
     GTEST_LOG_(INFO) << "StartAbilityAsCaller_0200 end";
 }
 
@@ -1849,6 +1849,154 @@ HWTEST_F(AbilityManagerClientBranchTest, TerminateMission_0100, TestSize.Level1)
     int32_t missionId = 0;
     auto result = client_->TerminateMission(missionId);
     EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityByInsightIntent_0100
+ * @tc.desc: StartAbilityByInsightIntent
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityByInsightIntent_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityByInsightIntent_0100 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    uint64_t intentId = 1;
+    int32_t userId = 2;
+    EXPECT_EQ(client_->StartAbilityByInsightIntent(want, callerToken, intentId, userId), ERR_OK);
+    GTEST_LOG_(INFO) << "StartAbilityByInsightIntent_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_LogoutUser_0100
+ * @tc.desc: LogoutUser
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, LogoutUser_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "LogoutUser_0100 start";
+    int userId = 1;
+    auto result = client_->LogoutUser(userId);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "LogoutUser_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RegisterAppDebugListener_0100
+ * @tc.desc: RegisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RegisterAppDebugListener_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RegisterAppDebugListener_0100 start";
+    sptr<AppExecFwk::IAppDebugListener> listener = nullptr;
+    auto result = client_->RegisterAppDebugListener(listener);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "RegisterAppDebugListener_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UnregisterAppDebugListener_0100
+ * @tc.desc: UnregisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UnregisterAppDebugListener_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UnregisterAppDebugListener_0100 start";
+    sptr<AppExecFwk::IAppDebugListener> listener = nullptr;
+    auto result = client_->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "UnregisterAppDebugListener_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_AttachAppDebug_0100
+ * @tc.desc: AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AttachAppDebug_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AttachAppDebug_0100 start";
+    std::string bundleName = "bundleName_test";
+    auto result = client_->AttachAppDebug(bundleName);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "AttachAppDebug_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_DetachAppDebug_0100
+ * @tc.desc: DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, DetachAppDebug_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DetachAppDebug_0100 start";
+    std::string bundleName = "bundleName_test";
+    auto result = client_->DetachAppDebug(bundleName);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "DetachAppDebug_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ExecuteIntent_0100
+ * @tc.desc: ExecuteIntent
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ExecuteIntent_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ExecuteIntent_0100 start";
+    uint64_t key = 1;
+    sptr<IRemoteObject> callerToken = nullptr;
+    const InsightIntentExecuteParam param;
+    auto result = client_->ExecuteIntent(key, callerToken, param);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "ExecuteIntent_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ExecuteInsightIntentDone_0100
+ * @tc.desc: ExecuteInsightIntentDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ExecuteInsightIntentDone_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ExecuteInsightIntentDone_0100 start";
+    sptr<IRemoteObject> token;
+    uint64_t intentId = 1;
+    const InsightIntentExecuteResult executeResult;
+    auto result = client_->ExecuteInsightIntentDone(token, intentId, executeResult);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "ExecuteInsightIntentDone_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetForegroundUIAbilities_0100
+ * @tc.desc: GetForegroundUIAbilities
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetForegroundUIAbilities_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetForegroundUIAbilities_0100 start";
+    std::vector<AppExecFwk::AbilityStateData> list;
+    auto result = client_->GetForegroundUIAbilities(list);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "GetForegroundUIAbilities_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_OpenFile_0100
+ * @tc.desc: OpenFile
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, OpenFile_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "OpenFile_0100 start";
+    const Uri uri("test_open_file");
+    uint32_t flag = 1;
+    auto result = client_->OpenFile(uri, flag);
+    EXPECT_EQ(result, 0);
+    GTEST_LOG_(INFO) << "OpenFile_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

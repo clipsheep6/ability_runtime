@@ -182,5 +182,17 @@ void Extension::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessi
 {
     HILOG_DEBUG("call.");
 }
+
+bool Extension::HandleInsightIntent(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call.");
+    return true;
+}
+
+bool Extension::OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result)
+{
+    HILOG_DEBUG("call.");
+    return true;
+}
 }
 }

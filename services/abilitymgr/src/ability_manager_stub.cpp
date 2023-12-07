@@ -24,6 +24,7 @@
 #include "ability_manager_errors.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
+#include "configuration.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -31,7 +32,8 @@ namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
 const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
-}
+constexpr int32_t CYCLE_LIMIT = 1000;
+} // namespace
 AbilityManagerStub::AbilityManagerStub()
 {
     FirstStepInit();
@@ -165,6 +167,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::ExecuteIntentInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE)] =
         &AbilityManagerStub::ExecuteInsightIntentDoneInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_FILE)] =
+        &AbilityManagerStub::OpenFileInner;
 }
 
 void AbilityManagerStub::SecondStepInit()
@@ -235,6 +239,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::StartUserInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER)] =
         &AbilityManagerStub::StopUserInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::LOGOUT_USER)] =
+        &AbilityManagerStub::LogoutUserInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO)] =
         &AbilityManagerStub::GetAbilityRunningInfosInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO)] =
@@ -334,6 +340,10 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::ConnectUIExtensionAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY)] =
         &AbilityManagerStub::PrepareTerminateAbilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO)] =
+        &AbilityManagerStub::GetDialogSessionInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT)] =
+        &AbilityManagerStub::SendDialogResultInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
@@ -385,6 +395,12 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::IsAutoStartupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
         &AbilityManagerStub::GetConnectionDataInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP_BY_EDM)] =
+        &AbilityManagerStub::SetApplicationAutoStartupByEDMInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM)] =
+        &AbilityManagerStub::CancelApplicationAutoStartupByEDMInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
+        &AbilityManagerStub::GetForegroundUIAbilitiesInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -637,7 +653,8 @@ int AbilityManagerStub::KillProcessInner(MessageParcel &data, MessageParcel &rep
 int AbilityManagerStub::ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string bundleName = Str16ToStr8(data.ReadString16());
-    int result = ClearUpApplicationData(bundleName);
+    int32_t userId = data.ReadInt32();
+    int result = ClearUpApplicationData(bundleName, userId);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("ClearUpApplicationData error");
         return ERR_INVALID_VALUE;
@@ -825,13 +842,18 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
     }
 
     sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
-
+    if (data.ReadBool()) {
+        asCallerSourceToken =  data.ReadRemoteObject();
+    }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbilityAsCaller(*want, callerToken, userId, requestCode);
+    bool isSendDialogResult = data.ReadBool();
+    int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode,
+        isSendDialogResult);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -851,12 +873,16 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> callerToken = nullptr;
+    sptr<IRemoteObject> asCallerSourceToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
+    if (data.ReadBool()) {
+        asCallerSourceToken =  data.ReadRemoteObject();
+    }
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
-    int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, userId, requestCode);
+    int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     delete startOptions;
@@ -929,7 +955,17 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
         sessionInfo = data.ReadParcelable<SessionInfo>();
     }
     int32_t userId = data.ReadInt32();
-    int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId);
+
+    sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr;
+    if (data.ReadBool()) {
+        connectInfo = data.ReadParcelable<UIExtensionAbilityConnectInfo>();
+    }
+
+    int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId, connectInfo);
+    if (connectInfo != nullptr && !reply.WriteParcelable(connectInfo)) {
+        HILOG_ERROR("connectInfo write failed.");
+    }
+
     reply.WriteInt32(result);
     if (want != nullptr) {
         delete want;
@@ -1638,6 +1674,17 @@ int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
     int result = StopUser(userId, callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("StopUser failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::LogoutUserInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t userId = data.ReadInt32();
+    int result = LogoutUser(userId);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("LogoutUser failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2407,6 +2454,42 @@ int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, Messag
     }
     return NO_ERROR;
 }
+
+int AbilityManagerStub::GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call");
+    std::string dialogSessionId = data.ReadString();
+    sptr<DialogSessionInfo> info;
+    int result = GetDialogSessionInfo(dialogSessionId, info);
+    if (result != ERR_OK || info == nullptr) {
+        HILOG_ERROR("not find dialogSessionInfo");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteParcelable(info)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::SendDialogResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call");
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::string dialogSessionId = data.ReadString();
+    bool isAllow = data.ReadBool();
+    int result = SendDialogResult(*want, dialogSessionId, isAllow);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
 #endif
 
 int32_t AbilityManagerStub::IsValidMissionIdsInner(MessageParcel &data, MessageParcel &reply)
@@ -2818,8 +2901,8 @@ int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParce
         return ERR_INVALID_VALUE;
     }
     auto result = ExecuteIntent(key, callerToken, *param);
-    if (result != NO_ERROR) {
-        HILOG_ERROR("ExecuteIntent is failed");
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -2866,5 +2949,73 @@ int32_t AbilityManagerStub::ExecuteInsightIntentDoneInner(MessageParcel &data, M
     reply.WriteInt32(result);
     return NO_ERROR;
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+int32_t AbilityManagerStub::SetApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
+    if (info == nullptr) {
+        HILOG_ERROR("Info is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto flag = data.ReadBool();
+    int32_t result = SetApplicationAutoStartupByEDM(*info, flag);
+    return reply.WriteInt32(result);
+}
+
+int32_t AbilityManagerStub::CancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
+    if (info == nullptr) {
+        HILOG_ERROR("Info is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto flag = data.ReadBool();
+    int32_t result = CancelApplicationAutoStartupByEDM(*info, flag);
+    return reply.WriteInt32(result);
+}
+
+int32_t AbilityManagerStub::OpenFileInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (!uri) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto flag = data.ReadInt32();
+    int fd = OpenFile(*uri, flag);
+    reply.WriteFileDescriptor(fd);
+    return ERR_OK;
+}
+
+int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::vector<AppExecFwk::AbilityStateData> abilityStateDatas;
+    int32_t result = GetForegroundUIAbilities(abilityStateDatas);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Get foreground uI abilities is failed.");
+        return result;
+    }
+    auto infoSize = abilityStateDatas.size();
+    if (infoSize > CYCLE_LIMIT) {
+        HILOG_ERROR("Info size exceeds the limit.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(infoSize)) {
+        HILOG_ERROR("Write data size failed.");
+        return ERR_INVALID_VALUE;
+    }
+    for (auto &it : abilityStateDatas) {
+        if (!reply.WriteParcelable(&it)) {
+            HILOG_ERROR("Write parcelable failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return result;
+}
+} // namespace AAFwk
+} // namespace OHOS

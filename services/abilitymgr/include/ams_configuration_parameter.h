@@ -19,6 +19,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "nocopyable.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -124,7 +125,7 @@ public:
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
 private:
-    AmsConfigurationParameter() = default;
+    AmsConfigurationParameter();
     ~AmsConfigurationParameter() = default;
     DISALLOW_COPY_AND_MOVE(AmsConfigurationParameter);
     /**
@@ -157,6 +158,7 @@ private:
     std::string abilityName_ {""};
     std::string pickerType_ {""};
     nlohmann::json pickerJsonObject_ = nlohmann::json::object();
+    bool isPcDevice_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

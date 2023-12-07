@@ -1050,7 +1050,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_StartAbilityAsCaller_0100, 
     sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
     EXPECT_NE(abms, nullptr);
     Want want;
-    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, nullptr));
+    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, nullptr, nullptr));
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartAbilityAsCaller_0100";
 }
 
@@ -1068,7 +1068,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_StartAbilityAsCaller_0200, 
     EXPECT_NE(abms, nullptr);
     Want want;
     StartOptions startOptions;
-    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, startOptions, nullptr));
+    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, startOptions, nullptr, nullptr));
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartAbilityAsCaller_0200";
 }
 
@@ -1085,7 +1085,7 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_StartUIExtensionAbility_010
     sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
     EXPECT_NE(abms, nullptr);
     Want want;
-    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, nullptr));
+    EXPECT_EQ(0, abms->StartAbilityAsCaller(want, nullptr, nullptr));
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_StartUIExtensionAbility_0100";
 }
 

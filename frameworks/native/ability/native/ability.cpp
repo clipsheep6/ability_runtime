@@ -55,10 +55,6 @@
 #include "key_event.h"
 #endif
 
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-#include "purgeable_resource_manager.h"
-#endif
-
 namespace OHOS {
 namespace AppExecFwk {
 const std::string Ability::SYSTEM_UI("com.ohos.systemui");
@@ -175,8 +171,8 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
-        int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        int32_t  defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        int32_t  displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
         if (!abilityInfo_->isStageBasedModel) {
             auto option = GetWindowOption(want);
@@ -1576,9 +1572,6 @@ void Ability::OnBackground()
         HILOG_ERROR("Ability::OnBackground error. lifecycle_ == nullptr.");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
-#endif
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
     HILOG_DEBUG("end");
     AAFwk::EventInfo eventInfo;
@@ -2138,6 +2131,17 @@ int Ability::GetDisplayOrientation()
 void Ability::ContinuationRestore(const Want &want)
 {
     HILOG_DEBUG("called");
+}
+
+int Ability::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("call");
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilitycontext is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return abilityContextImpl->CreateModalUIExtensionWithApp(want);
 }
 #endif
 }  // namespace AppExecFwk

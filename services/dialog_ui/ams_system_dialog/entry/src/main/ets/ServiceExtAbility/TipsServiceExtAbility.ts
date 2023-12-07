@@ -16,6 +16,7 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import PositionUtils from '../utils/PositionUtils';
 
 const TAG = 'TipsDialog_Service';
 
@@ -32,8 +33,23 @@ export default class TipsServiceExtensionAbility extends extension {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
     globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = JSON.parse(want.parameters.position);
+    globalThis.position = PositionUtils.getTipsDialogPosition();
     globalThis.callerToken = want.parameters.callerToken;
+
+    try {
+      display.on('change', (data: number) => {
+        let position = PositionUtils.getTipsDialogPosition();
+        if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {
+          win.moveTo(position.offsetX, position.offsetY);
+        }
+        if (position.width !== globalThis.position.width || position.height !== globalThis.position.height) {
+          win.resetSize(position.width, position.height);
+        }
+        globalThis.position = position;
+      });
+    } catch (exception) {
+      console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
+    }
 
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
@@ -46,11 +62,9 @@ export default class TipsServiceExtensionAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
-        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
-      } else {
-        this.createWindow('TipsDialog' + startId, window.WindowType.TYPE_DIALOG, navigationBarRect);
-      }
+      let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
+        window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
+      this.createWindow('TipsDialog' + startId, windowType, navigationBarRect);
       winNum++;
     });
   }
@@ -66,13 +80,16 @@ export default class TipsServiceExtensionAbility extends extension {
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.tipsExtensionContext, name, windowType);
-      await win.bindDialogTarget(globalThis.callerToken.value, () => {
-        win.destroyWindow();
-        winNum--;
-        if (winNum === 0) {
-          globalThis.tipsExtensionContext.terminateSelf();
-        }
-      });
+      if (windowType === window.WindowType.TYPE_DIALOG) {
+        await win.bindDialogTarget(globalThis.callerToken.value, () => {
+          win.destroyWindow();
+          winNum--;
+          if (winNum === 0) {
+            globalThis.tipsExtensionContext.terminateSelf();
+          }
+        });
+      }
+      await win.hideNonSystemFloatingWindows(true);
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       await win.loadContent('pages/tipsDialog');

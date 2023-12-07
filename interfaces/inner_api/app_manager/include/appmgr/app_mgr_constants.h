@@ -81,6 +81,7 @@ enum class ProcessType {
 enum class AppStartType {
     COLD = 0,
     HOT,
+    MULTI_INSTANCE,
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

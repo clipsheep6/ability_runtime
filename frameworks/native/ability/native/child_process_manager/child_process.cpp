@@ -32,9 +32,10 @@ std::shared_ptr<ChildProcess> ChildProcess::Create(const std::unique_ptr<Runtime
     }
 }
 
-void ChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
+bool ChildProcess::Init(const std::shared_ptr<ChildProcessStartInfo> &info)
 {
     processStartInfo_ = info;
+    return true;
 }
 
 void ChildProcess::OnStart() {}

@@ -18,10 +18,10 @@
 
 #include <map>
 
+#include "app_mgr_interface.h"
 #include "iremote_stub.h"
 #include "nocopyable.h"
 #include "string_ex.h"
-#include "app_mgr_interface.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -73,10 +73,13 @@ private:
     int32_t HandleStartupResidentProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetForegroundApplications(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartUserTestProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleFinishUserTest(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleAcceptWantDone(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleNewProcessRequestDone(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAbilityRecordsByProcessID(MessageParcel &data, MessageParcel &reply);
     int32_t HandlePreStartNWebSpawnProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleStartRenderProcess(MessageParcel &data, MessageParcel &reply);
@@ -108,6 +111,11 @@ private:
     int32_t HandleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyPageShow(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyPageHide(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAppRunningStatusListener(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAppRunningStatusListener(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRegisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleUnregisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsApplicationRunning(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

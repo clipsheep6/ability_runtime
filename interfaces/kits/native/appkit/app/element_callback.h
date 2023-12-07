@@ -32,7 +32,8 @@ public:
      * @param config Indicates the new Configuration object.
      * @param ability Indicates the new Ability object.
      */
-    virtual void OnConfigurationUpdated(const std::shared_ptr<AbilityRuntime::UIAbility> &ability, const Configuration &config) = 0;
+    virtual void OnConfigurationUpdated(
+        const std::shared_ptr<AbilityRuntime::UIAbility> &ability, const Configuration &config) = 0;
 
     /**
      *

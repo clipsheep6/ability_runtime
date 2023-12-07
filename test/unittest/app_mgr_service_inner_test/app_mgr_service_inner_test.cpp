@@ -1651,25 +1651,25 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppStateChanged_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    appMgrServiceInner->OnAppStateChanged(nullptr, ApplicationState::APP_STATE_CREATE, true);
-    appMgrServiceInner->OnAppStateChanged(nullptr, ApplicationState::APP_STATE_CREATE, false);
+    appMgrServiceInner->OnAppStateChanged(nullptr, ApplicationState::APP_STATE_CREATE, true, false);
+    appMgrServiceInner->OnAppStateChanged(nullptr, ApplicationState::APP_STATE_CREATE, false, false);
 
     BundleInfo bundleInfo;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
     EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true);
+    appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true, false);
 
     sptr<MockAppStateCallback> mockCallback(new MockAppStateCallback());
     EXPECT_CALL(*mockCallback, OnAppStateChanged(_)).Times(2);
     sptr<IAppStateCallback> callback1 = iface_cast<IAppStateCallback>(mockCallback);
     appMgrServiceInner->appStateCallbacks_.push_back(callback1);
-    appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true);
+    appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true, false);
 
     sptr<IAppStateCallback> callback;
     appMgrServiceInner->appStateCallbacks_.push_back(callback);
-    appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true);
+    appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true, false);
 
     HILOG_INFO("OnAppStateChanged_001 end");
 }
@@ -3742,6 +3742,46 @@ HWTEST_F(AppMgrServiceInnerTest, HandleWindowVisibilityChanged_001, TestSize.Lev
     appMgrServiceInner->HandleWindowVisibilityChanged(visibilityInfos);
     EXPECT_NE(appMgrServiceInner, nullptr);
     GTEST_LOG_(INFO) << "HandleWindowVisibilityChanged_001 end";
+}
+
+ * @tc.name: IsApplicationRunning_001
+ * @tc.desc: Obtain application running status through bundleName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appRecord->mainBundleName_ = "com.is.hiserice";
+    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
+    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_TRUE(isRunning);
+}
+
+/**
+ * @tc.name: IsApplicationRunning_002
+ * @tc.desc: Not passing in bundleName, unable to obtain application running status.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsApplicationRunning_002, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName = "com.is.hiserice";
+    std::string processName = "test_processName";
+    bool isRunning = false;
+    auto appRecord = std::make_shared<AppRunningRecord>(applicationInfo_, ++recordId_, processName);
+    EXPECT_NE(appRecord, nullptr);
+    appMgrServiceInner->appRunningManager_->appRunningRecordMap_.emplace(recordId_, appRecord);
+    int32_t ret = appMgrServiceInner->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_FALSE(isRunning);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

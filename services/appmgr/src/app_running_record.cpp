@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "ability_window_configuration.h"
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "event_report.h"
@@ -283,6 +284,16 @@ const std::string &AppRunningRecord::GetProcessName() const
     return processName_;
 }
 
+void AppRunningRecord::SetSpecifiedProcessFlag(const std::string &flag)
+{
+    specifiedProcessFlag_ = flag;
+}
+
+const std::string &AppRunningRecord::GetSpecifiedProcessFlag() const
+{
+    return specifiedProcessFlag_;
+}
+
 int32_t AppRunningRecord::GetUid() const
 {
     return mainUid_;
@@ -472,6 +483,26 @@ void AppRunningRecord::AddAbilityStageBySpecifiedAbility(const std::string &bund
     }
 }
 
+void AppRunningRecord::AddAbilityStageBySpecifiedProcess(const std::string &bundleName)
+{
+    HILOG_DEBUG("call.");
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    HapModuleInfo hapModuleInfo;
+    if (GetTheModuleInfoNeedToUpdated(bundleName, hapModuleInfo)) {
+        SendEvent(AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG,
+            AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT);
+        if (appLifeCycleDeal_ == nullptr) {
+            HILOG_WARN("appLifeCycleDeal_ is null");
+            return;
+        }
+        appLifeCycleDeal_->AddAbilityStage(hapModuleInfo);
+    }
+}
+
 void AppRunningRecord::AddAbilityStageDone()
 {
     HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
@@ -496,6 +527,12 @@ void AppRunningRecord::AddAbilityStageDone()
 
     if (isSpecifiedAbility_) {
         ScheduleAcceptWant(moduleName_);
+        return;
+    }
+
+    if (isNewProcessRequest_) {
+        HILOG_DEBUG("ScheduleNewProcessRequest.");
+        ScheduleNewProcessRequest(newProcessRequestWant_, moduleName_);
         return;
     }
 
@@ -678,7 +715,10 @@ std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleNa
 }
 
 void AppRunningRecord::StateChangedNotifyObserver(
-    const std::shared_ptr<AbilityRunningRecord> &ability, const int32_t state, bool isAbility)
+    const std::shared_ptr<AbilityRunningRecord> &ability,
+    const int32_t state,
+    bool isAbility,
+    bool isFromWindowFocusChanged)
 {
     if (!ability || ability->GetAbilityInfo() == nullptr) {
         HILOG_ERROR("ability is null");
@@ -694,6 +734,10 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
+    if (ability->GetWant() != nullptr) {
+        abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
+        abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_INFO("extension type, not notify any more.");
@@ -701,7 +745,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     }
     auto serviceInner = appMgrServiceInner_.lock();
     if (serviceInner) {
-        serviceInner->StateChangedNotifyObserver(abilityStateData, isAbility);
+        serviceInner->StateChangedNotifyObserver(abilityStateData, isAbility, isFromWindowFocusChanged);
     }
 }
 
@@ -792,7 +836,8 @@ void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, cons
         return;
     }
     if (state == AbilityState::ABILITY_STATE_CREATE) {
-        StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true);
+        StateChangedNotifyObserver(
+            abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true, false);
         return;
     }
     if (state == abilityRecord->GetState()) {
@@ -831,10 +876,10 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
-        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
+        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
-            serviceInner->OnAppStateChanged(shared_from_this(), curState_, false);
+            serviceInner->OnAppStateChanged(shared_from_this(), curState_, false, false);
         }
         return;
     }
@@ -872,7 +917,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
     // First change ability to background.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
-    StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true);
+    StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
     if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
         int32_t foregroundSize = 0;
         auto abilitiesMap = GetAbilities();
@@ -914,7 +959,7 @@ bool AppRunningRecord::AbilityFocused(const std::shared_ptr<AbilityRunningRecord
     if (ability->GetAbilityInfo() != nullptr && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         isAbility = false;
     }
-    StateChangedNotifyObserver(ability, abilityState, isAbility);
+    StateChangedNotifyObserver(ability, abilityState, isAbility, true);
 
     if (isFocused_) {
         // process state is already focused, no need update process state.
@@ -941,7 +986,7 @@ bool AppRunningRecord::AbilityUnfocused(const std::shared_ptr<AbilityRunningReco
     if (ability->GetAbilityInfo() != nullptr && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         isAbility = false;
     }
-    StateChangedNotifyObserver(ability, abilityState, isAbility);
+    StateChangedNotifyObserver(ability, abilityState, isAbility, true);
 
     if (!isFocused_) {
         return false; // invalid process focus state, already unfocused, process state not change.
@@ -970,7 +1015,7 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
         auto ability = GetAbilityRunningRecordByToken(*iter);
         auto moduleRecord = GetModuleRunningRecordByToken(*iter);
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
-        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
+        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         iter = foregroundingAbilityTokens_.erase(iter);
     }
 }
@@ -986,7 +1031,8 @@ void AppRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, const 
     }
 
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
-    StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true);
+    StateChangedNotifyObserver(
+        abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true, false);
     moduleRecord->TerminateAbility(shared_from_this(), token, isForce);
 }
 
@@ -1371,6 +1417,19 @@ void AppRunningRecord::SetSpecifiedAbilityFlagAndWant(
     moduleName_ = moduleName;
 }
 
+void AppRunningRecord::SetScheduleNewProcessRequestState(
+    const bool isNewProcessRequest, const AAFwk::Want &want, const std::string &moduleName)
+{
+    isNewProcessRequest_ = isNewProcessRequest;
+    newProcessRequestWant_ = want;
+    moduleName_ = moduleName;
+}
+
+bool AppRunningRecord::IsNewProcessRequest() const
+{
+    return isNewProcessRequest_;
+}
+
 bool AppRunningRecord::IsStartSpecifiedAbility() const
 {
     return isSpecifiedAbility_;
@@ -1400,6 +1459,30 @@ void AppRunningRecord::ScheduleAcceptWantDone()
     eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_ABILITY_TIMEOUT_MSG, eventId_);
 }
 
+void AppRunningRecord::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    SendEvent(
+        AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT);
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_WARN("appLifeCycleDeal_ is null");
+        return;
+    }
+    appLifeCycleDeal_->ScheduleNewProcessRequest(want, moduleName);
+}
+
+void AppRunningRecord::ScheduleNewProcessRequestDone()
+{
+    HILOG_INFO("ScheduleNewProcessRequestDone. bundle %{public}s and eventId %{public}d",
+        mainBundleName_.c_str(), static_cast<int>(eventId_));
+
+    if (!eventHandler_) {
+        HILOG_ERROR("eventHandler_ is nullptr");
+        return;
+    }
+
+    eventHandler_->RemoveEvent(AMSEventHandler::START_SPECIFIED_PROCESS_TIMEOUT_MSG, eventId_);
+}
+
 void AppRunningRecord::ApplicationTerminated()
 {
     HILOG_DEBUG("Application terminated bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
@@ -1416,6 +1499,11 @@ void AppRunningRecord::ApplicationTerminated()
 const AAFwk::Want &AppRunningRecord::GetSpecifiedWant() const
 {
     return SpecifiedWant_;
+}
+
+const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
+{
+    return newProcessRequestWant_;
 }
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
@@ -1504,6 +1592,33 @@ void AppRunningRecord::SetPerfCmd(const std::string &perfCmd)
 void AppRunningRecord::SetAppIndex(const int32_t appIndex)
 {
     appIndex_ = appIndex;
+}
+
+void AppRunningRecord::GetSplitModeAndFloatingMode(bool &isSplitScreenMode, bool &isFloatingWindowMode)
+{
+    auto abilitiesMap = GetAbilities();
+    isSplitScreenMode = false;
+    isFloatingWindowMode = false;
+    for (const auto &item : abilitiesMap) {
+        const auto &abilityRecord = item.second;
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        const auto &abilityWant = abilityRecord->GetWant();
+        if (abilityWant != nullptr) {
+            int windowMode = abilityWant->GetIntParam(Want::PARAM_RESV_WINDOW_MODE, -1);
+            if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+                isFloatingWindowMode = true;
+            }
+            if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+                windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+                isSplitScreenMode = true;
+            }
+        }
+        if (isFloatingWindowMode && isSplitScreenMode) {
+            break;
+        }
+    }
 }
 
 int32_t AppRunningRecord::GetAppIndex() const
@@ -1621,11 +1736,13 @@ void AppRunningRecord::OnWindowVisibilityChanged(
             continue;
         }
         auto iter = windowIds_.find(info->windowId_);
-        if (iter != windowIds_.end() && !info->isVisible_) {
+        if (iter != windowIds_.end() &&
+            info->visibilityState_ == OHOS::Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION) {
             windowIds_.erase(iter);
             continue;
         }
-        if (iter == windowIds_.end() && info->isVisible_) {
+        if (iter == windowIds_.end() &&
+            info->visibilityState_ < OHOS::Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION) {
             windowIds_.emplace(info->windowId_);
         }
     }

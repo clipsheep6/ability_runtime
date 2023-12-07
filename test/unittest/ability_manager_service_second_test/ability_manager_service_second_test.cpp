@@ -309,7 +309,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartAbilityAsCaller_001, TestSize.Lev
     EXPECT_EQ(abilityMs_->StartAbility(want, callerToken, USER_ID_U100, requestCode), CHECK_PERMISSION_FAILED);
 
     want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
-    EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, callerToken, USER_ID_U100, requestCode),
+    EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, callerToken, nullptr, USER_ID_U100, requestCode),
         ERR_INVALID_CONTINUATION_FLAG);
     HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityAsCaller_001 end");
 }
@@ -328,7 +328,7 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartAbilityAsCaller_002, TestSize.Lev
     StartOptions startOptions;
     sptr<IRemoteObject> callerToken = nullptr;
     int requestCode = 0;
-    EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, startOptions, callerToken, USER_ID_U100, requestCode),
+    EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr, USER_ID_U100, requestCode),
     CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityAsCaller_002 end");
 }

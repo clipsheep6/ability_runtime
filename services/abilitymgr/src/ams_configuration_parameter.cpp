@@ -21,6 +21,13 @@ namespace AAFwk {
 namespace {
 const int LOAD_CONFIGURATION_FAILED = -1;
 const int LOAD_CONFIGURATION_SUCCESS = 0;
+const int32_t TIME_OUT_UNIT_TIME_RATIO = 1000;
+}
+
+AmsConfigurationParameter::AmsConfigurationParameter()
+{
+    std::string deviceType = OHOS::system::GetParameter("const.product.devicetype", "unknown");
+    isPcDevice_ = (deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1");
 }
 
 AmsConfigurationParameter &AmsConfigurationParameter::GetInstance()
@@ -84,6 +91,9 @@ int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 
 int AmsConfigurationParameter::GetAppStartTimeoutTime() const
 {
+    if (isPcDevice_) {
+        return timeoutUnitTime_ * TIME_OUT_UNIT_TIME_RATIO;
+    }
     return timeoutUnitTime_;
 }
 

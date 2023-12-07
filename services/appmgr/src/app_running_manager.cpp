@@ -31,6 +31,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+}
 AppRunningManager::AppRunningManager()
 {}
 AppRunningManager::~AppRunningManager()
@@ -71,11 +74,12 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
 }
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExist(const std::string &appName,
-    const std::string &processName, const int uid, const BundleInfo &bundleInfo)
+    const std::string &processName, const int uid, const BundleInfo &bundleInfo,
+    const std::string &specifiedProcessFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("appName: %{public}s, processName: %{public}s, uid : %{public}d",
-        appName.c_str(), processName.c_str(), uid);
+    HILOG_INFO("appName: %{public}s, processName: %{public}s, uid: %{public}d, specifiedProcessFlag: %{public}s",
+        appName.c_str(), processName.c_str(), uid, specifiedProcessFlag.c_str());
 
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
@@ -83,39 +87,43 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     HILOG_DEBUG("jointUserId : %{public}s", jointUserId.c_str());
     ClipStringContent(rule, bundleInfo.appId, signCode);
 
-    auto FindSameProcess = [signCode, processName, jointUserId](const auto &pair) {
-            return ((pair.second->GetSignCode() == signCode) &&
-                    (pair.second->GetProcessName() == processName) &&
-                    (pair.second->GetJointUserId() == jointUserId) &&
-                    !(pair.second->IsTerminating()) &&
-                    !(pair.second->IsKilling()));
+    auto FindSameProcess = [signCode, specifiedProcessFlag, processName, jointUserId](const auto &pair) {
+        bool checkSpecifiedProcessFlag = (specifiedProcessFlag.empty() ||
+            pair.second->GetSpecifiedProcessFlag() == specifiedProcessFlag);
+        return (checkSpecifiedProcessFlag) &&
+            (pair.second->GetSignCode() == signCode) &&
+            (pair.second->GetProcessName() == processName) &&
+            (pair.second->GetJointUserId() == jointUserId) &&
+            !(pair.second->IsTerminating()) &&
+            !(pair.second->IsKilling());
     };
 
     // If it is not empty, look for whether it can come in the same process
     std::lock_guard<ffrt::mutex> guard(lock_);
-    if (jointUserId.empty()) {
-        for (const auto &item : appRunningRecordMap_) {
-            const auto &appRecord = item.second;
-            if (appRecord && appRecord->GetProcessName() == processName &&
-                !(appRecord->IsTerminating()) && !(appRecord->IsKilling())) {
-                HILOG_INFO("appRecord->GetProcessName() : %{public}s", appRecord->GetProcessName().c_str());
-                auto appInfoList = appRecord->GetAppInfoList();
-                HILOG_INFO("appInfoList : %{public}zu", appInfoList.size());
-                auto isExist = [&appName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
-                    HILOG_INFO("appInfo->name : %{public}s", appInfo->name.c_str());
-                    return appInfo->name == appName && appInfo->uid == uid;
-                };
-                auto appInfoIter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
-                if (appInfoIter != appInfoList.end()) {
-                    return appRecord;
-                }
+    if (!jointUserId.empty()) {
+        auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), FindSameProcess);
+        return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
+    }
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        bool checkSpecifiedProcessFlag = (specifiedProcessFlag.empty() ||
+            appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag);
+        if (appRecord && appRecord->GetProcessName() == processName && checkSpecifiedProcessFlag &&
+            !(appRecord->IsTerminating()) && !(appRecord->IsKilling())) {
+            auto appInfoList = appRecord->GetAppInfoList();
+            HILOG_INFO("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
+                appInfoList.size(), appRecord->GetProcessName().c_str(), specifiedProcessFlag.c_str());
+            auto isExist = [&appName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
+                HILOG_INFO("appInfo->name: %{public}s", appInfo->name.c_str());
+                return appInfo->name == appName && appInfo->uid == uid;
+            };
+            auto appInfoIter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
+            if (appInfoIter != appInfoList.end()) {
+                return appRecord;
             }
         }
-        return nullptr;
     }
-
-    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), FindSameProcess);
-    return ((iter == appRunningRecordMap_.end()) ? nullptr : iter->second);
+    return nullptr;
 }
 
 bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::string &bundleName)
@@ -604,12 +612,22 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
     int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord) {
+        if (appRecord && !isCollaboratorReserveType(appRecord)) {
             HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
             result = appRecord->UpdateConfiguration(config);
         }
     }
     return result;
+}
+
+bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    std::string bundleName = appRecord->GetApplicationInfo()->name;
+    bool isReserveType = bundleName == SHELL_ASSISTANT_BUNDLENAME;
+    if (isReserveType) {
+        HILOG_INFO("isReserveType app [%{public}s]", appRecord->GetName().c_str());
+    }
+    return isReserveType;
 }
 
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
@@ -863,7 +881,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("Window visibility info is nullptr.");
             continue;
         }
-        auto appRecord = GetAppRunningRecordByPidInner(info->pid_);
+        auto appRecord = GetAppRunningRecordByPid(info->pid_);
         if (appRecord == nullptr) {
             HILOG_ERROR("App running record is nullptr.");
             return;

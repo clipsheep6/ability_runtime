@@ -37,7 +37,7 @@ PendingWant::PendingWant(const sptr<AAFwk::IWantSender> &target, const sptr<IRem
     : target_(target), cancelReceiver_(nullptr), whitelistToken_(whitelistToken)
 {}
 
-WantAgentConstant::OperationType PendingWant::GetType(const sptr<AAFwk::IWantSender> &target)
+WantAgentConstant::OperationType PendingWant::GetType(sptr<AAFwk::IWantSender> target)
 {
     int32_t operationType = 0;
     WantAgentClient::GetInstance().GetPendingWantType(target, operationType);

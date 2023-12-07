@@ -67,7 +67,7 @@ bool InsightIntentExecutorMgr::ExecuteInsightIntent(Runtime& runtime, const Insi
         TriggerCallbackInner(std::move(callback), static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
     }
-
+    HILOG_DEBUG("AddInsightIntentExecutor.");
     AddInsightIntentExecutor(executeParam->insightIntentId_, intentExecutor);
 
     bool isAsync = false;

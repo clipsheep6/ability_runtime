@@ -97,6 +97,12 @@ std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string 
     return appContext;
 }
 
+std::shared_ptr<Global::Resource::ResourceManager> MockContextImpl::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return nullptr;
+}
+
 int MockContextImpl::GetArea()
 {
     return 1;

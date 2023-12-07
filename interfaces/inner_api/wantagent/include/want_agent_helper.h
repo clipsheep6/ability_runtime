@@ -79,7 +79,7 @@ public:
      * @param agent Indicates the WantAgent to trigger.
      * @return Returns the created WantAgent object.
      */
-    static WantAgentConstant::OperationType GetType(const std::shared_ptr<WantAgent> &agent);
+    static WantAgentConstant::OperationType GetType(std::shared_ptr<WantAgent> agent);
     static ErrCode GetType(const std::shared_ptr<WantAgent> &agent, int32_t &operType);
 
     /**
@@ -97,7 +97,7 @@ public:
      * the current process.
      * @param paramsInfo Indicates the TriggerInfo object that contains triggering parameters.
      */
-    static ErrCode TriggerWantAgent(const std::shared_ptr<WantAgent> &agent,
+    static ErrCode TriggerWantAgent(std::shared_ptr<WantAgent> agent,
         const std::shared_ptr<CompletedCallback> &callback,
         const TriggerInfo &paramsInfo);
 

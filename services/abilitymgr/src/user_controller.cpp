@@ -19,6 +19,7 @@
 #include "app_scheduler.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"
 #include "task_data_persistence_mgr.h"
@@ -73,6 +74,14 @@ void UserController::Init()
         return;
     }
     eventHandler_ = std::make_shared<UserEventHandler>(handler, shared_from_this());
+}
+
+void UserController::ClearAbilityUserItems(int32_t userId)
+{
+    std::lock_guard<ffrt::mutex> guard(userLock_);
+    if (userItems_.count(userId)) {
+        userItems_.erase(userId);
+    }
 }
 
 int32_t UserController::StartUser(int32_t userId, bool isForeground)
@@ -179,6 +188,40 @@ int32_t UserController::StopUser(int32_t userId)
     abilityManagerService->ClearUserData(userId);
 
     BroadcastUserStopped(userId);
+    return 0;
+}
+
+int32_t UserController::LogoutUser(int32_t userId)
+{
+    if (userId < 0 || userId == USER_ID_NO_HEAD) {
+        HILOG_ERROR("userId is invalid:%{public}d", userId);
+        return INVALID_USERID_VALUE;
+    }
+    if (!IsExistOsAccount(userId)) {
+        HILOG_ERROR("not exist such account:%{public}d", userId);
+        return INVALID_USERID_VALUE;
+    }
+    auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityManagerService) {
+        HILOG_ERROR("abilityManagerService is null");
+        return -1;
+    }
+    abilityManagerService->RemoveLauncherDeathRecipient(userId);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_INFO("SceneBoard exit normally.");
+        Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
+    }
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (!appScheduler) {
+        HILOG_ERROR("appScheduler is null");
+        return INVALID_USERID_VALUE;
+    }
+    appScheduler->KillProcessesByUserId(userId);
+    abilityManagerService->ClearUserData(userId);
+    ClearAbilityUserItems(userId);
+    if (IsCurrentUser(userId)) {
+        SetCurrentUserId(0);
+    }
     return 0;
 }
 

@@ -49,6 +49,9 @@
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
 #include "form_constants.h"
+#ifdef SUPPORT_APP_PREFERRED_LANGUAGE
+#include "preferred_language.h"
+#endif
 #endif
 #include "app_mgr_client.h"
 #include "if_system_ability_manager.h"
@@ -104,9 +107,16 @@ constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
+constexpr int32_t START_HIGH_SENSITIVE = 1;
 constexpr int32_t UNSPECIFIED_USERID = -2;
-constexpr int SIGNAL_JS_HEAP = 39;
-constexpr int SIGNAL_JS_HEAP_PRIV = 40;
+
+enum class SignalType {
+    SIGNAL_JSHEAP_OLD,
+    SIGNAL_JSHEAP,
+    SIGNAL_JSHEAP_PRIV,
+    SIGNAL_START_SAMPLE,
+    SIGNAL_STOP_SAMPLE,
+};
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_VERSION[] = "VERSION";
@@ -118,11 +128,14 @@ constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
-const std::string SIGNAL_HANDLER = "SignalHandler";
+const std::string SIGNAL_HANDLER = "OS_SignalHandler";
 
 constexpr uint32_t CHECK_MAIN_THREAD_IS_ALIVE = 1;
 
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
+
+const int32_t TYPE_RESERVE = 1;
+const int32_t TYPE_OTHERS = 2;
 
 std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp)
 {
@@ -479,7 +492,7 @@ void MainThread::ScheduleBackgroundApplication()
     if (!mainHandler_->PostTask(task, "MainThread:BackgroundApplication")) {
         HILOG_ERROR("MainThread::ScheduleBackgroundApplication PostTask task failed");
     }
-    
+
     if (watchdog_ == nullptr) {
         HILOG_ERROR("Watch dog is nullptr.");
         return;
@@ -1004,9 +1017,9 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     }
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-#ifdef SUPPORT_GRAPHICS
+#if defined(SUPPORT_GRAPHICS) && defined(SUPPORT_APP_PREFERRED_LANGUAGE)
     UErrorCode status = U_ZERO_ERROR;
-    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::LocaleConfig::GetSystemLanguage(), status);
+    icu::Locale locale = icu::Locale::forLanguageTag(Global::I18n::PreferredLanguage::GetAppPreferredLanguage(), status);
     resConfig->SetLocaleInfo(locale);
     const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
     if (localeInfo != nullptr) {
@@ -1283,15 +1296,31 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             return;
         }
 
-        if (appInfo.debug) {
-            auto perfCmd = appLaunchData.GetPerfCmd();
-            if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
-                perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
-                HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
-                runtime->StartProfiler(perfCmd);
-            } else {
-                runtime->StartDebugMode(appLaunchData.GetDebugApp());
-            }
+        if (appInfo.debug && appLaunchData.GetDebugApp()) {
+            wptr<MainThread> weak = this;
+            auto cb = [weak]() {
+                auto appThread = weak.promote();
+                if (appThread == nullptr) {
+                    HILOG_ERROR("appThread is nullptr");
+                    return false;
+                }
+                return appThread->NotifyDeviceDisConnect();
+            };
+            runtime->SetDeviceDisconnectCallback(cb);
+        }
+
+        auto perfCmd = appLaunchData.GetPerfCmd();
+        std::string processName = "";
+        if (processInfo_ != nullptr) {
+            processName = processInfo_->GetProcessName();
+            HILOG_DEBUG("MainThread::HandleLaunchApplication processName is %{public}s", processName.c_str());
+        }
+        if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
+            perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
+            HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
+            runtime->StartProfiler(perfCmd, appLaunchData.GetDebugApp(), processName, appInfo.debug);
+        } else {
+            runtime->StartDebugMode(appLaunchData.GetDebugApp(), processName, appInfo.debug);
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -1396,7 +1425,30 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 
     // init resourceManager.
     HILOG_DEBUG("MainThread handle launch application, CreateResourceManager Start.");
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
+
+    auto moduleName = entryHapModuleInfo.moduleName;
+    std::string loadPath =
+        entryHapModuleInfo.hapPath.empty() ? entryHapModuleInfo.resourcePath : entryHapModuleInfo.hapPath;
+    std::regex inner_pattern(std::string(ABS_CODE_PATH) + std::string(FILE_SEPARATOR) + bundleInfo.name);
+    loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
+    std::vector<OverlayModuleInfo> overlayModuleInfos;
+    auto res = GetOverlayModuleInfos(bundleInfo.name, moduleName, overlayModuleInfos);
+    std::vector<std::string> overlayPaths;
+    if (res == ERR_OK) {
+        overlayPaths = GetAddOverlayPaths(overlayModuleInfos);
+    }
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    int32_t appType;
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+        appType = TYPE_RESERVE;
+    } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        appType = TYPE_OTHERS;
+    } else {
+        appType = 0;
+    }
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleInfo.name, moduleName, loadPath, overlayPaths, *resConfig, appType));
+
     if (resourceManager == nullptr) {
         HILOG_ERROR("MainThread::handleLaunchApplication create resourceManager failed");
         return;
@@ -1899,7 +1951,9 @@ void MainThread::HandleBackgroundApplication()
         HILOG_ERROR("MainThread::handleBackgroundApplication error!");
         return;
     }
-
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
+#endif
     if (!applicationImpl_->PerformBackground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformBackground() failed");
         return;
@@ -2057,17 +2111,34 @@ void MainThread::Init(const std::shared_ptr<EventRunner> &runner)
     extensionConfigMgr_->Init();
 }
 
-void MainThread::HandleSignal(int signal)
+void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, void *context)
 {
-    switch (signal) {
-        case SIGNAL_JS_HEAP: {
+    if (signal != MUSL_SIGNAL_JSHEAP) {
+        HILOG_ERROR("HandleSignal failed, signal is %{public}d", signal);
+    }
+    HILOG_INFO("HandleSignal sival_int is %{public}d", siginfo->si_value.sival_int);
+    switch (static_cast<SignalType>(siginfo->si_value.sival_int)) {
+        case SignalType::SIGNAL_JSHEAP_OLD: {
             auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
-            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JS_HEAP");
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JSHEAP_OLD");
             break;
         }
-        case SIGNAL_JS_HEAP_PRIV: {
+        case SignalType::SIGNAL_JSHEAP: {
+            auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JSHEAP");
+            break;
+        }
+        case SignalType::SIGNAL_JSHEAP_PRIV: {
             auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
-            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JS_HEAP_PRIV");
+            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JSHEAP_PRIV");
+            break;
+        }
+        case SignalType::SIGNAL_START_SAMPLE: {
+            HILOG_ERROR("HandleSignal failed, SIGNAL_START_SAMPLE is retained");
+            break;
+        }
+        case SignalType::SIGNAL_STOP_SAMPLE: {
+            HILOG_ERROR("HandleSignal failed, SIGNAL_STOP_SAMPLE is retained");
             break;
         }
         default:
@@ -2111,11 +2182,10 @@ void MainThread::Start()
 
     struct sigaction sigAct;
     sigemptyset(&sigAct.sa_mask);
-    sigAct.sa_flags = 0;
-    sigAct.sa_handler = &MainThread::HandleSignal;
+    sigAct.sa_flags = SA_SIGINFO;
+    sigAct.sa_sigaction = &MainThread::HandleSignal;
     sigaction(SIGUSR1, &sigAct, NULL);
-    sigaction(SIGNAL_JS_HEAP, &sigAct, NULL);
-    sigaction(SIGNAL_JS_HEAP_PRIV, &sigAct, NULL);
+    sigaction(MUSL_SIGNAL_JSHEAP, &sigAct, NULL);
 
     thread->Init(runner);
 
@@ -2382,6 +2452,42 @@ void MainThread::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &
         appThread->HandleScheduleAcceptWant(want, moduleName);
     };
     if (!mainHandler_->PostTask(task, "MainThread:AcceptWant")) {
+        HILOG_ERROR("PostTask task failed");
+    }
+}
+
+void MainThread::HandleScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("MainThread::HandleScheduleNewProcessRequest");
+    if (!application_) {
+        HILOG_ERROR("application_ is nullptr");
+        return;
+    }
+
+    std::string specifiedProcessFlag;
+    application_->ScheduleNewProcessRequest(want, moduleName, specifiedProcessFlag);
+
+    if (!appMgr_ || !applicationImpl_) {
+        HILOG_ERROR("appMgr_ is nullptr");
+        return;
+    }
+
+    appMgr_->ScheduleNewProcessRequestDone(applicationImpl_->GetRecordId(), want, specifiedProcessFlag);
+}
+
+void MainThread::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName)
+{
+    HILOG_DEBUG("start");
+    wptr<MainThread> weak = this;
+    auto task = [weak, want, moduleName]() {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("abilityThread is nullptr, ScheduleNewProcessRequest failed.");
+            return;
+        }
+        appThread->HandleScheduleNewProcessRequest(want, moduleName);
+    };
+    if (!mainHandler_->PostTask(task, "MainThread:ScheduleNewProcessRequest")) {
         HILOG_ERROR("PostTask task failed");
     }
 }
@@ -2689,10 +2795,15 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
         }
         appThread->ChangeAppGcState(state);
     };
-    mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
+
+    if (state == START_HIGH_SENSITIVE) {
+        ChangeAppGcState(state);
+    } else {
+        mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
+    }
     return NO_ERROR;
 }
-        
+
 int32_t MainThread::ChangeAppGcState(int32_t state)
 {
     HILOG_DEBUG("called.");
@@ -2720,6 +2831,13 @@ void MainThread::DetachAppDebug()
 {
     HILOG_DEBUG("Called.");
     AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+}
+
+bool MainThread::NotifyDeviceDisConnect()
+{
+    HILOG_DEBUG("Called.");
+    ScheduleTerminateApplication();
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

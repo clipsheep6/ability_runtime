@@ -644,6 +644,34 @@ void UIAbilityThread::CallRequest()
     HILOG_DEBUG("End.");
 }
 
+void UIAbilityThread::OnExecuteIntent(const Want &want)
+{
+    HILOG_DEBUG("Begin.");
+    if (abilityImpl_ == nullptr) {
+        HILOG_ERROR("abilityImpl_ is nullptr.");
+        return;
+    }
+
+    if (abilityHandler_ == nullptr) {
+        HILOG_ERROR("abilityHandler_ is nullptr.");
+        return;
+    }
+
+    wptr<UIAbilityThread> weak = this;
+    auto task = [weak, want]() {
+        auto abilityThread = weak.promote();
+        if (abilityThread == nullptr) {
+            HILOG_ERROR("AbilityThread is nullptr.");
+            return;
+        }
+        if (abilityThread->abilityImpl_ != nullptr) {
+            abilityThread->abilityImpl_->HandleExecuteInsightIntentBackground(want, true);
+            return;
+        }
+    };
+    abilityHandler_->PostTask(task, "UIAbilityThread:OnExecuteIntent");
+}
+
 void UIAbilityThread::HandlePrepareTermianteAbility()
 {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -655,6 +683,16 @@ void UIAbilityThread::HandlePrepareTermianteAbility()
     HILOG_DEBUG("End ret is %{public}d.", isPrepareTerminate_);
     isPrepareTerminateAbilityDone_.store(true);
     cv_.notify_all();
+}
+
+int UIAbilityThread::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("Call");
+    if (currentAbility_ == nullptr) {
+        HILOG_ERROR("current ability is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return currentAbility_->CreateModalUIExtension(want);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -15,6 +15,7 @@
 
 #include "app_state_callback_proxy.h"
 
+#include "configuration.h"
 #include "ipc_types.h"
 
 #include "hilog_wrapper.h"
@@ -81,6 +82,30 @@ void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData &appProcessDa
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
     HILOG_DEBUG("end");
+}
+
+void AppStateCallbackProxy::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+    if (!data.WriteParcelable(&config)) {
+        HILOG_ERROR("Write config failed.");
+        return;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("Write usr failed.");
+        return;
+    }
+    auto error = SendTransactCmd(
+        static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_CONFIG_CHANGE), data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send config error: %{public}d", error);
+    }
 }
 
 int32_t AppStateCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &data,

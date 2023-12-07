@@ -67,6 +67,7 @@ export default class SwitchUserServiceExtensionAbility extends extension {
     console.info(TAG, 'create window rect is ' + JSON.stringify(rect));
     try {
       win = await window.create(this.context, name, windowType);
+      await win.hideNonSystemFloatingWindows(true);
       await win.moveWindowTo(rect.left, rect.top);
       await win.resize(rect.width, rect.height);
       await win.loadContent('pages/switchUserDialog');

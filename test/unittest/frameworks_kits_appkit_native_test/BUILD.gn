@@ -313,47 +313,6 @@ ohos_unittest("ability_start_setting_test") {
   ]
 }
 
-ohos_unittest("watchdog_test") {
-  module_out_path = module_output_path
-
-  include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include",
-    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
-    "//third_party/json/include",
-  ]
-
-  configs = [
-    ":module_context_config",
-    ":ability_start_setting_config",
-  ]
-
-  sources = [
-    "${ability_runtime_test_path}/mock/frameworks_kits_appkit_test/include/mock_app_thread.cpp",
-    "watchdog_test.cpp",
-  ]
-
-  deps = [
-    "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-  ]
-
-  external_deps = [
-    "ability_base:base",
-    "ability_base:want",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "c_utils:utilsbase",
-    "eventhandler:libeventhandler",
-    "hilog:libhilog",
-    "image_framework:image_native",
-    "ipc:ipc_core",
-    "napi:ace_napi",
-  ]
-}
-
 ohos_unittest("mix_stack_dumper_test") {
   module_out_path = module_output_path
 
@@ -473,71 +432,6 @@ ohos_unittest("form_extension_context_test") {
   }
 }
 
-ohos_unittest("appfreeze_inner_test") {
-  module_out_path = module_output_path
-
-  include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "${ability_runtime_path}/utils/global/time/include",
-    "//third_party/json/include",
-  ]
-
-  configs = [
-    ":module_context_config",
-    ":ability_start_setting_config",
-  ]
-
-  sources = [
-    "${ability_runtime_native_path}/appkit/app/appfreeze_inner.cpp",
-    "appfreeze_inner_test.cpp",
-  ]
-
-  deps = [
-    "${ability_runtime_abilitymgr_path}/:abilityms",
-    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
-    "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
-    "${ability_runtime_innerkits_path}/runtime:runtime",
-    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
-    "${ability_runtime_native_path}/ability/native:ability_thread",
-    "${ability_runtime_native_path}/ability/native:abilitykit_native",
-    "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
-    "${ability_runtime_native_path}/appkit:app_context",
-    "${ability_runtime_native_path}/appkit:app_context_utils",
-    "${ability_runtime_native_path}/appkit:appkit_native",
-    "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
-    "${ability_runtime_path}/utils/global/freeze:freeze_util",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
-  ]
-
-  external_deps = [
-    "ability_base:configuration",
-    "ability_base:extractresourcemanager",
-    "ability_base:string_utils",
-    "ability_base:want",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
-    "c_utils:utils",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "faultloggerd:libbacktrace_local",
-    "faultloggerd:libdfx_procinfo",
-    "faultloggerd:libfaultloggerd",
-    "graphic_2d:librender_service_client",
-    "hicollie:libhicollie",
-    "hilog:libhilog",
-    "hisysevent:libhisysevent",
-    "hitrace:hitrace_meter",
-    "init:libbegetutil",
-    "ipc:ipc_core",
-    "napi:ace_napi",
-    "resource_management:global_resmgr",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-  ]
-}
-
 ###############################################################################
 
 group("unittest") {
@@ -547,14 +441,12 @@ group("unittest") {
   deps += [
     ":ability_stage_test",
     ":ability_start_setting_test",
-    ":appfreeze_inner_test",
     ":application_impl_test",
     ":application_test",
     ":context_container_test",
     ":context_deal_test",
     ":form_extension_context_test",
     ":mix_stack_dumper_test",
-    ":watchdog_test",
   ]
 
   deps += [ "ability_delegator:unittest" ]

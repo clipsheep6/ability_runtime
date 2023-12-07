@@ -81,6 +81,12 @@ std::shared_ptr<Context> MockContext::CreateModuleContext(const std::string &bun
     return nullptr;
 }
 
+std::shared_ptr<Global::Resource::ResourceManager> MockContext::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return nullptr;
+}
+
 int MockContext::GetArea()
 {
     return mode_;

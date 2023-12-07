@@ -128,7 +128,7 @@ class MockAppMgrStub : public AppMgrStub {
         return nullptr;
     }
 
-    int32_t ClearUpApplicationData(const std::string &bundleName) override
+    int32_t ClearUpApplicationData(const std::string &bundleName, const int32_t userId) override
     {
         return 0;
     }
@@ -1328,8 +1328,9 @@ HWTEST_F(MainThreadTest, HandleSignal_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    constexpr int SIGNAL_JS_HEAP = 39;
-    mainThread_->HandleSignal(SIGNAL_JS_HEAP);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 1;
+    mainThread_->HandleSignal(MUSL_SIGNAL_JSHEAP, &siginfo, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1343,8 +1344,9 @@ HWTEST_F(MainThreadTest, HandleSignal_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    constexpr int SIGNAL_JS_HEAP_PRIV = 40;
-    mainThread_->HandleSignal(SIGNAL_JS_HEAP_PRIV);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 2;
+    mainThread_->HandleSignal(MUSL_SIGNAL_JSHEAP, &siginfo, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1358,7 +1360,9 @@ HWTEST_F(MainThreadTest, HandleSignal_0300, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     ASSERT_NE(mainThread_, nullptr);
-    mainThread_->HandleSignal(-1);
+    siginfo_t siginfo;
+    siginfo.si_value.sival_int = 1;
+    mainThread_->HandleSignal(-1, &siginfo, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -1517,6 +1521,24 @@ HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0400, TestSize.Level1)
     ASSERT_NE(mainThread_, nullptr);
     mainThread_->HandleScheduleAcceptWant(want, moduleName);
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleScheduleAcceptWant_0500
+ * @tc.desc: HandleScheduleAcceptWant.
+ * @tc.type: FUNC
+ * @tc.require: issueI64MUJ
+ */
+HWTEST_F(MainThreadTest, HandleScheduleAcceptWant_0500, TestSize.Level1)
+{
+    std::string moduleName = "entry";
+    std::string loadPath = "test";
+    std::string bundleName = "com.ohos.demo";
+    std::vector<std::string> overlayPaths;
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    int32_t appType = 0;
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleName, moduleName, loadPath, overlayPaths, *resConfig, appType));
 }
 
 #ifdef ABILITY_LIBRARY_LOADER

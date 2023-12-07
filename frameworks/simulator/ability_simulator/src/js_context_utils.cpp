@@ -37,6 +37,7 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -119,6 +120,11 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo &info)
 }
 
 napi_value JsBaseContext::CreateModuleContext(napi_env env, napi_callback_info info)
+{
+    return nullptr;
+}
+
+napi_value JsBaseContext::CreateModuleResourceManager(napi_env env, napi_callback_info info)
 {
     return nullptr;
 }
@@ -299,6 +305,8 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeFunction(env, object, "switchArea", moduleName, JsBaseContext::SwitchArea);
     BindNativeFunction(env, object, "getArea", moduleName, JsBaseContext::GetArea);
     BindNativeFunction(env, object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
+    BindNativeFunction(env, object, "createModuleResourceManager", moduleName,
+        JsBaseContext::CreateModuleResourceManager);
 
     return object;
 }

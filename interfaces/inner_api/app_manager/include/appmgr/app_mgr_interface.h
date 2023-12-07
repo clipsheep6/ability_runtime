@@ -16,26 +16,27 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_INTERFACE_H
 
-#include "iremote_broker.h"
-#include "iremote_object.h"
-#include "want.h"
-
+#include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
-#include "application_info.h"
+#include "ams_mgr_interface.h"
+#include "app_foreground_state_observer_interface.h"
+#include "app_malloc_info.h"
 #include "app_mgr_ipc_interface_code.h"
 #include "app_record_id.h"
+#include "application_info.h"
 #include "bundle_info.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
-#include "ams_mgr_interface.h"
+#include "iapplication_state_observer.h"
+#include "iconfiguration_observer.h"
+#include "iquick_fix_callback.h"
+#include "iremote_broker.h"
+#include "iremote_object.h"
 #include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
-#include "iapplication_state_observer.h"
-#include "iconfiguration_observer.h"
-#include "iquick_fix_callback.h"
-#include "app_malloc_info.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -108,9 +109,11 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param userId the user id.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) = 0;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
+        const int32_t userId = -1) = 0;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -205,6 +208,20 @@ public:
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) = 0;
 
     /**
+     * Register application or process state observer.
+     * @param observer Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) = 0;
+
+    /**
      * Get foreground applications.
      * @param list, foreground apps.
      * @return Returns ERR_OK on success, others on failure.
@@ -233,6 +250,9 @@ public:
     virtual int FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName) = 0;
 
     virtual void ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Want &want, const std::string &flag) = 0;
+
+    virtual void ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+        const std::string &flag) = 0;
 
     /**
      *  Get the token of ability records by process ID.
@@ -434,6 +454,45 @@ public:
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) = 0;
 
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) = 0;
+	
+	/**
+     * Register application foreground state observer.
+     * @param observer Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer Is app foreground state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
+
+    /**
+     * Check whether the bundle is running.
+     * 
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,
@@ -483,7 +542,11 @@ public:
         GET_PIDS_BY_BUNDLENAME,
         CHANGE_APP_GC_STATE,
         NOTIFY_PAGE_SHOW,
-        NOTIFY_PAGE_HIDE
+        NOTIFY_PAGE_HIDE,
+        // Register an application to start listening.
+        REGISTER_APP_RUNNING_STATUS_LISTENER,
+        // Unregister the app to start listening.
+        UNREGISTER_APP_RUNNING_STATUS_LISTENER,
     };
 };
 }  // namespace AppExecFwk

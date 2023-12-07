@@ -42,7 +42,7 @@ public:
     JsModuleReader& operator=(JsModuleReader&&) = default;
 
     bool operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const;
-    std::string GetPresetAppHapPath(const std::string& inputPath) const;
+    static std::string GetPresetAppHapPath(const std::string& inputPath, const std::string& bundleName);
 
 private:
     std::string GetAppHspPath(const std::string& inputPath) const;

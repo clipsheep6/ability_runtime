@@ -16,6 +16,7 @@
 #include "app_state_callback_host.h"
 
 #include "appexecfwk_errors.h"
+#include "configuration.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
@@ -31,6 +32,8 @@ AppStateCallbackHost::AppStateCallbackHost()
         &AppStateCallbackHost::HandleOnAppStateChanged;
     memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_ABILITY_REQUEST_DONE)] =
         &AppStateCallbackHost::HandleOnAbilityRequestDone;
+    memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_CONFIG_CHANGE)] =
+        &AppStateCallbackHost::HandleNotifyConfigurationChange;
 }
 
 AppStateCallbackHost::~AppStateCallbackHost()
@@ -70,6 +73,10 @@ void AppStateCallbackHost::OnAppStateChanged(const AppProcessData &)
     HILOG_DEBUG("called");
 }
 
+void AppStateCallbackHost::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
+{
+}
+
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
@@ -92,6 +99,18 @@ int32_t AppStateCallbackHost::HandleOnAbilityRequestDone(MessageParcel &data, Me
     }
     int32_t state = data.ReadInt32();
     OnAbilityRequestDone(obj, static_cast<AbilityState>(state));
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleNotifyConfigurationChange(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<AppExecFwk::Configuration> config(data.ReadParcelable<AppExecFwk::Configuration>());
+    if (config == nullptr) {
+        HILOG_ERROR("To read config failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto userId = data.ReadInt32();
+    NotifyConfigurationChange(*config, userId);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

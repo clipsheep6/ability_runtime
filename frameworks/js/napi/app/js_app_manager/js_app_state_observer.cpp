@@ -66,7 +66,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
 {
     HILOG_INFO("OnAbilityStateChanged begin");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        HILOG_ERROR("the app manager may has cancelled storage");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -74,7 +74,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
         ([jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                HILOG_WARN("jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnAbilityStateChanged(abilityStateData);
@@ -134,7 +134,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 {
     HILOG_INFO("OnProcessCreated begin");
     if (!valid_) {
-        HILOG_ERROR("the app manager may has destoryed");
+        HILOG_ERROR("the app manager may has cancelled storage");
         return;
     }
     wptr<JSAppStateObserver> jsObserver = this;
@@ -142,7 +142,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                HILOG_WARN("jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnProcessCreated(processData);

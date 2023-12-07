@@ -734,6 +734,25 @@ void OHOSApplication::ScheduleAcceptWant(const AAFwk::Want &want, const std::str
     }
 }
 
+void OHOSApplication::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName,
+    std::string &flag)
+{
+    HILOG_DEBUG("call.");
+    if (abilityStages_.empty()) {
+        HILOG_ERROR("abilityStages_ is empty.");
+        return;
+    }
+    auto iter = abilityStages_.find(moduleName);
+    if (iter == abilityStages_.end()) {
+        HILOG_ERROR("%{public}s is not in abilityStage", moduleName.c_str());
+        return;
+    }
+    auto abilityStage = iter->second;
+    if (abilityStage) {
+        flag = abilityStage->OnNewProcessRequest(want);
+    }
+}
+
 std::shared_ptr<Configuration> OHOSApplication::GetConfiguration()
 {
     return configuration_;

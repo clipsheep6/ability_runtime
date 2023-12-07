@@ -819,7 +819,7 @@ AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600, TestSize
     ErrCode result = cmd.MakeEnableCommandArgumentFromCmd(argument);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(cmd.resultReceiver_, "enable: " + ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT 
-    + "and exist unknown arguments -v ");
+    + "and exist unknown arguments.-v ");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_MakeEnableCommandArgumentFromCmd_0600 end";
 }
 
@@ -971,7 +971,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100, TestSize.Level
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": and exist duplicated argumentsand exist unknown arguments ");
+    EXPECT_EQ(resultMessage, ": and exist duplicated argumentsand exist unknown arguments.");
     EXPECT_EQ( cmd.resultReceiver_, ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0100 end";
 }
@@ -995,7 +995,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200, TestSize.Level
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": unknown arguments ");
+    EXPECT_EQ(resultMessage, ": unknown arguments.");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0200 end";
 }
 
@@ -1190,6 +1190,7 @@ AccessibilityAbilityShellCommand_RunAsGetInstalledAbilities_0100, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
+    cmd.abilityClientPtr_ = nullptr;
     ErrCode result = cmd.RunAsGetInstalledAbilities();
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_RunAsGetInstalledAbilities_0100 end";
@@ -2850,7 +2851,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0100, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": and exist duplicated arguments.and exist unknown arguments ");
+    EXPECT_EQ(resultMessage, ": and duplicated arguments exist.and unknown arguments exist.");
     EXPECT_EQ(cmd.resultReceiver_, ACCESSIBILITY_ABILITY_TOO_MANY_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0100 end";
 }
@@ -2879,7 +2880,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0200, TestSize.Level1)
     AccessibilityAbilityShellCommand cmd(argc, argv);
     ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
-    EXPECT_EQ(resultMessage, ": unknown arguments ");
+    EXPECT_EQ(resultMessage, ": unknown arguments exist.");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0200 end";
 }
 

@@ -165,6 +165,8 @@ public:
 
     void ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName);
 
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
+
     /**
      * UpdateConfiguration, ANotify application update system environment changes.
      *

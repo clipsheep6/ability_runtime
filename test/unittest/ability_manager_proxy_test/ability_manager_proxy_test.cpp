@@ -2027,7 +2027,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_001, 
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     const Want want;
     sptr<IRemoteObject> callerToken = nullptr;
-    auto res = proxy_->StartAbilityAsCaller(want, callerToken);
+    auto res = proxy_->StartAbilityAsCaller(want, callerToken, nullptr);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -2048,7 +2048,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_002, 
     const Want want;
     sptr<IRemoteObject> callerToken = nullptr;
     StartOptions startOptions;
-    auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken);
+    auto res = proxy_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -2394,6 +2394,22 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsAbilityControllerStart_0
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(NO_ERROR));
     Want want;
     proxy_->IsAbilityControllerStart(want);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_GetForegroundUIAbilities_001
+ * @tc.desc: Test function GetForegroundUIAbilities when normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetForegroundUIAbilities_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    std::vector<AppExecFwk::AbilityStateData> abilityStateDataList;
+    auto res = proxy_->GetForegroundUIAbilities(abilityStateDataList);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

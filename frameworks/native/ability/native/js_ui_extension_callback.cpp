@@ -18,6 +18,7 @@
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
 #include "napi_common_util.h"
+#include "ui_content.h"
 #include "ws_common.h"
 
 namespace OHOS {
@@ -63,6 +64,16 @@ JsUIExtensionCallback::~JsUIExtensionCallback()
     }
 }
 
+void JsUIExtensionCallback::SetSessionId(int32_t sessionId)
+{
+    sessionId_ = sessionId;
+}
+
+void JsUIExtensionCallback::SetUIContent(Ace::UIContent* uiContent)
+{
+    uiContent_ = uiContent;
+}
+
 void JsUIExtensionCallback::SetJsCallbackObject(napi_value jsCallbackObject)
 {
     napi_ref ref = nullptr;
@@ -92,6 +103,21 @@ void JsUIExtensionCallback::OnError(int32_t number)
     std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
     NapiAsyncTask::Schedule("JsUIExtensionCallback::OnError:",
         env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+    if (uiContent_ == nullptr) {
+        HILOG_ERROR("uiContent_ null");
+        return;
+    }
+    uiContent_->CloseModalUIExtension(sessionId_);
+}
+
+void JsUIExtensionCallback::OnRelease(int32_t code)
+{
+    HILOG_INFO("call, code:%{public}d", code);
+    if (uiContent_ == nullptr) {
+        HILOG_ERROR("uiContent_ null");
+        return;
+    }
+    uiContent_->CloseModalUIExtension(sessionId_);
 }
 
 void JsUIExtensionCallback::CallJsError(int32_t number)

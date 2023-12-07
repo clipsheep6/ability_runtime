@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,12 +17,14 @@
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H
 
 #include "ability_running_info.h"
-#include "extension_running_info.h"
+#include "ability_state_data.h"
 #include "element_name.h"
+#include "extension_running_info.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+using OHOS::AppExecFwk::AbilityStateData;
 napi_value CreateJsAbilityRunningInfoArray(
     napi_env env, const std::vector<AAFwk::AbilityRunningInfo> &infos);
 napi_value CreateJsExtensionRunningInfoArray(
@@ -31,6 +33,9 @@ napi_value CreateJsAbilityRunningInfo(napi_env env, const AAFwk::AbilityRunningI
 napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunningInfo &info);
 napi_value AbilityStateInit(napi_env env);
 napi_value CreateJsElementName(napi_env env, const AppExecFwk::ElementName &elementName);
+napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData);
+napi_value CreateJsAbilityStateDataArray(
+    napi_env env, const std::vector<AppExecFwk::AbilityStateData> &abilityStateDatas);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_ABILITY_MANAGER_UTILS_H

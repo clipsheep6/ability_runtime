@@ -38,7 +38,7 @@ public:
     MOCK_METHOD0(UpdateApplicationInfoInstalledDone, AppMgrResultCode());
     MOCK_METHOD1(KillApplication, AppMgrResultCode(const std::string&));
     MOCK_METHOD2(KillApplicationByUid, AppMgrResultCode(const std::string &bundleName, const int uid));
-    MOCK_METHOD1(ClearUpApplicationData, AppMgrResultCode(const std::string&));
+    MOCK_METHOD2(ClearUpApplicationData, AppMgrResultCode(const std::string&, int32_t userId));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo> &bundleInfos));
     MOCK_METHOD2(StartSpecifiedAbility, void(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo));
     MOCK_METHOD1(GetAllRunningProcesses, AppMgrResultCode(std::vector<RunningProcessInfo> &info));

@@ -66,7 +66,7 @@ bool FreeInstallManager::IsTopAbility(const sptr<IRemoteObject> &callerToken)
         return true;
     }
 
-    AppExecFwk::ElementName callerElementName = caller->GetWant().GetElement();
+    AppExecFwk::ElementName callerElementName = caller->GetElementName();
     std::string callerBundleName = callerElementName.GetBundleName();
     std::string callerAbilityName = callerElementName.GetAbilityName();
     std::string callerModuleName = callerElementName.GetModuleName();
@@ -101,11 +101,11 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
     info.want.SetParam(PARAM_FREEINSTALL_UID, IPCSkeleton::GetCallingUid());
-    
+
     if (isAsync) {
         PostTimeoutTask(want);
     }
-    
+
     if (IN_PROCESS_CALL(bms->QueryAbilityInfo(info.want, flag, info.userId, abilityInfo, callback))) {
         HILOG_INFO("The app has installed.");
     }
@@ -116,7 +116,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     }
     info.want.RemoveParam(PARAM_FREEINSTALL_APPID);
     info.want.RemoveParam(PARAM_FREEINSTALL_BUNDLENAMES);
-    
+
     if (isAsync) {
         return ERR_OK;
     } else {

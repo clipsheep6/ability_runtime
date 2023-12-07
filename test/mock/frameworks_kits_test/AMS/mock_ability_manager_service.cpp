@@ -74,7 +74,7 @@ int MockAbilityManagerService::StartAbility(const Want& want, const sptr<IRemote
 }
 
 int MockAbilityManagerService::StartAbilityAsCaller(const Want& want, const sptr<IRemoteObject>& callerToken,
-    int32_t userId, int requestCode)
+    sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
 {
     return 0;
 }

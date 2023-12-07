@@ -170,6 +170,8 @@ public:
 
     virtual void RegisterStartSpecifiedAbilityResponse(const sptr<IStartSpecifiedAbilityResponse> &response) override;
 
+    virtual void StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo) override;
+
     virtual void SetCurrentUserId(const int32_t userId) override;
 
     virtual int32_t GetBundleNameByPid(const int pid, std::string &bundleName, int32_t &uid) override;

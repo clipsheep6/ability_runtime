@@ -41,6 +41,7 @@
       *ConnectionManagerClient*;
       *ControlInterceptor*;
       *CrowdTestInterceptor*;
+      *DisposedRuleInterceptor*;
       *EcologicalRuleInterceptor*;
       *AbilityJumpInterceptor*;
       *DataAbilityManager*;

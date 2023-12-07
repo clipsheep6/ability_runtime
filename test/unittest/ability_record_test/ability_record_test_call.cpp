@@ -24,6 +24,7 @@
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_mock.h"
+#include "app_utils.h"
 #include "connection_record.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_bundle_manager.h"

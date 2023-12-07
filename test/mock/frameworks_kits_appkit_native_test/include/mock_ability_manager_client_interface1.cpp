@@ -67,65 +67,65 @@ AbilityManagerClient::~AbilityManagerClient()
 {}
 
 ErrCode AbilityManagerClient::AttachAbilityThread(
-    const sptr<IAbilityScheduler>& scheduler, const sptr<IRemoteObject>& token)
+    sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token)
 {
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::AbilityTransitionDone(const sptr<IRemoteObject>& token, int state)
+ErrCode AbilityManagerClient::AbilityTransitionDone(sptr<IRemoteObject> token, int state)
 {
     return ERR_OK;
 }
 
 ErrCode AbilityManagerClient::ScheduleConnectAbilityDone(
-    const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& remoteObject)
+    sptr<IRemoteObject> token, sptr<IRemoteObject> remoteObject)
 {
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject>& token)
+ErrCode AbilityManagerClient::ScheduleDisconnectAbilityDone(sptr<IRemoteObject> token)
 {
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(const sptr<IRemoteObject>& token)
+ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(sptr<IRemoteObject> token)
 {
     return ERR_OK;
 }
 
 ErrCode ScheduleCommandAbilityWindowDone(
-    const sptr<IRemoteObject> &token,
-    const sptr<SessionInfo> &sessionInfo,
+    sptr<IRemoteObject> token,
+    sptr<SessionInfo> sessionInfo,
     WindowCommand winCmd,
     AbilityCommand abilityCmd)
 {
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant)
+ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> token, int resultCode, const Want* resultWant)
 {
     return ERR_OK;
 }
 
 ErrCode AbilityManagerClient::ConnectAbility(
-    const Want& want, const sptr<IAbilityConnection>& connect, const sptr<IRemoteObject>& callerToken)
+    const Want& want, sptr<IAbilityConnection> connect, sptr<IRemoteObject> callerToken)
 {
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+ErrCode AbilityManagerClient::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     return ERR_OK;
 }
 
 sptr<IAbilityScheduler> AbilityManagerClient::AcquireDataAbility(
-    const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken)
+    const Uri& uri, bool tryBind, sptr<IRemoteObject> callerToken)
 {
     return nullptr;
 }
 
 ErrCode AbilityManagerClient::ReleaseDataAbility(
-    sptr<IAbilityScheduler> dataAbilityScheduler, const sptr<IRemoteObject>& callerToken)
+    sptr<IAbilityScheduler> dataAbilityScheduler, sptr<IRemoteObject> callerToken)
 {
     return ERR_OK;
 }
@@ -140,7 +140,7 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
-ErrCode AbilityManagerClient::StopServiceAbility(const Want& want, const sptr<IRemoteObject>& callerToken)
+ErrCode AbilityManagerClient::StopServiceAbility(const Want& want, sptr<IRemoteObject> callerToken)
 {
     return ERR_OK;
 }
@@ -155,12 +155,12 @@ ErrCode AbilityManagerClient::StartAbility(const Want& want, int requestCode)
     return MockAbilityManagerClient::GetInstance()->GetStartAbility();
 }
 
-ErrCode AbilityManagerClient::StartAbility(const Want& want, const sptr<IRemoteObject>& callerToken, int requestCode)
+ErrCode AbilityManagerClient::StartAbility(const Want& want, sptr<IRemoteObject> callerToken, int requestCode)
 {
     return MockAbilityManagerClient::GetInstance()->GetStartAbility();
 }
 
-ErrCode AbilityManagerClient::TerminateAbility(const sptr<IRemoteObject>& callerToken, int requestCode)
+ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> callerToken, int requestCode)
 {
     MockAbilityManagerClient::GetInstance()->SetTerminateAbilityValue(requestCode);
     return MockAbilityManagerClient::GetInstance()->GetTerminateAbility();

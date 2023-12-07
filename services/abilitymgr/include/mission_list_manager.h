@@ -348,6 +348,8 @@ public:
         const AAFwk::ContinueState &state);
 
     int32_t MoveMissionToBackground(int32_t missionId);
+
+    bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 #ifdef SUPPORT_GRAPHICS
 public:
     /**
@@ -520,6 +522,9 @@ private:
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);
+
+    void ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo, int64_t type,
+        const std::shared_ptr<AbilityRecord> &callerAbility);
 
     int userId_;
     mutable ffrt::mutex managerLock_;

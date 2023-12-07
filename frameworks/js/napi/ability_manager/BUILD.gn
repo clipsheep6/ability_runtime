@@ -24,6 +24,7 @@ template("abilitymanager") {
 
     sources = [
       "ability_manager_module.cpp",
+      "js_ability_foreground_state_observer.cpp",
       "js_ability_manager.cpp",
       "js_ability_manager_utils.cpp",
     ]
@@ -36,6 +37,7 @@ template("abilitymanager") {
 
     deps = [
       "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+      "${ability_runtime_innerkits_path}/app_manager:app_manager",
       "${ability_runtime_innerkits_path}/runtime:runtime",
       "${ability_runtime_napi_path}/inner/napi_common:napi_common",
       "${ability_runtime_native_path}/ability/native:ability_business_error",

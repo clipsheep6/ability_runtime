@@ -302,7 +302,7 @@ private:
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
 
     bool CheckUriParam(const Uri &uri);
-    bool CheckOhosUri(const Uri &uri);
+    bool CheckOhosUri(const Uri &checkUri);
 
     sptr<AAFwk::IAbilityScheduler> GetDataAbilityProxy(const Uri &uri, bool addDeathRecipient = true);
 

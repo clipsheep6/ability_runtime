@@ -88,6 +88,7 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, Flags, 0x00008000, "FLAG_ABILITY_CLEAR_MISSION");
     SetNamedProperty(env, Flags, 0x10000000, "FLAG_ABILITY_NEW_MISSION");
     SetNamedProperty(env, Flags, 0x20000000, "FLAG_ABILITY_MISSION_TOP");
+    SetNamedProperty(env, Flags, 0x40000000, "FLAG_START_WITHOUT_TIPS");
 
 #ifdef ENABLE_ERRCODE
     napi_value params = nullptr;

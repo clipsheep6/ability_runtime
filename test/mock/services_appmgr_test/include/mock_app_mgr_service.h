@@ -49,7 +49,7 @@ public:
     MOCK_METHOD0(GetAmsMgr, sptr<IAmsMgr>());
     MOCK_METHOD1(GetAppFreezingTime, void(int& time));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
-    MOCK_METHOD1(ClearUpApplicationData, int32_t(const std::string& bundleName));
+    MOCK_METHOD2(ClearUpApplicationData, int32_t(const std::string& bundleName, int32_t userId));
     MOCK_METHOD1(StartupResidentProcess, void(const std::vector<AppExecFwk::BundleInfo>& bundleInfos));
     MOCK_METHOD1(AddAbilityStageDone, void(const int32_t recordId));
     MOCK_METHOD0(PreStartNWebSpawnProcess, int());
@@ -60,6 +60,8 @@ public:
         const std::vector<std::string>& bundleNameList));
     MOCK_METHOD1(UnregisterApplicationStateObserver, int32_t(const sptr<IApplicationStateObserver>& observer));
     MOCK_METHOD3(ScheduleAcceptWantDone,
+        void(const int32_t recordId, const AAFwk::Want& want, const std::string& flag));
+    MOCK_METHOD3(ScheduleNewProcessRequestDone,
         void(const int32_t recordId, const AAFwk::Want& want, const std::string& flag));
     MOCK_METHOD2(GetAbilityRecordsByProcessID, int(const int pid, std::vector<sptr<IRemoteObject>>& tokens));
     MOCK_METHOD1(GetConfiguration, int32_t(Configuration& config));
@@ -83,8 +85,39 @@ public:
     MOCK_METHOD2(GetProcessMemoryByPid, int32_t(const int32_t pid, int32_t & memorySize));
     MOCK_METHOD3(GetRunningProcessInformation, int32_t(const std::string & bundleName, int32_t userId,
         std::vector<RunningProcessInfo> &info));
+    MOCK_METHOD2(IsApplicationRunning, int32_t(const std::string &bundleName, bool &isRunning));
     virtual int StartUserTestProcess(
-        const AAFwk::Want& want, const sptr<IRemoteObject>& observer, const BundleInfo& bundleInfo, int32_t userId)
+        const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)
+    {
+        return 0;
+    }
+
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
+    virtual int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
+    virtual int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
+    virtual int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+    {
+        return 0;
+    }
+
+    virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
     {
         return 0;
     }
@@ -172,6 +205,16 @@ public:
     int code_;
 
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state)
+    {
+        return 0;
+    }
+
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+    {
+        return 0;
+    }
+
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
     {
         return 0;
     }

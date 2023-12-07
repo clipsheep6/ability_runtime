@@ -934,6 +934,7 @@ HWTEST_F(ApplicationContextTest, SetColorMode_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     int32_t colorMode = 1;
     context_->SetColorMode(colorMode);
+    EXPECT_EQ(colorMode, 1);
     GTEST_LOG_(INFO) << "SetColorMode_0100 end";
 }
 
@@ -948,6 +949,7 @@ HWTEST_F(ApplicationContextTest, SetLanguage_0100, TestSize.Level1)
     EXPECT_NE(context_, nullptr);
     std::string language = "zh-cn";
     context_->SetLanguage(language);
+    EXPECT_EQ(language, "zh-cn");
     GTEST_LOG_(INFO) << "SetLanguage_0100 end";
 }
 
@@ -1092,6 +1094,23 @@ HWTEST_F(ApplicationContextTest, SetApplicationInfoUpdateFlag_0100, TestSize.Lev
     bool flag = true;
     context_->SetApplicationInfoUpdateFlag(flag);
     GTEST_LOG_(INFO) << "SetApplicationInfoUpdateFlag_0100 end";
+}
+
+/**
+ * @tc.number: CreateModuleResourceManager_0100
+ * @tc.name: CreateModuleResourceManager
+ * @tc.desc: Create ModuleContext failed
+ */
+HWTEST_F(ApplicationContextTest, CreateModuleResourceManager_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::string moduleName = "moduleName";
+    std::string bundleName = "com.test.bundleName";
+    auto ret = context_->CreateModuleResourceManager(bundleName, moduleName);
+    EXPECT_EQ(ret, nullptr);
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 end";
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -90,6 +90,27 @@ ErrCode AppControlProxy::GetAppRunningControlRule(
     return ERR_OK;
 }
 
+ErrCode AppControlProxy::GetAbilityRunningControlRule(
+    const std::string &bundleName, int32_t userId, std::vector<DisposedRule> &disposedRuleList)
+{
+    if (bundleName == "com.acts.disposedrulehap") {
+        DisposedRule disposedRule;
+        ElementName element;
+
+        disposedRule.priority = 0;
+        disposedRule.disposedType = AppExecFwk::DisposedType::BLOCK_ABILITY;
+        disposedRule.controlType = AppExecFwk::ControlType::DISALLOWED_LIST;
+        element.SetAbilityName("MainAbility2");
+        element.SetModuleName("entry");
+        disposedRule.elementList.push_back(element);
+        (*disposedRule.want).SetElementName("com.example.disposedruletest",
+            "DisposedAbility2");
+        disposedRuleList.push_back(disposedRule);
+        return ERR_OK;
+    }
+    return ERR_INVALID_VALUE;
+}
+
 ErrCode AppControlProxy::ConfirmAppJumpControlRule(const std::string &callerBundleName,
     const std::string &targetBundleName, int32_t userId)
 {

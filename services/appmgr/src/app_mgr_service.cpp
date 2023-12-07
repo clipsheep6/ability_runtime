@@ -16,23 +16,20 @@
 #include "app_mgr_service.h"
 
 #include <chrono>
-#include <thread>
-
 #include <nlohmann/json.hpp>
 #include <sys/types.h>
-
-#include "datetime_ex.h"
-#include "ipc_skeleton.h"
-#include "system_ability_definition.h"
+#include <thread>
 
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
+#include "datetime_ex.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "ipc_skeleton.h"
 #include "perf_profile.h"
-
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "system_ability_definition.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -175,7 +172,10 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
     AddAppDeathRecipient(pid);
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
-    taskHandler_->SubmitTask(attachApplicationFunc, TASK_ATTACH_APPLICATION);
+    taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ATTACH_APPLICATION,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::ApplicationForegrounded(const int32_t recordId)
@@ -188,7 +188,10 @@ void AppMgrService::ApplicationForegrounded(const int32_t recordId)
     }
     std::function<void()> applicationForegroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationForegrounded, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(applicationForegroundedFunc, TASK_APPLICATION_FOREGROUNDED);
+    taskHandler_->SubmitTask(applicationForegroundedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_APPLICATION_FOREGROUNDED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
@@ -201,7 +204,10 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     }
     std::function<void()> applicationBackgroundedFunc =
         std::bind(&AppMgrServiceInner::ApplicationBackgrounded, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(applicationBackgroundedFunc, TASK_APPLICATION_BACKGROUNDED);
+    taskHandler_->SubmitTask(applicationBackgroundedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_APPLICATION_BACKGROUNDED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::ApplicationTerminated(const int32_t recordId)
@@ -214,7 +220,10 @@ void AppMgrService::ApplicationTerminated(const int32_t recordId)
     }
     std::function<void()> applicationTerminatedFunc =
         std::bind(&AppMgrServiceInner::ApplicationTerminated, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(applicationTerminatedFunc, TASK_APPLICATION_TERMINATED);
+    taskHandler_->SubmitTask(applicationTerminatedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_APPLICATION_TERMINATED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
@@ -232,7 +241,10 @@ void AppMgrService::AbilityCleaned(const sptr<IRemoteObject> &token)
 
     std::function<void()> abilityCleanedFunc =
         std::bind(&AppMgrServiceInner::AbilityTerminated, appMgrServiceInner_, token);
-    taskHandler_->SubmitTask(abilityCleanedFunc, TASK_ABILITY_CLEANED);
+    taskHandler_->SubmitTask(abilityCleanedFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ABILITY_CLEANED,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 bool AppMgrService::IsReady() const
@@ -272,7 +284,10 @@ void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleI
     HILOG_INFO("Notify start resident process");
     std::function <void()> startupResidentProcess =
         std::bind(&AppMgrServiceInner::LoadResidentProcess, appMgrServiceInner_, bundleInfos);
-    taskHandler_->SubmitTask(startupResidentProcess, TASK_STARTUP_RESIDENT_PROCESS);
+    taskHandler_->SubmitTask(startupResidentProcess, AAFwk::TaskAttribute{
+        .taskName_ = TASK_STARTUP_RESIDENT_PROCESS,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 sptr<IAmsMgr> AppMgrService::GetAmsMgr()
@@ -280,7 +295,7 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
     return amsMgrScheduler_;
 }
 
-int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
+int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
     auto bundleMgr = remoteClientManager->GetBundleManager();
@@ -289,19 +304,21 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
-    std::string callerBundleName;
-    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
-    if (result != ERR_OK) {
-        HILOG_ERROR("GetBundleName failed: %{public}d", result);
-        return ERR_INVALID_OPERATION;
-    }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall && bundleName != callerBundleName) {
-        auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-            AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
-        if (!isCallingPerm) {
-            HILOG_ERROR("Permission verification failed");
-            return ERR_PERMISSION_DENIED;
+    if (callingUid != 0 || userId < 0) {
+        std::string callerBundleName;
+        auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+        if (result != ERR_OK) {
+            HILOG_ERROR("GetBundleName failed: %{public}d", result);
+            return ERR_INVALID_OPERATION;
+        }
+        auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+        if (!isSaCall && bundleName != callerBundleName) {
+            auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+                AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
+            if (!isCallingPerm) {
+                HILOG_ERROR("Permission verification failed");
+                return ERR_PERMISSION_DENIED;
+            }
         }
     }
 
@@ -311,7 +328,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName)
     int32_t uid = IPCSkeleton::GetCallingUid();
     pid_t pid = IPCSkeleton::GetCallingPid();
     std::function<void()> clearUpApplicationDataFunc =
-        std::bind(&AppMgrServiceInner::ClearUpApplicationData, appMgrServiceInner_, bundleName, uid, pid);
+        std::bind(&AppMgrServiceInner::ClearUpApplicationData, appMgrServiceInner_, bundleName, uid, pid, userId);
     taskHandler_->SubmitTask(clearUpApplicationDataFunc, TASK_CLEAR_UP_APPLICATION_DATA);
     return ERR_OK;
 }
@@ -390,7 +407,10 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     }
     std::function <void()> addAbilityStageDone =
         std::bind(&AppMgrServiceInner::AddAbilityStageDone, appMgrServiceInner_, recordId);
-    taskHandler_->SubmitTask(addAbilityStageDone, TASK_ADD_ABILITY_STAGE_DONE);
+    taskHandler_->SubmitTask(addAbilityStageDone, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ADD_ABILITY_STAGE_DONE,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 int32_t AppMgrService::RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
@@ -412,6 +432,26 @@ int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicatio
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->UnregisterApplicationStateObserver(observer);
+}
+
+int32_t AppMgrService::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAbilityForegroundStateObserver(observer);
+}
+
+int32_t AppMgrService::UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAbilityForegroundStateObserver(observer);
 }
 
 int32_t AppMgrService::GetForegroundApplications(std::vector<AppStateData> &list)
@@ -525,6 +565,20 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
     taskHandler_->SubmitTask(task);
 }
 
+void AppMgrService::ScheduleNewProcessRequestDone(const int32_t recordId, const AAFwk::Want &want,
+    const std::string &flag)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("not ready");
+        return;
+    }
+    if (!JudgeSelfCalledByRecordId(recordId)) {
+        return;
+    }
+    auto task = [=]() { appMgrServiceInner_->ScheduleNewProcessRequestDone(recordId, want, flag); };
+    taskHandler_->SubmitTask(task, AAFwk::TaskQoS::USER_INTERACTIVE);
+}
+
 int AppMgrService::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (!IsReady()) {
@@ -573,7 +627,10 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
     auto pid = IPCSkeleton::GetCallingPid();
     auto fun = std::bind(&AppMgrServiceInner::AttachRenderProcess,
         appMgrServiceInner_, pid, iface_cast<IRenderScheduler>(scheduler));
-    taskHandler_->SubmitTask(fun, TASK_ATTACH_RENDER_PROCESS);
+    taskHandler_->SubmitTask(fun, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ATTACH_RENDER_PROCESS,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 
 int32_t AppMgrService::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
@@ -870,6 +927,54 @@ int32_t AppMgrService::NotifyPageHide(const sptr<IRemoteObject> &token, const Pa
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyPageHide(token, pageStateData);
+}
+
+int32_t AppMgrService::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAppRunningStatusListener(listener);
+}
+
+int32_t AppMgrService::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAppRunningStatusListener(listener);
+}
+
+int32_t AppMgrService::RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RegisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrService::UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UnregisterAppForegroundStateObserver(observer);
+}
+
+int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->IsApplicationRunning(bundleName, isRunning);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

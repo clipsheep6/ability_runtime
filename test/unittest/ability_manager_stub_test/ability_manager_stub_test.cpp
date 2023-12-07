@@ -1570,6 +1570,22 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StopUserInner_001, TestSize.
 
 /*
  * Feature: AbilityManagerService
+ * Function: LogoutUserInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService LogoutUserInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function LogoutUserInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_LogoutUserInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->LogoutUserInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: GetAbilityRunningInfosInner
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetAbilityRunningInfosInner
@@ -2438,6 +2454,19 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_IsAbilityControllerStartInne
     Want want;
     data.WriteParcelable(&want);
     EXPECT_EQ(stub_->IsAbilityControllerStartInner(data, reply), NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStub_GetForegroundUIAbilitiesInner_001
+ * @tc.desc: Test function GetForegroundUIAbilitiesInner when normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetForegroundUIAbilitiesInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->GetForegroundUIAbilitiesInner(data, reply);
+    EXPECT_EQ(res, ERR_OK);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -193,6 +193,20 @@ public:
     const std::string &GetProcessName() const;
 
     /**
+     * @brief Obtains the the flag of specified process.
+     *
+     * @return Returns the the flag of specified process.
+     */
+    const std::string &GetSpecifiedProcessFlag() const;
+
+    /**
+     * @brief Setting the the flag of specified process.
+     *
+     * @param flag, the the flag of specified process.
+     */
+    void SetSpecifiedProcessFlag(const std::string &flag);
+
+    /**
      * @brief Obtains the sign code.
      *
      * @return Returns the sign code.
@@ -332,6 +346,8 @@ public:
     void AddAbilityStage();
 
     void AddAbilityStageBySpecifiedAbility(const std::string &bundleName);
+
+    void AddAbilityStageBySpecifiedProcess(const std::string &bundleName);
 
     /**
      * AddAbilityStage Result returned.
@@ -543,7 +559,10 @@ public:
      * @param state, ability or extension state.
      */
     void StateChangedNotifyObserver(
-        const std::shared_ptr<AbilityRunningRecord> &ability, int32_t state, bool isAbility);
+        const std::shared_ptr<AbilityRunningRecord> &ability,
+        int32_t state,
+        bool isAbility,
+        bool isFromWindowFocusChanged);
 
     void insertAbilityStageInfo(std::vector<HapModuleInfo> moduleInfos);
 
@@ -554,11 +573,17 @@ public:
 
     void SetProcessAndExtensionType(const std::shared_ptr<AbilityInfo> &abilityInfo);
     void SetSpecifiedAbilityFlagAndWant(const bool flag, const AAFwk::Want &want, const std::string &moduleName);
+    void SetScheduleNewProcessRequestState(const bool isNewProcessRequest, const AAFwk::Want &want,
+        const std::string &moduleName);
+    bool IsNewProcessRequest() const;
     bool IsStartSpecifiedAbility() const;
     void ScheduleAcceptWant(const std::string &moduleName);
     void ScheduleAcceptWantDone();
+    void ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName);
+    void ScheduleNewProcessRequestDone();
     void ApplicationTerminated();
     const AAFwk::Want &GetSpecifiedWant() const;
+    const AAFwk::Want &GetNewProcessRequestWant() const;
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
     void SetNativeDebug(bool isNativeDebug);
@@ -667,6 +692,8 @@ public:
     void SetApplicationPendingState(ApplicationPendingState pendingState);
     ApplicationPendingState GetApplicationPendingState() const;
 
+    void GetSplitModeAndFloatingMode(bool &isSplitScreenMode, bool &isFloatingWindowMode);
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -744,6 +771,7 @@ private:
     int32_t appRecordId_ = 0;
     std::string appName_;
     std::string processName_;  // the name of this process
+    std::string specifiedProcessFlag_; // the flag of specified Process
     int64_t eventId_ = 0;
     int64_t startProcessSpecifiedAbilityEventId_ = 0;
     int64_t addAbilityStageInfoEventId_ = 0;
@@ -769,6 +797,8 @@ private:
     bool isSpecifiedAbility_ = false;
     AAFwk::Want SpecifiedWant_;
     std::string moduleName_;
+    bool isNewProcessRequest_;
+    AAFwk::Want newProcessRequestWant_;
     bool isDebugApp_ = false;
     bool isNativeDebug_ = false;
     bool isAttachDebug_ = false;

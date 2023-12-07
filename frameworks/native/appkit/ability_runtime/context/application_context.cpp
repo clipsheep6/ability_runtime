@@ -290,6 +290,12 @@ std::shared_ptr<Context> ApplicationContext::CreateModuleContext(const std::stri
     return contextImpl_ ? contextImpl_->CreateModuleContext(bundleName, moduleName) : nullptr;
 }
 
+std::shared_ptr<Global::Resource::ResourceManager> ApplicationContext::CreateModuleResourceManager(
+    const std::string &bundleName, const std::string &moduleName)
+{
+    return contextImpl_ ? contextImpl_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
+}
+
 std::shared_ptr<AppExecFwk::ApplicationInfo> ApplicationContext::GetApplicationInfo() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetApplicationInfo() : nullptr;

@@ -302,7 +302,7 @@ HWTEST_F(AppMgrServiceTest, ClearUpApplicationData_001, TestSize.Level0)
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int32_t res = appMgrService->ClearUpApplicationData(bundleName);
-    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 
 /*
@@ -1353,6 +1353,27 @@ HWTEST_F(AppMgrServiceTest, ChangeAppGcState_001, TestSize.Level1)
     int32_t res = appMgrService->ChangeAppGcState(0, 0);
     EXPECT_EQ(ERR_INVALID_VALUE, res);
     appMgrService->appMgrServiceInner_ = nullptr;
+}
+
+/**
+ * @tc.name: IsApplicationRunning_001
+ * @tc.desc: Determine that the application is running by returning a value.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(nullptr);
+    
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+
+    std::string bundleName = "test_bundleName";
+    bool isRunning = false;
+    int32_t res = appMgrService->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(res, ERR_OK);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

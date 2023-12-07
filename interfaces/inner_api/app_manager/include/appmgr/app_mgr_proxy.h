@@ -16,12 +16,11 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 #define OHOS_ABILITY_RUNTIME_APP_MGR_PROXY_H
 
-#include "iremote_proxy.h"
-#include "want.h"
-
+#include "app_malloc_info.h"
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
-#include "app_malloc_info.h"
+#include "iremote_proxy.h"
+#include "want.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -97,7 +96,8 @@ public:
      * @param bundleName, bundle name in Application record.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) override;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
+        const int32_t userId = -1) override;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -191,6 +191,20 @@ public:
     virtual int32_t UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer) override;
 
     /**
+     * Register application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application or process state observer.
+     * @param observer, Is ability foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer) override;
+
+    /**
      * Get foreground applications.
      * @param list, foreground apps.
      * @return Returns ERR_OK on success, others on failure.
@@ -220,6 +234,9 @@ public:
         const std::string &msg, const int64_t &resultCode, const std::string &bundleName) override;
 
     virtual void ScheduleAcceptWantDone(
+        const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
+
+    virtual void ScheduleNewProcessRequestDone(
         const int32_t recordId, const AAFwk::Want &want, const std::string &flag) override;
 
     /**
@@ -378,6 +395,45 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state) override;
+
+    /**
+     * Register appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
+
+    /**
+     * Unregister appRunning status listener.
+     *
+     * @param listener Running status listener.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener) override;
+
+    /**
+     * Register application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RegisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Unregister application foreground state observer.
+     * @param observer, app Is app foreground state observer
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
+
+    /**
+     * Check whether the bundle is running.
+     * 
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);

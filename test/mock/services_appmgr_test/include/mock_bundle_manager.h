@@ -167,8 +167,8 @@ public:
 
 class QuickFixManagerHostImpl : public QuickFixManagerHost {
 public:
-    MOCK_METHOD2(DeployQuickFix, ErrCode(const std::vector<std::string>& bundleFilePaths,
-        const sptr<IQuickFixStatusCallback>& statusCallback));
+    MOCK_METHOD3(DeployQuickFix, ErrCode(const std::vector<std::string>& bundleFilePaths,
+        const sptr<IQuickFixStatusCallback>& statusCallback, bool isDebug));
     MOCK_METHOD3(SwitchQuickFix, ErrCode(const std::string& bundleName, bool enable,
         const sptr<IQuickFixStatusCallback>& statusCallback));
     MOCK_METHOD2(DeleteQuickFix, ErrCode(const std::string& bundleName,

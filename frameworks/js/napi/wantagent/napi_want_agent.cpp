@@ -571,7 +571,7 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        HILOG_ERROR("Parse pWantAgent error");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -999,7 +999,7 @@ napi_value JsWantAgent::OnGetWantAgent(napi_env env, napi_callback_info info)
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
     int32_t ret = GetWantAgentParam(env, info, *spParas);
     if (ret != 0) {
-        HILOG_ERROR("Failed to get wantAgent param.");
+        HILOG_ERROR("Failed to get wantAgent parameter.");
         return RetErrMsg(env, lastParam, ret);
     }
 
@@ -1070,7 +1070,7 @@ napi_value JsWantAgent::OnNapiGetWant(napi_env env, napi_callback_info info)
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnNapiGetWant NapiAsyncTask is called");
+        HILOG_DEBUG("OnNapiGetWant NapiAsyncTask is start");
         std::shared_ptr<Want> want = std::make_shared<Want>();
         ErrCode result = WantAgentHelper::GetWant(wantAgent, want);
         if (result != NO_ERROR) {
@@ -1300,6 +1300,8 @@ napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
 
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
+    napi_set_named_property(env, exportObj, "actionFlags", WantAgentFlagsInit(env));
+    napi_set_named_property(env, exportObj, "actionType", WantAgentOperationTypeInit(env));
 
     HILOG_DEBUG("JsWantAgentInit BindNativeFunction called");
     const char* moduleName = "JsWantAgent";

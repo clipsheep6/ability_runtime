@@ -142,6 +142,9 @@ public:
     void ScheduleAcceptWant(const AAFwk::Want& want, const std::string& moduleName) override
     {}
 
+    void ScheduleNewProcessRequest(const AAFwk::Want& want, const std::string& moduleName) override
+    {}
+
     int32_t ScheduleNotifyLoadRepairPatch(const std::string& bundleName,
         const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
     {
@@ -304,12 +307,18 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_001, Test
         EXPECT_TRUE(caseAbilityRunningRecord == nullptr);
         caseAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
         EXPECT_EQ(caseAbilityRunningRecord, appRunningRecord->GetAbilityRunningRecordByToken(token));
-        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_CREATE);
+        appRunningRecord->SetState(ApplicationState::APP_STATE_CREATE);
+        appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
+        EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_CREATE);
+        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_FOREGROUND);
         appRunningRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
         appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_FOREGROUND);
-        EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_FOREGROUND);
+        EXPECT_EQ(appRunningRecord->GetState(), ApplicationState::APP_STATE_FOREGROUND);
+        caseAbilityRunningRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
+        appRunningRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
         appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_BACKGROUND);
-        EXPECT_EQ(caseAbilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_BACKGROUND);
+        EXPECT_EQ(appRunningRecord->GetState(), ApplicationState::APP_STATE_BACKGROUND);
     }
     HILOG_INFO("UpdateAbilityRunningRecord_001 end");
 }

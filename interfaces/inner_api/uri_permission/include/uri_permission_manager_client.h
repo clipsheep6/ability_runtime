@@ -35,10 +35,8 @@ public:
      * @param uri The file uri.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
-     * @param autoremove the uri is temperarily or not
      */
-    int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int autoremove, int32_t appIndex = 0);
+    int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName, int32_t appIndex = 0);
 
     /**
      * @brief Authorize the uri permission of to targetBundleName.
@@ -46,10 +44,9 @@ public:
      * @param uriVec The file uri list.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
-     * @param autoremove the uri is temperarily or not
      */
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int autoremove, int32_t appIndex = 0);
+        const std::string targetBundleName, int32_t appIndex = 0);
 
     /**
      * @brief Clear user's uri authorization record with auto remove flag.

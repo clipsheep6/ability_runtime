@@ -19,6 +19,9 @@ class AbilityStage {
   onAcceptWant(want) {
     console.log('onAcceptWant, want:' + want.abilityName);
   }
+  onNewProcessRequest(want) {
+    console.log('onNewProcessRequest, want:' + want.abilityName);
+  }
   onConfigurationUpdated(config) { }
   onConfigurationUpdate(newConfig) { }
   onMemoryLevel(level) { }

@@ -113,5 +113,16 @@ HWTEST_F(OsAccountManagerWrapperTest, RemoveOsAccount_0100, TestSize.Level0)
     EXPECT_EQ(ret, RESULT_OK);
 }
 #endif // OS_ACCOUNT_PART_ENABLED
+
+/**
+ * @tc.name: GetCurrentActiveAccountId_0100
+ * @tc.desc: Get current accountId.
+ * @tc.type: FUNC
+ */
+HWTEST_F(OsAccountManagerWrapperTest, GetCurrentActiveAccountId_0100, TestSize.Level0)
+{
+    int ret = DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->GetCurrentActiveAccountId();
+    EXPECT_EQ(ret, 0);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

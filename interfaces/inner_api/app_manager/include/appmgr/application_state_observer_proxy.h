@@ -72,11 +72,18 @@ public:
 
     /**
      * Application state changed callback.
+     * Only observe APP_STATE_CREATE and APP_STATE_TERMINATED
      *
      * @param appStateData Application state data.
      */
     virtual void OnApplicationStateChanged(const AppStateData &appStateData) override;
 
+    /**
+     * Application state changed callback.
+     * Only observe APP_STATE_FOREGROUND and APP_STATE_BACKGROUND
+     *
+     * @param appStateData Application state data.
+     */
     virtual void OnAppStateChanged(const AppStateData &appStateData) override;
 
     virtual void OnProcessReused(const ProcessData &processData) override;
