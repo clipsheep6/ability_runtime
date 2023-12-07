@@ -2328,9 +2328,22 @@ bool AbilityConnectManager::CheckUIExtensionAbilityLoaded(const AbilityRequest &
         return true;
     }
 
-    HILOG_INFO("UIExtensionAbility id: %{public}d.", uiExtensionAbilityId);
-    auto ret = uiExtensionAbilityRecordMgr_->CheckExtensionLoaded(
-        uiExtensionAbilityId, abilityRequest.abilityInfo.bundleName);
+    auto callerToken = abilityRequest.callerToken;
+    if (callerToken == nullptr) {
+        HILOG_ERROR("Caller token is invalid.");
+        return false;
+    }
+
+    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (callerRecord == nullptr) {
+        HILOG_ERROR("Caller record is invalid.");
+        return false;
+    }
+
+    auto hostBundleName = callerRecord->GetAbilityInfo().bundleName;
+    HILOG_INFO("UIExtensionAbility id: %{public}d, host bundle name: %{private}s.", uiExtensionAbilityId,
+        hostBundleName.c_str());
+    auto ret = uiExtensionAbilityRecordMgr_->CheckExtensionLoaded(uiExtensionAbilityId, hostBundleName);
     HILOG_DEBUG("UIExtensionAbility loaded status: %{public}s.", ret ? "true" : "false");
     return ret;
 }
