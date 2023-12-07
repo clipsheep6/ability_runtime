@@ -29,6 +29,7 @@
 #include "app_mgr_service.h"
 #include "app_process_data.h"
 #include "app_state_observer_manager.h"
+#include "app_utils.h"
 #include "appfreeze_manager.h"
 #include "application_state_observer_stub.h"
 #include "appspawn_mount_permission.h"
@@ -757,6 +758,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     }
 
     KillRenderProcess(appRecord);
+    KillChildProcess(appRecord);
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
@@ -2368,11 +2370,15 @@ void AppMgrServiceInner::ClearRecentAppList()
     appProcessManager_->ClearRecentAppList();
 }
 
-void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess)
+void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess, bool isChildProcess)
 {
     HILOG_ERROR("On remote died.");
     if (isRenderProcess) {
         OnRenderRemoteDied(remote);
+        return;
+    }
+    if (isChildProcess) {
+        OnChildProcessRemoteDied(remote);
         return;
     }
 
@@ -2410,6 +2416,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
 
     // kill render if exist.
     KillRenderProcess(appRecord);
+    KillChildProcess(appRecord);
 
     if (appRecord->GetPriorityObject() != nullptr) {
         SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
@@ -4945,6 +4952,218 @@ int32_t AppMgrServiceInner::UnregisterAppRunningStatusListener(const sptr<IRemot
     CHECK_IS_SA_CALL(listener);
     auto appRunningStatusListener = iface_cast<AbilityRuntime::AppRunningStatusListenerInterface>(listener);
     return appRunningStatusModule_->UnregisterListener(appRunningStatusListener);
+}
+
+int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid)
+{
+    HILOG_INFO("StarChildProcess, hostPid:%{public}d", hostPid);
+    auto errCode = StartChildProcessPreCheck(hostPid);
+    if (errCode != ERR_OK) {
+        return errCode;
+    }
+    if (hostPid <= 0 || srcEntry.empty()) {
+        HILOG_ERROR("Invalid param: hostPid:%{public}d srcEntry:%{private}s", hostPid, srcEntry.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is null");
+        return ERR_NO_INIT;
+    }
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    auto childProcessRecord = ChildProcessRecord::CreateChildProcessRecord(hostPid, srcEntry, appRecord);
+    return StartChildProcessImpl(childProcessRecord, appRecord, childPid);
+}
+
+int32_t AppMgrServiceInner::StartChildProcessPreCheck(const pid_t callingPid)
+{
+    if (!AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+        HILOG_ERROR("Multi process model is not enabled");
+        return ERR_INVALID_OPERATION;
+    }
+    auto appRecord = appRunningManager_->GetAppRunningRecordByChildProcessPid(callingPid);
+    if (appRecord) {
+        HILOG_ERROR("Already in child process.");
+        return ERR_ALREADY_EXISTS;
+    }
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
+    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid)
+{
+    HILOG_DEBUG("Called.");
+    if (!appRecord) {
+        HILOG_ERROR("No such appRecord, childPid:%{public}d.", childPid);
+        return ERR_NAME_NOT_FOUND;
+    }
+    if (!childProcessRecord) {
+        HILOG_ERROR("No such child process record, childPid:%{public}d.", childPid);
+        return ERR_NAME_NOT_FOUND;
+    }
+    auto spawnClient = remoteClientManager_->GetSpawnClient();
+    if (!spawnClient) {
+        HILOG_ERROR("spawnClient is null");
+        return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
+    }
+
+    AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
+    startMsg.procName = childProcessRecord->GetProcessName();
+    pid_t pid = 0;
+    ErrCode errCode = spawnClient->StartProcess(startMsg, pid);
+    if (FAILED(errCode)) {
+        HILOG_ERROR("failed to spawn new child process, errCode %{public}08x", errCode);
+        return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
+    }
+
+    childPid = pid;
+    childProcessRecord->SetPid(pid);
+    childProcessRecord->SetUid(startMsg.uid);
+    appRecord->AddChildProcessRecord(pid, childProcessRecord);
+    HILOG_INFO("Start child process success, pid:%{public}d, uid:%{public}d", pid, startMsg.uid);
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::GetChildProcessInfoForSelf(ChildProcessInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is null");
+        return ERR_NO_INIT;
+    }
+    auto callingPid = IPCSkeleton::GetCallingPid();
+    if (appRunningManager_->GetAppRunningRecordByPid(callingPid)) {
+        HILOG_DEBUG("record of callingPid is not child record.");
+        return ERR_NAME_NOT_FOUND;
+    }
+    auto appRecord = appRunningManager_->GetAppRunningRecordByChildProcessPid(callingPid);
+    if (!appRecord) {
+        HILOG_WARN("No such appRecord, childPid:%{public}d", callingPid);
+        return ERR_NAME_NOT_FOUND;
+    }
+    auto childRecordMap = appRecord->GetChildProcessRecordMap();
+    auto iter = childRecordMap.find(callingPid);
+    if (iter != childRecordMap.end()) {
+        auto childProcessRecord = iter->second;
+        return GetChildProcessInfo(childProcessRecord, appRecord, info);
+    }
+    return ERR_NAME_NOT_FOUND;
+}
+
+int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
+    const std::shared_ptr<AppRunningRecord> appRecord, ChildProcessInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    if (!childProcessRecord) {
+        HILOG_ERROR("No such child process record.");
+        return ERR_NAME_NOT_FOUND;
+    }
+    if (!appRecord) {
+        HILOG_ERROR("No such appRecord.");
+        return ERR_NAME_NOT_FOUND;
+    }
+    info.pid = childProcessRecord->GetPid();
+    info.hostPid = childProcessRecord->GetHostPid();
+    info.uid = childProcessRecord->GetUid();
+    info.bundleName = appRecord->GetBundleName();
+    info.processName = childProcessRecord->GetProcessName();
+    info.srcEntry = childProcessRecord->GetSrcEntry();
+    return ERR_OK;
+}
+
+void AppMgrServiceInner::AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler)
+{
+    HILOG_INFO("AttachChildProcess pid:%{public}d", pid);
+    if (pid <= 0) {
+        HILOG_ERROR("invalid child process pid:%{public}d", pid);
+        return;
+    }
+    if (!childScheduler) {
+        HILOG_ERROR("childScheduler is null");
+        return;
+    }
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is null");
+        return;
+    }
+    auto appRecord = appRunningManager_->GetAppRunningRecordByChildProcessPid(pid);
+    if (!appRecord) {
+        HILOG_ERROR("no such app Record, pid:%{public}d", pid);
+        return;
+    }
+    auto childRecord = appRecord->GetChildProcessRecordByPid(pid);
+    if (!childRecord) {
+        HILOG_ERROR("no such child process Record, pid:%{public}d", pid);
+        return;
+    }
+
+    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
+    appDeathRecipient->SetTaskHandler(taskHandler_);
+    appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
+    appDeathRecipient->SetIsChildProcess(true);
+    childRecord->SetScheduler(childScheduler);
+    childRecord->SetDeathRecipient(appDeathRecipient);
+    childRecord->RegisterDeathRecipient();
+
+    childScheduler->ScheduleLoadJs();
+}
+
+void AppMgrServiceInner::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    if (appRunningManager_) {
+        auto childRecord = appRunningManager_->OnChildProcessRemoteDied(remote);
+    }
+}
+
+void AppMgrServiceInner::KillChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord) {
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return;
+    }
+    auto childRecordMap = appRecord->GetChildProcessRecordMap();
+    if (childRecordMap.empty()) {
+        return;
+    }
+    for (auto iter : childRecordMap) {
+        auto childRecord = iter.second;
+        if (childRecord && childRecord->GetPid() > 0) {
+            HILOG_DEBUG("Kill child process when host died.");
+            KillProcessByPid(childRecord->GetPid());
+        }
+    }
+}
+
+void AppMgrServiceInner::ExitChildProcessSafelyByChildPid(const pid_t pid)
+{
+    if (pid <= 0) {
+        HILOG_ERROR("pid <= 0.");
+        return;
+    }
+    auto appRecord = appRunningManager_->GetAppRunningRecordByChildProcessPid(pid);
+    if (!appRecord) {
+        HILOG_ERROR("no such app Record, pid:%{public}d", pid);
+        return;
+    }
+    auto childRecord = appRecord->GetChildProcessRecordByPid(pid);
+    if (!childRecord) {
+        HILOG_ERROR("no such child process Record, pid:%{public}d", pid);
+        return;
+    }
+    childRecord->ScheduleExitProcessSafely();
+    childRecord->RemoveDeathRecipient();
+    int64_t startTime = SystemTimeMillisecond();
+    std::list<pid_t> pids;
+    pids.push_back(pid);
+    if (WaitForRemoteProcessExit(pids, startTime)) {
+        HILOG_INFO("The remote child process exited successfully, pid:%{public}d.", pid);
+        appRecord->RemoveChildProcessRecord(childRecord);
+        return;
+    }
+    childRecord->RegisterDeathRecipient();
+    int32_t result = KillProcessByPid(pid);
+    if (result < 0) {
+        HILOG_ERROR("KillChildProcessByPid kill process is fail.");
+        return;
+    }
 }
 
 void AppMgrServiceInner::NotifyAppRunningStatusEvent(

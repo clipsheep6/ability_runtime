@@ -13,29 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_APP_UTILS_H
-#define OHOS_ABILITY_RUNTIME_APP_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_CHILD_SCHEDULER_PROXY_H
+#define OHOS_ABILITY_RUNTIME_CHILD_SCHEDULER_PROXY_H
 
-#include <string>
+#include "child_scheduler_interface.h"
 
-#include "nocopyable.h"
+#include "iremote_proxy.h"
 
 namespace OHOS {
-namespace AAFwk {
-class AppUtils {
+namespace AppExecFwk {
+class ChildSchedulerProxy : public IRemoteProxy<IChildScheduler> {
 public:
-    static AppUtils &GetInstance();
-    bool IsLauncher(const std::string &bundleName) const;
-    bool JudgePCDevice() const;
-    bool JudgeMultiProcessModelDevice() const;
+    explicit ChildSchedulerProxy(const sptr<IRemoteObject> &impl);
+    virtual ~ChildSchedulerProxy() = default;
+
+    void ScheduleLoadJs() override;
+    void ScheduleExitProcessSafely() override;
 
 private:
-    AppUtils();
-    ~AppUtils();
-    volatile bool isSceneBoard_ = false;
-    volatile bool isMultiProcesModelDevice_ = false;
-    DISALLOW_COPY_AND_MOVE(AppUtils);
+    bool WriteInterfaceToken(MessageParcel &data);
+    static inline BrokerDelegator<ChildSchedulerProxy> delegator_;
 };
-}  // namespace AAFwk
+}  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_UTILS_H
+
+#endif  // OHOS_ABILITY_RUNTIME_CHILD_SCHEDULER_PROXY_H

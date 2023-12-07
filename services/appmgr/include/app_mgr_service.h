@@ -408,6 +408,34 @@ public:
      */
     int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) override;
 
+    /**
+     * Start child process, called by ChildProcessManager.
+     *
+     * @param srcEntry Child process source file entrance path to be started.
+     * @param childPid Created child process pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) override;
+
+    /**
+     * Get child process record for self.
+     *
+     * @return child process info.
+     */
+    int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info) override;
+
+    /**
+     * Attach child process scheduler to app manager service.
+     *
+     * @param childScheduler scheduler of child process.
+     */
+    void AttachChildProcess(const sptr<IRemoteObject> &childScheduler) override;
+
+    /**
+     * Exit child process, called by itself.
+     */
+    void ExitChildProcessSafely() override;
+
 private:
     /**
      * Init, Initialize application services.

@@ -51,6 +51,8 @@ const std::string TASK_ADD_ABILITY_STAGE_DONE = "AddAbilityStageDone";
 const std::string TASK_START_USER_TEST_PROCESS = "StartUserTestProcess";
 const std::string TASK_FINISH_USER_TEST = "FinishUserTest";
 const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
+const std::string TASK_ATTACH_CHILD_PROCESS = "AttachChildProcessTask";
+const std::string TASK_EXIT_CHILD_PROCESS_SAFELY = "ExitChildProcessSafelyTask";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -975,6 +977,64 @@ int32_t AppMgrService::IsApplicationRunning(const std::string &bundleName, bool 
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->IsApplicationRunning(bundleName, isRunning);
+}
+
+int32_t AppMgrService::StartChildProcess(const std::string &srcEntry, pid_t &childPid)
+{
+    HILOG_DEBUG("Called.");
+    if (!IsReady()) {
+        HILOG_ERROR("StartChildProcess failed, AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->StartChildProcess(IPCSkeleton::GetCallingPid(), srcEntry, childPid);
+}
+
+int32_t AppMgrService::GetChildProcessInfoForSelf(ChildProcessInfo &info)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("StartChildProcess failed, AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->GetChildProcessInfoForSelf(info);
+}
+
+void AppMgrService::AttachChildProcess(const sptr<IRemoteObject> &childScheduler)
+{
+    HILOG_DEBUG("AttachChildProcess.");
+    if (!IsReady()) {
+        HILOG_ERROR("AttachChildProcess failed, not ready.");
+        return;
+    }
+    if (!taskHandler_) {
+        HILOG_ERROR("taskHandler_ is null.");
+        return;
+    }
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    std::function<void()> task = std::bind(&AppMgrServiceInner::AttachChildProcess,
+        appMgrServiceInner_, pid, iface_cast<IChildScheduler>(childScheduler));
+    taskHandler_->SubmitTask(task, AAFwk::TaskAttribute{
+        .taskName_ = TASK_ATTACH_CHILD_PROCESS,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
+}
+
+void AppMgrService::ExitChildProcessSafely()
+{
+    if (!IsReady()) {
+        HILOG_ERROR("ExitChildProcessSafely failed, AppMgrService not ready.");
+        return;
+    }
+    if (!taskHandler_) {
+        HILOG_ERROR("taskHandler_ is null.");
+        return;
+    }
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    std::function<void()> task = std::bind(&AppMgrServiceInner::ExitChildProcessSafelyByChildPid,
+        appMgrServiceInner_, pid);
+    taskHandler_->SubmitTask(task, AAFwk::TaskAttribute{
+        .taskName_ = TASK_EXIT_CHILD_PROCESS_SAFELY,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

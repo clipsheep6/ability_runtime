@@ -13,29 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_APP_UTILS_H
-#define OHOS_ABILITY_RUNTIME_APP_UTILS_H
+#ifndef OHOS_ABILITY_RUNTIME_CHILD_PROCESS_INFO_H
+#define OHOS_ABILITY_RUNTIME_CHILD_PROCESS_INFO_H
 
 #include <string>
 
-#include "nocopyable.h"
+#include "parcel.h"
 
 namespace OHOS {
-namespace AAFwk {
-class AppUtils {
-public:
-    static AppUtils &GetInstance();
-    bool IsLauncher(const std::string &bundleName) const;
-    bool JudgePCDevice() const;
-    bool JudgeMultiProcessModelDevice() const;
+namespace AppExecFwk {
+struct ChildProcessInfo : public Parcelable {
+    std::int32_t pid;
+    std::int32_t hostPid;
+    std::int32_t uid;
+    std::string bundleName;
+    std::string processName;
+    std::string srcEntry;
 
-private:
-    AppUtils();
-    ~AppUtils();
-    volatile bool isSceneBoard_ = false;
-    volatile bool isMultiProcesModelDevice_ = false;
-    DISALLOW_COPY_AND_MOVE(AppUtils);
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static ChildProcessInfo *Unmarshalling(Parcel &parcel);
 };
-}  // namespace AAFwk
+}  // namespace AppExecFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_APP_UTILS_H
+
+#endif  // OHOS_ABILITY_RUNTIME_CHILD_PROCESS_INFO_H

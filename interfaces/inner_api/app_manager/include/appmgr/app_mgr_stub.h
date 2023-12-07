@@ -116,6 +116,10 @@ private:
     int32_t HandleRegisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterAppForegroundStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsApplicationRunning(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleStartChildProcess(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetChildProcessInfoForSelf(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAttachChildProcess(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleExitChildProcessSafely(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

@@ -29,11 +29,13 @@
 #include "ability_util.h"
 #include "app_loader.h"
 #include "app_recovery.h"
+#include "app_utils.h"
 #include "appfreeze_inner.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "bundle_mgr_proxy.h"
 #include "hitrace_meter.h"
+#include "child_main_thread.h"
 #include "configuration_convertor.h"
 #include "common_event_manager.h"
 #include "context_deal.h"
@@ -2169,6 +2171,16 @@ void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("LoadLifecycle: MainThread start come.");
+
+    if (AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+        ChildProcessInfo info;
+        if (IsStartChild(info)) {
+            ChildMainThread::Start(info);
+            HILOG_DEBUG("MainThread::ChildMainThread end.");
+            return;
+        }
+    }
+
     std::shared_ptr<EventRunner> runner = EventRunner::GetMainEventRunner();
     if (runner == nullptr) {
         HILOG_ERROR("MainThread::main failed, runner is nullptr");
@@ -2197,6 +2209,22 @@ void MainThread::Start()
     }
 
     thread->RemoveAppMgrDeathRecipient();
+}
+
+bool MainThread::IsStartChild(ChildProcessInfo &info)
+{
+    HILOG_DEBUG("called.");
+    auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
+    if (object == nullptr) {
+        HILOG_ERROR("failed to get app manager service");
+        return false;
+    }
+    auto appMgr = iface_cast<IAppMgr>(object);
+    if (appMgr == nullptr) {
+        HILOG_ERROR("failed to iface_cast object to appMgr");
+        return false;
+    }
+    return appMgr->GetChildProcessInfoForSelf(info) == ERR_OK;
 }
 
 void MainThread::PreloadExtensionPlugin()

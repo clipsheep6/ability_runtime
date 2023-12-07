@@ -233,7 +233,10 @@ public:
      * @param abilityTokens Specify the stored ability token based on bundle name output.
      */
     void GetAbilityTokensByBundleName(const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens);
- 
+
+    std::shared_ptr<AppRunningRecord> GetAppRunningRecordByChildProcessPid(const pid_t pid);
+    std::shared_ptr<ChildProcessRecord> OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote);
+    
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(
