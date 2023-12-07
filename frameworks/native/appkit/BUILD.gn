@@ -395,6 +395,45 @@ config("application_context_manager_config") {
   include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context" ]
 }
 
+ohos_shared_library("appkit_manager_helper") {
+  include_dirs = [
+    "native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
+
+  configs = [ ":appkit_config" ]
+
+  sources = [ "${ability_runtime_native_path}/appkit/ability_bundle_manager_helper/bundle_mgr_helper.cpp" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = []
+
+  external_deps = [
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("application_context_manager") {
   sources = [ "${ability_runtime_native_path}/appkit/ability_runtime/context/application_context_manager.cpp" ]
 
