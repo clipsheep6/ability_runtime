@@ -299,6 +299,7 @@ group("unittest") {
     "ability_connect_callback_stub_test:unittest",
     "ability_connect_manager_test:unittest",
     "ability_connection_test:unittest",
+    "ability_debug_deal_test:unittest",
     "ability_debug_response_proxy_test:unittest",
     "ability_debug_response_stub_test:unittest",
     "ability_event_handler_test:unittest",
