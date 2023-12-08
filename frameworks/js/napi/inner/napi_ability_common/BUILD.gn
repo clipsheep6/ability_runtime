@@ -50,7 +50,7 @@ ohos_shared_library("napi_ability_common") {
     "common_event_service:cesfwk_innerkits",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
