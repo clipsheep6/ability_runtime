@@ -36,6 +36,34 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     napi_create_object(env, &entity);
     napi_create_object(env, &Flags);
 
+    SetActionNamedProperty(env, action);
+    SetFlagsNamedProperty(env, Flags);
+    SetEntityNamedProperty(env, entity);
+
+#ifdef ENABLE_ERRCODE
+    napi_value params = nullptr;
+    napi_create_object(env, &params);
+    SetParamsNamedProperty(env, params);
+    napi_property_descriptor exportFuncs[] = {
+        DECLARE_NAPI_PROPERTY("Action", action),
+        DECLARE_NAPI_PROPERTY("Entity", entity),
+        DECLARE_NAPI_PROPERTY("Params", params),
+        DECLARE_NAPI_PROPERTY("Flags", Flags),
+    };
+#else
+    napi_property_descriptor exportFuncs[] = {
+        DECLARE_NAPI_PROPERTY("Action", action),
+        DECLARE_NAPI_PROPERTY("Entity", entity),
+        DECLARE_NAPI_PROPERTY("Flags", Flags),
+    };
+#endif // ENABLE_ERRCODE
+    napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
+
+    return exports;
+}
+
+void SetActionNamedProperty(napi_env env, napi_value action)
+{
     SetNamedProperty(env, action, "ohos.want.action.home", "ACTION_HOME");
     SetNamedProperty(env, action, "ohos.want.action.dial", "ACTION_DIAL");
     SetNamedProperty(env, action, "ohos.want.action.search", "ACTION_SEARCH");
@@ -65,34 +93,40 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, action, "ohos.appAccount.action.auth", "ACTION_APP_ACCOUNT_AUTH");
     SetNamedProperty(env, action, "ohos.want.action.marketDownload", "ACTION_MARKET_DOWNLOAD");
     SetNamedProperty(env, action, "ohos.want.action.marketCrowdTest", "ACTION_MARKET_CROWDTEST");
+}
 
+void SetFlagsNamedProperty(napi_env env, napi_value flags)
+{
+    SetNamedProperty(env, flags, 0x00000001, "FLAG_AUTH_READ_URI_PERMISSION");
+    SetNamedProperty(env, flags, 0x00000002, "FLAG_AUTH_WRITE_URI_PERMISSION");
+    SetNamedProperty(env, flags, 0x00000004, "FLAG_ABILITY_FORWARD_RESULT");
+    SetNamedProperty(env, flags, 0x00000008, "FLAG_ABILITY_CONTINUATION");
+    SetNamedProperty(env, flags, 0x00000010, "FLAG_NOT_OHOS_COMPONENT");
+    SetNamedProperty(env, flags, 0x00000020, "FLAG_ABILITY_FORM_ENABLED");
+    SetNamedProperty(env, flags, 0x00000040, "FLAG_AUTH_PERSISTABLE_URI_PERMISSION");
+    SetNamedProperty(env, flags, 0x00000080, "FLAG_AUTH_PREFIX_URI_PERMISSION");
+    SetNamedProperty(env, flags, 0x00000100, "FLAG_ABILITYSLICE_MULTI_DEVICE");
+    SetNamedProperty(env, flags, 0x00000200, "FLAG_START_FOREGROUND_ABILITY");
+    SetNamedProperty(env, flags, 0x00000400, "FLAG_ABILITY_CONTINUATION_REVERSIBLE");
+    SetNamedProperty(env, flags, 0x00000800, "FLAG_INSTALL_ON_DEMAND");
+    SetNamedProperty(env, flags, 0x80000000, "FLAG_INSTALL_WITH_BACKGROUND_MODE");
+    SetNamedProperty(env, flags, 0x00008000, "FLAG_ABILITY_CLEAR_MISSION");
+    SetNamedProperty(env, flags, 0x10000000, "FLAG_ABILITY_NEW_MISSION");
+    SetNamedProperty(env, flags, 0x20000000, "FLAG_ABILITY_MISSION_TOP");
+    SetNamedProperty(env, flags, 0x40000000, "FLAG_START_WITHOUT_TIPS");
+}
+
+void SetEntityNamedProperty(napi_env env, napi_value entity)
+{
     SetNamedProperty(env, entity, "entity.system.default", "ENTITY_DEFAULT");
     SetNamedProperty(env, entity, "entity.system.home", "ENTITY_HOME");
     SetNamedProperty(env, entity, "entity.system.voice", "ENTITY_VOICE");
     SetNamedProperty(env, entity, "entity.system.browsable", "ENTITY_BROWSABLE");
     SetNamedProperty(env, entity, "entity.system.video", "ENTITY_VIDEO");
+}
 
-    SetNamedProperty(env, Flags, 0x00000001, "FLAG_AUTH_READ_URI_PERMISSION");
-    SetNamedProperty(env, Flags, 0x00000002, "FLAG_AUTH_WRITE_URI_PERMISSION");
-    SetNamedProperty(env, Flags, 0x00000004, "FLAG_ABILITY_FORWARD_RESULT");
-    SetNamedProperty(env, Flags, 0x00000008, "FLAG_ABILITY_CONTINUATION");
-    SetNamedProperty(env, Flags, 0x00000010, "FLAG_NOT_OHOS_COMPONENT");
-    SetNamedProperty(env, Flags, 0x00000020, "FLAG_ABILITY_FORM_ENABLED");
-    SetNamedProperty(env, Flags, 0x00000040, "FLAG_AUTH_PERSISTABLE_URI_PERMISSION");
-    SetNamedProperty(env, Flags, 0x00000080, "FLAG_AUTH_PREFIX_URI_PERMISSION");
-    SetNamedProperty(env, Flags, 0x00000100, "FLAG_ABILITYSLICE_MULTI_DEVICE");
-    SetNamedProperty(env, Flags, 0x00000200, "FLAG_START_FOREGROUND_ABILITY");
-    SetNamedProperty(env, Flags, 0x00000400, "FLAG_ABILITY_CONTINUATION_REVERSIBLE");
-    SetNamedProperty(env, Flags, 0x00000800, "FLAG_INSTALL_ON_DEMAND");
-    SetNamedProperty(env, Flags, 0x80000000, "FLAG_INSTALL_WITH_BACKGROUND_MODE");
-    SetNamedProperty(env, Flags, 0x00008000, "FLAG_ABILITY_CLEAR_MISSION");
-    SetNamedProperty(env, Flags, 0x10000000, "FLAG_ABILITY_NEW_MISSION");
-    SetNamedProperty(env, Flags, 0x20000000, "FLAG_ABILITY_MISSION_TOP");
-    SetNamedProperty(env, Flags, 0x40000000, "FLAG_START_WITHOUT_TIPS");
-
-#ifdef ENABLE_ERRCODE
-    napi_value params = nullptr;
-    napi_create_object(env, &params);
+void SetParamsNamedProperty(napi_env env, napi_value params)
+{
     SetNamedProperty(env, params, "ohos.dlp.params.sandbox", "DLP_PARAMS_SANDBOX");
     SetNamedProperty(env, params, "ohos.dlp.params.bundleName", "DLP_PARAMS_BUNDLE_NAME");
     SetNamedProperty(env, params, "ohos.dlp.params.moduleName", "DLP_PARAMS_MODULE_NAME");
@@ -105,22 +139,6 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, params, "ohos.extra.param.key.shareUrl", "SHARE_URL_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinuePageStack", "SUPPORT_CONTINUE_PAGE_STACK_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinueSourceExit", "SUPPORT_CONTINUE_SOURCE_EXIT_KEY");
-    napi_property_descriptor exportFuncs[] = {
-        DECLARE_NAPI_PROPERTY("Action", action),
-        DECLARE_NAPI_PROPERTY("Entity", entity),
-        DECLARE_NAPI_PROPERTY("Params", params),
-        DECLARE_NAPI_PROPERTY("Flags", Flags),
-    };
-#else
-    napi_property_descriptor exportFuncs[] = {
-        DECLARE_NAPI_PROPERTY("Action", action),
-        DECLARE_NAPI_PROPERTY("Entity", entity),
-        DECLARE_NAPI_PROPERTY("Flags", Flags),
-    };
-#endif // ENABLE_ERRCODE
-    napi_define_properties(env, exports, sizeof(exportFuncs) / sizeof(*exportFuncs), exportFuncs);
-
-    return exports;
 }
 
 void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, const char *propName)
