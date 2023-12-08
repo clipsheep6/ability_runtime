@@ -25,14 +25,12 @@ static napi_module _module = {
     .nm_filename = "application/libvpnextensioncontext_napi.so/VpnExtensionContext.js",
     .nm_modname = "application.VpnExtensionContext",
 };
-extern "C" __attribute__((constructor)) void
-NAPI_application_VpnExtensionContext_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_application_VpnExtensionContext_AutoRegister()
 {
     napi_module_register(&_module);
 }
 
-extern "C" __attribute__((visibility("default"))) void
-NAPI_application_VpnExtensionContext_GetJSCode(const char **buf, int *bufLen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_VpnExtensionContext_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_vpn_extension_context_js_start;
@@ -44,8 +42,7 @@ NAPI_application_VpnExtensionContext_GetJSCode(const char **buf, int *bufLen)
 }
 
 // ability_context JS register
-extern "C" __attribute__((visibility("default"))) void
-NAPI_application_VpnExtensionContext_GetABCCode(const char **buf, int *buflen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_VpnExtensionContext_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_vpn_extension_context_abc_start;

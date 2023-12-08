@@ -26,14 +26,12 @@ static napi_module _module = {
     .nm_filename = "app/ability/libvpnextensionability.so/vpn_extension_ability.js",
     .nm_modname = "app.ability.VpnExtensionAbility",
 };
-extern "C" __attribute__((constructor)) void
-NAPI_app_ability_VpnExtensionAbility_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_app_ability_VpnExtensionAbility_AutoRegister()
 {
     napi_module_register(&_module);
 }
 
-extern "C" __attribute__((visibility("default"))) void
-NAPI_app_ability_VpnExtensionAbility_GetJSCode(const char **buf, int *bufLen)
+extern "C" __attribute__((visibility("default"))) void NAPI_app_ability_VpnExtensionAbility_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_vpn_extension_ability_js_start;
@@ -44,8 +42,7 @@ NAPI_app_ability_VpnExtensionAbility_GetJSCode(const char **buf, int *bufLen)
     }
 }
 
-extern "C" __attribute__((visibility("default"))) void
-NAPI_app_ability_VpnExtensionAbility_GetABCCode(const char **buf, int *buflen)
+extern "C" __attribute__((visibility("default"))) void NAPI_app_ability_VpnExtensionAbility_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_vpn_extension_ability_abc_start;
@@ -60,14 +57,12 @@ static napi_module _module = {
     .nm_filename = "application/libvpnextensionability_napi.so/vpn_extension_ability.js",
     .nm_modname = "application.VpnExtensionAbility",
 };
-extern "C" __attribute__((constructor)) void
-NAPI_application_VpnExtensionAbility_AutoRegister()
+extern "C" __attribute__((constructor)) void NAPI_application_VpnExtensionAbility_AutoRegister()
 {
     napi_module_register(&_module);
 }
 
-extern "C" __attribute__((visibility("default"))) void
-NAPI_application_VpnExtensionAbility_GetJSCode(const char **buf, int *bufLen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_VpnExtensionAbility_GetJSCode(const char **buf, int *bufLen)
 {
     if (buf != nullptr) {
         *buf = _binary_vpn_extension_ability_js_start;
@@ -78,8 +73,7 @@ NAPI_application_VpnExtensionAbility_GetJSCode(const char **buf, int *bufLen)
     }
 }
 
-extern "C" __attribute__((visibility("default"))) void
-NAPI_application_VpnExtensionAbility_GetABCCode(const char **buf, int *buflen)
+extern "C" __attribute__((visibility("default"))) void NAPI_application_VpnExtensionAbility_GetABCCode(const char **buf, int *buflen)
 {
     if (buf != nullptr) {
         *buf = _binary_vpn_extension_ability_abc_start;
