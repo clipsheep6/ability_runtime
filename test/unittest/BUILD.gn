@@ -378,6 +378,7 @@ group("unittest") {
     "authorization_result_test:unittest",
     "auto_fill_manager_test:unittest",
     "background_task_observer_test:unittest",
+    "bundle_mgr_helper_test:unittest",
     "call_record_test:unittest",
     "child_process_manager_test:unittest",
     "completed_dispatcher_test:unittest",

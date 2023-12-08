@@ -14,42 +14,35 @@
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ability_runtime/abilitymgr"
+module_output_path = "ability_runtime/ability_bundle_manager_helper"
 
-ohos_unittest("uri_permission_test") {
+ohos_unittest("bundle_mgr_helper_test") {
   module_out_path = module_output_path
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
-  sources = [ "uri_permission_test.cpp" ]
 
-  configs = [
-    "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
-    "${ability_runtime_innerkits_path}/uri_permission:uripermkit_public_config",
-    "${ability_runtime_services_path}/uripermmgr:upms_config",
-  ]
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper/" ]
 
+  sources = [ "bundle_mgr_helper_test.cpp" ]
+
+  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
   deps = [
-    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
-    "${ability_runtime_services_path}/common:event_report",
-    "${ability_runtime_services_path}/uripermmgr:libupms_static",
+    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
-    "ability_base:zuri",
-    "access_token:libtokenid_sdk",
+    "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "init:libbeget_proxy",
-    "init:libbegetutil",
-    "relational_store:native_rdb",
-
-    # "ipc:ipc_core",
-    "storage_service:storage_manager_sa_proxy",
+    "c_utils:utils",
   ]
 }
 
 group("unittest") {
   testonly = true
 
-  deps = [ ":uri_permission_test" ]
+  deps = [ ":bundle_mgr_helper_test" ]
 }
