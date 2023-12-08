@@ -30,13 +30,6 @@ int main(int argc, char* argv[])
     } else if (strstr(argv[0], "ability_tool") != nullptr) {
         OHOS::AAFwk::AbilityToolCommand cmd(argc, argv);
         std::cout << cmd.ExecCommand();
-    } else {
-#ifdef A11Y_ENABLE
-        if (strstr(argv[0], "accessibility") != nullptr) {
-            OHOS::AAFwk::AccessibilityAbilityShellCommand cmd(argc, argv);
-            std::cout << cmd.ExecCommand();
-        }
-#endif // A11Y_ENABLE
     }
     fflush(stdout);
     _exit(0);
