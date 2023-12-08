@@ -518,7 +518,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isTestProcess = (appRecord->GetUserTestInfo() != nullptr);
     info.startTimeMillis_ = appRecord->GetAppStartTime();
     info.isAbilityForegrounding = appRecord->GetAbilityForegroundingFlag();
-    info.extensionType_ = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
+    info.extensionType_ = appRecord->GetExtensionType();
     info.processType_ = appRecord->GetProcessType();
 }
 
@@ -558,7 +558,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             appData.uid = appRecord->GetUid();
             appData.pid = appRecord->GetPriorityObject()->GetPid();
             appData.state = static_cast<int32_t>(ApplicationState::APP_STATE_FOREGROUND);
-            appData.extensionType = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
+            appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
             HILOG_INFO("%{public}s, bundleName:%{public}s", __func__, appData.bundleName.c_str());
