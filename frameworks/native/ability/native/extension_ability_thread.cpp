@@ -505,7 +505,7 @@ void ExtensionAbilityThread::ScheduleInsightIntentInner(const Want &want)
 void ExtensionAbilityThread::ScheduleCommandAbilityWindow(
     const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
-    HILOG_DEBUG("Begin.");
+    HILOG_DEBUG("Begin, winCmd: %{public}d.", winCmd);
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("abilityHandler_ is nullptr.");
         return;

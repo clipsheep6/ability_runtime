@@ -32,7 +32,7 @@ constexpr const char *CONTEXT_TEMP("temp");
 constexpr const char *CONTEXT_FILES("files");
 constexpr const char *CONTEXT_HAPS("haps");
 constexpr const char *CONTEXT_ASSET("asset");
-constexpr const char *CONTEXT_ELS[] = {"el1", "el2"};
+constexpr const char *CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
 constexpr int DIR_DEFAULT_PERM = 0770;
 }
 std::shared_ptr<AppExecFwk::Configuration> AbilityStageContext::GetConfiguration()

@@ -53,7 +53,8 @@ public:
     int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
     int32_t RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
     int32_t UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer);
-    void StateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
+    void StateChangedNotifyObserver(
+        const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged);
     void OnAppStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord, const ApplicationState state,
         bool needNotifyApp, bool isFromWindowFocusChanged);
     void OnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -71,7 +72,8 @@ private:
         bool needNotifyApp, bool isFromWindowFocusChanged);
     void HandleOnAppStarted(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnAppStopped(const std::shared_ptr<AppRunningRecord> &appRecord);
-    void HandleStateChangedNotifyObserver(const AbilityStateData abilityStateData, bool isAbility);
+    void HandleStateChangedNotifyObserver(
+        const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged);
     void HandleOnAppProcessCreated(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnRenderProcessCreated(const std::shared_ptr<RenderRecord> &RenderRecord);
     void HandleOnAppProcessDied(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -95,6 +97,7 @@ private:
 
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;
+    int32_t dummyCode_ = 0;
     ffrt::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;

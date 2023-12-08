@@ -29,7 +29,7 @@ JsEnvironmentCallback::JsEnvironmentCallback(napi_env env)
 int32_t JsEnvironmentCallback::serialNumber_ = 0;
 
 void JsEnvironmentCallback::CallConfigurationUpdatedInner(const std::string &methodName,
-    const AppExecFwk::Configuration &config, const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks)
+    const AppExecFwk::Configuration &config, const std::map<int32_t, std::shared_ptr<NativeReference>> &callbacks)
 {
     HILOG_DEBUG("CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks) {
@@ -76,7 +76,7 @@ void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configurati
 }
 
 void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level,
-    const std::map<int32_t, std::shared_ptr<NativeReference>> callbacks)
+    const std::map<int32_t, std::shared_ptr<NativeReference>> &callbacks)
 {
     HILOG_DEBUG("CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks) {

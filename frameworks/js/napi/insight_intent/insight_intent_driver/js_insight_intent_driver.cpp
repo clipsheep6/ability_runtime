@@ -43,31 +43,36 @@ constexpr size_t ARGC_ONE = 1;
 class JsInsightIntentExecuteCallbackClient : public InsightIntentExecuteCallbackInterface,
     public std::enable_shared_from_this<JsInsightIntentExecuteCallbackClient> {
 public:
-    using InsightIntentExecuteTask = std::function<void(int32_t resultCode,
-        AppExecFwk::InsightIntentExecuteResult executeResult)>;
-    explicit JsInsightIntentExecuteCallbackClient(InsightIntentExecuteTask &&task) : task_(std::move(task))
-    {
-        handler_ = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
-    }
+    JsInsightIntentExecuteCallbackClient(napi_env env, napi_deferred nativeDeferred, napi_ref callbackRef)
+        : env_(env), nativeDeferred_(nativeDeferred), callbackRef_(callbackRef) {}
 
     virtual ~JsInsightIntentExecuteCallbackClient() = default;
 
     void ProcessInsightIntentExecute(int32_t resultCode,
         AppExecFwk::InsightIntentExecuteResult executeResult) override
     {
-        if (handler_) {
-            handler_->PostSyncTask([client = weak_from_this(), resultCode, executeResult] () {
-                auto impl = client.lock();
-                if (impl == nullptr) {
-                    return;
-                }
-                impl->task_(resultCode, executeResult);
-            });
+        NapiAsyncTask::CompleteCallback complete = [resultCode = resultCode, executeResult = executeResult]
+            (napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (resultCode != 0) {
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(resultCode)));
+            } else {
+                task.ResolveWithNoError(env, CreateJsExecuteResult(env, executeResult));
+            }
+        };
+        std::unique_ptr<NapiAsyncTask> asyncTask = nullptr;
+        if (nativeDeferred_) {
+            asyncTask = std::make_unique<NapiAsyncTask>(nativeDeferred_, nullptr,
+                std::make_unique<NapiAsyncTask::CompleteCallback>(std::move(complete)));
+        } else {
+            asyncTask = std::make_unique<NapiAsyncTask>(callbackRef_, nullptr,
+                std::make_unique<NapiAsyncTask::CompleteCallback>(std::move(complete)));
         }
+        NapiAsyncTask::Schedule("JsInsightIntentDriver::OnExecute", env_, std::move(asyncTask));
     }
 private:
-    InsightIntentExecuteTask task_;
-    std::shared_ptr<EventHandler> handler_ = nullptr;
+    napi_env env_;
+    napi_deferred nativeDeferred_ = nullptr;
+    napi_ref callbackRef_ = nullptr;
 };
 
 class JsInsightIntentDriver {
@@ -104,25 +109,27 @@ private:
         }
 
         napi_value lastParam = (info.argc == 1) ? nullptr : info.argv[INDEX_ONE];
-        napi_value result = nullptr;
+        napi_valuetype type = napi_undefined;
+        napi_typeof(env, lastParam, &type);
 
-        std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(
-            env, lastParam, nullptr, nullptr, &result);
-        std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+        napi_value result = nullptr;
+        napi_deferred nativeDeferred = nullptr;
+        napi_ref callbackRef = nullptr;
+        std::unique_ptr<NapiAsyncTask> asyncTask = nullptr;
+        if (lastParam == nullptr || type != napi_function) {
+            napi_create_promise(env, &nativeDeferred, &result);
+            asyncTask = std::make_unique<NapiAsyncTask>(nativeDeferred, nullptr, nullptr);
+        } else {
+            napi_get_undefined(env, &result);
+            napi_create_reference(env, lastParam, 1, &callbackRef);
+            asyncTask = std::make_unique<NapiAsyncTask>(callbackRef, nullptr, nullptr);
+        }
+
         if (asyncTask == nullptr) {
             HILOG_ERROR("asyncTask is nullptr");
             return CreateJsUndefined(env);
         }
-        JsInsightIntentExecuteCallbackClient::InsightIntentExecuteTask task = [env, asyncTask]
-            (int32_t resultCode, InsightIntentExecuteResult executeResult) {
-            if (resultCode != 0) {
-                asyncTask->Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(resultCode)));
-                return;
-            } else {
-                asyncTask->ResolveWithNoError(env, CreateJsExecuteResult(env, executeResult));
-            }
-        };
-        auto client = std::make_shared<JsInsightIntentExecuteCallbackClient>(std::move(task));
+        auto client = std::make_shared<JsInsightIntentExecuteCallbackClient>(env, nativeDeferred, callbackRef);
         uint64_t key = InsightIntentHostClient::GetInstance()->AddInsightIntentExecute(client);
         auto err = AbilityManagerClient::GetInstance()->ExecuteIntent(key,
             InsightIntentHostClient::GetInstance(), param);

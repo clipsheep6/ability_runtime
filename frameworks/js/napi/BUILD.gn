@@ -62,6 +62,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/js_child_process:childprocess_napi",
     "${ability_runtime_napi_path}/js_child_process_manager:childprocessmanager_napi",
     "${ability_runtime_napi_path}/js_dialog_request:dialogrequest_napi",
+    "${ability_runtime_napi_path}/js_dialog_session:dialogsession_napi",
     "${ability_runtime_napi_path}/js_mission_manager:missionmanager",
     "${ability_runtime_napi_path}/mission_manager:distributedmissionmanager",
     "${ability_runtime_napi_path}/mission_manager:missionmanager_napi",

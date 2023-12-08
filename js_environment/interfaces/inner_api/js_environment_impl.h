@@ -32,6 +32,7 @@ struct WorkerInfo {
     std::vector<std::string> assetBasePathStr;
     std::string hapPath;
     bool isStageModel = true;
+    std::string moduleName;
 };
 
 class JsEnvironmentImpl {

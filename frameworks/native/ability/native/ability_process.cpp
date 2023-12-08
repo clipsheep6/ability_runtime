@@ -195,13 +195,14 @@ void AbilityProcess::RequestPermissionsFromUser(
         HILOG_DEBUG("permission: %{public}s.", permission.c_str());
         PermissionListState permState;
         permState.permissionName = permission;
-        permState.state = -1;
+        permState.state = Security::AccessToken::SETTING_OPER;
         permList.emplace_back(permState);
     }
     HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
         permList.size(), param.permission_list.size());
 
-    auto ret = AccessTokenKit::GetSelfPermissionsState(permList);
+    Security::AccessToken::PermissionGrantInfo grantInfo;
+    auto ret = AccessTokenKit::GetSelfPermissionsState(permList, grantInfo);
     if (permList.size() != param.permission_list.size()) {
         HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
         return;

@@ -18,17 +18,19 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-namespace AutoFiil {
+namespace AutoFill {
 enum {
     AUTO_FILL_SUCCESS = 0,
     AUTO_FILL_FAILED,
     AUTO_FILL_CANCEL,
+    AUTO_FILL_CANCEL_TIME_OUT,
     AUTO_FILL_RELEASE_FAILED,
     AUTO_FILL_ON_ERROR,
     AUTO_FILL_OBJECT_IS_NULL,
     AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED,
+    AUTO_FILL_REQUEST_TIME_OUT,
 };
-} // namespace AutoFiil
+} // namespace AutoFill
 } // namespace AbilityRuntime
 } // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_AUTO_FILL_ERROR_H

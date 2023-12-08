@@ -75,10 +75,15 @@ ohos_unittest("form_extension_context_test") {
     "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "window_manager:scene_session",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+  }
+
+  if (ecologic_rule_enabled) {
+    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

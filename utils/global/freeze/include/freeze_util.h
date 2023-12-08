@@ -64,7 +64,7 @@ private:
     };
 
     std::mutex mutex_;
-    std::unordered_map<LifecycleFlow, std::string, LifecycleFlowObjHash> lifecycleFolw_;
+    std::unordered_map<LifecycleFlow, std::string, LifecycleFlowObjHash> lifecycleFlow_;
 };
 }  // namespace OHOS::AbilityRuntime
 #endif  // OHOS_ABILITY_RUNTIME_FREEZE_UTIL_H

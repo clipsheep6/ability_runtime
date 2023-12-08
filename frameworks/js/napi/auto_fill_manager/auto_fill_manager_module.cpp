@@ -18,8 +18,8 @@
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_modname = "app.ability.autoFillManager",
     .nm_register_func = OHOS::AbilityRuntime::JsAutoFillManagerInit,
+    .nm_modname = "app.ability.autoFillManager",
 };
 
 extern "C" __attribute__((constructor)) void NAPI_app_ability_autofillmanager_AutoRegister(void)

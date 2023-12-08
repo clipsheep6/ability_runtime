@@ -303,7 +303,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
             }
             selfObj->CompleteForegroundSuccess(abilityRecord);
         };
-        taskHandler->SubmitTask(task);
+        taskHandler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
     } else {
         auto task = [self, abilityRecord, state]() {
             auto selfObj = self.lock();
@@ -321,7 +321,7 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
             }
             selfObj->HandleForegroundFailed(abilityRecord, state);
         };
-        taskHandler->SubmitTask(task);
+        taskHandler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
     }
     return ERR_OK;
 }
@@ -343,7 +343,7 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
     g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
-    handler->SubmitTask(task);
+    handler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 
     return ERR_OK;
 }
@@ -362,7 +362,7 @@ int UIAbilityLifecycleManager::DispatchTerminate(const std::shared_ptr<AbilityRe
     handler->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     auto self(shared_from_this());
     auto task = [self, abilityRecord]() { self->CompleteTerminate(abilityRecord); };
-    handler->SubmitTask(task);
+    handler->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
 
     return ERR_OK;
 }
@@ -1258,9 +1258,6 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
             abilityRecord->SetWant(abilityRequest.want);
             abilityRecord->SetIsNewWant(true);
             UpdateAbilityRecordLaunchReason(abilityRequest, abilityRecord);
-            if (callerAbility == nullptr) {
-                callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-            }
             MoveAbilityToFront(abilityRequest, abilityRecord, callerAbility);
             NotifyRestartSpecifiedAbility(abilityRequest, abilityRecord->GetToken());
             return;

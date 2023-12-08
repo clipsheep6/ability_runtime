@@ -77,8 +77,6 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     FillResponse response;
     JsAutoFillExtensionUtil::UnwrapFillResponse(env, info.argv[INDEX_ZERO], response);
     std::string jsonString = response.viewData.ToJsonString();
-    HILOG_DEBUG("Unwrap view data: %{public}s", jsonString.c_str());
-
     if (jsonString.empty()) {
         HILOG_ERROR("JsonString is empty");
         SendResultCodeAndViewData(

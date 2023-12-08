@@ -66,6 +66,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_native_path}/ability/native/data_ability_result.cpp",
     "${ability_runtime_native_path}/ability/native/task_handler.cpp",
     "${ability_runtime_native_path}/ability/native/task_handler_client.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_client.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_collaborator_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_manager_proxy.cpp",
@@ -77,6 +78,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/acquire_share_data_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/auto_startup_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/dialog_session_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_running_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/insight_intent_execute_callback_proxy.cpp",
@@ -98,6 +100,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/stop_user_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/stop_user_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/system_ability_token_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_ability_connect_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
@@ -125,6 +128,9 @@ ohos_shared_library("ability_manager") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -211,6 +217,8 @@ ohos_shared_library("ability_start_setting") {
 }
 
 ohos_shared_library("ability_connect_callback_stub") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "include/",
     "${ability_base_kits_path}/want/include",
@@ -231,7 +239,10 @@ ohos_shared_library("ability_connect_callback_stub") {
   ]
 
   cflags_cc = []
-  innerapi_tags = [ "platformsdk" ]
+  innerapi_tags = [
+    "platformsdk",
+    "sasdk",
+  ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

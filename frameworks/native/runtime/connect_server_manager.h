@@ -24,8 +24,8 @@ class ConnectServerManager final {
 public:
     static ConnectServerManager& Get();
 
-    void StartConnectServer(const std::string& bundleName);
-    void StopConnectServer();
+    void StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract);
+    void StopConnectServer(bool isCloseSo = true);
     bool AddInstance(int32_t instanceId, const std::string& instanceName = "PandaDebugger");
     void RemoveInstance(int32_t instanceId);
     void SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr);

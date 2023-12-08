@@ -109,10 +109,6 @@ class ApplicationContext {
     return this.__context_impl__.off(type, callbackId, callback);
   }
 
-  off(type, callback) {
-    return this.__context_impl__.off(type, callback);
-  }
-
   createBundleContext(bundleName) {
     return this.__context_impl__.createBundleContext(bundleName);
   }

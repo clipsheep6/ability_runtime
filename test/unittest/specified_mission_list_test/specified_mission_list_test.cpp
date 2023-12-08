@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_info.h"
+#include "app_utils.h"
 #include "mission.h"
 #include "mission_list.h"
 #undef private

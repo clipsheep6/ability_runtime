@@ -43,6 +43,7 @@ std::string GetInstanceMapMessage(const std::string& messageType, int32_t instan
 }
 
 using StartServer = void (*)(const std::string&);
+using StartServerForSocketPair = void (*)(int);
 using SendMessage = void (*)(const std::string&);
 using SendLayoutMessage = void (*)(const std::string&);
 using StopServer = void (*)(const std::string&);
@@ -67,7 +68,7 @@ ConnectServerManager& ConnectServerManager::Get()
     return connectServerManager;
 }
 
-void ConnectServerManager::StartConnectServer(const std::string& bundleName)
+void ConnectServerManager::StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract)
 {
     HILOG_DEBUG("ConnectServerManager::StartConnectServer Start connect server");
     handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
@@ -75,16 +76,26 @@ void ConnectServerManager::StartConnectServer(const std::string& bundleName)
         HILOG_ERROR("ConnectServerManager::StartConnectServer failed to open register library");
         return;
     }
-    auto startServer = reinterpret_cast<StartServer>(dlsym(handlerConnectServerSo_, "StartServer"));
-    if (startServer == nullptr) {
-        HILOG_ERROR("ConnectServerManager::StartConnectServer failed to find symbol 'StartServer'");
+    bundleName_ = bundleName;
+    if (isLocalAbstract) {
+        auto startServer = reinterpret_cast<StartServer>(dlsym(handlerConnectServerSo_, "StartServer"));
+        if (startServer == nullptr) {
+            HILOG_ERROR("ConnectServerManager::StartServer failed to find symbol 'StartServer'");
+            return;
+        }
+        startServer(bundleName_);
         return;
     }
-    bundleName_ = bundleName;
-    startServer(bundleName_);
+    auto startServerForSocketPair =
+        reinterpret_cast<StartServerForSocketPair>(dlsym(handlerConnectServerSo_, "StartServerForSocketPair"));
+    if (startServerForSocketPair == nullptr) {
+        HILOG_ERROR("ConnectServerManager::StartServerForSocketPair failed to find symbol 'StartServer'");
+        return;
+    }
+    startServerForSocketPair(socketFd);
 }
 
-void ConnectServerManager::StopConnectServer()
+void ConnectServerManager::StopConnectServer(bool isCloseSo)
 {
     HILOG_DEBUG("ConnectServerManager::StopConnectServer Stop connect server");
     if (handlerConnectServerSo_ == nullptr) {
@@ -97,8 +108,10 @@ void ConnectServerManager::StopConnectServer()
     } else {
         HILOG_ERROR("ConnectServerManager::StopConnectServer failed to find symbol 'StopServer'");
     }
-    dlclose(handlerConnectServerSo_);
-    handlerConnectServerSo_ = nullptr;
+    if (isCloseSo) {
+        dlclose(handlerConnectServerSo_);
+        handlerConnectServerSo_ = nullptr;
+    }
 }
 
 bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& instanceName)

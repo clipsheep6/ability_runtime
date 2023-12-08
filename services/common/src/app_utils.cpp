@@ -16,19 +16,28 @@
 #include "app_utils.h"
 
 #include "hilog_wrapper.h"
+#include "parameters.h"
 #include "scene_board_judgement.h"
 
 namespace OHOS {
 namespace AAFwk {
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
-
+namespace {
+    const std::string DEVICE_2IN1 = "2in1";
+    const std::string DEVICE_PC = "pc";
+    const std::string DEVICE_TABLET = "tablet";
+}
 AppUtils::~AppUtils() {}
 
 AppUtils::AppUtils()
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         isSceneBoard_ = true;
+    }
+    auto deviceType = system::GetDeviceType();
+    if (deviceType.compare(DEVICE_2IN1) != 0 || deviceType.compare(DEVICE_TABLET) != 0) {
+        isMultiProcesModelDevice_ = true;
     }
 }
 
@@ -38,13 +47,27 @@ AppUtils &AppUtils::GetInstance()
     return utils;
 }
 
-bool AppUtils::IsLauncher(std::string bundleName)
+bool AppUtils::IsLauncher(const std::string &bundleName) const
 {
     if (isSceneBoard_) {
         return bundleName == BUNDLE_NAME_SCENEBOARD;
     }
 
     return bundleName == BUNDLE_NAME_LAUNCHER;
+}
+
+bool AppUtils::JudgePCDevice() const
+{
+    auto deviceType = system::GetDeviceType();
+    if (deviceType.compare(DEVICE_2IN1) != 0 || deviceType.compare(DEVICE_PC) != 0) {
+        return true;
+    }
+    return false;
+}
+
+bool AppUtils::JudgeMultiProcessModelDevice() const
+{
+    return isMultiProcesModelDevice_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -20,10 +20,14 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+
+using HdcRegisterCallback = std::function<void(int socketFd, std::string option)>;
+
 class HdcRegister final {
 public:
     static HdcRegister& Get();
-    void StartHdcRegister(const std::string& bundleName);
+    void StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp,
+        HdcRegisterCallback callback);
 
 private:
     HdcRegister() = default;

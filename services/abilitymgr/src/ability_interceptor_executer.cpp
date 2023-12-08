@@ -26,13 +26,14 @@ void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<AbilityInt
     }
 }
 
-ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground)
+ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+    const sptr<IRemoteObject> &callerToken)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t result = ERR_OK;
     auto item = interceptorList_.begin();
     while (item != interceptorList_.end()) {
-        result = (*item)->DoProcess(want, requestCode, userId, isForeground);
+        result = (*item)->DoProcess(want, requestCode, userId, isForeground, callerToken);
         if (result != ERR_OK) {
             break;
         } else {
@@ -40,6 +41,17 @@ ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode,
         }
     }
     return result;
+}
+
+void AbilityInterceptorExecuter::SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    for (auto &interceptor : interceptorList_) {
+        if (interceptor == nullptr) {
+            continue;
+        }
+        interceptor->SetTaskHandler(taskHandler);
+    }
 }
 } // namespace AAFwk
 } // namespace OHOS

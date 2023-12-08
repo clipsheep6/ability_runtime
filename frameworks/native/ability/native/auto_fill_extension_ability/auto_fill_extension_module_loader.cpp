@@ -41,8 +41,10 @@ std::map<std::string, std::string> AutoFillExtensionModuleLoader::GetParams()
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of
     // extension_ability_info.h, 21 means autoFill/password extension.
-    params.insert(std::pair<std::string, std::string>(AUTO_FILL_EXTENSION_PARAMS_TYPE_KEY, AUTO_FILL_EXTENSION_PARAMS_TYPE));
-    params.insert(std::pair<std::string, std::string>(AUTO_FILL_EXTENSION_PARAMS_NAME_KEY, AUTO_FILL_EXTENSION_PARAMS_NAME));
+    params.insert(
+        std::pair<std::string, std::string>(AUTO_FILL_EXTENSION_PARAMS_TYPE_KEY, AUTO_FILL_EXTENSION_PARAMS_TYPE));
+    params.insert(
+        std::pair<std::string, std::string>(AUTO_FILL_EXTENSION_PARAMS_NAME_KEY, AUTO_FILL_EXTENSION_PARAMS_NAME));
     return params;
 }
 

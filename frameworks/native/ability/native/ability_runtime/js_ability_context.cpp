@@ -19,14 +19,15 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
-#include "hitrace_meter.h"
+#include "event_handler.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
+#include "ipc_skeleton.h"
+#include "ability_runtime/js_caller_complex.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
-#include "ability_runtime/js_caller_complex.h"
-#include "ipc_skeleton.h"
 #include "mission_info.h"
 #include "napi_common_ability.h"
 #include "napi_common_start_options.h"
@@ -34,10 +35,9 @@
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
 #include "start_options.h"
-#include "want.h"
-#include "event_handler.h"
-#include "hitrace_meter.h"
 #include "tokenid_kit.h"
+#include "want.h"
+
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
 #include "accesstoken_kit.h"
@@ -239,14 +239,14 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     InheritWindowMode(want);
-    decltype(info.argc) unwrapArgc = 1;
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
     HILOG_INFO("StartAbility, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     AAFwk::StartOptions startOptions;
-    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbility start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
         unwrapArgc++;
     }
 
@@ -271,7 +271,7 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
             return;
         }
 
-        *innerErrorCode = (unwrapArgc == 1) ?
+        *innerErrorCode = (unwrapArgc == ARGC_ONE) ?
             context->StartAbility(want, -1) : context->StartAbility(want, startOptions, -1);
         if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
             *innerErrorCode != 0 && observer != nullptr) {
@@ -315,14 +315,14 @@ napi_value JsAbilityContext::OnStartAbilityAsCaller(napi_env env, NapiCallbackIn
     }
 
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     InheritWindowMode(want);
-    decltype(info.argc) unwrapArgc = 1;
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
     HILOG_INFO("StartAbilityAsCaller, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     AAFwk::StartOptions startOptions;
-    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbilityAsCaller start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
         unwrapArgc++;
     }
     NapiAsyncTask::CompleteCallback complete =
@@ -333,7 +333,7 @@ napi_value JsAbilityContext::OnStartAbilityAsCaller(napi_env env, NapiCallbackIn
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                 return;
             }
-            auto innerErrorCode = (unwrapArgc == 1) ?
+            auto innerErrorCode = (unwrapArgc == ARGC_ONE) ?
                 context->StartAbilityAsCaller(want, -1) : context->StartAbilityAsCaller(want, startOptions, -1);
             if (innerErrorCode == 0) {
                 task.Resolve(env, CreateJsUndefined(env));
@@ -361,12 +361,12 @@ napi_value JsAbilityContext::OnStartAbilityWithAccount(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     InheritWindowMode(want);
-    decltype(info.argc) unwrapArgc = 1;
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
     HILOG_INFO("StartAbilityWithAccount, ability:%{public}s", want.GetElement().GetAbilityName().c_str());
     int32_t accountId = 0;
-    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], accountId)) {
+    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         HILOG_DEBUG("the second parameter is invalid.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -375,7 +375,7 @@ napi_value JsAbilityContext::OnStartAbilityWithAccount(napi_env env, NapiCallbac
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_TWO && CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_object)) {
         HILOG_DEBUG("OnStartAbilityWithAccount start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[ARGC_TWO], startOptions);
+        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_TWO], startOptions);
         unwrapArgc++;
     }
 
@@ -438,7 +438,8 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
     }
 
     AAFwk::Want want;
-    if (!CheckTypeForNapiValue(env, info.argv[0], napi_object) || !AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+    if (!CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object) ||
+        !AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         HILOG_ERROR("Failed to parse want!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -450,14 +451,14 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
     napi_value retsult = nullptr;
     int32_t userId = DEFAULT_INVAL_VALUE;
     if (info.argc > ARGC_ONE) {
-        if (CheckTypeForNapiValue(env, info.argv[ARGC_ONE], napi_number)) {
-            if (!ConvertFromJsValue(env, info.argv[ARGC_ONE], userId)) {
+        if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_number)) {
+            if (!ConvertFromJsValue(env, info.argv[INDEX_ONE], userId)) {
                 HILOG_ERROR("Failed to parse accountId!");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);
             }
-        } else if (CheckTypeForNapiValue(env, info.argv[ARGC_ONE], napi_function)) {
-            lastParam = info.argv[ARGC_ONE];
+        } else if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
+            lastParam = info.argv[INDEX_ONE];
         } else {
             HILOG_ERROR("Failed, input param type invalid");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
@@ -465,8 +466,8 @@ napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo
         }
     }
 
-    if (info.argc > ARGC_TWO && CheckTypeForNapiValue(env, info.argv[ARGC_TWO], napi_function)) {
-        lastParam = info.argv[ARGC_TWO];
+    if (info.argc > ARGC_TWO && CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
+        lastParam = info.argv[INDEX_TWO];
     }
 
     auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
@@ -572,17 +573,17 @@ napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackI
     }
 
     AAFwk::Want want;
-    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         HILOG_ERROR("Failed to parse want!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
     InheritWindowMode(want);
-    decltype(info.argc) unwrapArgc = 1;
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
     AAFwk::StartOptions startOptions;
-    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbilityForResult begin options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
+        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
         unwrapArgc++;
     }
 
@@ -600,6 +601,7 @@ napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackI
     RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
         bool isInner) {
         HILOG_DEBUG("OnStartAbilityForResult async callback is begin");
+        HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult error");
@@ -626,7 +628,7 @@ napi_value JsAbilityContext::OnStartAbilityForResult(napi_env env, NapiCallbackI
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
         curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-        (unwrapArgc == 1) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task)) :
+        (unwrapArgc == ARGC_ONE) ? context->StartAbilityForResult(want, curRequestCode_, std::move(task)) :
             context->StartAbilityForResult(want, startOptions, curRequestCode_, std::move(task));
     }
     HILOG_DEBUG("OnStartAbilityForResult is called end");
@@ -648,15 +650,15 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
         return CreateJsUndefined(env);
     }
     AAFwk::Want want;
-    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         HILOG_ERROR("Failed to parse want!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
     InheritWindowMode(want);
-    decltype(info.argc) unwrapArgc = 1;
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
     int32_t accountId = 0;
-    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], accountId)) {
+    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         HILOG_ERROR("the second parameter is invalid.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -682,6 +684,7 @@ napi_value JsAbilityContext::OnStartAbilityForResultWithAccount(napi_env env, Na
     RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
         bool isInner) {
         HILOG_DEBUG("async callback is called");
+        HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult failed");
@@ -725,7 +728,7 @@ napi_value JsAbilityContext::OnStartExtensionAbility(napi_env env, NapiCallbackI
     }
 
     AAFwk::Want want;
-    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         HILOG_ERROR("Failed to parse want!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -747,7 +750,7 @@ napi_value JsAbilityContext::OnStartExtensionAbility(napi_env env, NapiCallbackI
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartExtensionAbility",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -843,8 +846,8 @@ napi_value JsAbilityContext::OnStartExtensionAbilityWithAccount(napi_env env, Na
 
     AAFwk::Want want;
     int32_t accountId = -1;
-    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want) ||
-        !OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], accountId)) {
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
+        !OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
@@ -865,7 +868,7 @@ napi_value JsAbilityContext::OnStartExtensionAbilityWithAccount(napi_env env, Na
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_TWO) ? info.argv[ARGC_TWO] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartExtensionAbilityWithAccount",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -882,7 +885,7 @@ napi_value JsAbilityContext::OnStopExtensionAbility(napi_env env, NapiCallbackIn
     }
 
     AAFwk::Want want;
-    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
@@ -903,7 +906,7 @@ napi_value JsAbilityContext::OnStopExtensionAbility(napi_env env, NapiCallbackIn
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::Schedule("JsAbilityContext::OnStopExtensionAbility",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -921,8 +924,8 @@ napi_value JsAbilityContext::OnStopExtensionAbilityWithAccount(napi_env env, Nap
 
     int32_t accountId = -1;
     AAFwk::Want want;
-    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want) ||
-        !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], accountId)) {
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
+        !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
@@ -943,7 +946,7 @@ napi_value JsAbilityContext::OnStopExtensionAbilityWithAccount(napi_env env, Nap
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_TWO) ? info.argv[ARGC_TWO] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_TWO) ? info.argv[INDEX_TWO] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::Schedule("JsAbilityContext::OnStopExtensionAbilityWithAccount",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -954,7 +957,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
 {
     HILOG_INFO("TerminateSelfWithResult");
 
-    if (info.argc == 0) {
+    if (info.argc == ARGC_ZERO) {
         HILOG_ERROR("Not enough params");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
@@ -962,7 +965,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
 
     int resultCode = 0;
     AAFwk::Want want;
-    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[0], resultCode, want)) {
+    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
         HILOG_ERROR("%s Failed to parse ability result!", __func__);
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -990,7 +993,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnTerminateSelfWithResult",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1010,14 +1013,14 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
 
     // unwrap want
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     HILOG_INFO("ConnectAbility, callee:%{public}s.%{public}s",
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
-    connection->SetJsConnectionObject(info.argv[1]);
+    connection->SetJsConnectionObject(info.argv[INDEX_ONE]);
     int64_t connectId = g_serialNumber;
     ConnectionKey key;
     key.id = g_serialNumber;
@@ -1065,13 +1068,13 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
 
     // unwrap want
     AAFwk::Want want;
-    OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     HILOG_INFO("ConnectAbilityWithAccount, bundlename:%{public}s abilityname:%{public}s",
         want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
     int32_t accountId = 0;
-    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], accountId)) {
+    if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
         HILOG_ERROR("the second parameter is invalid.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -1130,7 +1133,7 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
     // unwrap connectId
     int64_t connectId = -1;
     sptr<JSAbilityConnection> connection = nullptr;
-    napi_get_value_int64(env, info.argv[0], &connectId);
+    napi_get_value_int64(env, info.argv[INDEX_ZERO], &connectId);
     HILOG_INFO("DisconnectAbility, connection:%{public}d.", static_cast<int32_t>(connectId));
     auto item = std::find_if(g_connects.begin(),
         g_connects.end(),
@@ -1164,7 +1167,7 @@ napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo&
             task.Resolve(env, CreateJsUndefined(env));
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::Schedule("JsAbilityContext::OnDisconnectAbility",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1196,7 +1199,7 @@ napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo& inf
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ZERO) ? info.argv[ARGC_ZERO] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnTerminateSelf",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1217,7 +1220,7 @@ napi_value JsAbilityContext::OnRestoreWindowStage(napi_env env, NapiCallbackInfo
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
         return CreateJsUndefined(env);
     }
-    auto errcode = context->RestoreWindowStage(env, info.argv[0]);
+    auto errcode = context->RestoreWindowStage(env, info.argv[INDEX_ZERO]);
     if (errcode != 0) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsError(env, errcode, "RestoreWindowStage failed.");
@@ -1234,16 +1237,17 @@ napi_value JsAbilityContext::OnRequestDialogService(napi_env env, NapiCallbackIn
     }
 
     AAFwk::Want want;
-    AppExecFwk::UnwrapWant(env, info.argv[0], want);
+    AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     HILOG_INFO("RequestDialogService, target:%{public}s.%{public}s.", want.GetBundle().c_str(),
         want.GetElement().GetAbilityName().c_str());
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     auto uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     RequestDialogResultTask task =
         [env, asyncTask](int32_t resultCode, const AAFwk::Want &resultWant) {
+        HandleScope handleScope(env);
         napi_value requestResult = JsAbilityContext::WrapRequestDialogResult(env, resultCode, resultWant);
         if (requestResult == nullptr) {
             HILOG_WARN("wrap requestResult failed");
@@ -1302,7 +1306,7 @@ napi_value JsAbilityContext::OnReportDrawnCompleted(napi_env env, NapiCallbackIn
         }
     };
 
-    napi_value lastParam = info.argv[ARGC_ZERO];
+    napi_value lastParam = info.argv[INDEX_ZERO];
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnReportDrawnCompleted",
         env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
@@ -1335,8 +1339,10 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
         return;
     }
     auto windowMode = context->GetCurrentWindowMode();
-    if (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
-        windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+    auto deviceType = context->GetDeviceType();
+    if (deviceType != Global::Resource::DeviceType::DEVICE_TWOINONE &&
+        (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+        windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY)) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
     }
     HILOG_DEBUG("window mode is %{public}d", windowMode);
@@ -1692,7 +1698,7 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
     }
 
     AAFwk::ContinueState state;
-    if (!ConvertFromJsValue(env, info.argv[0], state)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], state)) {
         HILOG_ERROR("OnSetMissionContinueState, parse state failed.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -1721,7 +1727,7 @@ napi_value JsAbilityContext::OnSetMissionContinueState(napi_env env, NapiCallbac
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::SetMissionContinueState",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1749,7 +1755,7 @@ napi_value JsAbilityContext::OnSetMissionLabel(napi_env env, NapiCallbackInfo& i
     }
 
     std::string label;
-    if (!ConvertFromJsValue(env, info.argv[0], label)) {
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], label)) {
         HILOG_ERROR("OnSetMissionLabel, parse label failed.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -1772,7 +1778,7 @@ napi_value JsAbilityContext::OnSetMissionLabel(napi_env env, NapiCallbackInfo& i
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionLabel",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1788,7 +1794,7 @@ napi_value JsAbilityContext::OnSetMissionIcon(napi_env env, NapiCallbackInfo& in
         return CreateJsUndefined(env);
     }
 
-    auto icon = OHOS::Media::PixelMapNapi::GetPixelMap(env, info.argv[0]);
+    auto icon = OHOS::Media::PixelMapNapi::GetPixelMap(env, info.argv[INDEX_ZERO]);
     if (!icon) {
         HILOG_ERROR("OnSetMissionIcon, parse icon failed.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
@@ -1812,7 +1818,7 @@ napi_value JsAbilityContext::OnSetMissionIcon(napi_env env, NapiCallbackInfo& in
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnSetMissionIcon",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));

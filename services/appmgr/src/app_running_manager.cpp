@@ -881,7 +881,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("Window visibility info is nullptr.");
             continue;
         }
-        auto appRecord = GetAppRunningRecordByPidInner(info->pid_);
+        auto appRecord = GetAppRunningRecordByPid(info->pid_);
         if (appRecord == nullptr) {
             HILOG_ERROR("App running record is nullptr.");
             return;
@@ -976,6 +976,64 @@ void AppRunningManager::GetAbilityTokensByBundleName(
             abilityTokens.emplace_back(token.first);
         }
     }
+}
+
+std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByChildProcessPid(const pid_t pid)
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto childProcessRecordMap = pair.second->GetChildProcessRecordMap();
+        return childProcessRecordMap.find(pid) != childProcessRecordMap.end();
+    });
+    if (iter != appRunningRecordMap_.end()) {
+        return iter->second;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("On child process remote died.");
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is null");
+        return nullptr;
+    }
+    sptr<IRemoteObject> object = remote.promote();
+    if (!object) {
+        HILOG_ERROR("promote failed.");
+        return nullptr;
+    }
+
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::shared_ptr<ChildProcessRecord> childRecord;
+    const auto &it = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
+        [&object, &childRecord](const auto &pair) {
+            auto appRecord = pair.second;
+            if (!appRecord) {
+                return false;
+            }
+            auto childRecordMap = appRecord->GetChildProcessRecordMap();
+            if (childRecordMap.empty()) {
+                return false;
+            }
+            for (auto iter : childRecordMap) {
+                if (iter.second == nullptr) {
+                    continue;
+                }
+                auto scheduler = iter.second->GetScheduler();
+                if (scheduler && scheduler->AsObject() == object) {
+                    childRecord = iter.second;
+                    return true;
+                }
+            }
+            return false;
+        });
+    if (it != appRunningRecordMap_.end()) {
+        auto appRecord = it->second;
+        appRecord->RemoveChildProcessRecord(childRecord);
+        return childRecord;
+    }
+    return nullptr;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

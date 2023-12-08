@@ -327,5 +327,22 @@ HWTEST_F(AppMgrProxyTest, ChangeAppGcState_001, TestSize.Level1)
     appMgrProxy_->ChangeAppGcState(pid, state);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::CHANGE_APP_GC_STATE));
 }
+
+/**
+ * @tc.name: IsApplicationRunning_001
+ * @tc.desc: Send request to query the running status of the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, IsApplicationRunning_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+
+    std::string bundleName = "testBundleName";
+    bool isRunning = false;
+    appMgrProxy_->IsApplicationRunning(bundleName, isRunning);
+    EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING));
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

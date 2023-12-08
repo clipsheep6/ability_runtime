@@ -75,6 +75,7 @@ constexpr int32_t TRIGGER_GC_AFTER_CLEAR_STAGE_MS = 3000;
 constexpr int32_t API8 = 8;
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
+const std::string DEBUGGER = "@Debugger";
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
 #elif defined(APP_USE_X86_64)
@@ -186,9 +187,10 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     return instance;
 }
 
-void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
+void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebugApp)
 {
-    if (debugMode_) {
+    CHECK_POINTER(jsEnv_);
+    if (jsEnv_->GetDebugMode()) {
         HILOG_INFO("Already in debug mode");
         return;
     }
@@ -199,15 +201,39 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, bool isDebug)
 
     HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
-    HdcRegister::Get().StartHdcRegister(bundleName_);
-    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    SetDebuggerApp(isDebugApp);
+    const std::string bundleName = bundleName_;
+    uint32_t instanceId = instanceId_;
+    auto weak = jsEnv_;
+    std::string inputProcessName = "";
+    if (bundleName_ != processName) {
+        inputProcessName = processName;
+    }
+    HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
+        [bundleName, needBreakPoint, instanceId, weak](int socketFd, std::string option) {
+        HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
+            socketFd, option.c_str());
+        if (weak == nullptr) {
+            HILOG_ERROR("jsEnv is nullptr in hdc register callback");
+            return;
+        }
+        if (option.find(DEBUGGER) == std::string::npos) {
+            ConnectServerManager::Get().StopConnectServer(false);
+            ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
+        } else {
+            weak->StopDebugger(option);
+            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
+        }
+    });
+    ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     ConnectServerManager::Get().AddInstance(instanceId_);
-    debugMode_ = StartDebugger(needBreakPoint, instanceId_, isDebug);
+    jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, needBreakPoint);
 }
 
 void JsRuntime::StopDebugMode()
 {
-    if (debugMode_) {
+    CHECK_POINTER(jsEnv_);
+    if (jsEnv_->GetDebugMode()) {
         ConnectServerManager::Get().RemoveInstance(instanceId_);
         StopDebugger();
     }
@@ -219,10 +245,10 @@ void JsRuntime::InitConsoleModule()
     jsEnv_->InitConsoleModule();
 }
 
-bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId, bool isDebug)
+bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
 {
-    CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->StartDebugger(ARK_DEBUGGER_LIB_PATH, needBreakPoint, instanceId, isDebug);
+    HILOG_DEBUG("StartDebugger called.");
+    return true;
 }
 
 void JsRuntime::StopDebugger()
@@ -284,7 +310,8 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     return std::stoi(interval);
 }
 
-void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
+void JsRuntime::StartProfiler(
+    const std::string &perfCmd, bool needBreakPoint, const std::string &processName, bool isDebugApp)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
@@ -292,9 +319,33 @@ void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
     }
 
     StartDebuggerInWorkerModule();
-    HdcRegister::Get().StartHdcRegister(bundleName_);
-    ConnectServerManager::Get().StartConnectServer(bundleName_);
+    SetDebuggerApp(isDebugApp);
+    const std::string bundleName = bundleName_;
+    auto weak = jsEnv_;
+    uint32_t instanceId = instanceId_;
+    std::string inputProcessName = "";
+    if (bundleName_ != processName) {
+        inputProcessName = processName;
+    }
+    HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
+        [bundleName, needBreakPoint, instanceId, weak](int socketFd, std::string option) {
+        HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
+            socketFd, option.c_str());
+        if (weak == nullptr) {
+            HILOG_ERROR("jsEnv is nullptr in hdc register callback");
+            return;
+        }
+        if (option.find(DEBUGGER) == std::string::npos) {
+            ConnectServerManager::Get().StopConnectServer(false);
+            ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
+        } else {
+            weak->StopDebugger(option);
+            weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
+        }
+    });
+    ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     ConnectServerManager::Get().AddInstance(instanceId_);
+
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
@@ -304,7 +355,7 @@ void JsRuntime::StartProfiler(const std::string &perfCmd, bool isDebug)
     }
 
     HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, isDebug);
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid());
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -803,6 +854,10 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Load module(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, std::unique_ptr<NativeReference>());
+    // use for debugger, js engine need to know load module to handle debug event
+    panda::JSNApi::NotifyLoadModule(vm);
     auto env = GetNapiEnv();
     CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
@@ -1228,6 +1283,7 @@ void JsRuntime::InitWorkerModule(const Options& options)
     workerInfo->assetBasePathStr = options.assetBasePathStr;
     workerInfo->hapPath = options.hapPath;
     workerInfo->isStageModel = options.isStageModel;
+    workerInfo->moduleName = options.moduleName;
     if (options.isJsFramework) {
         SetJsFramework();
     }

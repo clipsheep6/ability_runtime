@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "ability_record.h"
 #include "ability_util.h"
+#include "app_gallery_enable_util.h"
 #include "app_scheduler.h"
 #include "dm_common.h"
 #include "display_manager.h"
@@ -30,6 +31,7 @@
 #include "locale_config.h"
 #include "parameters.h"
 #include "resource_manager.h"
+#include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 
 namespace OHOS {
@@ -109,6 +111,9 @@ const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
+const std::string ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG = "AppSelectorExtensionAbility";
+const std::string UIEXTENSION_TYPE_KEY = "ability.want.params.uiExtensionType";
+const std::string UIEXTENSION_SYS_COMMON_UI = "sys/commonUI";
 const std::string CALLER_TOKEN = "callerToken";
 const std::string ABILITY_NAME_JUMP_INTERCEPTOR_DIALOG = "JumpInterceptorDialog";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
@@ -177,7 +182,12 @@ Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerT
     want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_TIPS_DIALOG);
     want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     want.SetParam(DIALOG_PARAMS, params);
-    want.SetParam(CALLER_TOKEN, callerToken);
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        want.RemoveParam(CALLER_TOKEN);
+    } else {
+        want.SetParam(CALLER_TOKEN, callerToken);
+    }
     return want;
 }
 
@@ -356,9 +366,27 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
     targetWant.SetParam(DIALOG_PARAMS, params);
     if (callerToken != nullptr) {
         HILOG_DEBUG("set callertoken to targetWant");
-        targetWant.SetParam(CALLER_TOKEN, callerToken);
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+            targetWant.RemoveParam(CALLER_TOKEN);
+        } else {
+            targetWant.SetParam(CALLER_TOKEN, callerToken);
+        }
     }
-
+    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("GetBundleManager failed");
+            return targetWant;
+        }
+        std::string bundleName;
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
+            targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+            return targetWant;
+        }
+    }
     return targetWant;
 }
 
@@ -404,6 +432,20 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
         targetWant.RemoveParam(CALLER_TOKEN);
     } else {
         targetWant.SetParam(CALLER_TOKEN, callerToken);
+    }
+    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto bms = GetBundleManager();
+        if (!bms) {
+            HILOG_ERROR("GetBundleManager failed");
+            return targetWant;
+        }
+        std::string bundleName;
+        auto ret = IN_PROCESS_CALL(bms->QueryAppGalleryBundleName(bundleName));
+        if (ret) {
+            targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
+            targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+            return targetWant;
+        }
     }
     return targetWant;
 }

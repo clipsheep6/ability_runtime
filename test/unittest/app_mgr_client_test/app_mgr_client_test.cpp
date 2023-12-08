@@ -876,5 +876,70 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_NotifyPageHide_001, TestSize.Level1)
     auto result = appMgrClient->NotifyPageHide(token, pageStateData);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 }
+
+/**
+ * @tc.name: AppMgrClient_StartSpecifiedProcess_001
+ * @tc.desc: StartSpecifiedProcess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_StartSpecifiedProcess_001, TestSize.Level1)
+{
+    AAFwk::Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    appMgrClient->StartSpecifiedProcess(want, abilityInfo);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_ScheduleNewProcessRequest_001
+ * @tc.desc: schedule accept want done.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_ScheduleNewProcessRequest_001, TestSize.Level0)
+{
+    int32_t recordId = INIT_VALUE;
+    AAFwk::Want want;
+    std::string flag = EMPTY_STRING;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    appMgrClient->ScheduleNewProcessRequest(recordId, want, flag);
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterAppRunningStatusListener_001
+ * @tc.desc: RegisterAppRunningStatusListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterAppRunningStatusListener_001, TestSize.Level0)
+{
+    sptr<IRemoteObject> listener = nullptr;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->RegisterAppRunningStatusListener(listener);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: AppMgrClient_UnregisterAppRunningStatusListener_001
+ * @tc.desc: UnregisterAppRunningStatusListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterAppRunningStatusListener_001, TestSize.Level0)
+{
+    sptr<IRemoteObject> listener = nullptr;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->UnregisterAppRunningStatusListener(listener);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
