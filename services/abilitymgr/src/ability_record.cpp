@@ -21,6 +21,7 @@
 #include <unordered_map>
 
 #include "constants.h"
+#include "ability_app_state_observer.h"
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
@@ -231,6 +232,7 @@ AbilityRecord::~AbilityRecord()
             object->RemoveDeathRecipient(schedulerDeathRecipient_);
         }
     }
+    RemoveAppStateObserver();
 }
 
 std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
@@ -256,7 +258,26 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
     }
     abilityRecord->collaboratorType_ = abilityRequest.collaboratorType;
     abilityRecord->missionAffinity_ = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
+
+    if (abilityRecord->IsDebug()) {
+        abilityRecord->abilityAppStateObserver_ = sptr<AbilityAppStateObserver>(
+            new AbilityAppStateObserver(abilityRecord));
+        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
+            abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
+    }
     return abilityRecord;
+}
+
+void AbilityRecord::RemoveAppStateObserver()
+{
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (handler && abilityAppStateObserver_) {
+        handler->SubmitTask([appStateObserver = abilityAppStateObserver_]() {
+                DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->UnregisterApplicationStateObserver(
+                    appStateObserver);
+            });
+        abilityAppStateObserver_ = nullptr;
+    }
 }
 
 bool AbilityRecord::Init()
@@ -1323,6 +1344,7 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
                     }
                 });
         }
+        RemoveAppStateObserver();
         isReady_ = true;
         scheduler_ = scheduler;
         lifecycleDeal_->SetScheduler(scheduler);
@@ -2195,6 +2217,33 @@ void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
     NotifyRemoveShellProcess(CollaboratorType::RESERVE_TYPE);
     NotifyRemoveShellProcess(CollaboratorType::OTHERS_TYPE);
     FreezeUtil::GetInstance().DeleteLifecycleEvent(object);
+}
+
+void AbilityRecord::OnProcessDied()
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    RemoveAppStateObserver();
+    isWindowAttached_ = false;
+
+    auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    CHECK_POINTER(handler);
+
+    HILOG_INFO("Ability on scheduler died: '%{public}s'", abilityInfo_.name.c_str());
+    auto task = [ability = shared_from_this()]() {
+        DelayedSingleton<AbilityManagerService>::GetInstance()->OnAbilityDied(ability);
+    };
+    handler->SubmitTask(task);
+    auto uriTask = [want = GetWant(), ability = shared_from_this()]() {
+        ability->SaveResultToCallers(-1, &want);
+        ability->SendResultToCallers(true);
+    };
+    handler->SubmitTask(uriTask);
+#ifdef SUPPORT_GRAPHICS
+    NotifyAnimationAbilityDied();
+#endif
+    HandleDlpClosed();
+    NotifyRemoveShellProcess(CollaboratorType::RESERVE_TYPE);
+    NotifyRemoveShellProcess(CollaboratorType::OTHERS_TYPE);
 }
 
 void AbilityRecord::NotifyAnimationAbilityDied()
