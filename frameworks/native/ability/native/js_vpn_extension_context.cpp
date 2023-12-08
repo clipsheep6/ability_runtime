@@ -139,17 +139,6 @@ public:
         GET_NAPI_INFO_AND_CALL(env, info, JsVpnExtensionContext, OnStartExtensionAbility);
     }
 
-    // static napi_value StartVpnExtensionAbility(napi_env env, napi_callback_info info)
-    // {
-    //     auto selfToken = IPCSkeleton::GetSelfTokenID();
-    //     int ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(selfToken, PERMISSION_VPN_EXTENSION);
-    //     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
-    //         ThrowNoPermissionError(env, PERMISSION_VPN_EXTENSION);
-    //         return CreateJsUndefined(env);
-    //     }
-    //     GET_NAPI_INFO_AND_CALL(env, info, JsVpnExtensionContext, OnStartExtensionAbility);
-    // }
-
     static napi_value StartVpnExtensionAbilityWithAccount(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsVpnExtensionContext, OnStartExtensionAbilityWithAccount);
@@ -202,7 +191,8 @@ private:
         }
     }
 
-    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false)
+    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, 
+                bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         HILOG_INFO("StartAbility");
@@ -495,7 +485,8 @@ private:
         return releaseListen;
     }
 
-    napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
+    napi_value OnStartAbilityWithAccount(napi_env env, 
+                NapiCallbackInfo& info)
     {
         HILOG_INFO("StartAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
@@ -982,8 +973,6 @@ napi_value CreateJsVpnExtensionContext(napi_env env, std::shared_ptr<VpnExtensio
         "connectVpnExtensionAbilityWithAccount", moduleName, JsVpnExtensionContext::ConnectAbilityWithAccount);
     BindNativeFunction(env, object, "startVpnExtensionAbility", moduleName,
         JsVpnExtensionContext::StartVpnExtensionAbility);
-    // BindNativeFunction(env, object, "startVpnExtensionAbility", moduleName,
-    //     JsVpnExtensionContext::StartVpnExtensionAbility);
     BindNativeFunction(env, object, "startVpnExtensionAbilityWithAccount", moduleName,
         JsVpnExtensionContext::StartVpnExtensionAbilityWithAccount);
     BindNativeFunction(env, object, "stopVpnExtensionAbility", moduleName,
