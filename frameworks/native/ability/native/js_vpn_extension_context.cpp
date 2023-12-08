@@ -191,7 +191,7 @@ private:
         }
     }
 
-    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, 
+    napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info,
                 bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -485,7 +485,7 @@ private:
         return releaseListen;
     }
 
-    napi_value OnStartAbilityWithAccount(napi_env env, 
+    napi_value OnStartAbilityWithAccount(napi_env env,
                 NapiCallbackInfo& info)
     {
         HILOG_INFO("StartAbilityWithAccount");
