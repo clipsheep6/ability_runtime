@@ -16,10 +16,8 @@
 #include <gtest/gtest.h>
 
 #define private public
-#define protected public
 #include "appfreeze_inner.h"
 #undef private
-#undef protected
 
 using namespace testing;
 using namespace testing::ext;
@@ -110,6 +108,10 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__ThreadBlock_002, TestSize.Level1)
     std::atomic_bool isSixSecondEvent = true;
     appfreezeInner->ThreadBlock(isSixSecondEvent);
     EXPECT_TRUE(isSixSecondEvent);
+
+    appfreezeInner->SetAppDebug(true);
+    appfreezeInner->ThreadBlock(isSixSecondEvent);
+    EXPECT_TRUE(isSixSecondEvent);
     GTEST_LOG_(INFO) << "AppfreezeInner__ThreadBlock_002 end";
 }
 
@@ -122,7 +124,8 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__AppfreezeHandle_001, TestSize.Level
 {
     GTEST_LOG_(INFO) << "AppfreezeInner__AppfreezeHandle_001 start";
     FaultData faultData;
-    faultData.errorObject.message = "App main thread is not response!";
+    faultData.state = 1;
+    faultData.errorObject.message = AppFreezeType::THREAD_BLOCK_6S;
     faultData.faultType = FaultDataType::APP_FREEZE;
     faultData.timeoutMarkers = "";
     bool onlyMainThread = true;
@@ -130,6 +133,11 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__AppfreezeHandle_001, TestSize.Level
     appfreezeInner->SetApplicationInfo(applicationInfo);
     int ret = appfreezeInner->AppfreezeHandle(faultData, onlyMainThread);
     EXPECT_EQ(ret, 0);
+    ret = appfreezeInner->AcquireStack(faultData, onlyMainThread);
+    EXPECT_EQ(ret, 0);
+    appfreezeInner->SetAppDebug(true);
+    ret = appfreezeInner->AppfreezeHandle(faultData, onlyMainThread);
+    EXPECT_EQ(ret, -1);
     GTEST_LOG_(INFO) << "AppfreezeInner__AppfreezeHandle_001 end";
 }
 
@@ -148,6 +156,40 @@ HWTEST_F(AppfreezeInnerTest, AppfreezeInner__AcquireStack_001, TestSize.Level1)
     int ret = appfreezeInner->AcquireStack(faultData, onlyMainThread);
     EXPECT_EQ(ret, 0);
     GTEST_LOG_(INFO) << "AppfreezeInner__AcquireStack_001 end";
+}
+
+/**
+ * @tc.number: AppfreezeInner_IsExitApp_001
+ * @tc.name: IsExitApp
+ * @tc.desc: Verify that function IsExitApp.
+ */
+HWTEST_F(AppfreezeInnerTest, AppfreezeInner_IsExitApp_001, TestSize.Level1)
+{
+    bool ret = appfreezeInner->IsExitApp(AppFreezeType::THREAD_BLOCK_6S);
+    EXPECT_EQ(ret, true);
+    ret = appfreezeInner->IsExitApp(AppFreezeType::LIFECYCLE_HALF_TIMEOUT);
+    EXPECT_EQ(ret, false);
+}
+
+/**
+ * @tc.number: AppfreezeInner_NotifyANR
+ * @tc.name: NotifyANR
+ * @tc.desc: Verify that function IsExitApp.
+ */
+HWTEST_F(AppfreezeInnerTest, AppfreezeInner_NotifyANR, TestSize.Level1)
+{
+    FaultData faultData;
+    faultData.errorObject.name = AppFreezeType::THREAD_BLOCK_6S;
+    int ret = appfreezeInner->NotifyANR(faultData);
+    EXPECT_EQ(ret, -1);
+    std::shared_ptr<EventHandler> eventHandler = std::make_shared<EventHandler>();
+    EXPECT_TRUE(eventHandler != nullptr);
+    AppfreezeInner::SetMainHandler(eventHandler);
+    ret = appfreezeInner->NotifyANR(faultData);
+    EXPECT_EQ(ret, -1);
+    ret = appfreezeInner->AcquireStack(faultData, true);
+    EXPECT_EQ(ret, 0);
+    appfreezeInner->AppFreezeRecovery();
 }
 
 /**

@@ -17,6 +17,7 @@ group("unittest") {
 
   deps += [
     "appfreeze_inner_test:unittest",
+    "appfreeze_manager_test:unittest",
     "watchdog_test:unittest",
   ]
 }
