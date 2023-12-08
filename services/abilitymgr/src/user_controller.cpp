@@ -19,6 +19,7 @@
 #include "app_scheduler.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
+#include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"
 #include "task_data_persistence_mgr.h"
@@ -200,19 +201,27 @@ int32_t UserController::LogoutUser(int32_t userId)
         HILOG_ERROR("not exist such account:%{public}d", userId);
         return INVALID_USERID_VALUE;
     }
+    auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (!abilityManagerService) {
+        HILOG_ERROR("abilityManagerService is null");
+        return -1;
+    }
+    abilityManagerService->RemoveLauncherDeathRecipient(userId);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        HILOG_INFO("SceneBoard exit normally.");
+        Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
+    }
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
         HILOG_ERROR("appScheduler is null");
         return INVALID_USERID_VALUE;
     }
     appScheduler->KillProcessesByUserId(userId);
-    auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
-    if (!abilityManagerService) {
-        HILOG_ERROR("abilityManagerService is null");
-        return -1;
-    }
     abilityManagerService->ClearUserData(userId);
     ClearAbilityUserItems(userId);
+    if (IsCurrentUser(userId)) {
+        SetCurrentUserId(0);
+    }
     return 0;
 }
 

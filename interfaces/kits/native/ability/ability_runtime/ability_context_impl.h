@@ -249,6 +249,12 @@ public:
      * @return UIContent object of ACE.
      */
     Ace::UIContent* GetUIContent() override;
+
+    /**
+     * @brief create modal UIExtension.
+     * @param want Create modal UIExtension with want object.
+     */
+    ErrCode CreateModalUIExtensionWithApp(const Want &want) override;
 #endif
 
 private:

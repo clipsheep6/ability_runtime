@@ -24,8 +24,6 @@
 #include "context.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
-#include "insight_intent_executor_info.h"
-#include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
 #include "js_auto_fill_extension_util.h"
 #include "js_auto_fill_extension_context.h"
@@ -53,6 +51,7 @@ constexpr size_t ARGC_THREE = 3;
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOSAVE = "save";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "fill";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
+constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {
@@ -348,11 +347,6 @@ void JsAutoFillExtension::OnCommandWindow(
     }
     HILOG_DEBUG("Begin. persistentId: %{private}d, winCmd: %{public}d", sessionInfo->persistentId, winCmd);
     Extension::OnCommandWindow(want, sessionInfo, winCmd);
-    if (InsightIntentExecuteParam::IsInsightIntentExecute(want) && winCmd == AAFwk::WIN_CMD_FOREGROUND) {
-        if (ForegroundWindowWithInsightIntent(want, sessionInfo)) {
-            return;
-        }
-    }
     switch (winCmd) {
         case AAFwk::WIN_CMD_FOREGROUND:
             ForegroundWindow(want, sessionInfo);
@@ -368,58 +362,6 @@ void JsAutoFillExtension::OnCommandWindow(
             break;
     }
     OnCommandWindowDone(sessionInfo, winCmd);
-}
-
-bool JsAutoFillExtension::ForegroundWindowWithInsightIntent(
-    const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
-{
-    HILOG_DEBUG("Begin.");
-    if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr.");
-        return false;
-    }
-    std::unique_ptr<InsightIntentExecutorAsyncCallback> executorCallback = nullptr;
-    executorCallback.reset(InsightIntentExecutorAsyncCallback::Create());
-    if (executorCallback == nullptr) {
-        HILOG_ERROR("Create async callback failed.");
-        return false;
-    }
-    executorCallback->Push([weak = weak_from_this(), sessionInfo](AppExecFwk::InsightIntentExecuteResult result) {
-        auto extension = weak.lock();
-        if (extension == nullptr) {
-            HILOG_ERROR("UI extension is nullptr.");
-            return;
-        }
-        extension->OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
-        extension->OnInsightIntentExecuteDone(sessionInfo, result);
-    });
-    auto context = GetContext();
-    if (context == nullptr) {
-        HILOG_ERROR("Context is nullptr.");
-        return false;
-    }
-    auto abilityInfo = context->GetAbilityInfo();
-    if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr.");
-        return false;
-    }
-    InsightIntentExecutorInfo executorInfo;
-    executorInfo.hapPath = abilityInfo->hapPath;
-    executorInfo.windowMode = abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE;
-    executorInfo.token = context->GetToken();
-    executorInfo.pageLoader = contentSessions_[sessionInfo->sessionToken];
-    executorInfo.executeParam = std::make_shared<InsightIntentExecuteParam>();
-    InsightIntentExecuteParam::GenerateFromWant(want, *executorInfo.executeParam);
-    executorInfo.executeParam->executeMode_ = UI_EXTENSION_ABILITY;
-    executorInfo.srcEntry = want.GetStringParam(INSIGHT_INTENT_SRC_ENTRY);
-    HILOG_DEBUG("executorInfo, insightIntentId: %{public}" PRIu64, executorInfo.executeParam->insightIntentId_);
-    int32_t ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
-        jsRuntime_, executorInfo, std::move(executorCallback));
-    if (!ret) {
-        HILOG_ERROR("Execute insight intent failed.");
-    }
-    HILOG_DEBUG("End.");
-    return true;
 }
 
 void JsAutoFillExtension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
@@ -440,45 +382,6 @@ void JsAutoFillExtension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &se
     }
     AAFwk::AbilityManagerClient::GetInstance()->ScheduleCommandAbilityWindowDone(
         context->GetToken(), sessionInfo, winCmd, abilityCmd);
-    HILOG_DEBUG("End.");
-}
-
-void JsAutoFillExtension::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
-    const AppExecFwk::InsightIntentExecuteResult &result)
-{
-    HILOG_DEBUG("Begin.");
-    if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr.");
-        return;
-    }
-    auto obj = sessionInfo->sessionToken;
-    auto res = uiWindowMap_.find(obj);
-    if (res != uiWindowMap_.end() && res->second != nullptr) {
-        WantParams params;
-        params.SetParam(INSIGHT_INTENT_EXECUTE_RESULT_CODE, Integer::Box(result.innerErr));
-        WantParams resultParams;
-        resultParams.SetParam("code", Integer::Box(result.code));
-        if (result.result != nullptr) {
-            sptr<AAFwk::IWantParams> pWantParams = WantParamWrapper::Box(*result.result);
-            if (pWantParams != nullptr) {
-                resultParams.SetParam("result", pWantParams);
-            }
-        }
-        sptr<AAFwk::IWantParams> pWantParams = WantParamWrapper::Box(resultParams);
-        if (pWantParams != nullptr) {
-            params.SetParam(INSIGHT_INTENT_EXECUTE_RESULT, pWantParams);
-        }
-
-        Rosen::WMError ret = res->second->TransferExtensionData(params);
-        if (ret == Rosen::WMError::WM_OK) {
-            HILOG_DEBUG("Transfer extension data success.");
-        } else {
-            HILOG_ERROR("Transfer extension data failed, ret= %{public}d", ret);
-        }
-
-        res->second->Show();
-        foregroundWindows_.emplace(obj);
-    }
     HILOG_DEBUG("End.");
 }
 
@@ -572,6 +475,11 @@ void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         uiWindow->Show();
         HILOG_DEBUG("UI window show.");
         foregroundWindows_.emplace(obj);
+
+        AAFwk::WantParams wantParams;
+        wantParams.SetParam(WANT_PARAMS_AUTO_FILL_EVENT_KEY, AAFwk::Integer::Box(
+            static_cast<int32_t>(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_REMOVE_TIME_OUT)));
+        uiWindow->TransferExtensionData(wantParams);
     }
 }
 

@@ -35,6 +35,7 @@
 #include "app_mgr_constants.h"
 #include "app_scheduler_proxy.h"
 #include "app_record_id.h"
+#include "child_process_record.h"
 #include "fault_data.h"
 #include "profile.h"
 #include "priority_object.h"
@@ -559,7 +560,10 @@ public:
      * @param state, ability or extension state.
      */
     void StateChangedNotifyObserver(
-        const std::shared_ptr<AbilityRunningRecord> &ability, int32_t state, bool isAbility);
+        const std::shared_ptr<AbilityRunningRecord> &ability,
+        int32_t state,
+        bool isAbility,
+        bool isFromWindowFocusChanged);
 
     void insertAbilityStageInfo(std::vector<HapModuleInfo> moduleInfos);
 
@@ -691,6 +695,10 @@ public:
 
     void GetSplitModeAndFloatingMode(bool &isSplitScreenMode, bool &isFloatingWindowMode);
 
+    void AddChildProcessRecord(pid_t pid, const std::shared_ptr<ChildProcessRecord> record);
+    void RemoveChildProcessRecord(const std::shared_ptr<ChildProcessRecord> record);
+    std::shared_ptr<ChildProcessRecord> GetChildProcessRecordByPid(const pid_t pid);
+    std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -826,6 +834,8 @@ private:
     ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 
     std::set<uint32_t> windowIds_;
+    std::map<pid_t, std::shared_ptr<ChildProcessRecord>> childProcessRecordMap_;
+    ffrt::mutex childProcessRecordMapLock_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

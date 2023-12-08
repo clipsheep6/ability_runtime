@@ -288,6 +288,7 @@ private:
     napi_async_work work_ = nullptr;
     std::unique_ptr<ExecuteCallback> execute_;
     std::unique_ptr<CompleteCallback> complete_;
+    napi_env env_ = nullptr;
 };
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,

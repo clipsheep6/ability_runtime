@@ -134,5 +134,17 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     napi_set_named_property(env, object, "abilityType", CreateJsValue(env, abilityStateData.abilityType));
     return object;
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+
+napi_value CreateJsAbilityStateDataArray(
+    napi_env env, const std::vector<AppExecFwk::AbilityStateData> &abilityStateDatas)
+{
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, abilityStateDatas.size(), &arrayValue);
+    uint32_t index = 0;
+    for (const auto &abilityStateData : abilityStateDatas) {
+        napi_set_element(env, arrayValue, index++, CreateJsAbilityStateData(env, abilityStateData));
+    }
+    return arrayValue;
+}
+} // namespace AbilityRuntime
+} // namespace OHOS

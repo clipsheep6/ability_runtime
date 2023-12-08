@@ -23,6 +23,9 @@
 
 namespace OHOS {
 namespace JsEnv {
+namespace {
+static const std::string DEBUGGER = "@Debugger";
+}
 
 static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILERTYPE type)
 {
@@ -162,13 +165,19 @@ bool JsEnvironment::LoadScript(const std::string& path, std::vector<uint8_t>* bu
     return engine_->RunScriptBuffer(path.c_str(), *buffer, isBundle) != nullptr;
 }
 
-bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug)
+bool JsEnvironment::StartDebugger(
+    std::string& option, const char* libraryPath, uint32_t socketFd, bool needBreakPoint, uint32_t instanceId)
 {
+    JSENV_LOG_D("call.");
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
         return false;
     }
-
+    int32_t identifierId = ParseHdcRegisterOption(option);
+    if (identifierId == -1) {
+        JSENV_LOG_E("Abnormal parsing of tid results.");
+        return false;
+    }
     panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
@@ -178,7 +187,9 @@ bool JsEnvironment::StartDebugger(const char* libraryPath, bool needBreakPoint, 
         }
         jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
     };
-    return panda::JSNApi::StartDebugger(vm_, debugOption, instanceId, debuggerPostTask);
+    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(
+        static_cast<uint32_t>(identifierId), debugOption, socketFd, debuggerPostTask);
+    return debugMode_;
 }
 
 void JsEnvironment::StopDebugger()
@@ -189,6 +200,16 @@ void JsEnvironment::StopDebugger()
     }
 
     (void)panda::JSNApi::StopDebugger(vm_);
+}
+
+void JsEnvironment::StopDebugger(std::string& option)
+{
+    int32_t identifierId = ParseHdcRegisterOption(option);
+    if (identifierId == -1) {
+        JSENV_LOG_E("Abnormal parsing of tid results.");
+        return;
+    }
+    panda::JSNApi::StopDebugger(static_cast<uint32_t>(identifierId));
 }
 
 void JsEnvironment::InitConsoleModule()
@@ -239,7 +260,7 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
-    int32_t interval, bool isDebug)
+    int32_t interval, uint32_t tid)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
@@ -260,7 +281,7 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
     option.profilerType = ConvertProfilerType(profiler);
     option.interval = interval;
 
-    panda::DFXJSNApi::StartProfiler(vm_, option, instanceId, debuggerPostTask);
+    panda::DFXJSNApi::StartProfiler(vm_, option, tid, instanceId, debuggerPostTask);
 }
 
 void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
@@ -291,11 +312,51 @@ void JsEnvironment::SetRequestAotCallback(const RequestAotCallback& cb)
 
 void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
 {
+    panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
+}
+
+void JsEnvironment::NotifyDebugMode(
+    uint32_t tid, const char* libraryPath, uint32_t instanceId, bool debug, bool debugMode)
+{
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
         return;
     }
-    panda::JSNApi::SetDeviceDisconnectCallback(vm_, std::move(cb));
+    panda::JSNApi::DebugOption debugOption = {libraryPath, debugMode};
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment:NotifyDebugMode");
+    };
+    panda::JSNApi::NotifyDebugMode(tid, vm_, libraryPath, debugOption, instanceId, debuggerPostTask, debug, debugMode);
+}
+
+int32_t JsEnvironment::ParseHdcRegisterOption(std::string& option)
+{
+    JSENV_LOG_D("Start.");
+    std::size_t pos = option.find_first_of(":");
+    if (pos == std::string::npos) {
+        return -1;
+    }
+    std::string idStr = option.substr(pos + 1);
+    pos = idStr.find(DEBUGGER);
+    if (pos == std::string::npos) {
+        return -1;
+    }
+    idStr = idStr.substr(0, pos);
+    pos = idStr.find("@");
+    if (pos != std::string::npos) {
+        idStr = idStr.substr(pos + 1);
+    }
+    return std::atoi(idStr.c_str());
+}
+
+bool JsEnvironment::GetDebugMode() const
+{
+    return debugMode_;
 }
 } // namespace JsEnv
 } // namespace OHOS

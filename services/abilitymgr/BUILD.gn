@@ -114,6 +114,8 @@ config("abilityms_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
+  cflags +=
+      [ "-DKEY_AUTO_FILL_ABILITY=\"${ability_runtime_auto_fill_ability}\"" ]
 }
 
 ohos_shared_library("abilityms") {
@@ -147,6 +149,7 @@ ohos_shared_library("abilityms") {
     "ability_base:base",
     "ability_base:configuration",
     "ability_base:session_info",
+    "ability_base:view_data",
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",

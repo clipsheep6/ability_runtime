@@ -65,6 +65,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[DUMP_ABILITY_RUNNER_INNER] = &AbilitySchedulerStub::DumpAbilityInfoInner;
     requestFuncMap_[SCHEDULE_SHARE_DATA] = &AbilitySchedulerStub::ShareDataInner;
     requestFuncMap_[SCHEDULE_ONEXECUTE_INTENT] = &AbilitySchedulerStub::OnExecuteIntentInner;
+    requestFuncMap_[CREATE_MODAL_UI_EXTENSION] = &AbilitySchedulerStub::CreateModalUIExtensionInner;
     
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
@@ -635,6 +636,7 @@ int AbilitySchedulerStub::DumpAbilityInfoInner(MessageParcel &data, MessageParce
 
     return NO_ERROR;
 }
+
 int AbilitySchedulerStub::CallRequestInner(MessageParcel &data, MessageParcel &reply)
 {
     CallRequest();
@@ -650,6 +652,21 @@ int AbilitySchedulerStub::OnExecuteIntentInner(MessageParcel &data, MessageParce
         return ERR_INVALID_VALUE;
     }
     OnExecuteIntent(*want);
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::CreateModalUIExtensionInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("AbilitySchedulerStub want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    int ret = CreateModalUIExtension(*want);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("fail to WriteInt32 ret");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

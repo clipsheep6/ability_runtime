@@ -22,13 +22,13 @@
 class NativeReference;
 namespace OHOS {
 namespace AbilityRuntime {
+using AutoFillManagerFunc = std::function<void(int32_t)>;
 class JsSaveRequestCallback : public ISaveRequestCallback {
 public:
-    explicit JsSaveRequestCallback(napi_env env);
+    JsSaveRequestCallback(napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc);
     virtual ~JsSaveRequestCallback();
 
     void Register(napi_value value);
-    void UnRegister(napi_value value);
     void OnSaveRequestSuccess() override;
     void OnSaveRequestFailed() override;
 
@@ -40,6 +40,8 @@ private:
     napi_env env_;
     std::shared_ptr<NativeReference> callback_;
     std::mutex callbackMutex_;
+    int32_t instanceId_;
+    AutoFillManagerFunc autoFillManagerFunc_ = nullptr;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

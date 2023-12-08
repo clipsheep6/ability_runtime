@@ -21,12 +21,49 @@ namespace OHOS {
 namespace AppExecFwk {
 bool AbilityStateData::Marshalling(Parcel &parcel) const
 {
-    return (parcel.WriteString(moduleName) && parcel.WriteString(bundleName) &&
-        parcel.WriteString(abilityName) && parcel.WriteInt32(abilityState) &&
-        parcel.WriteInt32(pid) && parcel.WriteInt32(uid) &&
-        (static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(token) &&
-        parcel.WriteInt32(abilityType) && parcel.WriteBool(isFocused) && parcel.WriteString(callerBundleName) &&
-        parcel.WriteString(callerAbilityName));
+    if (!parcel.WriteString(moduleName)) {
+        return false;
+    }
+    if (!parcel.WriteString(bundleName)) {
+        return false;
+    }
+    if (!parcel.WriteString(abilityName)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(abilityState)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(pid)) {
+        return false;
+    }
+    if (!parcel.WriteInt32(uid)) {
+        return false;
+    }
+    if (token == nullptr) {
+        if (!parcel.WriteBool(false)) {
+            return false;
+        }
+    } else {
+        if (!parcel.WriteBool(true)) {
+            return false;
+        }
+        if (!parcel.WriteObject(token)) {
+            return false;
+        }
+    }
+    if (!parcel.WriteInt32(abilityType)) {
+        return false;
+    }
+    if (!parcel.WriteBool(isFocused)) {
+        return false;
+    }
+    if (!parcel.WriteString(callerBundleName)) {
+        return false;
+    }
+    if (!parcel.WriteString(callerAbilityName)) {
+        return false;
+    }
+    return true;
 }
 
 bool AbilityStateData::ReadFromParcel(Parcel &parcel)
@@ -43,7 +80,9 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
 
     uid = parcel.ReadInt32();
 
-    token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    if (parcel.ReadBool()) {
+        token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+    }
 
     abilityType = parcel.ReadInt32();
 

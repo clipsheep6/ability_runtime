@@ -127,6 +127,22 @@ public:
     int32_t CheckAutoStartupData(const std::string &bundleName, int32_t uid);
 
     /**
+     * @brief Set application auto start up state by EDM.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag);
+
+    /**
+     * @brief Cancel application auto start up state by EDM.
+     * @param info The auto startup info, include bundle name, module name, ability name.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag);
+
+    /**
      * @class ClientDeathRecipient
      * notices IRemoteBroker died.
      */
@@ -165,6 +181,9 @@ private:
     std::shared_ptr<AppExecFwk::BundleMgrClient> GetBundleMgrClient();
     int32_t CheckPermissionForSystem();
     int32_t CheckPermissionForSelf(const std::string &bundleName);
+    int32_t CheckPermissionForEDM();
+    int32_t InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag);
+    int32_t GetAbilityInfo(const AutoStartupInfo &info, std::string &abilityTypeName);
 
     mutable std::mutex autoStartUpMutex_;
     mutable std::mutex deathRecipientsMutex_;

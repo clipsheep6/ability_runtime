@@ -70,9 +70,12 @@ public:
 
     bool LoadScript(const std::string& path, std::vector<uint8_t>* buffer = nullptr, bool isBundle = false);
 
-    bool StartDebugger(const char* libraryPath, bool needBreakPoint, uint32_t instanceId, bool isDebug = true);
+    bool StartDebugger(
+        std::string& option, const char* libraryPath, uint32_t socketFd, bool needBreakPoint, uint32_t instanceId);
 
     void StopDebugger();
+
+    void StopDebugger(std::string& option);
 
     void InitConsoleModule();
 
@@ -82,8 +85,8 @@ public:
 
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
 
-    void StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval,
-                       bool isDebug = true);
+    void StartProfiler(
+        const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, uint32_t tid);
 
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
@@ -92,11 +95,18 @@ public:
     void SetRequestAotCallback(const RequestAotCallback& cb);
 
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb);
+
+    void NotifyDebugMode(uint32_t tid, const char* libraryPath, uint32_t instanceId, bool isDebugApp, bool debugMode);
+
+    bool GetDebugMode() const;
+
+    int32_t ParseHdcRegisterOption(std::string& option);
 private:
     std::unique_ptr<JsEnvironmentImpl> impl_ = nullptr;
     NativeEngine* engine_ = nullptr;
     panda::ecmascript::EcmaVM* vm_ = nullptr;
     std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;
+    bool debugMode_ = false;
 };
 } // namespace JsEnv
 } // namespace OHOS

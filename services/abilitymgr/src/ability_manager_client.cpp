@@ -15,21 +15,21 @@
 
 #include "ability_manager_client.h"
 
-#include "string_ex.h"
 #include "ability_manager_interface.h"
+#include "string_ex.h"
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
+#include "scene_board_judgement.h"
 #include "session_info.h"
+#include "session_manager.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-#include "hitrace_meter.h"
-#include "scene_board_judgement.h"
-#include "session_manager.h"
 #include "ws_common.h"
 
 namespace OHOS {
@@ -433,7 +433,7 @@ ErrCode AbilityManagerClient::ConnectExtensionAbility(const Want &want, sptr<IAb
 }
 
 ErrCode AbilityManagerClient::ConnectUIExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
-    sptr<SessionInfo> sessionInfo, int32_t userId)
+    sptr<SessionInfo> sessionInfo, int32_t userId, sptr<UIExtensionAbilityConnectInfo> connectInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
@@ -447,7 +447,7 @@ ErrCode AbilityManagerClient::ConnectUIExtensionAbility(const Want &want, sptr<I
     HILOG_INFO("name:%{public}s %{public}s, uri:%{public}s.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
         want.GetUriString().c_str());
-    return abms->ConnectUIExtensionAbility(want, connect, sessionInfo, userId);
+    return abms->ConnectUIExtensionAbility(want, connect, sessionInfo, userId, connectInfo);
 }
 
 ErrCode AbilityManagerClient::DisconnectAbility(sptr<IAbilityConnection> connect)
@@ -552,12 +552,12 @@ ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName
 }
 #endif
 
-ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName)
+ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     HILOG_INFO("call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->ClearUpApplicationData(bundleName);
+    return abms->ClearUpApplicationData(bundleName, userId);
 }
 
 ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
@@ -1176,6 +1176,20 @@ ErrCode AbilityManagerClient::PrepareTerminateAbility(sptr<IRemoteObject> token,
     }
     return abms->PrepareTerminateAbility(token, callback);
 }
+
+ErrCode AbilityManagerClient::GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->GetDialogSessionInfo(dialogSessionId, info);
+}
+
+ErrCode AbilityManagerClient::SendDialogResult(const Want &want, const std::string dialogSessionId, const bool isAllow)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SendDialogResult(want, dialogSessionId, isAllow);
+}
 #endif
 
 ErrCode AbilityManagerClient::DoAbilityForeground(sptr<IRemoteObject> token, uint32_t flag)
@@ -1644,6 +1658,14 @@ ErrCode AbilityManagerClient::ExecuteInsightIntentDone(sptr<IRemoteObject> token
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteInsightIntentDone(token, intentId, result);
+}
+
+int32_t AbilityManagerClient::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->GetForegroundUIAbilities(list);
 }
 
 int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)

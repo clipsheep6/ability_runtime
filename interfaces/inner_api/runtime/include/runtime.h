@@ -75,7 +75,7 @@ public:
 
     virtual Language GetLanguage() const = 0;
 
-    virtual void StartDebugMode(bool needBreakPoint, bool isDebug = true) = 0;
+    virtual void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true) = 0;
     virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
@@ -87,7 +87,8 @@ public:
     virtual bool NotifyHotReloadPage() = 0;
     virtual bool UnLoadRepairPatch(const std::string& patchFile) = 0;
     virtual void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) = 0;
-    virtual void StartProfiler(const std::string &perfCmd, bool isDebug = true) = 0;
+    virtual void StartProfiler(
+        const std::string &perfCmd, bool needBreakPoint, const std::string &processName, bool isDebug = true) = 0;
     virtual void DoCleanWorkAfterStageCleaned() = 0;
     virtual void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate) const {}
     virtual void SetDeviceDisconnectCallback(const std::function<bool()> &cb) = 0;

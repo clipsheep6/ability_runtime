@@ -171,8 +171,8 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int defualtDisplayId = Rosen::DisplayManager::GetInstance().GetDefaultDisplayId();
-        int displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        int32_t  defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        int32_t  displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
         if (!abilityInfo_->isStageBasedModel) {
             auto option = GetWindowOption(want);
@@ -2131,6 +2131,17 @@ int Ability::GetDisplayOrientation()
 void Ability::ContinuationRestore(const Want &want)
 {
     HILOG_DEBUG("called");
+}
+
+int Ability::CreateModalUIExtension(const Want &want)
+{
+    HILOG_DEBUG("call");
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilitycontext is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return abilityContextImpl->CreateModalUIExtensionWithApp(want);
 }
 #endif
 }  // namespace AppExecFwk

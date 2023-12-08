@@ -303,8 +303,9 @@ HWTEST_F(WatchdogTest, WatchdogTest_Timer_002, TestSize.Level1)
     bool isInBackground = true;
     EXPECT_TRUE(watchdog_->isInBackground_);
     watchdog_->SetBackgroundStatus(isInBackground);
+    watchdog_->SetAppMainThreadState(true);
     watchdog_->Timer();
-    EXPECT_TRUE(watchdog_->appMainThreadIsAlive_);
+    EXPECT_FALSE(watchdog_->appMainThreadIsAlive_);
     GTEST_LOG_(INFO) << "WatchdogTest_Timer_002 end";
 }
 

@@ -120,10 +120,7 @@ bool AppfreezeInner::IsExitApp(const std::string& name)
 int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
 {
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeInner::AcquireStack name:%s", info.errorObject.name.c_str());
-    StartTrace(HITRACE_TAG_APP, "dumper MixStack");
-    std::string stack = MixStackDumper::GetMixStack(onlyMainThread);
-    FinishTrace(HITRACE_TAG_APP);
-
+    std::string stack = "";
     std::string msgContent;
 
     auto mainHandler = appMainHandler_.lock();

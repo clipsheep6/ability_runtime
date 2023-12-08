@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_JS_ENVIRONMENT_SOURCE_MAP_OPERATOR_H
 #define OHOS_ABILITY_JS_ENVIRONMENT_SOURCE_MAP_OPERATOR_H
 #include <memory>
+#include <set>
 #include <string>
 
 #include "js_env_logger.h"
@@ -34,13 +35,18 @@ public:
     {
         SourceMap sourceMapObj;
         std::vector<std::string> res;
+        std::set<std::string> hapNames;
         sourceMapObj.ExtractStackInfo(stackStr, res);
-        res.erase(unique(res.begin(), res.end()), res.end());
         for (uint32_t i = 0; i < res.size(); i++) {
             size_t start = res[i].find_first_of("(");
             size_t end = res[i].find_first_of("/");
             if (start != std::string::npos && end != std::string::npos) {
-                std::string hapPath = sourceMapObj.GetHapPath(res[i].substr(start + 1, end - start - 1), bundleName_);
+                hapNames.insert(res[i].substr(start + 1, end - start - 1));
+            }
+        }
+        for (auto &hapName : hapNames) {
+            std::string hapPath = sourceMapObj.GetHapPath(hapName, bundleName_);
+            if (!hapPath.empty()) {
                 sourceMapObj.Init(isModular_, hapPath);
             }
         }

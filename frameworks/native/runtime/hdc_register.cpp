@@ -21,7 +21,8 @@
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
-using StartRegister = void (*)(const std::string& pkgName);
+using StartRegister = void (*)(const std::string& processName, const std::string& pkgName, bool isDebug,
+    const HdcRegisterCallback& callback);
 using StopRegister = void (*)();
 
 HdcRegister::~HdcRegister()
@@ -35,7 +36,8 @@ HdcRegister& HdcRegister::Get()
     return hdcRegister;
 }
 
-void HdcRegister::StartHdcRegister(const std::string& bundleName)
+void HdcRegister::StartHdcRegister(const std::string& bundleName, const std::string& processName, bool debugApp,
+    HdcRegisterCallback callback)
 {
     HILOG_DEBUG("HdcRegister::StartHdcRegister begin");
 
@@ -49,7 +51,8 @@ void HdcRegister::StartHdcRegister(const std::string& bundleName)
         HILOG_ERROR("HdcRegister::StartHdcRegister failed to find symbol 'StartConnect'");
         return;
     }
-    startRegister(bundleName);
+    startRegister(processName, bundleName, debugApp, callback);
+    
     HILOG_DEBUG("HdcRegister::StartHdcRegister end");
 }
 

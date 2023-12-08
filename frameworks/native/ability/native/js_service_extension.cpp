@@ -85,7 +85,6 @@ using namespace OHOS::AppExecFwk;
 
 napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
 {
-    HILOG_INFO("call");
     if (value == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -238,13 +237,10 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
         env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, workContext, nullptr);
     HILOG_INFO("JsServiceExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
-    HILOG_INFO("JsServiceExtension::SetProperty.");
     napi_set_named_property(env, obj, "context", contextObj);
-    HILOG_INFO("Set service extension context");
 
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void* data, void*) {
-            HILOG_INFO("Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<ServiceExtensionContext>*>(data);
         },
         nullptr, nullptr);
@@ -259,7 +255,7 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
 
     auto context = GetContext();
     if (context != nullptr) {
-        int displayId = Rosen::DisplayManager::GetInstance().GetDefaultDisplayId();
+        int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
         HILOG_INFO("JsServiceExtension::OnStart displayId %{public}d", displayId);
         auto configUtils = std::make_shared<ConfigurationUtils>();
@@ -358,6 +354,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
 void JsServiceExtension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
     HILOG_DEBUG("%{public}s begin.", __func__);
     CallOnDisconnect(want, false);
@@ -368,6 +365,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
     HILOG_DEBUG("%{public}s start.", __func__);
     napi_value result = CallOnDisconnect(want, true);

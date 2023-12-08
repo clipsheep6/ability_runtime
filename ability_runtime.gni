@@ -85,6 +85,8 @@ declare_args() {
   ability_fault_and_exit_test = false
   ability_command_for_test = false
   ability_runtime_feature_coverage = false
+  ability_runtime_auto_fill_ability =
+      "com.ohos.passwordbox/entry/AutoFillAbility"
 
   if (!defined(global_parts_info) ||
       defined(global_parts_info.account_os_account)) {

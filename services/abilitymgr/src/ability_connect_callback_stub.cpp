@@ -141,22 +141,20 @@ int AbilityConnectionStub::OnRemoteRequest(
                 return ERR_INVALID_VALUE;
             }
             auto resultCode = data.ReadInt32();
-            HILOG_INFO("AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
             OnAbilityConnectDone(*element, remoteObject, resultCode);
-            HILOG_INFO("AbilityConnectionStub ON_ABILITY_CONNECT_DONE end");
+            HILOG_DEBUG("AbilityConnectionStub ON_ABILITY_CONNECT_DONE end");
             delete element;
             return NO_ERROR;
         }
         case IAbilityConnection::ON_ABILITY_DISCONNECT_DONE: {
             auto resultCode = data.ReadInt32();
-            HILOG_INFO("AbilityConnectionStub ON_ABILITY_DISCONNECT_DONE");
             OnAbilityDisconnectDone(*element, resultCode);
+            HILOG_DEBUG("AbilityConnectionStub ON_ABILITY_DISCONNECT_DONE");
             delete element;
             return NO_ERROR;
         }
         case IAbilityConnection::ON_REMOTE_STATE_CHANGED: {
             int32_t abilityState = data.ReadInt32();
-            HILOG_INFO("AbilityConnectionStub ON_REMOTE_STATE_CHANGED");
             OnRemoteStateChanged(*element, abilityState);
             delete element;
             return NO_ERROR;

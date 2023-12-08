@@ -39,6 +39,8 @@ static napi_value InitAreaModeObject(napi_env env)
 
     NAPI_CALL(env, SetEnumItem(env, object, "EL1", 0));
     NAPI_CALL(env, SetEnumItem(env, object, "EL2", 1));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL3", 2));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL4", 3));
 
     return object;
 }

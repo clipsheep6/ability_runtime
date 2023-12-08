@@ -25,6 +25,7 @@
 #include "app_record_id.h"
 #include "application_info.h"
 #include "bundle_info.h"
+#include "child_process_info.h"
 #include "fault_data.h"
 #include "iapp_state_callback.h"
 #include "iapplication_state_observer.h"
@@ -109,9 +110,11 @@ public:
      * clear the application data.
      *
      * @param bundleName, bundle name in Application record.
+     * @param userId the user id.
      * @return
      */
-    virtual int32_t ClearUpApplicationData(const std::string &bundleName) = 0;
+    virtual int32_t ClearUpApplicationData(const std::string &bundleName,
+        const int32_t userId = -1) = 0;
 
     /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
@@ -482,6 +485,43 @@ public:
      */
     virtual int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer) = 0;
 
+    /**
+     * Check whether the bundle is running.
+     * 
+     * @param bundleName Indicates the bundle name of the bundle.
+     * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
+     * @return Return ERR_OK if success, others fail.
+     */
+    virtual int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) = 0;
+
+    /**
+     * Start child process, called by ChildProcessManager.
+     *
+     * @param srcEntry Child process source file entrance path to be started.
+     * @param childPid Created child process pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t StartChildProcess(const std::string &srcEntry, pid_t &childPid) = 0;
+
+    /**
+     * Get child process record for self.
+     *
+     * @return child process info.
+     */
+    virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info) = 0;
+
+    /**
+     * Attach child process scheduler to app manager service.
+     *
+     * @param childScheduler scheduler of child process.
+     */
+    virtual void AttachChildProcess(const sptr<IRemoteObject> &childScheduler) = 0;
+
+    /**
+     * Exit child process, called by itself.
+     */
+    virtual void ExitChildProcessSafely() = 0;
+    
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,

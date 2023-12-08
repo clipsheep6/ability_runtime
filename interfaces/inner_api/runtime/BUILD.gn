@@ -18,6 +18,7 @@ config("runtime_config") {
   visibility = [ ":*" ]
 
   defines = [ "AMS_LOG_TAG = \"Runtime\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001309" ]
 
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]

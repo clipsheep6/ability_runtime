@@ -715,7 +715,10 @@ std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleNa
 }
 
 void AppRunningRecord::StateChangedNotifyObserver(
-    const std::shared_ptr<AbilityRunningRecord> &ability, const int32_t state, bool isAbility)
+    const std::shared_ptr<AbilityRunningRecord> &ability,
+    const int32_t state,
+    bool isAbility,
+    bool isFromWindowFocusChanged)
 {
     if (!ability || ability->GetAbilityInfo() == nullptr) {
         HILOG_ERROR("ability is null");
@@ -742,7 +745,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     }
     auto serviceInner = appMgrServiceInner_.lock();
     if (serviceInner) {
-        serviceInner->StateChangedNotifyObserver(abilityStateData, isAbility);
+        serviceInner->StateChangedNotifyObserver(abilityStateData, isAbility, isFromWindowFocusChanged);
     }
 }
 
@@ -833,7 +836,8 @@ void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, cons
         return;
     }
     if (state == AbilityState::ABILITY_STATE_CREATE) {
-        StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true);
+        StateChangedNotifyObserver(
+            abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_CREATE), true, false);
         return;
     }
     if (state == abilityRecord->GetState()) {
@@ -872,7 +876,7 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
-        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
+        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
             serviceInner->OnAppStateChanged(shared_from_this(), curState_, false, false);
@@ -913,7 +917,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
     // First change ability to background.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
-    StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true);
+    StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
     if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
         int32_t foregroundSize = 0;
         auto abilitiesMap = GetAbilities();
@@ -955,7 +959,7 @@ bool AppRunningRecord::AbilityFocused(const std::shared_ptr<AbilityRunningRecord
     if (ability->GetAbilityInfo() != nullptr && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         isAbility = false;
     }
-    StateChangedNotifyObserver(ability, abilityState, isAbility);
+    StateChangedNotifyObserver(ability, abilityState, isAbility, true);
 
     if (isFocused_) {
         // process state is already focused, no need update process state.
@@ -982,7 +986,7 @@ bool AppRunningRecord::AbilityUnfocused(const std::shared_ptr<AbilityRunningReco
     if (ability->GetAbilityInfo() != nullptr && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         isAbility = false;
     }
-    StateChangedNotifyObserver(ability, abilityState, isAbility);
+    StateChangedNotifyObserver(ability, abilityState, isAbility, true);
 
     if (!isFocused_) {
         return false; // invalid process focus state, already unfocused, process state not change.
@@ -1011,7 +1015,7 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
         auto ability = GetAbilityRunningRecordByToken(*iter);
         auto moduleRecord = GetModuleRunningRecordByToken(*iter);
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
-        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true);
+        StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         iter = foregroundingAbilityTokens_.erase(iter);
     }
 }
@@ -1027,7 +1031,8 @@ void AppRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, const 
     }
 
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
-    StateChangedNotifyObserver(abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true);
+    StateChangedNotifyObserver(
+        abilityRecord, static_cast<int32_t>(AbilityState::ABILITY_STATE_TERMINATED), true, false);
     moduleRecord->TerminateAbility(shared_from_this(), token, isForce);
 }
 
@@ -1849,6 +1854,52 @@ void AppRunningRecord::SetApplicationPendingState(ApplicationPendingState pendin
 ApplicationPendingState AppRunningRecord::GetApplicationPendingState() const
 {
     return pendingState_;
+}
+
+void AppRunningRecord::AddChildProcessRecord(pid_t pid, const std::shared_ptr<ChildProcessRecord> record)
+{
+    if (!record) {
+        HILOG_ERROR("record is null.");
+        return;
+    }
+    if (pid <= 0) {
+        HILOG_ERROR("pid <= 0.");
+        return;
+    }
+    std::lock_guard lock(childProcessRecordMapLock_);
+    childProcessRecordMap_.emplace(pid, record);
+}
+
+void AppRunningRecord::RemoveChildProcessRecord(const std::shared_ptr<ChildProcessRecord> record)
+{
+    HILOG_INFO("Removing child process record, pid: %{public}d", record->GetPid());
+    if (!record) {
+        HILOG_ERROR("record is null.");
+        return;
+    }
+    auto pid = record->GetPid();
+    if (pid <= 0) {
+        HILOG_ERROR("record.pid <= 0.");
+        return;
+    }
+    std::lock_guard lock(childProcessRecordMapLock_);
+    childProcessRecordMap_.erase(pid);
+}
+
+std::shared_ptr<ChildProcessRecord> AppRunningRecord::GetChildProcessRecordByPid(const pid_t pid)
+{
+    std::lock_guard lock(childProcessRecordMapLock_);
+    auto iter = childProcessRecordMap_.find(pid);
+    if (iter == childProcessRecordMap_.end()) {
+        return nullptr;
+    }
+    return iter->second;
+}
+
+std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChildProcessRecordMap()
+{
+    std::lock_guard lock(childProcessRecordMapLock_);
+    return childProcessRecordMap_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

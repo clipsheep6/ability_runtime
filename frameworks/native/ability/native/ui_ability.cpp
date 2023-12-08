@@ -894,7 +894,7 @@ void UIAbility::ContinuationRestore(const AAFwk::Want &want)
 void UIAbility::OnStartForSupportGraphics(const AAFwk::Want &want)
 {
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int32_t defualtDisplayId = Rosen::WindowScene::DEFAULT_DISPLAY_ID;
+        int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         int32_t displayId = want.GetIntParam(AAFwk::Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName: %{public}s, displayId: %{public}d.", abilityInfo_->name.c_str(), displayId);
         auto option = GetWindowOption(want);
@@ -996,6 +996,17 @@ void UIAbility::ExecuteInsightIntentBackground(const AAFwk::Want &want,
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback)
 {
     HILOG_DEBUG("called");
+}
+
+int UIAbility::CreateModalUIExtension(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilityContext is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return abilityContextImpl->CreateModalUIExtensionWithApp(want);
 }
 #endif
 } // namespace AbilityRuntime

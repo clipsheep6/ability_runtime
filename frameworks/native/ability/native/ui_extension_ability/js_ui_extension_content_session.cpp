@@ -47,6 +47,7 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char* PERMISSION_PRIVACY_WINDOW = "ohos.permission.PRIVACY_WINDOW";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+const std::string FLAG_AUTH_READ_URI_PERMISSION = "ability.want.params.uriPermissionFlag";
 } // namespace
 
 #define CHECK_IS_SYSTEM_APP                                                             \
@@ -107,7 +108,7 @@ JsUIExtensionContentSession::JsUIExtensionContentSession(
     } else if (sessionInfo == nullptr) {
         HILOG_ERROR("sessionInfo is nullptr");
     } else {
-        abilityResultListeners->AddListener(sessionInfo->sessionToken, listener_);
+        abilityResultListeners->AddListener(sessionInfo->uiExtensionComponentId, listener_);
     }
 }
 
@@ -726,16 +727,16 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
     wantParam.SetParam(UIEXTENSION_TARGET_TYPE_KEY, AAFwk::String::Box(type));
     AAFwk::Want want;
     want.SetParams(wantParam);
+    if (wantParam.HasParam(FLAG_AUTH_READ_URI_PERMISSION)) {
+        int32_t flag = wantParam.GetIntParam(FLAG_AUTH_READ_URI_PERMISSION, 0);
+        want.SetFlags(flag);
+        wantParam.Remove(FLAG_AUTH_READ_URI_PERMISSION);
+    }
     std::shared_ptr<JsUIExtensionCallback> uiExtensionCallback = std::make_shared<JsUIExtensionCallback>(env);
     uiExtensionCallback->SetJsCallbackObject(info.argv[INDEX_TWO]);
     NapiAsyncTask::CompleteCallback complete = [uiWindow = uiWindow_, type, want, uiExtensionCallback]
         (napi_env env, NapiAsyncTask& task, int32_t status) {
-            if (uiWindow == nullptr) {
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-                return;
-            }
-            auto uiContent = uiWindow->GetUIContent();
-            if (uiContent == nullptr) {
+            if (uiWindow == nullptr || uiWindow->GetUIContent() == nullptr) {
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
@@ -744,6 +745,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityByType(napi_env env, NapiC
             callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease,
                 uiExtensionCallback, std::placeholders::_1);
             Ace::ModalUIExtensionConfig config;
+            auto uiContent = uiWindow->GetUIContent();
             int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
             if (sessionId == 0) {
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));

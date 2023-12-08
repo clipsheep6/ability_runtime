@@ -340,6 +340,7 @@ public:
     virtual Ace::UIContent* GetUIContent() = 0;
     virtual ErrCode StartAbilityByType(const std::string &type, AAFwk::WantParams &wantParam,
         const std::shared_ptr<JsUIExtensionCallback> &uiExtensionCallbacks) = 0;
+    virtual ErrCode CreateModalUIExtensionWithApp(const AAFwk::Want &want) = 0;
 #endif
     virtual bool IsTerminating() = 0;
     virtual void SetTerminating(bool state) = 0;

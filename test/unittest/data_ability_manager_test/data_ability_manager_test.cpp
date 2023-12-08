@@ -25,6 +25,7 @@
 #undef protected
 
 #include "ability_scheduler_mock.h"
+#include "app_utils.h"
 #include "mock_app_mgr_client.h"
 #include "ability_manager_errors.h"
 

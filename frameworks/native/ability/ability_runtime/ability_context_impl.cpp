@@ -21,6 +21,7 @@
 #include "hitrace_meter.h"
 #include "connection_manager.h"
 #include "dialog_request_callback_impl.h"
+#include "dialog_ui_extension_callback.h"
 #include "hilog_wrapper.h"
 #include "remote_object_wrapper.h"
 #include "request_constants.h"
@@ -38,6 +39,8 @@ namespace AbilityRuntime {
 const size_t AbilityContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("AbilityContext"));
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string UIEXTENSION_TARGET_TYPE_KEY = "ability.want.params.uiExtensionTargetType";
+const std::string FLAG_AUTH_READ_URI_PERMISSION = "ability.want.params.uriPermissionFlag";
+
 struct RequestResult {
     int32_t resultCode {0};
     AAFwk::Want resultWant;
@@ -778,6 +781,11 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     wantParams.SetParam(UIEXTENSION_TARGET_TYPE_KEY, AAFwk::String::Box(type));
     AAFwk::Want want;
     want.SetParams(wantParams);
+    if (wantParams.HasParam(FLAG_AUTH_READ_URI_PERMISSION)) {
+        int32_t flag = wantParams.GetIntParam(FLAG_AUTH_READ_URI_PERMISSION, 0);
+        want.SetFlags(flag);
+        wantParams.Remove(FLAG_AUTH_READ_URI_PERMISSION);
+    }
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
     callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease, uiExtensionCallbacks, std::placeholders::_1);
@@ -789,6 +797,29 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     }
     uiExtensionCallbacks->SetUIContent(uiContent);
     uiExtensionCallbacks->SetSessionId(sessionId);
+    return ERR_OK;
+}
+
+ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    auto uiContent = GetUIContent();
+    if (uiContent == nullptr) {
+        HILOG_ERROR("uiContent is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto disposedCallback = std::make_shared<DialogUIExtensionCallback>();
+    Ace::ModalUIExtensionCallbacks callback;
+    callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
+    callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
+    Ace::ModalUIExtensionConfig config;
+    int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+    if (sessionId == 0) {
+        HILOG_ERROR("CreateModalUIExtension is failed");
+        return ERR_INVALID_VALUE;
+    }
+    disposedCallback->SetUIContent(uiContent);
+    disposedCallback->SetSessionId(sessionId);
     return ERR_OK;
 }
 #endif

@@ -43,7 +43,7 @@ bool RemoveResource(const std::string &path, const std::vector<std::string> &ove
     return true;
 }
 
-RState UpdateResConfig(ResConfig &resConfig)
+RState UpdateResConfig(ResConfig &resConfig, bool isUpdateTheme = false)
 {
     return SUCCESS;
 }
@@ -198,6 +198,16 @@ RState GetMediaById(uint32_t id, std::string &outValue, uint32_t density)
 }
 
 RState GetMediaByName(const char *name, std::string &outValue, uint32_t density)
+{
+    return SUCCESS;
+}
+
+RState GetSymbolById(uint32_t id, uint32_t &outValue)
+{
+    return SUCCESS;
+}
+
+RState GetSymbolByName(const char *name, uint32_t &outValue)
 {
     return SUCCESS;
 }

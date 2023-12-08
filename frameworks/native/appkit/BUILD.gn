@@ -123,6 +123,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
+    "${ability_runtime_native_path}/appkit/app/child_main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/extension_plugin_info.cpp",
     "${ability_runtime_native_path}/appkit/app/idle_time.cpp",
     "${ability_runtime_native_path}/appkit/app/main_thread.cpp",
@@ -140,6 +141,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_abilitymgr_path}/:abilityms",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/child_process_manager:child_process_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -150,6 +152,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
+    "${ability_runtime_services_path}/common:app_util",
   ]
 
   external_deps = [
@@ -390,6 +393,45 @@ ohos_shared_library("appkit_delegator") {
 
 config("application_context_manager_config") {
   include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context" ]
+}
+
+ohos_shared_library("appkit_manager_helper") {
+  include_dirs = [
+    "native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/app",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+  ]
+
+  configs = [ ":appkit_config" ]
+
+  sources = [ "${ability_runtime_native_path}/appkit/ability_bundle_manager_helper/bundle_mgr_helper.cpp" ]
+
+  cflags = []
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = []
+
+  external_deps = [
+    "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "samgr:samgr_proxy",
+  ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
+  }
+
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }
 
 ohos_shared_library("application_context_manager") {

@@ -154,7 +154,7 @@ sptr<IAmsMgr> AppMgrProxy::GetAmsMgr()
     return amsMgr;
 }
 
-int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName)
+int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -165,6 +165,10 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName)
     if (!data.WriteString(bundleName)) {
         HILOG_ERROR("parcel WriteString failed");
         return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return ERR_INVALID_VALUE;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA, data, reply, option);
     if (ret != NO_ERROR) {
@@ -1466,6 +1470,128 @@ int32_t AppMgrProxy::UnregisterAppForegroundStateObserver(const sptr<IAppForegro
         return error;
     }
     return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Called.");
+    isRunning = false;
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::IS_APPLICATION_RUNNING,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+
+    isRunning = reply.ReadBool();
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid)
+{
+    HILOG_DEBUG("called");
+    if (srcEntry.empty()) {
+        HILOG_ERROR("Invalid params, srcEntry:%{private}s", srcEntry.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteString(srcEntry)) {
+        HILOG_ERROR("Write param srcEntry failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = SendRequest(AppMgrInterfaceCode::START_CHILD_PROCESS, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("StartChildProcess SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    auto result = reply.ReadInt32();
+    if (result == ERR_OK) {
+        childPid = reply.ReadInt32();
+    }
+    return result;
+}
+
+int32_t AppMgrProxy::GetChildProcessInfoForSelf(ChildProcessInfo &info)
+{
+    HILOG_DEBUG("called");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = SendRequest(AppMgrInterfaceCode::GET_CHILD_PROCCESS_INFO_FOR_SELF, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("GetChildProcessInfoForSelf SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    auto result = reply.ReadInt32();
+    if (result == ERR_OK) {
+        std::unique_ptr<ChildProcessInfo> infoReply(reply.ReadParcelable<ChildProcessInfo>());
+        info = *infoReply;
+    }
+    return result;
+}
+
+void AppMgrProxy::AttachChildProcess(const sptr<IRemoteObject> &childScheduler)
+{
+    HILOG_DEBUG("called");
+    if (!childScheduler) {
+        HILOG_ERROR("childScheduler is null");
+        return;
+    }
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return;
+    }
+    if (!data.WriteRemoteObject(childScheduler.GetRefPtr())) {
+        HILOG_ERROR("Failed to write remote object");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = SendRequest(AppMgrInterfaceCode::ATTACH_CHILD_PROCESS, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("AttachChildProcess SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
+void AppMgrProxy::ExitChildProcessSafely()
+{
+    HILOG_DEBUG("called");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("WriteInterfaceToken failed");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = SendRequest(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("ExitChildProcessSafely SendRequest is failed, error code: %{public}d", ret);
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

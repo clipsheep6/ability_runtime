@@ -327,9 +327,9 @@ HWTEST_F(AppSpawnSocketTest, StateChangedNotifyObserver_001, TestSize.Level0)
     ASSERT_NE(manager, nullptr);
     AbilityStateData abilityStateData;
     bool isAbility = false;
-    manager->StateChangedNotifyObserver(abilityStateData, isAbility);
+    manager->StateChangedNotifyObserver(abilityStateData, isAbility, false);
     manager->Init();
-    manager->StateChangedNotifyObserver(abilityStateData, isAbility);
+    manager->StateChangedNotifyObserver(abilityStateData, isAbility, false);
 }
 
 /*
@@ -699,7 +699,7 @@ HWTEST_F(AppSpawnSocketTest, HandleStateChangedNotifyObserver_001, TestSize.Leve
     abilityStateData.bundleName = bundleName;
     bundleNameList.push_back(bundleName);
     manager->appStateObserverMap_.emplace(observer_, bundleNameList);
-    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility);
+    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility, false);
 }
 
 /*
@@ -720,7 +720,7 @@ HWTEST_F(AppSpawnSocketTest, HandleStateChangedNotifyObserver_002, TestSize.Leve
     std::string bundleName = "com.ohos.unittest";
     abilityStateData.bundleName = bundleName;
     manager->appStateObserverMap_.emplace(observer_, bundleNameList);
-    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility);
+    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility, false);
 }
 
 /*
@@ -743,7 +743,7 @@ HWTEST_F(AppSpawnSocketTest, HandleStateChangedNotifyObserver_003, TestSize.Leve
     abilityStateData.bundleName = bundleName1;
     bundleNameList.push_back(bundleName2);
     manager->appStateObserverMap_.emplace(observer_, bundleNameList);
-    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility);
+    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility, false);
 }
 
 /*
@@ -765,7 +765,7 @@ HWTEST_F(AppSpawnSocketTest, HandleStateChangedNotifyObserver_004, TestSize.Leve
     abilityStateData.bundleName = bundleName;
     bundleNameList.push_back(bundleName);
     manager->appStateObserverMap_.emplace(nullptr, bundleNameList);
-    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility);
+    manager->HandleStateChangedNotifyObserver(abilityStateData, isAbility, false);
 }
 
 /*

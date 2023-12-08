@@ -353,6 +353,8 @@ config("extensionkit_public_config") {
 }
 
 ohos_shared_library("extensionkit_native") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
@@ -591,6 +593,8 @@ ohos_shared_library("ability_thread") {
 }
 
 ohos_shared_library("form_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   if (ability_runtime_graphics) {
     include_dirs = [
       "${ability_runtime_path}/interfaces/kits/native/ability/native",
@@ -659,6 +663,8 @@ ohos_shared_library("form_extension_module") {
 }
 
 ohos_shared_library("service_extension") {
+  defines = [ "AMS_LOG_TAG = \"Ability\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
@@ -1247,9 +1253,7 @@ ohos_shared_library("action_extension_module") {
 config("auto_fill_extension_config") {
   visibility = [ ":*" ]
   include_dirs = [
-    "${ability_runtime_path}/interfaces/inner_api/insight_intent/insight_intent_context",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/auto_fill_extension_ability",
-    "${ability_runtime_path}/interfaces/kits/native/ability/native/insight_intent_executor",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
   ]
 }
@@ -1275,7 +1279,6 @@ ohos_shared_library("auto_fill_extension") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability:ability_context_native",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
-    "${ability_runtime_native_path}/ability/native:insight_intent_executor",
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 

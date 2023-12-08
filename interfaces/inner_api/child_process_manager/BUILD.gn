@@ -35,9 +35,11 @@ ohos_shared_library("child_process_manager") {
   ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_services_path}/common:app_util",
   ]
 
   external_deps = [
@@ -52,6 +54,11 @@ ohos_shared_library("child_process_manager") {
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]
+
+  defines = []
+  if (background_task_mgr_continuous_task_enable) {
+    defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

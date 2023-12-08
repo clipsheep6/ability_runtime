@@ -31,6 +31,7 @@ ohos_shared_library("auto_fill_manager") {
   public_configs = [ ":auto_fill_manager_public_config" ]
 
   sources = [
+    "src/auto_fill_event_handler.cpp",
     "src/auto_fill_extension_callback.cpp",
     "src/auto_fill_manager.cpp",
   ]
@@ -38,6 +39,7 @@ ohos_shared_library("auto_fill_manager") {
   deps = [
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
 
   external_deps = [
@@ -47,6 +49,7 @@ ohos_shared_library("auto_fill_manager") {
     "ace_engine:ace_uicontent",
     "c_utils:utils",
     "hilog:libhilog",
+    "init:libbegetutil",
   ]
 
   innerapi_tags = [ "platformsdk" ]
