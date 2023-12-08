@@ -106,10 +106,6 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
-    if (IsSACall()) {
-        HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_RUNNING_INFO)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
