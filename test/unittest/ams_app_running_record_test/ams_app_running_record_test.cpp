@@ -3034,7 +3034,7 @@ HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_001, TestSize.Level1
     std::vector<sptr<Rosen::WindowVisibilityInfo>> windowVisibilityInfos;
     auto info = new (std::nothrow) Rosen::WindowVisibilityInfo();
     EXPECT_NE(info, nullptr);
-    info->isVisible_ = false;
+    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_TOTALLY_OCCUSION;
     info->windowId_ = windowId;
     windowVisibilityInfos.emplace_back(info);
 
@@ -3043,7 +3043,7 @@ HWTEST_F(AmsAppRunningRecordTest, OnWindowVisibilityChanged_001, TestSize.Level1
     EXPECT_TRUE(record->isUpdateStateFromService_);
     EXPECT_TRUE(record->windowIds_.empty());
 
-    info->isVisible_ = true;
+    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_NO_OCCLUSION;
     windowVisibilityInfos.clear();
     windowVisibilityInfos.emplace_back(info);
     record->isUpdateStateFromService_ = false;

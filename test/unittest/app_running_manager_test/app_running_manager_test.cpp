@@ -190,7 +190,7 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100
     EXPECT_NE(info, nullptr);
     info->windowId_ = WINDOW_ID;
     info->pid_ = PID;
-    info->isVisible_ = true;
+    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_NO_OCCLUSION;
     windowVisibilityInfos.push_back(info);
 
     // 4. verify the function
