@@ -235,6 +235,7 @@ struct AbilityRequest {
     sptr<IRemoteObject> abilityInfoCallback = nullptr;
 
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    AppExecFwk::ExtensionProcessMode extensionProcessMode = AppExecFwk::ExtensionProcessMode::UNDEFINED;
 
     sptr<SessionInfo> sessionInfo;
 
@@ -927,6 +928,12 @@ public:
     int32_t GetUIExtensionAbilityId() const;
 
     void OnProcessDied();
+
+    void SetProcessName(const std::string &process);
+
+    void SetURI(const std::string &uri);
+    std::string GetURI() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1088,6 +1095,7 @@ private:
     int32_t restartCount_ = -1;
     int32_t restartMax_ = -1;
     std::string specifiedFlag_;
+    std::string uri_;
     ffrt::mutex lock_;
     mutable ffrt::mutex dumpInfoLock_;
     mutable ffrt::mutex dumpLock_;

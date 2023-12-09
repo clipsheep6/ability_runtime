@@ -33,6 +33,10 @@ public:
     ~UIExtensionRecord() override;
 
     bool ContinueToGetCallerToken() override;
+
+    static int32_t NeedReuse(const AAFwk::AbilityRequest &abilityRequest);
+
+    void Update(const AAFwk::AbilityRequest &abilityRequest) override;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

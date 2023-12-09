@@ -3172,6 +3172,24 @@ int32_t AbilityRecord::CreateModalUIExtension(const Want &want)
     return scheduler_->CreateModalUIExtension(want);
 }
 
+void AbilityRecord::SetURI(const std::string &uri)
+{
+    uri_ = uri;
+}
+
+std::string AbilityRecord::GetURI() const
+{
+    if (uri_.empty()) {
+        return GetElementName().GetURI();
+    }
+    return uri_;
+}
+
+void AbilityRecord::SetProcessName(const std::string &process)
+{
+    abilityInfo_.process = process;
+}
+
 void AbilityRecord::SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId)
 {
     uiExtensionAbilityId_ = uiExtensionAbilityId;

@@ -5082,6 +5082,7 @@ int AbilityManagerService::GenerateAbilityRequest(
             HILOG_ERROR("extensionInfo empty.");
             return RESOLVE_ABILITY_ERR;
         }
+        request.extensionProcessMode = extensionInfo.extensionProcessMode;
         HILOG_DEBUG("Extension ability info found, name=%{public}s.",
             extensionInfo.name.c_str());
         // For compatibility translates to AbilityInfo
@@ -5187,6 +5188,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
         extensionInfo.name.c_str());
     // For compatibility translates to AbilityInfo
     InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
+    request.extensionProcessMode = extensionInfo.extensionProcessMode;
 
     HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
         request.abilityInfo.name.c_str(), request.abilityInfo.isStageBasedModel);
