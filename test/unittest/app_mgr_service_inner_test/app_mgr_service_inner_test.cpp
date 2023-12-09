@@ -3744,6 +3744,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleWindowVisibilityChanged_001, TestSize.Lev
     GTEST_LOG_(INFO) << "HandleWindowVisibilityChanged_001 end";
 }
 
+/**
  * @tc.name: IsApplicationRunning_001
  * @tc.desc: Obtain application running status through bundleName.
  * @tc.type: FUNC
