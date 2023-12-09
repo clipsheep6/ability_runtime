@@ -368,6 +368,9 @@ enum class AbilityManagerInterfaceCode {
     // send dialog result
     SEND_DIALOG_RESULT = 1055,
 
+    // request modal UIExtension by want
+    REQUESET_MODAL_UIEXTENSION = 1056,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 

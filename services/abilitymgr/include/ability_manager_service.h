@@ -259,6 +259,14 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
 
     /**
+     * Requset modal UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want contains ability info about caller and called.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int RequestModalUIExtension(const Want &want) override;
+
+    /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
      * @param extensionSessionInfo the extension session info of the ability to start.
@@ -813,6 +821,8 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType,
         bool checkSystemCaller = true);
 
+    int RequestModalUIExtensionInner(const Want &want);
+    
     int StartAbilityForOptionWrap(
         const Want &want,
         const StartOptions &startOptions,

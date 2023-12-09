@@ -2104,6 +2104,48 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
 }
 
+int AbilityManagerService::RequestModalUIExtension(const Want &want)
+{
+    return RequestModalUIExtensionInner(want);
+}
+
+int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
+{
+    sptr<IRemoteObject> token = nullptr;
+    int ret = IN_PROCESS_CALL(GetTopAbility(token));
+    if (ret != ERR_OK || token == nullptr) {
+        HILOG_ERROR("token is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    // Gets the record corresponding to the current focus appliaction
+    auto Record = Token::GetAbilityRecordByToken(token);
+    if (!Record) {
+        HILOG_ERROR("Record is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
+    EventInfo focusInfo;
+    focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
+    focusInfo.abilityName = Record->GetAbilityInfo().name;
+
+    // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
+    EventInfo callerInfo;
+    callerInfo.bundleName = want.GetParams().GetStringParam("bundleName");
+    HILOG_INFO("focusbundlname: %{public}s, callerbundlname: %{public}s.",
+        focusInfo.bundleName.c_str(), callerInfo.bundleName.c_str());
+
+    // Compare
+    if (focusInfo.bundleName == callerInfo.bundleName) {
+        HILOG_DEBUG("CreateModalUIExtension is called!");
+        return Record->CreateModalUIExtension(want);
+    }
+
+    HILOG_DEBUG("Window Modal System Create UIExtension is called!");
+    return ERR_OK;
+}
+
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType, bool checkSystemCaller)
 {
