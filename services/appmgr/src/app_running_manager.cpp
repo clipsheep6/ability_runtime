@@ -876,9 +876,13 @@ void AppRunningManager::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
     HILOG_DEBUG("Called.");
+    std::set<int32_t> pids;
     for (const auto &info : windowVisibilityInfos) {
         if (info == nullptr) {
             HILOG_ERROR("Window visibility info is nullptr.");
+            continue;
+        }
+        if (pids.find(info->pid_) != pids.end()) {
             continue;
         }
         auto appRecord = GetAppRunningRecordByPid(info->pid_);
@@ -887,6 +891,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             return;
         }
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
+        pids.emplace(info->pid_);
     }
 }
 

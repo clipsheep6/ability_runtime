@@ -1747,13 +1747,22 @@ void AppRunningRecord::OnWindowVisibilityChanged(
         }
     }
 
-    if (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) {
+    bool isScheduleForeground = (!windowIds_.empty() && curState_ != ApplicationState::APP_STATE_FOREGROUND) ||
+        (!windowIds_.empty() && curState_ == ApplicationState::APP_STATE_FOREGROUND &&
+        pendingState_ == ApplicationPendingState::BACKGROUNDING);
+    if (isScheduleForeground) {
+        SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
         SetUpdateStateFromService(true);
         ScheduleForegroundRunning();
         return;
     }
 
-    if (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_FOREGROUND) {
+    bool isScheduleBackground = (windowIds_.empty() && IsAbilitytiesBackground() &&
+        curState_ == ApplicationState::APP_STATE_FOREGROUND) ||
+        (windowIds_.empty() && IsAbilitytiesBackground() && curState_ == ApplicationState::APP_STATE_BACKGROUND &&
+        pendingState_ == ApplicationPendingState::FOREGROUNDING);
+    if (isScheduleBackground) {
+        SetApplicationPendingState(ApplicationPendingState::BACKGROUNDING);
         SetUpdateStateFromService(true);
         ScheduleBackgroundRunning();
     }
