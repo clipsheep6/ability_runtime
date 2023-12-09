@@ -639,6 +639,7 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
         std::regex hsp_pattern(std::string(ABS_CODE_PATH) + FILE_SEPARATOR + bundleInfo.name + PATTERN_VERSION);
         std::string hsp_sandbox = std::string(LOCAL_CODE_PATH) + FILE_SEPARATOR + bundleInfo.name + FILE_SEPARATOR;
         for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            HILOG_DEBUG("hapModuleInfo abilityInfo size: %{public}zu", hapModuleInfo.abilityInfos.size());
             if (!moduleName.empty() && hapModuleInfo.moduleName != moduleName) {
                 continue;
             }

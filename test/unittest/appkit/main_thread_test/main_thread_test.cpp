@@ -128,7 +128,7 @@ class MockAppMgrStub : public AppMgrStub {
         return nullptr;
     }
 
-    int32_t ClearUpApplicationData(const std::string &bundleName) override
+    int32_t ClearUpApplicationData(const std::string &bundleName, const int32_t userId) override
     {
         return 0;
     }

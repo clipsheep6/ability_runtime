@@ -625,6 +625,14 @@ private:
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
+    
+    /**
+     * @brief Whether MainThread is started by ChildProcessManager.
+     *
+     * @param info The child process info to be set from appMgr.
+     * @return true if started by ChildProcessManager, false otherwise.
+     */
+    static bool IsStartChild(ChildProcessInfo &info);
 
     std::vector<std::string> fileEntries_;
     std::vector<std::string> nativeFileEntries_;

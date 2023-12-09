@@ -19,8 +19,10 @@ ohos_unittest("quick_fix_manager_service_test") {
   module_out_path = "ability_runtime/quick_fix"
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_test_path}/unittest/quick_fix/mock/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${ability_runtime_test_path}/mock/common/include",
   ]
 
   sources = [
@@ -39,6 +41,7 @@ ohos_unittest("quick_fix_manager_service_test") {
   }
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/quickfixmgr:quickfixms_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -67,6 +70,7 @@ ohos_unittest("quick_fix_manager_apply_task_test") {
   module_out_path = "ability_runtime/quick_fix"
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_test_path}/unittest/quick_fix/mock/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
@@ -87,6 +91,7 @@ ohos_unittest("quick_fix_manager_apply_task_test") {
   }
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/quickfixmgr:quickfixms_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

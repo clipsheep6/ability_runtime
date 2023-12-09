@@ -37,7 +37,8 @@ public:
     /**
      * Excute the DoProcess of the interceptors.
      */
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground);
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken = nullptr);
 
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler);
 private:

@@ -19,7 +19,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::shared_ptr<ChildProcess> ChildProcess::Create(const std::unique_ptr<Runtime>& runtime)
+std::shared_ptr<ChildProcess> ChildProcess::Create(const std::unique_ptr<Runtime> &runtime)
 {
     if (!runtime) {
         return std::make_shared<ChildProcess>();

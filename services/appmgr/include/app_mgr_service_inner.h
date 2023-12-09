@@ -43,6 +43,7 @@
 #include "app_task_info.h"
 #include "appexecfwk_errors.h"
 #include "bundle_info.h"
+#include "child_process_info.h"
 #include "cpp/mutex.h"
 #include "event_report.h"
 #include "fault_data.h"
@@ -260,7 +261,8 @@ public:
      *
      * @return
      */
-    virtual void ClearUpApplicationData(const std::string &bundleName, const int32_t callerUid, const pid_t callerPid);
+    virtual void ClearUpApplicationData(const std::string &bundleName,
+        const int32_t callerUid, const pid_t callerPid,  const int32_t userId = -1);
 
     /**
      * GetAllRunningProcesses, Obtains information about application processes that are running on the device.
@@ -479,9 +481,10 @@ public:
      *
      * @param remote, Death client.
      * @param isRenderProcess is render process died.
+     * @param isChildProcess is child process died.
      * @return
      */
-    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false);
+    void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false, bool isChildProcess = false);
 
     /**
      * AddAppDeathRecipient, Add monitoring death application record.
@@ -869,6 +872,38 @@ public:
      */
     int32_t UnregisterAppForegroundStateObserver(const sptr<IAppForegroundStateObserver> &observer);
 
+    /**
+     * Start child process, called by ChildProcessManager.
+     *
+     * @param hostPid Host process pid.
+     * @param srcEntry Child process source file entrance path to be started.
+     * @param childPid Created child process pid.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
+
+    /**
+     * Get child process record for self.
+     *
+     * @return child process record.
+     */
+    int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
+    
+    /**
+     * Attach child process scheduler to app manager service.
+     *
+     * @param pid the child process pid to exit.
+     * @param childScheduler scheduler of child process.
+     */
+    void AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler);
+
+    /**
+     * Exit child process safely by child process pid.
+     *
+     * @param pid child process pid.
+     */
+    void ExitChildProcessSafelyByChildPid(const pid_t pid);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1089,6 +1124,18 @@ private:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t CheckPermission(const sptr<IRemoteObject> &listener);
+
+    int32_t StartChildProcessPreCheck(const pid_t callingPid);
+
+    int32_t StartChildProcessImpl(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
+        const std::shared_ptr<AppRunningRecord> appRecord, pid_t &childPid);
+
+    int32_t GetChildProcessInfo(const std::shared_ptr<ChildProcessRecord> childProcessRecord,
+        const std::shared_ptr<AppRunningRecord> appRecord, ChildProcessInfo &info);
+
+    void OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote);
+
+    void KillChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
 private:
     /**

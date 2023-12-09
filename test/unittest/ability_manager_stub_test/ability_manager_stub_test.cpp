@@ -1678,7 +1678,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterRemoteMissionListene
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->RegisterRemoteMissionListenerInner(data, reply);
-    EXPECT_EQ(res, ERR_NULL_OBJECT);
+    EXPECT_EQ(res, INVALID_PARAMETERS_ERR);
 }
 
 /*
@@ -1694,7 +1694,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UnRegisterRemoteMissionListe
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->UnRegisterRemoteMissionListenerInner(data, reply);
-    EXPECT_EQ(res, ERR_NULL_OBJECT);
+    EXPECT_EQ(res, INVALID_PARAMETERS_ERR);
 }
 
 /*
@@ -2579,6 +2579,19 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DetachAppDebugInner_002, Tes
     MessageParcel reply;
     auto res = stub_->DetachAppDebugInner(data, reply);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStub_GetForegroundUIAbilitiesInner_001
+ * @tc.desc: Test function GetForegroundUIAbilitiesInner when normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetForegroundUIAbilitiesInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->GetForegroundUIAbilitiesInner(data, reply);
+    EXPECT_EQ(res, ERR_OK);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

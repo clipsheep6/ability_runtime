@@ -181,7 +181,7 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
     }
     NotifyStartAbilityResult(abilityRequest, ret);
     ReportAbilitAssociatedStartInfoToRSS(abilityRequest.abilityInfo, static_cast<int64_t>(
-        ResourceSchedule::ResType::AssociatedStartType::MISSION_LIST_START_ABILITY));
+        ResourceSchedule::ResType::AssociatedStartType::MISSION_LIST_START_ABILITY), callerAbility);
     return ret;
 }
 
@@ -4160,12 +4160,16 @@ void MissionListManager::SendKeyEvent(const AbilityRequest &abilityRequest)
     EventReport::SendKeyEvent(EventName::START_PRIVATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
-void MissionListManager::ReportAbilitAssociatedStartInfoToRSS(
-    const AppExecFwk::AbilityInfo &abilityInfo, int64_t type)
+void MissionListManager::ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::AbilityInfo &abilityInfo,
+    int64_t type, const std::shared_ptr<AbilityRecord> &callerAbility)
 {
 #ifdef RESOURCE_SCHEDULE_SERVICE_ENABLE
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    int32_t callerPid = IPCSkeleton::GetCallingPid();
+    if (callerAbility == nullptr) {
+        HILOG_WARN("associated start caller record is nullptr");
+        return;
+    }
+    int32_t callerUid = callerAbility->GetUid();
+    int32_t callerPid = callerAbility->GetPid();
     std::unordered_map<std::string, std::string> eventParams {
         { "name", "associated_start" },
         { "caller_uid", std::to_string(callerUid) },

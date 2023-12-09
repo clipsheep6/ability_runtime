@@ -15,6 +15,7 @@
 
 #include "quick_fix_manager_service.h"
 
+#include "bundle_mgr_helper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "permission_verification.h"
@@ -98,14 +99,14 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
         return QUICK_FIX_VERIFY_PERMISSION_FAILED;
     }
 
-    auto bundleMgr = QuickFixUtil::GetBundleManagerProxy();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager!");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Failed to get bundle manager helper!");
         return QUICK_FIX_CONNECT_FAILED;
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
+    if (!bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
         AppExecFwk::Constants::ANY_USERID)) {
         HILOG_ERROR("Get bundle info failed!");
         return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
@@ -122,7 +123,7 @@ int32_t QuickFixManagerService::GetApplyedQuickFixInfo(const std::string &bundle
 
 int32_t QuickFixManagerService::RevokeQuickFix(const std::string &bundleName)
 {
-    HILOG_DEBUG("Function called.");
+    HILOG_DEBUG("Called.");
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
         HILOG_ERROR("The caller is not system-app, can not use system-api");
         return QUICK_FIX_NOT_SYSTEM_APP;
@@ -130,23 +131,23 @@ int32_t QuickFixManagerService::RevokeQuickFix(const std::string &bundleName)
 
     if (!AAFwk::PermissionVerification::GetInstance()->VerifyGetBundleInfoPrivilegedPermission() ||
         !AAFwk::PermissionVerification::GetInstance()->VerifyInstallBundlePermission()) {
-        HILOG_ERROR("Permission verification failed");
+        HILOG_ERROR("Permission verification failed.");
         return QUICK_FIX_VERIFY_PERMISSION_FAILED;
     }
 
     if (CheckTaskRunningState(bundleName)) {
-        HILOG_ERROR("Has a apply quick fix task");
+        HILOG_ERROR("Has a apply quick fix task.");
         return QUICK_FIX_DEPLOYING_TASK;
     }
 
-    auto bundleMgr = QuickFixUtil::GetBundleManagerProxy();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager.");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Failed to get bundle manager helper.");
         return QUICK_FIX_CONNECT_FAILED;
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (!bundleMgr->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
+    if (!bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
         AppExecFwk::Constants::ANY_USERID)) {
         HILOG_ERROR("Get bundle info failed.");
         return QUICK_FIX_GET_BUNDLE_INFO_FAILED;

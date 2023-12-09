@@ -26,7 +26,8 @@ namespace {
 const std::string METHOD_ON_SAVE_REQUEST_SUCCESS = "onSuccess";
 const std::string METHOD_ON_SAVE_REQUEST_FAILED = "onFailure";
 } // namespace
-JsSaveRequestCallback::JsSaveRequestCallback(napi_env env) : env_(env) {}
+JsSaveRequestCallback::JsSaveRequestCallback(napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc)
+    : env_(env), instanceId_(instanceId), autoFillManagerFunc_(autoFillManagerFunc){}
 
 JsSaveRequestCallback::~JsSaveRequestCallback() {}
 
@@ -34,12 +35,18 @@ void JsSaveRequestCallback::OnSaveRequestSuccess()
 {
     HILOG_DEBUG("Called.");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_SUCCESS);
+    if (autoFillManagerFunc_ != nullptr) {
+        autoFillManagerFunc_(instanceId_);
+    }
 }
 
 void JsSaveRequestCallback::OnSaveRequestFailed()
 {
     HILOG_DEBUG("Called.");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_FAILED);
+    if (autoFillManagerFunc_ != nullptr) {
+        autoFillManagerFunc_(instanceId_);
+    }
 }
 
 void JsSaveRequestCallback::Register(napi_value value)
@@ -54,23 +61,6 @@ void JsSaveRequestCallback::Register(napi_value value)
     napi_ref ref = nullptr;
     napi_create_reference(env_, value, 1, &ref);
     callback_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference *>(ref));
-}
-
-void JsSaveRequestCallback::UnRegister(napi_value value)
-{
-    HILOG_DEBUG("Called.");
-    napi_valuetype type = napi_undefined;
-    napi_typeof(env_, value, &type);
-    std::lock_guard<std::mutex> lock(callbackMutex_);
-    if (type == napi_undefined || type == napi_null) {
-        HILOG_DEBUG("jsCallback is nullptr, delete callback.");
-        callback_ = nullptr;
-        return;
-    }
-
-    if (IsJsCallbackEquals(callback_, value)) {
-        callback_ = nullptr;
-    }
 }
 
 void JsSaveRequestCallback::JSCallFunction(const std::string &methodName)

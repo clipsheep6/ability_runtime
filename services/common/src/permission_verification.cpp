@@ -19,6 +19,7 @@
 #include "accesstoken_kit.h"
 #include "hilog_wrapper.h"
 #include "permission_constants.h"
+#include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -106,8 +107,8 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
-    if (IsSACall()) {
-        HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return true;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_RUNNING_INFO)) {
@@ -120,8 +121,8 @@ bool PermissionVerification::VerifyRunningInfoPerm() const
 
 bool PermissionVerification::VerifyControllerPerm() const
 {
-    if (IsSACall()) {
-        HILOG_DEBUG("%{public}s: the interface called by SA.", __func__);
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return true;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_ABILITY_CONTROLLER)) {
@@ -148,7 +149,8 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
 
 int PermissionVerification::VerifyAccountPermission() const
 {
-    if (IsSACall()) {
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return ERR_OK;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
@@ -160,7 +162,8 @@ int PermissionVerification::VerifyAccountPermission() const
 
 bool PermissionVerification::VerifyMissionPermission() const
 {
-    if (IsSACall()) {
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return true;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
@@ -173,7 +176,8 @@ bool PermissionVerification::VerifyMissionPermission() const
 
 int PermissionVerification::VerifyAppStateObserverPermission() const
 {
-    if (IsSACall()) {
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return ERR_OK;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
@@ -246,7 +250,8 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
 
 int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const
 {
-    if (IsSACall()) {
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return ERR_OK;
     }
 
@@ -363,7 +368,8 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
 
 int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
-    if (IsSACall()) {
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return ERR_OK;
     }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
@@ -393,7 +399,8 @@ bool PermissionVerification::IsSystemAppCall() const
 
 bool PermissionVerification::VerifyPrepareTerminatePermission() const
 {
-    if (IsSACall()) {
+    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
+        HILOG_DEBUG("Support SA call");
         return true;
     }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {

@@ -257,6 +257,8 @@ public:
 
     void TerminateAbilityWindowLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo);
+    
+    void RemoveLauncherDeathRecipient();
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;

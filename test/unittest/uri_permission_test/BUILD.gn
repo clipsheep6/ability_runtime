@@ -18,7 +18,7 @@ module_output_path = "ability_runtime/abilitymgr"
 
 ohos_unittest("uri_permission_test") {
   module_out_path = module_output_path
-
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
   sources = [ "uri_permission_test.cpp" ]
 
   configs = [
@@ -29,6 +29,7 @@ ohos_unittest("uri_permission_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/uripermmgr:libupms_static",
   ]

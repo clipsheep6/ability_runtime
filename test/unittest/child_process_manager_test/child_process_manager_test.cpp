@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #define private public
+#include "app_utils.h"
 #include "child_process_manager.h"
 #include "mock_bundle_manager.h"
 #include "sys_mgr_client.h"
@@ -63,9 +64,9 @@ void ChildProcessManagerTest::TearDown()
 HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Level0)
 {
     pid_t pid;
-    auto &mgr = ChildProcessManager::GetInstance();
-    mgr.multiProcessModelEnabled_ = true;
-    mgr.StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
+    auto &appUtils = AAFwk::AppUtils::GetInstance();
+    appUtils.isMultiProcesModelDevice_ = true;
+    ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
     EXPECT_TRUE(pid > 0);
 }
 }  // namespace AAFwk

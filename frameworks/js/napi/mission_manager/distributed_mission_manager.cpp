@@ -1199,7 +1199,7 @@ void UvWorkNotifySnapshot(uv_work_t *work, int status)
     result[0] =
         WrapString(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->deviceId.c_str(), "deviceId");
     result[1] =
-        WrapInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->missionId, "missionId");
+        CreateInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->missionId, "missionId");
     CallbackReturn(&result[0], registerMissionCB);
 
     napi_close_handle_scope(registerMissionCB->cbBase.cbInfo.env, scope);
@@ -1282,7 +1282,7 @@ void UvWorkNotifyNetDisconnect(uv_work_t *work, int status)
         WrapString(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->deviceId.c_str(), "deviceId");
     HILOG_INFO("UvWorkNotifyNetDisconnect, state = %{public}d", registerMissionCB->state);
     result[1] =
-        WrapInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->state, "state");
+        CreateInt32(registerMissionCB->cbBase.cbInfo.env, registerMissionCB->state, "state");
 
     CallbackReturn(&result[0], registerMissionCB);
 
@@ -1341,7 +1341,7 @@ void UnRegisterMissionExecuteCB(napi_env env, void *data)
         registration = registration_[registerMissionCB->deviceId];
     } else {
         HILOG_INFO("registration not exits.");
-        registerMissionCB->result = -1;
+        registerMissionCB->result = INVALID_PARAMETERS_ERR;
         return;
     }
     registerMissionCB->missionRegistration = registration;
@@ -1511,15 +1511,11 @@ napi_value WrapString(napi_env &env, const std::string &param, const std::string
 {
     HILOG_INFO("%{public}s called.", __func__);
 
-    napi_value jsObject = nullptr;
-    napi_create_object(env, &jsObject);
-
     napi_value jsValue = nullptr;
     HILOG_DEBUG("%{public}s called. %{public}s = %{public}s", __func__, paramName.c_str(), param.c_str());
     napi_create_string_utf8(env, param.c_str(), NAPI_AUTO_LENGTH, &jsValue);
-    napi_set_named_property(env, jsObject, paramName.c_str(), jsValue);
 
-    return jsObject;
+    return jsValue;
 }
 
 napi_value WrapInt32(napi_env &env, int32_t num, const std::string &paramName)
@@ -1535,6 +1531,16 @@ napi_value WrapInt32(napi_env &env, int32_t num, const std::string &paramName)
     napi_set_named_property(env, jsObject, paramName.c_str(), jsValue);
 
     return jsObject;
+}
+
+napi_value CreateInt32(napi_env &env, int32_t num, const std::string &paramName)
+{
+    HILOG_DEBUG("%{public}s called. %{public}s = %{public}d", __func__, paramName.c_str(), num);
+
+    napi_value jsValue = nullptr;
+    napi_create_int32(env, num, &jsValue);
+
+    return jsValue;
 }
 
 ContinueAbilityCB *CreateContinueAbilityCBCBInfo(napi_env &env)

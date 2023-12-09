@@ -173,7 +173,11 @@ bool JsEnvironment::StartDebugger(
         JSENV_LOG_E("Invalid vm.");
         return false;
     }
-    int identifierId = ParseHdcRegisterOption(option);
+    int32_t identifierId = ParseHdcRegisterOption(option);
+    if (identifierId == -1) {
+        JSENV_LOG_E("Abnormal parsing of tid results.");
+        return false;
+    }
     panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
@@ -183,7 +187,8 @@ bool JsEnvironment::StartDebugger(
         }
         jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
     };
-    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, debugOption, socketFd, debuggerPostTask);
+    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(
+        static_cast<uint32_t>(identifierId), debugOption, socketFd, debuggerPostTask);
     return debugMode_;
 }
 
@@ -199,7 +204,12 @@ void JsEnvironment::StopDebugger()
 
 void JsEnvironment::StopDebugger(std::string& option)
 {
-    panda::JSNApi::StopDebugger(ParseHdcRegisterOption(option));
+    int32_t identifierId = ParseHdcRegisterOption(option);
+    if (identifierId == -1) {
+        JSENV_LOG_E("Abnormal parsing of tid results.");
+        return;
+    }
+    panda::JSNApi::StopDebugger(static_cast<uint32_t>(identifierId));
 }
 
 void JsEnvironment::InitConsoleModule()
@@ -324,7 +334,7 @@ void JsEnvironment::NotifyDebugMode(
     panda::JSNApi::NotifyDebugMode(tid, vm_, libraryPath, debugOption, instanceId, debuggerPostTask, debug, debugMode);
 }
 
-int JsEnvironment::ParseHdcRegisterOption(std::string& option)
+int32_t JsEnvironment::ParseHdcRegisterOption(std::string& option)
 {
     JSENV_LOG_D("Start.");
     std::size_t pos = option.find_first_of(":");
@@ -341,7 +351,7 @@ int JsEnvironment::ParseHdcRegisterOption(std::string& option)
     if (pos != std::string::npos) {
         idStr = idStr.substr(pos + 1);
     }
-    return static_cast<int>(std::atol(idStr.c_str()));
+    return std::atoi(idStr.c_str());
 }
 
 bool JsEnvironment::GetDebugMode() const

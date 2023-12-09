@@ -33,6 +33,7 @@ constexpr size_t ARGC_TWO = 2;
 
 enum {
     MODE_SELF_FORK = 0,
+    MODE_APP_SPAWN_FORK = 1,
 };
 }
 
@@ -55,7 +56,7 @@ public:
 private:
     napi_value OnStartChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        HILOG_INFO("called.");
         if (ChildProcessManager::GetInstance().IsChildProcess()) {
             HILOG_ERROR("Already in child process");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
@@ -79,24 +80,14 @@ private:
             return CreateJsUndefined(env);
         }
         HILOG_DEBUG("StartMode: %{public}d", startMode);
-        if (startMode != MODE_SELF_FORK) {
+        if (startMode != MODE_SELF_FORK && startMode != MODE_APP_SPAWN_FORK) {
             HILOG_ERROR("Not supported StartMode");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         NapiAsyncTask::CompleteCallback complete = [srcEntry, startMode](napi_env env, NapiAsyncTask &task,
                                                                          int32_t status) {
-            switch (startMode) {
-                case MODE_SELF_FORK: {
-                    SelfForkProcess(env, task, srcEntry);
-                    break;
-                }
-                default: {
-                    HILOG_ERROR("Not supported StartMode");
-                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
-                    break;
-                }
-            }
+            ForkProcess(env, task, srcEntry, startMode);
         };
         napi_value lastParam = (argc <= ARGC_TWO) ? nullptr : argv[ARGC_TWO];
         napi_value result = nullptr;
@@ -105,11 +96,27 @@ private:
         return result;
     }
 
-    static void SelfForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry)
+    static void ForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry, const int32_t startMode)
     {
-        pid_t pid;
-        ChildProcessManagerErrorCode errorCode =
-            ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry, pid);
+        HILOG_DEBUG("called.");
+        pid_t pid = 0;
+        ChildProcessManagerErrorCode errorCode;
+        switch (startMode) {
+            case MODE_SELF_FORK: {
+                errorCode = ChildProcessManager::GetInstance().StartChildProcessBySelfFork(srcEntry, pid);
+                break;
+            }
+            case MODE_APP_SPAWN_FORK: {
+                errorCode = ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork(srcEntry, pid);
+                break;
+            }
+            default: {
+                HILOG_ERROR("Not supported StartMode");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
+        }
+        HILOG_DEBUG("ChildProcessManager start resultCode: %{public}d, pid:%{public}d", errorCode, pid);
         if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
             task.ResolveWithNoError(env, CreateJsValue(env, pid));
         } else {
@@ -120,7 +127,7 @@ private:
 
 napi_value JsChildProcessManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    HILOG_INFO("called.");
     if (env == nullptr || exportObj == nullptr) {
         HILOG_ERROR("Invalid input params");
         return nullptr;

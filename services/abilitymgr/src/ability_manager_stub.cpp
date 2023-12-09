@@ -653,7 +653,8 @@ int AbilityManagerStub::KillProcessInner(MessageParcel &data, MessageParcel &rep
 int AbilityManagerStub::ClearUpApplicationDataInner(MessageParcel &data, MessageParcel &reply)
 {
     std::string bundleName = Str16ToStr8(data.ReadString16());
-    int result = ClearUpApplicationData(bundleName);
+    int32_t userId = data.ReadInt32();
+    int result = ClearUpApplicationData(bundleName, userId);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("ClearUpApplicationData error");
         return ERR_INVALID_VALUE;
@@ -1766,7 +1767,7 @@ int AbilityManagerStub::RegisterRemoteMissionListenerInner(MessageParcel &data, 
     std::string deviceId = data.ReadString();
     if (deviceId.empty()) {
         HILOG_ERROR("AbilityManagerStub: RegisterRemoteMissionListenerInner deviceId empty!");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {
@@ -1817,7 +1818,7 @@ int AbilityManagerStub::UnRegisterRemoteMissionListenerInner(MessageParcel &data
     std::string deviceId = data.ReadString();
     if (deviceId.empty()) {
         HILOG_ERROR("AbilityManagerStub: UnRegisterRemoteMissionListenerInner deviceId empty!");
-        return ERR_NULL_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     sptr<IRemoteMissionListener> listener = iface_cast<IRemoteMissionListener>(data.ReadRemoteObject());
     if (listener == nullptr) {

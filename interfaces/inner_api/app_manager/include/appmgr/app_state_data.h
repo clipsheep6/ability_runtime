@@ -47,6 +47,15 @@ struct AppStateData : public Parcelable {
      */
     static AppStateData *Unmarshalling(Parcel &parcel);
 
+    /**
+     * @brief Check if extension type belongs to uiextension.
+     *
+     * @param type extension type
+     * @return true extension type is a uiextension.
+     * @return false extension type is not a uiextension.
+     */
+    static bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type);
+
     std::string bundleName;
     int32_t pid = -1;
     int32_t uid = 0;

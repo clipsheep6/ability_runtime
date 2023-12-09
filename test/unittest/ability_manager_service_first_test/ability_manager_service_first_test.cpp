@@ -1470,5 +1470,19 @@ HWTEST_F(AbilityManagerServiceFirstTest, DetachAppDebug_001, TestSize.Level1)
     auto result = abilityMs_->DetachAppDebug(bundleName);
     EXPECT_EQ(result, CHECK_PERMISSION_FAILED);
 }
+
+/**
+ * @tc.name: GetForegroundUIAbilities_001
+ * @tc.desc: Test function GetForegroundUIAbilities when dosen't have permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, GetForegroundUIAbilities_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    std::vector<AppExecFwk::AbilityStateData> list;
+    auto res = abilityMs_->GetForegroundUIAbilities(list);
+    EXPECT_EQ(res, CHECK_PERMISSION_FAILED);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

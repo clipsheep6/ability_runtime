@@ -182,7 +182,12 @@ Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerT
     want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_TIPS_DIALOG);
     want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     want.SetParam(DIALOG_PARAMS, params);
-    want.SetParam(CALLER_TOKEN, callerToken);
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        want.RemoveParam(CALLER_TOKEN);
+    } else {
+        want.SetParam(CALLER_TOKEN, callerToken);
+    }
     return want;
 }
 
@@ -361,7 +366,12 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
     targetWant.SetParam(DIALOG_PARAMS, params);
     if (callerToken != nullptr) {
         HILOG_DEBUG("set callertoken to targetWant");
-        targetWant.SetParam(CALLER_TOKEN, callerToken);
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+            targetWant.RemoveParam(CALLER_TOKEN);
+        } else {
+            targetWant.SetParam(CALLER_TOKEN, callerToken);
+        }
     }
     if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto bms = GetBundleManager();

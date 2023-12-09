@@ -868,6 +868,9 @@ void AbilityConnectManager::CompleteCommandAbility(std::shared_ptr<AbilityRecord
     AppExecFwk::ElementName element(abilityInfo.deviceId, abilityInfo.bundleName,
                                     abilityInfo.name, abilityInfo.moduleName);
     CompleteStartServiceReq(element.GetURI());
+    if (abilityRecord->NeedConnectAfterCommand()) {
+        ConnectAbility(abilityRecord);
+    }
 }
 
 void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUri)
@@ -1946,6 +1949,22 @@ void AbilityConnectManager::PauseExtensions()
             serviceMap_.erase(it++);
             HILOG_INFO("terminate ability:%{public}s.", targetExtension->GetAbilityInfo().name.c_str());
             TerminateAbilityLocked(targetExtension->GetToken());
+        } else {
+            it++;
+        }
+    }
+}
+
+void AbilityConnectManager::RemoveLauncherDeathRecipient()
+{
+    HILOG_INFO("Call.");
+    std::lock_guard guard(Lock_);
+    for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
+        auto targetExtension = it->second;
+        if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
+            (IsLauncher(targetExtension) || IsSceneBoard(targetExtension))) {
+            targetExtension->RemoveAbilityDeathRecipient();
+            break;
         } else {
             it++;
         }

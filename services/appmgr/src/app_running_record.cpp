@@ -1855,5 +1855,51 @@ ApplicationPendingState AppRunningRecord::GetApplicationPendingState() const
 {
     return pendingState_;
 }
+
+void AppRunningRecord::AddChildProcessRecord(pid_t pid, const std::shared_ptr<ChildProcessRecord> record)
+{
+    if (!record) {
+        HILOG_ERROR("record is null.");
+        return;
+    }
+    if (pid <= 0) {
+        HILOG_ERROR("pid <= 0.");
+        return;
+    }
+    std::lock_guard lock(childProcessRecordMapLock_);
+    childProcessRecordMap_.emplace(pid, record);
+}
+
+void AppRunningRecord::RemoveChildProcessRecord(const std::shared_ptr<ChildProcessRecord> record)
+{
+    HILOG_INFO("Removing child process record, pid: %{public}d", record->GetPid());
+    if (!record) {
+        HILOG_ERROR("record is null.");
+        return;
+    }
+    auto pid = record->GetPid();
+    if (pid <= 0) {
+        HILOG_ERROR("record.pid <= 0.");
+        return;
+    }
+    std::lock_guard lock(childProcessRecordMapLock_);
+    childProcessRecordMap_.erase(pid);
+}
+
+std::shared_ptr<ChildProcessRecord> AppRunningRecord::GetChildProcessRecordByPid(const pid_t pid)
+{
+    std::lock_guard lock(childProcessRecordMapLock_);
+    auto iter = childProcessRecordMap_.find(pid);
+    if (iter == childProcessRecordMap_.end()) {
+        return nullptr;
+    }
+    return iter->second;
+}
+
+std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChildProcessRecordMap()
+{
+    std::lock_guard lock(childProcessRecordMapLock_);
+    return childProcessRecordMap_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

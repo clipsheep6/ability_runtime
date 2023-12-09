@@ -45,7 +45,8 @@ public:
     /**
      * Excute interception processing.
      */
-    virtual ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) = 0;
+    virtual ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) = 0;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) {};
 };
 
@@ -54,7 +55,8 @@ class CrowdTestInterceptor : public AbilityInterceptor {
 public:
     CrowdTestInterceptor() = default;
     ~CrowdTestInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         return;
@@ -67,7 +69,8 @@ class ControlInterceptor : public AbilityInterceptor {
 public:
     ControlInterceptor() = default;
     ~ControlInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         return;
@@ -80,7 +83,8 @@ class DisposedRuleInterceptor : public AbilityInterceptor {
 public:
     DisposedRuleInterceptor() = default;
     ~DisposedRuleInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) override;
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         taskHandler_ = taskHandler;
@@ -96,7 +100,8 @@ class EcologicalRuleInterceptor : public AbilityInterceptor {
 public:
     EcologicalRuleInterceptor() = default;
     ~EcologicalRuleInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         return;
@@ -114,7 +119,8 @@ class AbilityJumpInterceptor : public AbilityInterceptor {
 public:
     AbilityJumpInterceptor() = default;
     ~AbilityJumpInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground) override;
+    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         return;
