@@ -300,17 +300,21 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("GetBundleManager is nullptr");
+    if (remoteClientManager == nullptr) {
+        HILOG_ERROR("The remoteClientManager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid != 0 || userId < 0) {
         std::string callerBundleName;
-        auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+        auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
         if (result != ERR_OK) {
-            HILOG_ERROR("GetBundleName failed: %{public}d", result);
+            HILOG_ERROR("GetBundleName failed: %{public}d.", result);
             return ERR_INVALID_OPERATION;
         }
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
@@ -486,26 +490,30 @@ int AppMgrService::StartUserTestProcess(const AAFwk::Want &want, const sptr<IRem
 int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultCode, const std::string &bundleName)
 {
     if (!IsReady()) {
-        HILOG_ERROR("not ready");
+        HILOG_ERROR("Not ready");
         return ERR_INVALID_OPERATION;
     }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("AppMgrService::FinishUserTest GetBundleManager is nullptr");
+    if (remoteClientManager == nullptr) {
+        HILOG_ERROR("The remoteClientManager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    auto result = IN_PROCESS_CALL(bundleMgr->GetNameForUid(callingUid, callerBundleName));
+    auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
     if (result == ERR_OK) {
-        HILOG_INFO("FinishUserTest callingPid_ is %{public}s", callerBundleName.c_str());
+        HILOG_INFO("The callingPid_ is %{public}s.", callerBundleName.c_str());
         if (bundleName != callerBundleName) {
-            HILOG_ERROR("AppMgrService::FinishUserTest Not this process call.");
+            HILOG_ERROR("Not this process call.");
             return ERR_INVALID_OPERATION;
         }
     } else {
-        HILOG_ERROR("GetBundleName failed: %{public}d", result);
+        HILOG_ERROR("GetBundleName failed: %{public}d.", result);
         return ERR_INVALID_OPERATION;
     }
     pid_t callingPid = IPCSkeleton::GetCallingPid();

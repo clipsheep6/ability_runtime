@@ -21,6 +21,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_services_path}/appdfr/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "mock/include",
@@ -40,6 +41,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:perm_verification",

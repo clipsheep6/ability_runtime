@@ -15,6 +15,7 @@
 
 #include "insight_intent_utils.h"
 
+#include "bundle_mgr_helper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
@@ -26,29 +27,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-sptr<AppExecFwk::IBundleMgr> InsightIntentUtils::GetBundleManagerProxy()
-{
-    auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemAbilityMgr == nullptr) {
-        HILOG_ERROR("Failed to get system ability manager.");
-        return nullptr;
-    }
-
-    auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (remoteObj == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
-        return nullptr;
-    }
-
-    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObj);
-    if (bundleMgr == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager.");
-        return nullptr;
-    }
-
-    return bundleMgr;
-}
-
 std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const std::string &moduleName,
     const std::string &intentName)
 {
@@ -59,15 +37,15 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
         return std::string("");
     }
 
-    auto bundleMgr = GetBundleManagerProxy();
-    if (bundleMgr == nullptr) {
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
         return std::string("");
     }
 
     // Get json profile firstly
     std::string profile;
-    auto ret = IN_PROCESS_CALL(bundleMgr->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName, profile,
-        AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
+    auto ret = IN_PROCESS_CALL(bundleMgrHelper->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName,
+        profile, AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
     if (ret != ERR_OK) {
         HILOG_ERROR("Get json profile failed, error code: %{public}d.", ret);
         return std::string("");

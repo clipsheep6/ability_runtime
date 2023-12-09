@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,6 @@
 #include "accesstoken_kit.h"
 #include "app_jump_control_rule.h"
 #include "app_running_control_rule_result.h"
-#include "bundlemgr/bundle_mgr_interface.h"
 #include "bundle_constants.h"
 #ifndef SUPPORT_ERMS
 #include "erms_mgr_interface.h"
@@ -91,9 +90,9 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
 bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
 {
     // get bms
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
     }
 
@@ -101,7 +100,7 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
     std::string bundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool result = IN_PROCESS_CALL(
-        bms->GetApplicationInfo(bundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
+        bundleMgrHelper->GetApplicationInfo(bundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
             userId, callerAppInfo)
     );
     if (!result) {
@@ -165,23 +164,23 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     AppExecFwk::AppRunningControlRuleResult &controlRule)
 {
     // get bms
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
     }
 
     // get disposed status
     std::string bundleName = want.GetBundle();
-    auto appControlMgr = bms->GetAppControlProxy();
+    auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("Get appControlMgr failed");
+        HILOG_ERROR("The appControlMgr is nullptr.");
         return false;
     }
 
     auto ret = IN_PROCESS_CALL(appControlMgr->GetAppRunningControlRule(bundleName, userId, controlRule));
     if (ret != ERR_OK) {
-        HILOG_DEBUG("Get No AppRunningControlRule");
+        HILOG_DEBUG("Get No AppRunningControlRule.");
         return false;
     }
     return true;
@@ -258,17 +257,17 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
     AppExecFwk::DisposedRule &disposedRule)
 {
     // get bms
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
     }
 
     // get disposed status
     std::string bundleName = want.GetBundle();
-    auto appControlMgr = bms->GetAppControlProxy();
+    auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("Get appControlMgr failed");
+        HILOG_ERROR("The appControlMgr is nullptr.");
         return false;
     }
     std::vector<AppExecFwk::DisposedRule> disposedRuleList;
@@ -369,15 +368,15 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     callerInfo.targetAppType = TYPE_HARMONY_INVALID;
     callerInfo.callerAppType = TYPE_HARMONY_INVALID;
 
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return;
     }
 
     std::string targetBundleName = want.GetBundle();
     AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bms->GetApplicationInfo(targetBundleName,
+    bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
         HILOG_ERROR("Get targetAppInfo failed.");
@@ -392,13 +391,13 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     }
 
     std::string callerBundleName;
-    ErrCode err = IN_PROCESS_CALL(bms->GetNameForUid(callerInfo.uid, callerBundleName));
+    ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
         HILOG_ERROR("Get callerBundleName failed.");
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
-    bool getCallerResult = IN_PROCESS_CALL(bms->GetApplicationInfo(callerBundleName,
+    bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_DEBUG("Get callerAppInfo failed.");
@@ -444,20 +443,20 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
         return ERR_OK;
     }
     // get bms
-    auto bms = AbilityUtil::GetBundleManager();
-    if (!bms) {
-        HILOG_ERROR("GetBundleManager failed");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_OK;
     }
     AppExecFwk::AbilityInfo targetAbilityInfo;
-    IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want,
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want,
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, targetAbilityInfo));
     if (targetAbilityInfo.type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_INFO("Target is not page Ability, keep going, abilityType:%{public}d", targetAbilityInfo.type);
+        HILOG_INFO("Target is not page Ability, keep going, abilityType:%{public}d.", targetAbilityInfo.type);
         return ERR_OK;
     }
     AppExecFwk::AppJumpControlRule controlRule;
-    if (CheckControl(bms, want, userId, controlRule)) {
+    if (CheckControl(bundleMgrHelper, want, userId, controlRule)) {
 #ifdef SUPPORT_GRAPHICS
         HILOG_INFO("app jump need to be intercepted, caller:%{public}s, target:%{public}s",
             controlRule.callerPkg.c_str(), controlRule.targetPkg.c_str());
@@ -465,11 +464,11 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
         Want targetWant = want;
         Want dialogWant = sysDialogScheduler->GetJumpInterceptorDialogWant(targetWant);
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
-        LoadAppLabelInfo(bms, dialogWant, controlRule, userId);
+        LoadAppLabelInfo(bundleMgrHelper, dialogWant, controlRule, userId);
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(dialogWant,
             requestCode, userId));
         if (ret != ERR_OK) {
-            HILOG_INFO("AppInterceptor Dialog StartAbility error, ret:%{public}d", ret);
+            HILOG_INFO("appInterceptor Dialog StartAbility error, ret:%{public}d", ret);
             return ret;
         }
 #endif
@@ -478,12 +477,12 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
     return ERR_OK;
 }
 
-bool AbilityJumpInterceptor::CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, const Want &want, int32_t userId,
-    AppExecFwk::AppJumpControlRule &controlRule)
+bool AbilityJumpInterceptor::CheckControl(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper,
+    const Want &want, int32_t userId, AppExecFwk::AppJumpControlRule &controlRule)
 {
     int callerUid = IPCSkeleton::GetCallingUid();
     std::string callerBundleName;
-    auto result = IN_PROCESS_CALL(bms->GetNameForUid(callerUid, callerBundleName));
+    auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerUid, callerBundleName));
     std::string targetBundleName = want.GetBundle();
     controlRule.callerPkg = callerBundleName;
     controlRule.targetPkg = targetBundleName;
@@ -496,76 +495,76 @@ bool AbilityJumpInterceptor::CheckControl(sptr<AppExecFwk::IBundleMgr> &bms, con
         return false;
     }
     if (controlRule.callerPkg == controlRule.targetPkg) {
-        HILOG_INFO("jump within the same app.");
+        HILOG_INFO("Jump within the same app.");
         return false;
     }
-    if (CheckIfJumpExempt(bms, controlRule, userId)) {
-        HILOG_INFO("jump from or to system or exempt apps");
+    if (CheckIfJumpExempt(bundleMgrHelper, controlRule, userId)) {
+        HILOG_INFO("Jump from or to system or exempt apps.");
         return false;
     }
     // get disposed status
-    auto appControlMgr = bms->GetAppControlProxy();
+    auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("Get appControlMgr failed");
+        HILOG_ERROR("Get appControlMgr failed.");
         return false;
     }
 
     if (IN_PROCESS_CALL(appControlMgr->GetAppJumpControlRule(callerBundleName, targetBundleName,
         userId, controlRule)) != ERR_OK) {
-        HILOG_INFO("no jump control rule found");
+        HILOG_INFO("No jump control rule found.");
         return true;
     }
-    HILOG_INFO("get appJumpControlRule, jumpMode:%d", controlRule.jumpMode);
+    HILOG_INFO("Get appJumpControlRule, jumpMode:%d.", controlRule.jumpMode);
     return controlRule.jumpMode != AppExecFwk::AbilityJumpMode::DIRECT;
 }
 
-bool AbilityJumpInterceptor::CheckIfJumpExempt(sptr<AppExecFwk::IBundleMgr> &bms,
+bool AbilityJumpInterceptor::CheckIfJumpExempt(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper,
     AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
 {
-    if (CheckIfExemptByBundleName(bms, controlRule.callerPkg,
+    if (CheckIfExemptByBundleName(bundleMgrHelper, controlRule.callerPkg,
         PermissionConstants::PERMISSION_EXEMPT_AS_CALLER, userId)) {
-        HILOG_INFO("Jump from exempt caller app, No need to intercept");
+        HILOG_INFO("Jump from exempt caller app, No need to intercept.");
         return true;
     }
-    if (CheckIfExemptByBundleName(bms, controlRule.targetPkg,
+    if (CheckIfExemptByBundleName(bundleMgrHelper, controlRule.targetPkg,
         PermissionConstants::PERMISSION_EXEMPT_AS_TARGET, userId)) {
-        HILOG_INFO("Jump to exempt target app, No need to intercept");
+        HILOG_INFO("Jump to exempt target app, No need to intercept.");
         return true;
     }
-    HILOG_INFO("Third-party apps jump to third-party apps");
+    HILOG_INFO("Third-party apps jump to third-party apps.");
     return false;
 }
 
-bool AbilityJumpInterceptor::CheckIfExemptByBundleName(sptr<AppExecFwk::IBundleMgr> &bms,
+bool AbilityJumpInterceptor::CheckIfExemptByBundleName(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper,
     const std::string &bundleName, const std::string &permission, int32_t userId)
 {
     AppExecFwk::ApplicationInfo appInfo;
-    if (!IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+    if (!IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
         userId, appInfo))) {
-        HILOG_ERROR("VerifyPermission failed to get application info");
+        HILOG_ERROR("VerifyPermission failed to get application info.");
         return false;
     }
     if (appInfo.isSystemApp) {
-        HILOG_INFO("bundle:%{public}s is system app", bundleName.c_str());
+        HILOG_INFO("Bundle:%{public}s is system app.", bundleName.c_str());
         return true;
     }
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
     if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
-        HILOG_DEBUG("VerifyPermission %{public}d: PERMISSION_DENIED", appInfo.accessTokenId);
+        HILOG_DEBUG("VerifyPermission %{public}d: PERMISSION_DENIED.", appInfo.accessTokenId);
         return false;
     }
-    HILOG_INFO("bundle:%{public}s verify permission:%{public}s successed", bundleName.c_str(), permission.c_str());
+    HILOG_INFO("Bundle:%{public}s verify permission:%{public}s successed.", bundleName.c_str(), permission.c_str());
     return true;
 }
 
-bool AbilityJumpInterceptor::LoadAppLabelInfo(sptr<AppExecFwk::IBundleMgr> &bms, Want &want,
+bool AbilityJumpInterceptor::LoadAppLabelInfo(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper, Want &want,
     AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
 {
     AppExecFwk::ApplicationInfo callerAppInfo;
-    IN_PROCESS_CALL(bms->GetApplicationInfo(controlRule.callerPkg,
+    IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(controlRule.callerPkg,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     AppExecFwk::ApplicationInfo targetAppInfo;
-    IN_PROCESS_CALL(bms->GetApplicationInfo(controlRule.targetPkg,
+    IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(controlRule.targetPkg,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     want.SetParam(JUMP_DIALOG_CALLER_BUNDLE_NAME, controlRule.callerPkg);
     want.SetParam(JUMP_DIALOG_CALLER_MODULE_NAME, callerAppInfo.labelResource.moduleName);

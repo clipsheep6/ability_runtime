@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,12 +16,14 @@
 #include "js_module_reader.h"
 
 #include "bundle_info.h"
+#include "bundle_mgr_helper.h"
 #include "bundle_mgr_proxy.h"
 #include "file_path_utils.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "js_runtime_utils.h"
+#include "singleton.h"
 #include "system_ability_definition.h"
 
 using namespace OHOS::AbilityBase;
@@ -128,23 +130,17 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
     std::string presetAppHapPath = inputPath;
     std::string moduleName = inputPath.substr(inputPath.find_last_of("/") + 1);
     if (moduleName.empty()) {
-        HILOG_ERROR("failed to obtain moduleName.");
+        HILOG_ERROR("Failed to obtain moduleName.");
         return presetAppHapPath;
     }
-    auto systemAbilityManagerClient = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!systemAbilityManagerClient) {
-        HILOG_ERROR("fail to get system ability mgr.");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return presetAppHapPath;
     }
-    auto remoteObject = systemAbilityManagerClient->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (!remoteObject) {
-        HILOG_ERROR("fail to get bundle manager proxy.");
-        return presetAppHapPath;
-    }
-    auto bundleMgrProxy = iface_cast<IBundleMgr>(remoteObject);
     if (inputPath.find_first_of("/") == inputPath.find_last_of("/")) {
         AppExecFwk::BundleInfo bundleInfo;
-        auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
+        auto getInfoResult = bundleMgrHelper->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
             GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
         if (getInfoResult != 0 || bundleInfo.hapModuleInfos.empty()) {
             HILOG_ERROR("GetBundleInfoForSelf failed.");
@@ -158,7 +154,7 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
         }
     } else {
         std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
-        if (bundleMgrProxy->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
+        if (bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
             HILOG_ERROR("GetBaseSharedBundleInfos failed.");
             return presetAppHapPath;
         }

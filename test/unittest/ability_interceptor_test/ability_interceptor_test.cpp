@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -206,7 +206,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
     ElementName element("", "com.test.control", "MainAbility");
     want.SetElement(element);
     int userId = 100;
-    auto bms = AbilityUtil::GetBundleManager();
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     // make appControlRule become nullptr by crowdtest interceptor
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());

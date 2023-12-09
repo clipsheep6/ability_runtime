@@ -95,6 +95,7 @@ ohos_unittest("ability_record_test_call") {
   module_out_path = "ability_runtime/ability_call_test"
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/ability_scheduler_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
@@ -119,6 +120,7 @@ ohos_unittest("ability_record_test_call") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:perm_verification",

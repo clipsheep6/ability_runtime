@@ -19,8 +19,10 @@ module_output_path = "ability_runtime/mstappmgrservice"
 ohos_moduletest("AmsServiceAppSpawnClientModuleTest") {
   module_out_path = module_output_path
 
-  include_dirs =
-      [ "${ability_runtime_test_path}/mock/services_appmgr_test/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+  ]
 
   defines = [ "usleep(time) = MockSleep(time)" ]
 
@@ -32,7 +34,10 @@ ohos_moduletest("AmsServiceAppSpawnClientModuleTest") {
   ]
 
   if (ability_runtime_graphics) {
-    deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+    deps += [
+      "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+      "${global_path}/i18n/frameworks/intl:intl_util",
+    ]
   }
 
   external_deps = [

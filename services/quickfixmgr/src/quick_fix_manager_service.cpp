@@ -58,9 +58,9 @@ bool QuickFixManagerService::Init()
 int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &quickFixFiles, bool isDebug)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    HILOG_DEBUG("Function called.");
     if (!AAFwk::PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI()) {
-        HILOG_ERROR("The caller is not system-app, can not use system-api");
+        HILOG_ERROR("The caller is not system-app, can not use system-api.");
         return QUICK_FIX_NOT_SYSTEM_APP;
     }
     if (!AAFwk::PermissionVerification::GetInstance()->VerifyInstallBundlePermission()) {
@@ -82,7 +82,7 @@ int32_t QuickFixManagerService::ApplyQuickFix(const std::vector<std::string> &qu
     AddApplyTask(applyTask);
     applyTask->Run(quickFixFiles, isDebug);
 
-    HILOG_DEBUG("function finished.");
+    HILOG_DEBUG("Function finished.");
     return QUICK_FIX_OK;
 }
 

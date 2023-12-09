@@ -21,6 +21,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+class BundleMgrHelper;
 class ContextDeal : public std::enable_shared_from_this<ContextDeal> {
 public:
     ContextDeal() = default;
@@ -101,12 +102,12 @@ public:
     void SetContext(const std::shared_ptr<Context> &context);
 
     /**
-     * @brief Obtains an IBundleMgr instance.
+     * @brief Obtains a BundleMgrHelper instance.
      * You can use this instance to obtain information about the application bundle.
      *
-     * @return Returns an IBundleMgr instance.
+     * @return Returns a BundleMgrHelper instance.
      */
-    sptr<IBundleMgr> GetBundleManager() const;
+    std::shared_ptr<BundleMgrHelper> GetBundleManager() const;
 
     /**
      * @brief Obtains a resource manager.

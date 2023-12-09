@@ -737,18 +737,6 @@ public:
     virtual int StopBackgroundRunning() final;
 
     /**
-     * @brief Acquire a bundle manager, if it not existed,
-     * @return returns the bundle manager ipc object, or nullptr for failed.
-     */
-    sptr<IBundleMgr> GetBundleMgr();
-
-    /**
-     * @brief Add the bundle manager instance for debug.
-     * @param bundleManager the bundle manager ipc object.
-     */
-    void SetBundleManager(const sptr<IBundleMgr> &bundleManager);
-
-    /**
      * @brief Prepare user data of local Ability.
      *
      * @param wantParams Indicates the user data to be saved.
@@ -1347,7 +1335,6 @@ private:
 
     // If session id cannot get from want, assign it as default.
     static const int DEFAULT_DMS_SESSION_ID;
-    sptr<IBundleMgr> iBundleMgr_;
 
     bool isNewRuleFlagSetted_ = false;
     bool startUpNewRule_ = false;

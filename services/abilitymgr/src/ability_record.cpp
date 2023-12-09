@@ -2781,8 +2781,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER_IS_NULLPTR(bms);
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_IS_NULLPTR(bundleMgrHelper);
     if (IsDmsCall(want)) {
         GrantDmsUriPermission(want, targetBundleName);
         return;
@@ -2855,7 +2855,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
 
         if (!authorityFlag) {
             AppExecFwk::BundleInfo uriBundleInfo;
-            if (!IN_PROCESS_CALL(bms->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
+            if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
                 HILOG_WARN("To fail to get bundle info according to uri.");
                 continue;
             }

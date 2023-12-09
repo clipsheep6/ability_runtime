@@ -19,7 +19,7 @@ module_output_path = "ability_runtime/appmgrservice"
 ohos_unittest("AMSEventHandlerTest") {
   module_out_path = module_output_path
   cflags_cc = []
-  include_dirs = []
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
 
   sources = [
     "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
@@ -53,6 +53,7 @@ ohos_unittest("AMSEventHandlerTest") {
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",

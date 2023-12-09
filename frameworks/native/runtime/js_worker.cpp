@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include <vector>
 #include <unistd.h>
 
+#include "bundle_mgr_helper.h"
 #include "connect_server_manager.h"
 #include "commonlibrary/c_utils/base/include/refbase.h"
 #ifdef SUPPORT_GRAPHICS
@@ -32,6 +33,7 @@
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
 #include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/iservice_registry.h"
 #include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
+#include "singleton.h"
 #include "system_ability_definition.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
@@ -231,27 +233,6 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
     }
 }
 
-sptr<IBundleMgr> AssetHelper::GetBundleMgrProxy()
-{
-    std::lock_guard<std::mutex> lock(g_mutex);
-    if (bundleMgrProxy_ == nullptr) {
-        auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-        if (!systemAbilityManager) {
-            HILOG_ERROR("fail to get system ability mgr.");
-            return nullptr;
-        }
-        auto remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-        if (!remoteObject) {
-            HILOG_ERROR("fail to get bundle manager proxy.");
-            return nullptr;
-        }
-        bundleMgrProxy_ = iface_cast<IBundleMgr>(remoteObject);
-    }
-
-    HILOG_DEBUG("get bundle manager proxy success.");
-    return bundleMgrProxy_;
-}
-
 bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const
 {
     char path[PATH_MAX];
@@ -281,21 +262,21 @@ bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& cont
 
 bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content)
 {
-    auto bundleMgrProxy = GetBundleMgrProxy();
-    if (!bundleMgrProxy) {
-        HILOG_ERROR("bundle mgr proxy is nullptr.");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(
+    auto getInfoResult = bundleMgrHelper->GetBundleInfoForSelf(
         static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
     if (getInfoResult != 0) {
         HILOG_ERROR("GetBundleInfoForSelf failed.");
         return false;
     }
     if (bundleInfo.hapModuleInfos.size() == 0) {
-        HILOG_ERROR("get hapModuleInfo of bundleInfo failed.");
+        HILOG_ERROR("Get hapModuleInfo of bundleInfo failed.");
         return false;
     }
 
@@ -316,7 +297,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
     std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (extractor == nullptr) {
-        HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
+        HILOG_ERROR("LoadPath %{private}s GetExtractor failed", loadPath.c_str());
         return false;
     }
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;

@@ -673,14 +673,14 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
 
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
 {
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER(bms);
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER(bundleMgrHelper);
     auto abilityInfo = record->GetAbilityInfo();
     Want want;
     want.SetElementName(abilityInfo.deviceId, abilityInfo.bundleName, abilityInfo.name, abilityInfo.moduleName);
     auto uid = record->GetUid();
     want.SetParam("uid", uid);
-    bms->ProcessPreload(want);
+    bundleMgrHelper->ProcessPreload(want);
 }
 
 int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
@@ -1635,12 +1635,13 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
     if (iter != trustMap.end() && abilityRecord->GetAbilityInfo().name == iter->second) {
         return true;
     }
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, false);
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    bool getBundleInfos = bms->GetBundleInfos(OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
+    bool getBundleInfos = bundleMgrHelper->GetBundleInfos(
+        OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
     if (!getBundleInfos) {
-        HILOG_ERROR("Handle ability died task, get bundle infos failed");
+        HILOG_ERROR("Handle ability died task, get bundle infos failed.");
         return false;
     }
 
@@ -1920,10 +1921,11 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;
     extensionInfo.extension = abilityRecord->GetElementName();
-    auto bms = AbilityUtil::GetBundleManager();
-    CHECK_POINTER(bms);
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER(bundleMgrHelper);
+
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
+    bool queryResult = IN_PROCESS_CALL(bundleMgrHelper->QueryExtensionAbilityInfos(abilityRecord->GetWant(),
         AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, extensionInfos));
     if (queryResult) {
         HILOG_DEBUG("Success");

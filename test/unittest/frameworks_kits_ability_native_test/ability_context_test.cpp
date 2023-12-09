@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,26 +16,34 @@
 #include <gtest/gtest.h>
 #include <singleton.h>
 
-#include "ability_context.h"
-#include "ohos_application.h"
-#include "ability_info.h"
+#define private public
 #include "ability.h"
-#include "context_deal.h"
-#include "iservice_registry.h"
-#include "mock_bundle_manager.h"
+#include "ability_context.h"
+#include "ability_info.h"
+#include "if_system_ability_manager.h"
 #include "mock_ability_manager_service.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_context_deal.h"
+#include "mock_system_ability_manager.h"
 #include "napi_common_ability.h"
 #include "ohos_application.h"
-#include "system_ability_definition.h"
-#include "sys_mgr_client.h"
 #include "sa_mgr_client.h"
-#include "mock_context_deal.h"
+#include "sys_mgr_client.h"
+#include "system_ability_definition.h"
+#include "context_deal.h"
+#include "iservice_registry.h"
+#undef private
 
 namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
+
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 
 class AbilityContextTest : public testing::Test {
 public:
@@ -44,10 +52,13 @@ public:
     ~AbilityContextTest()
     {}
     std::unique_ptr<AbilityContext> context_ = nullptr;
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
     static void SetUpTestCase(void);
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
+    void MockBundleInstaller();
 };
 
 void AbilityContextTest::SetUpTestCase(void)
@@ -75,12 +86,31 @@ void AbilityContextTest::TearDownTestCase(void)
 
 void AbilityContextTest::SetUp(void)
 {
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
     context_ = std::make_unique<AbilityContext>();
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_SetUp end";
 }
 
 void AbilityContextTest::TearDown(void)
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AbilityContextTest::MockBundleInstaller()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_)).WillOnce(testing::Invoke(mockGetSystemAbility));
+}
 
 /**
  * @tc.number: AaFwk_AbilityContext_StartAbility_0100
@@ -205,7 +235,7 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetBundleManager_0100, Functio
 {
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
     context_->AttachBaseContext(deal);
-    sptr<IBundleMgr> ptr = context_->GetBundleManager();
+    auto ptr = context_->GetBundleManager();
 
     EXPECT_NE(nullptr, ptr);
 }
@@ -345,6 +375,10 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetAppType_0100, Function | Me
     deal->SetApplicationInfo(info);
     context_->AttachBaseContext(deal);
 
+    MockBundleInstaller();
+    EXPECT_CALL(*mockBundleMgr, GetAppType(testing::_))
+        .WillOnce(testing::Return("system"))
+        .WillRepeatedly(testing::Return("system"));
     EXPECT_STREQ(empty.c_str(), context_->GetAppType().c_str());
 }
 
@@ -578,12 +612,13 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_GetHapModuleInfo_0100, TestSize.Level
     GTEST_LOG_(INFO) << "AaFwk_Ability_GetHapModuleInfo_0100 start";
 
     std::shared_ptr<ContextDeal> contextDeal = std::make_shared<ContextDeal>();
-    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
-    std::string name = "com.ohos.callui";
     std::string package = "com.ohos.callui";
-    abilityInfo->bundleName = name;
-    abilityInfo->package = package;
-    contextDeal->SetAbilityInfo(abilityInfo);
+    contextDeal->hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
+    contextDeal->hapModuleInfoLocal_->name = "com.ohos.callui";
+    context_->AttachBaseContext(contextDeal);
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     context_->AttachBaseContext(contextDeal);
     std::shared_ptr<HapModuleInfo> info = context_->GetHapModuleInfo();
     EXPECT_STREQ(info->name.c_str(), package.c_str());
