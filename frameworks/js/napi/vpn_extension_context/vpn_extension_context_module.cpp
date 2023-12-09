@@ -14,11 +14,7 @@
  */
 
 #include "native_engine/native_engine.h"
-
-extern const char _binary_vpn_extension_context_js_start[];
-extern const char _binary_vpn_extension_context_js_end[];
-extern const char _binary_vpn_extension_context_abc_start[];
-extern const char _binary_vpn_extension_context_abc_end[];
+#include "vpn_extension_context_module.h"
 
 static napi_module _module = {
     .nm_version = 0,

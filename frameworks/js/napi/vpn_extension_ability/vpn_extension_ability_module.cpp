@@ -14,11 +14,7 @@
  */
 
 #include "native_engine/native_engine.h"
-
-extern const char _binary_vpn_extension_ability_js_start[];
-extern const char _binary_vpn_extension_ability_js_end[];
-extern const char _binary_vpn_extension_ability_abc_start[];
-extern const char _binary_vpn_extension_ability_abc_end[];
+#include "vpn_extension_ability_module.h"
 
 #ifdef ENABLE_ERRCODE
 static napi_module _module = {
