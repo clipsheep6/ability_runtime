@@ -153,7 +153,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_TerminateAbility_0100, TestSize.
     sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
     auto info = nullptr;
     auto eventHandler = nullptr;
-    auto moduleRecord = new ModuleRunningRecord(info,eventHandler);
+    auto moduleRecord = std::make_shared<ModuleRunningRecord>(info, eventHandler);
     EXPECT_NE(moduleRecord, nullptr);
     appRunningRecord->TerminateAbility(token, isForce);
     EXPECT_EQ(moduleRecord->terminateAbilities_.size(), TERMINATE_ABILITY_SIZE);
@@ -174,7 +174,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_AbilityTerminated_0100, TestSize
     auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
     EXPECT_NE(appRunningRecord, nullptr);
     appRunningRecord->AbilityTerminated(token);
-    EXPECT_EQ(appRunningRecord->processType_, ProcessType::NORMAL);   
+    EXPECT_EQ(appRunningRecord->processType_, ProcessType::NORMAL);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

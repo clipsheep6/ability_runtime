@@ -43,7 +43,7 @@ namespace {
 constexpr int32_t RECORD_ID = 1;
 constexpr int32_t APP_DEBUG_INFO_PID = 0;
 constexpr int32_t APP_DEBUG_INFO_UID = 0;
-} 
+}
 static int recordId_ = 0;
 class AppMgrServiceInnerTest : public testing::Test {
 public:

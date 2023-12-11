@@ -161,7 +161,7 @@ HWTEST_F(AppDebugManagerTest, IsAttachDebug_0100, TestSize.Level1)
 
     AppDebugInfo noDebugStart_info;
     noDebugStart_info.bundleName = NO_DEBUG_START_NAME;
-    noDebugStart_info.isDebugStart = NO_DEBUG_START;   
+    noDebugStart_info.isDebugStart = NO_DEBUG_START;
     manager_->debugInfos_.push_back(noDebugStart_info);
 
     auto result = manager_->IsAttachDebug(DEBUG_START_NAME);
