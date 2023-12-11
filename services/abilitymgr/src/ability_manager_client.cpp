@@ -1319,19 +1319,22 @@ ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, spt
 AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDeviceId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        AppExecFwk::ElementName elementName = {};
-        sptr<IRemoteObject> token;
-        auto ret = GetTopAbility(token);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("get top ability token failed");
-            return elementName;
+    {
+        std::lock_guard<std::recursive_mutex> lock_l(mutex_);
+        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+            AppExecFwk::ElementName elementName = {};
+            sptr<IRemoteObject> token = nullptr;
+            auto ret = GetTopAbility(token);
+            if (ret != ERR_OK) {
+                HILOG_ERROR("get top ability token failed");
+                return elementName;
+            }
+            if (token == nullptr) {
+                HILOG_ERROR("token is nullptr");
+                return elementName;
+            }
+            return GetElementNameByToken(token, isNeedLocalDeviceId);
         }
-        if (!token) {
-            HILOG_ERROR("token is nullptr");
-            return elementName;
-        }
-        return GetElementNameByToken(token, isNeedLocalDeviceId);
     }
     HILOG_DEBUG("enter.");
     auto abms = GetAbilityManager();
