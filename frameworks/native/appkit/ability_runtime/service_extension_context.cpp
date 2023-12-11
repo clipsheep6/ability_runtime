@@ -203,6 +203,17 @@ ErrCode ServiceExtensionContext::TerminateAbility()
     return err;
 }
 
+ErrCode ServiceExtensionContext::RequestModalUIExtension(const Want &want)
+{
+    HILOG_INFO("%{public}s begin.", __func__);
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ServiceExtensionContext::TerminateAbility is failed %{public}d", err);
+    }
+    HILOG_INFO("%{public}s end.", __func__);
+    return err;
+}
+
 AppExecFwk::AbilityType ServiceExtensionContext::GetAbilityInfoType() const
 {
     std::shared_ptr<AppExecFwk::AbilityInfo> info = GetAbilityInfo();

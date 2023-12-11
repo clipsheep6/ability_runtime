@@ -3122,7 +3122,9 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
     connectManager->uiExtensionMap_.emplace(
         callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(uiExtension1, sessionInfo1));
     int32_t extensionId1 = 1;
-    int32_t ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension1, "", extensionId1);
+    std::shared_ptr<AbilityRuntime::ExtensionRecord> extensionRecord1 = nullptr;
+    int32_t ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension1, "",
+        extensionRecord1, extensionId1);
     EXPECT_EQ(ret, ERR_OK);
     bool isFocused1 = connectManager->IsUIExtensionFocused(
         uiExtension1->GetApplicationInfo().accessTokenId, uiExtensionUser->GetToken());
@@ -3142,7 +3144,9 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
     connectManager->uiExtensionMap_.emplace(
         callbackA_->AsObject(), AbilityConnectManager::UIExtWindowMapValType(uiExtension2, sessionInfo2));
     int32_t extensionId2 = 2;
-    ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension2, "", extensionId2);
+    std::shared_ptr<AbilityRuntime::ExtensionRecord> extensionRecord2 = nullptr;
+    ret = connectManager->uiExtensionAbilityRecordMgr_->CreateExtensionRecord(uiExtension2, "",
+        extensionRecord2, extensionId2);
     EXPECT_EQ(ret, ERR_OK);
     bool isFocused2 = connectManager->IsUIExtensionFocused(
         uiExtension2->GetApplicationInfo().accessTokenId, uiExtensionUser->GetToken());

@@ -48,5 +48,9 @@ bool ExtensionRecord::ContinueToGetCallerToken()
 {
     return false;
 }
+
+void ExtensionRecord::Update(const AAFwk::AbilityRequest &abilityRequest)
+{
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

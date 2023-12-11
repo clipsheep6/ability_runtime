@@ -166,7 +166,7 @@ ohos_shared_library("abilitykit_utils") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
     "resource_management:global_resmgr",
   ]
@@ -250,6 +250,7 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:app_context_utils",
     "${ability_runtime_native_path}/appkit:appkit_delegator",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "${ability_runtime_services_path}/common:event_report",
   ]
@@ -272,7 +273,7 @@ ohos_shared_library("abilitykit_native") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "ipc:ipc_js",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
     "relational_store:native_rdb",
     "resource_management:global_resmgr",
@@ -432,7 +433,7 @@ ohos_shared_library("insight_intent_executor") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
@@ -519,7 +520,7 @@ ohos_shared_library("uiabilitykit_native") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
     "resource_management:global_resmgr",
     "window_manager:libwsutils",
@@ -628,7 +629,7 @@ ohos_shared_library("form_extension") {
       "form_fwk:formutil_napi",
       "hilog:libhilog",
       "ipc:ipc_core",
-      "ipc:ipc_napi_common",
+      "ipc:ipc_napi",
       "napi:ace_napi",
     ]
   }
@@ -698,7 +699,7 @@ ohos_shared_library("service_extension") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
@@ -962,7 +963,7 @@ ohos_shared_library("ui_extension") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
@@ -1030,7 +1031,7 @@ ohos_shared_library("share_extension") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
@@ -1072,7 +1073,7 @@ ohos_shared_library("action_extension") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 
@@ -1207,7 +1208,7 @@ ohos_shared_library("auto_fill_extension") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
-    "ipc:ipc_napi_common",
+    "ipc:ipc_napi",
     "napi:ace_napi",
   ]
 

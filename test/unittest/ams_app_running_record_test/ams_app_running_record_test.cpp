@@ -13,30 +13,36 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+#include <limits>
+
 #define private public
 #include "app_mgr_service_inner.h"
 #include "app_running_record.h"
+#include "iservice_registry.h"
 #include "module_running_record.h"
 #undef private
 
-#include <limits>
-#include <gtest/gtest.h>
-#include "iremote_object.h"
-#include "refbase.h"
-#include "application_info.h"
-#include "app_record_id.h"
-#include "app_scheduler_host.h"
 #include "ability_info.h"
 #include "ability_running_record.h"
+#include "app_record_id.h"
+#include "app_scheduler_host.h"
+#include "application_info.h"
+#include "bundle_mgr_interface.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
-#include "mock_app_scheduler.h"
+#include "if_system_ability_manager.h"
+#include "iremote_object.h"
 #include "mock_ability_token.h"
-#include "mock_app_spawn_client.h"
 #include "mock_app_mgr_service_inner.h"
+#include "mock_app_scheduler.h"
+#include "mock_app_spawn_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
 #include "mock_iapp_state_callback.h"
-#include "mock_bundle_manager.h"
 #include "mock_render_scheduler.h"
+#include "mock_system_ability_manager.h"
+#include "refbase.h"
 #include "ui_extension_utils.h"
 #include "window_visibility_info.h"
 
@@ -51,6 +57,9 @@ namespace AppExecFwk {
 namespace {
 static constexpr int64_t NANOSECONDS = 1000000000;  // NANOSECONDS mean 10^9 nano second
 static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 millias second
+constexpr int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 }
 class AmsAppRunningRecordTest : public testing::Test {
 public:
@@ -58,6 +67,10 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstallerAndSA() const;
+    void MockBundleInstaller() const;
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 protected:
     static const std::string GetTestProcessName()
@@ -96,7 +109,6 @@ protected:
     std::shared_ptr<AppRunningRecord> testAppRecord_;
     std::unique_ptr<AppMgrServiceInner> service_;
     sptr<MockAbilityToken> mock_token_;
-    sptr<BundleMgrService> mockBundleMgr;
 };
 
 void AmsAppRunningRecordTest::SetUpTestCase()
@@ -111,14 +123,38 @@ void AmsAppRunningRecordTest::SetUp()
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     mock_token_ = new (std::nothrow) MockAbilityToken();
     client_ = iface_cast<IAppScheduler>(mockAppSchedulerClient_.GetRefPtr());
-    mockBundleMgr = new (std::nothrow) BundleMgrService();
-    service_->SetBundleManager(mockBundleMgr);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AmsAppRunningRecordTest::TearDown()
 {
     testAbilityRecord_.reset();
     testAppRecord_.reset();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AmsAppRunningRecordTest::MockBundleInstallerAndSA() const
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
+
+void AmsAppRunningRecordTest::MockBundleInstaller() const
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
 }
 
 sptr<IAppScheduler> AmsAppRunningRecordTest::GetMockedAppSchedulerClient() const
@@ -144,6 +180,9 @@ std::shared_ptr<AppRunningRecord> AmsAppRunningRecordTest::StartLoadAbility(cons
     const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
     const pid_t newPid) const
 {
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     std::shared_ptr<MockAppSpawnClient> mockClientPtr = std::make_shared<MockAppSpawnClient>();
     service_->SetAppSpawnClient(mockClientPtr);
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(newPid), Return(ERR_OK)));
@@ -768,6 +807,7 @@ HWTEST_F(AmsAppRunningRecordTest, DeleteAppRunningRecord_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_001, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest AttachApplication_001 start");
+    MockBundleInstallerAndSA();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -800,6 +840,7 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_001, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_002, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest AttachApplication_002 start");
+    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -831,6 +872,7 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_002, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_003, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest AttachApplication_003 start");
+    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -862,6 +904,7 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_003, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_004, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest AttachApplication_004 start");
+    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -891,6 +934,7 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_004, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_005, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest AttachApplication_005 start");
+    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();
@@ -929,6 +973,7 @@ HWTEST_F(AmsAppRunningRecordTest, AttachApplication_005, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, AttachApplication_006, TestSize.Level1)
 {
     HILOG_INFO("AmsAppRunningRecordTest AttachApplication_006 start");
+    MockBundleInstaller();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     abilityInfo->applicationName = GetTestAppName();

@@ -1677,7 +1677,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_RegisterRemoteMissionListene
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->RegisterRemoteMissionListenerInner(data, reply);
-    EXPECT_EQ(res, ERR_NULL_OBJECT);
+    EXPECT_EQ(res, INVALID_PARAMETERS_ERR);
 }
 
 /*
@@ -1693,7 +1693,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_UnRegisterRemoteMissionListe
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->UnRegisterRemoteMissionListenerInner(data, reply);
-    EXPECT_EQ(res, ERR_NULL_OBJECT);
+    EXPECT_EQ(res, INVALID_PARAMETERS_ERR);
 }
 
 /*

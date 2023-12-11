@@ -2053,8 +2053,6 @@ HWTEST_F(AbilityBaseTest, AbilityBackgroundRunning_0100, TestSize.Level1)
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
 
-    auto bundleMgr = ability->GetBundleMgr();
-    ability->SetBundleManager(bundleMgr);
     ability->StartBackgroundRunning(wantAgent);
 
     int id = 0;

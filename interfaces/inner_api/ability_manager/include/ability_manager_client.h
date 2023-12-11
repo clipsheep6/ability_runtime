@@ -263,6 +263,15 @@ public:
         sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
+    
+     /**
+     * Create UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param userId, Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode RequestModalUIExtension(const Want &want);
 
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.

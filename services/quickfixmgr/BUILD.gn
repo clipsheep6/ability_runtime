@@ -37,6 +37,7 @@ quickfixms_sources = [
 ]
 
 ohos_shared_library("quickfixms") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
   shlib_type = "sa"
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":quickfixms_config" ]
@@ -48,6 +49,7 @@ ohos_shared_library("quickfixms") {
   deps = [
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/quick_fix:quickfix_manager",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/common:perm_verification",
   ]
 
@@ -71,6 +73,7 @@ ohos_shared_library("quickfixms") {
 
 # Note: Just for test
 ohos_static_library("quickfixms_static") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":quickfixms_config" ]
 

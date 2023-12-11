@@ -73,7 +73,68 @@ ohos_unittest("main_thread_test") {
   ]
 }
 
+ohos_unittest("main_thread_by_mock_bms_test") {
+  module_out_path = "ability_runtime/appkit"
+
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
+  ]
+
+  sources = [
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
+    "${ability_runtime_test_path}/mock/services_appmgr_test/src/sys_mgr_client_mock.cpp",
+    "main_thread_by_mock_bms_test.cpp",
+  ]
+
+  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+
+  cflags = []
+
+  if (target_cpu == "arm") {
+    cflags += [ "-DBINDER_IPC_32BIT" ]
+  }
+
+  deps = [
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  public_deps =
+      [ "${global_path}/resource_management/frameworks/resmgr:global_resmgr" ]
+
+  external_deps = [
+    "ability_base:configuration",
+    "ability_base:want",
+    "ability_base:zuri",
+    "ability_runtime:ability_deps_wrapper",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_innerkits",
+    "eventhandler:libeventhandler",
+    "faultloggerd:libbacktrace_local",
+    "faultloggerd:libfaultloggerd",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "hitrace:hitrace_meter",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr:samgr_proxy",
+  ]
+}
+
 group("unittest") {
   testonly = true
-  deps = [ ":main_thread_test" ]
+  deps = [
+    ":main_thread_by_mock_bms_test",
+    ":main_thread_test",
+  ]
 }

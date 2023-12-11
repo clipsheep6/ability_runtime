@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,8 +45,6 @@ public:
 
     void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
 
-    sptr<AppExecFwk::IBundleMgr> GetBundleMgrProxy();
-
     bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
 
     bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content);
@@ -54,7 +52,6 @@ public:
     void GetAmi(std::string& ami, const std::string& filePath);
 private:
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
-    sptr<AppExecFwk::IBundleMgr> bundleMgrProxy_ = nullptr;
 };
 
 } // namespace AbilityRuntime

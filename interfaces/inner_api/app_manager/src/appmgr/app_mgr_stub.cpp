@@ -149,6 +149,14 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUnregisterAbilityForegroundStateObserver;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING)] =
         &AppMgrStub::HandleIsApplicationRunning;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_CHILD_PROCESS)] =
+        &AppMgrStub::HandleStartChildProcess;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_CHILD_PROCCESS_INFO_FOR_SELF)] =
+        &AppMgrStub::HandleGetChildProcessInfoForSelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::ATTACH_CHILD_PROCESS)] =
+        &AppMgrStub::HandleAttachChildProcess;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY)] =
+        &AppMgrStub::HandleExitChildProcessSafely;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -957,6 +965,53 @@ int32_t AppMgrStub::HandleIsApplicationRunning(MessageParcel &data, MessageParce
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleStartChildProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("called.");
+    std::string srcEntry = data.ReadString();
+    int32_t childPid = 0;
+    int32_t result = StartChildProcess(srcEntry, childPid);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    if (result == ERR_OK && !reply.WriteInt32(childPid)) {
+        HILOG_ERROR("Write childPid error.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetChildProcessInfoForSelf(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("called.");
+    ChildProcessInfo info;
+    auto result = GetChildProcessInfoForSelf(info);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result error.");
+        return ERR_INVALID_VALUE;
+    }
+    if (result == ERR_OK && !reply.WriteParcelable(&info)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleAttachChildProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("called.");
+    sptr<IRemoteObject> scheduler = data.ReadRemoteObject();
+    AttachChildProcess(scheduler);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleExitChildProcessSafely(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("called.");
+    ExitChildProcessSafely();
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

@@ -51,9 +51,11 @@ ohos_shared_library("runtime") {
   include_dirs = [
     "${ability_runtime_path}/services/abilitymgr/include",
     "${bundlefwk_path}/interfaces/kits/js/common",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
   ]
 
   sources = [
+    "${ability_runtime_native_path}/appkit/ability_bundle_manager_helper/bundle_mgr_helper.cpp",
     "${ability_runtime_native_path}/runtime/connect_server_manager.cpp",
     "${ability_runtime_native_path}/runtime/hdc_register.cpp",
     "${ability_runtime_native_path}/runtime/js_data_struct_converter.cpp",
@@ -81,6 +83,7 @@ ohos_shared_library("runtime") {
 
   deps = [
     "${ability_runtime_native_path}/ability/native:ability_business_error",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
     "${third_party_path}/zlib:shared_libz",
   ]
@@ -95,6 +98,7 @@ ohos_shared_library("runtime") {
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:bundle_napi_common",
+    "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "ets_utils:console",

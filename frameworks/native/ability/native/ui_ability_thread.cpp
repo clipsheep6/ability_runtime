@@ -170,7 +170,7 @@ void UIAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplicat
     HILOG_INFO("LoadLifecycle: Attach uiability.");
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(TimeUtil::SystemTimeMillisecond()) +
-        "; AbilityThread::Attach; the load lifecycle.";
+        "; AbilityThread::Attach start; the load lifecycle.";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
     ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
     if (err != ERR_OK) {

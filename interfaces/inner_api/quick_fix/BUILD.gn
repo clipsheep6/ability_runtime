@@ -41,6 +41,7 @@ config("quickfix_config") {
 }
 
 ohos_shared_library("quickfix_manager") {
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper" ]
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
   public_configs = [ ":quickfix_config" ]
 
@@ -57,6 +58,7 @@ ohos_shared_library("quickfix_manager") {
   deps = [
     ":quickfix_manager_interface",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
   ]
 
   external_deps = [

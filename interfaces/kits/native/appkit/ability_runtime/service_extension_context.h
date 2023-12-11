@@ -155,6 +155,8 @@ public:
      * @return errCode ERR_OK on success, others on failure.
      */
     ErrCode TerminateAbility();
+    
+    ErrCode RequestModalUIExtension(const Want &want);
 
     using SelfType = ServiceExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

@@ -22,6 +22,10 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+constexpr const char* SEPARATOR = ":";
+constexpr const char* DEFAULT_PROCESS_NAME = "UIExtension";
+}
 std::atomic_int32_t ExtensionRecordManager::extensionRecordId_ = INVALID_EXTENSION_RECORD_ID;
 
 ExtensionRecordManager::ExtensionRecordManager(const int32_t userId) : userId_(userId)
@@ -71,8 +75,8 @@ void ExtensionRecordManager::RemoveExtensionRecord(const int32_t extensionRecord
     extensionRecords_.erase(extensionRecordId);
 }
 
-bool ExtensionRecordManager::CheckExtensionLoaded(const int32_t extensionRecordId,
-    const std::string &hostBundleName)
+int32_t ExtensionRecordManager::GetExtensionRecord(const int32_t extensionRecordId,
+    const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded)
 {
     HILOG_DEBUG("extensionRecordId %{public}d.", extensionRecordId);
     std::lock_guard<std::mutex> lock(mutex_);
@@ -83,17 +87,124 @@ bool ExtensionRecordManager::CheckExtensionLoaded(const int32_t extensionRecordI
         HILOG_DEBUG("Stored host bundleName: %{public}s, input bundleName is %{public}s.",
             it->second->hostBundleName_.c_str(), hostBundleName.c_str());
         if (it->second->hostBundleName_ == hostBundleName) {
-            return true;
+            extensionRecord = it->second;
+            isLoaded = true;
+            return ERR_OK;
         }
     }
     HILOG_DEBUG("Not found stored id %{public}d.", extensionRecordId);
-    return false;
+    extensionRecord = nullptr;
+    isLoaded = false;
+    return ERR_NULL_OBJECT;
 }
 
 bool ExtensionRecordManager::IsBelongToManager(const AppExecFwk::AbilityInfo &abilityInfo)
 {
     // only support UIExtension now
     return AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo.extensionAbilityType);
+}
+
+int32_t ExtensionRecordManager::GetOrCreateExtensionRecord(const AAFwk::AbilityRequest &abilityRequest,
+    const std::string &hostBundleName, std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, bool &isLoaded)
+{
+    CHECK_POINTER_AND_RETURN(abilityRequest.sessionInfo, ERR_INVALID_VALUE);
+    abilityRecord = GetAbilityRecordBySessionInfo(abilityRequest.sessionInfo);
+    if (abilityRecord != nullptr) {
+        isLoaded = true;
+        return ERR_OK;
+    }
+    std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
+    int32_t ret = GetOrCreateExtensionRecordInner(abilityRequest, hostBundleName, extensionRecord, isLoaded);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    if (extensionRecord != nullptr) {
+        abilityRecord = extensionRecord->abilityRecord_;
+    }
+    return ERR_OK;
+}
+
+std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetAbilityRecordBySessionInfo(
+    const sptr<AAFwk::SessionInfo> &sessionInfo)
+{
+    CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto it : extensionRecords_) {
+        if (it.second == nullptr) {
+            continue;
+        }
+        std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = it.second->abilityRecord_;
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        sptr<AAFwk::SessionInfo> recordSessionInfo = abilityRecord->GetSessionInfo();
+        if (recordSessionInfo == nullptr) {
+            continue;
+        }
+        if (recordSessionInfo->uiExtensionComponentId == sessionInfo->uiExtensionComponentId) {
+            return abilityRecord;
+        }
+    }
+    return nullptr;
+}
+
+void ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest,
+    std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord)
+{
+    switch (abilityRequest.extensionProcessMode) {
+        case AppExecFwk::ExtensionProcessMode::INSTANCE: {
+            std::string process = abilityRequest.abilityInfo.bundleName + SEPARATOR + abilityRequest.abilityInfo.name
+                + SEPARATOR + std::to_string(abilityRecord->GetUIExtensionAbilityId());
+            abilityRecord->SetProcessName(process);
+            break;
+        }
+        case AppExecFwk::ExtensionProcessMode::TYPE: {
+            std::string process = abilityRequest.abilityInfo.bundleName + SEPARATOR + abilityRequest.abilityInfo.name;
+            abilityRecord->SetProcessName(process);
+            break;
+        }
+        default: // AppExecFwk::ExtensionProcessMode::UNDEFINED or AppExecFwk::ExtensionProcessMode::BUNDLE
+            // no need to update
+            break;
+    }
+}
+
+int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::AbilityRequest &abilityRequest,
+    const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded)
+{
+    // factory pattern with ability request
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
+        int32_t extensionRecordId = UIExtensionRecord::NeedReuse(abilityRequest);
+        if (extensionRecordId != INVALID_EXTENSION_RECORD_ID) {
+            int32_t ret = GetExtensionRecord(extensionRecordId, hostBundleName, extensionRecord, isLoaded);
+            if (ret == ERR_OK) {
+                extensionRecord->Update(abilityRequest);
+            }
+            return ret;
+        }
+        std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = AAFwk::AbilityRecord::CreateAbilityRecord(abilityRequest);
+        if (abilityRecord == nullptr) {
+            HILOG_ERROR("Failed to create ability record");
+            return ERR_NULL_OBJECT;
+        }
+        abilityRecord->SetOwnerMissionUserId(userId_);
+        int32_t ret = CreateExtensionRecord(abilityRecord, hostBundleName, extensionRecord, extensionRecordId);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("Failed to create extension record, ret: %{public}d", ret);
+            return ret;
+        }
+        UpdateProcessName(abilityRequest, abilityRecord);
+        HILOG_DEBUG("extensionProcessMode:%{public}d, process: %{public}s", abilityRequest.extensionProcessMode,
+            abilityRecord->GetAbilityInfo().process.c_str());
+        isLoaded = false;
+        return ERR_OK;
+    }
+    return ERR_INVALID_VALUE;
+}
+
+int32_t ExtensionRecordManager::StartAbility(const AAFwk::AbilityRequest &abilityRequest)
+{
+    return ERR_OK;
 }
 
 bool ExtensionRecordManager::IsFocused(int32_t extensionRecordId, const sptr<IRemoteObject>& focusToken)
@@ -141,7 +252,7 @@ sptr<IRemoteObject> ExtensionRecordManager::GetRootCallerTokenLocked(int32_t ext
 }
 
 int32_t ExtensionRecordManager::CreateExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
-    const std::string &hostBundleName, int32_t &extensionRecordId)
+    const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, int32_t &extensionRecordId)
 {
     // factory pattern with ability request
     if (abilityRecord == nullptr) {
@@ -150,8 +261,7 @@ int32_t ExtensionRecordManager::CreateExtensionRecord(const std::shared_ptr<AAFw
     }
     extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
-        std::shared_ptr<ExtensionRecord> extensionRecord = std::make_shared<UIExtensionRecord>(abilityRecord,
-            hostBundleName, extensionRecordId);
+        extensionRecord = std::make_shared<UIExtensionRecord>(abilityRecord, hostBundleName, extensionRecordId);
         std::lock_guard<std::mutex> lock(mutex_);
         HILOG_DEBUG("add UIExtension, id %{public}d.", extensionRecordId);
         extensionRecords_[extensionRecordId] = extensionRecord;

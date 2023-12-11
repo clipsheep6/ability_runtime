@@ -218,10 +218,10 @@ int32_t UserController::LogoutUser(int32_t userId)
     }
     appScheduler->KillProcessesByUserId(userId);
     abilityManagerService->ClearUserData(userId);
-    ClearAbilityUserItems(userId);
     if (IsCurrentUser(userId)) {
         SetCurrentUserId(0);
     }
+    ClearAbilityUserItems(userId);
     return 0;
 }
 
