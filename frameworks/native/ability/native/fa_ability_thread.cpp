@@ -116,7 +116,6 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
     return abilityName;
 }
 
-
 std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
     const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
@@ -1026,7 +1025,7 @@ void FAAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, st
 void FAAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_DEBUG("begin");
-    if (currentAbility_ == nullptr ) {
+    if (currentAbility_ == nullptr) {
         HILOG_DEBUG("currentAbility is nullptr");
         return;
     }
