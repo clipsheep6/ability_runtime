@@ -2833,27 +2833,13 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
             continue;
         }
         auto&& authority = uri.GetAuthority();
-        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
-        bool authorityFlag = authority == "media" || authority == "docs";
         uint32_t flag = want.GetFlags();
-        if (authorityFlag && !isGrantPersistableUriPermissionEnable_) {
+        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
+        if (!isGrantPersistableUriPermissionEnable_ || authority != "docs") {
             flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
-            if (!permission) {
-                HILOG_WARN("Do not have uri permission proxy.");
-                continue;
-            }
         }
 
-        if (authorityFlag && isGrantPersistableUriPermissionEnable_ && !permission) {
-            if (!AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
-                uri, flag, fromTokenId)) {
-                HILOG_WARN("Do not have persistable uri permission proxy.");
-                continue;
-            }
-            flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-        }
-
-        if (!authorityFlag) {
+        if (authority != "docs" && authority != "media") {
             AppExecFwk::BundleInfo uriBundleInfo;
             if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
                 HILOG_WARN("To fail to get bundle info according to uri.");
@@ -2866,7 +2852,21 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
                 HILOG_ERROR("the uri does not belong to caller.");
                 continue;
             }
-            flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
+        }
+
+        if (authority == "media" && !permission) {
+            HILOG_WARN("the type of uri media, have no permission.");
+            continue;
+        }
+        
+        if (authority == "docs" && !permission) {
+            if (!isGrantPersistableUriPermissionEnable_ ||
+                !AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
+                    uri, flag, fromTokenId)) {
+                HILOG_WARN("the type of uri docs, have no permission.");
+                continue;
+            }
+            flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
         }
         if (uriVecMap.find(flag) == uriVecMap.end()) {
             std::vector<Uri> uriVec;

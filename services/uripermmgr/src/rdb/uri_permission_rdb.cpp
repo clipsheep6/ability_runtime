@@ -59,7 +59,7 @@ UriPermissionRdb::UriPermissionRdb()
     rdbDataManager_ = std::make_shared<RdbDataManager>(rdbConfig);
     bool ret = rdbDataManager_->CreateTable();
     if (!ret) {
-        HILOG_DEBUG("Failed to createTable");
+        HILOG_ERROR("Failed to createTable");
     }
 }
 
@@ -172,8 +172,9 @@ int32_t UriPermissionRdb::RemoveGrantInfo(const NativeRdb::AbsRdbPredicates &abs
 bool UriPermissionRdb::CheckPersistableUriPermissionProxy(const std::string& uri, uint32_t flag, uint32_t tokenId)
 {
     // check if the uri has flag permission
-    HILOG_DEBUG("CheckPersistablekUriPermissionProxy: uri = %{private}s, flag = %{public}i,\
-        callerTokenId = %{public}i", uri.c_str(), flag, tokenId);
+    HILOG_DEBUG(
+        "CheckPersistablekUriPermissionProxy: uri = %{private}s, flag = %{public}i, tokenId = %{public}i",
+        uri.c_str(), flag, tokenId);
     NativeRdb::AbsRdbPredicates absRdbPredicates(URI_PERMISSION_TABLE_NAME);
     absRdbPredicates.EqualTo(COLUMN_URI, uri);
     absRdbPredicates.EqualTo(COLUMN_TARGET_TOKEN_ID, std::to_string(tokenId));

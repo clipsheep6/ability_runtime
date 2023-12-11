@@ -115,7 +115,7 @@ HWTEST_F(AppfreezeManagerTest, AppfreezeManagerTest_003, TestSize.Level1)
         .bundleName = "AppfreezeManagerTest_003",
         .processName = "AppfreezeManagerTest_003",
     };
-    int ret = appfreezeManager->NotifyANR(faultData, appInfo);
+    int ret = appfreezeManager->NotifyANR(faultData, appInfo, "");
     EXPECT_EQ(ret, 0);
 }
 

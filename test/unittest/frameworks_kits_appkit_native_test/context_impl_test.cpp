@@ -29,7 +29,6 @@
 #include "iremote_object.h"
 #include "mock_ability_token.h"
 #include "mock_bundle_manager.h"
-#include "mock_resource_manager.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -1018,7 +1017,7 @@ HWTEST_F(ContextImplTest, SetResourceManager_0100, TestSize.Level1)
     EXPECT_NE(contextImpl, nullptr);
     EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
 
-    auto resourceManager = std::make_shared<Global::Resource::MockResourceManager>();
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     EXPECT_NE(resourceManager, nullptr);
 
     contextImpl->SetResourceManager(resourceManager);
@@ -1042,7 +1041,7 @@ HWTEST_F(ContextImplTest, GetResourceManager_0100, TestSize.Level1)
     auto parentContext = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(parentContext, nullptr);
     contextImpl->SetParentContext(parentContext);
-    auto resourceManager = std::make_shared<Global::Resource::MockResourceManager>();
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager());
     EXPECT_NE(resourceManager, nullptr);
 
     parentContext->SetResourceManager(resourceManager);
