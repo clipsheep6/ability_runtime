@@ -249,7 +249,10 @@ ohos_unittest("ability_context_test") {
     "ability_context_test.cpp",
   ]
 
-  include_dirs = [ "${ability_runtime_napi_path}/inner/napi_common" ]
+  include_dirs = [
+    "${ability_runtime_napi_path}/inner/napi_common",
+    "${ability_runtime_test_path}/mock/common/include",
+  ]
 
   configs = [ ":module_ability_context_config" ]
 

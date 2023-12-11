@@ -40,6 +40,8 @@ public:
 
     virtual bool ContinueToGetCallerToken();
 
+    virtual void Update(const AAFwk::AbilityRequest &abilityRequest);
+
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord_ = nullptr;
     std::string hostBundleName_;
     int32_t extensionRecordId_ = 0;

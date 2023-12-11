@@ -518,7 +518,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isTestProcess = (appRecord->GetUserTestInfo() != nullptr);
     info.startTimeMillis_ = appRecord->GetAppStartTime();
     info.isAbilityForegrounding = appRecord->GetAbilityForegroundingFlag();
-    info.extensionType_ = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
+    info.extensionType_ = appRecord->GetExtensionType();
     info.processType_ = appRecord->GetProcessType();
 }
 
@@ -558,7 +558,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             appData.uid = appRecord->GetUid();
             appData.pid = appRecord->GetPriorityObject()->GetPid();
             appData.state = static_cast<int32_t>(ApplicationState::APP_STATE_FOREGROUND);
-            appData.extensionType = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
+            appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
             HILOG_INFO("%{public}s, bundleName:%{public}s", __func__, appData.bundleName.c_str());
@@ -876,9 +876,13 @@ void AppRunningManager::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
     HILOG_DEBUG("Called.");
+    std::set<int32_t> pids;
     for (const auto &info : windowVisibilityInfos) {
         if (info == nullptr) {
             HILOG_ERROR("Window visibility info is nullptr.");
+            continue;
+        }
+        if (pids.find(info->pid_) != pids.end()) {
             continue;
         }
         auto appRecord = GetAppRunningRecordByPid(info->pid_);
@@ -887,6 +891,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             return;
         }
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
+        pids.emplace(info->pid_);
     }
 }
 
@@ -976,6 +981,64 @@ void AppRunningManager::GetAbilityTokensByBundleName(
             abilityTokens.emplace_back(token.first);
         }
     }
+}
+
+std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByChildProcessPid(const pid_t pid)
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto childProcessRecordMap = pair.second->GetChildProcessRecordMap();
+        return childProcessRecordMap.find(pid) != childProcessRecordMap.end();
+    });
+    if (iter != appRunningRecordMap_.end()) {
+        return iter->second;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("On child process remote died.");
+    if (remote == nullptr) {
+        HILOG_ERROR("remote is null");
+        return nullptr;
+    }
+    sptr<IRemoteObject> object = remote.promote();
+    if (!object) {
+        HILOG_ERROR("promote failed.");
+        return nullptr;
+    }
+
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    std::shared_ptr<ChildProcessRecord> childRecord;
+    const auto &it = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(),
+        [&object, &childRecord](const auto &pair) {
+            auto appRecord = pair.second;
+            if (!appRecord) {
+                return false;
+            }
+            auto childRecordMap = appRecord->GetChildProcessRecordMap();
+            if (childRecordMap.empty()) {
+                return false;
+            }
+            for (auto iter : childRecordMap) {
+                if (iter.second == nullptr) {
+                    continue;
+                }
+                auto scheduler = iter.second->GetScheduler();
+                if (scheduler && scheduler->AsObject() == object) {
+                    childRecord = iter.second;
+                    return true;
+                }
+            }
+            return false;
+        });
+    if (it != appRunningRecordMap_.end()) {
+        auto appRecord = it->second;
+        appRecord->RemoveChildProcessRecord(childRecord);
+        return childRecord;
+    }
+    return nullptr;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

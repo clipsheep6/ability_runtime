@@ -648,7 +648,7 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.requestProcCode = appRecord->GetRequestProcCode();
     processData.processChangeReason = static_cast<int32_t>(appRecord->GetProcessChangeReason());
     processData.processName = appRecord->GetProcessName();
-    processData.extensionType = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
+    processData.extensionType = appRecord->GetExtensionType();
     processData.processType = appRecord->GetProcessType();
     return processData;
 }
@@ -798,7 +798,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     appStateData.bundleName = appRecord->GetBundleName();
     appStateData.state = static_cast<int32_t>(state);
     appStateData.uid = appRecord->GetUid();
-    appStateData.extensionType = AAFwk::UIExtensionUtils::ConvertType(appRecord->GetExtensionType());
+    appStateData.extensionType = appRecord->GetExtensionType();
     if (appRecord->GetApplicationInfo() != nullptr) {
         appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
     }
@@ -813,7 +813,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
         }
     }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManager();
+    auto bundleMgr = remoteClientManager->GetBundleManagerHelper();
     std::string callerBundleName;
     if (bundleMgr != nullptr &&
         IN_PROCESS_CALL(bundleMgr->GetNameForUid(appRecord->GetCallerUid(), callerBundleName)) == ERR_OK) {

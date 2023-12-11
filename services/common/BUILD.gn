@@ -62,6 +62,7 @@ ohos_shared_library("perm_verification") {
     "access_token:libtokenid_sdk",
     "c_utils:utils",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
   ]
 

@@ -41,7 +41,8 @@ void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
         return;
     }
 
-    auto onRemoteDiedFunc = std::bind(&AppMgrServiceInner::OnRemoteDied, serviceInner, remote, isRenderProcess_);
+    auto onRemoteDiedFunc = std::bind(&AppMgrServiceInner::OnRemoteDied, serviceInner, remote, isRenderProcess_,
+        isChildProcess_);
     handler->SubmitTask(onRemoteDiedFunc, TASK_ON_REMOTE_DIED);
 }
 
@@ -58,6 +59,11 @@ void AppDeathRecipient::SetAppMgrServiceInner(const std::shared_ptr<AppMgrServic
 void AppDeathRecipient::SetIsRenderProcess(bool isRenderProcess)
 {
     isRenderProcess_ = isRenderProcess;
+}
+
+void AppDeathRecipient::SetIsChildProcess(bool isChildProcess)
+{
+    isChildProcess_ = isChildProcess;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

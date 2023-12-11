@@ -64,11 +64,6 @@ inline bool IsWindowExtension(const AppExecFwk::ExtensionAbilityType type)
 {
     return type == AppExecFwk::ExtensionAbilityType::WINDOW;
 }
-
-inline AppExecFwk::ExtensionAbilityType ConvertType(const AppExecFwk::ExtensionAbilityType type)
-{
-    return IsUIExtension(type) ? AppExecFwk::ExtensionAbilityType::UI : type;
-}
 } // namespace UIExtensionUtils
 } // namespace AAFwk
 } // namespace OHOS

@@ -20,6 +20,7 @@ ohos_unittest("AmsMgrProxyTest") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/appmgr/include",
@@ -31,6 +32,7 @@ ohos_unittest("AmsMgrProxyTest") {
   sources = [ "ams_mgr_proxy_test.cpp" ]
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "//third_party/googletest:gmock_main",

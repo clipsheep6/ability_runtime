@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "app_mgr_interface.h"
-#include "bundlemgr/bundle_mgr_interface.h"
+#include "bundle_mgr_helper.h"
 #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
@@ -62,6 +62,7 @@ public:
 private:
     template<typename T>
     void ConnectManager(sptr<T> &mgr, int32_t serviceId);
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> ConnectManagerHelper();
     int32_t GetCurrentAccountId() const;
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
         TokenId fromTokenId, TokenId targetTokenId, int autoremove);
@@ -105,7 +106,7 @@ private:
     std::mutex mutex_;
     std::mutex mgrMutex_;
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
-    sptr<AppExecFwk::IBundleMgr> bundleManager_ = nullptr;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_ = nullptr;
     sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
     std::shared_ptr<UriPermissionRdb> uriPermissionRdb_;
     bool isGrantPersistableUriPermissionEnable_ = false;

@@ -573,31 +573,6 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0100, TestSize.Level1)
 }
 
 /**
- * @tc.name: SetNativeLibPath_0100
- * @tc.desc: set native lib path.
- * @tc.type: FUNC
- * @tc.require: issueI64MUJ
- */
-HWTEST_F(MainThreadTest, SetNativeLibPath_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    Configuration config;
-    AppLaunchData launchData;
-    ProcessInfo processInfo("test_quickfix", 9999);
-    ApplicationInfo appInfo;
-    appInfo.name = "MainAbility";
-    appInfo.bundleName = "com.ohos.quickfix";
-    launchData.SetApplicationInfo(appInfo);
-    launchData.SetProcessInfo(processInfo);
-
-    // SetNativeLibPath is implemented in anonymous space, called by HandleLaunchApplication
-    mainThread_->HandleLaunchApplication(launchData, config);
-    ASSERT_NE(mainThread_->application_, nullptr);
-    EXPECT_NE(mainThread_->application_->abilityRuntimeContext_, nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
  * @tc.name: ConnectToAppMgr_0100
  * @tc.desc: ConnectToAppMgr.
  * @tc.type: FUNC

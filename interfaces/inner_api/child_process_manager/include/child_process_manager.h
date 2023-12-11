@@ -19,6 +19,9 @@
 #include <string>
 #include <sys/types.h>
 
+#include "app_mgr_interface.h"
+#include "bundle_info.h"
+#include "child_process_info.h"
 #include "child_process_manager_error_utils.h"
 #include "hap_module_info.h"
 #include "runtime.h"
@@ -37,19 +40,25 @@ public:
     static void HandleSigChild(int32_t signo);
     bool IsChildProcess();
     ChildProcessManagerErrorCode StartChildProcessBySelfFork(const std::string &srcEntry, pid_t &pid);
+    ChildProcessManagerErrorCode StartChildProcessByAppSpawnFork(const std::string &srcEntry, pid_t &pid);
+    bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo);
+    bool GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
+    std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
+        const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn);
+    void LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
+        std::unique_ptr<AbilityRuntime::Runtime> &runtime);
 
 private:
     ChildProcessManager();
 
     ChildProcessManagerErrorCode PreCheck();
-    bool MultiProcessModelEnabled();
-    void HandleChildProcess(const std::string &srcEntry, AppExecFwk::HapModuleInfo &hapModuleInfo);
-    bool GetHapModuleInfo(const std::string &bundleName, AppExecFwk::HapModuleInfo &hapModuleInfo);
-    std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(AppExecFwk::HapModuleInfo &hapModuleInfo);
+    void RegisterSignal();
+    void HandleChildProcessBySelfFork(const std::string &srcEntry, const AppExecFwk::BundleInfo &bundleInfo);
+    bool hasChildProcessRecord();
+    sptr<AppExecFwk::IAppMgr> GetAppMgr();
 
     static bool signalRegistered_;
-    bool multiProcessModelEnabled_ = false;
-    bool isChildProcess_ = false;
+    bool isChildProcessBySelfFork_ = false;
     
     DISALLOW_COPY_AND_MOVE(ChildProcessManager);
 };

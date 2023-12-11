@@ -56,6 +56,7 @@ class ConnectionRecord;
 class Mission;
 class MissionList;
 class CallContainer;
+class AbilityAppStateObserver;
 
 constexpr const char* ABILITY_TOKEN_NAME = "AbilityToken";
 constexpr const char* LAUNCHER_BUNDLE_NAME = "com.ohos.launcher";
@@ -234,6 +235,7 @@ struct AbilityRequest {
     sptr<IRemoteObject> abilityInfoCallback = nullptr;
 
     AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    AppExecFwk::ExtensionProcessMode extensionProcessMode = AppExecFwk::ExtensionProcessMode::UNDEFINED;
 
     sptr<SessionInfo> sessionInfo;
 
@@ -667,6 +669,8 @@ public:
      */
     void SaveResult(int resultCode, const Want *resultWant, std::shared_ptr<CallerRecord> caller);
 
+    bool NeedConnectAfterCommand();
+
     /**
      * add connect record to the list.
      *
@@ -923,6 +927,13 @@ public:
     void SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId);
     int32_t GetUIExtensionAbilityId() const;
 
+    void OnProcessDied();
+
+    void SetProcessName(const std::string &process);
+
+    void SetURI(const std::string &uri);
+    std::string GetURI() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -938,6 +949,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
+    void RemoveAppStateObserver();
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall(Want &want);
@@ -1083,6 +1095,7 @@ private:
     int32_t restartCount_ = -1;
     int32_t restartMax_ = -1;
     std::string specifiedFlag_;
+    std::string uri_;
     ffrt::mutex lock_;
     mutable ffrt::mutex dumpInfoLock_;
     mutable ffrt::mutex dumpLock_;
@@ -1094,7 +1107,7 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
-
+    sptr<AbilityAppStateObserver> abilityAppStateObserver_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
 
 #ifdef SUPPORT_GRAPHICS
@@ -1115,6 +1128,7 @@ private:
     bool lockedState_ = false;
     bool isAttachDebug_ = false;
     bool isAppAutoStartup_ = false;
+    bool isConnected = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

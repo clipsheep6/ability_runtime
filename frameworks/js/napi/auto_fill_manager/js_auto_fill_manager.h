@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_JS_AUTO_FILL_MANAGER_H
 
+#include <map>
+
 #include "js_auto_fill_manager.h"
 #include "js_save_request_callback.h"
 #include "js_runtime.h"
@@ -33,9 +35,13 @@ public:
 
 private:
     napi_value OnRequestAutoSave(napi_env env, NapiCallbackInfo &info);
-    void OnRequestAutoSaveInner(napi_env env, int32_t instanceId);
+    void OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
+        const std::shared_ptr<JsSaveRequestCallback> &saveRequestCallback);
+    std::shared_ptr<JsSaveRequestCallback> GetCallbackByInstanceId(int32_t instanceId);
+    void OnRequestAutoSaveDone(int32_t instanceId);
 
-    std::shared_ptr<JsSaveRequestCallback> jsSaveRequestCallback_;
+    std::mutex mutexLock_;
+    std::map<int32_t, std::weak_ptr<JsSaveRequestCallback>> saveRequestObject_;
 };
 napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj);
 } // namespace AbilityRuntime

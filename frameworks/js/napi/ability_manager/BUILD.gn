@@ -54,7 +54,7 @@ template("abilitymanager") {
       "eventhandler:libeventhandler",
       "hilog:libhilog",
       "ipc:ipc_core",
-      "ipc:ipc_napi_common",
+      "ipc:ipc_napi",
       "napi:ace_napi",
       "samgr:samgr_proxy",
     ]

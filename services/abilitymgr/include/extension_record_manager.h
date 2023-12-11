@@ -21,6 +21,7 @@
 #include <memory>
 #include <set>
 
+#include "ability_record.h"
 #include "extension_record.h"
 
 namespace OHOS {
@@ -57,22 +58,20 @@ public:
      */
     void RemoveExtensionRecord(const int32_t extensionRecordId);
 
-    /**
-     * @brief Check if host bundleName matched to stored record by specified id.
-     *
-     * @param extensionRecordId extension record id.
-     * @param hostBundleName bundleName of target extension.
-     * @return true Matched.
-     * @return false Not Match.
-     */
-    bool CheckExtensionLoaded(const int32_t extensionRecordId, const std::string &hostBundleName);
-
     static bool IsBelongToManager(const AppExecFwk::AbilityInfo &abilityInfo);
 
     bool IsFocused(int32_t extensionRecordId, const sptr<IRemoteObject>& focusToken);
 
-    int32_t CreateExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
-        const std::string &hostBundleName, int32_t &extensionRecordId);
+    int32_t StartAbility(const AAFwk::AbilityRequest &abilityRequest);
+
+    int32_t CreateExtensionRecord(
+        const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, const std::string &hostBundleName,
+        std::shared_ptr<ExtensionRecord> &extensionRecord, int32_t &extensionRecordId);
+
+    int32_t GetOrCreateExtensionRecord(const AAFwk::AbilityRequest &abilityRequest, const std::string &hostBundleName,
+        std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, bool &isLoaded);
+
+    std::shared_ptr<AAFwk::AbilityRecord> GetAbilityRecordBySessionInfo(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
 private:
     int32_t userId_;
@@ -82,6 +81,15 @@ private:
     ExtensionAbilityRecordMap extensionRecords_;
 
     sptr<IRemoteObject> GetRootCallerTokenLocked(int32_t extensionRecordId);
+
+    int32_t GetOrCreateExtensionRecordInner(const AAFwk::AbilityRequest &abilityRequest,
+        const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded);
+
+    int32_t GetExtensionRecord(const int32_t extensionRecordId, const std::string &hostBundleName,
+        std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded);
+
+    void UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest,
+        std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

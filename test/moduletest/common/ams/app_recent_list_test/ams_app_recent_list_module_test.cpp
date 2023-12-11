@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -59,7 +59,7 @@ protected:
 
     std::shared_ptr<AppMgrServiceInner> serviceInner_{ nullptr };
     sptr<MockAbilityToken> mockToken_{ nullptr };
-    sptr<BundleMgrService> mockBundleMgr{ nullptr };
+    std::shared_ptr<BundleMgrHelper> mockBundleMgr{ nullptr };
 };
 
 void AmsAppRecentListModuleTest::SetUpTestCase()
@@ -72,8 +72,8 @@ void AmsAppRecentListModuleTest::SetUp()
 {
     serviceInner_.reset(new (std::nothrow) AppMgrServiceInner());
     serviceInner_->Init();
-    mockBundleMgr = new (std::nothrow) BundleMgrService();
-    serviceInner_->SetBundleManager(mockBundleMgr);
+    mockBundleMgr = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    serviceInner_->SetBundleManagerHelper(mockBundleMgr);
 }
 
 void AmsAppRecentListModuleTest::TearDown()

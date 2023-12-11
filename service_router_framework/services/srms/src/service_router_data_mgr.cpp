@@ -16,6 +16,7 @@
 
 #include "app_log_wrapper.h"
 #include "bundle_info_resolve_util.h"
+#include "bundle_mgr_helper.h"
 #include "iservice_registry.h"
 #include "sr_constants.h"
 #include "sr_samgr_helper.h"
@@ -33,15 +34,15 @@ bool ServiceRouterDataMgr::LoadAllBundleInfos()
 {
     APP_LOGD("SRDM LoadAllBundleInfos");
     ClearAllBundleInfos();
-    auto bms = SrSamgrHelper::GetInstance().GetBundleMgr();
-    if (bms == nullptr) {
-        APP_LOGE("SRDM GetBundleMgr return null");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        APP_LOGE("The bundleMgrHelper is nullptr.");
         return false;
     }
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
     std::vector<BundleInfo> bundleInfos;
-    if (!bms->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId())) {
-        APP_LOGE("SRDM bms->GetBundleInfos return false");
+    if (!bundleMgrHelper->GetBundleInfos(flags, bundleInfos, SrSamgrHelper::GetCurrentActiveUserId())) {
+        APP_LOGE("Return false.");
         return false;
     }
 
@@ -55,15 +56,15 @@ bool ServiceRouterDataMgr::LoadAllBundleInfos()
 bool ServiceRouterDataMgr::LoadBundleInfo(const std::string &bundleName)
 {
     APP_LOGD("SRDM LoadBundleInfo");
-    auto bms = SrSamgrHelper::GetInstance().GetBundleMgr();
-    if (bms == nullptr) {
-        APP_LOGI("SRDM GetBundleMgr return null");
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        APP_LOGI("The bundleMgrHelper is nullptr.");
         return false;
     }
     BundleInfo bundleInfo;
     auto flags = (BundleFlag::GET_BUNDLE_WITH_ABILITIES | BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO);
-    if (!bms->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId())) {
-        APP_LOGE("SRDM bms->GetBundleInfos return false");
+    if (!bundleMgrHelper->GetBundleInfo(bundleName, flags, bundleInfo, SrSamgrHelper::GetCurrentActiveUserId())) {
+        APP_LOGE("Return false.");
         return false;
     }
 
