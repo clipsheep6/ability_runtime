@@ -50,6 +50,8 @@ const std::string STR_DEFAULT = "default";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
 const std::string SHOW_DEFAULT_PICKER_FLAG = "ohos.ability.params.showDefaultPicker";
 const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
+const std::string ANCO_PENDING_REQUEST = "ancoPendingRequest";
+const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const int NFC_CALLER_UID = 1027;
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
@@ -251,6 +253,9 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         return ERR_OK;
     }
 
+    if (!IsCallFromAncoShell(request.callerToken)) {
+        request.want.RemoveParam(ANCO_PENDING_REQUEST);
+    }
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
 
@@ -286,43 +291,17 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         }
     }
     for (const auto &info : abilityInfos) {
-        if (isExtension && info.type != AbilityType::EXTENSION) {
-            continue;
-        }
-        if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-            auto isDefaultFlag = false;
-            if (withDefault) {
-                auto defaultMgr = GetDefaultAppProxy();
-                AppExecFwk::BundleInfo bundleInfo;
-                ErrCode ret =
-                    IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, typeName, bundleInfo));
-                if (ret == ERR_OK) {
-                    if (bundleInfo.abilityInfos.size() == 1) {
-                        HILOG_INFO("find default ability.");
-                        isDefaultFlag = true;
-                    } else if (bundleInfo.extensionInfos.size() == 1) {
-                        HILOG_INFO("find default extension.");
-                        isDefaultFlag = true;
-                    } else {
-                        HILOG_INFO("GetDefaultApplication failed.");
-                    }
-                }
-            }
-            if (!isMoreHapList && !isDefaultFlag) {
-                if (std::find(infoNames.begin(), infoNames.end(),
-                    (info.bundleName + "#" + info.moduleName + "#" + info.name)) != infoNames.end()) {
-                    continue;
-                }
-            }
-        }
-
-        DialogAppInfo dialogAppInfo;
-        dialogAppInfo.abilityName = info.name;
-        dialogAppInfo.bundleName = info.bundleName;
-        dialogAppInfo.moduleName = info.moduleName;
-        dialogAppInfo.iconId = info.iconId;
-        dialogAppInfo.labelId = info.labelId;
-        dialogAppInfos.emplace_back(dialogAppInfo);
+        AddInfoParam param = {
+            .info = info,
+            .userId = userId,
+            .isExtension = isExtension,
+            .isMoreHapList = isMoreHapList,
+            .withDefault = withDefault,
+            .deviceType = deviceType,
+            .typeName = typeName,
+            .infoNames = infoNames
+        };
+        AddAbilityInfoToDialogInfos(param, dialogAppInfos);
     }
 
     for (const auto &info : extensionInfos) {
@@ -584,6 +563,64 @@ void ImplicitStartProcessor::ResetCallingIdentityAsCaller(int32_t tokenId)
             return;
         }
     }
+}
+
+void ImplicitStartProcessor::AddAbilityInfoToDialogInfos(const AddInfoParam &param,
+    std::vector<DialogAppInfo> &dialogAppInfos)
+{
+    if (param.isExtension && param.info.type != AbilityType::EXTENSION) {
+        return;
+    }
+    if (param.deviceType != STR_PHONE && param.deviceType != STR_DEFAULT) {
+        bool isDefaultFlag = param.withDefault && IsExistDefaultApp(param.userId, param.typeName);
+        if (!param.isMoreHapList && !isDefaultFlag &&
+            std::find(param.infoNames.begin(), param.infoNames.end(),
+            (param.info.bundleName + "#" + param.info.moduleName + "#" + param.info.name)) != param.infoNames.end()) {
+            return;
+        }
+    }
+    DialogAppInfo dialogAppInfo;
+    dialogAppInfo.abilityName = param.info.name;
+    dialogAppInfo.bundleName = param.info.bundleName;
+    dialogAppInfo.moduleName = param.info.moduleName;
+    dialogAppInfo.iconId = param.info.iconId;
+    dialogAppInfo.labelId = param.info.labelId;
+    dialogAppInfos.emplace_back(dialogAppInfo);
+}
+
+bool ImplicitStartProcessor::IsExistDefaultApp(int32_t userId, const std::string &typeName)
+{
+    auto defaultMgr = GetDefaultAppProxy();
+    AppExecFwk::BundleInfo bundleInfo;
+    ErrCode ret =
+        IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, typeName, bundleInfo));
+    if (ret != ERR_OK) {
+        return false;
+    }
+
+    if (bundleInfo.abilityInfos.size() == 1) {
+        HILOG_INFO("find default ability.");
+        return true;
+    } else if (bundleInfo.extensionInfos.size() == 1) {
+        HILOG_INFO("find default extension.");
+        return true;
+    } else {
+        HILOG_INFO("GetDefaultApplication failed.");
+        return false;
+    }
+}
+
+bool ImplicitStartProcessor::IsCallFromAncoShell(const sptr<IRemoteObject> &token)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        return false;
+    }
+    std::string callerBundleName = abilityRecord->GetAbilityInfo().bundleName;
+    if (callerBundleName == SHELL_ASSISTANT_BUNDLENAME) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
