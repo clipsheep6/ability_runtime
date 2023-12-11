@@ -18,6 +18,8 @@
 #define private public
 #include "app_running_manager.h"
 #undef private
+#include "hilog_wrapper.h"
+#include "window_visibility_info.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -28,6 +30,8 @@ namespace {
 constexpr int32_t DEBUGINFOS_SIZE = 0;
 constexpr int32_t ABILITYTOKENS_SIZE = 0;
 constexpr int32_t RECORD_ID = 1;
+constexpr uint32_t WINDOW_ID = 100;
+constexpr pid_t PID = 10;
 constexpr int32_t RECORD_MAP_SIZE = 1;
 constexpr int32_t DEBUG_INFOS_SIZE = 1;
 constexpr int32_t ABILITY_TOKENS_SIZE = 1;
@@ -154,6 +158,46 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAbilityTokensByBundleName_0
             EXPECT_EQ(abilityTokens.size(), ABILITY_TOKENS_SIZE);
         }
     }
+}
+
+/**
+ * @tc.name: AppRunningManager_OnWindowVisibilityChanged_0100
+ * @tc.desc: verify the function of OnWindowVisibilityChanged : set windowIds and isUpdateStateFromService_
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100, TestSize.Level1)
+{
+    // 1. create ApprunningManager
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+
+    // 2. createAppRunningRecord and put it into appRunningRecordMap_ of AppRunningManager
+    std::string processName = "processName";
+    std::string appName = "appName";
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = appName;
+    int32_t recordId = AppRecordId::Create();
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    EXPECT_NE(appRunningRecord, nullptr);
+    appRunningRecord->curState_ = ApplicationState::APP_STATE_BACKGROUND;
+    appRunningRecord->isUpdateStateFromService_ = false;
+    appRunningRecord->GetPriorityObject()->SetPid(PID);
+    appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
+
+    // 3. construct WindowVisibilityInfos
+    std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> windowVisibilityInfos;
+    auto info = new (std::nothrow) Rosen::WindowVisibilityInfo();
+    EXPECT_NE(info, nullptr);
+    info->windowId_ = WINDOW_ID;
+    info->pid_ = PID;
+    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_NO_OCCLUSION;
+    windowVisibilityInfos.push_back(info);
+
+    // 4. verify the function
+    appRunningManager->OnWindowVisibilityChanged(windowVisibilityInfos);
+    EXPECT_FALSE(appRunningManager->appRunningRecordMap_.empty());
+    EXPECT_FALSE(appRunningManager->appRunningRecordMap_.at(1)->windowIds_.empty());
+    EXPECT_TRUE(appRunningManager->appRunningRecordMap_.at(1)->isUpdateStateFromService_);
 }
 } // namespace AppExecFwk
 } // namespace OHOS
