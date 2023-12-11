@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,11 @@
  */
 
 #include "native_engine/native_engine.h"
-#include "vpn_extension_ability_module.h"
+
+extern const char _binary_vpn_extension_ability_js_start[];
+extern const char _binary_vpn_extension_ability_js_end[];
+extern const char _binary_vpn_extension_ability_abc_start[];
+extern const char _binary_vpn_extension_ability_abc_end[];
 
 #ifdef ENABLE_ERRCODE
 static napi_module _module = {
