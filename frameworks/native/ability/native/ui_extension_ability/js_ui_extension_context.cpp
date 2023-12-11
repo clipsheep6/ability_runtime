@@ -155,6 +155,11 @@ napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& 
         return CreateJsUndefined(env);
     }
 
+    if (screenMode_ == want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE)) {
+        HILOG_ERROR("Not support half screen pulling up half screen");
+        return CreateJsUndefined(env);
+    }
+
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, startOptions, unwrapArgc](napi_env env, NapiAsyncTask& task, int32_t status) {
             HILOG_DEBUG("startAbility begin");
