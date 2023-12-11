@@ -182,7 +182,7 @@ public:
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
 private:
-    virtual void BindContext(napi_env env, napi_value obj, const std::shared_ptr<AAFwk::Want> &want);
+    virtual void BindContext(napi_env env, napi_value obj, std::shared_ptr<AAFwk::Want> want);
 
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
         bool withResult = false);

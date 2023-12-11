@@ -36,6 +36,7 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "js_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_window_stage.h"
 #endif
@@ -190,8 +191,6 @@ void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
     napi_value contextObj = nullptr;
     int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
     CreateAbilityContext(env, contextObj, screenMode);
-    shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
-        env, "application.AbilityContext", &contextObj, 1).release());
     if (shellContextRef_ == nullptr) {
         HILOG_ERROR("shellContextRef_ is nullptr.");
         return;
@@ -225,9 +224,15 @@ void JsUIAbility::CreateAbilityContext(napi_env env, napi_value &contextObj, int
 {
     if (screenMode == AAFwk::IDLE_SCREEN_MODE) {
         contextObj = CreateJsAbilityContext(env, abilityContext_);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
+            env, "application.AbilityContext", &contextObj, 1).release());
     } else {
         contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
             abilityContext_, nullptr, screenMode);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
+            env, "application.EmbeddableUIAbilityContext", &contextObj, 1).release());
     }
 }
 

@@ -22,6 +22,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char* ERR_MSG_TOO_FEW_PARAM = "Parameter error. Too few parameters.";
+constexpr const char* ERR_MSG_NOT_SUPPORT = "Not support the interface in half screen mode of atomic service.";
 } // namespace
 
 void ThrowError(napi_env env, int32_t errCode, const std::string& errorMsg)
@@ -39,6 +40,13 @@ void ThrowTooFewParametersError(napi_env env)
     napi_throw(env, CreateJsError(env,
         static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
         ERR_MSG_TOO_FEW_PARAM));
+}
+
+void ThrowNotSupportError(napi_env env)
+{
+    napi_throw(env, CreateJsError(env,
+        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER),
+        ERR_MSG_NOT_SUPPORT));
 }
 
 void ThrowNoPermissionError(napi_env env, const std::string& permission)
