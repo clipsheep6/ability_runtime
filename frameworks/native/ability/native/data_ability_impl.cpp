@@ -436,12 +436,12 @@ bool DataAbilityImpl::CheckExecuteBatchPermission(
 
 bool DataAbilityImpl::CheckOpenFilePermission(const std::string &mode) const
 {
-    if (mode.find(READ) != string::npos) {
+    if (mode.find(READ) != std::string::npos) {
         if (!CheckReadAndWritePermission(READ)) {
             HILOG_WARN("DataAbilityImpl::OpenFile failed, do not have read permission");
             return false;
         }
-    } else if (mode.find(WRITE) != string::npos) {
+    } else if (mode.find(WRITE) != std::string::npos) {
         if (!CheckReadAndWritePermission(WRITE)) {
             HILOG_WARN("DataAbilityImpl::OpenFile failed, do not have write permission");
             return false;

@@ -15,9 +15,9 @@
 
 #include "continuation_manager.h"
 
-#include "ability.h"
 #include "ability_continuation_interface.h"
 #include "ability_manager_client.h"
+#include "base_ability.h"
 #include "bool_wrapper.h"
 #include "continuation_handler.h"
 #include "distributed_client.h"
@@ -45,7 +45,7 @@ ContinuationManager::ContinuationManager()
     progressState_ = ProgressState::INITIAL;
 }
 
-bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sptr<IRemoteObject> &continueToken,
+bool ContinuationManager::Init(const std::shared_ptr<AbilityRuntime::BaseAbility> &ability, const sptr<IRemoteObject> &continueToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ContinuationHandler> &continuationHandler)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
@@ -55,7 +55,7 @@ bool ContinuationManager::Init(const std::shared_ptr<Ability> &ability, const sp
     }
     ability_ = ability;
 
-    std::shared_ptr<Ability> abilityTmp = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> abilityTmp = nullptr;
     abilityTmp = ability_.lock();
     if (abilityTmp == nullptr) {
         HILOG_ERROR("ContinuationManager::Init failed. get ability is nullptr");
@@ -129,7 +129,7 @@ bool ContinuationManager::HandleContinueAbilityWithStack(const std::string &devi
 int32_t ContinuationManager::OnStartAndSaveData(WantParams &wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
@@ -161,7 +161,7 @@ bool ContinuationManager::IsContinuePageStack(const WantParams &wantParams)
 int32_t ContinuationManager::OnContinueAndGetContent(WantParams &wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
@@ -216,7 +216,7 @@ int32_t ContinuationManager::OnContinue(WantParams &wantParams)
 bool ContinuationManager::GetContentInfo(WantParams &wantParams)
 {
     HILOG_INFO("%{public}s called begin", __func__);
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ability is nullptr");
@@ -353,7 +353,7 @@ void ContinuationManager::CompleteContinuation(int result)
         return;
     }
 
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::CheckContinuationIllegal failed. ability is nullptr");
@@ -396,7 +396,7 @@ bool ContinuationManager::NotifyRemoteTerminated()
     continuationState_ = ContinuationState::LOCAL_RUNNING;
     ChangeProcessState(ProgressState::INITIAL);
 
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::NotifyRemoteTerminated failed. ability is nullptr");
@@ -411,7 +411,7 @@ bool ContinuationManager::NotifyRemoteTerminated()
 bool ContinuationManager::CheckContinuationIllegal()
 {
     HILOG_INFO("%{public}s called begin", __func__);
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::CheckContinuationIllegal failed. ability is nullptr");
@@ -540,7 +540,7 @@ bool ContinuationManager::DoScheduleStartContinuation()
         return false;
     }
 
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::DoScheduleStartContinuation failed. ability is nullptr");
@@ -562,7 +562,7 @@ bool ContinuationManager::DoScheduleSaveData(WantParams &saveData)
         return false;
     }
 
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::DoScheduleSaveData failed. ability is nullptr");
@@ -590,7 +590,7 @@ bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
         return false;
     }
 
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::DoScheduleRestoreData failed. ability is nullptr");
@@ -613,7 +613,7 @@ bool ContinuationManager::DoScheduleRestoreData(const WantParams &restoreData)
 bool ContinuationManager::DoRestoreFromRemote(const WantParams &restoreData)
 {
     HILOG_INFO("%{public}s called begin", __func__);
-    std::shared_ptr<Ability> ability = nullptr;
+    std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
     ability = ability_.lock();
     if (ability == nullptr) {
         HILOG_ERROR("ContinuationManager::DoRestoreFromRemote failed. ability is nullptr");

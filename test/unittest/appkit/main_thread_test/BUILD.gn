@@ -55,6 +55,7 @@ ohos_unittest("main_thread_test") {
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
+    "ability_runtime:base_ability_kit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

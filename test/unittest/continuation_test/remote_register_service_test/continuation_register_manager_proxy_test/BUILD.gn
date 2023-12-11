@@ -83,6 +83,7 @@ ohos_unittest("continuation_register_manager_proxy_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/ability/native:continuation_ipc",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",

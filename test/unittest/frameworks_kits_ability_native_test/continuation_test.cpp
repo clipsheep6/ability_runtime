@@ -21,6 +21,7 @@
 #include "ability.h"
 #include "ability_impl.h"
 #include "abs_shared_result_set.h"
+#include "base_ability.h"
 #include "bool_wrapper.h"
 #include "hilog_wrapper.h"
 #include "context_deal.h"
@@ -126,7 +127,7 @@ HWTEST_F(ContinuationTest, continue_manager_init_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_manager_init_001 start";
 
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     std::shared_ptr<ContinuationHandler> continuationHandler =
         std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     std::shared_ptr<Ability> ability = nullptr;
@@ -146,7 +147,7 @@ HWTEST_F(ContinuationTest, continue_manager_init_002, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_manager_init_002 start";
 
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     std::shared_ptr<ContinuationHandler> continuationHandler =
         std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> continueToken = nullptr;
@@ -164,7 +165,7 @@ HWTEST_F(ContinuationTest, continue_manager_init_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_manager_init_003 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     ability_->abilityInfo_ = nullptr;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
@@ -182,7 +183,7 @@ HWTEST_F(ContinuationTest, continue_manager_init_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_manager_init_004 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     bool result = continuationManager_->Init(mockAbility_, continueToken, abilityInfo_, continuationHandler);
@@ -200,7 +201,7 @@ HWTEST_F(ContinuationTest, continue_manager_start_continuation_001, TestSize.Lev
     GTEST_LOG_(INFO) << "continue_manager_start_continuation_001 start";
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     std::shared_ptr<ContinuationHandler> continuationHandler =
         std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
@@ -218,7 +219,7 @@ HWTEST_F(ContinuationTest, continue_manager_StartContinuation_002, TestSize.Leve
 {
     GTEST_LOG_(INFO) << "continue_manager_StartContinuation_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -237,7 +238,7 @@ HWTEST_F(ContinuationTest, continue_manager_save_data_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_manager_save_data_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(true));
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     std::shared_ptr<ContinuationHandler> continuationHandler =
         std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
@@ -256,7 +257,7 @@ HWTEST_F(ContinuationTest, continue_manager_SaveData_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_manager_SaveData_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->progressState_ = ContinuationManager::ProgressState::WAITING_SCHEDULE;
@@ -281,7 +282,7 @@ HWTEST_F(ContinuationTest, continue_handler_start_continue_001, TestSize.Level1)
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability;
     std::shared_ptr<ContinuationHandler> continuationHandler =
         std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     bool result = continuationHandler->HandleStartContinuation(nullptr, "mock_deviceId");
@@ -301,7 +302,7 @@ HWTEST_F(ContinuationTest, continue_handler_start_continue_002, TestSize.Level1)
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability;
     std::shared_ptr<ContinuationHandler> continuationHandler =
         std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     bool result = continuationHandler->HandleStartContinuation(continueToken, "mock_deviceId");
@@ -321,7 +322,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuation_003, TestSiz
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     continuationManager.reset();
-    std::weak_ptr<Ability> abilityTmp = ability;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     auto abilityInfo = std::make_shared<AbilityInfo>();
     continuationHandler->SetAbilityInfo(abilityInfo);
@@ -341,7 +342,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuation_004, TestSiz
     std::shared_ptr<Ability> ability = std::make_shared<MockContinuationAbility>();
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     auto abilityInfo = std::make_shared<AbilityInfo>();
     continuationHandler->SetAbilityInfo(abilityInfo);
@@ -362,7 +363,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuation_005, TestSiz
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(false));
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     auto abilityInfo = std::make_shared<AbilityInfo>();
@@ -384,7 +385,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuation_006, TestSiz
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(true));
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     auto abilityInfo = std::make_shared<AbilityInfo>();
@@ -404,7 +405,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleReceiveRemoteScheduler_001, Te
     GTEST_LOG_(INFO) << "continue_handler_HandleReceiveRemoteScheduler_001 start";
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     continuationHandler->SetPrimaryStub(primary);
@@ -423,7 +424,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleReceiveRemoteScheduler_002, Te
     GTEST_LOG_(INFO) << "continue_handler_HandleReceiveRemoteScheduler_002 start";
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<MockReverseContinuationSchedulerReplicaStub> remoteReplica =
         new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
@@ -447,7 +448,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleCompleteContinuation_001, Test
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     continuationManager.reset();
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     int result = 0;
     continuationHandler->HandleCompleteContinuation(result);
@@ -465,7 +466,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleCompleteContinuation_002, Test
     EXPECT_CALL(*mockAbility_, OnCompleteContinuation(_)).Times(1);
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     int result = 0;
@@ -483,7 +484,7 @@ HWTEST_F(ContinuationTest, continue_handler_PassPrimary_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_handler_PassPrimary_001 start";
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     continuationHandler->PassPrimary(primary);
@@ -500,7 +501,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_001, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationHandler->SetAbilityInfo(abilityInfo_);
     bool result = continuationHandler->ReverseContinuation();
@@ -517,7 +518,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_002, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     continuationHandler->PassPrimary(primary);
@@ -535,7 +536,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_003, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_003 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     continuationManager.reset();
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
@@ -555,7 +556,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_004, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_004 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
@@ -575,7 +576,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_005, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_handler_ReverseContinuation_005 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     sptr<IRemoteObject> primary = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
@@ -597,7 +598,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_006, TestSize.Le
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
@@ -622,7 +623,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinuation_007, TestSize.Le
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
@@ -646,7 +647,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyReverseResult_001, TestSize.Le
     GTEST_LOG_(INFO) << "continue_handler_NotifyReverseResult_001 start";
     EXPECT_CALL(*mockAbility_, TerminateAbility()).Times(1);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     int result = 0;
     continuationHandler->NotifyReverseResult(result);
@@ -663,7 +664,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyReverseResult_002, TestSize.Le
     GTEST_LOG_(INFO) << "continue_handler_NotifyReverseResult_002 start";
     EXPECT_CALL(*mockAbility_, TerminateAbility()).Times(0);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationHandler->ability_.reset();
     int result = 0;
@@ -681,7 +682,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyReverseResult_003, TestSize.Le
     GTEST_LOG_(INFO) << "continue_handler_NotifyReverseResult_003 start";
     EXPECT_CALL(*mockAbility_, TerminateAbility()).Times(0);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     int result = 1;
     continuationHandler->NotifyReverseResult(result);
@@ -697,7 +698,7 @@ HWTEST_F(ContinuationTest, continue_handler_ContinuationBack_001, TestSize.Level
 {
     GTEST_LOG_(INFO) << "continue_handler_ContinuationBack_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     continuationManager.reset();
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     Want want;
@@ -717,7 +718,7 @@ HWTEST_F(ContinuationTest, continue_handler_ContinuationBack_002, TestSize.Level
     EXPECT_CALL(*mockAbility_, OnRestoreData(_)).Times(1).WillOnce(Return(false));
     EXPECT_CALL(*mockAbility_, TerminateAbility()).Times(0);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     Want want;
@@ -738,7 +739,7 @@ HWTEST_F(ContinuationTest, continue_handler_ContinuationBack_003, TestSize.Level
     GTEST_LOG_(INFO) << "continue_handler_ContinuationBack_003 start";
     EXPECT_CALL(*mockAbility_, OnRestoreData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     Want want;
@@ -760,7 +761,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyReplicaTerminated_001, TestSiz
     EXPECT_CALL(*mockAbility_, OnRemoteTerminated()).Times(1);
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken, abilityInfo_, continuationHandler);
     continuationHandler->NotifyReplicaTerminated();
@@ -777,7 +778,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyReplicaTerminated_002, TestSiz
     GTEST_LOG_(INFO) << "continue_handler_NotifyReplicaTerminated_002 start";
 
     EXPECT_CALL(*mockAbility_, OnRemoteTerminated()).Times(0);
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationHandler->continuationManager_.reset();
@@ -794,7 +795,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyTerminationToPrimary_001, Test
 {
     GTEST_LOG_(INFO) << "continue_handler_NotifyTerminationToPrimary_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
     sptr<MockReverseContinuationSchedulerPrimaryProxy> primary =
@@ -813,7 +814,7 @@ HWTEST_F(ContinuationTest, continue_handler_NotifyTerminationToPrimary_002, Test
 {
     GTEST_LOG_(INFO) << "continue_handler_NotifyTerminationToPrimary_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> remoteObject = new (std::nothrow) AAFwk::AbilityConnectCallback();
     sptr<MockReverseContinuationSchedulerPrimaryProxy> primary =
@@ -833,7 +834,7 @@ HWTEST_F(ContinuationTest, continue_handler_SetReversible_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_SetReversible_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     bool reversible = true;
     continuationHandler->SetReversible(reversible);
@@ -851,7 +852,7 @@ HWTEST_F(ContinuationTest, continue_handler_SetAbilityInfo_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_handler_SetAbilityInfo_001 start";
     std::shared_ptr<Ability> ability = std::make_shared<MockContinuationAbility>();
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     auto abilityInfo = std::make_shared<AbilityInfo>();
     continuationHandler->SetAbilityInfo(abilityInfo);
@@ -869,7 +870,7 @@ HWTEST_F(ContinuationTest, continue_handler_SetPrimaryStub_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_handler_SetPrimaryStub_001 start";
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationHandler->SetPrimaryStub(continueToken);
     EXPECT_TRUE(continuationHandler->remotePrimaryStub_ != nullptr);
@@ -885,7 +886,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinueAbility_001, TestSize
 {
     GTEST_LOG_(INFO) << "continue_handler_SetPrimaryStub_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     auto result = continuationHandler->ReverseContinueAbility();
     EXPECT_FALSE(result);
@@ -901,7 +902,7 @@ HWTEST_F(ContinuationTest, continue_handler_ReverseContinueAbility_002, TestSize
 {
     GTEST_LOG_(INFO) << "continue_handler_SetPrimaryStub_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
@@ -922,7 +923,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuationWithStack_001
 {
     GTEST_LOG_(INFO) << "continue_handler_HandleStartContinuationWithStack_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     uint32_t versionCode = 0;
     auto result = continuationHandler->HandleStartContinuationWithStack(nullptr, "deviceId", versionCode);
@@ -940,7 +941,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuationWithStack_002
     GTEST_LOG_(INFO) << "continue_handler_HandleStartContinuationWithStack_002 start";
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     uint32_t versionCode = 0;
     auto result = continuationHandler->HandleStartContinuationWithStack(continueToken, "deviceId", versionCode);
@@ -959,7 +960,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuationWithStack_003
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     continuationManager.reset();
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     uint32_t versionCode = 0;
     continuationHandler->SetAbilityInfo(abilityInfo_);
@@ -978,7 +979,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuationWithStack_004
     GTEST_LOG_(INFO) << "continue_handler_HandleStartContinuationWithStack_004 start";
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken, abilityInfo_, continuationHandler);
     uint32_t versionCode = 0;
@@ -1000,7 +1001,7 @@ HWTEST_F(ContinuationTest, continue_handler_HandleStartContinuationWithStack_005
     EXPECT_CALL(*mockAbility_, GetContentInfo()).Times(1).WillOnce(Return("ContentInfo"));
     sptr<IRemoteObject> continueToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     uint32_t versionCode = 0;
@@ -1020,7 +1021,7 @@ HWTEST_F(ContinuationTest, continue_manager_GetContinuationState_001, TestSize.L
 {
     GTEST_LOG_(INFO) << "continue_manager_GetContinuationState_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     auto result = static_cast<int>(continuationManager_->GetContinuationState());
@@ -1038,7 +1039,7 @@ HWTEST_F(ContinuationTest, continue_manager_GetOriginalDeviceId_001, TestSize.Le
     GTEST_LOG_(INFO) << "continue_manager_GetOriginalDeviceId_001 start";
 
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->originalDeviceId_ = "deviceId";
@@ -1056,7 +1057,7 @@ HWTEST_F(ContinuationTest, continue_manager_ContinueAbilityWithStack_001, TestSi
 {
     GTEST_LOG_(INFO) << "continue_manager_ContinueAbilityWithStack_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     uint32_t versionCode = 0;
@@ -1076,7 +1077,7 @@ HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbilityWithStack_001, 
 {
     GTEST_LOG_(INFO) << "continue_manager_HandleContinueAbilityWithStack_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, nullptr, abilityInfo_, continuationHandler);
     uint32_t versionCode = 0;
@@ -1109,7 +1110,7 @@ HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbilityWithStack_003, 
 {
     GTEST_LOG_(INFO) << "continue_manager_HandleContinueAbilityWithStack_003 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     uint32_t versionCode = 0;
@@ -1129,7 +1130,7 @@ HWTEST_F(ContinuationTest, continue_manager_ContinueAbility_001, TestSize.Level1
 {
     GTEST_LOG_(INFO) << "continue_manager_ContinueAbility_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     mockAbility_->abilityLifecycleExecutor_->DispatchLifecycleState(
@@ -1179,7 +1180,7 @@ HWTEST_F(ContinuationTest, continue_manager_ContinueAbility_004, TestSize.Level1
 {
     GTEST_LOG_(INFO) << "continue_manager_ContinueAbility_004 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     bool reversible = false;
@@ -1226,7 +1227,7 @@ HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbility_003, TestSize.
 {
     GTEST_LOG_(INFO) << "continue_manager_HandleContinueAbility_003 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     bool reversible = false;
@@ -1244,7 +1245,7 @@ HWTEST_F(ContinuationTest, continue_manager_ReverseContinueAbility_001, TestSize
 {
     GTEST_LOG_(INFO) << "continue_manager_ReverseContinueAbility_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->progressState_ = ContinuationManager::ProgressState::WAITING_SCHEDULE;
@@ -1263,7 +1264,7 @@ HWTEST_F(ContinuationTest, continue_manager_ReverseContinueAbility_002, TestSize
 {
     GTEST_LOG_(INFO) << "continue_manager_ReverseContinueAbility_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->progressState_ = ContinuationManager::ProgressState::INITIAL;
@@ -1298,7 +1299,7 @@ HWTEST_F(ContinuationTest, continue_manager_ReverseContinueAbility_004, TestSize
 {
     GTEST_LOG_(INFO) << "continue_manager_ReverseContinueAbility_004 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->continuationState_ = ContinuationState::REMOTE_RUNNING;
@@ -1321,7 +1322,7 @@ HWTEST_F(ContinuationTest, continue_manager_ReverseContinueAbility_005, TestSize
 {
     GTEST_LOG_(INFO) << "continue_manager_ReverseContinueAbility_005 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->continuationState_ = ContinuationState::REMOTE_RUNNING;
@@ -1344,7 +1345,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinue_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_manager_OnContinue_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1368,7 +1369,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinue_002, TestSize.Level1)
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1389,7 +1390,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinue_003, TestSize.Level1)
     EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::AGREE));
     EXPECT_CALL(*mockAbility_, GetContentInfo()).Times(1).WillOnce(Return("ContentInfo"));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1408,7 +1409,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnStartAndSaveData_001, TestSize.Lev
 {
     GTEST_LOG_(INFO) << "continue_manager_OnStartAndSaveData_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1428,7 +1429,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnStartAndSaveData_002, TestSize.Lev
     GTEST_LOG_(INFO) << "continue_manager_OnStartAndSaveData_002 start";
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(false));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1448,7 +1449,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnStartAndSaveData_003, TestSize.Lev
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(false));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1468,7 +1469,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnStartAndSaveData_004, TestSize.Lev
     EXPECT_CALL(*mockAbility_, OnStartContinuation()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mockAbility_, OnSaveData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1486,7 +1487,7 @@ HWTEST_F(ContinuationTest, continue_manager_IsContinuePageStack_001, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_manager_IsContinuePageStack_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1506,7 +1507,7 @@ HWTEST_F(ContinuationTest, continue_manager_IsContinuePageStack_002, TestSize.Le
 {
     GTEST_LOG_(INFO) << "continue_manager_IsContinuePageStack_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1526,7 +1527,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_001, TestSiz
 {
     GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1547,7 +1548,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_002, TestSiz
     GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_002 start";
     EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::REJECT));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1566,7 +1567,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_003, TestSiz
     GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_003 start";
     EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::MISMATCH));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1586,7 +1587,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_004, TestSiz
 
     EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::AGREE));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1606,7 +1607,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_005, TestSiz
     EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::AGREE));
     EXPECT_CALL(*mockAbility_, GetContentInfo()).Times(1).WillOnce(Return("ContentInfo"));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1626,7 +1627,7 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_006, TestSiz
     EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::AGREE));
     EXPECT_CALL(*mockAbility_, GetContentInfo()).Times(1).WillOnce(Return("ContentInfo"));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams wantParams;
@@ -1647,7 +1648,7 @@ HWTEST_F(ContinuationTest, continue_manager_RestoreData_001, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_manager_RestoreData_001 start";
     EXPECT_CALL(*mockAbility_, OnRestoreData(_)).Times(1).WillOnce(Return(false));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams restoreData;
@@ -1668,7 +1669,7 @@ HWTEST_F(ContinuationTest, continue_manager_RestoreData_002, TestSize.Level1)
     GTEST_LOG_(INFO) << "continue_manager_RestoreData_002 start";
     EXPECT_CALL(*mockAbility_, OnRestoreData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams restoreData;
@@ -1688,7 +1689,7 @@ HWTEST_F(ContinuationTest, continue_manager_CompleteContinuation_001, TestSize.L
 {
     GTEST_LOG_(INFO) << "continue_manager_CompleteContinuation_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     ability_->abilityLifecycleExecutor_->DispatchLifecycleState(
@@ -1708,7 +1709,7 @@ HWTEST_F(ContinuationTest, continue_manager_CompleteContinuation_002, TestSize.L
 {
     GTEST_LOG_(INFO) << "continue_manager_CompleteContinuation_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1730,7 +1731,7 @@ HWTEST_F(ContinuationTest, continue_manager_CompleteContinuation_003, TestSize.L
     EXPECT_CALL(*mockAbility_, OnCompleteContinuation(_)).Times(4);
     EXPECT_CALL(*mockAbility_, TerminateAbility()).Times(2);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     int resultZero = 0;
@@ -1754,7 +1755,7 @@ HWTEST_F(ContinuationTest, continue_manager_RestoreFromRemote_001, TestSize.Leve
     GTEST_LOG_(INFO) << "continue_manager_RestoreFromRemote_001 start";
     EXPECT_CALL(*mockAbility_, OnRemoteTerminated()).Times(0);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1774,7 +1775,7 @@ HWTEST_F(ContinuationTest, continue_manager_RestoreFromRemote_002, TestSize.Leve
     GTEST_LOG_(INFO) << "continue_manager_RestoreFromRemote_002 start";
     EXPECT_CALL(*mockAbility_, OnRestoreData(_)).Times(1).WillOnce(Return(true));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     WantParams restoreData;
@@ -1793,7 +1794,7 @@ HWTEST_F(ContinuationTest, continue_manager_NotifyRemoteTerminated_001, TestSize
     GTEST_LOG_(INFO) << "continue_manager_NotifyRemoteTerminated_001 start";
     EXPECT_CALL(*mockAbility_, OnRemoteTerminated()).Times(0);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1811,7 +1812,7 @@ HWTEST_F(ContinuationTest, continue_manager_NotifyRemoteTerminated_002, TestSize
     GTEST_LOG_(INFO) << "continue_manager_NotifyRemoteTerminated_002 start";
     EXPECT_CALL(*mockAbility_, OnRemoteTerminated()).Times(1);
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->NotifyRemoteTerminated();
@@ -1827,7 +1828,7 @@ HWTEST_F(ContinuationTest, continue_manager_ChangeProcessStateToInit_001, TestSi
 {
     GTEST_LOG_(INFO) << "continue_manager_ChangeProcessStateToInit_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->progressState_ = ContinuationManager::ProgressState::WAITING_SCHEDULE;
@@ -1845,7 +1846,7 @@ HWTEST_F(ContinuationTest, continue_manager_ChangeProcessStateToInit_002, TestSi
 {
     GTEST_LOG_(INFO) << "continue_manager_ChangeProcessStateToInit_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = ability_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(ability_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->InitMainHandlerIfNeed();
@@ -1864,7 +1865,7 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleStartContinuation_001, Tes
 {
     GTEST_LOG_(INFO) << "continue_manager_DoScheduleStartContinuation_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     mockAbility_->abilityLifecycleExecutor_->DispatchLifecycleState(
@@ -1883,7 +1884,7 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleSaveData_001, TestSize.Lev
 {
     GTEST_LOG_(INFO) << "continue_manager_DoScheduleSaveData_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     mockAbility_->abilityLifecycleExecutor_->DispatchLifecycleState(
@@ -1903,7 +1904,7 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleSaveData_002, TestSize.Lev
 {
     GTEST_LOG_(INFO) << "continue_manager_DoScheduleSaveData_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1922,7 +1923,7 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleRestoreData_001, TestSize.
 {
     GTEST_LOG_(INFO) << "continue_manager_DoScheduleRestoreData_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     mockAbility_->abilityLifecycleExecutor_->DispatchLifecycleState(
@@ -1942,7 +1943,7 @@ HWTEST_F(ContinuationTest, continue_manager_DoScheduleRestoreData_002, TestSize.
 {
     GTEST_LOG_(INFO) << "continue_manager_DoScheduleRestoreData_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
     continuationManager_->ability_.reset();
@@ -1961,7 +1962,7 @@ HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
@@ -1981,7 +1982,7 @@ HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_002 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
@@ -2000,7 +2001,7 @@ HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_003 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
@@ -2020,7 +2021,7 @@ HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_004, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_004 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<MockReverseContinuationSchedulerReplicaProxy> primary =
@@ -2041,7 +2042,7 @@ HWTEST_F(ContinuationTest, continue_handler_OnReplicaDied_005, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_OnReplicaDied_005 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     sptr<IRemoteObject> stub = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
     sptr<IRemoteObject> stubTwo = new (std::nothrow) MockReverseContinuationSchedulerReplicaStub();
@@ -2062,7 +2063,7 @@ HWTEST_F(ContinuationTest, continue_handler_SetWantParams_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_handler_SetWantParams_001 start";
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
     WantParams wantParams;
     abilityInfo_->launchMode = LaunchMode::STANDARD;

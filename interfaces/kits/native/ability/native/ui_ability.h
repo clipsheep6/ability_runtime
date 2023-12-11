@@ -21,9 +21,10 @@
 #include "ability_lifecycle_executor.h"
 #include "ability_lifecycle_interface.h"
 #include "ability_transaction_callback_info.h"
+#include "base_ability.h"
 #include "configuration.h"
 #include "context.h"
-#include "continuation_handler_stage.h"
+#include "continuation_handler.h"
 #include "foundation/ability/ability_runtime/interfaces/kits/native/ability/ability_runtime/ability_context.h"
 #include "iability_callback.h"
 #include "want.h"
@@ -39,8 +40,7 @@ class AbilityHandler;
 class AbilityRecovery;
 class OHOSApplication;
 class LifeCycle;
-class ContinuationHandlerStage;
-class ContinuationManagerStage;
+class ContinuationManager;
 class InsightIntentExecuteParam;
 struct InsightIntentExecuteResult;
 using InsightIntentExecutorAsyncCallback = AbilityTransactionCallbackInfo<InsightIntentExecuteResult>;
@@ -50,10 +50,9 @@ class Runtime;
 using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
 using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 using InsightIntentExecutorAsyncCallback = AppExecFwk::InsightIntentExecutorAsyncCallback;
-class UIAbility : public AppExecFwk::AbilityContext,
+class UIAbility : public BaseAbility,
                   public AppExecFwk::ILifeCycle,
                   public AppExecFwk::IAbilityCallback,
-                  public AppExecFwk::IAbilityContinuation,
                   public std::enable_shared_from_this<UIAbility> {
 public:
     UIAbility() = default;
@@ -248,7 +247,7 @@ public:
      * @return If the ability is willing to continue and data saved successfully, it returns 0;
      * otherwise, it returns errcode.
      */
-    virtual int32_t OnContinue(AAFwk::WantParams &wantParams);
+    virtual int32_t OnContinue(AAFwk::WantParams &wantParams) override;
 
     /**
      * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
@@ -322,8 +321,8 @@ private:
     void InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
         std::string &colormode, std::string &hasPointerDevice);
 
-    std::shared_ptr<AppExecFwk::ContinuationHandlerStage> continuationHandler_ = nullptr;
-    std::shared_ptr<AppExecFwk::ContinuationManagerStage> continuationManager_ = nullptr;
+    std::shared_ptr<AppExecFwk::ContinuationHandler> continuationHandler_ = nullptr;
+    std::shared_ptr<AppExecFwk::ContinuationManager> continuationManager_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityHandler> handler_ = nullptr;
     std::shared_ptr<AppExecFwk::LifeCycle> lifecycle_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityLifecycleExecutor> abilityLifecycleExecutor_ = nullptr;
@@ -403,7 +402,7 @@ public:
      * @brief Get page ability stack info.
      * @return A string represents page ability stack info, empty if failed;
      */
-    virtual std::string GetContentInfo();
+    virtual std::string GetContentInfo() override;
 
     /**
      * @brief Set WindowScene listener

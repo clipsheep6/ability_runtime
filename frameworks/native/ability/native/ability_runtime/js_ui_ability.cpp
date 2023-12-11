@@ -927,19 +927,19 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Failed to get AbilityStage object.");
-        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get Ability object.");
-        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
 
     napi_value methodOnCreate = nullptr;
     napi_get_named_property(env, obj, "onContinue", &methodOnCreate);
     if (methodOnCreate == nullptr) {
         HILOG_ERROR("Failed to get 'onContinue' from Ability object.");
-        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
 
     napi_value jsWantParams = OHOS::AppExecFwk::WrapWantParams(env, wantParams);
@@ -951,7 +951,7 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
     int32_t numberResult = 0;
     if (!ConvertFromJsValue(env, result, numberResult)) {
         HILOG_ERROR("'onContinue' is not implemented.");
-        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+        return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
     }
 
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();

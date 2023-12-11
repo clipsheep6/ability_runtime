@@ -49,6 +49,7 @@ ohos_unittest("ability_manager_test") {
     "ability_runtime:ability_deps_wrapper",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:base_ability_kit_native",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",

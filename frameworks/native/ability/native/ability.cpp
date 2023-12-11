@@ -106,9 +106,9 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
             abilityWindow_->Init(handler_, shared_from_this());
         }
         continuationManager_ = std::make_shared<ContinuationManager>();
-        std::weak_ptr<Ability> ability = shared_from_this();
+        std::weak_ptr<AbilityRuntime::BaseAbility> baseAbility = weak_from_this();
         std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
-        continuationHandler_ = std::make_shared<ContinuationHandler>(continuationManager, ability);
+        continuationHandler_ = std::make_shared<ContinuationHandler>(continuationManager, baseAbility);
         if (!continuationManager_->Init(shared_from_this(), GetToken(), GetAbilityInfo(), continuationHandler_)) {
             continuationManager_.reset();
         } else {
@@ -125,7 +125,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
 
         // register displayid change callback
         HILOG_DEBUG("Start RegisterDisplayListener");
-        abilityDisplayListener_ = new AbilityDisplayListener(ability);
+        abilityDisplayListener_ = new AbilityDisplayListener(weak_from_this());
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
 #endif

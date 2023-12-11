@@ -25,7 +25,7 @@ namespace AppExecFwk {
 const std::string ContinuationHandler::ORIGINAL_DEVICE_ID("deviceId");
 const std::string VERSION_CODE_KEY = "version";
 ContinuationHandler::ContinuationHandler(
-    std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<Ability> &ability)
+    std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<AbilityRuntime::BaseAbility> &ability)
 {
     ability_ = ability;
     continuationManager_ = continuationManager;
@@ -331,7 +331,7 @@ void ContinuationHandler::NotifyReverseResult(int reverseResult)
 {
     HILOG_DEBUG("NotifyReverseResult: Start. result = %{public}d", reverseResult);
     if (reverseResult == 0) {
-        std::shared_ptr<Ability> ability = nullptr;
+        std::shared_ptr<AbilityRuntime::BaseAbility> ability = nullptr;
         ability = ability_.lock();
         if (ability == nullptr) {
             HILOG_ERROR("ContinuationHandler::NotifyReverseResult failed. ability is nullptr");

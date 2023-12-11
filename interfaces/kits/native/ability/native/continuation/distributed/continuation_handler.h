@@ -23,7 +23,7 @@
 #include "reverse_continuation_scheduler_primary_proxy.h"
 #include "reverse_continuation_scheduler_replica_proxy.h"
 #include "reverse_continuation_scheduler_primary_stub.h"
-#include "ability.h"
+#include "base_ability.h"
 #include "want_params.h"
 #include "want.h"
 #include "reverse_continuation_scheduler_recipient.h"
@@ -34,14 +34,16 @@
 #include "iremote_broker.h"
 
 using Want = OHOS::AAFwk::Want;
-using Ability = OHOS::AppExecFwk::Ability;
 namespace OHOS {
+namespace AbilityRuntime {
+class BaseAbility;
+}
 namespace AppExecFwk {
 class ContinuationHandler : public IDistributeScheduleHandler,
                             public IReverseContinuationSchedulerPrimaryHandler,
                             public IReverseContinuationSchedulerReplicaHandler {
 public:
-    ContinuationHandler(std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<Ability> &ability);
+    ContinuationHandler(std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<AbilityRuntime::BaseAbility> &ability);
     virtual ~ContinuationHandler() = default;
     virtual bool HandleStartContinuation(const sptr<IRemoteObject> &token, const std::string &deviceId) override;
     virtual void HandleReceiveRemoteScheduler(const sptr<IRemoteObject> &remoteReplica) override;
@@ -68,7 +70,7 @@ private:
     Want SetWantParams(const WantParams &wantParams);
 
     std::shared_ptr<AbilityInfo> abilityInfo_ = nullptr;
-    std::weak_ptr<Ability> ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> ability_;
     std::weak_ptr<ContinuationManager> continuationManager_;
     bool reversible_ = false;
     sptr<IReverseContinuationSchedulerReplica> remoteReplicaProxy_ = nullptr;

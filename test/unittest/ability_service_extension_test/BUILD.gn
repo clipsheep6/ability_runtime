@@ -55,6 +55,7 @@ ohos_unittest("ability_service_extension_test") {
     "ability_base:want",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
+    "ability_runtime:base_ability_kit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",

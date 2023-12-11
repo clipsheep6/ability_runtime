@@ -63,10 +63,7 @@
       *AbilityThread*;
       *AppContext*;
       *AppRecovery*;
-      *ContextContainer*;
       *ContextDeal*;
-      *ContinuationHandler*;
-      *ContinuationManager*;
       *DataAbilityHelperImpl*;
       *DataAbilityOperation*;
       *DataAbilityOperationBuilder*;
