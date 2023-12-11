@@ -850,5 +850,100 @@ HWTEST_F(AmsMgrSchedulerTest, SetCurrentUserId_001, TestSize.Level0)
     int userId = 1;
     amsMgrScheduler->SetCurrentUserId(userId);
 }
+
+/**
+ * @tc.name: RegisterAppDebugListener_001
+ * @tc.desc: Test the state of RegisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, RegisterAppDebugListener_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    sptr<IAppDebugListener> listener = nullptr;
+    int32_t res = amsMgrScheduler->RegisterAppDebugListener(listener);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->RegisterAppDebugListener(listener);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: UnregisterAppDebugListener_001
+ * @tc.desc: Test the state of UnregisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, UnregisterAppDebugListener_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    sptr<IAppDebugListener> listener = nullptr;
+    int32_t res = amsMgrScheduler->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->UnregisterAppDebugListener(listener);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: AttachAppDebug_001
+ * @tc.desc: Test the state of AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, AttachAppDebug_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    std::string bundleName = "";
+    int32_t res = amsMgrScheduler->AttachAppDebug(bundleName);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->AttachAppDebug(bundleName);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: DetachAppDebug_001
+ * @tc.desc: Test the state of DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, DetachAppDebug_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    std::string bundleName = "";
+    int32_t res = amsMgrScheduler->DetachAppDebug(bundleName);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->DetachAppDebug(bundleName);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: RegisterAbilityDebugResponse_001
+ * @tc.desc: Test the state of RegisterAbilityDebugResponse
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, RegisterAbilityDebugResponse_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    sptr<IAbilityDebugResponse> response = nullptr;
+    int32_t res = amsMgrScheduler->RegisterAbilityDebugResponse(response);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->RegisterAbilityDebugResponse(response);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
