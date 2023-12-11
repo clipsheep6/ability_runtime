@@ -39,6 +39,7 @@
 #include "napi_remote_object.h"
 #include "ui_extension_window_command.h"
 #include "want_params_wrapper.h"
+#include "configuration_convertor.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -795,8 +796,54 @@ void JsUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& conf
     }
     JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
 
+    std::string language;
+    std::string colormode;
+    std::string hasPointerDevice;
+    InitConfigurationProperties(configuration, language, colormode, hasPointerDevice);
+    // Notify ResourceManager
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    if (resConfig == nullptr) {
+        HILOG_ERROR("Create res config failed.");
+        return;
+    }
+    auto resourceManager = context->GetResourceManager();
+    if (resourceManager != nullptr) {
+        resourceManager->GetResConfig(*resConfig);
+#ifdef SUPPORT_GRAPHICS
+        if (!language.empty()) {
+            UErrorCode status = U_ZERO_ERROR;
+            icu::Locale locale = icu::Locale::forLanguageTag(language, status);
+            HILOG_DEBUG("Get forLanguageTag return[%{public}d].", static_cast<int>(status));
+            if (status == U_ZERO_ERROR) {
+                resConfig->SetLocaleInfo(locale);
+            }
+        }
+#endif
+        if (!colormode.empty()) {
+            resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
+        }
+        if (!hasPointerDevice.empty()) {
+            resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
+        }
+        resourceManager->UpdateResConfig(*resConfig);
+        HILOG_DEBUG("Current colorMode: %{public}d, hasPointerDevice: %{publis}d.", resConfig->GetColorMode(),
+            resConfig->GetInputDevice());
+    }
+
     napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
     CallObjectMethod("onConfigurationUpdate", &napiConfiguration, ARGC_ONE);
+}
+
+void JsUIExtension::InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
+    std::string &colormode, std::string &hasPointerDevice)
+{
+
+    language = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
+    colormode = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    hasPointerDevice = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    HILOG_DEBUG("Language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s].",
+        language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
+
 }
 
 void JsUIExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
