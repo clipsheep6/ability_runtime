@@ -265,16 +265,28 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         }
     }
 
+    dialogAppInfos = GetDialogAppInfos(userId, isMoreHapList, request, abilityInfos, extensionInfos);
+    return ERR_OK;
+}
+
+std::vector<DialogAppInfo> ImplicitStartProcessor::GetDialogAppInfos(int32_t userId, bool isMoreHapList,
+    AbilityRequest &request, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+    std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos)
+{
+    auto bms = GetBundleManager();
     auto isExtension = request.callType == AbilityCallType::START_EXTENSION_TYPE;
-
-    Want implicitwant;
     std::string typeName = MatchTypeAndUri(request.want);
-
+    auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
+        | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
+    Want implicitwant;
     implicitwant.SetAction(request.want.GetAction());
     implicitwant.SetType(TYPE_ONLY_MATCH_WILDCARD);
     std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     std::vector<std::string> infoNames;
+    auto deviceType = OHOS::system::GetDeviceType();
+    bool withDefault = false;
+    withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
     if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
             withDefault, implicitAbilityInfos, implicitExtensionInfos));
@@ -285,59 +297,88 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             }
         }
     }
+    std::vector<DialogAppInfo> dialogAppInfos;
     for (const auto &info : abilityInfos) {
         if (isExtension && info.type != AbilityType::EXTENSION) {
             continue;
         }
-        if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-            auto isDefaultFlag = false;
-            if (withDefault) {
-                auto defaultMgr = GetDefaultAppProxy();
-                AppExecFwk::BundleInfo bundleInfo;
-                ErrCode ret =
-                    IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, typeName, bundleInfo));
-                if (ret == ERR_OK) {
-                    if (bundleInfo.abilityInfos.size() == 1) {
-                        HILOG_INFO("find default ability.");
-                        isDefaultFlag = true;
-                    } else if (bundleInfo.extensionInfos.size() == 1) {
-                        HILOG_INFO("find default extension.");
-                        isDefaultFlag = true;
-                    } else {
-                        HILOG_INFO("GetDefaultApplication failed.");
-                    }
-                }
-            }
-            if (!isMoreHapList && !isDefaultFlag) {
-                if (std::find(infoNames.begin(), infoNames.end(),
-                    (info.bundleName + "#" + info.moduleName + "#" + info.name)) != infoNames.end()) {
-                    continue;
-                }
-            }
-        }
-
+        auto isDefault = GetDefaultApplicationInfo(userId, request, isMoreHapList, infoNames, info);
         DialogAppInfo dialogAppInfo;
-        dialogAppInfo.abilityName = info.name;
-        dialogAppInfo.bundleName = info.bundleName;
-        dialogAppInfo.moduleName = info.moduleName;
-        dialogAppInfo.iconId = info.iconId;
-        dialogAppInfo.labelId = info.labelId;
-        dialogAppInfos.emplace_back(dialogAppInfo);
+        if (!isDefault) {
+            SetDialogAppInfoByAbilityInfo(dialogAppInfo, info);
+            dialogAppInfos.emplace_back(dialogAppInfo);
+        }
     }
-
     for (const auto &info : extensionInfos) {
         if (!isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
             continue;
         }
         DialogAppInfo dialogAppInfo;
-        dialogAppInfo.abilityName = info.name;
-        dialogAppInfo.bundleName = info.bundleName;
-        dialogAppInfo.iconId = info.iconId;
-        dialogAppInfo.labelId = info.labelId;
+        SetDialogAppInfoByExtensionAbilityInfo(dialogAppInfo, info);
         dialogAppInfos.emplace_back(dialogAppInfo);
     }
+    return dialogAppInfos;
+}
 
-    return ERR_OK;
+void ImplicitStartProcessor::SetDialogAppInfoByAbilityInfo(DialogAppInfo &dialogAppInfo,
+    const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    dialogAppInfo.abilityName = abilityInfo.name;
+    dialogAppInfo.bundleName = abilityInfo.bundleName;
+    dialogAppInfo.moduleName = abilityInfo.moduleName;
+    dialogAppInfo.iconId = abilityInfo.iconId;
+    dialogAppInfo.labelId = abilityInfo.labelId;
+}
+
+void ImplicitStartProcessor::SetDialogAppInfoByExtensionAbilityInfo(DialogAppInfo &dialogAppInfo,
+    const AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo)
+{
+    dialogAppInfo.abilityName = extensionAbilityInfo.name;
+    dialogAppInfo.bundleName = extensionAbilityInfo.bundleName;
+    dialogAppInfo.iconId = extensionAbilityInfo.iconId;
+    dialogAppInfo.labelId = extensionAbilityInfo.labelId;
+}
+
+bool ImplicitStartProcessor::GetDefaultApplicationInfo(int32_t userId, AbilityRequest &request,
+    bool isMoreHapList, std::vector<std::string> &infoNames, const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    auto deviceType = OHOS::system::GetDeviceType();
+    if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
+        auto isDefaultFlag = false;
+        bool withDefault = false;
+        withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
+        if (withDefault) {
+            auto defaultMgr = GetDefaultAppProxy();
+            AppExecFwk::BundleInfo bundleInfo;
+            std::string typeName = MatchTypeAndUri(request.want);
+            ErrCode ret = IN_PROCESS_CALL(defaultMgr->GetDefaultApplication(userId, typeName, bundleInfo));
+            if (ret == ERR_OK) {
+                if (bundleInfo.abilityInfos.size() == 1) {
+                    HILOG_INFO("find default ability.");
+                    isDefaultFlag = true;
+                } else if (bundleInfo.extensionInfos.size() == 1) {
+                    HILOG_INFO("find default extension.");
+                    isDefaultFlag = true;
+                } else {
+                    HILOG_INFO("GetDefaultApplication failed.");
+                }
+            }
+            if (!isMoreHapList && !isDefaultFlag) {
+                return MatchFlagFromInfoNames(infoNames, abilityInfo);
+            }
+        }
+    }
+    return false;
+}
+
+bool ImplicitStartProcessor::MatchFlagFromInfoNames(std::vector<std::string> &infoNames,
+    const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    if (std::find(infoNames.begin(), infoNames.end(),
+        (abilityInfo.bundleName + "#" + abilityInfo.moduleName + "#" + abilityInfo.name)) != infoNames.end()) {
+        return true;
+    }
+    return false;
 }
 
 int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {

@@ -78,6 +78,20 @@ private:
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId);
     sptr<AppExecFwk::IDefaultApp> GetDefaultAppProxy();
 
+    bool GetDefaultApplicationInfo(int32_t userId, AbilityRequest &request, bool isMoreHapList,
+        std::vector<std::string> &infoNames, const AppExecFwk::AbilityInfo &abilityInfo);
+
+    std::vector<DialogAppInfo> GetDialogAppInfos(int32_t userId, bool isMoreHapList,
+        AbilityRequest &request, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
+        std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos);
+
+    void SetDialogAppInfoByAbilityInfo(DialogAppInfo &dialogAppInfo, const AppExecFwk::AbilityInfo &abilityInfo);
+
+    void SetDialogAppInfoByExtensionAbilityInfo(DialogAppInfo &dialogAppInfo,
+        const AppExecFwk::ExtensionAbilityInfo &extensionAbilityInfo);
+
+    bool MatchFlagFromInfoNames(std::vector<std::string> &infoNames, const AppExecFwk::AbilityInfo &abilityInfo);
+
 #ifdef SUPPORT_ERMS
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
 #endif
