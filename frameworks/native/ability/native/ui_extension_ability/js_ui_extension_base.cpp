@@ -20,6 +20,7 @@
 
 #include "ability_info.h"
 #include "ability_manager_client.h"
+#include "configuration_utils.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "insight_intent_executor_info.h"
@@ -540,6 +541,10 @@ void JsUIExtensionBase::OnConfigurationUpdated(const AppExecFwk::Configuration &
         HILOG_ERROR("context is nullptr");
         return;
     }
+
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    configUtils->UpdateGlobalConfig(configuration, context_->GetResourceManager());
+
     HandleScope handleScope(jsRuntime_);
     auto fullConfig = context_->GetConfiguration();
     if (!fullConfig) {

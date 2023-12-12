@@ -19,6 +19,7 @@
 #include "ability_info.h"
 #include "ability_manager_client.h"
 #include "ability_start_setting.h"
+#include "configuration_utils.h"
 #include "connection_manager.h"
 #include "context.h"
 #include "hitrace_meter.h"
@@ -788,6 +789,10 @@ void JsUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& conf
         HILOG_ERROR("Failed to get context");
         return;
     }
+
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    configUtils->UpdateGlobalConfig(configuration, context->GetResourceManager());
+
     auto fullConfig = context->GetConfiguration();
     if (!fullConfig) {
         HILOG_ERROR("configuration is nullptr.");
