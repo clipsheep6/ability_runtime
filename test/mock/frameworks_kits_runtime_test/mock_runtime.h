@@ -62,6 +62,14 @@ public:
     {
         return;
     }
+    void DestroyHeapProfiler() override
+    {
+        return;
+    }
+    void ForceFullGC() override
+    {
+        return;
+    }
     void NotifyApplicationState(bool isBackground) override
     {
         return;

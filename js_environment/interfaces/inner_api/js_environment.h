@@ -88,6 +88,8 @@ public:
     void StartProfiler(
         const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, uint32_t tid);
 
+    void DestroyHeapProfiler();
+
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);
