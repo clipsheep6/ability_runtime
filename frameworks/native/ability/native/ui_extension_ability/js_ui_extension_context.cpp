@@ -43,7 +43,7 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 } // namespace
 
-static std::map<ConnectionKey, sptr<JSUIExtensionConnection>, key_compare> g_connects;
+static std::map<UIExtensionConnectionKey, sptr<JSUIExtensionConnection>, key_compare> g_connects;
 static int64_t g_serialNumber = 0;
 void RemoveConnection(int64_t connectId)
 {
@@ -86,7 +86,7 @@ bool CheckConnectionParam(napi_env env, napi_value value, sptr<JSUIExtensionConn
         return false;
     }
     connection->SetJsConnectionObject(value);
-    ConnectionKey key;
+    UIExtensionConnectionKey key;
     key.id = g_serialNumber;
     key.want = want;
     connection->SetConnectionId(key.id);
@@ -152,6 +152,11 @@ napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& 
     if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
         HILOG_DEBUG("Failed, input param type invalid");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    if (screenMode_ == want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE)) {
+        HILOG_ERROR("Not support half screen pulling up half screen");
         return CreateJsUndefined(env);
     }
 
