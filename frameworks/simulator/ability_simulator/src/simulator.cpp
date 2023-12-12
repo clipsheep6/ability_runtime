@@ -114,6 +114,7 @@ private:
     bool ParseAbilityInfo(const std::string &abilitySrcPath);
     bool LoadRuntimeEnv(napi_env env, napi_value globalObject);
     static napi_value RequireNapi(napi_env env, napi_callback_info info);
+    inline void SetHostResolveBufferTracker();
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -661,24 +662,7 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    panda::JSNApi::SetHostResolveBufferTracker(vm_,
-        [](const std::string &inputPath, uint8_t **buff, size_t *buffSize) -> bool {
-            if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
-                HILOG_ERROR("Param invalid.");
-                return false;
-            }
-
-            HILOG_DEBUG("Get module buffer, input path: %{public}s.", inputPath.c_str());
-            auto data = Ide::StageContext::GetInstance().GetModuleBuffer(inputPath);
-            if (data == nullptr) {
-                HILOG_ERROR("Get module buffer failed, input path: %{public}s.", inputPath.c_str());
-                return false;
-            }
-
-            *buff = data->data();
-            *buffSize = data->size();
-            return true;
-        });
+    SetHostResolveBufferTracker();
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
@@ -797,6 +781,28 @@ std::unique_ptr<Simulator> Simulator::Create(const Options &options)
         return simulator;
     }
     return nullptr;
+}
+
+void SimulatorImpl::SetHostResolveBufferTracker()
+{
+    panda::JSNApi::SetHostResolveBufferTracker(vm_,
+        [](const std::string &inputPath, uint8_t **buff, size_t *buffSize) -> bool {
+            if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
+                HILOG_ERROR("Param invalid.");
+                return false;
+            }
+
+            HILOG_DEBUG("Get module buffer, input path: %{public}s.", inputPath.c_str());
+            auto data = Ide::StageContext::GetInstance().GetModuleBuffer(inputPath);
+            if (data == nullptr) {
+                HILOG_ERROR("Get module buffer failed, input path: %{public}s.", inputPath.c_str());
+                return false;
+            }
+
+            *buff = data->data();
+            *buffSize = data->size();
+            return true;
+        });
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
