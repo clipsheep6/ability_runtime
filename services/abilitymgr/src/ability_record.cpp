@@ -2858,7 +2858,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
             HILOG_WARN("the type of uri media, have no permission.");
             continue;
         }
-        
+
         if (authority == "docs" && !permission) {
             if (!isGrantPersistableUriPermissionEnable_ ||
                 !AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
@@ -3180,7 +3180,8 @@ void AbilityRecord::SetURI(const std::string &uri)
 std::string AbilityRecord::GetURI() const
 {
     if (uri_.empty()) {
-        return GetElementName().GetURI();
+        return AppExecFwk::ElementName(abilityInfo_.deviceId, abilityInfo_.bundleName,
+            abilityInfo_.name, abilityInfo_.moduleName).GetURI();
     }
     return uri_;
 }
