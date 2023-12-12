@@ -46,11 +46,14 @@ ohos_shared_library("auto_fill_manager") {
     "ability_base:base",
     "ability_base:view_data",
     "ability_base:want",
-    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "hilog:libhilog",
     "init:libbegetutil",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "ace_engine:ace_uicontent" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

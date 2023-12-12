@@ -38,10 +38,13 @@ ohos_shared_library("autofillmanager_napi") {
 
   external_deps = [
     "ability_base:view_data",
-    "ace_engine:ace_uicontent",
     "hilog:libhilog",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "ace_engine:ace_uicontent" ]
+  }
 
   relative_install_dir = "module/app/ability"
 

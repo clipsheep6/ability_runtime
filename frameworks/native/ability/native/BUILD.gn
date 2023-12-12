@@ -957,7 +957,6 @@ ohos_shared_library("ui_extension") {
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
-    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
@@ -968,7 +967,10 @@ ohos_shared_library("ui_extension") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libwm" ]
+    external_deps += [
+      "ace_engine:ace_uicontent",
+      "window_manager:libwm",
+    ]
   }
 
   subsystem_name = "ability"
