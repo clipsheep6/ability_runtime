@@ -150,7 +150,7 @@ public:
      * The extension in the <b>STATE_FOREGROUND</b> state is visible.
      * You can override this function to implement your own processing logic.
      */
-    virtual void OnForeground(const Want &want) override;
+    virtual void OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_BACKGROUND</b> state.

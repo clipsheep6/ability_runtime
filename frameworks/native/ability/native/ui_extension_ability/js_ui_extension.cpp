@@ -529,11 +529,13 @@ void JsUIExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId
     HILOG_DEBUG("JsUIExtension OnCommand end.");
 }
 
-void JsUIExtension::OnForeground(const Want &want)
+void JsUIExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("JsUIExtension OnForeground begin.");
-    Extension::OnForeground(want);
+    Extension::OnForeground(want, sessionInfo);
+
+    ForegroundWindow(want, sessionInfo);
 
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onForeground");

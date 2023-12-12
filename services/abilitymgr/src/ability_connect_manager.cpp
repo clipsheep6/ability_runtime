@@ -50,11 +50,13 @@ const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
 const int COMMAND_TIMEOUT_MULTIPLE = 75;
 const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 75;
+const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 45;
 #else
 const int LOAD_TIMEOUT_MULTIPLE = 10;
 const int CONNECT_TIMEOUT_MULTIPLE = 3;
 const int COMMAND_TIMEOUT_MULTIPLE = 5;
 const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
+const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 3;
 #endif
 const int32_t AUTO_DISCONNECT_INFINITY = -1;
 const std::unordered_map<std::string, std::string> trustMap = {
@@ -142,6 +144,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         auto &remoteObj = abilityRequest.sessionInfo->sessionToken;
         uiExtensionMap_[remoteObj] = UIExtWindowMapValType(targetService, abilityRequest.sessionInfo);
         AddUIExtWindowDeathRecipient(remoteObj);
+        if (!isLoadedAbility) {
+            SaveUIExtRequestSessionInfo(targetService, abilityRequest.sessionInfo);
+        }
     }
 
     if (!isLoadedAbility) {
@@ -151,12 +156,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
         CommandAbility(targetService);
-    } else if (IsUIExtensionAbility(targetService) &&
-        targetService->IsReady() && !targetService->IsAbilityState(AbilityState::INACTIVATING) &&
-        !targetService->IsAbilityState(AbilityState::BACKGROUNDING) &&
-        targetService->IsAbilityWindowReady()) {
-        targetService->SetWant(abilityRequest.want);
-        CommandAbilityWindow(targetService, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
+    } else if (IsUIExtensionAbility(targetService)) {
+        DoForegroundUIExtension(targetService, abilityRequest);
     } else {
         HILOG_INFO("Target service is already activating.");
         EnqueueStartServiceReq(abilityRequest);
@@ -170,6 +171,48 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
     return ERR_OK;
+}
+
+void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecord> abilityRecord,
+    const AbilityRequest &abilityRequest)
+{
+    CHECK_POINTER(abilityRecord);
+    if (abilityRecord->IsReady() && !abilityRecord->IsAbilityState(AbilityState::INACTIVATING) &&
+        !abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING) &&
+        !abilityRecord->IsAbilityState(AbilityState::BACKGROUNDING) &&
+        abilityRecord->IsAbilityWindowReady()) {
+        if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
+            abilityRecord->SetWant(abilityRequest.want);
+            CommandAbilityWindow(abilityRecord, abilityRequest.sessionInfo, WIN_CMD_FOREGROUND);
+            return;
+        } else {
+            if (abilityRecord->GetUIExtRequestSessionInfo() == nullptr) {
+                abilityRecord->SetWant(abilityRequest.want);
+                SaveUIExtRequestSessionInfo(abilityRecord, abilityRequest.sessionInfo);
+                DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(abilityRecord->GetToken());
+                return;
+            }
+        }
+    }
+    EnqueueStartServiceReq(abilityRequest);
+}
+
+void AbilityConnectManager::SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityRecord> abilityRecord,
+    sptr<SessionInfo> sessionInfo)
+{
+    CHECK_POINTER(abilityRecord);
+    CHECK_POINTER(taskHandler_);
+    abilityRecord->SetUIExtRequestSessionInfo(sessionInfo);
+    auto callback = [abilityRecord, connectManager = shared_from_this()]() {
+        std::lock_guard guard{connectManager->Lock_};
+        HILOG_ERROR("consume session timeout, abilityUri: %{public}s", abilityRecord->GetURI().c_str());
+        abilityRecord->SetUIExtRequestSessionInfo(nullptr);
+    };
+
+    int consumeSessionTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() *
+        UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE;
+    std::string taskName = std::string("ConsumeSessionTimeout_") +  std::to_string(abilityRecord->GetRecordId());
+    taskHandler_->SubmitTask(callback, taskName, consumeSessionTimeout);
 }
 
 void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &abilityRequest)
@@ -561,7 +604,11 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     std::string element = abilityRecord->GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
     abilityRecord->SetScheduler(scheduler);
-    abilityRecord->Inactivate();
+    if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()) {
+        DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
+    } else {
+        abilityRecord->Inactivate();
+    }
 
     return ERR_OK;
 }
@@ -822,16 +869,6 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     }
 
     switch (abilityCmd) {
-        case ABILITY_CMD_FOREGROUND: {
-            if (abilityRecord->IsAbilityState(AbilityState::INACTIVE) ||
-                abilityRecord->IsAbilityState(AbilityState::ACTIVE) ||
-                abilityRecord->IsAbilityState(AbilityState::BACKGROUND) ||
-                abilityRecord->IsAbilityState(AbilityState::BACKGROUNDING)) {
-                HILOG_DEBUG("Foreground %{public}s", element.c_str());
-                DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
-            }
-            break;
-        }
         case ABILITY_CMD_BACKGROUND: {
             if (abilityRecord->IsAbilityState(AbilityState::INACTIVE) ||
                 abilityRecord->IsAbilityState(AbilityState::ACTIVE) ||
@@ -913,6 +950,9 @@ void AbilityConnectManager::CompleteStartServiceReq(const std::string &serviceUr
         if (it != startServiceReqList_.end()) {
             reqList = it->second;
             startServiceReqList_.erase(it);
+            if (taskHandler_) {
+                taskHandler_->CancelTask(std::string("start_service_timeout:") + serviceUri);
+            }
         }
     }
 
@@ -1294,8 +1334,6 @@ int AbilityConnectManager::DispatchInactive(const std::shared_ptr<AbilityRecord>
     abilityRecord->SetAbilityState(AbilityState::INACTIVE);
     if (abilityRecord->IsCreateByConnect()) {
         ConnectAbility(abilityRecord);
-    } else if (IsUIExtensionAbility(abilityRecord)) {
-        CommandAbilityWindow(abilityRecord, abilityRecord->GetSessionInfo(), WIN_CMD_FOREGROUND);
     } else {
         CommandAbility(abilityRecord);
         if (abilityRecord->GetConnectRecordList().size() > 0) {
@@ -2045,8 +2083,20 @@ void AbilityConnectManager::MoveToForeground(const std::shared_ptr<AbilityRecord
         }
         HILOG_ERROR("move to foreground timeout.");
         selfObj->PrintTimeOutLog(abilityRecord, AbilityManagerService::FOREGROUND_TIMEOUT_MSG);
+        selfObj->HandleForegroundTimeoutTask(abilityRecord);
     };
-    abilityRecord->ForegroundAbility(task);
+    auto sessionInfo = abilityRecord->GetUIExtRequestSessionInfo();
+    if (sessionInfo != nullptr) {
+        abilityRecord->ForegroundAbility(task, sessionInfo);
+        abilityRecord->SetUIExtRequestSessionInfo(nullptr);
+    } else {
+        HILOG_WARN("SessionInfo is nullptr. Move to background");
+        abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+        DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
+    }
+    if (taskHandler_) {
+        taskHandler_->CancelTask(std::string("ConsumeSessionTimeout_") +  std::to_string(abilityRecord->GetRecordId()));
+    }
 }
 
 void AbilityConnectManager::MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -2077,17 +2127,37 @@ void AbilityConnectManager::MoveToBackground(const std::shared_ptr<AbilityRecord
 void AbilityConnectManager::CompleteForeground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     std::lock_guard guard(Lock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
     if (abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
         HILOG_ERROR("Ability state is %{public}d, it can't complete foreground.", abilityRecord->GetAbilityState());
         return;
     }
 
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
+    CompleteStartServiceReq(abilityRecord->GetURI());
+}
+
+void AbilityConnectManager::HandleForegroundTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    std::lock_guard guard(Lock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
+    abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    CompleteStartServiceReq(abilityRecord->GetURI());
 }
 
 void AbilityConnectManager::CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     std::lock_guard guard(Lock_);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("abilityRecord is nullptr");
+        return;
+    }
     if (abilityRecord->GetAbilityState() != AbilityState::BACKGROUNDING) {
         HILOG_ERROR("Ability state is %{public}d, it can't complete background.", abilityRecord->GetAbilityState());
         return;

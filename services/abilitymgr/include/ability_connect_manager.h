@@ -353,6 +353,7 @@ private:
     void HandleCommandTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleCommandWindowTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
+    void HandleForegroundTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleRestartResidentTask(const AbilityRequest &abilityRequest);
     void HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
         std::shared_ptr<ConnectionRecord> &connectRecord);
@@ -463,6 +464,9 @@ private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordById(int64_t abilityRecordId);
     void HandleInactiveTimeout(const std::shared_ptr<AbilityRecord> &ability);
     void MoveToTerminatingMap(const std::shared_ptr<AbilityRecord>& abilityRecord);
+
+    void DoForegroundUIExtension(std::shared_ptr<AbilityRecord> abilityRecord, const AbilityRequest &abilityRequest);
+    void SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityRecord> abilityRecord, sptr<SessionInfo> sessionInfo);
 
     /**
      * When a service is under starting, enque the request and handle it after the service starting completes
