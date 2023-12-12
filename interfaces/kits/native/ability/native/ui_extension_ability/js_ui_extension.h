@@ -202,6 +202,9 @@ private:
     bool HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result) override;
+    void InitConfigurationProperties(const AppExecFwk::Configuration &changeConfiguration, std::string &language,
+        std::string &colormode, std::string &hasPointerDevice);
+
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

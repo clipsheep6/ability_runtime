@@ -954,6 +954,7 @@ ohos_shared_library("ui_extension") {
 
   external_deps = [
     "ability_base:base",
+    "ability_base:configuration",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
@@ -965,10 +966,12 @@ ohos_shared_library("ui_extension") {
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
   ]
 
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
   }
 
   subsystem_name = "ability"
