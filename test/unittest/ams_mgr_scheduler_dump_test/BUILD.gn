@@ -42,8 +42,11 @@ ohos_unittest("ams_mgr_scheduler_dump_test") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 group("unittest") {

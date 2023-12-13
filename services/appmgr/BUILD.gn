@@ -113,7 +113,6 @@ ohos_shared_library("libappms") {
     "memory_utils:libmeminfo",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwsutils",
   ]
 
   if (product_name != "ohcore") {
@@ -126,6 +125,7 @@ ohos_shared_library("libappms") {
     external_deps += [
       "i18n:intl_util",
       "window_manager:libwm",
+      "window_manager:libwsutils",
     ]
   }
 

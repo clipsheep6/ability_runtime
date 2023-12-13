@@ -140,8 +140,6 @@ ohos_shared_library("ability_manager") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
-    "window_manager:libwsutils",
-    "window_manager:session_manager",
   ]
 
   if (ability_runtime_graphics) {
@@ -149,6 +147,8 @@ ohos_shared_library("ability_manager") {
     external_deps += [
       "ability_base:session_info",
       "image_framework:image_native",
+      "window_manager:libwsutils",
+      "window_manager:session_manager",
     ]
   }
 

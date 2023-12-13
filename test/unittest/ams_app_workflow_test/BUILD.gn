@@ -71,9 +71,14 @@ ohos_unittest("AmsWorkFlowTest") {
     "init:libbeget_proxy",
     "ipc:ipc_core",
     "memory_utils:libmeminfo",
-    "window_manager:libwm",
-    "window_manager:libwsutils",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "window_manager:libwm",
+      "window_manager:libwsutils",
+    ]
+  }
 }
 
 group("unittest") {
