@@ -39,6 +39,11 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr int32_t RECORD_ID = 1;
+constexpr int32_t APP_DEBUG_INFO_PID = 0;
+constexpr int32_t APP_DEBUG_INFO_UID = 0;
+}
 static int recordId_ = 0;
 class AppMgrServiceInnerTest : public testing::Test {
 public:
@@ -3504,6 +3509,180 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
     int32_t ret = appMgrServiceInner->NotifyAppFaultBySA(faultData);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
     HILOG_INFO("NotifyAppFaultBySA_001 end");
+}
+
+/**
+ * @tc.name: RegisterAppDebugListener_001
+ * @tc.desc: Test the status of RegisterAppDebugListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterAppDebugListener_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    sptr<IAppDebugListener> listener = nullptr;
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->RegisterAppDebugListener(listener);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+    appMgrServiceInner->appDebugManager_ = nullptr;
+    result = appMgrServiceInner->RegisterAppDebugListener(listener);
+    EXPECT_EQ(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: UnregisterAppDebugListener_001
+ * @tc.desc: Test the status of UnregisterAppDebugListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterAppDebugListener_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    sptr<IAppDebugListener> listener = nullptr;
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(result, ERR_INVALID_DATA);
+    appMgrServiceInner->appDebugManager_ = nullptr;
+    result = appMgrServiceInner->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: AttachAppDebug_001
+ * @tc.desc: Test the status of AttachAppDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, AttachAppDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName;
+    appMgrServiceInner->appRunningManager_ = std::make_shared<AppRunningManager>();
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->AttachAppDebug(bundleName);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: AttachAppDebug_002
+ * @tc.desc: Test the status of AttachAppDebug, check nullptr AppRunningManager.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, AttachAppDebug_002, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName;
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->AttachAppDebug(bundleName);
+    EXPECT_EQ(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: DetachAppDebug_001
+ * @tc.desc: Test the status of DetachAppDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, DetachAppDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName;
+    appMgrServiceInner->appRunningManager_ = std::make_shared<AppRunningManager>();
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->DetachAppDebug(bundleName);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: DetachAppDebug_002
+ * @tc.desc: Test the status of DetachAppDebug, check nullptr AppRunningManager.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, DetachAppDebug_002, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName;
+    appMgrServiceInner->appRunningManager_ = nullptr;
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->DetachAppDebug(bundleName);
+    EXPECT_EQ(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: RegisterAbilityDebugResponse_001
+ * @tc.desc: Test the status of RegisterAbilityDebugResponse.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterAbilityDebugResponse_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    sptr<IAbilityDebugResponse> response = nullptr;
+    auto result = appMgrServiceInner->RegisterAbilityDebugResponse(response);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: NotifyAbilitysDebugChange_001
+ * @tc.desc: Test the status of NotifyAbilitysDebugChange.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, NotifyAbilitysDebugChange_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName;
+    bool isAppDebug = true;
+    appMgrServiceInner->appRunningManager_ = std::make_shared<AppRunningManager>();
+    appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
+    auto result = appMgrServiceInner->NotifyAbilitysDebugChange(bundleName, isAppDebug);
+    EXPECT_EQ(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: ProcessAppDebug_001
+ * @tc.desc: Test the status of ProcessAppDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, ProcessAppDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    appMgrServiceInner->appRunningManager_ = std::make_shared<AppRunningManager>();
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    int32_t recordId = RECORD_ID;
+    std::string processName = "processName";
+    std::shared_ptr<AppRunningRecord> appRecord = std::make_shared<AppRunningRecord>(info, recordId, processName);
+    bool isDebugStart = true;
+    appRecord->SetDebugApp(false);
+    appMgrServiceInner->ProcessAppDebug(appRecord, isDebugStart);
+    EXPECT_EQ(appRecord->IsDebugApp(), true);
+}
+
+/**
+ * @tc.name: MakeAppDebugInfo_001
+ * @tc.desc: Test the status of MakeAppDebugInfo.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, MakeAppDebugInfo_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    appMgrServiceInner->appRunningManager_ = std::make_shared<AppRunningManager>();
+    std::shared_ptr<ApplicationInfo> info = std::make_shared<ApplicationInfo>();
+    int32_t recordId = RECORD_ID;
+    std::string processName = "processName";
+    std::shared_ptr<AppRunningRecord> appRecord = std::make_shared<AppRunningRecord>(info, recordId, processName);
+    bool isDebugStart = true;
+    appRecord->SetDebugApp(false);
+    auto appDebugInfo = appMgrServiceInner->MakeAppDebugInfo(appRecord, isDebugStart);
+    EXPECT_EQ(appDebugInfo.bundleName, "");
+    EXPECT_EQ(appDebugInfo.pid, APP_DEBUG_INFO_PID);
+    EXPECT_EQ(appDebugInfo.uid, APP_DEBUG_INFO_UID);
+    EXPECT_EQ(appDebugInfo.isDebugStart, true);
 }
 
 /**

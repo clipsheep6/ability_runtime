@@ -22,10 +22,11 @@
 #include "app_scheduler.h"
 #undef private
 #undef protected
-#include "app_state_call_back_mock.h"
-#include "app_process_data.h"
-#include "element_name.h"
+#include "app_debug_listener_stub_mock.h"
 #include "app_mgr_client_mock.h"
+#include "app_process_data.h"
+#include "app_state_call_back_mock.h"
+#include "element_name.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -1158,6 +1159,90 @@ HWTEST_F(AppSchedulerTest, AppScheduler_NotifyFault_001, TestSize.Level1)
 {
     AppExecFwk::FaultData faultData;
     int res = DelayedSingleton<AppScheduler>::GetInstance()->NotifyFault(faultData);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_RegisterAppDebugListener_001
+ * @tc.desc: Test the state of RegisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAppDebugListener_001, TestSize.Level1)
+{
+    sptr<AppExecFwk::IAppDebugListener> listener = nullptr;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_RegisterAppDebugListener_002
+ * @tc.desc: Test the state of RegisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAppDebugListener_002, TestSize.Level1)
+{
+    auto listener = new AppDebugListenerStubMock();
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_UnregisterAppDebugListener_001
+ * @tc.desc: Test the state of UnregisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_UnregisterAppDebugListener_001, TestSize.Level1)
+{
+    sptr<AppExecFwk::IAppDebugListener> listener = nullptr;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AppScheduler_UnregisterAppDebugListener_002
+ * @tc.desc: Test the state of UnregisterAppDebugListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_UnregisterAppDebugListener_002, TestSize.Level1)
+{
+    auto listener = new AppDebugListenerStubMock();
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_AttachAppDebug_001
+ * @tc.desc: Test the state of AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_AttachAppDebug_001, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->AttachAppDebug(bundleName);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_DetachAppDebug_001
+ * @tc.desc: Test the state of DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_DetachAppDebug_001, TestSize.Level1)
+{
+    std::string bundleName = "bundleName";
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->DetachAppDebug(bundleName);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AppScheduler_RegisterAbilityDebugResponse_001
+ * @tc.desc: Test the state of RegisterAbilityDebugResponse
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAbilityDebugResponse_001, TestSize.Level1)
+{
+    sptr<AppExecFwk::IAbilityDebugResponse> response = nullptr;
+    int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAbilityDebugResponse(response);
     EXPECT_EQ(res, INNER_ERR);
 }
 }  // namespace AAFwk
