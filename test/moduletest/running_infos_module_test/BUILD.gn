@@ -112,6 +112,7 @@ ohos_moduletest("running_infos_module_test") {
     "safwk:system_ability_fwk",
     "window_manager:libwsutils",
     "window_manager:sms",
+    "window_manager:libmodal_system_ui_extension_client",
   ]
 
   if (efficiency_manager) {
