@@ -1375,5 +1375,35 @@ HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
     int32_t res = appMgrService->IsApplicationRunning(bundleName, isRunning);
     EXPECT_EQ(res, ERR_OK);
 }
+
+/**
+ * @tc.name: RegisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify it when judgments is ready and observer is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RegisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->RegisterAbilityForegroundStateObserver(nullptr);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: UnregisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify it when judgments is ready and observer is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, UnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->UnregisterAbilityForegroundStateObserver(nullptr);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

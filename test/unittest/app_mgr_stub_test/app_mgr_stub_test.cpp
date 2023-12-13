@@ -15,7 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#define private public
 #include "app_mgr_stub.h"
+#undef private
 #include "hilog_wrapper.h"
 #include "mock_app_mgr_service.h"
 
@@ -364,5 +366,31 @@ HWTEST_F(AppMgrStubTest, IsApplicationRunning_0100, TestSize.Level1)
         static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+/**
+ * @tc.number: HandleRegisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify it when write result success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleRegisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = mockAppMgrService_->HandleRegisterAbilityForegroundStateObserver(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.number: HandleUnregisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify it when write result success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleUnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = mockAppMgrService_->HandleUnregisterAbilityForegroundStateObserver(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+} // namespace AppExecFwk
+} // namespace OHOS

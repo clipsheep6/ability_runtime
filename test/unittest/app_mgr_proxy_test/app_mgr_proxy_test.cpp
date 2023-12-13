@@ -15,10 +15,12 @@
 
 #include <gtest/gtest.h>
 
-#include "mock_app_mgr_service.h"
+#include "ability_foreground_state_observer_interface.h"
 #include "app_mgr_proxy.h"
 #include "hilog_wrapper.h"
 #include "quick_fix_callback_stub.h"
+#include "mock_ability_foreground_state_observer_stub.h"
+#include "mock_app_mgr_service.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -344,5 +346,63 @@ HWTEST_F(AppMgrProxyTest, IsApplicationRunning_001, TestSize.Level1)
     appMgrProxy_->IsApplicationRunning(bundleName, isRunning);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING));
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+/**
+ * @tc.number: RegisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify that the RegisterAbilityForegroundStateObserver function is called normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = new MockAbilityForegroundStateObserverStub();
+    EXPECT_NE(observer->AsObject(), nullptr);
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    appMgrProxy_->RegisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER));
+}
+
+/**
+ * @tc.number: RegisterAbilityForegroundStateObserver_0200
+ * @tc.desc: Verify that the RegisterAbilityForegroundStateObserver parameter of the function is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterAbilityForegroundStateObserver_0200, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = nullptr;
+    auto result = appMgrProxy_->RegisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: UnregisterAbilityForegroundStateObserver_0100
+ * @tc.desc: Verify that the UnregisterAbilityForegroundStateObserver function is called normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = new MockAbilityForegroundStateObserverStub();
+    EXPECT_NE(observer->AsObject(), nullptr);
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mockAppMgrService_.GetRefPtr(), &MockAppMgrService::InvokeSendRequest));
+    appMgrProxy_->UnregisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(mockAppMgrService_->code_,
+        static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER));
+}
+
+/**
+ * @tc.number: RegisterAbilityForegroundStateObserver_0200
+ * @tc.desc: Verify that the UnregisterAbilityForegroundStateObserver parameter of the function is null.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterAbilityForegroundStateObserver_0200, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = nullptr;
+    auto result = appMgrProxy_->UnregisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
+}
+} // namespace AppExecFwk
+} // namespace OHOS
