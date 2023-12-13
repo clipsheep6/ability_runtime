@@ -833,6 +833,10 @@ int32_t AppMgrServiceInner::KillApplication(const std::string &bundleName)
         return ERR_NO_INIT;
     }
 
+    if (CheckCallerIsAppGallery()) {
+        return KillApplicationByBundleName(bundleName);
+    }
+
     auto result = VerifyProcessPermission(bundleName);
     if (result != ERR_OK) {
         HILOG_ERROR("Permission verification failed.");
@@ -849,13 +853,15 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         return ERR_NO_INIT;
     }
 
-    auto result = VerifyProcessPermission(bundleName);
-    if (result != ERR_OK) {
-        HILOG_ERROR("Permission verification failed.");
-        return result;
+    int32_t result = ERR_OK;
+    if (!CheckCallerIsAppGallery()) {
+        result = VerifyProcessPermission(bundleName);
+        if (result != ERR_OK) {
+            HILOG_ERROR("Permission verification failed.");
+            return result;
+        }
     }
 
-    result = ERR_OK;
     int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
     if (remoteClientManager_ == nullptr) {
@@ -3629,6 +3635,40 @@ int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token
     }
 
     return ERR_OK;
+}
+
+bool AppMgrServiceInner::CheckCallerIsAppGallery()
+{
+    HILOG_DEBUG("called");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return false;
+    }
+    auto callerPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = appRunningManager_->GetAppRunningRecordByPid(callerPid);
+    if (!appRecord) {
+        HILOG_ERROR("Get app running record by calling pid failed. callingPId: %{public}d", callerPid);
+        return false;
+    }
+    auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
+    if (!bundleMgrHelper) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        return false;
+    }
+    auto callerBundleName = appRecord->GetBundleName();
+    if (callerBundleName.empty()) {
+        HILOG_ERROR("callerBundleName is empty.");
+        return false;
+    }
+    std::string appGalleryBundleName;
+    if (!bundleMgrHelper->QueryAppGalleryBundleName(appGalleryBundleName)) {
+        HILOG_ERROR("QueryAppGalleryBundleName failed.");
+        return false;
+    }
+    HILOG_DEBUG("callerBundleName:%{public}s, appGalleryBundleName:%{public}s", callerBundleName.c_str(),
+        appGalleryBundleName.c_str());
+
+    return callerBundleName == appGalleryBundleName;
 }
 
 bool AppMgrServiceInner::VerifyAPL() const
