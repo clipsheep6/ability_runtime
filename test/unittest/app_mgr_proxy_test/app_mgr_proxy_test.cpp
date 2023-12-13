@@ -15,10 +15,11 @@
 
 #include <gtest/gtest.h>
 
-#include "mock_app_mgr_service.h"
 #include "app_mgr_proxy.h"
 #include "hilog_wrapper.h"
+#include "mock_app_mgr_service.h"
 #include "quick_fix_callback_stub.h"
+#include "app_foreground_state_observer_stub.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -28,6 +29,15 @@ namespace AppExecFwk {
 namespace {
 const int32_t USER_ID = 100;
 } // namespace
+
+class AppForegroundStateObserverMock : public AppForegroundStateObserverStub {
+public:
+    AppForegroundStateObserverMock() = default;
+    virtual ~AppForegroundStateObserverMock() = default;
+
+    void OnAppStateChanged(const AppStateData &appStateData) override
+    {}
+};
 
 class QuickFixCallbackImpl : public AppExecFwk::QuickFixCallbackStub {
 public:
@@ -343,6 +353,32 @@ HWTEST_F(AppMgrProxyTest, IsApplicationRunning_001, TestSize.Level1)
     bool isRunning = false;
     appMgrProxy_->IsApplicationRunning(bundleName, isRunning);
     EXPECT_EQ(mockAppMgrService_->code_, static_cast<uint32_t>(AppMgrInterfaceCode::IS_APPLICATION_RUNNING));
+}
+
+/**
+ * @tc.name: RegisterAppForegroundStateObserver_0100
+ * @tc.desc: Test when all condition not met.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);        
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserverMock();
+    auto res = appMgrProxy_->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: UnregisterAppForegroundStateObserver_0100
+ * @tc.desc: Test when all condition not met.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);     
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserverMock();
+    auto res = appMgrProxy_->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
