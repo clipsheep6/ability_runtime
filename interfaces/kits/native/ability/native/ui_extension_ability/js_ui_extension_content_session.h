@@ -95,7 +95,7 @@ protected:
         napi_env env, NapiCallbackInfo& info, std::shared_ptr<int> &innerErrorCode);
     void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
         std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
-    
+
 private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;

@@ -301,17 +301,6 @@ void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_p
     } else {
         appType = 0;
     }
-    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
-        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-        std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
-            bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
-        if (resourceManager == nullptr) {
-            HILOG_ERROR("ContextImpl::InitResourceManager failed to create resourceManager");
-            return;
-        }
-        deal->initResourceManager(resourceManager);
-        return;
-    }
 
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
         bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
