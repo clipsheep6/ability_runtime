@@ -47,6 +47,7 @@ private:
     bool HaveRegistered(sptr<IDataAbilityObserver> dataObserver);
 
     static constexpr uint32_t OBS_NUM_MAX = 50;
+    std::mutex PreObsRecipMutex_;
     std::mutex preferenceMutex_;
     ObsMapType observers_;
     ObsRecipientMapType obsRecipient_;
