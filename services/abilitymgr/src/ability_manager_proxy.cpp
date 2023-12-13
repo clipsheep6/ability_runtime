@@ -307,8 +307,7 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartAbilityAsCaller(
-    const Want &want, const sptr<IRemoteObject> &callerToken,
+int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const sptr<IRemoteObject> &callerToken,
     sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult)
 {
     int error;

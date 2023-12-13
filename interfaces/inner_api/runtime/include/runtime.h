@@ -78,6 +78,8 @@ public:
     virtual void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true) = 0;
     virtual bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) = 0;
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
+    virtual void DestroyHeapProfiler() = 0;
+    virtual void ForceFullGC() = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
     virtual bool SuspendVM(uint32_t tid) = 0;
     virtual void ResumeVM(uint32_t tid) = 0;

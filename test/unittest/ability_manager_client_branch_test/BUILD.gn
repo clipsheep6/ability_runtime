@@ -24,6 +24,7 @@ ohos_unittest("ability_manager_client_branch_test") {
     "${distributedschedule_path}/samgr/adapter/interfaces/innerkits/include/",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_test_path}/unittest/app_debug_listener_stub_test",
   ]
 
   sources = [

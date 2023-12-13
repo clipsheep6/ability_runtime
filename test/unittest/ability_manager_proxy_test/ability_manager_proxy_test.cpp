@@ -25,6 +25,7 @@
 #include "mock_ability_token.h"
 #include "ability_scheduler_mock.h"
 #include "ability_record.h"
+#include "app_debug_listener_stub_mock.h"
 #include "ability_scheduler.h"
 #include "mission_snapshot.h"
 #include "want_sender_info.h"
@@ -37,6 +38,7 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 const int USER_ID = 100;
+constexpr int32_t REPLY_RESULT = 1;
 }  // namespace
 
 class AbilityManagerProxyTest : public testing::Test {
@@ -2394,6 +2396,84 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_IsAbilityControllerStart_0
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _)).Times(1).WillOnce(Return(NO_ERROR));
     Want want;
     proxy_->IsAbilityControllerStart(want);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_RegisterAppDebugListener_0100
+ * @tc.desc: Test the status of RegisterAppDebugListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterAppDebugListener_0100, TestSize.Level1)
+{
+    EXPECT_NE(proxy_, nullptr);
+    sptr<AppExecFwk::AppDebugListenerStubMock> listener = new AppDebugListenerStubMock();
+    auto result = proxy_->RegisterAppDebugListener(listener);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_RegisterAppDebugListener_0200
+ * @tc.desc: Test the status of RegisterAppDebugListener, check nullptr listener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RegisterAppDebugListener_0200, TestSize.Level1)
+{
+    EXPECT_NE(proxy_, nullptr);
+    sptr<AppExecFwk::AppDebugListenerStubMock> listener = nullptr;
+    auto result = proxy_->RegisterAppDebugListener(listener);
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_UnregisterAppDebugListener_0100
+ * @tc.desc: Test the status of UnregisterAppDebugListener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UnregisterAppDebugListener_0100, TestSize.Level1)
+{
+    EXPECT_NE(proxy_, nullptr);
+    sptr<AppExecFwk::AppDebugListenerStubMock> listener = new AppDebugListenerStubMock();
+    auto result = proxy_->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_UnregisterAppDebugListener_0200
+ * @tc.desc: Test the status of UnregisterAppDebugListener, check nullptr listener.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UnregisterAppDebugListener_0200, TestSize.Level1)
+{
+    EXPECT_NE(proxy_, nullptr);
+    sptr<AppExecFwk::AppDebugListenerStubMock> listener = nullptr;
+    auto result = proxy_->UnregisterAppDebugListener(listener);
+    EXPECT_EQ(result, INNER_ERR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_AttachAppDebug_0100
+ * @tc.desc: Test the state of AttachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_AttachAppDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(proxy_, nullptr);
+    std::string bundleName = "bundleName";
+    auto result = proxy_->AttachAppDebug(bundleName);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_DetachAppDebug_0100
+ * @tc.desc: Test the state of DetachAppDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DetachAppDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(proxy_, nullptr);
+    std::string bundleName = "bundleName";
+    auto result = proxy_->DetachAppDebug(bundleName);
+    EXPECT_EQ(result, NO_ERROR);
 }
 
 /**

@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_AMS_CONFIGURATION_PARAMETER_H
 
 #include <fstream>
+#include <map>
 #include <nlohmann/json.hpp>
 #include "nocopyable.h"
 #include "parameters.h"
@@ -25,6 +26,8 @@ namespace OHOS {
 namespace AAFwk {
 namespace AmsConfig {
 constexpr const char* AMS_CONFIG_FILE_PATH = "/system/etc/ams_service_config.json";
+constexpr const char* PICKER_CONFIG_FILE_PATH_DEFAULT = "/system/etc/uiextension_picker_config.json";
+constexpr const char* PICKER_CONFIG_FILE_PATH = "/etc/uiextension_picker_config.json";
 constexpr const char* SERVICE_ITEM_AMS = "service_startup_config";
 constexpr const char* MISSION_SAVE_TIME = "mission_save_time";
 constexpr const char* APP_NOT_RESPONSE_PROCESS_TIMEOUT_TIME = "app_not_response_process_timeout_time";
@@ -41,6 +44,9 @@ constexpr const char* ABILITY_NAME = "ability_name";
 constexpr const char* BUNDLE_NAME = "bundle_name";
 constexpr const char* PICKER_CONFIGURATION = "picker_configuration";
 constexpr const char* PICKER_TYPE = "picker_type";
+constexpr const char* UIEATENSION = "uiextension";
+constexpr const char* UIEATENSION_TYPE = "type";
+constexpr const char* UIEATENSION_TYPE_PICKER = "typePicker";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -122,6 +128,8 @@ public:
      */
     nlohmann::json GetPickerJsonObject() const;
 
+    const std::map<std::string, std::string>& GetPickerMap() const;
+
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
 
 private:
@@ -141,6 +149,7 @@ private:
     void UpdateStartUpServiceConfigInteger(nlohmann::json& Object, const std::string &configName, int32_t &value);
     void UpdateStartUpServiceConfigString(nlohmann::json& Object, const std::string &configName, std::string &value);
     void UpdatePickerConfigurationString(nlohmann::json& Object, const std::string &configName, std::string &value);
+    void LoadUIExtensionPickerConfig(const std::string &filePath);
 
 private:
     bool nonConfigFile_ {false};
@@ -159,6 +168,7 @@ private:
     std::string pickerType_ {""};
     nlohmann::json pickerJsonObject_ = nlohmann::json::object();
     bool isPcDevice_ = false;
+    std::map<std::string, std::string> picker_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -795,7 +795,7 @@ private:
         return result;
     }
 
-    napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv) 
+    napi_value OnIsApplicationRunning(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("Called.");
         if (argc < ARGC_ONE) {

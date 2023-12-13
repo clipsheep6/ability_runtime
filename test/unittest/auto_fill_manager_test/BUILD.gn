@@ -44,7 +44,6 @@ ohos_unittest("auto_fill_manager_test") {
     "ability_base:configuration",
     "ability_base:view_data",
     "ability_base:want",
-    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "faultloggerd:libdfx_dumpcatcher",
@@ -57,6 +56,10 @@ ohos_unittest("auto_fill_manager_test") {
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "ace_engine:ace_uicontent" ]
+  }
 }
 
 group("unittest") {

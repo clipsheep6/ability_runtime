@@ -91,7 +91,10 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
             break;
         }
         case AAFwk::ABILITY_STATE_FOREGROUND_NEW: {
-            Foreground(want);
+            if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
+                Start(want, sessionInfo);
+            }
+            Foreground(want, sessionInfo);
             break;
         }
         case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
@@ -423,7 +426,7 @@ void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resu
     HILOG_DEBUG("end.");
 }
 
-void ExtensionImpl::Foreground(const Want &want)
+void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("ExtensionImpl::Foreground begin");
     if (extension_ == nullptr) {
@@ -431,7 +434,7 @@ void ExtensionImpl::Foreground(const Want &want)
         return;
     }
 
-    extension_->OnForeground(want);
+    extension_->OnForeground(want, sessionInfo);
     lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
 }
 

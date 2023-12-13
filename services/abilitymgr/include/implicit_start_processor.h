@@ -35,6 +35,17 @@ struct IdentityNode {
     IdentityNode(int tokenId, std::string identity) : tokenId(tokenId), identity(identity)
     {}
 };
+
+struct AddInfoParam {
+    AppExecFwk::AbilityInfo info;
+    int32_t userId = 0;
+    bool isExtension = false;
+    bool isMoreHapList = false;
+    bool withDefault = false;
+    std::string deviceType;
+    std::string typeName;
+    std::vector<std::string> infoNames;
+};
 #ifdef SUPPORT_ERMS
 using namespace OHOS::EcologicalRuleMgrService;
 using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
@@ -83,6 +94,12 @@ private:
 #endif
 
     void AddIdentity(int32_t tokenId, std::string identity);
+
+    void AddAbilityInfoToDialogInfos(const AddInfoParam &param, std::vector<DialogAppInfo> &dialogAppInfos);
+
+    bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
+
+    bool IsCallFromAncoShell(const sptr<IRemoteObject> &token);
 
 private:
     const static std::vector<std::string> blackList;

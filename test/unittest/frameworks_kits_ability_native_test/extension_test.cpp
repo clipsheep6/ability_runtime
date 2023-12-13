@@ -384,7 +384,9 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_1800, Function | MediumTest | Level1)
     Want want;
     want.SetElementName("DemoDeviceId", "DemoBundleName", "DemoAbilityName");
     EXPECT_TRUE(extension_ != nullptr);
-    extension_->OnForeground(want);
+    sptr<AAFwk::SessionInfo> session = new (std::nothrow) AAFwk::SessionInfo();
+    EXPECT_NE(session, nullptr);
+    extension_->OnForeground(want, session);
     GTEST_LOG_(INFO) << "AaFwk_Extension_1800 end";
 }
 

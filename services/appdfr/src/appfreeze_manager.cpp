@@ -42,6 +42,7 @@ constexpr char EVENT_MESSAGE[] = "MSG";
 constexpr char EVENT_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr char EVENT_STACK[] = "STACK";
+constexpr char BINDER_INFO[] = "BINDER_INFO";
 constexpr int MAX_LAYER = 8;
 }
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
@@ -103,7 +104,7 @@ int AppfreezeManager::AppfreezeHandle(const FaultData& faultData, const Appfreez
     if (faultData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
         AcquireStack(faultData, appInfo);
     } else {
-        NotifyANR(faultData, appInfo);
+        NotifyANR(faultData, appInfo, "");
     }
     return 0;
 }
@@ -118,17 +119,23 @@ int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const
     FaultData faultNotifyData;
     faultNotifyData.errorObject.name = faultData.errorObject.name;
     faultNotifyData.errorObject.message = faultData.errorObject.message;
-    faultNotifyData.errorObject.stack = faultData.errorObject.stack + "\n";
+    faultNotifyData.errorObject.stack = faultData.errorObject.stack;
     faultNotifyData.faultType = FaultDataType::APP_FREEZE;
 
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeHandleWithStack pid:%d-name:%s",
         appInfo.pid, faultData.errorObject.name.c_str());
-    faultNotifyData.errorObject.stack += CatcherStacktrace(appInfo.pid);
+
+    if (faultData.errorObject.name == AppFreezeType::LIFECYCLE_HALF_TIMEOUT
+        || faultData.errorObject.name == AppFreezeType::LIFECYCLE_TIMEOUT) {
+        faultNotifyData.errorObject.stack += CatcherStacktrace(appInfo.pid);
+    } else {
+        faultNotifyData.errorObject.stack += CatchJsonStacktrace(appInfo.pid);
+    }
 
     if (faultNotifyData.errorObject.name == AppFreezeType::APP_INPUT_BLOCK) {
         AcquireStack(faultNotifyData, appInfo);
     } else {
-        NotifyANR(faultNotifyData, appInfo);
+        NotifyANR(faultNotifyData, appInfo, "");
     }
     return 0;
 }
@@ -172,33 +179,34 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
     FaultData faultNotifyData;
     faultNotifyData.errorObject.name = faultData.errorObject.name;
     faultNotifyData.errorObject.message = faultData.errorObject.message;
-    faultNotifyData.errorObject.stack = faultData.errorObject.stack + "\n";
+    faultNotifyData.errorObject.stack = faultData.errorObject.stack;
     faultNotifyData.faultType = FaultDataType::APP_FREEZE;
-    std::string& stack = faultNotifyData.errorObject.stack;
-    std::set<int> pids = GetBinderPeerPids(faultNotifyData.errorObject.stack, pid);
+    std::string binderInfo;
+    std::set<int> pids = GetBinderPeerPids(binderInfo, pid);
     if (pids.empty()) {
-        stack += "PeerBinder pids is empty\n";
+        binderInfo += "PeerBinder pids is empty\n";
     }
     for (auto& pidTemp : pids) {
         HILOG_INFO("pidTemp pids:%{public}d", pidTemp);
         if (pidTemp != pid) {
             std::string content = "PeerBinder catcher stacktrace for pid : " + std::to_string(pidTemp) + "\n";
-            content += CatcherStacktrace(pidTemp);
-            stack += content;
+            content += CatchJsonStacktrace(pidTemp);
+            binderInfo += content;
         }
     }
 
-    ret = NotifyANR(faultNotifyData, appInfo);
+    ret = NotifyANR(faultNotifyData, appInfo, binderInfo);
     return ret;
 }
 
-int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo)
+int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo,
+    const std::string& binderInfo)
 {
     HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid,
         EVENT_PID, appInfo.pid, EVENT_PACKAGE_NAME, appInfo.bundleName,
         EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
-        faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack);
+        faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo);
 
     HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
         faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str());
@@ -311,14 +319,28 @@ void AppfreezeManager::ParseBinderPids(const std::map<int, std::set<int>>& binde
     }
 }
 
+std::string AppfreezeManager::CatchJsonStacktrace(int pid) const
+{
+    HITRACE_METER_FMT(HITRACE_TAG_APP, "CatchJsonStacktrace pid:%d", pid);
+    HiviewDFX::DfxDumpCatcher dumplog;
+    std::string ret;
+    std::string msg;
+    size_t defaultMaxFaultNum = 256;
+    if (!dumplog.DumpCatch(pid, 0, msg, defaultMaxFaultNum, true)) {
+        ret = "Failed to dump stacktrace for " + std::to_string(pid) + "\n" + msg;
+    } else {
+        ret = msg;
+    }
+    return ret;
+}
+
 std::string AppfreezeManager::CatcherStacktrace(int pid) const
 {
     HITRACE_METER_FMT(HITRACE_TAG_APP, "CatcherStacktrace pid:%d", pid);
     HiviewDFX::DfxDumpCatcher dumplog;
     std::string ret;
     std::string msg;
-    size_t defaultMaxFaultNum = 256;
-    if (!dumplog.DumpCatch(pid, 0, msg, defaultMaxFaultNum, true)) {
+    if (!dumplog.DumpCatch(pid, 0, msg)) {
         ret = "Failed to dump stacktrace for " + std::to_string(pid) + "\n" + msg;
     } else {
         ret = msg;

@@ -110,7 +110,7 @@ void Extension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::Sessi
     HILOG_DEBUG("call");
 }
 
-void Extension::OnForeground(const AAFwk::Want &want)
+void Extension::OnForeground(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());

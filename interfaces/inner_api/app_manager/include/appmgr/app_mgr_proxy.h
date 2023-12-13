@@ -428,7 +428,7 @@ public:
 
     /**
      * Check whether the bundle is running.
-     * 
+     *
      * @param bundleName Indicates the bundle name of the bundle.
      * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
      * @return Return ERR_OK if success, others fail.

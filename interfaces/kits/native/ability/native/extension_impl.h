@@ -182,7 +182,7 @@ protected:
      *
      * @param want The Want object to switch the life cycle.
      */
-    void Foreground(const Want &want);
+    void Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_BACKGROUND. And notifies the

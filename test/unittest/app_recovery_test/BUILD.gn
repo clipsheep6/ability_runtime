@@ -23,6 +23,8 @@ ohos_unittest("AppRecoveryUnitTest") {
   include_dirs = [
     "./",
     "mock",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
 

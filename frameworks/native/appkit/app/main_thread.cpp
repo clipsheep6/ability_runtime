@@ -116,8 +116,9 @@ enum class SignalType {
     SIGNAL_JSHEAP_OLD,
     SIGNAL_JSHEAP,
     SIGNAL_JSHEAP_PRIV,
-    SIGNAL_START_SAMPLE,
-    SIGNAL_STOP_SAMPLE,
+    SIGNAL_NO_TRIGGERID,
+    SIGNAL_NO_TRIGGERID_PRIV,
+    SIGNAL_FORCE_FULLGC,
 };
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
@@ -2117,6 +2118,7 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
 {
     if (signal != MUSL_SIGNAL_JSHEAP) {
         HILOG_ERROR("HandleSignal failed, signal is %{public}d", signal);
+        return;
     }
     HILOG_INFO("HandleSignal sival_int is %{public}d", siginfo->si_value.sival_int);
     switch (static_cast<SignalType>(siginfo->si_value.sival_int)) {
@@ -2135,12 +2137,25 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
             signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JSHEAP_PRIV");
             break;
         }
-        case SignalType::SIGNAL_START_SAMPLE: {
-            HILOG_ERROR("HandleSignal failed, SIGNAL_START_SAMPLE is retained");
+        case SignalType::SIGNAL_NO_TRIGGERID: {
+            auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JSHEAP");
+
+            auto noTriggerIdFunc = std::bind(&MainThread::DestroyHeapProfiler);
+            signalHandler_->PostTask(noTriggerIdFunc, "MainThread::SIGNAL_NO_TRIGGERID");
             break;
         }
-        case SignalType::SIGNAL_STOP_SAMPLE: {
-            HILOG_ERROR("HandleSignal failed, SIGNAL_STOP_SAMPLE is retained");
+        case SignalType::SIGNAL_NO_TRIGGERID_PRIV: {
+            auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
+            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JSHEAP_PRIV");
+
+            auto noTriggerIdFunc = std::bind(&MainThread::DestroyHeapProfiler);
+            signalHandler_->PostTask(noTriggerIdFunc, "MainThread::SIGNAL_NO_TRIGGERID_PRIV");
+            break;
+        }
+        case SignalType::SIGNAL_FORCE_FULLGC: {
+            auto forceFullGCFunc = std::bind(&MainThread::ForceFullGC);
+            signalHandler_->PostTask(forceFullGCFunc, "MainThread:SIGNAL_FORCE_FULLGC");
             break;
         }
         default:
@@ -2165,6 +2180,44 @@ void MainThread::HandleDumpHeap(bool isPrivate)
         app->GetRuntime()->DumpHeapSnapshot(isPrivate);
     };
     mainHandler_->PostTask(task, "MainThread:DumpHeap");
+}
+
+void MainThread::DestroyHeapProfiler()
+{
+    HILOG_DEBUG("Destory heap profiler.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("DestroyHeapProfiler failed, mainHandler is nullptr");
+        return;
+    }
+
+    auto task = [] {
+        auto app = applicationForDump_.lock();
+        if (app == nullptr || app->GetRuntime() == nullptr) {
+            HILOG_ERROR("runtime is nullptr.");
+            return;
+        }
+        app->GetRuntime()->DestroyHeapProfiler();
+    };
+    mainHandler_->PostTask(task, "MainThread:DestroyHeapProfiler");
+}
+
+void MainThread::ForceFullGC()
+{
+    HILOG_DEBUG("Force fullGC.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("ForceFullGC failed, mainHandler is nullptr");
+        return;
+    }
+
+    auto task = [] {
+        auto app = applicationForDump_.lock();
+        if (app == nullptr || app->GetRuntime() == nullptr) {
+            HILOG_ERROR("runtime is nullptr.");
+            return;
+        }
+        app->GetRuntime()->ForceFullGC();
+    };
+    mainHandler_->PostTask(task, "MainThread:ForceFullGC");
 }
 
 void MainThread::Start()

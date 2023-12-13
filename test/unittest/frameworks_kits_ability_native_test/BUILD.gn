@@ -1938,7 +1938,6 @@ ohos_unittest("ability_window_test") {
     "ability_runtime:ability_context_native",
     "ability_runtime:runtime",
     "ability_runtime:wantagent_innerkits",
-    "ace_engine:ace_uicontent",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
@@ -1957,6 +1956,7 @@ ohos_unittest("ability_window_test") {
 
   if (ability_runtime_graphics) {
     external_deps += [
+      "ace_engine:ace_uicontent",
       "image_framework:image_native",
       "input:libmmi-client",
     ]

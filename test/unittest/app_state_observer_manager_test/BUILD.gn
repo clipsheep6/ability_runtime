@@ -22,6 +22,8 @@ ohos_unittest("app_state_observer_manager_test") {
   include_dirs = [
     "${ability_runtime_services_path}/appmgr/include",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
+    "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_test_path}/unittest/ability_foreground_state_observer_stub_test",
   ]
 
   sources =

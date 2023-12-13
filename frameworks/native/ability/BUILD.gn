@@ -75,7 +75,6 @@ ohos_shared_library("ability_context_native") {
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtoken_callback_sdk",
-    "ace_engine:ace_uicontent",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "faultloggerd:libdfx_dumpcatcher",
@@ -87,6 +86,10 @@ ohos_shared_library("ability_context_native") {
     "window_manager:scene_session",
     "window_manager:session_manager",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "ace_engine:ace_uicontent" ]
+  }
 
   if (hichecker_enabled) {
     external_deps += [ "hichecker:libhichecker" ]

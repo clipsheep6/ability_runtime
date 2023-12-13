@@ -46,7 +46,7 @@ void UIAbilityImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
     ability_->SetSceneListener(sptr<WindowLifeCycleImpl>(
         new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this())));
 #endif
-    ability_->Init(record->GetAbilityInfo(), application, handler, token);
+    ability_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
     HILOG_DEBUG("End.");

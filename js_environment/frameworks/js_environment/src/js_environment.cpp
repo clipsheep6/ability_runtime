@@ -284,6 +284,15 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
     panda::DFXJSNApi::StartProfiler(vm_, option, tid, instanceId, debuggerPostTask);
 }
 
+void JsEnvironment::DestroyHeapProfiler()
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+    panda::DFXJSNApi::DestroyHeapProfiler(vm_);
+}
+
 void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
 {
     JSENV_LOG_I("ReInit jsenv impl.");

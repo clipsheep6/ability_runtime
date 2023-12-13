@@ -47,7 +47,7 @@ void AbilityDebugDealTest::TearDownTestCase(void)
 
 void AbilityDebugDealTest::SetUp()
 {
-   deal_ = std::make_shared<AbilityDebugDeal>();
+    deal_ = std::make_shared<AbilityDebugDeal>();
 }
 
 void AbilityDebugDealTest::TearDown()
@@ -73,9 +73,9 @@ HWTEST_F(AbilityDebugDealTest, RegisterAbilityDebugResponse_0100, TestSize.Level
  * @tc.type: FUNC
  */
 HWTEST_F(AbilityDebugDealTest, OnAbilitysDebugStarted_0100, TestSize.Level1)
-{    
+{
     EXPECT_NE(deal_, nullptr);
-    
+
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
     abilityInfo.process = STRING_PROCESS_NAME;

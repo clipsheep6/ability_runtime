@@ -83,6 +83,8 @@ public:
     bool GetHapModuleInfo(const AbilityInfo &abilityInfo, int32_t userId, HapModuleInfo &hapModuleInfo);
     bool QueryAppGalleryBundleName(std::string &bundleName);
     ErrCode GetUidByBundleName(const std::string &bundleName, const int32_t userId);
+    ErrCode QueryExtensionAbilityInfosOnlyWithTypeName(const std::string &extensionTypeName,
+        const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos);
     sptr<IDefaultApp> GetDefaultAppProxy();
 
 private:

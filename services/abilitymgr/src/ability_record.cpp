@@ -437,7 +437,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     }
 }
 
-void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
+void AbilityRecord::ForegroundAbility(const Closure &task, sptr<SessionInfo> sessionInfo, uint32_t sceneFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("name:%{public}s.", abilityInfo_.name.c_str());
@@ -464,7 +464,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, uint32_t sceneFlag)
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, sessionInfo_);
+    lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, sessionInfo);
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
     {
@@ -2833,27 +2833,13 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
             continue;
         }
         auto&& authority = uri.GetAuthority();
-        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
-        bool authorityFlag = authority == "media" || authority == "docs";
         uint32_t flag = want.GetFlags();
-        if (authorityFlag && !isGrantPersistableUriPermissionEnable_) {
+        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
+        if (!isGrantPersistableUriPermissionEnable_ || authority != "docs") {
             flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
-            if (!permission) {
-                HILOG_WARN("Do not have uri permission proxy.");
-                continue;
-            }
         }
 
-        if (authorityFlag && isGrantPersistableUriPermissionEnable_ && !permission) {
-            if (!AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
-                uri, flag, fromTokenId)) {
-                HILOG_WARN("Do not have persistable uri permission proxy.");
-                continue;
-            }
-            flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-        }
-
-        if (!authorityFlag) {
+        if (authority != "docs" && authority != "media") {
             AppExecFwk::BundleInfo uriBundleInfo;
             if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
                 HILOG_WARN("To fail to get bundle info according to uri.");
@@ -2866,7 +2852,21 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
                 HILOG_ERROR("the uri does not belong to caller.");
                 continue;
             }
-            flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
+        }
+
+        if (authority == "media" && !permission) {
+            HILOG_WARN("the type of uri media, have no permission.");
+            continue;
+        }
+
+        if (authority == "docs" && !permission) {
+            if (!isGrantPersistableUriPermissionEnable_ ||
+                !AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
+                    uri, flag, fromTokenId)) {
+                HILOG_WARN("the type of uri docs, have no permission.");
+                continue;
+            }
+            flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
         }
         if (uriVecMap.find(flag) == uriVecMap.end()) {
             std::vector<Uri> uriVec;
@@ -3116,10 +3116,7 @@ void AbilityRecord::SetAttachDebug(const bool isAttachDebug)
 void AbilityRecord::AddAbilityWindowStateMap(uint64_t uiExtensionComponentId,
     AbilityWindowState abilityWindowState)
 {
-    if (abilityWindowState == AbilityWindowState::FOREGROUNDING ||
-        abilityWindowStateMap_.find(uiExtensionComponentId) != abilityWindowStateMap_.end()) {
-        abilityWindowStateMap_[uiExtensionComponentId] = abilityWindowState;
-    }
+    abilityWindowStateMap_[uiExtensionComponentId] = abilityWindowState;
 }
 
 void AbilityRecord::RemoveAbilityWindowStateMap(uint64_t uiExtensionComponentId)
@@ -3180,7 +3177,8 @@ void AbilityRecord::SetURI(const std::string &uri)
 std::string AbilityRecord::GetURI() const
 {
     if (uri_.empty()) {
-        return GetElementName().GetURI();
+        return AppExecFwk::ElementName(abilityInfo_.deviceId, abilityInfo_.bundleName,
+            abilityInfo_.name, abilityInfo_.moduleName).GetURI();
     }
     return uri_;
 }

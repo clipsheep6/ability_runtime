@@ -556,11 +556,13 @@ bool SourceMap::GetLineAndColumnNumbers(int& line, int& column, SourceMapData& t
 
 void SourceMap::RegisterGetHapPathCallback(GetHapPathCallback getFunc)
 {
+    std::lock_guard<std::mutex> lock(sourceMapMutex_);
     getHapPathFunc_ = getFunc;
 }
 
 std::string SourceMap::GetHapPath(const std::string& inputPath, const std::string& bundleName)
 {
+    std::lock_guard<std::mutex> lock(sourceMapMutex_);
     if (getHapPathFunc_) {
         return getHapPathFunc_(inputPath, bundleName);
     }

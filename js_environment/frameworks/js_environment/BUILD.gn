@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
 import("../../js_environment.gni")
 
 config("js_environment_config") {
@@ -41,12 +42,15 @@ ohos_shared_library("js_environment") {
   public_configs = [ ":public_js_environment_config" ]
 
   external_deps = [
-    "ace_engine:ace_uicontent",
     "ets_runtime:libark_jsruntime",
     "ets_utils:console",
     "eventhandler:libeventhandler",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "ace_engine:ace_uicontent" ]
+  }
 
   subsystem_name = "ability"
   innerapi_tags = [ "platformsdk_indirect" ]
