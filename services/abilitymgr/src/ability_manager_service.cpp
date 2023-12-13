@@ -1667,8 +1667,8 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         HILOG_DEBUG("afterCheckExecuter_ called.");
-        result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-            afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, sessionInfo->callerToken);
+        result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE : afterCheckExecuter_->DoProcess(
+            abilityRequest.want, requestCode, GetUserId(), true, sessionInfo->callerToken);
         if (result != ERR_OK) {
             HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
             return result;
