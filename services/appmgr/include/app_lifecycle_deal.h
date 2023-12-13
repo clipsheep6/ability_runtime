@@ -123,7 +123,7 @@ public:
      * @return
      */
     void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
-    
+
     /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,
      * Notify application to low memory.
@@ -198,6 +198,7 @@ public:
     int32_t DetachAppDebug();
 
 private:
+    mutable std::mutex schedulerMutex_;
     sptr<IAppScheduler> appThread_ = nullptr;
 };
 }  // namespace AppExecFwk
