@@ -111,6 +111,7 @@ Status DataObsMgrInnerExt::HandleNotifyChange(const ChangeInfo &changeInfo)
 std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddObsDeathRecipient(
     const sptr<IRemoteObject> &dataObserver)
 {
+    std::lock_guard<std::mutex> lock(ExtObsRecipMutex_);
     auto it = obsRecipientRefs.find(dataObserver);
     if (it != obsRecipientRefs.end()) {
         if (std::numeric_limits<uint32_t>::max() - 1 < it->second->ref) {
@@ -135,6 +136,7 @@ std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddOb
 
 void DataObsMgrInnerExt::RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver, bool isForce)
 {
+    std::lock_guard<std::mutex> lock(ExtObsRecipMutex_);
     auto it = obsRecipientRefs.find(dataObserver);
     if (it == obsRecipientRefs.end()) {
         return;
