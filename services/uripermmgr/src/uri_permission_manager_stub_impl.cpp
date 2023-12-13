@@ -29,6 +29,7 @@
 #include "parameter.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "proxy_authorization_uri_config.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "want.h"
