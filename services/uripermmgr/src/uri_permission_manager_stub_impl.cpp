@@ -29,6 +29,7 @@
 #include "parameter.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "proxy_authorization_uri_config.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "want.h"
@@ -186,8 +187,8 @@ int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned 
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     Uri uri_inner = uri;
     auto&& authority = uri_inner.GetAuthority();
-    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    auto permission = 
+        DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->isAuthorizationUriAllowed(fromTokenId);
     if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
         newFlag |= Want::FLAG_AUTH_WRITE_URI_PERMISSION;
     } else {
@@ -536,8 +537,8 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     auto uriTokenId = GetTokenIdByBundleName(authority, 0);
     auto tokenId = GetTokenIdByBundleName(bundleName, 0);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    auto permission =
+        DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->isAuthorizationUriAllowed(callerTokenId);
     bool authorityFlag = authority == "media" || authority == "docs";
 
     if (!authorityFlag && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {
