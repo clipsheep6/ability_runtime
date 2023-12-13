@@ -41,6 +41,7 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
 
     token_ = record->GetToken();
     extension_ = extension;
+    // TODO: abilityinfotype判断
     if (record->GetAbilityInfo() != nullptr &&
         AAFwk::UIExtensionUtils::IsUIExtension(record->GetAbilityInfo()->extensionAbilityType)) {
         extension_->SetExtensionWindowLifeCycleListener(

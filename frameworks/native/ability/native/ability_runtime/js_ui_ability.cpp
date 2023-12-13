@@ -124,17 +124,22 @@ JsUIAbility::~JsUIAbility()
 #endif
 }
 
-void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
+void JsUIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    UIAbility::Init(abilityInfo, application, handler, token);
+    if (record == nullptr) {
+        HILOG_ERROR("AbilityLocalRecord is nullptr.");
+        return;
+    }
+    auto abilityInfo = record->GetAbilityInfo();
 
     if (abilityInfo == nullptr) {
         HILOG_ERROR("AbilityInfo is nullptr.");
         return;
     }
+    UIAbility::Init(record, application, handler, token);
 #ifdef SUPPORT_GRAPHICS
     if (abilityContext_ != nullptr) {
         AppExecFwk::AppRecovery::GetInstance().AddAbility(
@@ -164,11 +169,11 @@ void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     std::string moduleName(abilityInfo->moduleName);
     moduleName.append("::").append(abilityInfo->name);
 
-    SetAbilityContext(abilityInfo, moduleName, srcPath);
+    SetAbilityContext(abilityInfo, record->GetWant(), moduleName, srcPath);
 }
 
-void JsUIAbility::SetAbilityContext(
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath)
+void JsUIAbility::SetAbilityContext(const std::shared_ptr<AbilityInfo> &abilityInfo,
+    const std::shared_ptr<AAFwk::Want> &want, const std::string &moduleName, const std::string &srcPath)
 {
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -184,7 +189,19 @@ void JsUIAbility::SetAbilityContext(
         return;
     }
 
-    napi_value contextObj = CreateJsAbilityContext(env, abilityContext_);
+    if (want == nullptr) {
+        HILOG_ERROR("Want is nullptr.");
+        return;
+    }
+    //TODO:魔鬼数
+    int isHalfScreenMode = want->GetIntParam("isHalfScreen", -1);
+    napi_value contextObj = nullptr;
+    if (isHalfScreenMode == -1) {
+        contextObj = CreateJsAbilityContext(env, abilityContext_);
+    } else {
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env, abilityContext_,
+            nullptr, isHalfScreenMode);
+    }
     shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
         env, "application.AbilityContext", &contextObj, 1).release());
     if (shellContextRef_ == nullptr) {

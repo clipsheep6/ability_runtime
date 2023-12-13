@@ -477,6 +477,7 @@ ohos_shared_library("uiabilitykit_native") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
     "${ability_runtime_path}/utils/global/time/include",
   ]
 
@@ -497,6 +498,7 @@ ohos_shared_library("uiabilitykit_native") {
   deps = [
     ":abilitykit_native",
     ":continuation_ipc",
+    ":ui_extension",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -926,11 +928,13 @@ config("ui_extension_public_config") {
     "${ability_runtime_path}/interfaces/inner_api/insight_intent/insight_intent_context",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/insight_intent_executor",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
   ]
 }
 
 ohos_shared_library("ui_extension") {
   sources = [
+    "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_embeddable_ui_ability_context.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_base.cpp",
     "${ability_runtime_native_path}/ability/native/ui_extension_ability/js_ui_extension_content_session.cpp",
@@ -950,6 +954,7 @@ ohos_shared_library("ui_extension") {
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/ability/native:insight_intent_executor",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:app_context_utils",
   ]
 
   external_deps = [

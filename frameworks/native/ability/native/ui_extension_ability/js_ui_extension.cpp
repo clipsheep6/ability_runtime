@@ -27,6 +27,7 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
+#include "js_embeddable_ui_ability_context.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -166,13 +167,21 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         return;
     }
 
-    BindContext(env, obj);
+    BindContext(env, obj, record->GetWant());
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 }
 
-void JsUIExtension::BindContext(napi_env env, napi_value obj)
+//FIXME: this is tmp
+enum HalfScreenMode {
+    HALF_SCREEN_MODE_IDLE = -1,
+    NOT_HALF_SCREEN = 0,
+    IS_HALF_SCREEN = 1
+};
+const std::string HalfScreenKey = "isHalfScreen";
+
+void JsUIExtension::BindContext(napi_env env, napi_value obj, const std::shared_ptr<AAFwk::Want> &want)
 {
     auto context = GetContext();
     if (context == nullptr) {
@@ -180,7 +189,20 @@ void JsUIExtension::BindContext(napi_env env, napi_value obj)
         return;
     }
     HILOG_DEBUG("BindContext CreateJsUIExtensionContext.");
-    napi_value contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
+    if (want == nullptr) {
+        HILOG_ERROR("Want info is null.");
+        return;
+    }
+    //TODO:魔鬼数
+    // int isHalfScreenMode = want->GetIntParam(HalfScreenKey, -1);
+    int isHalfScreenMode = 1;
+    napi_value contextObj = nullptr;
+    if (isHalfScreenMode == -1) {
+        contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
+    } else {
+        //TODO:这里的shellContextRef_是否需要加载？
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env, nullptr, context, isHalfScreenMode);
+    }
     if (contextObj == nullptr) {
         HILOG_ERROR("Create js ui extension context error.");
         return;
