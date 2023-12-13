@@ -3696,6 +3696,55 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: InitWindowVisibilityChangedListener_001
+ * @tc.desc: init windowVisibilityChangedListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, InitWindowVisibilityChangedListener_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "InitWindowVisibilityChangedListener_001 start" ;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->InitWindowVisibilityChangedListener();
+    EXPECT_NE(appMgrServiceInner->windowVisibilityChangedListener_, nullptr);
+    GTEST_LOG_(INFO) << "InitWindowVisibilityChangedListener_001 end";
+}
+
+/**
+ * @tc.name: FreeWindowVisibilityChangedListener_001
+ * @tc.desc: free windowVisibilityChangedListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, FreeWindowVisibilityChangedListener_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FreeWindowVisibilityChangedListener_001 start";
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    appMgrServiceInner->FreeWindowVisibilityChangedListener();
+    EXPECT_EQ(appMgrServiceInner->windowVisibilityChangedListener_, nullptr);
+    GTEST_LOG_(INFO) << "FreeWindowVisibilityChangedListener_001 end";
+}
+
+/**
+ * @tc.name: HandleWindowVisibilityChanged_001
+ * @tc.desc: handle window visibility changed
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, HandleWindowVisibilityChanged_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "HandleWindowVisibilityChanged_001 start";
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+
+    std::vector<sptr<Rosen::WindowVisibilityInfo>> visibilityInfos;
+    appMgrServiceInner->HandleWindowVisibilityChanged(visibilityInfos);
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    GTEST_LOG_(INFO) << "HandleWindowVisibilityChanged_001 end";
+}
+
+/**
  * @tc.name: IsApplicationRunning_001
  * @tc.desc: Obtain application running status through bundleName.
  * @tc.type: FUNC
