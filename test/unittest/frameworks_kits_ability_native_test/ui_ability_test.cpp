@@ -23,6 +23,7 @@
 #include "ability_context_impl.h"
 #include "ability_handler.h"
 #include "ability_recovery.h"
+#include "fa_ability_thread.h"
 #include "hilog_wrapper.h"
 #include "ohos_application.h"
 #include "runtime.h"
@@ -69,7 +70,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_Name_0100, Function | MediumTest | Le
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     EXPECT_STREQ(abilityInfo->name.c_str(), ability_->GetAbilityName().c_str());
     GTEST_LOG_(INFO) << "AbilityRuntime_Name_0100 end";
 }
@@ -89,7 +92,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetAbilityName_0100, Function | Mediu
     sptr<IRemoteObject> token = nullptr;
     std::string name = "LOL";
     abilityInfo->name = name;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     EXPECT_STREQ(ability_->GetAbilityName().c_str(), name.c_str());
     GTEST_LOG_(INFO) << "AbilityRuntime_GetAbilityName_0100 end";
 }
@@ -107,7 +112,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetLifecycle_0100, Function | MediumT
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
     EXPECT_NE(lifeCycle, nullptr);
     GTEST_LOG_(INFO) << "AaFwk_Ability_GetLifecycle_0100 end";
@@ -155,7 +162,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnNewWant_0100, Function | MediumTest
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     Want want;
     ability_->OnNewWant(want);
     GTEST_LOG_(INFO) << "AbilityRuntime_OnNewWant_0100 end";
@@ -174,7 +183,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnRestoreAbilityState_0100, Function 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     PacMap inState;
     ability_->OnRestoreAbilityState(inState);
     GTEST_LOG_(INFO) << "AbilityRuntime_OnRestoreAbilityState_0100 end";
@@ -193,7 +204,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_GetWindow_001, Function | MediumTest 
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     EXPECT_EQ(ability_->GetWindow(), nullptr);
     GTEST_LOG_(INFO) << "AbilityRuntime_GetWindow_0100 end";
 }
@@ -213,7 +226,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStart_0100, Function | MediumTest |
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     Want want;
     ability_->OnStart(want);
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
@@ -264,7 +279,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStart_0300, TestSize.Level1)
     auto eventRunner = EventRunner::Create(abilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability->Init(abilityRecord, application, handler, token);
     Want want;
     ability->OnStart(want);
     HILOG_INFO("%{public}s end.", __func__);
@@ -308,7 +325,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnStop_0100, Function | MediumTest | 
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     ability_->OnStop();
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
@@ -384,7 +403,9 @@ HWTEST_F(UIAbilityBaseTest, DestroyInstance_0100, TestSize.Level1)
     auto eventRunner = EventRunner::Create(abilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability->Init(abilityRecord, application, handler, token);
     ability->DestroyInstance();
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -403,7 +424,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0100, Function | MediumT
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     Want want;
     ability_->OnForeground(want);
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
@@ -446,7 +469,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnForeground_0300, Function | MediumT
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     Want want;
     ability_->OnForeground(want);
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
@@ -471,7 +496,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0100, Function | MediumT
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     ability_->OnBackground();
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
@@ -493,7 +520,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0200, Function | MediumT
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     ability_->OnBackground();
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
@@ -517,7 +546,9 @@ HWTEST_F(UIAbilityBaseTest, AaFwk_Ability_OnBackground_0300, Function | MediumTe
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     ability_->OnBackground();
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
     std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
@@ -552,7 +583,9 @@ HWTEST_F(UIAbilityBaseTest, AbilityRuntime_OnBackground_0400, TestSize.Level1)
     auto eventRunner = EventRunner::Create(abilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability->Init(abilityRecord, application, handler, token);
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability->InitWindow(displayId, option);
@@ -688,7 +721,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityContinuation_0300, TestSize.Level1)
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord =
+        std::make_shared<AbilityLocalRecord>(pageAbilityInfo, abilityToken);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
     Want want;
     bool success = false;
     ability->NotifyContinuationResult(want, success);
@@ -925,7 +961,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionLabel_0100, TestSize.Level1)
     pageAbilityInfo->isStageBasedModel = true;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(pageAbilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord =
+        std::make_shared<AbilityLocalRecord>(pageAbilityInfo, abilityToken);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
     ret = ability->SetMissionLabel(label);
     EXPECT_EQ(ret, -1);
     int32_t displayId = 0;
@@ -956,7 +995,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilitySetMissionIcon_0100, TestSize.Level1)
     pageAbilityInfo->isStageBasedModel = true;
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(pageAbilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord =
+        std::make_shared<AbilityLocalRecord>(pageAbilityInfo, abilityToken);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
     ret = ability->SetMissionIcon(icon);
     EXPECT_EQ(ret, -1);
     int32_t displayId = 0;
@@ -982,7 +1024,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnChange_0100, TestSize.Level1)
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord =
+        std::make_shared<AbilityLocalRecord>(pageAbilityInfo, abilityToken);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
 
     // application is nullptr
     Rosen::DisplayId displayId = 0;
@@ -994,7 +1039,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnChange_0100, TestSize.Level1)
     Configuration config;
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
     application->SetConfiguration(config);
-    ability->Init(pageAbilityInfo, application, handler, nullptr);
+    ability->Init(abilityRecord, application, handler, nullptr);
     ability->OnChange(displayId);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1014,7 +1059,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnDisplayMove_0100, TestSize.Level1)
     pageAbilityInfo->type = AppExecFwk::AbilityType::PAGE;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord =
+        std::make_shared<AbilityLocalRecord>(pageAbilityInfo, abilityToken);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
 
     // application is nullptr
     Rosen::DisplayId fromDisplayId = 1;
@@ -1026,7 +1074,7 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityOnDisplayMove_0100, TestSize.Level1)
     Configuration config;
     config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, "dark");
     application->SetConfiguration(config);
-    ability->Init(pageAbilityInfo, application, handler, nullptr);
+    ability->Init(abilityRecord, application, handler, nullptr);
     ability->OnDisplayMove(fromDisplayId, toDisplayId);
     HILOG_INFO("%{public}s end.", __func__);
 }
@@ -1051,7 +1099,10 @@ HWTEST_F(UIAbilityBaseTest, UIAbilityRequestFocus_0100, TestSize.Level1)
     pageAbilityInfo->isStageBasedModel = true;
     auto eventRunner = EventRunner::Create(pageAbilityInfo->name);
     auto handler = std::make_shared<AbilityHandler>(eventRunner);
-    ability->Init(pageAbilityInfo, nullptr, handler, nullptr);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord =
+        std::make_shared<AbilityLocalRecord>(pageAbilityInfo, abilityToken);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
 
     // window is nullptr
     ability->RequestFocus(want);
@@ -1089,7 +1140,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_OnStop_AsyncCallback_0100, TestSize.Level1
     std::shared_ptr<OHOSApplication> application = nullptr;
     std::shared_ptr<AbilityHandler> handler = nullptr;
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     bool isAsyncCallback = false;
     ability_->OnStop(nullptr, isAsyncCallback);
     AbilityLifecycleExecutor::LifecycleState state = ability_->GetState();
@@ -1131,7 +1184,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_InitWindow_0100, TestSize.Level1)
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     int32_t displayId = 0;
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     ability_->InitWindow(displayId, option);
@@ -1170,7 +1225,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_GetWindowOption_0100, TestSize.Level1)
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     CustomizeData custData = CustomizeData("ShowOnLockScreen", "0", "");
     std::vector<CustomizeData> vecCustData;
     vecCustData.push_back(custData);
@@ -1198,7 +1255,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0100, TestSize.Level1)
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     Want want;
     ability_->DoOnForeground(want);
     ASSERT_NE(ability_, nullptr);
@@ -1222,7 +1281,9 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_DoOnForeground_0200, TestSize.Level1)
     std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
     std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
     sptr<IRemoteObject> token = nullptr;
-    ability_->Init(abilityInfo, application, handler, token);
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new AbilityRuntime::FAAbilityThread());
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, abilityToken);
+    ability_->Init(abilityRecord, application, handler, token);
     Want want;
     ability_->DoOnForeground(want);
     ASSERT_NE(ability_, nullptr);
