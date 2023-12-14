@@ -2163,7 +2163,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckRemoteClient_001, TestSize.Level0)
     appMgrServiceInner->CheckRemoteClient();
 
     appMgrServiceInner->remoteClientManager_->SetSpawnClient(nullptr);
-    appMgrServiceInner->CheckRemoteClient()
+    appMgrServiceInner->CheckRemoteClient();
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->CheckRemoteClient();
@@ -2516,7 +2516,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartSpecifiedAbility_001, TestSize.Level0)
     appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
 
     abilityInfo_->applicationInfo = *applicationInfo_;
-    appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_)
+    appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);

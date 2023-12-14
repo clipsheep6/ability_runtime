@@ -113,11 +113,11 @@ void AmsAppServiceFlowModuleTest::TearDown()
 void AmsAppServiceFlowModuleTest::MockBundleInstallerAndSA() const
 {
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
-    auto mockGetSystemAbility = [&](int32_t systemAbilityId) {
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
         if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
-            return mockBundleMgr->AsObject();
+            return bms->AsObject();
         } else {
-            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+            return saMgr->GetSystemAbility(systemAbilityId);
         }
     };
     EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
