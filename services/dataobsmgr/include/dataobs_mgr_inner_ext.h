@@ -74,6 +74,7 @@ private:
         bool RemoveObserver(sptr<IRemoteObject> dataObserver);
 
     private:
+        std::mutex NodeMutex_;
         std::string name_;
         EntryList entrys_;
         std::map<std::string, std::shared_ptr<Node>> childrens_;
