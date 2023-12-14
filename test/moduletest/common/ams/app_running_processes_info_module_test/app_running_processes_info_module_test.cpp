@@ -12,26 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define private public
-#include "app_running_record.h"
-#undef private
+
 #include <gtest/gtest.h>
 #include <vector>
-#include "iremote_object.h"
-#include "app_record_id.h"
-#include "app_scheduler_proxy.h"
-#include "app_scheduler_host.h"
+
 #define private public
 #include "app_mgr_service_inner.h"
+#include "app_running_record.h"
+#include "iservice_registry.h"
 #undef private
-#include "mock_application.h"
+
 #include "ability_info.h"
 #include "application_info.h"
-#include "mock_bundle_manager.h"
+#include "app_record_id.h"
+#include "app_scheduler_host.h"
+#include "app_scheduler_proxy.h"
+#include "iremote_object.h"
 #include "mock_ability_token.h"
+#include "mock_application.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
 #include "mock_native_token.h"
+#include "mock_system_ability_manager.h"
+#include "singleton.h"
 
 using namespace testing::ext;
 using OHOS::iface_cast;
@@ -43,13 +48,20 @@ using testing::InvokeWithoutArgs;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
+} // namespace
 class AppRunningProcessesInfoModuleTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
-
+    void MockBundleInstallerAndSA() const;
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 protected:
     std::string GetTestAppName(const unsigned long num) const
     {
@@ -129,7 +141,6 @@ protected:
     }
 
     std::unique_ptr<AppMgrServiceInner> service_{ nullptr };
-    std::shared_ptr<BundleMgrHelper> mockBundleMgr_{ nullptr };
 
     sptr<MockAbilityToken> GetMockToken() const
     {
@@ -166,12 +177,31 @@ void AppRunningProcessesInfoModuleTest::SetUp()
 {
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     mockToken_ = new (std::nothrow) MockAbilityToken();
-    mockBundleMgr_ = DelayedSingleton<BundleMgrHelper>::GetInstance();
-    service_->SetBundleManagerHelper(mockBundleMgr_);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AppRunningProcessesInfoModuleTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AppRunningProcessesInfoModuleTest::MockBundleInstallerAndSA() const
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [&](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return mockBundleMgr->AsObject();
+        } else {
+            return iSystemAbilityMgr_->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
 
 /*
  * Feature: AppMgrServiceInner
@@ -183,6 +213,10 @@ void AppRunningProcessesInfoModuleTest::TearDown()
  */
 HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_001, TestSize.Level1)
 {
+    MockBundleInstallerAndSA();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     // init AppRunningRecord
     unsigned long index = 0L;
     int uid = 100;

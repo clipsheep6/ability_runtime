@@ -2894,7 +2894,7 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
 
 void MissionListManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
 {
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER(bundleMgrHelper);
     auto abilityInfo = record->GetAbilityInfo();
     Want want;

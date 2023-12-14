@@ -5436,7 +5436,7 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
 std::shared_ptr<AppExecFwk::BundleMgrHelper> AbilityManagerService::GetBundleManager()
 {
     if (bundleMgrHelper_ == nullptr) {
-        bundleMgrHelper_ = AbilityUtil::GetBundleManagerHelper();
+        bundleMgrHelper_ = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     }
     return bundleMgrHelper_;
 }

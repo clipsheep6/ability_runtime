@@ -716,7 +716,7 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
 
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
 {
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER(bundleMgrHelper);
     auto abilityInfo = record->GetAbilityInfo();
     Want want;
@@ -1669,7 +1669,7 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
     if (iter != trustMap.end() && abilityRecord->GetAbilityInfo().name == iter->second) {
         return true;
     }
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     bool getBundleInfos = bundleMgrHelper->GetBundleInfos(
@@ -1955,7 +1955,7 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;
     extensionInfo.extension = abilityRecord->GetElementName();
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER(bundleMgrHelper);
 
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;

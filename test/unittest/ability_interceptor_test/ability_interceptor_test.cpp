@@ -206,7 +206,7 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
     ElementName element("", "com.test.control", "MainAbility");
     want.SetElement(element);
     int userId = 100;
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     // make appControlRule become nullptr by crowdtest interceptor
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());

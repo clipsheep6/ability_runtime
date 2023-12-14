@@ -90,7 +90,7 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
 bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
 {
     // get bms
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
@@ -164,7 +164,7 @@ bool ControlInterceptor::CheckControl(const Want &want, int32_t userId,
     AppExecFwk::AppRunningControlRuleResult &controlRule)
 {
     // get bms
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
@@ -257,7 +257,7 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
     AppExecFwk::DisposedRule &disposedRule)
 {
     // get bms
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
@@ -368,7 +368,7 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     callerInfo.targetAppType = TYPE_HARMONY_INVALID;
     callerInfo.callerAppType = TYPE_HARMONY_INVALID;
 
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return;
@@ -443,7 +443,7 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
         return ERR_OK;
     }
     // get bms
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_OK;

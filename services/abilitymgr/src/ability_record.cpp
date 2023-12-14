@@ -2781,7 +2781,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
     }
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_IS_NULLPTR(bundleMgrHelper);
     if (IsDmsCall(want)) {
         GrantDmsUriPermission(want, targetBundleName);

@@ -165,11 +165,6 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
-[[maybe_unused]] static std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper()
-{
-    return DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-}
-
 #ifndef SUPPORT_ERMS
 [[maybe_unused]] static sptr<AppExecFwk::IEcologicalRuleManager> CheckEcologicalRuleMgr()
 {
@@ -215,7 +210,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
         HILOG_ERROR("get invalid inputs");
         return false;
     }
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("Get bundle manager helper failed.");
         return false;
@@ -252,7 +247,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 
 [[maybe_unused]] static bool IsStartIncludeAtomicService(const Want &want, const int32_t userId)
 {
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("Get bundle manager helper failed.");
         return false;

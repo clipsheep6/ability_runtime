@@ -237,7 +237,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 {
     HILOG_DEBUG("%{public}s.", __func__);
     // get abilityinfos from bms
-    auto bundleMgrHelper = GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
@@ -320,7 +320,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 }
 
 int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {
-    auto bundleMgrHelper = GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
@@ -440,17 +440,9 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
     return ret;
 }
 
-std::shared_ptr<AppExecFwk::BundleMgrHelper> ImplicitStartProcessor::GetBundleManagerHelper()
-{
-    if (iBundleManagerHelper_ == nullptr) {
-        iBundleManagerHelper_ = AbilityUtil::GetBundleManagerHelper();
-    }
-    return iBundleManagerHelper_;
-}
-
 sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 {
-    auto bundleMgrHelper = GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return nullptr;
@@ -497,7 +489,7 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
     callerInfo.targetAppType = TYPE_HARMONY_INVALID;
     callerInfo.callerAppType = TYPE_HARMONY_INVALID;
 
-    auto bundleMgrHelper = GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("Get Bubndle manager helper failed.");
         return;

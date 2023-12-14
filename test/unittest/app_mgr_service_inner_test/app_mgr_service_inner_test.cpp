@@ -378,7 +378,6 @@ HWTEST_F(AppMgrServiceInnerTest, LoadAbility_001, TestSize.Level0)
     auto appMgrServiceInner1 = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner1, nullptr);
 
-    appMgrServiceInner1->remoteClientManager_->SetBundleManagerHelper(nullptr);
     appMgrServiceInner1->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
 
     auto appMgrServiceInner2 = std::make_shared<AppMgrServiceInner>();
@@ -507,8 +506,6 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleAndHapInfo_001, TestSize.Level0)
     HapModuleInfo hapModuleInfo;
     appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, applicationInfo_, bundleInfo, hapModuleInfo, 1);
 
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, applicationInfo_, bundleInfo, hapModuleInfo, 1);
     HILOG_INFO("GetBundleAndHapInfo_001 end");
 }
 
@@ -796,9 +793,6 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUid_001, TestSize.Level0)
     std::string bundleName = "test_bundleName";
     appMgrServiceInner->KillApplicationByUid(bundleName, 0);
 
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->KillApplicationByUid(bundleName, 0);
-
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->KillApplicationByUid(bundleName, 0);
 
@@ -844,10 +838,6 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
     int result = appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
     EXPECT_EQ(result, 0);
 
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
-    EXPECT_EQ(result, 0);
-
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
     EXPECT_EQ(result, 0);
@@ -873,10 +863,6 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserIdLocked_001, TestSize.Lev
 
     std::string bundleName = "test_bundleName";
     int result = appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
-    EXPECT_EQ(result, 0);
-
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
     EXPECT_EQ(result, 0);
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
@@ -926,9 +912,6 @@ HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationDataByUserId_001, TestSize.Le
     appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
-
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
     appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
 
     HILOG_INFO("ClearUpApplicationDataByUserId_001 end");
@@ -1410,27 +1393,6 @@ HWTEST_F(AppMgrServiceInnerTest, SetAppSpawnClient_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: SetBundleManager_001
- * @tc.desc: set bundle manager.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, SetBundleManager_001, TestSize.Level0)
-{
-    HILOG_INFO("SetBundleManager_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    std::shared_ptr<BundleMgrHelper> bundleManager;
-    appMgrServiceInner->SetBundleManagerHelper(bundleManager);
-
-    appMgrServiceInner->remoteClientManager_ = nullptr;
-    appMgrServiceInner->SetBundleManagerHelper(bundleManager);
-
-    HILOG_INFO("SetBundleManager_001 end");
-}
-
-/**
  * @tc.name: RegisterAppStateCallback_001
  * @tc.desc: register app state call back.
  * @tc.type: FUNC
@@ -1736,9 +1698,6 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
-
-    appMgrServiceInner->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
 
     appMgrServiceInner->SetAppSpawnClient(nullptr);
     appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
@@ -2204,10 +2163,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckRemoteClient_001, TestSize.Level0)
     appMgrServiceInner->CheckRemoteClient();
 
     appMgrServiceInner->remoteClientManager_->SetSpawnClient(nullptr);
-    appMgrServiceInner->CheckRemoteClient();
-
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->CheckRemoteClient();
+    appMgrServiceInner->CheckRemoteClient()
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->CheckRemoteClient();
@@ -2560,10 +2516,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartSpecifiedAbility_001, TestSize.Level0)
     appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
 
     abilityInfo_->applicationInfo = *applicationInfo_;
-    appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
-
-    appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
+    appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_)
 
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
@@ -3384,10 +3337,6 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInformation_001, TestSize.Leve
     std::vector<RunningProcessInfo> info;
     int32_t ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);
     EXPECT_EQ(ret, ERR_OK);
-
-    appMgrServiceInner->remoteClientManager_ = nullptr;
-    ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);
-    EXPECT_EQ(ret, ERR_NO_INIT);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);

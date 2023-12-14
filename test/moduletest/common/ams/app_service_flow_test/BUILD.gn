@@ -20,6 +20,7 @@ ohos_moduletest("AmsAppServiceFlowModuleTest") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_test_path}/mock/common/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]

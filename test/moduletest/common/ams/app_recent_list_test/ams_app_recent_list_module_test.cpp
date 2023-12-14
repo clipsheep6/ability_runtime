@@ -13,20 +13,24 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+#include <unistd.h>
+
 #define private public
 #include "app_mgr_service_inner.h"
+#include "iservice_registry.h"
 #undef private
 
-#include <unistd.h>
-#include <gtest/gtest.h>
-
-#include "refbase.h"
+#include "bundle_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
-#include "mock_bundle_manager.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
+#include "refbase.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -43,6 +47,9 @@ const int32_t INDEX_NUM_3 = 3;
 const int32_t INDEX_NUM_10 = 10;
 const std::string TEST_APP_NAME = "com.ohos.test.helloworld";
 const std::string TEST_ABILITY_NAME = "test_ability_";
+constexpr int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 }  // namespace
 
 class AmsAppRecentListModuleTest : public testing::Test {
@@ -51,6 +58,10 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstallerAndSA();
+    void MockBundleInstaller();
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 protected:
     const std::shared_ptr<ApplicationInfo> GetApplicationByIndex(const int32_t index) const;
@@ -59,7 +70,6 @@ protected:
 
     std::shared_ptr<AppMgrServiceInner> serviceInner_{ nullptr };
     sptr<MockAbilityToken> mockToken_{ nullptr };
-    std::shared_ptr<BundleMgrHelper> mockBundleMgr{ nullptr };
 };
 
 void AmsAppRecentListModuleTest::SetUpTestCase()
@@ -72,12 +82,31 @@ void AmsAppRecentListModuleTest::SetUp()
 {
     serviceInner_.reset(new (std::nothrow) AppMgrServiceInner());
     serviceInner_->Init();
-    mockBundleMgr = DelayedSingleton<BundleMgrHelper>::GetInstance();
-    serviceInner_->SetBundleManagerHelper(mockBundleMgr);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AmsAppRecentListModuleTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AmsAppRecentListModuleTest::MockBundleInstallerAndSA()
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
 
 const std::shared_ptr<ApplicationInfo> AmsAppRecentListModuleTest::GetApplicationByIndex(const int32_t index) const
 {
@@ -141,6 +170,10 @@ void AmsAppRecentListModuleTest::CreateAppRecentList(const int32_t appNum)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_001, TestSize.Level1)
 {
+    MockBundleInstallerAndSA();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     HILOG_INFO("Create_Recent_List_001 start");
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
     CreateAppRecentList(INDEX_NUM_10);
