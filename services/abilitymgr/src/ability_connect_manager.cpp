@@ -125,7 +125,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
             return ERR_NULL_OBJECT;
         }
         std::string hostBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
-        int32_t ret = GetOrCreateExtensionRecord(abilityRequest, hostBundleName, targetService, isLoadedAbility);
+        int32_t ret = GetOrCreateExtensionRecord(abilityRequest, false, hostBundleName, targetService, isLoadedAbility);
         if (ret != ERR_OK) {
             HILOG_ERROR("Failed to get or create extension record, ret: %{public}d", ret);
             return ret;
@@ -299,7 +299,7 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
     return ERR_OK;
 }
 
-int32_t AbilityConnectManager::GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest,
+int32_t AbilityConnectManager::GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest, bool isCreatedByConnect,
     const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -312,6 +312,7 @@ int32_t AbilityConnectManager::GetOrCreateExtensionRecord(const AbilityRequest &
         if (ret != ERR_OK) {
             return ret;
         }
+        extensionRecord->SetCreateByConnectMode(isCreatedByConnect);
         std::string extensionRecordKey = element.GetURI() + std::to_string(extensionRecord->GetUIExtensionAbilityId());
         extensionRecord->SetURI(extensionRecordKey);
         HILOG_DEBUG("Service map add, hostBundleName:%{public}s, key: %{public}s", hostBundleName.c_str(),
@@ -400,9 +401,9 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     // 1. get target service ability record, and check whether it has been loaded.
     std::shared_ptr<AbilityRecord> targetService;
     bool isLoadedAbility = false;
-    if (IsUIExtensionAbility(targetService) && connectInfo != nullptr) {
+    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && connectInfo != nullptr) {
         int32_t ret = GetOrCreateExtensionRecord(
-            abilityRequest, connectInfo->hostBundleName, targetService, isLoadedAbility);
+            abilityRequest, true, connectInfo->hostBundleName, targetService, isLoadedAbility);
         if (ret != ERR_OK || targetService == nullptr) {
             HILOG_ERROR("Failed to get or create extension record.");
             return ERR_NULL_OBJECT;
@@ -808,6 +809,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
             HILOG_INFO("There exist ui extension component, don't terminate when disconnect.");
         } else {
             HILOG_INFO("Service ability has no any connection, and not started, need terminate.");
+            RemoveUIExtensionAbilityRecord(abilityRecord);
             TerminateRecord(abilityRecord);
         }
     }

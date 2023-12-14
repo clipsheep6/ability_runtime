@@ -28,15 +28,7 @@ struct Index {
           .fontWeight(FontWeight.Bold)
           .textAlign(TextAlign.Center)
 
-        UIExtensionComponent(
-          {
-            bundleName: 'com.ohos.uiextensionprovider',
-            abilityName: 'UIExtensionProvider',
-            moduleName: 'entry',
-            parameters: {
-              'ability.want.params.uiExtensionType': 'sys/commonUI',
-            }
-          })
+        UIExtensionComponent(globalThis.uiExtensionComponentWant)
           .onRemoteReady((proxy) => {
             this.myProxy = proxy;
           })
