@@ -585,8 +585,15 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
         napi_create_reference(env, nativeContentSession, 1, &ref);
         contentSessions_.emplace(
             componentId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
-        napi_value argv[] = {napiWant, nativeContentSession};
-        CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+        if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+            screenMode_ = AAFwk::HALF_SCREEN_MODE;
+            napi_value argv[] = {nullptr};
+            CallObjectMethod("onWindowStageCreate", argv, ARGC_ONE);
+        } else {
+            napi_value argv[] = {napiWant, nativeContentSession};
+            CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        }
         uiWindowMap_[componentId] = uiWindow;
         if (context->GetWindow() == nullptr) {
             context->SetWindow(uiWindow);
@@ -647,8 +654,13 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
     }
     if (contentSessions_.find(componentId) != contentSessions_.end() && contentSessions_[componentId] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        napi_value argv[] = {contentSessions_[componentId]->GetNapiValue()};
-        CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
+        if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
+            screenMode_ = AAFwk::IDLE_SCREEN_MODE;
+            CallObjectMethod("onWindowStageDestroy");
+        } else {
+            napi_value argv[] = {contentSessions_[componentId]->GetNapiValue()};
+            CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
+        }
     }
     auto& uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
