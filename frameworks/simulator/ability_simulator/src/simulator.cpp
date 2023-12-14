@@ -29,6 +29,7 @@
 #include "bundle_container.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "declarative_module_preloader.h"
 #include "hilog_wrapper.h"
 #include "js_ability_context.h"
 #include "js_ability_stage_context.h"
@@ -757,6 +758,9 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
 
     const char *moduleName = "SimulatorImpl";
     BindNativeFunction(env, globalObj, "requireNapi", moduleName, SimulatorImpl::RequireNapi);
+    HILOG_DEBUG("PreloadAce start.");
+    OHOS::Ace::DeclarativeModulePreloader::Preload(*reinterpret_cast<NativeEngine*>(env));
+    HILOG_DEBUG("PreloadAce end.");
     return true;
 }
 
