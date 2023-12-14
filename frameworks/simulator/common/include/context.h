@@ -41,6 +41,8 @@ public:
 
     virtual std::string GetTempDir() = 0;
 
+    virtual std::string GetResourceDir() = 0;
+
     virtual std::string GetFilesDir() = 0;
 
     virtual std::string GetDatabaseDir() = 0;

@@ -349,6 +349,11 @@ std::string ApplicationContext::GetTempDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetTempDir() : "";
 }
 
+std::string ApplicationContext::GetResourceDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
+}
+
 std::string ApplicationContext::GetFilesDir()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetFilesDir() : "";

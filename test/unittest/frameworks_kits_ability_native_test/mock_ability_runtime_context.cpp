@@ -72,6 +72,11 @@ std::string MockAbilityRuntimeContext::GetTempDir()
     return {};
 };
 
+std::string MockAbilityRuntimeContext::GetResourceDir()
+{
+    return {};
+};
+
 std::string MockAbilityRuntimeContext::GetFilesDir()
 {
     return {};

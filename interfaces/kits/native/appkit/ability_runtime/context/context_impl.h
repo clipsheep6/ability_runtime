@@ -77,6 +77,8 @@ public:
      */
     std::string GetTempDir() override;
 
+    std::string GetResourceDir() override;
+
     /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
      *
@@ -356,6 +358,7 @@ private:
     static const std::string CONTEXT_FILES;
     static const std::string CONTEXT_HAPS;
     static const std::string CONTEXT_ELS[];
+    static const std::string CONTEXT_RESOURCE_END;
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,

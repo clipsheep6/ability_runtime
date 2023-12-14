@@ -316,6 +316,24 @@ HWTEST_F(ContextImplTest, GetTempDir_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetResourceDir_0100
+ * @tc.desc: Get resource directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetResourceDir_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto resourceDir = contextImpl->GetResourceDir();
+    EXPECT_EQ(resourceDir, "");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: GetFilesDir_0100
  * @tc.desc: Get files directory basic test.
  * @tc.type: FUNC

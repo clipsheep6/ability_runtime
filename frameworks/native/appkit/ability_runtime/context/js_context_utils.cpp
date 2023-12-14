@@ -50,6 +50,7 @@ public:
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetTempDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetResourceDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDatabaseDir(napi_env env, NapiCallbackInfo& info);
@@ -59,6 +60,7 @@ public:
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
+    static napi_value GetResourceDir(napi_env env, napi_callback_info info);
     static napi_value GetFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDistributedFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDatabaseDir(napi_env env, napi_callback_info info);
@@ -129,6 +131,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo& info)
     }
     BindNativeProperty(env, object, "cacheDir", GetCacheDir);
     BindNativeProperty(env, object, "tempDir", GetTempDir);
+    BindNativeProperty(env, object, "resourceDir", GetResourceDir);
     BindNativeProperty(env, object, "filesDir", GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
@@ -299,6 +302,23 @@ napi_value JsBaseContext::OnGetTempDir(napi_env env, NapiCallbackInfo& info)
         return CreateJsUndefined(env);
     }
     std::string path = context->GetTempDir();
+    return CreateJsValue(env, path);
+}
+
+napi_value JsBaseContext::GetResourceDir(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("JsBaseContext::GetResourceDir is called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetResourceDir, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnGetResourceDir(napi_env env, NapiCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetResourceDir();
     return CreateJsValue(env, path);
 }
 
@@ -654,6 +674,7 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
 
     BindNativeProperty(env, object, "cacheDir", JsBaseContext::GetCacheDir);
     BindNativeProperty(env, object, "tempDir", JsBaseContext::GetTempDir);
+    BindNativeProperty(env, object, "resourceDir", JsBaseContext::GetResourceDir);
     BindNativeProperty(env, object, "filesDir", JsBaseContext::GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", JsBaseContext::GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", JsBaseContext::GetDatabaseDir);
