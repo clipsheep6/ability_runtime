@@ -35,6 +35,10 @@ AppSpawnClient::AppSpawnClient(bool isNWebSpawn)
 ErrCode AppSpawnClient::OpenConnection()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (state_ == SpawnConnectionState::STATE_CONNECTED) {
+        return ERR_OK;
+    }
+
     if (!socket_) {
         HILOG_ERROR("failed to open connection without socket!");
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
@@ -79,14 +83,11 @@ ErrCode AppSpawnClient::PreStartNWebSpawnProcessImpl()
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
 
-    ErrCode result = ERR_OK;
     // openconnection failed, return fail
-    if (state_ != SpawnConnectionState::STATE_CONNECTED) {
-        result = OpenConnection();
-        if (FAILED(result)) {
-            HILOG_ERROR("connect to nwebspawn failed!");
-            return result;
-        }
+    ErrCode result = OpenConnection();
+    if (FAILED(result)) {
+        HILOG_ERROR("connect to nwebspawn failed!");
+        return result;
     }
 
     std::unique_ptr<AppSpawnClient, void (*)(AppSpawnClient *)> autoCloseConnection(
@@ -98,6 +99,10 @@ ErrCode AppSpawnClient::PreStartNWebSpawnProcessImpl()
 ErrCode AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pid)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (!socket_) {
+        HILOG_ERROR("failed to startProcess without socket!");
+        return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
+    }
     int32_t retryCount = 1;
     ErrCode errCode = StartProcessImpl(startMsg, pid);
     while (FAILED(errCode) && retryCount <= CONNECT_RETRY_MAX_TIMES) {
@@ -112,19 +117,11 @@ ErrCode AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
 ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t &pid)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    if (!socket_) {
-        HILOG_ERROR("failed to startProcess without socket!");
-        return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
-    }
-
-    ErrCode result = ERR_OK;
+    ErrCode result = OpenConnection();
     // open connection failed, return fail
-    if (state_ != SpawnConnectionState::STATE_CONNECTED) {
-        result = OpenConnection();
-        if (FAILED(result)) {
-            HILOG_ERROR("connect to appSpawn failed!");
-            return result;
-        }
+    if (FAILED(result)) {
+        HILOG_ERROR("connect to appSpawn failed!");
+        return result;
     }
     std::unique_ptr<AppSpawnClient, void (*)(AppSpawnClient *)> autoCloseConnection(
         this, [](AppSpawnClient *client) { client->CloseConnection(); });
@@ -206,14 +203,11 @@ ErrCode AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
 
-    ErrCode result = ERR_OK;
+    ErrCode result = OpenConnection();
     // open connection failed, return fail
-    if (state_ != SpawnConnectionState::STATE_CONNECTED) {
-        result = OpenConnection();
-        if (FAILED(result)) {
-            HILOG_ERROR("connect to appSpawn failed!");
-            return result;
-        }
+    if (FAILED(result)) {
+        HILOG_ERROR("connect to appSpawn failed!");
+        return result;
     }
     std::unique_ptr<AppSpawnClient, void (*)(AppSpawnClient *)> autoCloseConnection(
         this, [](AppSpawnClient *client) { client->CloseConnection(); });
