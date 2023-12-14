@@ -27,12 +27,14 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
+#include "js_embeddable_ui_ability_context.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_ui_extension_content_session.h"
 #include "js_ui_extension_context.h"
+#include "js_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_common_configuration.h"
@@ -166,13 +168,13 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         return;
     }
 
-    BindContext(env, obj);
+    BindContext(env, obj, record->GetWant());
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 }
 
-void JsUIExtension::BindContext(napi_env env, napi_value obj)
+void JsUIExtension::BindContext(napi_env env, napi_value obj, std::shared_ptr<AAFwk::Want> want)
 {
     auto context = GetContext();
     if (context == nullptr) {
@@ -180,16 +182,26 @@ void JsUIExtension::BindContext(napi_env env, napi_value obj)
         return;
     }
     HILOG_DEBUG("BindContext CreateJsUIExtensionContext.");
-    napi_value contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
-    if (contextObj == nullptr) {
-        HILOG_ERROR("Create js ui extension context error.");
+    if (want == nullptr) {
+        HILOG_ERROR("Want info is null.");
         return;
     }
-
-    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
-        &contextObj, ARGC_ONE);
-    if (shellContextRef_ == nullptr) {
-        HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
+    int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AbilityRuntime::IDLE_SCREEN_MODE);
+    napi_value contextObj = nullptr;
+    if (screenMode == AbilityRuntime::IDLE_SCREEN_MODE) {
+        contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
+            &contextObj, ARGC_ONE);
+    } else {
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
+            nullptr, context, screenMode);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.EmbeddableUIAbilityContext",
+            &contextObj, ARGC_ONE);
+    }
+    if (shellContextRef_ == nullptr || contextObj == nullptr) {
+        HILOG_ERROR("Failed to get LoadSystemModuleByEngine or Create js ui extension context error.");
         return;
     }
     contextObj = shellContextRef_->GetNapiValue();

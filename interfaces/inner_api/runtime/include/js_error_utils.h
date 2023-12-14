@@ -26,6 +26,7 @@ void ThrowError(napi_env env, int32_t errCode, const std::string& errorMsg = "")
 void ThrowError(napi_env env, const AbilityErrorCode& err);
 void ThrowTooFewParametersError(napi_env env);
 void ThrowNoPermissionError(napi_env env, const std::string& permission);
+void ThrowNotSupportError(napi_env env);
 void ThrowErrorByNativeErr(napi_env env, int32_t err);
 
 napi_value CreateJsError(napi_env env, const AbilityErrorCode& err);
