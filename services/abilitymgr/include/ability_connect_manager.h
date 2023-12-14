@@ -257,7 +257,7 @@ public:
 
     void TerminateAbilityWindowLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo);
-    
+
     void RemoveLauncherDeathRecipient();
 
     // MSG 0 - 20 represents timeout message
@@ -523,6 +523,8 @@ private:
     ConnectMapType connectMap_;
     ServiceMapType serviceMap_;
     ServiceMapType terminatingExtensionMap_;
+
+    std::mutex recipientMapMutex_;
     RecipientMapType recipientMap_;
     RecipientMapType uiExtRecipientMap_;
     std::shared_ptr<TaskHandlerWrap> taskHandler_;

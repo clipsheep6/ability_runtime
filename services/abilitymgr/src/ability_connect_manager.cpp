@@ -1548,37 +1548,49 @@ void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRe
 void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
 {
     CHECK_POINTER(connect);
-    CHECK_POINTER(connect->AsObject());
-    auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end()) {
-        HILOG_ERROR("This death recipient has been added.");
-        return;
-    } else {
-        std::weak_ptr<AbilityConnectManager> thisWeakPtr(shared_from_this());
-        sptr<IRemoteObject::DeathRecipient> deathRecipient =
-            new AbilityConnectCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
-                auto abilityConnectManager = thisWeakPtr.lock();
-                if (abilityConnectManager) {
-                    abilityConnectManager->OnCallBackDied(remote);
-                }
-            });
-        if (!connect->AsObject()->AddDeathRecipient(deathRecipient)) {
-            HILOG_ERROR("AddDeathRecipient failed.");
+    auto connectObject = connect->AsObject();
+    CHECK_POINTER(connectObject);
+    {
+        std::lock_guard guard(recipientMapMutex_);
+        auto it = recipientMap_.find(connectObject);
+        if (it != recipientMap_.end()) {
+            HILOG_ERROR("This death recipient has been added.");
+            return;
         }
-        recipientMap_.emplace(connect->AsObject(), deathRecipient);
     }
+
+    std::weak_ptr<AbilityConnectManager> thisWeakPtr(shared_from_this());
+    sptr<IRemoteObject::DeathRecipient> deathRecipient =
+        new AbilityConnectCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            auto abilityConnectManager = thisWeakPtr.lock();
+            if (abilityConnectManager) {
+                abilityConnectManager->OnCallBackDied(remote);
+            }
+        });
+    if (!connectObject->AddDeathRecipient(deathRecipient)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
+    }
+    std::lock_guard guard(recipientMapMutex_);
+    recipientMap_.emplace(connectObject, deathRecipient);
 }
 
 void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
 {
     CHECK_POINTER(connect);
-    CHECK_POINTER(connect->AsObject());
-    auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end() && it->first != nullptr) {
-        it->first->RemoveDeathRecipient(it->second);
+    auto connectObject = connect->AsObject();
+    CHECK_POINTER(connectObject);
+    sptr<IRemoteObject::DeathRecipient> deathRecipient;
+    {
+        std::lock_guard guard(recipientMapMutex_);
+        auto it = recipientMap_.find(connectObject);
+        if (it == recipientMap_.end()) {
+            return;
+        }
+        deathRecipient = it->second;
         recipientMap_.erase(it);
-        return;
     }
+
+    connectObject->RemoveDeathRecipient(deathRecipient);
 }
 
 void AbilityConnectManager::OnCallBackDied(const wptr<IRemoteObject> &remote)
