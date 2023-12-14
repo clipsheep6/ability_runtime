@@ -1713,6 +1713,9 @@ private:
 
     void AppRecoverKill(pid_t pid, int32_t reason);
 
+    int32_t GenerateEmbeddableUIAbilityRequest(const Want &want, AbilityRequest &request,
+        const sptr<IRemoteObject> &callerToken, int32_t userId);
+
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
      *

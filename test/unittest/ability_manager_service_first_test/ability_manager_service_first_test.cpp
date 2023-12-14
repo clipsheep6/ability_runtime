@@ -1484,5 +1484,40 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetForegroundUIAbilities_001, TestSize.
     auto res = abilityMs_->GetForegroundUIAbilities(list);
     EXPECT_EQ(res, CHECK_PERMISSION_FAILED);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GenerateEmbeddableUIAbilityRequest
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GenerateEmbeddableUIAbilityRequest
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    want.SetParam("ScreenMode", 1);
+    AbilityRequest request;
+    auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
+    EXPECT_EQ(res, RESOLVE_ABILITY_ERR);
+    HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GenerateEmbeddableUIAbilityRequest
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GenerateEmbeddableUIAbilityRequest
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_002, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_002 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    AbilityRequest request;
+    auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
+    EXPECT_EQ(res, RESOLVE_ABILITY_ERR);
+    HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_002 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

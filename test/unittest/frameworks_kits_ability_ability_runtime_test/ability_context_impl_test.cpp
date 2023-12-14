@@ -557,6 +557,20 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0400, Functio
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_StartAbility_0500
+ * @tc.name: StartAbility
+ * @tc.desc: Start Ability
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0500, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    want.SetParam("ScreenMode", 1);
+    int32_t requestCode = 1;
+    auto ret = context_->StartAbility(want, requestCode);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+}
+
+/**
  * @tc.number: Ability_Context_Impl_OnAbilityResult_0100
  * @tc.name: OnAbilityResult
  * @tc.desc: On Ability Result
