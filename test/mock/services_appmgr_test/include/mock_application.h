@@ -26,7 +26,7 @@ class MockApplication : public AppSchedulerHost {
 public:
     MOCK_METHOD0(ScheduleForegroundApplication, void());
     MOCK_METHOD0(ScheduleBackgroundApplication, void());
-    MOCK_METHOD0(ScheduleTerminateApplication, void());
+    MOCK_METHOD1(ScheduleTerminateApplication, void(bool));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
     MOCK_METHOD0(ScheduleLowMemory, void());
     MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));

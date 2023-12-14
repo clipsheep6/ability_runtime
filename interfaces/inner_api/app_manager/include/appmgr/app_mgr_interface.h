@@ -521,7 +521,14 @@ public:
      * Exit child process, called by itself.
      */
     virtual void ExitChildProcessSafely() = 0;
-    
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    virtual bool IsFinalAppProcess()  = 0;
+
     // please add new message item to the bottom in order to prevent some unexpected BUG
     enum class Message {
         APP_ATTACH_APPLICATION = 0,

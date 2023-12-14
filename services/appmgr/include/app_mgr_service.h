@@ -549,6 +549,13 @@ private:
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
 
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess() override;
+
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;
     AppMgrServiceState appMgrServiceState_;

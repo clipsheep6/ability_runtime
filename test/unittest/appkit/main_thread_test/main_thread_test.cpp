@@ -269,6 +269,11 @@ class MockAppMgrStub : public AppMgrStub {
     {
         return 0;
     }
+
+    bool IsFinalAppProcess() override
+    {
+        return true;
+    }
 };
 
 /*

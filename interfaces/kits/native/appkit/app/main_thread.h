@@ -140,8 +140,9 @@ public:
      *
      * @brief Schedule the terminate lifecycle of application.
      *
+     * @param isLastProcess When it is the last application process, pass in true.
      */
-    void ScheduleTerminateApplication() override;
+    void ScheduleTerminateApplication(bool isLastProcess = false) override;
 
     /**
      *
@@ -376,7 +377,7 @@ private:
      * @brief Terminate the application.
      *
      */
-    void HandleTerminateApplication();
+    void HandleTerminateApplication(bool isLastProcess = false);
 
     /**
      *

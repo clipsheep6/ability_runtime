@@ -5255,6 +5255,29 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
+bool AppMgrServiceInner::IsFinalAppProcessByBundleName(const std::string &bundleName)
+{
+    if (appRunningManager_ == nullptr) {
+        HILOG_ERROR("App running manager is nullptr.");
+        return false;
+    }
+
+    auto name = bundleName;
+    if (bundleName.empty()) {
+        auto callingPid = IPCSkeleton::GetCallingPid();
+        auto appRecord = appRunningManager_->GetAppRunningRecordByPid(callingPid);
+        if (appRecord == nullptr) {
+            HILOG_ERROR("Get app running record is nullptr.");
+            return false;
+        }
+        name = appRecord->GetBundleName();
+    }
+
+    auto count = appRunningManager_->GetAllAppRunningRecordCountByBundleName(name);
+    HILOG_DEBUG("Get application %{public}s process list size[%{public}d].", name.c_str(), count);
+    return count == 1;
+}
+
 void AppMgrServiceInner::ParseServiceExtMultiProcessWhiteList()
 {
     auto serviceExtMultiProcessWhiteList =

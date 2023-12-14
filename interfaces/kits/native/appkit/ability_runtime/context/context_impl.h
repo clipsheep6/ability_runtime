@@ -78,6 +78,13 @@ public:
     std::string GetTempDir() override;
 
     /**
+     * @brief Get all temporary directories.
+     *
+     * @param tempPaths Return all temporary directories of the application.
+     */
+    virtual void GetAllTempDir(std::vector<std::string> &tempPaths);
+
+    /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
      *
      * @return Returns the application file directory.

@@ -118,7 +118,8 @@ int32_t AppSchedulerHost::HandleScheduleBackgroundApplication(MessageParcel &dat
 int32_t AppSchedulerHost::HandleScheduleTerminateApplication(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
-    ScheduleTerminateApplication();
+    auto isLastProcess = data.ReadBool();
+    ScheduleTerminateApplication(isLastProcess);
     return NO_ERROR;
 }
 
