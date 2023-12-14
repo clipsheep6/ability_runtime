@@ -43,20 +43,6 @@ public:
      */
     void SetSpawnClient(const std::shared_ptr<AppSpawnClient> &appSpawnClient);
 
-    /**
-     * GetBundleManager, Get bundle management services.
-     *
-     * @return the bundle management services instance.
-     */
-    std::shared_ptr<BundleMgrHelper> GetBundleManagerHelper();
-
-    /**
-     * @brief Setting bundle management instance.
-     *
-     * @param appSpawnClient, the bundle management instance.
-     */
-    void SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper);
-
     std::shared_ptr<AppSpawnClient> GetNWebSpawnClient();
 
 private:

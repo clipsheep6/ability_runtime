@@ -3619,8 +3619,8 @@ bool AppMgrServiceInner::CheckCallerIsAppGallery()
         HILOG_ERROR("Get app running record by calling pid failed. callingPId: %{public}d", callerPid);
         return false;
     }
-    auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
-    if (!bundleMgrHelper) {
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return false;
     }
