@@ -176,6 +176,10 @@ ohos_shared_library("abilityms") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:libmodal_system_ui_extension_client",
+    "window_manager:libwsutils",
+    "window_manager:scene_session",
+    "window_manager:sms",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
@@ -209,7 +213,6 @@ ohos_shared_library("abilityms") {
       "resource_management:global_resmgr",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",
-      "window_manager:libwindow_extension_client",
       "window_manager:libwm",
       "window_manager:libwsutils",
       "window_manager:scene_session",
