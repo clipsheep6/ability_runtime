@@ -197,6 +197,10 @@ class ApplicationContext {
     return this.__context_impl__.tempDir;
   }
 
+  get resourceDir() {
+    return this.__context_impl__.resourceDir;
+  }
+
   get filesDir() {
     return this.__context_impl__.filesDir;
   }

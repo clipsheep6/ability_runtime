@@ -358,6 +358,11 @@ void ApplicationContext::GetAllTempDir(std::vector<std::string> &tempPaths)
     contextImpl_->GetAllTempDir(tempPaths);
 }
 
+std::string ApplicationContext::GetResourceDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
+}
+
 std::string ApplicationContext::GetFilesDir()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetFilesDir() : "";

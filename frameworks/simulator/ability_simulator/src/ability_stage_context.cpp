@@ -33,6 +33,8 @@ constexpr const char *CONTEXT_FILES("files");
 constexpr const char *CONTEXT_HAPS("haps");
 constexpr const char *CONTEXT_ASSET("asset");
 constexpr const char *CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
+constexpr const char *CONTEXT_RESOURCE_BASE("/data/storage/el1/bundle");
+constexpr const char *CONTEXT_RESOURCE_END("/resources/resfile");
 constexpr int DIR_DEFAULT_PERM = 0770;
 }
 std::shared_ptr<AppExecFwk::Configuration> AbilityStageContext::GetConfiguration()
@@ -120,6 +122,20 @@ std::string AbilityStageContext::GetTempDir()
     auto dir = GetBaseDir() + fileSeparator_ + CONTEXT_TEMP;
     CreateMultiDir(dir);
     return dir;
+}
+
+std::string AbilityStageContext::GetResourceDir()
+{
+    std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfoPtr = GetHapModuleInfo();
+    if (hapModuleInfoPtr == nullptr || hapModuleInfoPtr->moduleName.empty()) {
+        return "";
+    }
+    auto dir = std::string(CONTEXT_RESOURCE_BASE) +
+        CONTEXT_FILE_SEPARATOR + hapModuleInfoPtr->moduleName + CONTEXT_RESOURCE_END;
+    if (Access(dir)) {
+        return dir;
+    }
+    return "";
 }
 
 std::string AbilityStageContext::GetFilesDir()

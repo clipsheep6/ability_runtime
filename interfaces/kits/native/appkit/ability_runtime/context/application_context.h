@@ -69,6 +69,7 @@ public:
     std::string GetBundleCodeDir() override;
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
+    std::string GetResourceDir() override;
     void GetAllTempDir(std::vector<std::string> &tempPaths);
     std::string GetFilesDir() override;
     bool IsUpdatingConfigurations() override;

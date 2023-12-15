@@ -59,6 +59,11 @@ std::string MockContextImpl::GetTempDir()
     return "/temp";
 }
 
+std::string MockContextImpl::GetResourceDir()
+{
+    return "/resfile";
+}
+
 std::string MockContextImpl::GetFilesDir()
 {
     return "/files";
