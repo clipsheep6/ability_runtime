@@ -70,7 +70,7 @@ private:
         sptr<AAFwk::DialogSessionInfo> dialogSessionInfo;
         HILOG_DEBUG("GetDialogSessionInfo begin");
         auto errcode = AbilityManagerClient::GetInstance()->GetDialogSessionInfo(dialogSessionId, dialogSessionInfo);
-        if (errcode || dialogSessionInfo == nullptr) {
+        if (errcode != ERR_OK || dialogSessionInfo == nullptr) {
             HILOG_ERROR("GetDialogSessionInfo error");
             return CreateJsUndefined(env);
         }
@@ -126,7 +126,7 @@ napi_value JsDialogSessionInit(napi_env env, napi_value exportObj)
         return nullptr;
     }
 
-    std::unique_ptr<JsDialogSession> jsDialogSession = std::make_unique<JsDialogSession>();
+    auto jsDialogSession = std::make_unique<JsDialogSession>();
     napi_wrap(env, exportObj, jsDialogSession.release(), JsDialogSession::Finalizer, nullptr, nullptr);
 
     const char *moduleName = "JsDialogSession";

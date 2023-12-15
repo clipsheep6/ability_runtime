@@ -921,7 +921,7 @@ public:
 
     void HandleUnfocused(const sptr<OHOS::Rosen::FocusChangeInfo> &focusChangeInfo);
 
-    virtual int GetDialogSessionInfo(const std::string dialogSessionId,
+    virtual int GetDialogSessionInfo(const std::string &dialogSessionId,
         sptr<DialogSessionInfo> &dialogSessionInfo) override;
 
     bool GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
@@ -929,7 +929,7 @@ public:
 
     int CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken, std::string dialogSessionId);
 
-    virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed) override;
+    virtual int SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed) override;
 #endif
 
     void ClearUserData(int32_t userId);
