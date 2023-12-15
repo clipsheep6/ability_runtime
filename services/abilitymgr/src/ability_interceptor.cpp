@@ -328,15 +328,17 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
         HILOG_DEBUG("The same bundle, do not intercept.");
         return ERR_OK;
     }
-    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "false");
-    if (supportErms == "false") {
-        HILOG_ERROR("Abilityms not support Erms.");
-        return ERR_OK;
-    }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
 #ifdef SUPPORT_ERMS
     GetEcologicalCallerInfo(want, callerInfo, userId);
+    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "false");
+    if (supportErms == "false" && callerInfo.targetAppType != TYPE_HARMONY_SERVICE &&
+        callerInfo.callerAppType != TYPE_HARMONY_SERVICE) {
+        HILOG_ERROR("Abilityms not support Erms between applications.");
+        return ERR_OK;
+    }
+
     int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
         callerInfo, rule));
     if (ret != ERR_OK) {
