@@ -63,6 +63,7 @@
 #include "mock_session_manager_service.h"
 #include "modal_system_ui_extension.h"
 #include "os_account_manager_wrapper.h"
+#include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "permission_constants.h"
 #include "recovery_param.h"
@@ -2108,6 +2109,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
 
 int AbilityManagerService::RequestModalUIExtension(const Want &want)
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
     return RequestModalUIExtensionInner(want);
 }
 
@@ -2121,16 +2123,16 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     }
 
     // Gets the record corresponding to the current focus appliaction
-    auto Record = Token::GetAbilityRecordByToken(token);
-    if (!Record) {
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (!record) {
         HILOG_ERROR("Record is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
     EventInfo focusInfo;
-    focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
-    focusInfo.abilityName = Record->GetAbilityInfo().name;
+    focusInfo.bundleName = record->GetAbilityInfo().bundleName;
+    focusInfo.abilityName = record->GetAbilityInfo().name;
 
     // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
     EventInfo callerInfo;
@@ -2141,11 +2143,12 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     // Compare
     if (focusInfo.bundleName == callerInfo.bundleName) {
         HILOG_DEBUG("CreateModalUIExtension is called!");
-        return Record->CreateModalUIExtension(want);
+        return record->CreateModalUIExtension(want);
     }
 
     HILOG_DEBUG("Window Modal System Create UIExtension is called!");
-    return ERR_OK;
+    auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
+    return connection->CreateModalUIExtension(want);
 }
 
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
