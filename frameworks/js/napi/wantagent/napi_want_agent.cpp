@@ -931,7 +931,6 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         }
     }
     if (hasExtraInfo) {
-        napi_get_named_property(env, argv[0], "extraInfo", &jsExtraInfo);
         if (!CheckTypeForNapiValue(env, jsExtraInfo, napi_object)) {
             HILOG_ERROR("ExtraInfo type error!");
             return PARAMETER_ERROR;
