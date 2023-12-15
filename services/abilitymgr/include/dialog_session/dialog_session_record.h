@@ -57,6 +57,10 @@ public:
     bool QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId);
 
 private:
+    DialogSessionManager();
+    ~DialogSessionManager();
+    DISALLOW_COPY_AND_MOVE(DialogSessionManager);
+
     ffrt::mutex dialogSessionRecordLock_;
     std::unordered_map<std::string, sptr<DialogSessionInfo>> dialogSessionInfoMap_;
     std::unordered_map<std::string, std::shared_ptr<DialogCallerInfo>> dialogCallerInfoMap_;

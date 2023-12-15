@@ -395,7 +395,7 @@ bool AbilityManagerService::Init()
 
     abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
 
-    dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
+    // dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
 
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
@@ -9363,7 +9363,7 @@ int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionI
     sptr<DialogSessionInfo> &dialogSessionInfo)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
-    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
+    // CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     dialogSessionInfo = dialogSessionRecord_->GetDialogSessionInfo(dialogSessionId);
     if (dialogSessionInfo) {
         HILOG_DEBUG("success");
