@@ -35,7 +35,8 @@ public:
         : processExtensionType_(extensionType), moduleBlocklist_(std::move(blocklist)) {}
     ~AppModuleChecker() override = default;
 
-    bool CheckModuleLoadable(const char* moduleName) override;
+    bool CheckModuleLoadable(const char* moduleName,
+        std::unique_ptr<ApiAllowListChecker>& apiAllowListChecker) override;
     bool DiskCheckOnly() override;
 protected:
     int32_t processExtensionType_{EXTENSION_TYPE_UNKNOWN};
