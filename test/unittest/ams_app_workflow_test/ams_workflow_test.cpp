@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -327,7 +327,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_005, TestSize.Level1)
     EXPECT_CALL(*(appB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
-    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_FOREGROUND);
     appB.appRecord_->SetUpdateStateFromService(true);
@@ -370,7 +370,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_006, TestSize.Level1)
     EXPECT_CALL(*(appC.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
-    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
     appC.appRecord_->SetUpdateStateFromService(true);
@@ -421,7 +421,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_007, TestSize.Level1)
     EXPECT_CALL(*(appC.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
-    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenC, AbilityState::ABILITY_STATE_FOREGROUND);
     appC.appRecord_->SetUpdateStateFromService(true);
@@ -543,7 +543,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_004, TestSize.Level1)
     appA.appRecord_->LaunchPendingAbilities();
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
-    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     appA.appRecord_->SetUpdateStateFromService(true);
@@ -576,7 +576,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_005, TestSize.Level1)
         "B", tokenB, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
-    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     serviceInner_->UpdateAbilityState(tokenB, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -614,7 +614,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_006, TestSize.Level1)
         "B", tokenB, "A", AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_FOREGROUND);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
     EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
-    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(appA.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
 
     serviceInner_->UpdateAbilityState(tokenA, AbilityState::ABILITY_STATE_BACKGROUND);
     appA.appRecord_->SetUpdateStateFromService(true);

@@ -83,6 +83,7 @@ enum class AppMgrInterfaceCode {
     GET_CHILD_PROCCESS_INFO_FOR_SELF,
     ATTACH_CHILD_PROCESS,
     EXIT_CHILD_PROCESS_SAFELY,
+    IS_FINAL_APP_PROCESS,
 };
 } // AppExecFwk
 } // OHOS

@@ -616,7 +616,7 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbility_002, TestSize.Level1)
 HWTEST_F(AmsAppRunningRecordTest, ScheduleTerminate_001, TestSize.Level1)
 {
     auto record = GetTestAppRunningRecord();
-    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleTerminateApplication(_)).Times(1);
     record->ScheduleTerminate();
 
     record->appLifeCycleDeal_ = nullptr;
@@ -1308,7 +1308,7 @@ HWTEST_F(AmsAppRunningRecordTest, AbilityTerminated_001, TestSize.Level1)
     HILOG_INFO("AmsAppRunningRecordTest AbilityTerminated_001 start");
 
     auto record = GetTestAppRunningRecord();
-    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleTerminateApplication()).Times(0);
+    EXPECT_CALL(*mockAppSchedulerClient_, ScheduleTerminateApplication(_)).Times(0);
     record->AbilityTerminated(nullptr);
 
     HILOG_INFO("AmsAppRunningRecordTest AbilityTerminated_001 end");

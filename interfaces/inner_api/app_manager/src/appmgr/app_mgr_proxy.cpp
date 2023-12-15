@@ -1593,5 +1593,26 @@ void AppMgrProxy::ExitChildProcessSafely()
         HILOG_ERROR("ExitChildProcessSafely SendRequest is failed, error code: %{public}d", ret);
     }
 }
+
+bool AppMgrProxy::IsFinalAppProcess()
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        return false;
+    }
+
+    return reply.ReadBool();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

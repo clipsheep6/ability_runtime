@@ -22,7 +22,7 @@ namespace AAFwk {
 namespace {
 const int LOAD_CONFIGURATION_FAILED = -1;
 const int LOAD_CONFIGURATION_SUCCESS = 0;
-const int32_t TIME_OUT_UNIT_TIME_RATIO = 1000;
+const int32_t TIME_OUT_UNIT_TIME_RATIO = 10;
 }
 
 AmsConfigurationParameter::AmsConfigurationParameter()

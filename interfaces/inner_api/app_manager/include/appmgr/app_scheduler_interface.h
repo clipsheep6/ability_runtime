@@ -52,9 +52,9 @@ public:
      * ScheduleTerminateApplication, call ScheduleTerminateApplication() through proxy project,
      * Notify application to terminate.
      *
-     * @return
+     * @param isLastProcess When it is the last application process, pass in true.
      */
-    virtual void ScheduleTerminateApplication() = 0;
+    virtual void ScheduleTerminateApplication(bool isLastProcess = false) = 0;
 
     /**
      * ScheduleShrinkMemory, call ScheduleShrinkMemory() through proxy project,

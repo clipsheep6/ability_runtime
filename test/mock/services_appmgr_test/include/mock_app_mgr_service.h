@@ -91,6 +91,7 @@ public:
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
 
+    MOCK_METHOD0(IsFinalAppProcess, bool());
     virtual int StartUserTestProcess(
         const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)
     {

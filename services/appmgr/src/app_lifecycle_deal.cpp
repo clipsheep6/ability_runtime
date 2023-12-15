@@ -86,7 +86,7 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
     }
 }
 
-void AppLifeCycleDeal::ScheduleTerminate()
+void AppLifeCycleDeal::ScheduleTerminate(bool isLastProcess)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
@@ -94,7 +94,7 @@ void AppLifeCycleDeal::ScheduleTerminate()
         return;
     }
 
-    appThread->ScheduleTerminateApplication();
+    appThread->ScheduleTerminateApplication(isLastProcess);
 }
 
 void AppLifeCycleDeal::ScheduleForegroundRunning()

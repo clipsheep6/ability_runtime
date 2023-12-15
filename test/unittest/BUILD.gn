@@ -280,6 +280,7 @@ ohos_source_set("abilityms_test_source") {
     external_deps += [
       "input:libmmi-client",
       "window_manager:libdm",
+      "window_manager:libmodal_system_ui_extension_client",
       "window_manager:libwm",
       "window_manager:libwsutils",
       "window_manager:sms",

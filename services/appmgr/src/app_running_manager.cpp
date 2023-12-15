@@ -141,6 +141,20 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     return false;
 }
 
+int32_t AppRunningManager::GetAllAppRunningRecordCountByBundleName(const std::string &bundleName)
+{
+    int32_t count = 0;
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByPid(const pid_t pid)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -96,13 +96,21 @@ bool ApplicationImpl::PerformBackground()
 /**
  * @brief Schedule the application to the APP_STATE_TERMINATED state.
  *
+ * @param isLastProcess When it is the last application process, pass in true.
+ *
  * @return Returns true if PerformTerminate is scheduled successfully;
  *         Returns false otherwise.
  */
-bool ApplicationImpl::PerformTerminate()
+bool ApplicationImpl::PerformTerminate(bool isLastProcess)
 {
     HILOG_DEBUG("ApplicationImpl::PerformTerminate called");
-    if (curState_ == APP_STATE_BACKGROUND && application_ != nullptr) {
+    if (application_ == nullptr) {
+        HILOG_ERROR("Application instance is nullptr");
+        return false;
+    }
+
+    application_->CleanAppTempData(isLastProcess);
+    if (curState_ == APP_STATE_BACKGROUND) {
         application_->OnTerminate();
         curState_ = APP_STATE_TERMINATED;
         return true;

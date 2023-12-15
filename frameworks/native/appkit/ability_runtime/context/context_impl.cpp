@@ -257,6 +257,37 @@ std::string ContextImpl::GetTempDir()
     return dir;
 }
 
+void ContextImpl::GetAllTempDir(std::vector<std::string> &tempPaths)
+{
+    // Application temp dir
+    auto appTemp = GetTempDir();
+    if (OHOS::FileExists(appTemp)) {
+        tempPaths.push_back(appTemp);
+    }
+    // Module dir
+    if (applicationInfo_ == nullptr) {
+        HILOG_ERROR("The application info is empty");
+        return;
+    }
+
+    std::string baseDir;
+    if (IsCreateBySystemApp()) {
+        baseDir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId()) +
+            CONTEXT_FILE_SEPARATOR + CONTEXT_BASE + CONTEXT_FILE_SEPARATOR + GetBundleName();
+    } else {
+        baseDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_BASE;
+    }
+    for (const auto &moudleItem: applicationInfo_->moduleInfos) {
+        auto moudleTemp = baseDir + CONTEXT_HAPS + CONTEXT_FILE_SEPARATOR + moudleItem.moduleName + CONTEXT_TEMP;
+        if (!OHOS::FileExists(moudleTemp)) {
+            HILOG_WARN("The application moudle[%{public}s] temp path not exists is empty, the path is %{public}s",
+                moudleItem.moduleName.c_str(), moudleTemp.c_str());
+            continue;
+        }
+        tempPaths.push_back(moudleTemp);
+    }
+}
+
 std::string ContextImpl::GetFilesDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILES;
