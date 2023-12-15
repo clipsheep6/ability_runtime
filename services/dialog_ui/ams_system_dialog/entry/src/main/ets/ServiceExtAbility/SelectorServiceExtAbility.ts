@@ -14,106 +14,117 @@
  */
 
 import bundleManager from '@ohos.bundle.bundleManager';
+import common from '@ohos.app.ability.common';
 import defaultAppManager from '@ohos.bundle.defaultAppManager';
 import display from '@ohos.display';
 import drawableDescriptor from '@ohos.arkui.drawableDescriptor';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
-import type image from '@ohos.multimedia.image';
+import image from '@ohos.multimedia.image';
+import want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
+import { GlobalThis } from '../utils/GlobalThis';
+import { BusinessError } from '@ohos.base';
 import PositionUtils from '../utils/PositionUtils';
+import {Configuration} from '@ohos.app.ability.Configuration'
 
 const TAG = 'SelectorDialog_Service';
 
 let winNum = 1;
-let win;
+let win: window.Window;
+let hapList: Record<string, Object> [];
+let params = GlobalThis.getInstance().getObject('params')
+if (params != undefined) {
+  hapList = (params as Record<string, Object> [])['hapList'];
+}
 
 export default class SelectorServiceExtensionAbility extends extension {
-  onCreate(want) {
+  onCreate(want: want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
-    globalThis.selectExtensionContext = this.context;
-    globalThis.defaultAppManager = defaultAppManager;
-    globalThis.bundleManager = bundleManager;
+    GlobalThis.getInstance().setContext('selectExtensionContext', this.context);
+    // ? namespace in GlobalThis
+    GlobalThis.getInstance().setType('defaultAppManager', typeof defaultAppManager);
+    GlobalThis.getInstance().setType('bundleManager', typeof bundleManager);
   }
 
   async getPhoneShowHapList() {
     const lineNums = 8;
-    let showHapList = [];
-    let phoneShowHapList = [];
+    let showHapList: string[] = [];
+    let phoneShowHapList: string[][]= [];
     let jsonIconMap: Map<string, image.PixelMap> = new Map();
-    for (let i = 1; i <= globalThis.params.hapList.length; i++) {
-      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
-      await this.getHapResource(globalThis.params.hapList[i - 1], showHapList, jsonIconMap);
+
+    for (let i = 1; i <= hapList.length; i++) {
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(hapList[i]));
+      await this.getHapResource(hapList[i - 1], showHapList, jsonIconMap);
       if (i % lineNums === 0) {
         phoneShowHapList.push(showHapList);
         showHapList = [];
       }
-      if (i >= globalThis.params.hapList.length && showHapList.length > 0) {
+      if (i >= hapList.length && showHapList.length > 0) {
         phoneShowHapList.push(showHapList);
       }
     }
-    globalThis.phoneShowHapList = phoneShowHapList;
+    GlobalThis.getInstance().setObject("phoneShowHapList", phoneShowHapList);
     console.debug(TAG, 'phoneShowHapList: ' + JSON.stringify(phoneShowHapList));
 
     const signalRowlineNums = 4;
-    let signalRowShowHapList = [];
-    let signalRowPhoneShowHapList = [];
-    for (let i = 1; i <= globalThis.params.hapList.length; i++) {
-      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(globalThis.params.hapList[i]));
-      await this.getHapResource(globalThis.params.hapList[i - 1], signalRowShowHapList, jsonIconMap);
+    let signalRowShowHapList: string[] = [];
+    let signalRowPhoneShowHapList: string[][] = [];
+    for (let i = 1; i <= hapList.length; i++) {
+      console.info(TAG, 'hapList[' + (i - 1).toString() + ']: ' + JSON.stringify(hapList[i]));
+      await this.getHapResource(hapList[i - 1], signalRowShowHapList, jsonIconMap);
       if (i % signalRowlineNums === 0) {
         signalRowPhoneShowHapList.push(signalRowShowHapList);
         signalRowShowHapList = [];
       }
-      if (i >= globalThis.params.hapList.length && signalRowShowHapList.length > 0) {
+      if (i >= hapList.length && signalRowShowHapList.length > 0) {
         signalRowPhoneShowHapList.push(signalRowShowHapList);
       }
     }
-    globalThis.signalRowPhoneShowHapList = signalRowPhoneShowHapList;
-    globalThis.jsonIconMap = jsonIconMap;
+    GlobalThis.getInstance().setObject("signalRowPhoneShowHapList", signalRowPhoneShowHapList);
+    GlobalThis.getInstance().setMap("jsonIconMap", jsonIconMap);
     console.debug(TAG, 'signalRowPhoneShowHapList: ' + JSON.stringify(signalRowPhoneShowHapList));
   }
 
   async getPcShowHapList() {
-    let pcShowHapList = [];
+    let pcShowHapList: string[] = [];
     let jsonIconMap: Map<string, image.PixelMap> = new Map();
-    for (let i = 0; i < globalThis.params.hapList.length; i++) {
-      await this.getHapResource(globalThis.params.hapList[i], pcShowHapList, jsonIconMap);
+    for (let i = 0; i < hapList.length; i++) {
+      await this.getHapResource(hapList[i], pcShowHapList, jsonIconMap);
     }
-    globalThis.pcShowHapList = pcShowHapList;
-    globalThis.jsonIconMap = jsonIconMap;
+    GlobalThis.getInstance().setProperty("pcShowHapList", pcShowHapList);
+    GlobalThis.getInstance().setMap("jsonIconMap", jsonIconMap);
     console.debug(TAG, 'pcShowHapList: ' + JSON.stringify(pcShowHapList));
   }
 
-  async getHapResource(hap, showHapList, jsonIconMap) {
-    let bundleName = hap.bundle;
-    let moduleName = hap.module;
-    let abilityName = hap.ability;
+  async getHapResource(hap: Record<string, Object>, showHapList: string[], jsonIconMap: Map<string, image.PixelMap>) {
+    let bundleName = hap.bundle as string;
+    let moduleName = hap.module as string;
+    let abilityName = hap.ability as string;
     let appName = '';
     let appIcon = '';
     let type = '';
     let userId = Number('0');
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
-      type = hap.type;
+    if (GlobalThis.getInstance().getRecord('params')?.deviceType !== 'phone' && GlobalThis.getInstance().getRecord('params')?.deviceType !== 'default') {
+      type = hap.type as string;
       userId = Number(hap.userId);
     }
     let lableId = Number(hap.label);
-    let moduleContext = globalThis.selectExtensionContext.createModuleContext(bundleName, moduleName);
-    await moduleContext.resourceManager.getString(lableId).then(value => {
+    let moduleContext = GlobalThis.getInstance().getContext('selectExtensionContext')?.createModuleContext(bundleName, moduleName);
+    await moduleContext?.resourceManager.getString(lableId).then(value => {
       appName = value;
-    }).catch(error => {
+    }).catch((error: BusinessError) => {
       console.error(TAG, 'getString error:' + JSON.stringify(error));
     });
 
     let iconId = Number(hap.icon);
-    await moduleContext.resourceManager.getMediaBase64(iconId).then(value => {
+    await moduleContext?.resourceManager.getMediaBase64(iconId).then(value => {
       appIcon = value;
       if (appIcon.indexOf('image/json') > -1) {
         try {
-          const imageDescriptor = moduleContext.resourceManager.getDrawableDescriptor(iconId);
+          const imageDescriptor = moduleContext?.resourceManager.getDrawableDescriptor(iconId);
           if (imageDescriptor !== null && imageDescriptor !== undefined &&
             imageDescriptor instanceof drawableDescriptor.LayeredDrawableDescriptor) {
-            let layeredDrawableDescriptor: drawableDescriptor.LayeredDrawableDescriptor =
-              <drawableDescriptor.LayeredDrawableDescriptor> imageDescriptor;
+            let layeredDrawableDescriptor: drawableDescriptor.LayeredDrawableDescriptor = imageDescriptor;
             let foregroundDescriptor: drawableDescriptor.DrawableDescriptor = layeredDrawableDescriptor.getForeground();
             if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
               jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName, foregroundDescriptor.getPixelMap());
@@ -125,33 +136,30 @@ export default class SelectorServiceExtensionAbility extends extension {
           console.error(TAG, 'get drawableDescriptor error:' + JSON.stringify(e));
         }
       }
-    }).catch(error => {
+    }).catch((error: BusinessError) => {
       console.error(TAG, 'getMediaBase64 error:' + JSON.stringify(error));
     });
     showHapList.push(bundleName + '#' + abilityName + '#' + appName +
       '#' + appIcon + '#' + moduleName + '#' + type + '#' + userId);
   }
 
-  async onRequest(want, startId) {
+  async onRequest(want: want, startId: number) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
-    globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
+    GlobalThis.getInstance().setWant("abilityWant", want);
+    GlobalThis.getInstance().setObject("params",JSON.parse(want.parameters?.params as string));
     let displayClass = display.getDefaultDisplaySync();
-    let lineNums = 0;
-    if (globalThis.params && globalThis.params.hapList && globalThis.params.hapList.length) {
-      lineNums = globalThis.params.hapList.length;
-    }
-    globalThis.position = PositionUtils.getSelectorDialogPosition(lineNums);
+    let lineNums = hapList.length;
+    GlobalThis.getInstance().setPosition('position', PositionUtils.getSelectorDialogPosition(lineNums));
     try {
       display.on('change', (data: number) => {
         let position = PositionUtils.getSelectorDialogPosition(lineNums);
-        if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {
+        if (position.offsetX !== GlobalThis.getInstance().getRecord('position')?.offsetX || position.offsetY !== GlobalThis.getInstance().getRecord('position')?.offsetY) {
           win.moveTo(position.offsetX, position.offsetY);
         }
-        if (position.width !== globalThis.position.width || position.height !== globalThis.position.height) {
+        if (position.width !== GlobalThis.getInstance().getRecord('position')?.width || position.height !== GlobalThis.getInstance().getRecord('position')?.height) {
           win.resetSize(position.width, position.height);
         }
-        globalThis.position = position;
+        GlobalThis.getInstance().setPosition('position', position);
       });
     } catch (exception) {
       console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
@@ -159,33 +167,33 @@ export default class SelectorServiceExtensionAbility extends extension {
 
     console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
-    console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-    globalThis.callerToken = want.parameters.callerToken;
-    console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
-      globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
-      globalThis.action = Boolean(globalThis.params.action);
+    console.debug(TAG, 'onRequest, params: ' + JSON.stringify(GlobalThis.getInstance().getRecord('params')));
+    GlobalThis.getInstance().setObject("callerToken", want.parameters?.callerToken);
+    console.debug(TAG, 'onRequest, position: ' + JSON.stringify(GlobalThis.getInstance().getPosition('position') as string));
+    if (GlobalThis.getInstance().getRecord('params')?.deviceType !== 'phone' && GlobalThis.getInstance().getRecord('params')?.deviceType !== 'default') {
+      GlobalThis.getInstance().setProperty('modelFlag', Boolean(GlobalThis.getInstance().getRecord('params')?.modelFlag));
+      GlobalThis.getInstance().setProperty('action', Boolean(GlobalThis.getInstance().getRecord('params')?.action));
     }
-    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+    if (GlobalThis.getInstance().getRecord('params')?.deviceType === 'phone' || GlobalThis.getInstance().getRecord('params')?.deviceType === 'default') {
       await this.getPhoneShowHapList();
     } else {
       await this.getPcShowHapList();
     }
 
-    AppStorage.SetOrCreate('oversizeHeight', globalThis.position.oversizeHeight ? 'true' : 'false');
+    AppStorage.SetOrCreate('oversizeHeight', GlobalThis.getInstance().getRecord('position')?.oversizeHeight ? 'true' : 'false');
     display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = {
-        left: globalThis.position.offsetX,
-        top: globalThis.position.offsetY,
-        width: globalThis.position.width,
-        height: globalThis.position.height
+      let navigationBarRect : window.Rect = {
+        left: GlobalThis.getInstance().getRecord('position')?.offsetX as number,
+        top: GlobalThis.getInstance().getRecord('position')?.offsetY as number,
+        width: GlobalThis.getInstance().getRecord('position')?.width as number,
+        height: GlobalThis.getInstance().getRecord('position')?.height as number
       };
       if (winNum > 1) {
         win.destroy();
         winNum--;
       }
-      let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
-        window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
+      let windowType = (typeof(GlobalThis.getInstance().getObject("callerToken")) === 'object' && GlobalThis.getInstance().getObject("callerToken") !== null) ?
+      window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
       this.createWindow('SelectorDialog' + startId, windowType, navigationBarRect);
       winNum++;
     });
@@ -198,23 +206,24 @@ export default class SelectorServiceExtensionAbility extends extension {
     }
   }
 
-  private async createWindow(name: string, windowType: number, rect) {
+  private async createWindow(name: string, windowType: window.WindowType, rect: window.Rect) {
     console.info(TAG, 'create window');
     try {
-      win = await window.create(globalThis.selectExtensionContext, name, windowType);
+      win = await window.create(GlobalThis.getInstance().getContext('selectExtensionContext') as common.BaseContext, name, windowType);
       if (windowType === window.WindowType.TYPE_DIALOG) {
+        // ? the type of callerToken
         await win.bindDialogTarget(globalThis.callerToken.value, () => {
           win.destroyWindow();
           winNum--;
           if (winNum === 0) {
-            globalThis.selectExtensionContext.terminateSelf();
+            GlobalThis.getInstance().getContext('selectExtensionContext')?.terminateSelf();
           }
         });
       }
       await win.hideNonSystemFloatingWindows(true);
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (GlobalThis.getInstance().getRecord('params')?.deviceType === 'phone' || GlobalThis.getInstance().getRecord('params')?.deviceType === 'default') {
         await win.loadContent('pages/selectorPhoneDialog');
       } else {
         await win.loadContent('pages/selectorPcDialog');
@@ -226,11 +235,11 @@ export default class SelectorServiceExtensionAbility extends extension {
     }
   }
 
-  private async moveWindow(rect): Promise<void> {
+  private async moveWindow(rect: window.Rect): Promise<void> {
     try {
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (GlobalThis.getInstance().getRecord('params')?.deviceType === 'phone' || GlobalThis.getInstance().getRecord('params')?.deviceType === 'default') {
         try {
           await win.loadContent('pages/selectorPhoneDialog');
           await win.setBackgroundColor('#00000000');
@@ -244,26 +253,26 @@ export default class SelectorServiceExtensionAbility extends extension {
     }
   }
 
-  onConfigurationUpdate(config): void {
+  onConfigurationUpdate(config: Configuration): void {
     console.debug(TAG, 'configuration is : ' + JSON.stringify(config));
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (GlobalThis.getInstance().getRecord('params')?.deviceType !== 'phone' && GlobalThis.getInstance().getRecord('params')?.deviceType !== 'default') {
       console.debug(TAG, 'device is not phone');
       return;
     }
     let displayClass = display.getDefaultDisplaySync();
     console.debug(TAG, 'display is' + JSON.stringify(displayClass));
     if (displayClass.orientation === display.Orientation.PORTRAIT || displayClass.orientation === display.Orientation.PORTRAIT_INVERTED) {
-      globalThis.position = globalThis.verticalPosition;
+      GlobalThis.getInstance().setPosition('position', GlobalThis.getInstance().getPosition('verticalPosition'));
     } else {
-      globalThis.position = globalThis.landScapePosition;
+      GlobalThis.getInstance().setPosition('position', GlobalThis.getInstance().getPosition('landScapePosition'));
     }
-    let navigationBarRect = {
-      left: globalThis.position.offsetX,
-      top: globalThis.position.offsetY,
-      width: globalThis.position.width,
-      height: globalThis.position.height
+    let navigationBarRect : window.Rect = {
+      left: GlobalThis.getInstance().getRecord('position')?.offsetX as number,
+      top: GlobalThis.getInstance().getRecord('position')?.offsetY as number,
+      width: GlobalThis.getInstance().getRecord('position')?.width as number,
+      height: GlobalThis.getInstance().getRecord('position')?.height as number
     };
-    AppStorage.SetOrCreate('oversizeHeight', globalThis.position.oversizeHeight ? 'true' : 'false');
+    AppStorage.SetOrCreate('oversizeHeight', GlobalThis.getInstance().getRecord('position')?.oversizeHeight ? 'true' : 'false');
     console.debug(TAG, 'onConfigurationUpdate navigationBarRect is' + JSON.stringify(navigationBarRect));
     this.moveWindow(navigationBarRect);
   }

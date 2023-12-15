@@ -13,57 +13,60 @@
  * limitations under the License.
  */
 
+import common from '@ohos.app.ability.common';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import { GlobalThis } from '../utils/GlobalThis';
 import PositionUtils from '../utils/PositionUtils';
 
 const TAG = 'TipsDialog_Service';
 
 let winNum = 1;
-let win;
+let win: window.Window;
 
 export default class TipsServiceExtensionAbility extends extension {
-  onCreate(want) {
+  onCreate(want: want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
-    globalThis.tipsExtensionContext = this.context;
+    GlobalThis.getInstance().setContext('tipsExtensionContext', this.context);
   }
 
-  onRequest(want, startId) {
+  onRequest(want: want, startId: number) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
-    globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = PositionUtils.getTipsDialogPosition();
-    globalThis.callerToken = want.parameters.callerToken;
+    GlobalThis.getInstance().setWant("abilityWant", want);
+    GlobalThis.getInstance().setRecord('params', JSON.parse(want.parameters?.params as string));
+    GlobalThis.getInstance().setPosition('position', PositionUtils.getTipsDialogPosition());
+    GlobalThis.getInstance().setObject("callerToken", want.parameters?.callerToken);
 
     try {
       display.on('change', (data: number) => {
         let position = PositionUtils.getTipsDialogPosition();
-        if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {
+        if (position.offsetX !== GlobalThis.getInstance().getPosition('position')?.offsetX || position.offsetY !== GlobalThis.getInstance().getPosition('position')?.offsetY) {
           win.moveTo(position.offsetX, position.offsetY);
         }
-        if (position.width !== globalThis.position.width || position.height !== globalThis.position.height) {
+        if (position.width !== GlobalThis.getInstance().getPosition('position')?.width || position.height !== GlobalThis.getInstance().getPosition('position')?.height) {
           win.resetSize(position.width, position.height);
         }
-        globalThis.position = position;
+        GlobalThis.getInstance().setPosition('position', position);
       });
     } catch (exception) {
       console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
     }
 
     display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = {
-        left: globalThis.position.offsetX,
-        top: globalThis.position.offsetY,
-        width: globalThis.position.width,
-        height: globalThis.position.height
+      let navigationBarRect : window.Rect = {
+        left: GlobalThis.getInstance().getRecord('position')?.offsetX as number,
+        top: GlobalThis.getInstance().getRecord('position')?.offsetY as number,
+        width: GlobalThis.getInstance().getRecord('position')?.width as number,
+        height: GlobalThis.getInstance().getRecord('position')?.height as number
       };
       if (winNum > 1) {
         win.destroy();
         winNum--;
       }
-      let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
-        window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
+      let windowType = (typeof(GlobalThis.getInstance().getObject("callerToken")) === 'object' && GlobalThis.getInstance().getObject("callerToken") !== null) ?
+      window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
       this.createWindow('TipsDialog' + startId, windowType, navigationBarRect);
       winNum++;
     });
@@ -76,16 +79,16 @@ export default class TipsServiceExtensionAbility extends extension {
     }
   }
 
-  private async createWindow(name: string, windowType: number, rect) {
+  private async createWindow(name: string, windowType: window.WindowType, rect: window.Rect) {
     console.info(TAG, 'create window');
     try {
-      win = await window.create(globalThis.tipsExtensionContext, name, windowType);
+      win = await window.create(GlobalThis.getInstance().getContext('tipsExtensionContext')  as common.BaseContext, name, windowType);
       if (windowType === window.WindowType.TYPE_DIALOG) {
         await win.bindDialogTarget(globalThis.callerToken.value, () => {
           win.destroyWindow();
           winNum--;
           if (winNum === 0) {
-            globalThis.tipsExtensionContext.terminateSelf();
+            GlobalThis.getInstance().getContext('tipsExtensionContext')?.terminateSelf();
           }
         });
       }

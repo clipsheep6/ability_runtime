@@ -14,8 +14,10 @@
  */
 
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import { GlobalThis } from '../utils/GlobalThis';
 
 const TAG = 'SwitchUserDialog_Service';
 const LEFT_COEFFICIENT = 0.1;
@@ -25,16 +27,16 @@ const HEIGHT = 64;
 const marginBotton = 20;
 
 let winNum = 1;
-let win;
+let win: window.Window;
 
 export default class SwitchUserServiceExtensionAbility extends extension {
-  onCreate(want) {
+  onCreate(want: want) {
     console.info(TAG, 'onCreate, want: ' + JSON.stringify(want));
   }
 
-  onRequest(want, startId) {
+  onRequest(want: want, startId: number) {
     console.info(TAG, 'onRequest, want: ' + JSON.stringify(want));
-    globalThis.abilityWant = want;
+    GlobalThis.getInstance().setWant("abilityWant", want);
 
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = this.getDialogSize(dis);
@@ -60,10 +62,10 @@ export default class SwitchUserServiceExtensionAbility extends extension {
       top: height - HEIGHT * densityPixels - marginBotton,
       width: width * WIDTH_COEFFICIENT,
       height: HEIGHT * densityPixels
-    };
+    } as window.Rect;
   }
 
-  private async createWindow(name: string, windowType: number, rect) :Promise<void> {
+  private async createWindow(name: string, windowType: window.WindowType, rect: window.Rect) :Promise<void> {
     console.info(TAG, 'create window rect is ' + JSON.stringify(rect));
     try {
       win = await window.create(this.context, name, windowType);
