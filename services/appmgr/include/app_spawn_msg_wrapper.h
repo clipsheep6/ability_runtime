@@ -41,6 +41,7 @@ struct AppSpawnStartMsg {
     std::string apl;
     std::string bundleName;
     std::string renderParam; // only nweb spawn need this param.
+    std::string ownerId;
     int32_t pid;
     int32_t code = 0; // 0: DEFAULT; 1: GET_RENDER_TERMINATION_STATUS; 2: SPAWN_NATIVE_PROCESS
     uint32_t flags;

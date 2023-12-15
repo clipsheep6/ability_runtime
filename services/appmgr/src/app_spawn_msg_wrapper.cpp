@@ -124,6 +124,10 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
             HILOG_ERROR("failed to transform renderCmd!");
             return false;
         }
+        if (strcpy_s(msg_->ownerId, sizeof(msg_->ownerId), startMsg.ownerId.c_str()) != EOK) {
+            HILOG_ERROR("failed to transform ownerId!");
+            return false;
+        }
         msg_->flags = startMsg.flags;
         msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
         msg_->hapFlags = startMsg.hapFlags;

@@ -2117,6 +2117,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.hspList = hspList;
     startMsg.dataGroupInfoList = dataGroupInfoList;
     startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
+    startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
 
     startMsg.mountPermissionFlags = AppSpawn::AppspawnMountPermission::GenPermissionCode(permissions);
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
