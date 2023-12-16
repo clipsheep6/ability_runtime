@@ -73,6 +73,7 @@ private:
     int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleClearProcessByToken(MessageParcel &data, MessageParcel &reply);
 
     using AmsMgrFunc = int32_t (AmsMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AmsMgrFunc> memberFuncMap_;

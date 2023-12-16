@@ -218,6 +218,13 @@ public:
      */
     bool IsAttachDebug(const std::string &bundleName) override;
 
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    virtual void ClearProcessByToken(sptr<IRemoteObject> token) override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

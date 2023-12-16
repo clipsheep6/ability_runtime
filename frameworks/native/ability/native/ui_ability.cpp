@@ -128,9 +128,11 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> s
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
-    sessionInfo_ = sessionInfo;
     HILOG_DEBUG("Begin ability is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
+    if (sessionInfo != nullptr) {
+        sessionToken_ = sessionInfo->sessionToken;
+    }
     OnStartForSupportGraphics(want);
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -1011,6 +1013,17 @@ int UIAbility::CreateModalUIExtension(const AAFwk::Want &want)
         return ERR_INVALID_VALUE;
     }
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
+}
+
+void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    sessionToken_ = sessionToken;
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilityContext is nullptr");
+        return;
+    }
+    abilityContextImpl->SetWeakSessionToken(sessionToken);
 }
 #endif
 } // namespace AbilityRuntime

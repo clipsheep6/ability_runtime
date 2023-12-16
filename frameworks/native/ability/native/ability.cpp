@@ -169,7 +169,9 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
-    sessionInfo_ = sessionInfo;
+    if (sessionInfo != nullptr) {
+        sessionToken_ = sessionInfo->sessionToken;
+    }
     HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
@@ -1594,7 +1596,7 @@ void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
         HILOG_ERROR("Ability window is nullptr.");
         return;
     }
-    abilityWindow_->SetSessionInfo(sessionInfo_);
+    abilityWindow_->SetSessionToken(sessionToken_);
     abilityWindow_->InitWindow(abilityContext_, sceneListener_, displayId, option, securityFlag_);
 }
 
@@ -2115,6 +2117,16 @@ int Ability::CreateModalUIExtension(const Want &want)
         return ERR_INVALID_VALUE;
     }
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
+}
+
+void Ability::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    sessionToken_ = sessionToken;
+    if (abilityWindow_ == nullptr) {
+        HILOG_ERROR("Ability window is nullptr.");
+        return;
+    }
+    abilityWindow_->SetSessionToken(sessionToken_);
 }
 #endif
 }  // namespace AppExecFwk

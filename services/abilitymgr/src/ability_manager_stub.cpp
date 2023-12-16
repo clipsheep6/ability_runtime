@@ -371,6 +371,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
         &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO)] =
+        &AbilityManagerStub::UpdateSessionInfoBySCBInner;
 }
 
 void AbilityManagerStub::FourthStepInit()
@@ -3031,6 +3033,28 @@ int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, M
         return ERR_INVALID_VALUE;
     }
     return result;
+}
+
+int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadInt32();
+    int32_t threshold = 512;
+    if (size > threshold) {
+        HILOG_ERROR("Size of vector too large.");
+        return ERR_ENOUGH_DATA;
+    }
+    std::vector<SessionInfo> sessionInfos;
+    for (auto i = 0; i < size; i++) {
+        std::unique_ptr<SessionInfo> info(data.ReadParcelable<SessionInfo>());
+        if (info == nullptr) {
+            HILOG_ERROR("Read session info failed.");
+            return INNER_ERR;
+        }
+        sessionInfos.emplace_back(*info);
+    }
+    int32_t userId = data.ReadInt32();
+    UpdateSessionInfoBySCB(sessionInfos, userId);
+    return ERR_OK;
 }
 } // namespace AAFwk
 } // namespace OHOS

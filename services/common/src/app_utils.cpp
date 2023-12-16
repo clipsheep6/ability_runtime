@@ -21,12 +21,14 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
 const std::string BUNDLE_NAME_LAUNCHER = "com.ohos.launcher";
 const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
-namespace {
-    const std::string DEVICE_2IN1 = "2in1";
-    const std::string DEVICE_PC = "pc";
-    const std::string DEVICE_TABLET = "tablet";
+const std::string LAUNCHER_ABILITY_NAME = "com.ohos.launcher.MainAbility";
+const std::string SCENEBOARD_ABILITY_NAME = "com.ohos.sceneboard.MainAbility";
+const std::string DEVICE_2IN1 = "2in1";
+const std::string DEVICE_PC = "pc";
+const std::string DEVICE_TABLET = "tablet";
 }
 AppUtils::~AppUtils() {}
 
@@ -54,6 +56,15 @@ bool AppUtils::IsLauncher(const std::string &bundleName) const
     }
 
     return bundleName == BUNDLE_NAME_LAUNCHER;
+}
+
+bool AppUtils::IsLauncherAbility(const std::string &abilityName) const
+{
+    if (isSceneBoard_) {
+        return abilityName == SCENEBOARD_ABILITY_NAME;
+    }
+
+    return abilityName == LAUNCHER_ABILITY_NAME;
 }
 
 bool AppUtils::JudgePCDevice() const

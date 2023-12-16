@@ -1688,5 +1688,13 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
     }
     return abms->OpenFile(uri, flag);
 }
+
+void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->UpdateSessionInfoBySCB(sessionInfos, userId);
+}
 } // namespace AAFwk
 } // namespace OHOS

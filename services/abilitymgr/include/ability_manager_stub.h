@@ -263,6 +263,7 @@ private:
 
     int PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpdateSessionInfoBySCBInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t RegisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterAppDebugListenerInner(MessageParcel &data, MessageParcel &reply);

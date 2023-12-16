@@ -66,6 +66,7 @@ AbilitySchedulerStub::AbilitySchedulerStub()
     requestFuncMap_[SCHEDULE_SHARE_DATA] = &AbilitySchedulerStub::ShareDataInner;
     requestFuncMap_[SCHEDULE_ONEXECUTE_INTENT] = &AbilitySchedulerStub::OnExecuteIntentInner;
     requestFuncMap_[CREATE_MODAL_UI_EXTENSION] = &AbilitySchedulerStub::CreateModalUIExtensionInner;
+    requestFuncMap_[UPDATE_SESSION_TOKEN] = &AbilitySchedulerStub::UpdateSessionTokenInner;
     
 #ifdef ABILITY_COMMAND_FOR_TEST
     requestFuncMap_[BLOCK_ABILITY_INNER] = &AbilitySchedulerStub::BlockAbilityInner;
@@ -667,6 +668,13 @@ int AbilitySchedulerStub::CreateModalUIExtensionInner(MessageParcel &data, Messa
         HILOG_ERROR("fail to WriteInt32 ret");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilitySchedulerStub::UpdateSessionTokenInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> sessionToken = data.ReadRemoteObject();
+    UpdateSessionToken(sessionToken);
     return NO_ERROR;
 }
 

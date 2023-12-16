@@ -23,11 +23,11 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
+#include "app_utils.h"
 #include "extension_config.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
-#include "mock_session_manager_service.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
 #include "extension_record.h"
@@ -1496,8 +1496,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
     IN_PROCESS_CALL_WITHOUT_RET(abilityRecord->RevokeUriPermission());
     abilityRecord->RemoveAbilityDeathRecipient();
     if (IsSceneBoard(abilityRecord)) {
-        HILOG_INFO("SceneBoard exit normally.");
-        Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
+        HILOG_INFO("To kill processes because scb exit.");
         KillProcessesByUserId();
     }
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
@@ -1775,7 +1774,8 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         HandleUIExtensionDied(abilityRecord);
     }
 
-    if (GetExtensionFromServiceMapInner(abilityRecord->GetToken()) == nullptr) {
+    auto token = abilityRecord->GetToken();
+    if (GetExtensionFromServiceMapInner(token) == nullptr) {
         HILOG_ERROR("Died ability record is not exist in service map.");
         return;
     }
@@ -1783,6 +1783,9 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     MoveToTerminatingMap(abilityRecord);
     RemoveServiceAbility(abilityRecord);
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
+        if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
+            DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(token->AsObject());
+        }
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         RestartAbility(abilityRecord, currentUserId);
     }
@@ -1826,13 +1829,12 @@ void AbilityConnectManager::RestartAbility(const std::shared_ptr<AbilityRecord> 
     requestInfo.restart = true;
     abilityRecord->SetRestarting(true);
 
-    if (currentUserId != userId_ &&
-        abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
-        HILOG_WARN("delay restart root launcher until switch user.");
-        return;
-    }
-
-    if (abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
+    if (AppUtils::GetInstance().IsLauncherAbility(abilityRecord->GetAbilityInfo().name)) {
+        if (currentUserId != userId_) {
+            HILOG_WARN("delay restart root launcher until switch user.");
+            return;
+        }
+        requestInfo.want.SetParam("ohos.app.recovery", true);
         requestInfo.restartCount = abilityRecord->GetRestartCount();
         HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo.restartCount);
         StartAbilityLocked(requestInfo);

@@ -40,6 +40,7 @@ const std::string TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask"
 const std::string TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
 const std::string TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
 const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
+const std::string TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(
@@ -432,6 +433,22 @@ bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
         return false;
     }
     return amsMgrServiceInner_->IsAttachDebug(bundleName);
+}
+
+void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyProcessPermission(token) != ERR_OK) {
+        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+        return;
+    }
+
+    std::function<void()> clearProcessByTokenFunc =
+        std::bind(&AppMgrServiceInner::ClearProcessByToken, amsMgrServiceInner_, token);
+    amsHandler_->SubmitTask(clearProcessByTokenFunc, TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

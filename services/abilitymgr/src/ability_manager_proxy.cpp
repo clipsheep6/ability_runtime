@@ -4781,6 +4781,42 @@ int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
     return reply.ReadFileDescriptor();
 }
 
+void AbilityManagerProxy::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+    auto size = static_cast<int32_t>(sessionInfos.size());
+    int32_t threshold = 512;
+    if (size > threshold) {
+        HILOG_ERROR("Size of vector too large.");
+        return;
+    }
+    if (!data.WriteInt32(size)) {
+        HILOG_ERROR("Write size failed.");
+        return;
+    }
+    for (int32_t i = 0; i < size; i++) {
+        if (!data.WriteParcelable(&sessionInfos[i])) {
+            HILOG_ERROR("Write sessionInfo failed.");
+            return;
+        }
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("Write userId failed.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with %{public}d", ret);
+    }
+}
+
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {

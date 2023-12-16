@@ -419,7 +419,7 @@ void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
     // earlier than above actions
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, sessionInfo_);
+    lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
     {
@@ -464,7 +464,7 @@ void AbilityRecord::ForegroundAbility(const Closure &task, sptr<SessionInfo> ses
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::FOREGROUNDING);
     lifeCycleStateInfo_.sceneFlag = sceneFlag;
-    lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, sessionInfo);
+    lifecycleDeal_->ForegroundNew(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
     lifeCycleStateInfo_.sceneFlag = 0;
     lifeCycleStateInfo_.sceneFlagBak = 0;
     {
@@ -1193,7 +1193,7 @@ void AbilityRecord::BackgroundAbility(const Closure &task)
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::BACKGROUNDING);
-    lifecycleDeal_->BackgroundNew(GetWant(), lifeCycleStateInfo_, sessionInfo_);
+    lifecycleDeal_->BackgroundNew(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
 }
 
 bool AbilityRecord::PrepareTerminateAbility()
@@ -1257,11 +1257,12 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
             static_cast<int32_t>(state));
         int ret = ERR_OK;
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            if (sessionInfo_ == nullptr) {
-                HILOG_ERROR("sessionInfo_ is nullptr");
+            auto sessionInfo = GetSessionInfo();
+            if (sessionInfo == nullptr) {
+                HILOG_ERROR("sessionInfo is nullptr");
                 return;
             }
-            int32_t persistentId = sessionInfo_->persistentId;
+            int32_t persistentId = sessionInfo->persistentId;
             switch (state) {
                 case AbilityState::BACKGROUNDING: {
                     ret = collaborator->NotifyMoveMissionToBackground(persistentId);
@@ -1483,7 +1484,7 @@ void AbilityRecord::Inactivate()
     // schedule inactive after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::INACTIVATING);
-    lifecycleDeal_->Inactivate(GetWant(), lifeCycleStateInfo_, sessionInfo_);
+    lifecycleDeal_->Inactivate(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
 }
 
 void AbilityRecord::Terminate(const Closure &task)
@@ -2507,7 +2508,24 @@ void AbilityRecord::SetMission(const std::shared_ptr<Mission> &mission)
 
 void AbilityRecord::SetSessionInfo(sptr<SessionInfo> sessionInfo)
 {
+    std::lock_guard guard(sessionLock_);
     sessionInfo_ = sessionInfo;
+}
+
+sptr<SessionInfo> AbilityRecord::GetSessionInfo() const
+{
+    std::lock_guard guard(sessionLock_);
+    return sessionInfo_;
+}
+
+void AbilityRecord::UpdateSessionInfo(sptr<IRemoteObject> sessionToken)
+{
+    std::lock_guard guard(sessionLock_);
+    if (sessionInfo_ != nullptr) {
+        sessionInfo_->sessionToken = sessionToken;
+        CHECK_POINTER(lifecycleDeal_);
+        lifecycleDeal_->UpdateSessionToken(sessionToken);
+    }
 }
 
 void AbilityRecord::SetMinimizeReason(bool fromUser)

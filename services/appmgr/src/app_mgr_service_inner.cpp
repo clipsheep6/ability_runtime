@@ -2388,8 +2388,13 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         return;
     }
 
-    auto appRecord = appRunningManager_->OnRemoteDied(remote);
-    if (!appRecord) {
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    {
+        std::lock_guard lock(exceptionLock_);
+        appRecord = appRunningManager_->OnRemoteDied(remote);
+    }
+    if (appRecord == nullptr) {
+        HILOG_INFO("app record is not exist.");
         return;
     }
 
@@ -5287,6 +5292,37 @@ void AppMgrServiceInner::ParseServiceExtMultiProcessWhiteList()
         return;
     }
     SplitStr(serviceExtMultiProcessWhiteList, ";", serviceExtensionWhiteList_);
+}
+
+void AppMgrServiceInner::ClearProcessByToken(sptr<IRemoteObject> token)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (token == nullptr) {
+        HILOG_ERROR("token is null");
+        return;
+    }
+
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    {
+        std::lock_guard lock(exceptionLock_);
+        appRecord = GetAppRunningRecordByAbilityToken(token);
+        if (appRecord == nullptr) {
+            HILOG_INFO("app record is not exist for ability token");
+            return;
+        }
+        appRecord->SetApplicationClient(nullptr);
+        auto recordId = appRecord->GetRecordId();
+        if (appRunningManager_ == nullptr) {
+            HILOG_ERROR("appRunningManager_ is nullptr");
+            return;
+        }
+        appRunningManager_->RemoveAppRunningRecordById(recordId);
+    }
+
+    ClearAppRunningData(appRecord, false);
+    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
+        RemoveRunningSharedBundleList(appRecord->GetBundleName());
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

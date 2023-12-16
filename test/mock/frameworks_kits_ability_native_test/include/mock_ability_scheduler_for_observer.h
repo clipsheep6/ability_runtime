@@ -82,6 +82,7 @@ public:
     {
         return 0;
     }
+    virtual void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override {}
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

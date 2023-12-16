@@ -302,6 +302,12 @@ public:
 
     virtual void CallRequest() = 0;
 
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    virtual void UpdateSessionToken(sptr<IRemoteObject> sessionToken) = 0;
+
     enum {
         // ipc id for scheduling ability to a state of life cycle
         SCHEDULE_ABILITY_TRANSACTION = 0,
@@ -398,7 +404,9 @@ public:
 
         SCHEDULE_ONEXECUTE_INTENT,
 
-        CREATE_MODAL_UI_EXTENSION
+        CREATE_MODAL_UI_EXTENSION,
+
+        UPDATE_SESSION_TOKEN
     };
 };
 }  // namespace AAFwk

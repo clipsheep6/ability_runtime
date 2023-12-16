@@ -9472,5 +9472,15 @@ int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
     }
     return result;
 }
+
+void AbilityManagerService::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    HILOG_INFO("The sceneboard is being restored.");
+    uiAbilityLifecycleManager_->UpdateSessionInfoBySCB(sessionInfos, userId);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

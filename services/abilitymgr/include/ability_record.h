@@ -416,10 +416,7 @@ public:
         return scheduler_;
     }
 
-    inline sptr<SessionInfo> GetSessionInfo() const
-    {
-        return sessionInfo_;
-    }
+    sptr<SessionInfo> GetSessionInfo() const;
 
     sptr<SessionInfo> GetUIExtRequestSessionInfo() const
     {
@@ -875,6 +872,7 @@ public:
     bool IsStartToForeground() const;
     void SetStartToForeground(const bool flag);
     void SetSessionInfo(sptr<SessionInfo> sessionInfo);
+    void UpdateSessionInfo(sptr<IRemoteObject> sessionToken);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
     void SetClearMissionFlag(bool clearMissionFlag);
@@ -1117,6 +1115,7 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
+    mutable ffrt::mutex sessionLock_;
     sptr<AbilityAppStateObserver> abilityAppStateObserver_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
     sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
