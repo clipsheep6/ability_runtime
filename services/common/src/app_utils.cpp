@@ -36,8 +36,8 @@ AppUtils::AppUtils()
         isSceneBoard_ = true;
     }
     auto deviceType = system::GetDeviceType();
-    if (deviceType.compare(DEVICE_2IN1) != 0 || deviceType.compare(DEVICE_TABLET) != 0) {
-        isMultiProcesModelDevice_ = true;
+    if (deviceType == DEVICE_2IN1 || deviceType == DEVICE_PC || deviceType == DEVICE_TABLET) {
+        isPcDevice_ = true;
     }
 }
 
@@ -58,16 +58,7 @@ bool AppUtils::IsLauncher(const std::string &bundleName) const
 
 bool AppUtils::JudgePCDevice() const
 {
-    auto deviceType = system::GetDeviceType();
-    if (deviceType.compare(DEVICE_2IN1) != 0 || deviceType.compare(DEVICE_PC) != 0) {
-        return true;
-    }
-    return false;
-}
-
-bool AppUtils::JudgeMultiProcessModelDevice() const
-{
-    return isMultiProcesModelDevice_;
+    return isPcDevice_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

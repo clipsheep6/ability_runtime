@@ -65,7 +65,7 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Lev
 {
     pid_t pid;
     auto &appUtils = AAFwk::AppUtils::GetInstance();
-    appUtils.isMultiProcesModelDevice_ = true;
+    appUtils.isPcDevice_ = true;
     ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
     EXPECT_TRUE(pid > 0);
 }

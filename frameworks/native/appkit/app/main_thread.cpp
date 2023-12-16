@@ -2227,7 +2227,7 @@ void MainThread::Start()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("LoadLifecycle: MainThread start come.");
 
-    if (AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+    if (AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
         ChildProcessInfo info;
         if (IsStartChild(info)) {
             ChildMainThread::Start(info);
