@@ -66,6 +66,7 @@
 #include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "permission_constants.h"
+#include "proxy_authorization_uri_config.h"
 #include "recovery_param.h"
 #include "sa_mgr_client.h"
 #include "scene_board_judgement.h"
@@ -424,6 +425,11 @@ bool AbilityManagerService::Init()
         DelayedSingleton<ExtensionConfig>::GetInstance()->LoadExtensionConfiguration();
     };
     taskHandler_->SubmitTask(initExtensionConfigTask, "InitExtensionConfigTask");
+
+    auto initAuthorizationUriConfigTask = []() {
+        DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->LoadConfiguration();
+    };
+    taskHandler_->SubmitTask(initAuthorizationUriConfigTask, "initAuthorizationUriConfigTask");
 
     auto bootCompletedTask = [handler = taskHandler_]() {
         if (ApplicationUtil::IsBootCompleted()) {
