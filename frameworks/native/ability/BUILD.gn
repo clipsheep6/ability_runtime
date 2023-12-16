@@ -89,7 +89,7 @@ ohos_shared_library("ability_context_native") {
       "ace_engine:ace_uicontent",
       "window_manager:libwsutils",
       "window_manager:scene_session",
-      "window_manager:session_manager",
+      "window_manager:session_manager_lite",
     ]
   }
 
