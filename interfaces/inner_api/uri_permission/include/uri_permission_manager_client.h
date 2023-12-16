@@ -88,6 +88,8 @@ public:
      */
     bool VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId);
 
+    bool IsAuthorizationUriAllowed(uint32_t fromTokenId);
+
     void OnLoadSystemAbilitySuccess(const sptr<IRemoteObject> &remoteObject);
     void OnLoadSystemAbilityFail();
 private:

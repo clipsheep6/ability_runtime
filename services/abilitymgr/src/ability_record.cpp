@@ -2816,10 +2816,9 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     } else {
         fromTokenId = IPCSkeleton::GetCallingTokenID();
     }
-
     auto permission =
-        PermissionVerification::GetInstance()->VerifyCallingPermission(PERMISSION_PROXY_AUTHORIZATION_URI) ||
-        PermissionVerification::GetInstance()->VerifyPermissionByTokenId(tokenId, PERMISSION_PROXY_AUTHORIZATION_URI);
+        AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(IPCSkeleton::GetCallingTokenID()) ||
+        AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(tokenId);
     auto userId = GetCurrentAccountId();
     auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     std::unordered_map<uint32_t, std::vector<Uri>> uriVecMap; // flag, vector

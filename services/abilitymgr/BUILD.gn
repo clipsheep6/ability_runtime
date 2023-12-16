@@ -242,9 +242,16 @@ ohos_prebuilt_etc("uiextension_picker_config.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("proxy_authorization_uri.json") {
+  source = "resource/proxy_authorization_uri.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
+    ":proxy_authorization_uri.json",
     ":uiextension_picker_config.json",
   ]
 }

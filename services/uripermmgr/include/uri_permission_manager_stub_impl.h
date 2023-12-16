@@ -56,6 +56,7 @@ public:
 
     bool CheckPersistableUriPermissionProxy(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
+    bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
     
     uint32_t GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex);
 

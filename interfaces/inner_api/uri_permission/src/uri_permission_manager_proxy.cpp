@@ -228,6 +228,28 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
     return reply.ReadBool();
 }
 
+bool UriPermissionManagerProxy::IsAuthorizationUriAllowed(uint32_t fromTokenId)
+{
+    HILOG_DEBUG("UriPermissionManagerProxy::IsAuthorizationUriAllowed is called.");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+    if (!data.WriteInt32(fromTokenId)) {
+        HILOG_ERROR("Write fromTokenId failed.");
+        return false;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_IS_Authorization_URI_ALLOWED, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
 int32_t UriPermissionManagerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

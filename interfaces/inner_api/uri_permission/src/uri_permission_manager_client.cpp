@@ -107,6 +107,15 @@ bool UriPermissionManagerClient::VerifyUriPermission(const Uri& uri, uint32_t fl
     return false;
 }
 
+bool UriPermissionManagerClient::IsAuthorizationUriAllowed(uint32_t fromTokenId)
+{
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->IsAuthorizationUriAllowed(fromTokenId);
+    }
+    return false;
+}
+
 sptr<IUriPermissionManager> UriPermissionManagerClient::ConnectUriPermService()
 {
     HILOG_DEBUG("UriPermissionManagerClient::ConnectUriPermService is called.");

@@ -29,6 +29,7 @@
 #include "parameter.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "proxy_authorization_uri_config.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
 #include "want.h"
@@ -49,6 +50,7 @@ void UriPermissionManagerStubImpl::Init()
         HILOG_INFO("Init uri permission database manager.");
         uriPermissionRdb_ = std::make_shared<UriPermissionRdb>();
     }
+    DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->LoadConfiguration();
 }
 
 bool UriPermissionManagerStubImpl::CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId)
@@ -99,6 +101,11 @@ bool UriPermissionManagerStubImpl::VerifyUriPermission(const Uri &uri, uint32_t 
     }
     HILOG_DEBUG("uri permission not exists");
     return false;
+}
+
+bool UriPermissionManagerStubImpl::IsAuthorizationUriAllowed(uint32_t fromTokenId)
+{
+    return DelayedSingleton<ProxyAuthorizationUriConfig>::GetInstance()->IsAuthorizationUriAllowed(fromTokenId);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
@@ -186,8 +193,7 @@ int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned 
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     Uri uri_inner = uri;
     auto&& authority = uri_inner.GetAuthority();
-    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    auto permission = IsAuthorizationUriAllowed(callerTokenId);
     if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
         newFlag |= Want::FLAG_AUTH_WRITE_URI_PERMISSION;
     } else {
@@ -536,8 +542,7 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     auto uriTokenId = GetTokenIdByBundleName(authority, 0);
     auto tokenId = GetTokenIdByBundleName(bundleName, 0);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    auto permission = PermissionVerification::GetInstance()->VerifyCallingPermission(
-        AAFwk::PermissionConstants::PERMISSION_PROXY_AUTHORIZATION_URI);
+    auto permission = IsAuthorizationUriAllowed(callerTokenId);
     bool authorityFlag = authority == "media" || authority == "docs";
 
     if (!authorityFlag && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {

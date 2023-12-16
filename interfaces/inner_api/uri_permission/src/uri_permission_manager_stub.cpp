@@ -52,6 +52,9 @@ int UriPermissionManagerStub::OnRemoteRequest(
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
         }
+        case UriPermMgrCmd::ON_IS_Authorization_URI_ALLOWED : {
+            return HandleIsAuthorizationUriAllowed(data, reply);
+        }
         default:
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
@@ -149,6 +152,14 @@ int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, Mes
     auto flag = data.ReadInt32();
     auto tokenId = data.ReadInt32();
     bool result = VerifyUriPermission(*uri, flag, tokenId);
+    reply.WriteBool(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleIsAuthorizationUriAllowed(MessageParcel &data, MessageParcel &reply)
+{
+    auto fromTokenId = data.ReadInt32();
+    bool result = IsAuthorizationUriAllowed(fromTokenId);
     reply.WriteBool(result);
     return ERR_OK;
 }
