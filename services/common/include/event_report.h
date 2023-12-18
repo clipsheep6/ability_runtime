@@ -98,10 +98,12 @@ enum class EventName {
 
 class EventReport {
 public:
+    static void SendProcessEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendKeyEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendAppSecondEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
 
 private:
     static std::string ConvertEventName(const EventName &eventName);

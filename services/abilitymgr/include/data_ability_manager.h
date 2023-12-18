@@ -66,6 +66,9 @@ private:
         std::shared_ptr<DataAbilityRecord> &record);
     void DumpClientInfo(std::vector<std::string> &info, bool isClient,
         std::shared_ptr<DataAbilityRecord> dataAbilityRecord) const;
+    bool CheckBeforeAcquire(const AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &client, bool isNotHap);
+
 private:
     mutable ffrt::mutex mutex_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoaded_;
