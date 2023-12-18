@@ -985,6 +985,9 @@ private:
     }
 
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
+    void LoadForUIAbility();
+    void StartNotifyCollaborator(AbilityState state, sptr<IAbilityManagerCollaborator> collaborator);
+    void DumpPreAbilityInfo(std::string &dumpInfo);
 
     void GrantUriPermissionInner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);

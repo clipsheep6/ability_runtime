@@ -48,29 +48,9 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
 {
     HILOG_DEBUG("Call");
 
-    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("Data ability manager acquire: not a data ability.");
-        return nullptr;
-    }
-
-    if (abilityRequest.abilityInfo.bundleName.empty() || abilityRequest.abilityInfo.name.empty()) {
-        HILOG_ERROR("Data ability manager acquire: invalid name.");
-        return nullptr;
-    }
-
-    std::shared_ptr<AbilityRecord> clientAbilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-
-    if (client && !isNotHap) {
-        clientAbilityRecord = Token::GetAbilityRecordByToken(client);
-        if (!clientAbilityRecord) {
-            HILOG_ERROR("Data ability manager acquire: invalid client token.");
-            return nullptr;
-        }
-        HILOG_INFO("Ability '%{public}s' acquiring data ability '%{public}s'...",
-            clientAbilityRecord->GetAbilityInfo().name.c_str(), dataAbilityName.c_str());
-    } else {
-        HILOG_INFO("Loading data ability '%{public}s'...", dataAbilityName.c_str());
+    if (!CheckBeforeAcquire(abilityRequest, client, isNotHap, dataAbilityName)) {
+        return nullptr;
     }
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
@@ -698,6 +678,35 @@ void DataAbilityManager::ReportDataAbilityReleased(const sptr<IRemoteObject> &cl
     caller.callerUid = IPCSkeleton::GetCallingUid();
     caller.callerToken = client;
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveDataAbilityConnection(caller, record);
+}
+
+bool DataAbilityManager::CheckBeforeAcquire(const AbilityRequest &abilityRequest,
+    const sptr<IRemoteObject> &client, bool isNotHap, const std::string dataAbilityName)
+{
+    if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
+        HILOG_ERROR("Data ability manager acquire: not a data ability.");
+        return false;
+    }
+
+    if (abilityRequest.abilityInfo.bundleName.empty() || abilityRequest.abilityInfo.name.empty()) {
+        HILOG_ERROR("Data ability manager acquire: invalid name.");
+        return false;
+    }
+
+    std::shared_ptr<AbilityRecord> clientAbilityRecord;
+
+    if (client && !isNotHap) {
+        clientAbilityRecord = Token::GetAbilityRecordByToken(client);
+        if (!clientAbilityRecord) {
+            HILOG_ERROR("Data ability manager acquire: invalid client token.");
+            return false;
+        }
+        HILOG_INFO("Ability '%{public}s' acquiring data ability '%{public}s'...",
+            clientAbilityRecord->GetAbilityInfo().name.c_str(), dataAbilityName.c_str());
+    } else {
+        HILOG_INFO("Loading data ability '%{public}s'...", dataAbilityName.c_str());
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

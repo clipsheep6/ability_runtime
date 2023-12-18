@@ -100,6 +100,9 @@ private:
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
     bool IsCallFromAncoShell(const sptr<IRemoteObject> &token);
+    int ImplicitStartAbility(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos);
+    int StartAbilityTask(AbilityRequest &request, int32_t userId, std::string identity,
+    const std::string& bundle, const std::string& abilityName);
 
 private:
     const static std::vector<std::string> blackList;
