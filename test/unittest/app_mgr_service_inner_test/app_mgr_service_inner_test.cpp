@@ -303,17 +303,17 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
 
     // config didn't change
     result = appMgrServiceInner->UpdateConfiguration(*config);
-    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     Configuration changeConfig;
     if (value == "true") {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
-        EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+        EXPECT_EQ(result, ERR_OK);
         config = appMgrServiceInner->GetConfiguration();
         EXPECT_NE(config, nullptr);
         value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-        EXPECT_EQ(value, "true");
+        EXPECT_EQ(value, "false");
     } else {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
