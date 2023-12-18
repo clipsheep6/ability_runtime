@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_H
 
 #include "ability_util.h"
+#include "cpp/mutex.h"
 #ifdef SUPPORT_ERMS
 #include "ecological_rule_mgr_service_client.h"
 #else
@@ -30,6 +31,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+class DisposedObserver;
 #ifdef SUPPORT_ERMS
 using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
 using ExperienceRule = OHOS::EcologicalRuleMgrService::ExperienceRule;
@@ -79,7 +81,8 @@ private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::AppRunningControlRuleResult &controlRule);
 };
 
-class DisposedRuleInterceptor : public AbilityInterceptor {
+class DisposedRuleInterceptor : public AbilityInterceptor,
+                                public std::enable_shared_from_this<DisposedRuleInterceptor> {
 public:
     DisposedRuleInterceptor() = default;
     ~DisposedRuleInterceptor() = default;
@@ -89,11 +92,15 @@ public:
     {
         taskHandler_ = taskHandler;
     };
+    void UnregisterObserver(const std::string &bundleName);
 private:
     bool CheckControl(const Want &want, int32_t userId, AppExecFwk::DisposedRule &disposedRule);
     bool CheckDisposedRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
+    ErrCode StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule);
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+    std::map<std::string, sptr<DisposedObserver>> disposedObserverMap_;
+    ffrt::mutex observerLock_;
 };
 
 class EcologicalRuleInterceptor : public AbilityInterceptor {

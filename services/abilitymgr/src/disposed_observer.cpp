@@ -15,27 +15,17 @@
 
 #include "disposed_observer.h"
 
+#include "ability_interceptor.h"
 #include "ability_record.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "want.h"
 namespace OHOS {
 namespace AAFwk {
-DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule)
-    : disposedRule_(disposedRule)
+DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
+    const std::shared_ptr<DisposedRuleInterceptor> &interceptor)
+    : disposedRule_(disposedRule), interceptor_(interceptor)
 {}
-
-DisposedObserver::~DisposedObserver()
-{}
-
-bool DisposedObserver::UnSubScribeAppState()
-{
-    HILOG_DEBUG("Call");
-    sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppMgr();
-    IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(
-        iface_cast<AppExecFwk::IApplicationStateObserver>(this)));
-    return true;
-}
 
 sptr<OHOS::AppExecFwk::IAppMgr> DisposedObserver::GetAppMgr()
 {
@@ -72,7 +62,7 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule_.want));
         if (ret != ERR_OK) {
-            UnSubScribeAppState();
+            interceptor_->UnregisterObserver(pageStateData.bundleName);
             HILOG_ERROR("failed to start disposed ability");
             return;
         }
@@ -80,18 +70,18 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token_);
         if (!abilityRecord) {
-            UnSubScribeAppState();
+            interceptor_->UnregisterObserver(pageStateData.bundleName);
             HILOG_ERROR("abilityRecord is nullptr");
             return;
         }
         int ret = abilityRecord->CreateModalUIExtension(*disposedRule_.want);
         if (ret != ERR_OK) {
-            UnSubScribeAppState();
+            interceptor_->UnregisterObserver(pageStateData.bundleName);
             HILOG_ERROR("failed to start disposed UIExtension");
             return;
         }
     }
-    UnSubScribeAppState();
+    interceptor_->UnregisterObserver(pageStateData.bundleName);
 }
 } // namespace AAFwk
 } // namespace OHOS
