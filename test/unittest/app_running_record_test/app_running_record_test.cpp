@@ -17,7 +17,9 @@
 
 #define private public
 #include "app_running_record.h"
+#include "child_process_record.h"
 #undef private
+#include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 using namespace testing;
 using namespace testing::ext;
@@ -175,6 +177,88 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_AbilityTerminated_0100, TestSize
     EXPECT_NE(appRunningRecord, nullptr);
     appRunningRecord->AbilityTerminated(token);
     EXPECT_EQ(appRunningRecord->processType_, ProcessType::NORMAL);
+}
+
+/**
+ * @tc.name: AppRunningRecord_AddChildProcessRecord_0100
+ * @tc.desc: Test AddChildProcessRecord works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_AddChildProcessRecord_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningRecord_AddChildProcessRecord_0100 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    EXPECT_NE(appRecord, nullptr);
+    
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
+    pid_t childPid = 201;
+    childRecord->pid_ = childPid;
+    appRecord->AddChildProcessRecord(childPid, childRecord);
+
+    auto childProcessRecordMap = appRecord->childProcessRecordMap_;
+    auto iter = childProcessRecordMap.find(childPid);
+    EXPECT_NE(iter, childProcessRecordMap.end());
+}
+
+/**
+ * @tc.name: AppRunningRecord_RemoveChildProcessRecord_0100
+ * @tc.desc: Test RemoveChildProcessRecord works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_RemoveChildProcessRecord_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningRecord_RemoveChildProcessRecord_0100 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    EXPECT_NE(appRecord, nullptr);
+    
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
+    pid_t childPid = 201;
+    childRecord->pid_ = childPid;
+    appRecord->childProcessRecordMap_.emplace(childPid, childRecord);
+
+    appRecord->RemoveChildProcessRecord(childRecord);
+    auto childProcessRecordMap = appRecord->childProcessRecordMap_;
+    auto iter = childProcessRecordMap.find(childPid);
+    EXPECT_EQ(iter, childProcessRecordMap.end());
+}
+
+/**
+ * @tc.name: AppRunningRecord_GetChildProcessRecordByPid_0100
+ * @tc.desc: Test GetChildProcessRecordByPid works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordByPid_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningRecord_GetChildProcessRecordByPid_0100 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    EXPECT_NE(appRecord, nullptr);
+    
+    auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
+    pid_t childPid = 201;
+    childRecord->pid_ = childPid;
+    appRecord->childProcessRecordMap_.emplace(childPid, childRecord);
+
+    auto record = appRecord->GetChildProcessRecordByPid(childPid);
+    EXPECT_NE(record, nullptr);
+}
+
+/**
+ * @tc.name: AppRunningRecord_GetChildProcessRecordMap_0100
+ * @tc.desc: Test GetChildProcessRecordByPid works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordMap_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningRecord_GetChildProcessRecordMap_0100 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    EXPECT_NE(appRecord, nullptr);
+
+    auto childProcessRecordMap = appRecord->GetChildProcessRecordMap();
+    EXPECT_EQ(childProcessRecordMap.size(), 0);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -5158,7 +5158,7 @@ void AppMgrServiceInner::AttachChildProcess(const pid_t pid, const sptr<IChildSc
 void AppMgrServiceInner::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (appRunningManager_) {
-        auto childRecord = appRunningManager_->OnChildProcessRemoteDied(remote);
+        appRunningManager_->OnChildProcessRemoteDied(remote);
     }
 }
 

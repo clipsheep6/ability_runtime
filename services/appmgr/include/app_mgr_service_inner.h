@@ -881,14 +881,14 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
+    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
 
     /**
      * Get child process record for self.
      *
      * @return child process record.
      */
-    int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
+    virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
     
     /**
      * Attach child process scheduler to app manager service.
@@ -896,14 +896,14 @@ public:
      * @param pid the child process pid to exit.
      * @param childScheduler scheduler of child process.
      */
-    void AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler);
+    virtual void AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler);
 
     /**
      * Exit child process safely by child process pid.
      *
      * @param pid child process pid.
      */
-    void ExitChildProcessSafelyByChildPid(const pid_t pid);
+    virtual void ExitChildProcessSafelyByChildPid(const pid_t pid);
 
     /**
      * Whether the current application process is the last surviving process.

@@ -92,7 +92,7 @@ public:
         lock_.Wait();
     }
 
-    void SetWaitCount(const int waitCount)
+    void SetWaitCount(const int32_t waitCount)
     {
         count_ = waitCount;
         currentCount_ = waitCount;

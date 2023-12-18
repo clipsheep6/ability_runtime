@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    constexpr const int32_t UID = 2001;
+}
 ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo)
 {
     std::vector<HapModuleInfo> hapModuleInfos;
@@ -33,6 +36,11 @@ ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundle
     moduleInfo.isStageBasedModel = true;
     hapModuleInfos.push_back(moduleInfo);
     bundleInfo.hapModuleInfos = hapModuleInfos;
+
+    AppExecFwk::ApplicationInfo applicationInfo;
+    applicationInfo.uid = UID;
+    bundleInfo.applicationInfo = applicationInfo;
+
     return ERR_OK;
 }
 }  // namespace AppExecFwk

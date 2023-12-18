@@ -45,7 +45,7 @@ public:
     bool GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
         const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn);
-    void LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
+    bool LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
         std::unique_ptr<AbilityRuntime::Runtime> &runtime);
 
 private:

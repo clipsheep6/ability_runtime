@@ -19,7 +19,10 @@ module_output_path = "ability_runtime/appmgr"
 ohos_unittest("app_mgr_service_test") {
   module_out_path = module_output_path
 
-  include_dirs = [ "${ability_runtime_test_path}/mock/common/include" ]
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/mock_appmgr_service/include",
+    "${ability_runtime_test_path}/mock/common/include",
+  ]
 
   sources = [
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
@@ -29,8 +32,11 @@ ohos_unittest("app_mgr_service_test") {
   configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 
   deps = [
+    "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:task_handler_wrap",
+    "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -48,6 +54,7 @@ ohos_unittest("app_mgr_service_test") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

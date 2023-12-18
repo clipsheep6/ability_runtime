@@ -17,7 +17,11 @@
 
 #define private public
 #include "app_mgr_service.h"
+#include "app_utils.h"
 #undef private
+#include "child_main_thread.h"
+#include "hilog_wrapper.h"
+#include "mock_app_mgr_service_inner.h"
 #include "mock_native_token.h"
 
 using namespace testing;
@@ -32,10 +36,14 @@ public:
     void SetUp() override;
     void TearDown() override;
     std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
+    std::shared_ptr<MockAppMgrServiceInner> mockAppMgrServiceInner_;
+    std::shared_ptr<AMSEventHandler> eventHandler_;
 };
 
 void AppMgrServiceTest::SetUpTestCase(void)
-{}
+{
+    AAFwk::AppUtils::GetInstance().isPcDevice_ = true;
+}
 
 void AppMgrServiceTest::TearDownTestCase(void)
 {}
@@ -43,10 +51,16 @@ void AppMgrServiceTest::TearDownTestCase(void)
 void AppMgrServiceTest::SetUp()
 {
     taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
+    mockAppMgrServiceInner_ = std::make_shared<MockAppMgrServiceInner>();
+    eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, mockAppMgrServiceInner_);
 }
 
 void AppMgrServiceTest::TearDown()
-{}
+{
+    taskHandler_.reset();
+    mockAppMgrServiceInner_.reset();
+    eventHandler_.reset();
+}
 
 /*
  * Feature: AppMgrService
@@ -1404,6 +1418,93 @@ HWTEST_F(AppMgrServiceTest, UnregisterAbilityForegroundStateObserver_0100, TestS
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     int32_t res = appMgrService->UnregisterAbilityForegroundStateObserver(nullptr);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: StartChildProcess_001
+ * @tc.desc: verify StartChildProcess calls works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
+{
+    HILOG_DEBUG("StartChildProcess_001 called.");
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    EXPECT_CALL(*mockAppMgrServiceInner_, StartChildProcess(_, _, _))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    pid_t pid = 0;
+    int32_t res = appMgrService->StartChildProcess("./ets/AProcess.ts", pid);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: GetChildProcessInfoForSelf_001
+ * @tc.desc: verify GetChildProcessInfoForSelf works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, GetChildProcessInfoForSelf_001, TestSize.Level1)
+{
+    HILOG_DEBUG("GetChildProcessInfoForSelf_001 called.");
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    EXPECT_CALL(*mockAppMgrServiceInner_, GetChildProcessInfoForSelf(_))
+        .Times(1)
+        .WillOnce(Return(ERR_OK));
+    ChildProcessInfo info;
+    int32_t ret = appMgrService->GetChildProcessInfoForSelf(info);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: AttachChildProcess_001
+ * @tc.desc: verify AttachChildProcess works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, AttachChildProcess_001, TestSize.Level1)
+{
+    HILOG_DEBUG("AttachChildProcess_001 called.");
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    sptr<ChildMainThread> childScheduler;
+    appMgrService->AttachChildProcess(childScheduler);
+    auto ret = appMgrService->taskHandler_->CancelTask("AttachChildProcessTask");
+    EXPECT_TRUE(!ret);
+}
+
+/**
+ * @tc.name: ExitChildProcessSafely_001
+ * @tc.desc: verify ExitChildProcessSafely works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, ExitChildProcessSafely_001, TestSize.Level1)
+{
+    HILOG_DEBUG("ExitChildProcessSafely_001 called.");
+    sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
+    ASSERT_NE(appMgrService, nullptr);
+
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    appMgrService->ExitChildProcessSafely();
+    auto ret = appMgrService->taskHandler_->CancelTask("ExitChildProcessSafelyTask");
+    EXPECT_TRUE(!ret);
 }
 } // namespace AppExecFwk
 } // namespace OHOS
