@@ -78,14 +78,7 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     }
 
     Want want;
-    if (key_->GetAllWantsInfos().size() != 0) {
-        want = key_->GetRequestWant();
-    }
-    bool immutable = ((uint32_t)key_->GetFlags() & (uint32_t)Flags::CONSTANT_FLAG) != 0;
-    senderInfo.resolvedType = key_->GetRequestResolvedType();
-    if (!immutable) {
-        want.AddFlags(key_->GetFlags());
-    }
+    BuildSendWant(senderInfo, want);
 
     bool sendFinish = (senderInfo.finishedReceiver != nullptr);
     int res = NO_ERROR;
@@ -117,6 +110,27 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     }
 
     return res;
+}
+
+void PendingWantRecord::BuildSendWant(SenderInfo &senderInfo, Want &want)
+{
+    if (key_->GetAllWantsInfos().size() != 0) {
+        want = key_->GetRequestWant();
+    }
+    bool immutable = (static_cast<uint32_t>(key_->GetFlags()) & static_cast<uint32_t>(Flags::CONSTANT_FLAG)) != 0;
+    senderInfo.resolvedType = key_->GetRequestResolvedType();
+    if (!immutable) {
+        want.AddFlags(key_->GetFlags());
+    }
+    WantParams wantParams = want.GetParams();
+    auto sendInfoWantParams = senderInfo.want.GetParams().GetParams();
+    for (auto mapIter = sendInfoWantParams.begin(); mapIter != sendInfoWantParams.end(); mapIter++) {
+        std::string sendInfoWantParamKey = mapIter->first;
+        if (want.GetParams().GetParam(sendInfoWantParamKey) == nullptr) {
+            wantParams.SetParam(sendInfoWantParamKey, mapIter->second);
+        }
+    }
+    want.SetParams(wantParams);
 }
 
 std::shared_ptr<PendingWantKey> PendingWantRecord::GetKey()
