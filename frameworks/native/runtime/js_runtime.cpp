@@ -777,7 +777,7 @@ void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> op
     CHECK_POINTER(jsEnv_);
     jsEnv_->InitSourceMap(operatorObj);
     JsEnv::SourceMap::RegisterReadSourceMapCallback(JsRuntime::ReadSourceMapData);
-    JsEnv::SourceMap::RegisterGetHapPathCallback(JsModuleReader::GetPresetAppHapPath);
+    JsEnv::SourceMap::RegisterGetHapPathCallback(JsModuleReader::GetHapPathList);
 }
 
 void JsRuntime::Deinitialize()
