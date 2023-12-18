@@ -2521,12 +2521,16 @@ sptr<SessionInfo> AbilityRecord::GetSessionInfo() const
 
 void AbilityRecord::UpdateSessionInfo(sptr<IRemoteObject> sessionToken)
 {
-    std::lock_guard guard(sessionLock_);
-    if (sessionInfo_ != nullptr) {
+    {
+        std::lock_guard guard(sessionLock_);
+        if (sessionInfo_ == nullptr) {
+            HILOG_WARN("sessionInfo_ is nullptr.");
+            return;
+        }
         sessionInfo_->sessionToken = sessionToken;
-        CHECK_POINTER(lifecycleDeal_);
-        lifecycleDeal_->UpdateSessionToken(sessionToken);
     }
+    CHECK_POINTER(lifecycleDeal_);
+    lifecycleDeal_->UpdateSessionToken(sessionToken);
 }
 
 void AbilityRecord::SetMinimizeReason(bool fromUser)

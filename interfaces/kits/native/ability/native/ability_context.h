@@ -180,6 +180,8 @@ public:
 
 protected:
     sptr<IRemoteObject> GetToken() override;
+    sptr<IRemoteObject> GetSessionToken();
+
     sptr<IRemoteObject> token_;
     AAFwk::Want resultWant_;
     int resultCode_ = -1;
@@ -188,6 +190,7 @@ protected:
     std::string callingAbilityName_;
     std::string callingModuleName_;
     std::map<sptr<AAFwk::IAbilityConnection>, sptr<IRemoteObject>> abilityConnectionMap_;
+    std::mutex sessionTokenMutex_;
     sptr<IRemoteObject> sessionToken_;
 
 private:

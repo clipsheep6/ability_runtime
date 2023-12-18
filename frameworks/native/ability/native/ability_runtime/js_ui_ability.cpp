@@ -735,9 +735,10 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
     }
     auto option = GetWindowOption(want);
     Rosen::WMError ret = Rosen::WMError::WM_OK;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken_ != nullptr) {
-        abilityContext_->SetWeakSessionToken(sessionToken_);
-        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken_);
+    auto sessionToken = GetSessionToken();
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
+        abilityContext_->SetWeakSessionToken(sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
     } else {
         ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
     }

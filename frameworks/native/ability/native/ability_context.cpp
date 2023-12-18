@@ -85,15 +85,16 @@ ErrCode AbilityContext::TerminateAbility()
         case AppExecFwk::AbilityType::PAGE:
             HILOG_DEBUG("Terminate ability begin, type is page, ability is %{public}s.", info->name.c_str());
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-                if (sessionToken_ == nullptr) {
-                    HILOG_ERROR("sessionToken_ is nullptr.");
+                auto sessionToken = GetSessionToken();
+                if (sessionToken == nullptr) {
+                    HILOG_ERROR("sessionToken is nullptr.");
                     return ERR_INVALID_VALUE;
                 }
                 sptr<AAFwk::SessionInfo> sessionInfo = new AAFwk::SessionInfo();
                 sessionInfo->want = resultWant_;
                 sessionInfo->resultCode = resultCode_;
                 HILOG_INFO("FA TerminateAbility resultCode is %{public}d", sessionInfo->resultCode);
-                auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken_);
+                auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken);
                 auto err = ifaceSessionToken->TerminateSession(sessionInfo);
                 HILOG_INFO("FA TerminateAbility. ret=%{public}d", err);
                 return static_cast<int32_t>(err);
@@ -311,6 +312,12 @@ void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
         StartAbility(want, ABILITY_CONTEXT_DEFAULT_REQUEST_CODE);
     }
     HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+sptr<IRemoteObject> AbilityContext::GetSessionToken()
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    return sessionToken_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -96,10 +96,16 @@ public:
 #endif
 
 private:
+#ifdef SUPPORT_GRAPHICS
+    sptr<IRemoteObject> GetSessionToken();
+#endif
+
+private:
     std::shared_ptr<AbilityHandler> handler_ = nullptr;
     std::weak_ptr<IAbilityEvent> ability_;
     std::shared_ptr<Rosen::WindowScene> windowScene_;
     bool isWindowAttached = false;
+    std::mutex sessionTokenMutex_;
     sptr<IRemoteObject> sessionToken_ = nullptr;
 };
 }  // namespace AppExecFwk

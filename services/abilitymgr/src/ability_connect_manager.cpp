@@ -1784,7 +1784,8 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     RemoveServiceAbility(abilityRecord);
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
         if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
-            DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(token->AsObject());
+            IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
+                token->AsObject()));
         }
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         RestartAbility(abilityRecord, currentUserId);

@@ -170,7 +170,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
     if (sessionInfo != nullptr) {
-        sessionToken_ = sessionInfo->sessionToken;
+        SetSessionToken(sessionInfo->sessionToken);
     }
     HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
@@ -2119,9 +2119,15 @@ int Ability::CreateModalUIExtension(const Want &want)
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
 }
 
+void Ability::SetSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    sessionToken_ = sessionToken;
+}
+
 void Ability::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
-    sessionToken_ = sessionToken;
+    SetSessionToken(sessionToken);
     if (abilityWindow_ == nullptr) {
         HILOG_ERROR("Ability window is nullptr.");
         return;

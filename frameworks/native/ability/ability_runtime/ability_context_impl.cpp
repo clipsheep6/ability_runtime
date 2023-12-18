@@ -312,7 +312,7 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
     isTerminating_ = true;
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sessionToken = sessionToken_.promote();
+        auto sessionToken = GetSessionToken();
         if (sessionToken == nullptr) {
             return ERR_INVALID_VALUE;
         }
@@ -332,8 +332,15 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
 
 void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
 {
+    std::lock_guard lock(sessionTokenMutex_);
     HILOG_DEBUG("Start calling SetWeakSessionToken.");
     sessionToken_ = sessionToken;
+}
+
+sptr<IRemoteObject> AbilityContextImpl::GetSessionToken()
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    return sessionToken_.promote();
 }
 
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
@@ -505,7 +512,7 @@ ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("TerminateSelf");
     isTerminating_ = true;
-    auto sessionToken = sessionToken_.promote();
+    auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
         HILOG_WARN("sessionToken is null");
     }

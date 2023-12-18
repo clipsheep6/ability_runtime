@@ -20,6 +20,7 @@
 #include "ipc_skeleton.h"
 #include "system_ability_definition.h"
 
+#include "accesstoken_kit.h"
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
@@ -441,8 +442,11 @@ void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
         return;
     }
 
-    if (amsMgrServiceInner_->VerifyProcessPermission(token) != ERR_OK) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (nativeInfo.processName != "foundation") {
+        HILOG_ERROR("caller is not foundation.");
         return;
     }
 

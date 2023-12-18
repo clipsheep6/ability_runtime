@@ -2398,10 +2398,7 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         return;
     }
 
-    ClearAppRunningData(appRecord, false);
-    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
-        RemoveRunningSharedBundleList(appRecord->GetBundleName());
-    }
+    ClearData(appRecord);
 }
 
 void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp)
@@ -5318,7 +5315,15 @@ void AppMgrServiceInner::ClearProcessByToken(sptr<IRemoteObject> token)
         }
         appRunningManager_->RemoveAppRunningRecordById(recordId);
     }
+    ClearData(appRecord);
+}
 
+void AppMgrServiceInner::ClearData(std::shared_ptr<AppRunningRecord> appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_WARN("app record is nullptr.");
+        return;
+    }
     ClearAppRunningData(appRecord, false);
     if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
         RemoveRunningSharedBundleList(appRecord->GetBundleName());

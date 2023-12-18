@@ -1207,6 +1207,7 @@ private:
 
     void ParseServiceExtMultiProcessWhiteList();
     int32_t GetFlag() const;
+    void ClearData(std::shared_ptr<AppRunningRecord> appRecord);
 
     /**
      * Notify the app running status.

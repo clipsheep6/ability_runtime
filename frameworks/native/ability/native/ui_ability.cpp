@@ -131,7 +131,7 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> s
     HILOG_DEBUG("Begin ability is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (sessionInfo != nullptr) {
-        sessionToken_ = sessionInfo->sessionToken;
+        SetSessionToken(sessionInfo->sessionToken);
     }
     OnStartForSupportGraphics(want);
 #endif
@@ -1015,9 +1015,15 @@ int UIAbility::CreateModalUIExtension(const AAFwk::Want &want)
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
 }
 
+void UIAbility::SetSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    sessionToken_ = sessionToken;
+}
+
 void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
-    sessionToken_ = sessionToken;
+    SetSessionToken(sessionToken);
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
         HILOG_ERROR("abilityContext is nullptr");

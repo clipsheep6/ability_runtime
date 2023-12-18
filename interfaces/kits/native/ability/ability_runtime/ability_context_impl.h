@@ -269,10 +269,12 @@ private:
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
     int32_t missionId_ = -1;
+    std::mutex sessionTokenMutex_;
     wptr<IRemoteObject> sessionToken_;
 
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
+    sptr<IRemoteObject> GetSessionToken();
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

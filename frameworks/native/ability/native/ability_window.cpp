@@ -48,8 +48,9 @@ bool AbilityWindow::InitWindow(std::shared_ptr<AbilityRuntime::AbilityContext> &
         windowScene_ = std::make_shared<Rosen::WindowScene>();
     }
     Rosen::WMError ret = Rosen::WMError::WM_OK;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken_ != nullptr) {
-        ret = windowScene_->Init(displayId, abilityContext, listener, option, sessionToken_);
+    auto sessionToken = GetSessionToken();
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
+        ret = windowScene_->Init(displayId, abilityContext, listener, option, sessionToken);
     } else {
         ret = windowScene_->Init(displayId, abilityContext, listener, option);
     }
@@ -188,7 +189,14 @@ ErrCode AbilityWindow::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMa
 
 void AbilityWindow::SetSessionToken(sptr<IRemoteObject> sessionToken)
 {
+    std::lock_guard lock(sessionTokenMutex_);
     sessionToken_ = sessionToken;
+}
+
+sptr<IRemoteObject> AbilityWindow::GetSessionToken()
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    return sessionToken_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
