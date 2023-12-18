@@ -3308,7 +3308,9 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     configuration_->Merge(changeKeyV, config);
     // all app
     int32_t result = appRunningManager_->UpdateConfiguration(config);
+    HILOG_INFO("HandleConfigurationChangeTime1");
     HandleConfigurationChange(config);
+    HILOG_INFO("HandleConfigurationChangeTime2");
     if (result != ERR_OK) {
         HILOG_ERROR("update error, not notify");
         return result;
