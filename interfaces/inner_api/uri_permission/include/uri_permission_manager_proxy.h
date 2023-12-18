@@ -32,7 +32,10 @@ public:
 
     virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string targetBundleName, int32_t appIndex = 0) override;
-
+    virtual int GrantUriPermissionFor2In1(
+        const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex = 0) override;
+    virtual int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
     virtual int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId) override;
     virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;

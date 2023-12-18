@@ -52,6 +52,12 @@ int UriPermissionManagerStub::OnRemoteRequest(
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
         }
+        case UriPermMgrCmd::ON_GRANT_URI_PERMISSION_FOR_2_IN_1 : {
+            return HandleGrantUriPermissionFor2In1(data, reply);
+        }
+        case UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1 : {
+            return HandleBatchGrantUriPermissionFor2In1(data, reply);
+        }
         case UriPermMgrCmd::ON_IS_Authorization_URI_ALLOWED : {
             return HandleIsAuthorizationUriAllowed(data, reply);
         }
@@ -153,6 +159,46 @@ int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, Mes
     auto tokenId = data.ReadInt32();
     bool result = VerifyUriPermission(*uri, flag, tokenId);
     reply.WriteBool(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+    if (uri == nullptr) {
+        HILOG_ERROR("To read uri failed.");
+        return ERR_DEAD_OBJECT;
+    }
+    auto flag = data.ReadInt32();
+    auto targetBundleName = data.ReadString();
+    auto appIndex = data.ReadInt32();
+    int result = GrantUriPermissionFor2In1(*uri, flag, targetBundleName, appIndex);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
+int UriPermissionManagerStub::HandleBatchGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_URI_COUNT) {
+        HILOG_ERROR("size is invalid.");
+        return ERR_DEAD_OBJECT;
+    }
+    std::vector<Uri> uriVec;
+    for (uint32_t i = 0; i < size; i++) {
+        std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+        if (uri == nullptr) {
+            HILOG_ERROR("To read uri failed.");
+            return ERR_DEAD_OBJECT;
+        }
+        uriVec.emplace_back(*uri);
+    }
+    auto flag = data.ReadInt32();
+    auto targetBundleName = data.ReadString();
+    auto appIndex = data.ReadInt32();
+    auto isSystemAppCall = data.ReadBool();
+    int result = GrantUriPermissionFor2In1(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
+    reply.WriteInt32(result);
     return ERR_OK;
 }
 

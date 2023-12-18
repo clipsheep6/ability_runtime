@@ -26,6 +26,7 @@
 #include "ability_manager_service.h"
 #include "ability_scheduler_stub.h"
 #include "ability_util.h"
+#include "app_utils.h"
 #include "appfreeze_manager.h"
 #include "array_wrapper.h"
 #include "accesstoken_kit.h"
@@ -2799,8 +2800,6 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_WARN("Do not call uriPermissionMgr.");
         return;
     }
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-    CHECK_POINTER_IS_NULLPTR(bundleMgrHelper);
     if (IsDmsCall(want)) {
         GrantDmsUriPermission(want, targetBundleName);
         return;
@@ -2826,7 +2825,16 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_INFO("permission to shell");
         return;
     }
+    if (AppUtils::GetInstance().JudgePCDevice()) {
+        GrantUriPermissionFor2In1Inner(want, uriVec, targetBundleName, tokenId);
+        return;
+    }
+    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
+}
 
+void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
+    const std::string &targetBundleName, uint32_t tokenId)
+{
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     uint32_t fromTokenId = 0;
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -2837,6 +2845,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     auto permission =
         AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(IPCSkeleton::GetCallingTokenID()) ||
         AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(tokenId);
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_IS_NULLPTR(bundleMgrHelper);
     auto userId = GetCurrentAccountId();
     auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
     std::unordered_map<uint32_t, std::vector<Uri>> uriVecMap; // flag, vector
@@ -2923,6 +2933,31 @@ bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUr
         }
     }
     return true;
+}
+
+void AbilityRecord::GrantUriPermissionFor2In1Inner(Want &want, std::vector<std::string> &uriVec,
+    const std::string &targetBundleName, uint32_t tokenId)
+{
+    std::vector<std::string> uriOtherVec;
+    std::vector<Uri> uri2In1Vec;
+    for (auto &&str : uriVec) {
+        Uri uri(str);
+        auto &&authority = uri.GetAuthority();
+        if (authority == "docs") {
+            uri2In1Vec.emplace_back(uri);
+        } else{
+            uriOtherVec.emplace_back(str);
+        }
+    }
+    if (!uri2In1Vec.empty()) {
+        uint32_t flag = want.GetFlags();
+        auto isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
+        IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionFor2In1(
+            uri2In1Vec, flag, targetBundleName, appIndex_, isSystemAppCall));
+    }
+    if (!uriOtherVec.empty()) {
+        GrantUriPermissionInner(want, uriOtherVec, targetBundleName, tokenId);
+    }
 }
 
 bool AbilityRecord::IsDmsCall(Want &want)

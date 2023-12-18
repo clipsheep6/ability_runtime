@@ -34,6 +34,10 @@
 #include "tokenid_kit.h"
 #include "want.h"
 
+#define READ_MODE (1<<0)
+#define WRITE_MODE (1<<1)
+#define IS_POLICY_ALLOWED_TO_BE_PRESISTED (1<<0)
+
 namespace OHOS {
 namespace AAFwk {
 namespace {
@@ -161,6 +165,30 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     return ret;
 }
 
+int checkPersistPermission(uint64_t tokenId, const std::vector<PolicyInfo> &policy, std::vector<bool> &result)
+{
+    for (auto i = 0; i < policy.size(); i++) {
+        result.emplace_back(true);
+    }
+    HILOG_INFO("Called, result size is %{public}zu", result.size());
+    return 0;
+}
+
+int32_t setPolicy(uint64_t tokenId, const std::vector<PolicyInfo> &policy, uint64_t policyFlag)
+{
+    HILOG_INFO("Called, policy size is %{public}zu", policy.size());
+    return 0;
+}
+
+int persistPermission(const std::vector<PolicyInfo> &policy, std::vector<uint32_t> &result)
+{
+    for (auto i = 0; i < policy.size(); i++) {
+        result.emplace_back(0);
+    }
+    HILOG_INFO("Called, result size is %{public}zu", result.size());
+    return 0;
+}
+
 int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
 {
     // reject sandbox to grant uri permission
@@ -185,6 +213,28 @@ int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
         return ERR_CODE_INVALID_URI_FLAG;
     }
     return ERR_OK;
+}
+
+int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1(
+    const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex)
+{
+    HILOG_DEBUG("Called.");
+    if (!PermissionVerification::GetInstance()->IsSystemAppCall()) {
+        HILOG_ERROR("Not system application call.");
+        return ERR_NOT_SYSTEM_APP;
+    }
+    std::vector<Uri> uriVec = { uri };
+    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, true);
+}
+
+int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
+{
+    if (!IsFoundationCall()) {
+        HILOG_ERROR("Not foundation call.");
+        return INNER_ERR;
+    }
+    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
 }
 
 int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned int flag,
@@ -745,6 +795,94 @@ void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &
     } else {
         HILOG_INFO("caller is not SA or callee is SA");
     }
+}
+
+int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
+{
+    HILOG_DEBUG("Called, uriVec size is %{public}zu", uriVec.size());
+    auto checkResult = CheckRule(flag);
+    if (checkResult != ERR_OK) {
+        return checkResult;
+    }
+    std::vector<PolicyInfo> docsVec;
+    std::vector<Uri> otherVec;
+    for (const auto &uri : uriVec) {
+        Uri uri_inner = uri;
+        auto &&scheme = uri_inner.GetScheme();
+        if (scheme != "file") {
+            HILOG_WARN("Only support file uri.");
+            continue;
+        }
+        auto &&authority = uri_inner.GetAuthority();
+        HILOG_DEBUG("The authority is %{public}s", authority.c_str());
+        PolicyInfo policyInfo;
+        policyInfo.path = uri_inner.ToString();
+        if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
+            policyInfo.mode |= WRITE_MODE;
+        } else {
+            policyInfo.mode |= READ_MODE;
+        }
+        if (authority == "docs") {
+            docsVec.emplace_back(policyInfo);
+        } else {
+            otherVec.emplace_back(uri_inner);
+        }
+    }
+    uint32_t tokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
+    HILOG_DEBUG("The tokenId is %{public}u", tokenId);
+    HandleUriPermission(tokenId, flag, docsVec, isSystemAppCall);
+    if (!otherVec.empty()) {
+        return GrantUriPermission(otherVec, flag, targetBundleName, appIndex);
+    }
+    return ERR_OK;
+}
+
+void UriPermissionManagerStubImpl::HandleUriPermission(
+    uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall)
+{
+    uint32_t policyFlag = 0;
+    if ((flag & Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION) != 0) {
+        policyFlag |= IS_POLICY_ALLOWED_TO_BE_PRESISTED;
+    }
+    // Handle docs type URI permission
+    if (!docsVec.empty()) {
+        std::vector<bool> result;
+        checkPersistPermission(tokenId, docsVec, result);
+        if (docsVec.size() != result.size()) {
+            HILOG_ERROR("Check persist permission failed.");
+            return;
+        }
+        std::vector<PolicyInfo> policyVec;
+        auto docsItem = docsVec.begin();
+        for (auto resultItem = result.begin(); resultItem != result.end();) {
+            if (*resultItem == true) {
+                policyVec.emplace_back(*docsItem);
+            }
+            resultItem++;
+            docsItem++;
+        }
+        if (!policyVec.empty()) {
+            setPolicy(tokenId, policyVec, policyFlag);
+        }
+        // The current processing starts from API 11 and maintains 5 versions.
+        if (((policyFlag & IS_POLICY_ALLOWED_TO_BE_PRESISTED) != 0) && isSystemAppCall) {
+            std::vector<uint32_t> persistResult;
+            persistPermission(policyVec, persistResult);
+        }
+    }
+}
+
+bool UriPermissionManagerStubImpl::IsFoundationCall()
+{
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    HILOG_DEBUG("Caller process name : %{public}s", nativeInfo.processName.c_str());
+    if (nativeInfo.processName == "foundation") {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
