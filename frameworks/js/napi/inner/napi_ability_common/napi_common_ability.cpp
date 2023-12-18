@@ -143,18 +143,18 @@ bool CheckAbilityType(AbilityType typeInAbility, AbilityType typeWant)
 bool CheckAbilityType(const CBBase *cbBase)
 {
     if (cbBase == nullptr) {
-        HILOG_ERROR("%{public}s cbBase == nullptr", __func__);
+        HILOG_ERROR("cbBase == nullptr");
         return false;
     }
 
     if (cbBase->ability == nullptr) {
-        HILOG_ERROR("%{public}s cbBase->ability == nullptr", __func__);
+        HILOG_ERROR("cbBase->ability == nullptr");
         return false;
     }
 
     const std::shared_ptr<AbilityInfo> info = cbBase->ability->GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("%{public}s info == nullptr", __func__);
+        HILOG_ERROR("info == nullptr");
         return false;
     }
     return CheckAbilityType((AbilityType)info->type, cbBase->abilityType);
@@ -162,53 +162,53 @@ bool CheckAbilityType(const CBBase *cbBase)
 
 bool CheckAbilityType(const AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == null", __func__);
+        HILOG_ERROR("asyncCallbackInfo == null");
         return false;
     }
 
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability == null", __func__);
+        HILOG_ERROR("ability == null");
         return false;
     }
 
     const std::shared_ptr<AbilityInfo> info = asyncCallbackInfo->ability->GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("%{public}s info == null", __func__);
+        HILOG_ERROR("info == null");
         return false;
     }
-    HILOG_INFO("%{public}s exit.", __func__);
+    HILOG_INFO("end");
     return CheckAbilityType((AbilityType)info->type, asyncCallbackInfo->abilityType);
 }
 
 bool CheckAbilityType(const AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return false;
     }
 
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability == nullptr", __func__);
+        HILOG_ERROR("ability == nullptr");
         return false;
     }
 
     const std::shared_ptr<AbilityInfo> info = asyncCallbackInfo->ability->GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("%{public}s info == nullptr", __func__);
+        HILOG_ERROR("info == nullptr");
         return false;
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return CheckAbilityType((AbilityType)info->type, asyncCallbackInfo->abilityType);
 }
 
 napi_value GetContinueAbilityOptionsInfoCommon(
     const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info)
 {
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("called");
     napi_value result = nullptr;
 
     // reversible?: boolean
@@ -222,14 +222,14 @@ napi_value GetContinueAbilityOptionsInfoCommon(
     }
 
     napi_get_null(env, &result);
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
 napi_value GetContinueAbilityOptionsReversible(
     const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info)
 {
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("called");
     napi_valuetype valuetype = napi_undefined;
     napi_value result = nullptr;
     bool hasProperty = false;
@@ -240,20 +240,20 @@ napi_value GetContinueAbilityOptionsReversible(
         napi_get_named_property(env, value, "reversible", &result);
         NAPI_CALL(env, napi_typeof(env, result, &valuetype));
         if (valuetype != napi_boolean) {
-            HILOG_ERROR("%{public}s, Wrong argument type. Bool expected.", __func__);
+            HILOG_ERROR("Wrong argument type. Bool expected.");
             return nullptr;
         }
         napi_get_value_bool(env, result, &reversible);
         info.reversible = reversible;
     }
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
 napi_value GetContinueAbilityOptionsDeviceID(
     const napi_env &env, const napi_value &value, ContinueAbilityOptionsInfo &info)
 {
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("called");
     napi_valuetype valuetype = napi_undefined;
     napi_value result = nullptr;
     bool hasProperty = false;
@@ -265,19 +265,19 @@ napi_value GetContinueAbilityOptionsDeviceID(
         napi_get_named_property(env, value, "deviceId", &result);
         NAPI_CALL(env, napi_typeof(env, result, &valuetype));
         if (valuetype != napi_string) {
-            HILOG_ERROR("%{public}s, Wrong argument type. String expected.", __func__);
+            HILOG_ERROR("Wrong argument type. String expected.");
             return nullptr;
         }
         NAPI_CALL(env, napi_get_value_string_utf8(env, result, str, STR_MAX_SIZE - 1, &strLen));
         info.deviceId = str;
     }
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
 napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
 {
-    HILOG_INFO("%{public}s.", __func__);
+    HILOG_INFO("called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -312,7 +312,7 @@ napi_value WrapAppInfo(napi_env env, const ApplicationInfo &appInfo)
     (void)WrapModuleInfos(env, appInfo, result);
     NAPI_CALL(env, napi_create_string_utf8(env, appInfo.entryDir.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "entryDir", proValue));
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -333,23 +333,23 @@ int32_t GetStartAbilityErrorCode(ErrCode innerErrorCode)
  */
 void GetFilesDirExecuteCallback(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. asyncCallbackInfo is nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo is nullptr");
         return;
     }
 
     asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability == null", __func__);
+        HILOG_ERROR("ability == null");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s error ability type", __func__);
+        HILOG_ERROR("error ability type");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -358,33 +358,33 @@ void GetFilesDirExecuteCallback(napi_env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = asyncCallbackInfo->ability->GetAbilityContext();
     if (abilityContext == nullptr) {
-        HILOG_ERROR("%{public}s GetAbilityContext is null", __func__);
+        HILOG_ERROR("GetAbilityContext is null");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
     asyncCallbackInfo->native_data.str_value = abilityContext->GetFilesDir();
-    HILOG_INFO("%{public}s end. filesDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
+    HILOG_INFO("end. filesDir=%{public}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 void IsUpdatingConfigurationsExecuteCallback(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. asyncCallbackInfo is null.", __func__);
+        HILOG_ERROR("asyncCallbackInfo is null.");
         return;
     }
 
     asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability == nullptr.", __func__);
+        HILOG_ERROR("ability == nullptr.");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s fail ability type", __func__);
+        HILOG_ERROR("fail ability type");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -392,7 +392,7 @@ void IsUpdatingConfigurationsExecuteCallback(napi_env, void *data)
 
     asyncCallbackInfo->native_data.data_type = NVT_BOOL;
     asyncCallbackInfo->native_data.bool_value = asyncCallbackInfo->ability->IsUpdatingConfigurations();
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
 }
 
 /**
@@ -403,23 +403,23 @@ void IsUpdatingConfigurationsExecuteCallback(napi_env, void *data)
  */
 void PrintDrawnCompletedExecuteCallback(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s enter", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. asyncCallbackInfo is nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo is nullptr");
         return;
     }
 
     asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability == nullptr", __func__);
+        HILOG_ERROR("ability == nullptr");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s fail ability type.", __func__);
+        HILOG_ERROR("fail ability type.");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -427,12 +427,12 @@ void PrintDrawnCompletedExecuteCallback(napi_env, void *data)
 
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     asyncCallbackInfo->native_data.bool_value = asyncCallbackInfo->ability->PrintDrawnCompleted();
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
 }
 
 napi_value NAPI_GetFilesDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    HILOG_INFO("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -441,27 +441,27 @@ napi_value NAPI_GetFilesDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, params is invalid.", __func__);
+        HILOG_INFO("params is invalid");
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s begin, the first parameter is invalid.", __func__);
+            HILOG_INFO("the first parameter is invalid.");
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s begin. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_GetFilesDirCallback";
         asyncParamEx.execute = GetFilesDirExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_GetFilesDirPromise";
         asyncParamEx.execute = GetFilesDirExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -471,43 +471,43 @@ napi_value NAPI_GetFilesDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
 }
 napi_value NAPI_GetFilesDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_INFO("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_GetFilesDirWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. asyncCallbackInfo is nullptr.", __func__);
+        HILOG_ERROR("asyncCallbackInfo is nullptr.");
         return;
     }
 
     asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability: nullptr", __func__);
+        HILOG_ERROR("ability: nullptr");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s wrong type of ability", __func__);
+        HILOG_ERROR("wrong type of ability");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -516,12 +516,12 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = asyncCallbackInfo->ability->GetAbilityContext();
     if (abilityContext == nullptr) {
-        HILOG_ERROR("%{public}s GetAbilityContext is nullptr.", __func__);
+        HILOG_ERROR("GetAbilityContext is nullptr.");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
     asyncCallbackInfo->native_data.str_value = abilityContext->GetDistributedFilesDir();
-    HILOG_INFO("%{public}s end. filesDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
+    HILOG_INFO("filesDir=%{public}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 /**
@@ -535,7 +535,7 @@ void GetOrCreateDistributedDirExecuteCallback(napi_env, void *data)
 napi_value NAPI_GetOrCreateDistributedDirWrap(
     napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    HILOG_INFO("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -544,27 +544,27 @@ napi_value NAPI_GetOrCreateDistributedDirWrap(
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s called, parameters is invalid.", __func__);
+        HILOG_ERROR("parameters is invalid.");
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_ERROR("%{public}s called, the first parameter is invalid.", __func__);
+            HILOG_ERROR("the first parameter is invalid.");
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_GetFilesDirCallback";
         asyncParamEx.execute = GetOrCreateDistributedDirExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_GetFilesDirPromise";
         asyncParamEx.execute = GetOrCreateDistributedDirExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -575,21 +575,21 @@ napi_value NAPI_GetOrCreateDistributedDirWrap(
 
 napi_value NAPI_GetOrCreateDistributedDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_ERROR("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_GetOrCreateDistributedDirWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -604,20 +604,20 @@ void GetCacheDirExecuteCallback(napi_env, void *data)
     HILOG_INFO("GetCacheDirExecuteCallback called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. asyncCallbackInfo is null", __func__);
+        HILOG_ERROR("asyncCallbackInfo is null");
         return;
     }
 
     asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability: null", __func__);
+        HILOG_ERROR("ability: null");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s error type of ability", __func__);
+        HILOG_ERROR("error type of ability");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -626,12 +626,12 @@ void GetCacheDirExecuteCallback(napi_env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     std::shared_ptr<AbilityRuntime::AbilityContext> abilityContext = asyncCallbackInfo->ability->GetAbilityContext();
     if (abilityContext == nullptr) {
-        HILOG_ERROR("%{public}s GetAbilityContext is nullptr", __func__);
+        HILOG_ERROR("GetAbilityContext is nullptr");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
     asyncCallbackInfo->native_data.str_value = abilityContext->GetCacheDir();
-    HILOG_INFO("%{public}s end. CacheDir=%{public}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
+    HILOG_INFO("CacheDir=%{public}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 /**
@@ -644,7 +644,7 @@ void GetCacheDirExecuteCallback(napi_env, void *data)
  */
 napi_value NAPI_GetCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_INFO("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -653,27 +653,27 @@ napi_value NAPI_GetCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s called, arguments is invalid.", __func__);
+        HILOG_ERROR("arguments is invalid");
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_ERROR("%{public}s called, the first argument is invalid.", __func__);
+            HILOG_ERROR("the first argument is invalid.");
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_GetCacheDirCallback";
         asyncParamEx.execute = GetCacheDirExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_GetCacheDirPromise";
         asyncParamEx.execute = GetCacheDirExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -684,21 +684,21 @@ napi_value NAPI_GetCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCa
 
 napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_ERROR("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_GetCacheDirWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -710,23 +710,23 @@ napi_value NAPI_GetCacheDirCommon(napi_env env, napi_callback_info info, Ability
  */
 void GetExternalCacheDirExecuteCallback(napi_env, void *data)
 {
-    HILOG_INFO("GetExternalCacheDirExecuteCallback called");
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. asyncCallbackInfo is nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo is nullptr");
         return;
     }
 
     asyncCallbackInfo->error_code = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability == null.", __func__);
+        HILOG_ERROR("ability == null.");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s wrong ability type.", __func__);
+        HILOG_ERROR("wrong ability type");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -734,8 +734,7 @@ void GetExternalCacheDirExecuteCallback(napi_env, void *data)
 
     asyncCallbackInfo->native_data.data_type = NVT_STRING;
     asyncCallbackInfo->native_data.str_value = asyncCallbackInfo->ability->GetExternalCacheDir();
-    HILOG_INFO(
-        "%{public}s end. ExternalCacheDir=%{private}s", __func__, asyncCallbackInfo->native_data.str_value.c_str());
+    HILOG_INFO("ExternalCacheDir=%{private}s", asyncCallbackInfo->native_data.str_value.c_str());
 }
 
 /**
@@ -748,7 +747,7 @@ void GetExternalCacheDirExecuteCallback(napi_env, void *data)
  */
 napi_value NAPI_GetExternalCacheDirWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_INFO("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -757,27 +756,27 @@ napi_value NAPI_GetExternalCacheDirWrap(napi_env env, napi_callback_info info, A
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s start, parameters is invalid.", __func__);
+        HILOG_INFO("parameters is invalid.");
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s start, the first parameter is invalid.", __func__);
+            HILOG_INFO("the first parameter is invalid.");
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s start. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_GetExternalCacheDirCallback";
         asyncParamEx.execute = GetExternalCacheDirExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_GetExternalCacheDirPromise";
         asyncParamEx.execute = GetExternalCacheDirExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -788,28 +787,28 @@ napi_value NAPI_GetExternalCacheDirWrap(napi_env env, napi_callback_info info, A
 
 napi_value NAPI_GetExternalCacheDirCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_INFO("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_GetExternalCacheDirWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 napi_value NAPI_IsUpdatingConfigurationsWrap(
     napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s enter", __func__);
+    HILOG_INFO("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -818,27 +817,27 @@ napi_value NAPI_IsUpdatingConfigurationsWrap(
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s enter, parameters is invalid.", __func__);
+        HILOG_INFO("parameters is invalid");
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s enter, the first parameter is invalid.", __func__);
+            HILOG_INFO("the first parameter is invalid");
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s enter. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_IsUpdatingConfigurationsCallback";
         asyncParamEx.execute = IsUpdatingConfigurationsExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_IsUpdatingConfigurationsPromise";
         asyncParamEx.execute = IsUpdatingConfigurationsExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -849,7 +848,7 @@ napi_value NAPI_IsUpdatingConfigurationsWrap(
 
 napi_value NAPI_PrintDrawnCompletedWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s begin", __func__);
+    HILOG_INFO("begin");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -858,27 +857,27 @@ napi_value NAPI_PrintDrawnCompletedWrap(napi_env env, napi_callback_info info, A
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (argc > ARGS_ONE) {
-        HILOG_INFO("%{public}s called, arguments is invalid.", __func__);
+        HILOG_INFO("arguments is invalid.");
         return nullptr;
     }
 
     if (argc == ARGS_ONE) {
         if (!CreateAsyncCallback(env, args[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s called, the first argument is invalid.", __func__);
+            HILOG_INFO("the first argument is invalid.");
             return nullptr;
         }
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_PrintDrawnCompletedCallback";
         asyncParamEx.execute = PrintDrawnCompletedExecuteCallback;
         asyncParamEx.complete = CompleteAsyncVoidCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_PrintDrawnCompletedPromise";
         asyncParamEx.execute = PrintDrawnCompletedExecuteCallback;
         asyncParamEx.complete = CompletePromiseVoidCallbackWork;
@@ -889,41 +888,41 @@ napi_value NAPI_PrintDrawnCompletedWrap(napi_env env, napi_callback_info info, A
 
 napi_value NAPI_IsUpdatingConfigurationsCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_INFO("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_IsUpdatingConfigurationsWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 napi_value NAPI_PrintDrawnCompletedCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_INFO("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = NAPI_PrintDrawnCompletedWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -936,7 +935,7 @@ napi_value NAPI_PrintDrawnCompletedCommon(napi_env env, napi_callback_info info,
  */
 AppTypeCB *CreateAppTypeCBInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -948,7 +947,7 @@ AppTypeCB *CreateAppTypeCBInfo(napi_env env)
 
     AppTypeCB *appTypeCB = new (std::nothrow) AppTypeCB;
     if (appTypeCB == nullptr) {
-        HILOG_ERROR("%{public}s, appTypeCB == nullptr.", __func__);
+        HILOG_ERROR("appTypeCB == nullptr.");
         return nullptr;
     }
     appTypeCB->cbBase.cbInfo.env = env;
@@ -956,7 +955,7 @@ AppTypeCB *CreateAppTypeCBInfo(napi_env env)
     appTypeCB->cbBase.deferred = nullptr;
     appTypeCB->cbBase.ability = ability;
 
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     return appTypeCB;
 }
 
@@ -1065,9 +1064,9 @@ void GetAppTypePromiseCompleteCB(napi_env env, napi_status, void *data)
  */
 napi_value GetAppTypeAsync(napi_env env, napi_value *args, const size_t argCallback, AppTypeCB *appTypeCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || appTypeCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1089,7 +1088,7 @@ napi_value GetAppTypeAsync(napi_env env, napi_value *args, const size_t argCallb
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appTypeCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -1103,9 +1102,9 @@ napi_value GetAppTypeAsync(napi_env env, napi_value *args, const size_t argCallb
  */
 napi_value GetAppTypePromise(napi_env env, AppTypeCB *appTypeCB)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (appTypeCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr.");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1124,7 +1123,7 @@ napi_value GetAppTypePromise(napi_env env, AppTypeCB *appTypeCB)
             static_cast<void *>(appTypeCB),
             &appTypeCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appTypeCB->cbBase.asyncWork, napi_qos_user_initiated));
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
@@ -1138,9 +1137,9 @@ napi_value GetAppTypePromise(napi_env env, AppTypeCB *appTypeCB)
  */
 napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appTypeCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (appTypeCB == nullptr) {
-        HILOG_ERROR("%{public}s, appTypeCB == nullptr.", __func__);
+        HILOG_ERROR("appTypeCB == nullptr.");
         return nullptr;
     }
 
@@ -1152,7 +1151,7 @@ napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appT
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong arguments count.", __func__);
+        HILOG_ERROR("Wrong argument count.");
         return nullptr;
     }
 
@@ -1161,7 +1160,7 @@ napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appT
     } else {
         ret = GetAppTypePromise(env, appTypeCB);
     }
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -1175,7 +1174,7 @@ napi_value GetAppTypeWrap(napi_env env, napi_callback_info info, AppTypeCB *appT
  */
 napi_value NAPI_GetAppTypeCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AppTypeCB *appTypeCB = CreateAppTypeCBInfo(env);
     if (appTypeCB == nullptr) {
         return WrapVoidToJS(env);
@@ -1185,21 +1184,21 @@ napi_value NAPI_GetAppTypeCommon(napi_env env, napi_callback_info info, AbilityT
     appTypeCB->cbBase.abilityType = abilityType;
     napi_value ret = GetAppTypeWrap(env, info, appTypeCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (appTypeCB != nullptr) {
             delete appTypeCB;
             appTypeCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 #ifdef SUPPORT_GRAPHICS
 napi_value GetDisplayOrientationWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -1208,20 +1207,20 @@ napi_value GetDisplayOrientationWrap(napi_env env, napi_callback_info info, Asyn
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapParamGetDisplayOrientationWrap(env, argc, args, asyncCallbackInfo)) {
-        HILOG_INFO("%{public}s called. Invoke UnwrapParamGetDisplayOrientationWrap fail", __func__);
+        HILOG_INFO("Invoke UnwrapParamGetDisplayOrientationWrap fail");
         return nullptr;
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_GetDisplayOrientationWrapCallback";
         asyncParamEx.execute = GetDisplayOrientationExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_GetDisplayOrientationWrapPromise";
         asyncParamEx.execute = GetDisplayOrientationExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -1232,10 +1231,10 @@ napi_value GetDisplayOrientationWrap(napi_env env, napi_callback_info info, Asyn
 
 void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo is nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo is nullptr");
         return;
     }
 
@@ -1243,13 +1242,13 @@ void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
 
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability is nullptr", __func__);
+        HILOG_ERROR("ability is nullptr");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s fail type of ability", __func__);
+        HILOG_ERROR("fail type of ability");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -1257,22 +1256,22 @@ void GetDisplayOrientationExecuteCallback(napi_env env, void *data)
 
     asyncCallbackInfo->native_data.data_type = NVT_INT32;
     asyncCallbackInfo->native_data.int32_value = asyncCallbackInfo->ability->GetDisplayOrientation();
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
 }
 
 bool UnwrapParamGetDisplayOrientationWrap(napi_env env, size_t argc, napi_value *argv,
     AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called, argc=%{public}zu", __func__, argc);
+    HILOG_INFO("argc=%{public}zu", argc);
     const size_t argcMax = 1;
     if (argc > argcMax || argc < argcMax - 1) {
-        HILOG_ERROR("%{public}s, Params is invalid.", __func__);
+        HILOG_ERROR("Params is invalid");
         return false;
     }
 
     if (argc == argcMax) {
         if (!CreateAsyncCallback(env, argv[PARAM0], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s, the first parameter is invalid.", __func__);
+            HILOG_INFO("the first parameter is invalid.");
             return false;
         }
     }
@@ -1282,10 +1281,10 @@ bool UnwrapParamGetDisplayOrientationWrap(napi_env env, size_t argc, napi_value 
 
 napi_value NAPI_GetDisplayOrientationCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    HILOG_DEBUG("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_ERROR("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
@@ -1293,11 +1292,11 @@ napi_value NAPI_GetDisplayOrientationCommon(napi_env env, napi_callback_info inf
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = GetDisplayOrientationWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s, ret == nullptr.", __func__);
+        HILOG_ERROR("ret == nullptr.");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_DEBUG("%{public}s, end.", __func__);
+    HILOG_DEBUG("end");
     return ret;
 }
 #endif
@@ -1311,7 +1310,7 @@ napi_value NAPI_GetDisplayOrientationCommon(napi_env env, napi_callback_info inf
  */
 AbilityInfoCB *CreateAbilityInfoCBInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1323,7 +1322,7 @@ AbilityInfoCB *CreateAbilityInfoCBInfo(napi_env env)
 
     AbilityInfoCB *abilityInfoCB = new (std::nothrow) AbilityInfoCB;
     if (abilityInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, abilityInfoCB == nullptr.", __func__);
+        HILOG_ERROR("abilityInfoCB == nullptr.");
         return nullptr;
     }
     abilityInfoCB->cbBase.cbInfo.env = env;
@@ -1331,13 +1330,13 @@ AbilityInfoCB *CreateAbilityInfoCBInfo(napi_env env)
     abilityInfoCB->cbBase.deferred = nullptr;
     abilityInfoCB->cbBase.ability = ability;
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return abilityInfoCB;
 }
 
 napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -1426,7 +1425,7 @@ napi_value WrapAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
     napi_value applicationInfo = nullptr;
     applicationInfo = WrapAppInfo(env, abilityInfo.applicationInfo);
     NAPI_CALL(env, napi_set_named_property(env, result, "applicationInfo", applicationInfo));
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -1481,22 +1480,22 @@ napi_value ConvertAbilityInfo(napi_env env, const AbilityInfo &abilityInfo)
  */
 void GetAbilityInfoExecuteCB(napi_env, void *data)
 {
-    HILOG_INFO("NAPI_GetApplicationInfo, worker pool thread execute.");
+    HILOG_INFO("called");
     AbilityInfoCB *abilityInfoCB = static_cast<AbilityInfoCB *>(data);
     if (abilityInfoCB == nullptr) {
-        HILOG_ERROR("NAPI_GetApplicationInfo, abilityInfoCB == nullptr");
+        HILOG_ERROR("abilityInfoCB == nullptr");
         return;
     }
 
     abilityInfoCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
     if (abilityInfoCB->cbBase.ability == nullptr) {
-        HILOG_ERROR("NAPI_GetApplicationInfo, ability == nullptr");
+        HILOG_ERROR("ability == nullptr");
         abilityInfoCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(&abilityInfoCB->cbBase)) {
-        HILOG_ERROR("NAPI_GetApplicationInfo,wrong ability type");
+        HILOG_ERROR("wrong ability type");
         abilityInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
         return;
     }
@@ -1507,7 +1506,7 @@ void GetAbilityInfoExecuteCB(napi_env, void *data)
     } else {
         abilityInfoCB->cbBase.errCode = NAPI_ERR_ABILITY_CALL_INVALID;
     }
-    HILOG_INFO("NAPI_GetApplicationInfo, worker pool thread execute end.");
+    HILOG_INFO("end");
 }
 
 /**
@@ -1518,7 +1517,7 @@ void GetAbilityInfoExecuteCB(napi_env, void *data)
  */
 void GetAbilityInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
-    HILOG_INFO("NAPI_GetApplicationInfo, main event thread complete.");
+    HILOG_INFO("called");
     AbilityInfoCB *abilityInfoCB = static_cast<AbilityInfoCB *>(data);
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -1540,7 +1539,7 @@ void GetAbilityInfoAsyncCompleteCB(napi_env env, napi_status, void *data)
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, abilityInfoCB->cbBase.asyncWork));
     delete abilityInfoCB;
     abilityInfoCB = nullptr;
-    HILOG_INFO("NAPI_GetApplicationInfo, main event thread complete end.");
+    HILOG_INFO("end");
 }
 
 /**
@@ -1580,9 +1579,9 @@ void GetAbilityInfoPromiseCompleteCB(napi_env env, napi_status, void *data)
  */
 napi_value GetAbilityInfoAsync(napi_env env, napi_value *args, const size_t argCallback, AbilityInfoCB *abilityInfoCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || abilityInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1604,7 +1603,7 @@ napi_value GetAbilityInfoAsync(napi_env env, napi_value *args, const size_t argC
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -1618,9 +1617,9 @@ napi_value GetAbilityInfoAsync(napi_env env, napi_value *args, const size_t argC
  */
 napi_value GetAbilityInfoPromise(napi_env env, AbilityInfoCB *abilityInfoCB)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (abilityInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1639,7 +1638,7 @@ napi_value GetAbilityInfoPromise(napi_env env, AbilityInfoCB *abilityInfoCB)
             static_cast<void *>(abilityInfoCB),
             &abilityInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
@@ -1653,9 +1652,9 @@ napi_value GetAbilityInfoPromise(napi_env env, AbilityInfoCB *abilityInfoCB)
  */
 napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfoCB *abilityInfoCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (abilityInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, abilityInfoCB == nullptr.", __func__);
+        HILOG_ERROR("abilityInfoCB == nullptr");
         return nullptr;
     }
 
@@ -1667,7 +1666,7 @@ napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfo
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong parameter count.", __func__);
+        HILOG_ERROR("Wrong parameter count");
         return nullptr;
     }
 
@@ -1676,7 +1675,7 @@ napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfo
     } else {
         ret = GetAbilityInfoPromise(env, abilityInfoCB);
     }
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -1690,7 +1689,7 @@ napi_value GetAbilityInfoWrap(napi_env env, napi_callback_info info, AbilityInfo
  */
 napi_value NAPI_GetAbilityInfoCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AbilityInfoCB *abilityInfoCB = CreateAbilityInfoCBInfo(env);
     if (abilityInfoCB == nullptr) {
         return WrapVoidToJS(env);
@@ -1700,14 +1699,14 @@ napi_value NAPI_GetAbilityInfoCommon(napi_env env, napi_callback_info info, Abil
     abilityInfoCB->cbBase.abilityType = abilityType;
     napi_value ret = GetAbilityInfoWrap(env, info, abilityInfoCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (abilityInfoCB != nullptr) {
             delete abilityInfoCB;
             abilityInfoCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -1720,7 +1719,7 @@ napi_value NAPI_GetAbilityInfoCommon(napi_env env, napi_callback_info info, Abil
  */
 HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -1732,7 +1731,7 @@ HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
 
     HapModuleInfoCB *hapModuleInfoCB = new (std::nothrow) HapModuleInfoCB;
     if (hapModuleInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, hapModuleInfoCB == nullptr.", __func__);
+        HILOG_ERROR("hapModuleInfoCB == nullptr");
         return nullptr;
     }
     hapModuleInfoCB->cbBase.cbInfo.env = env;
@@ -1740,91 +1739,81 @@ HapModuleInfoCB *CreateHapModuleInfoCBInfo(napi_env env)
     hapModuleInfoCB->cbBase.deferred = nullptr;
     hapModuleInfoCB->cbBase.ability = ability;
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return hapModuleInfoCB;
 }
 
-napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &hapModuleInfoCB)
+napi_value WrapHapModuleInfo(napi_env env, const HapModuleInfoCB &cb)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
-    NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.name.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.name.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "name", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.description.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.description.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "description", proValue));
 
-    NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.iconPath.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "icon", proValue));
 
-    NAPI_CALL(
-        env, napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.label.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.label.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "label", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.backgroundImg.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.backgroundImg.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "backgroundImg", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(env, hapModuleInfoCB.hapModuleInfo.moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.moduleName.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "moduleName", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.supportedModes, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.supportedModes, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "supportedModes", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.descriptionId, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.descriptionId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "descriptionId", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.labelId, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.labelId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "labelId", proValue));
 
-    NAPI_CALL(env, napi_create_int32(env, hapModuleInfoCB.hapModuleInfo.iconId, &proValue));
+    NAPI_CALL(env, napi_create_int32(env, cb.hapModuleInfo.iconId, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "iconId", proValue));
 
-    NAPI_CALL(env,
-        napi_create_string_utf8(
-            env, hapModuleInfoCB.hapModuleInfo.mainAbility.c_str(), NAPI_AUTO_LENGTH, &proValue));
+    NAPI_CALL(env, napi_create_string_utf8(env, cb.hapModuleInfo.mainAbility.c_str(), NAPI_AUTO_LENGTH, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "mainAbilityName", proValue));
 
-    NAPI_CALL(env, napi_get_boolean(env, hapModuleInfoCB.hapModuleInfo.installationFree, &proValue));
+    NAPI_CALL(env, napi_get_boolean(env, cb.hapModuleInfo.installationFree, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "installationFree", proValue));
 
     napi_value jsArrayreqCapabilities = nullptr;
     NAPI_CALL(env, napi_create_array(env, &jsArrayreqCapabilities));
-    for (size_t i = 0; i < hapModuleInfoCB.hapModuleInfo.reqCapabilities.size(); i++) {
+    for (size_t i = 0; i < cb.hapModuleInfo.reqCapabilities.size(); i++) {
         proValue = nullptr;
         NAPI_CALL(env,
-            napi_create_string_utf8(
-                env, hapModuleInfoCB.hapModuleInfo.reqCapabilities.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
+            napi_create_string_utf8(env, cb.hapModuleInfo.reqCapabilities.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
         NAPI_CALL(env, napi_set_element(env, jsArrayreqCapabilities, i, proValue));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "reqCapabilities", jsArrayreqCapabilities));
 
     napi_value jsArraydeviceTypes = nullptr;
     NAPI_CALL(env, napi_create_array(env, &jsArraydeviceTypes));
-    for (size_t i = 0; i < hapModuleInfoCB.hapModuleInfo.deviceTypes.size(); i++) {
+    for (size_t i = 0; i < cb.hapModuleInfo.deviceTypes.size(); i++) {
         proValue = nullptr;
         NAPI_CALL(env,
-            napi_create_string_utf8(
-                env, hapModuleInfoCB.hapModuleInfo.deviceTypes.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
+            napi_create_string_utf8(env, cb.hapModuleInfo.deviceTypes.at(i).c_str(), NAPI_AUTO_LENGTH, &proValue));
         NAPI_CALL(env, napi_set_element(env, jsArraydeviceTypes, i, proValue));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "deviceTypes", jsArraydeviceTypes));
 
     napi_value abilityInfos = nullptr;
     NAPI_CALL(env, napi_create_array(env, &abilityInfos));
-    for (size_t i = 0; i < hapModuleInfoCB.hapModuleInfo.abilityInfos.size(); i++) {
+    for (size_t i = 0; i < cb.hapModuleInfo.abilityInfos.size(); i++) {
         napi_value abilityInfo = nullptr;
-        abilityInfo = WrapAbilityInfo(env, hapModuleInfoCB.hapModuleInfo.abilityInfos.at(i));
+        abilityInfo = WrapAbilityInfo(env, cb.hapModuleInfo.abilityInfos.at(i));
         NAPI_CALL(env, napi_set_element(env, abilityInfos, i, abilityInfo));
     }
     NAPI_CALL(env, napi_set_named_property(env, result, "abilityInfo", abilityInfos));
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -1918,9 +1907,9 @@ void GetHapModuleInfoPromiseCompleteCB(napi_env env, napi_status, void *data)
 napi_value GetHapModuleInfoAsync(
     napi_env env, napi_value *args, const size_t argCallback, HapModuleInfoCB *hapModuleInfoCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || hapModuleInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1942,7 +1931,7 @@ napi_value GetHapModuleInfoAsync(
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, hapModuleInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -1956,9 +1945,9 @@ napi_value GetHapModuleInfoAsync(
  */
 napi_value GetHapModuleInfoPromise(napi_env env, HapModuleInfoCB *hapModuleInfoCB)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (hapModuleInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -1977,15 +1966,15 @@ napi_value GetHapModuleInfoPromise(napi_env env, HapModuleInfoCB *hapModuleInfoC
             static_cast<void *>(hapModuleInfoCB),
             &hapModuleInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, hapModuleInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
 napi_value GetHapModuleInfoWrap(napi_env env, napi_callback_info info, HapModuleInfoCB *hapModuleInfoCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (hapModuleInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, hapModuleInfoCB == nullptr.", __func__);
+        HILOG_ERROR("hapModuleInfoCB == nullptr");
         return nullptr;
     }
 
@@ -1997,7 +1986,7 @@ napi_value GetHapModuleInfoWrap(napi_env env, napi_callback_info info, HapModule
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong parameters count.", __func__);
+        HILOG_ERROR("Wrong parameters count");
         return nullptr;
     }
 
@@ -2006,7 +1995,7 @@ napi_value GetHapModuleInfoWrap(napi_env env, napi_callback_info info, HapModule
     } else {
         ret = GetHapModuleInfoPromise(env, hapModuleInfoCB);
     }
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -2020,7 +2009,7 @@ napi_value GetHapModuleInfoWrap(napi_env env, napi_callback_info info, HapModule
  */
 napi_value NAPI_GetHapModuleInfoCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     HapModuleInfoCB *hapModuleInfoCB = CreateHapModuleInfoCBInfo(env);
     if (hapModuleInfoCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2030,14 +2019,14 @@ napi_value NAPI_GetHapModuleInfoCommon(napi_env env, napi_callback_info info, Ab
     hapModuleInfoCB->cbBase.abilityType = abilityType;
     napi_value ret = GetHapModuleInfoWrap(env, info, hapModuleInfoCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (hapModuleInfoCB != nullptr) {
             delete hapModuleInfoCB;
             hapModuleInfoCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -2050,7 +2039,7 @@ napi_value NAPI_GetHapModuleInfoCommon(napi_env env, napi_callback_info info, Ab
  */
 AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -2062,7 +2051,7 @@ AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
 
     AppVersionInfoCB *appVersionInfoCB = new (std::nothrow) AppVersionInfoCB;
     if (appVersionInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, appVersionInfoCB == nullptr.", __func__);
+        HILOG_ERROR("appVersionInfoCB == nullptr.");
         return nullptr;
     }
     appVersionInfoCB->cbBase.cbInfo.env = env;
@@ -2070,23 +2059,23 @@ AppVersionInfoCB *CreateAppVersionInfoCBInfo(napi_env env)
     appVersionInfoCB->cbBase.deferred = nullptr;
     appVersionInfoCB->cbBase.ability = ability;
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return appVersionInfoCB;
 }
 
 void SaveAppVersionInfo(AppVersionInfo &appVersionInfo, const std::string appName, const std::string versionName,
     const int32_t versionCode)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     appVersionInfo.appName = appName;
     appVersionInfo.versionName = versionName;
     appVersionInfo.versionCode = versionCode;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
 }
 
 napi_value WrapAppVersionInfo(napi_env env, const AppVersionInfoCB &appVersionInfoCB)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     napi_value result = nullptr;
     napi_value proValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &result));
@@ -2101,7 +2090,7 @@ napi_value WrapAppVersionInfo(napi_env env, const AppVersionInfoCB &appVersionIn
     NAPI_CALL(env, napi_create_int32(env, appVersionInfoCB.appVersionInfo.versionCode, &proValue));
     NAPI_CALL(env, napi_set_named_property(env, result, "versionCode", proValue));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -2196,9 +2185,9 @@ void GetAppVersionInfoPromiseCompleteCB(napi_env env, napi_status, void *data)
 napi_value GetAppVersionInfoAsync(
     napi_env env, napi_value *args, const size_t argCallback, AppVersionInfoCB *appVersionInfoCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || appVersionInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2216,7 +2205,7 @@ napi_value GetAppVersionInfoAsync(
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appVersionInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -2230,9 +2219,9 @@ napi_value GetAppVersionInfoAsync(
  */
 napi_value GetAppVersionInfoPromise(napi_env env, AppVersionInfoCB *appVersionInfoCB)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (appVersionInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2247,15 +2236,15 @@ napi_value GetAppVersionInfoPromise(napi_env env, AppVersionInfoCB *appVersionIn
                  GetAppVersionInfoPromiseCompleteCB, static_cast<void *>(appVersionInfoCB),
                  &appVersionInfoCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, appVersionInfoCB->cbBase.asyncWork, napi_qos_user_initiated));
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
 napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersionInfoCB *appVersionInfoCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (appVersionInfoCB == nullptr) {
-        HILOG_ERROR("%{public}s, appVersionInfoCB == nullptr.", __func__);
+        HILOG_ERROR("appVersionInfoCB == nullptr.");
         return nullptr;
     }
 
@@ -2267,7 +2256,7 @@ napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersi
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, fail argument count.", __func__);
+        HILOG_ERROR("fail argument count.");
         return nullptr;
     }
 
@@ -2276,7 +2265,7 @@ napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersi
     } else {
         ret = GetAppVersionInfoPromise(env, appVersionInfoCB);
     }
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -2290,7 +2279,7 @@ napi_value GetAppVersionInfoWrap(napi_env env, napi_callback_info info, AppVersi
  */
 napi_value NAPI_GetAppVersionInfoCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AppVersionInfoCB *appVersionInfoCB = CreateAppVersionInfoCBInfo(env);
     if (appVersionInfoCB == nullptr) {
         return WrapVoidToJS(env);
@@ -2300,14 +2289,14 @@ napi_value NAPI_GetAppVersionInfoCommon(napi_env env, napi_callback_info info, A
     appVersionInfoCB->cbBase.abilityType = abilityType;
     napi_value ret = GetAppVersionInfoWrap(env, info, appVersionInfoCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (appVersionInfoCB != nullptr) {
             delete appVersionInfoCB;
             appVersionInfoCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -2320,9 +2309,9 @@ napi_value NAPI_GetAppVersionInfoCommon(napi_env env, napi_callback_info info, A
  */
 AsyncCallbackInfo *CreateAsyncCallbackInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     if (env == nullptr) {
-        HILOG_INFO("%{public}s env == nullptr.", __func__);
+        HILOG_INFO("env == nullptr");
         return nullptr;
     }
 
@@ -2332,26 +2321,26 @@ AsyncCallbackInfo *CreateAsyncCallbackInfo(napi_env env)
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("%{public}s get_global=%{public}d err:%{public}s", __func__, ret, errorInfo->error_message);
+        HILOG_ERROR("get_global=%{public}d err:%{public}s", ret, errorInfo->error_message);
     }
 
     napi_value abilityObj = nullptr;
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("%{public}s get_named_property=%{public}d err:%{public}s", __func__, ret, errorInfo->error_message);
+        HILOG_ERROR("get_named_property=%{public}d err:%{public}s", ret, errorInfo->error_message);
     }
 
     Ability *ability = nullptr;
     ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("%{public}s get_value_external=%{public}d err:%{public}s", __func__, ret, errorInfo->error_message);
+        HILOG_ERROR("get_value_external=%{public}d err:%{public}s", ret, errorInfo->error_message);
     }
 
     AsyncCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncCallbackInfo;
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return nullptr;
     }
     asyncCallbackInfo->cbInfo.env = env;
@@ -2362,7 +2351,7 @@ AsyncCallbackInfo *CreateAsyncCallbackInfo(napi_env env)
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     asyncCallbackInfo->abilityType = AbilityType::UNKNOWN;
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return asyncCallbackInfo;
 }
 
@@ -2389,12 +2378,12 @@ void GetContextAsyncExecuteCB(napi_env, void *data)
     HILOG_INFO("GetContextAsync, worker pool thread execute end.");
 }
 
-napi_value GetContextAsync(
-    napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
+napi_value
+    GetContextAsync(napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, parameter == nullptr.", __func__);
+        HILOG_ERROR("parameter == nullptr.");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2406,11 +2395,7 @@ napi_value GetContextAsync(
         HILOG_DEBUG("napi_create_reference");
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
-    napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
-        GetContextAsyncExecuteCB,
+    napi_create_async_work(env, nullptr, resourceName, GetContextAsyncExecuteCB,
         [](napi_env env, napi_status, void *data) {
             HILOG_INFO("GetContextAsync, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -2436,21 +2421,19 @@ napi_value GetContextAsync(
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
             HILOG_INFO("GetContextAsync, main event thread complete end.");
-        },
-        static_cast<void *>(asyncCallbackInfo),
-        &asyncCallbackInfo->asyncWork);
+        }, static_cast<void *>(asyncCallbackInfo), &asyncCallbackInfo->asyncWork);
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
 napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2485,7 +2468,7 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
@@ -2499,22 +2482,22 @@ napi_value GetContextPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
  */
 napi_value GetContextWrap(napi_env env, napi_callback_info, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr.");
         return nullptr;
     }
 
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s,wrong ability type", __func__);
+        HILOG_ERROR("wrong ability type");
         asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
         return nullptr;
     }
 
     napi_value result = nullptr;
     napi_new_instance(env, GetGlobalClassContext(env), 0, nullptr, &result);
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -2528,10 +2511,10 @@ napi_value GetContextWrap(napi_env env, napi_callback_info, AsyncCallbackInfo *a
  */
 napi_value NAPI_GetContextCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return WrapVoidToJS(env);
     }
 
@@ -2544,30 +2527,30 @@ napi_value NAPI_GetContextCommon(napi_env env, napi_callback_info info, AbilityT
 
     if (ret == nullptr) {
         ret = WrapVoidToJS(env);
-        HILOG_ERROR("%{public}s ret == nullptr.", __func__);
+        HILOG_ERROR("ret == nullptr.");
     } else {
-        HILOG_INFO("%{public}s, end.", __func__);
+        HILOG_INFO("end");
     }
     return ret;
 }
 
 void GetWantExecuteCB(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return;
     }
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s, ability == nullptr", __func__);
+        HILOG_ERROR("ability == nullptr");
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s, wrong ability type", __func__);
+        HILOG_ERROR("wrong ability type");
         asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
         return;
     }
@@ -2578,14 +2561,14 @@ void GetWantExecuteCB(napi_env, void *data)
     } else {
         asyncCallbackInfo->errCode = NAPI_ERR_ABILITY_CALL_INVALID;
     }
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
 }
 
 napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, parameter == nullptr.", __func__);
+        HILOG_ERROR("parameter == nullptr.");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2597,11 +2580,7 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
         HILOG_DEBUG("napi_create_reference.");
         napi_create_reference(env, args[argCallback], 1, &asyncCallbackInfo->cbInfo.callback);
     }
-    napi_create_async_work(
-        env,
-        nullptr,
-        resourceName,
-        GetWantExecuteCB,
+    napi_create_async_work(env, nullptr, resourceName, GetWantExecuteCB,
         [](napi_env env, napi_status, void *data) {
             HILOG_INFO("GetWantAsync, main event thread complete.");
             AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
@@ -2633,15 +2612,15 @@ napi_value GetWantAsync(napi_env env, napi_value *args, const size_t argCallback
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
     napi_value result = nullptr;
     napi_get_null(env, &result);
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
 napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, parameter == nullptr.", __func__);
+        HILOG_ERROR("parameter == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2676,7 +2655,7 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_user_initiated);
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
@@ -2690,9 +2669,9 @@ napi_value GetWantPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
  */
 napi_value GetWantWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return nullptr;
     }
 
@@ -2704,7 +2683,7 @@ napi_value GetWantWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo 
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, error argument count.", __func__);
+        HILOG_ERROR("error argument count");
         return nullptr;
     }
 
@@ -2713,7 +2692,7 @@ napi_value GetWantWrap(napi_env env, napi_callback_info info, AsyncCallbackInfo 
     } else {
         ret = GetWantPromise(env, asyncCallbackInfo);
     }
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -2729,7 +2708,7 @@ napi_value NAPI_GetWantCommon(napi_env env, napi_callback_info info, AbilityType
 {
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return WrapVoidToJS(env);
     }
 
@@ -2737,7 +2716,7 @@ napi_value NAPI_GetWantCommon(napi_env env, napi_callback_info info, AbilityType
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = GetWantWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s, ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (asyncCallbackInfo != nullptr) {
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
@@ -2756,7 +2735,7 @@ napi_value NAPI_GetWantCommon(napi_env env, napi_callback_info info, AbilityType
  */
 AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
 
@@ -2768,7 +2747,7 @@ AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
 
     AbilityNameCB *abilityNameCB = new (std::nothrow) AbilityNameCB;
     if (abilityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s, abilityNameCB == nullptr.", __func__);
+        HILOG_ERROR("abilityNameCB == nullptr");
         return nullptr;
     }
     abilityNameCB->cbBase.cbInfo.env = env;
@@ -2776,20 +2755,20 @@ AbilityNameCB *CreateAbilityNameCBInfo(napi_env env)
     abilityNameCB->cbBase.deferred = nullptr;
     abilityNameCB->cbBase.ability = ability;
 
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     return abilityNameCB;
 }
 
 napi_value WrapAbilityName(napi_env env, const AbilityNameCB *abilityNameCB)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     if (abilityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s, Invalid param(abilityNameCB == nullptr)", __func__);
+        HILOG_ERROR("Invalid param(abilityNameCB == nullptr)");
         return nullptr;
     }
     napi_value result = nullptr;
     NAPI_CALL(env, napi_create_string_utf8(env, abilityNameCB->name.c_str(), NAPI_AUTO_LENGTH, &result));
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -2801,27 +2780,27 @@ napi_value WrapAbilityName(napi_env env, const AbilityNameCB *abilityNameCB)
  */
 void GetAbilityNameExecuteCB(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     AbilityNameCB *abilityNameCB = static_cast<AbilityNameCB *>(data);
     if (abilityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s, abilityNameCB == nullptr", __func__);
+        HILOG_ERROR("abilityNameCB == nullptr");
         return;
     }
     abilityNameCB->cbBase.errCode = NAPI_ERR_NO_ERROR;
     if (abilityNameCB->cbBase.ability == nullptr) {
-        HILOG_ERROR("%{public}s, ability == nullptr", __func__);
+        HILOG_ERROR("ability == nullptr");
         abilityNameCB->cbBase.errCode = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(&abilityNameCB->cbBase)) {
-        HILOG_ERROR("%{public}s, wrong ability type", __func__);
+        HILOG_ERROR("wrong ability type");
         abilityNameCB->cbBase.errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
         return;
     }
 
     abilityNameCB->name = abilityNameCB->cbBase.ability->GetAbilityName();
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
 }
 
 /**
@@ -2832,7 +2811,7 @@ void GetAbilityNameExecuteCB(napi_env, void *data)
  */
 void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status, void *data)
 {
-    HILOG_INFO("%{public}s, called.", __func__);
+    HILOG_INFO("called");
     AbilityNameCB *abilityNameCB = static_cast<AbilityNameCB *>(data);
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -2853,7 +2832,7 @@ void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status, void *data)
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, abilityNameCB->cbBase.asyncWork));
     delete abilityNameCB;
     abilityNameCB = nullptr;
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
 }
 
 /**
@@ -2864,7 +2843,7 @@ void GetAbilityNameAsyncCompleteCB(napi_env env, napi_status, void *data)
  */
 void GetAbilityNamePromiseCompleteCB(napi_env env, napi_status, void *data)
 {
-    HILOG_INFO("NAPI_GetAbilityName, main event thread complete.");
+    HILOG_INFO("called");
     AbilityNameCB *abilityNameCB = static_cast<AbilityNameCB *>(data);
     napi_value result = nullptr;
     if (abilityNameCB->cbBase.errCode == NAPI_ERR_NO_ERROR) {
@@ -2878,7 +2857,7 @@ void GetAbilityNamePromiseCompleteCB(napi_env env, napi_status, void *data)
     napi_delete_async_work(env, abilityNameCB->cbBase.asyncWork);
     delete abilityNameCB;
     abilityNameCB = nullptr;
-    HILOG_INFO("NAPI_GetAbilityName, main event thread complete end.");
+    HILOG_INFO("end");
 }
 
 /**
@@ -2893,9 +2872,9 @@ void GetAbilityNamePromiseCompleteCB(napi_env env, napi_status, void *data)
  */
 napi_value GetAbilityNameAsync(napi_env env, napi_value *args, const size_t argCallback, AbilityNameCB *abilityNameCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || abilityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2917,7 +2896,7 @@ napi_value GetAbilityNameAsync(napi_env env, napi_value *args, const size_t argC
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityNameCB->cbBase.asyncWork, napi_qos_user_initiated));
     napi_value result = nullptr;
     NAPI_CALL(env, napi_get_null(env, &result));
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
@@ -2931,9 +2910,9 @@ napi_value GetAbilityNameAsync(napi_env env, napi_value *args, const size_t argC
  */
 napi_value GetAbilityNamePromise(napi_env env, AbilityNameCB *abilityNameCB)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (abilityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -2952,7 +2931,7 @@ napi_value GetAbilityNamePromise(napi_env env, AbilityNameCB *abilityNameCB)
             static_cast<void *>(abilityNameCB),
             &abilityNameCB->cbBase.asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, abilityNameCB->cbBase.asyncWork, napi_qos_user_initiated));
-    HILOG_INFO("%{public}s, promise end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
@@ -2966,9 +2945,9 @@ napi_value GetAbilityNamePromise(napi_env env, AbilityNameCB *abilityNameCB)
  */
 napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityNameCB *abilityNameCB)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (abilityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s, abilityNameCB == nullptr.", __func__);
+        HILOG_ERROR("abilityNameCB == nullptr");
         return nullptr;
     }
 
@@ -2980,7 +2959,7 @@ napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityName
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, nullptr, nullptr));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, argument count wrong.", __func__);
+        HILOG_ERROR("argument count wrong");
         return nullptr;
     }
 
@@ -2989,7 +2968,7 @@ napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityName
     } else {
         ret = GetAbilityNamePromise(env, abilityNameCB);
     }
-    HILOG_INFO("%{public}s, asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -3003,10 +2982,10 @@ napi_value GetAbilityNameWrap(napi_env env, napi_callback_info info, AbilityName
  */
 napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AbilityNameCB *ablityNameCB = CreateAbilityNameCBInfo(env);
     if (ablityNameCB == nullptr) {
-        HILOG_ERROR("%{public}s ablityNameCB == nullptr", __func__);
+        HILOG_ERROR("ablityNameCB == nullptr");
         return WrapVoidToJS(env);
     }
 
@@ -3014,14 +2993,14 @@ napi_value NAPI_GetAbilityNameCommon(napi_env env, napi_callback_info info, Abil
     ablityNameCB->cbBase.abilityType = abilityType;
     napi_value ret = GetAbilityNameWrap(env, info, ablityNameCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (ablityNameCB != nullptr) {
             delete ablityNameCB;
             ablityNameCB = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -3033,12 +3012,12 @@ void UnwrapAbilityStartSettingForNumber(
     bool isReadValue32 = false;
     bool isReadDouble = false;
     if (napi_get_value_int32(env, param, &natValue32) == napi_ok) {
-        HILOG_INFO("%{public}s called. Property value=%{private}d.", __func__, natValue32);
+        HILOG_INFO("Property value=%{private}d.", natValue32);
         isReadValue32 = true;
     }
 
     if (napi_get_value_double(env, param, &natValueDouble) == napi_ok) {
-        HILOG_INFO("%{public}s called. Property value=%{private}lf.", __func__, natValueDouble);
+        HILOG_INFO("Property value=%{private}lf.", natValueDouble);
         isReadDouble = true;
     }
 
@@ -3057,7 +3036,7 @@ void UnwrapAbilityStartSettingForNumber(
 
 bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilityStartSetting &setting)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
         return false;
@@ -3069,7 +3048,7 @@ bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilitySta
 
     NAPI_CALL_BASE(env, napi_get_property_names(env, param, &jsProNameList), false);
     NAPI_CALL_BASE(env, napi_get_array_length(env, jsProNameList, &jsProCount), false);
-    HILOG_INFO("%{public}s called. Property size: %{public}d.", __func__, jsProCount);
+    HILOG_INFO("Property size: %{public}d.", jsProCount);
 
     napi_value jsProName = nullptr;
     napi_value jsProValue = nullptr;
@@ -3077,21 +3056,21 @@ bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilitySta
         NAPI_CALL_BASE(env, napi_get_element(env, jsProNameList, index, &jsProName), false);
 
         std::string strProName = UnwrapStringFromJS(env, jsProName);
-        HILOG_INFO("%{public}s called. Property name=%{public}s.", __func__, strProName.c_str());
+        HILOG_INFO("Property name=%{public}s.", strProName.c_str());
         NAPI_CALL_BASE(env, napi_get_named_property(env, param, strProName.c_str(), &jsProValue), false);
         NAPI_CALL_BASE(env, napi_typeof(env, jsProValue, &jsValueType), false);
 
         switch (jsValueType) {
             case napi_string: {
                 std::string natValue = UnwrapStringFromJS(env, jsProValue);
-                HILOG_INFO("%{public}s called. Property value=%{private}s.", __func__, natValue.c_str());
+                HILOG_INFO("Property value=%{private}s.", natValue.c_str());
                 setting.AddProperty(strProName, natValue);
                 break;
             }
             case napi_boolean: {
                 bool natValue = false;
                 NAPI_CALL_BASE(env, napi_get_value_bool(env, jsProValue, &natValue), false);
-                HILOG_INFO("%{public}s called. Property value=%{public}s.", __func__, natValue ? "true" : "false");
+                HILOG_INFO("Property value=%{public}s.", natValue ? "true" : "false");
                 setting.AddProperty(strProName, std::to_string(natValue));
                 break;
             }
@@ -3117,19 +3096,19 @@ bool UnwrapAbilityStartSetting(napi_env env, napi_value param, AAFwk::AbilitySta
  */
 bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType, CallAbilityParam &param)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     bool ret = false;
     napi_valuetype valueType = napi_undefined;
     param.setting = nullptr;
     NAPI_CALL_BASE(env, napi_typeof(env, args, &valueType), false);
     if (valueType != napi_object) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        HILOG_ERROR("Wrong argument type.");
         return false;
     }
 
     napi_value jsWant = GetPropertyValueByPropertyName(env, args, "want", napi_object);
     if (jsWant == nullptr) {
-        HILOG_ERROR("%{public}s, jsWant == nullptr", __func__);
+        HILOG_ERROR("jsWant == nullptr");
         return false;
     }
 
@@ -3142,27 +3121,27 @@ bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType, CallAbilityP
     if (jsSettingObj != nullptr) {
         param.setting = AbilityStartSetting::GetEmptySetting();
         if (!UnwrapAbilityStartSetting(env, jsSettingObj, *(param.setting))) {
-            HILOG_ERROR("%{public}s, unwrap abilityStartSetting falied.", __func__);
+            HILOG_ERROR("unwrap abilityStartSetting falied.");
         }
-        HILOG_INFO("%{public}s abilityStartSetting", __func__);
+        HILOG_INFO("abilityStartSetting");
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 bool UnwrapParamStopAbilityWrap(napi_env env, size_t argc, napi_value *argv, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called, argc=%{public}zu", __func__, argc);
+    HILOG_INFO("argc=%{public}zu", argc);
     const size_t argcMax = 2;
     if (argc > argcMax || argc < argcMax - 1) {
-        HILOG_ERROR("%{public}s, Params is invalid.", __func__);
+        HILOG_ERROR("Params is invalid");
         return false;
     }
 
     if (argc == argcMax) {
         if (!CreateAsyncCallback(env, argv[PARAM1], asyncCallbackInfo)) {
-            HILOG_INFO("%{public}s, the second parameter is invalid.", __func__);
+            HILOG_INFO("the second parameter is invalid.");
             return false;
         }
     }
@@ -3172,10 +3151,10 @@ bool UnwrapParamStopAbilityWrap(napi_env env, size_t argc, napi_value *argv, Asy
 
 void StopAbilityExecuteCallback(napi_env, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo is null", __func__);
+        HILOG_ERROR("asyncCallbackInfo is null");
         return;
     }
 
@@ -3183,13 +3162,13 @@ void StopAbilityExecuteCallback(napi_env, void *data)
     asyncCallbackInfo->native_data.data_type = NVT_NONE;
 
     if (asyncCallbackInfo->ability == nullptr) {
-        HILOG_ERROR("%{public}s ability is null", __func__);
+        HILOG_ERROR("ability is null");
         asyncCallbackInfo->error_code = NAPI_ERR_ACE_ABILITY;
         return;
     }
 
     if (!CheckAbilityType(asyncCallbackInfo)) {
-        HILOG_ERROR("%{public}s wrong ability type", __func__);
+        HILOG_ERROR("wrong ability type");
         asyncCallbackInfo->error_code = NAPI_ERR_ABILITY_TYPE_INVALID;
         asyncCallbackInfo->native_data.data_type = NVT_UNDEFINED;
         return;
@@ -3197,12 +3176,12 @@ void StopAbilityExecuteCallback(napi_env, void *data)
 
     asyncCallbackInfo->native_data.data_type = NVT_BOOL;
     asyncCallbackInfo->native_data.bool_value = asyncCallbackInfo->ability->StopAbility(asyncCallbackInfo->param.want);
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
 }
 
 napi_value StopAbilityWrap(napi_env env, napi_callback_info info, AsyncJSCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value args[ARGS_MAX_COUNT] = {nullptr};
     napi_value jsthis = nullptr;
@@ -3211,20 +3190,20 @@ napi_value StopAbilityWrap(napi_env env, napi_callback_info info, AsyncJSCallbac
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, &jsthis, &data));
 
     if (!UnwrapParamStopAbilityWrap(env, argc, args, asyncCallbackInfo)) {
-        HILOG_INFO("%{public}s called. Invoke UnwrapParamStopAbility fail", __func__);
+        HILOG_INFO("Invoke UnwrapParamStopAbility fail");
         return nullptr;
     }
 
     AsyncParamEx asyncParamEx;
     if (asyncCallbackInfo->cbInfo.callback != nullptr) {
-        HILOG_INFO("%{public}s called. asyncCallback.", __func__);
+        HILOG_INFO("asyncCallback");
         asyncParamEx.resource = "NAPI_StopAbilityWrapCallback";
         asyncParamEx.execute = StopAbilityExecuteCallback;
         asyncParamEx.complete = CompleteAsyncCallbackWork;
 
         return ExecuteAsyncCallbackWork(env, asyncCallbackInfo, &asyncParamEx);
     } else {
-        HILOG_INFO("%{public}s called. promise.", __func__);
+        HILOG_INFO("promise");
         asyncParamEx.resource = "NAPI_StopAbilityWrapPromise";
         asyncParamEx.execute = StopAbilityExecuteCallback;
         asyncParamEx.complete = CompletePromiseCallbackWork;
@@ -3243,10 +3222,10 @@ napi_value StopAbilityWrap(napi_env env, napi_callback_info info, AsyncJSCallbac
  */
 napi_value NAPI_StopAbilityCommon(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncJSCallbackInfo *asyncCallbackInfo = CreateAsyncJSCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s. Invoke CreateAsyncJSCallbackInfo failed.", __func__);
+        HILOG_ERROR("Invoke CreateAsyncJSCallbackInfo failed.");
         return WrapVoidToJS(env);
     }
 
@@ -3254,11 +3233,11 @@ napi_value NAPI_StopAbilityCommon(napi_env env, napi_callback_info info, Ability
     asyncCallbackInfo->abilityType = abilityType;
     napi_value ret = StopAbilityWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s. ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         FreeAsyncJSCallbackInfo(&asyncCallbackInfo);
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -3305,7 +3284,7 @@ void ConnectionCallback::Reset()
     HILOG_INFO("not in-js-thread");
     auto loop = engine->GetUVLoop();
     if (loop == nullptr) {
-        HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
+        HILOG_ERROR("loop == nullptr.");
         env = nullptr;
         removeKey = nullptr;
         return;
@@ -3421,23 +3400,23 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
 
 void NAPIAbilityConnection::HandleOnAbilityConnectDone(ConnectionCallback &callback, int resultCode)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(callback.env, &loop);
     if (loop == nullptr) {
-        HILOG_ERROR("%{public}s, loop == null.", __func__);
+        HILOG_ERROR("loop == null.");
         return;
     }
 
     uv_work_t *work = new(std::nothrow) uv_work_t;
     if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work == null.", __func__);
+        HILOG_ERROR("work == null.");
         return;
     }
 
     ConnectAbilityCB *connectAbilityCB = new (std::nothrow) ConnectAbilityCB;
     if (connectAbilityCB == nullptr) {
-        HILOG_ERROR("%{public}s, connectAbilityCB == null.", __func__);
+        HILOG_ERROR("connectAbilityCB == null.");
         if (work != nullptr) {
             delete work;
             work = nullptr;
@@ -3469,10 +3448,10 @@ void NAPIAbilityConnection::HandleOnAbilityConnectDone(ConnectionCallback &callb
 void NAPIAbilityConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("%{public}s bundleName:%{public}s abilityName:%{public}s, resultCode:%{public}d",
-        __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str(), resultCode);
+    HILOG_INFO("bundleName:%{public}s abilityName:%{public}s, resultCode:%{public}d",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str(), resultCode);
     if (remoteObject == nullptr) {
-        HILOG_ERROR("%{public}s, remoteObject == nullptr.", __func__);
+        HILOG_ERROR("remoteObject == nullptr.");
         return;
     }
     std::lock_guard<std::mutex> guard(lock_);
@@ -3482,7 +3461,7 @@ void NAPIAbilityConnection::OnAbilityConnectDone(
         HandleOnAbilityConnectDone(*callback, resultCode);
     }
     connectionState_ = CONNECTION_STATE_CONNECTED;
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
 }
 
 void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
@@ -3542,23 +3521,23 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
 
 void NAPIAbilityConnection::HandleOnAbilityDisconnectDone(ConnectionCallback &callback, int resultCode)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     uv_loop_s *loop = nullptr;
     napi_get_uv_event_loop(callback.env, &loop);
     if (loop == nullptr) {
-        HILOG_ERROR("%{public}s, loop == nullptr.", __func__);
+        HILOG_ERROR("loop == nullptr.");
         return;
     }
 
     uv_work_t *work = new(std::nothrow) uv_work_t;
     if (work == nullptr) {
-        HILOG_ERROR("%{public}s, work == nullptr.", __func__);
+        HILOG_ERROR("work == nullptr.");
         return;
     }
 
     ConnectAbilityCB *connectAbilityCB = new (std::nothrow) ConnectAbilityCB;
     if (connectAbilityCB == nullptr) {
-        HILOG_ERROR("%{public}s, connectAbilityCB == nullptr.", __func__);
+        HILOG_ERROR("connectAbilityCB == nullptr.");
         if (work != nullptr) {
             delete work;
             work = nullptr;
@@ -3589,15 +3568,15 @@ void NAPIAbilityConnection::HandleOnAbilityDisconnectDone(ConnectionCallback &ca
 
 void NAPIAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_INFO("%{public}s bundleName:%{public}s abilityName:%{public}s, resultCode:%{public}d",
-        __func__, element.GetBundleName().c_str(), element.GetAbilityName().c_str(), resultCode);
+    HILOG_INFO("bundleName:%{public}s abilityName:%{public}s, resultCode:%{public}d",
+        element.GetBundleName().c_str(), element.GetAbilityName().c_str(), resultCode);
     std::lock_guard<std::mutex> guard(lock_);
     element_ = element;
     for (const auto &callback : callbacks_) {
         HandleOnAbilityDisconnectDone(*callback, resultCode);
     }
     connectionState_ = CONNECTION_STATE_DISCONNECTED;
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
 }
 
 /**
@@ -3618,7 +3597,7 @@ napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info 
     dataAbilityHelperCB->cbBase.abilityType = abilityType;
     napi_value ret = AcquireDataAbilityHelperWrap(env, info, dataAbilityHelperCB);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s, ret == nullptr", __func__);
+        HILOG_ERROR("ret == nullptr");
         if (dataAbilityHelperCB != nullptr) {
             delete dataAbilityHelperCB;
             dataAbilityHelperCB = nullptr;
@@ -3627,6 +3606,32 @@ napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info 
     }
     HILOG_INFO("AcquireDataAbilityHelper end");
     return ret;
+}
+
+bool UnWrapFaAbility(napi_env env, napi_value arg, DataAbilityHelperCB *dataAbilityHelperCB, size_t &uriIndex)
+{
+    bool stageMode = false;
+    napi_status status = OHOS::AbilityRuntime::IsStageContext(env, arg, stageMode);
+    if (status == napi_ok) {
+        uriIndex = PARAM1;
+        HILOG_INFO("argv is a context, Stage Model: %{public}d", stageMode);
+    }
+
+    if (!stageMode) {
+        auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
+        if (ability == nullptr) {
+            HILOG_ERROR("Failed to get native context instance");
+            return false;
+        }
+        dataAbilityHelperCB->cbBase.ability = ability;
+
+        if (!CheckAbilityType(&dataAbilityHelperCB->cbBase)) {
+            dataAbilityHelperCB->cbBase.errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
+            HILOG_ERROR("ability type invalid.");
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -3640,7 +3645,7 @@ napi_value NAPI_AcquireDataAbilityHelperCommon(napi_env env, napi_callback_info 
 napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, DataAbilityHelperCB *dataAbilityHelperCB)
 {
     if (dataAbilityHelperCB == nullptr) {
-        HILOG_ERROR("%{public}s,dataAbilityHelperCB == nullptr", __func__);
+        HILOG_ERROR("dataAbilityHelperCB == nullptr");
         return nullptr;
     }
 
@@ -3649,60 +3654,40 @@ napi_value AcquireDataAbilityHelperWrap(napi_env env, napi_callback_info info, D
     napi_value args[ARGS_TWO] = {nullptr};
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
     if (argc > requireArgc) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("Wrong argument count");
         return nullptr;
     }
 
     size_t uriIndex = PARAM0;
-    bool stageMode = false;
-    napi_status status = OHOS::AbilityRuntime::IsStageContext(env, args[0], stageMode);
-    if (status == napi_ok) {
-        uriIndex = PARAM1;
-        HILOG_INFO("argv[0] is a context, Stage Model: %{public}d", stageMode);
+    if (!UnWrapFaAbility(env, args[0], dataAbilityHelperCB, uriIndex)) {
+        return nullptr;
     }
-
-    if (!stageMode) {
-        auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
-        if (ability == nullptr) {
-            HILOG_ERROR("Failed to get native context instance");
-            return nullptr;
-        }
-        dataAbilityHelperCB->cbBase.ability = ability;
-
-        if (!CheckAbilityType(&dataAbilityHelperCB->cbBase)) {
-            dataAbilityHelperCB->cbBase.errCode = NAPI_ERR_ABILITY_TYPE_INVALID;
-            HILOG_ERROR("%{public}s ability type invalid.", __func__);
-            return nullptr;
-        }
-    }
-
     napi_valuetype valuetype = napi_undefined;
     NAPI_CALL(env, napi_typeof(env, args[uriIndex], &valuetype));
     if (valuetype != napi_string) {
-        HILOG_ERROR("%{public}s, Wrong argument type.", __func__);
+        HILOG_ERROR("Wrong argument type.");
         return nullptr;
     }
-
     napi_value result = nullptr;
     NAPI_CALL(env, napi_new_instance(env, GetGlobalDataAbilityHelper(env), uriIndex + 1, &args[PARAM0], &result));
 
     if (!IsTypeForNapiValue(env, result, napi_object)) {
-        HILOG_ERROR("%{public}s, IsTypeForNapiValue isn`t object", __func__);
+        HILOG_ERROR("IsTypeForNapiValue isn`t object");
         return nullptr;
     }
 
     if (IsTypeForNapiValue(env, result, napi_null)) {
-        HILOG_ERROR("%{public}s, IsTypeForNapiValue is null", __func__);
+        HILOG_ERROR("IsTypeForNapiValue is null");
         return nullptr;
     }
 
     if (IsTypeForNapiValue(env, result, napi_undefined)) {
-        HILOG_ERROR("%{public}s, IsTypeForNapiValue is undefined", __func__);
+        HILOG_ERROR("IsTypeForNapiValue is undefined");
         return nullptr;
     }
 
     if (!GetDataAbilityHelperStatus()) {
-        HILOG_ERROR("%{public}s, GetDataAbilityHelperStatus is false", __func__);
+        HILOG_ERROR("GetDataAbilityHelperStatus is false");
         return nullptr;
     }
 
@@ -3734,10 +3719,10 @@ napi_value UnwrapParamForWantAgent(napi_env &env, napi_value &args, AbilityRunti
 
 void StartBackgroundRunningExecuteCB(napi_env env, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = (AsyncCallbackInfo *)data;
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == nullptr", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullptr");
         return;
     }
     if (asyncCallbackInfo->errCode == NAPI_ERR_PARAM_INVALID) {
@@ -3746,7 +3731,7 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
     }
     if (asyncCallbackInfo->ability == nullptr) {
         asyncCallbackInfo->errCode = NAPI_ERR_ACE_ABILITY;
-        HILOG_ERROR("%{public}s ability == nullptr", __func__);
+        HILOG_ERROR("ability == nullptr");
         return;
     }
     const std::shared_ptr<AbilityInfo> info = asyncCallbackInfo->ability->GetAbilityInfo();
@@ -3765,12 +3750,12 @@ void StartBackgroundRunningExecuteCB(napi_env env, void *data)
     }
     asyncCallbackInfo->errCode = asyncCallbackInfo->ability->StartBackgroundRunning(wantAgentObj);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
 }
 
 void BackgroundRunningCallbackCompletedCB(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
     napi_value callback = nullptr;
     napi_value undefined = nullptr;
@@ -3794,12 +3779,12 @@ void BackgroundRunningCallbackCompletedCB(napi_env env, napi_status status, void
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
     delete asyncCallbackInfo;
     asyncCallbackInfo = nullptr;
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
 }
 
 void BackgroundRunningPromiseCompletedCB(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = static_cast<AsyncCallbackInfo *>(data);
     napi_value result = nullptr;
     if (asyncCallbackInfo->errCode == NAPI_ERR_NO_ERROR) {
@@ -3811,16 +3796,16 @@ void BackgroundRunningPromiseCompletedCB(napi_env env, napi_status status, void 
     }
 
     napi_delete_async_work(env, asyncCallbackInfo->asyncWork);
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     delete asyncCallbackInfo;
 }
 
 napi_value StartBackgroundRunningAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -3842,15 +3827,15 @@ napi_value StartBackgroundRunningAsync(
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_utility));
 
-    HILOG_INFO("%{public}s asyncCallback end.", __func__);
+    HILOG_INFO("end");
     return WrapVoidToJS(env);
 }
 
 napi_value StartBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr.", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName;
@@ -3869,13 +3854,13 @@ napi_value StartBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *asyncC
             static_cast<void *>(asyncCallbackInfo),
             &asyncCallbackInfo->asyncWork));
     NAPI_CALL(env, napi_queue_async_work_with_qos(env, asyncCallbackInfo->asyncWork, napi_qos_utility));
-    HILOG_INFO("%{public}s, end.", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
 napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     size_t paramNums = 3;
     const size_t minParamNums = 2;
     const size_t maxParamNums = 3;
@@ -3885,7 +3870,7 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
     NAPI_CALL(env, napi_get_cb_info(env, info, &paramNums, args, NULL, NULL));
 
     if (paramNums < minParamNums || paramNums > maxParamNums) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("Wrong argument count");
         return nullptr;
     }
 
@@ -3899,30 +3884,30 @@ napi_value StartBackgroundRunningWrap(napi_env &env, napi_callback_info &info, A
         ret = StartBackgroundRunningPromise(env, asyncCallbackInfo);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 napi_value NAPI_StartBackgroundRunningCommon(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == nullpter", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullpter");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     napi_value ret = StartBackgroundRunningWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == null", __func__);
+        HILOG_ERROR("ret == null");
         if (asyncCallbackInfo != nullptr) {
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s finish.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -3932,16 +3917,16 @@ void CancelBackgroundRunningExecuteCB(napi_env env, void *data)
     if (asyncCallbackInfo->ability != nullptr) {
         asyncCallbackInfo->errCode = asyncCallbackInfo->ability->StopBackgroundRunning();
     } else {
-        HILOG_ERROR("NAPI_PACancelBackgroundRunning, ability == nullptr");
+        HILOG_ERROR("ability == nullptr");
     }
 }
 
 napi_value CancelBackgroundRunningAsync(
     napi_env env, napi_value *args, const size_t argCallback, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, asyncCallback.", __func__);
+    HILOG_INFO("called");
     if (args == nullptr || asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == nullptr", __func__);
+        HILOG_ERROR("param == nullptr");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -3964,15 +3949,15 @@ napi_value CancelBackgroundRunningAsync(
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
     napi_value result = nullptr;
     napi_get_null(env, &result);
-    HILOG_INFO("%{public}s, asyncCallback end", __func__);
+    HILOG_INFO("end");
     return result;
 }
 
 napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s, promise.", __func__);
+    HILOG_INFO("called");
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, param == null.", __func__);
+        HILOG_ERROR("param == null");
         return nullptr;
     }
     napi_value resourceName = nullptr;
@@ -3992,13 +3977,13 @@ napi_value CancelBackgroundRunningPromise(napi_env env, AsyncCallbackInfo *async
         static_cast<void *>(asyncCallbackInfo),
         &asyncCallbackInfo->asyncWork);
     napi_queue_async_work(env, asyncCallbackInfo->asyncWork);
-    HILOG_INFO("%{public}s, promise end", __func__);
+    HILOG_INFO("end");
     return promise;
 }
 
 napi_value CancelBackgroundRunningWrap(napi_env &env, napi_callback_info &info, AsyncCallbackInfo *asyncCallbackInfo)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     size_t argcAsync = 1;
     const size_t argcPromise = 0;
     const size_t argCountWithAsync = argcPromise + ARGS_ASYNC_COUNT;
@@ -4007,7 +3992,7 @@ napi_value CancelBackgroundRunningWrap(napi_env &env, napi_callback_info &info, 
 
     NAPI_CALL(env, napi_get_cb_info(env, info, &argcAsync, args, NULL, NULL));
     if (argcAsync > argCountWithAsync || argcAsync > ARGS_MAX_COUNT) {
-        HILOG_ERROR("%{public}s, Wrong argument count.", __func__);
+        HILOG_ERROR("Wrong argument count");
         return nullptr;
     }
 
@@ -4017,30 +4002,30 @@ napi_value CancelBackgroundRunningWrap(napi_env &env, napi_callback_info &info, 
         ret = CancelBackgroundRunningPromise(env, asyncCallbackInfo);
     }
 
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
 napi_value NAPI_CancelBackgroundRunningCommon(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_INFO("called");
     AsyncCallbackInfo *asyncCallbackInfo = CreateAsyncCallbackInfo(env);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s asyncCallbackInfo == nullpter", __func__);
+        HILOG_ERROR("asyncCallbackInfo == nullpter");
         return WrapVoidToJS(env);
     }
 
     asyncCallbackInfo->errCode = NAPI_ERR_NO_ERROR;
     napi_value ret = CancelBackgroundRunningWrap(env, info, asyncCallbackInfo);
     if (ret == nullptr) {
-        HILOG_ERROR("%{public}s ret == nullpter", __func__);
+        HILOG_ERROR("ret == nullpter");
         if (asyncCallbackInfo != nullptr) {
             delete asyncCallbackInfo;
             asyncCallbackInfo = nullptr;
         }
         ret = WrapVoidToJS(env);
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -4054,7 +4039,7 @@ JsNapiCommon::~JsNapiCommon()
 
 napi_value JsNapiCommon::JsConnectAbility(napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("%{public}s is called", __func__);
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4084,15 +4069,13 @@ napi_value JsNapiCommon::JsConnectAbility(napi_env env, napi_callback_info info,
             abilityConnection->AddConnectionCallback(connectionCallback);
             // Judge connection-state
             auto connectionState = abilityConnection->GetConnectionState();
+            HILOG_INFO("connectionState = %{public}d", connectionState);
             if (connectionState == CONNECTION_STATE_CONNECTED) {
-                HILOG_INFO("Ability is connected, callback to client.");
                 abilityConnection->HandleOnAbilityConnectDone(*connectionCallback, ERR_OK);
                 return CreateJsValue(env, id);
             } else if (connectionState == CONNECTION_STATE_CONNECTING) {
-                HILOG_INFO("Ability is connecting, just wait callback.");
                 return CreateJsValue(env, id);
             } else {
-                HILOG_ERROR("AbilityConnection has disconnected, erase it.");
                 RemoveConnectionLocked(want);
                 return CreateJsUndefined(env);
             }
@@ -4104,30 +4087,9 @@ napi_value JsNapiCommon::JsConnectAbility(napi_env env, napi_callback_info info,
     }
 
     if (errorVal != static_cast<int32_t>(NAPI_ERR_NO_ERROR) || result == false) {
-        HILOG_ERROR("CommonJsConnectAbility failed.");
-        // return error code in onFailed async callback
-        napi_value callback = nullptr;
-        napi_value undefinedVal = nullptr;
-        napi_value resultVal = nullptr;
-        napi_value callResult = nullptr;
-        int errorCode = NO_ERROR;
-        switch (errorVal) {
-            case NAPI_ERR_ACE_ABILITY:
-                errorCode = ABILITY_NOT_FOUND;
-                break;
-            case NAPI_ERR_PARAM_INVALID:
-                errorCode = INVALID_PARAMETER;
-                break;
-            default:
-                break;
+        if (!WrapJsConnectFailedResult(env, want, errorVal, connectionCallback)) {
+            return CreateJsUndefined(env);
         }
-        NAPI_CALL_BASE(env, napi_create_int32(env, errorCode, &resultVal), CreateJsUndefined(env));
-        NAPI_CALL_BASE(env, napi_get_reference_value(env, connectionCallback->failedCallbackRef, &callback),
-            CreateJsUndefined(env));
-        NAPI_CALL_BASE(env, napi_call_function(env, undefinedVal, callback, ARGS_ONE, &resultVal, &callResult),
-            CreateJsUndefined(env));
-        connectionCallback->Reset();
-        RemoveConnectionLocked(want);
     }
     // free failedcallback here, avoid possible multi-threading problems when disconnect success
     napi_delete_reference(env, connectionCallback->failedCallbackRef);
@@ -4135,9 +4097,40 @@ napi_value JsNapiCommon::JsConnectAbility(napi_env env, napi_callback_info info,
     return CreateJsValue(env, id);
 }
 
+bool JsNapiCommon::WrapJsConnectFailedResult(napi_env env, const Want &want,
+    int32_t errorVal, std::shared_ptr<ConnectionCallback> cb)
+{
+    HILOG_INFO("CommonJsConnectAbility failed.");
+    if (cb == nullptr) {
+        return false;
+    }
+    // return error code in onFailed async callback
+    napi_value callback = nullptr;
+    napi_value undefinedVal = nullptr;
+    napi_value resultVal = nullptr;
+    napi_value callResult = nullptr;
+    int errorCode = NO_ERROR;
+    switch (errorVal) {
+        case NAPI_ERR_ACE_ABILITY:
+            errorCode = ABILITY_NOT_FOUND;
+            break;
+        case NAPI_ERR_PARAM_INVALID:
+            errorCode = INVALID_PARAMETER;
+            break;
+        default:
+            break;
+    }
+    NAPI_CALL_BASE(env, napi_create_int32(env, errorCode, &resultVal), false);
+    NAPI_CALL_BASE(env, napi_get_reference_value(env, cb->failedCallbackRef, &callback), false);
+    NAPI_CALL_BASE(env, napi_call_function(env, undefinedVal, callback, ARGS_ONE, &resultVal, &callResult), false);
+    cb->Reset();
+    RemoveConnectionLocked(want);
+    return true;
+}
+
 napi_value JsNapiCommon::JsDisConnectAbility(napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("%{public}s is called", __func__);
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4166,19 +4159,9 @@ napi_value JsNapiCommon::JsDisConnectAbility(napi_env env, napi_callback_info in
         return CreateJsUndefined(env);
     }
     auto execute = [obj = this, value = errorVal, abilityType, abilityConnection] () {
-        if (obj->ability_ == nullptr) {
-            *value = static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
-            HILOG_ERROR("task execute error, the ability is nullptr.");
-            return;
-        }
-        if (!obj->CheckAbilityType(abilityType)) {
-            *value = static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
-            return;
-        }
-        *value = obj->ability_->DisconnectAbility(abilityConnection);
+        *value = obj->JsDisConnectAbilityInner(abilityType, abilityConnection);
     };
-    auto complete = [obj = this, value = errorVal]
-        (napi_env env, NapiAsyncTask &task, const int32_t status) {
+    auto complete = [obj = this, value = errorVal] (napi_env env, NapiAsyncTask &task, const int32_t status) {
         if (*value != static_cast<int32_t>(NAPI_ERR_NO_ERROR)) {
             task.Reject(env, CreateJsError(env, *value, "DisconnectAbility failed."));
             return;
@@ -4190,6 +4173,18 @@ napi_value JsNapiCommon::JsDisConnectAbility(napi_env env, napi_callback_info in
     NapiAsyncTask::Schedule("JsNapiCommon::JsDisConnectAbility",
         env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
     return result;
+}
+
+int32_t JsNapiCommon::JsDisConnectAbilityInner(AbilityType abilityType, sptr<NAPIAbilityConnection> abilityConnection)
+{
+    if (ability_ == nullptr) {
+        HILOG_ERROR("task execute error, the ability is nullptr.");
+        return static_cast<int32_t>(NAPI_ERR_ACE_ABILITY);
+    }
+    if (!CheckAbilityType(abilityType)) {
+        return static_cast<int32_t>(NAPI_ERR_ABILITY_TYPE_INVALID);
+    }
+    return ability_->DisconnectAbility(abilityConnection);
 }
 
 bool JsNapiCommon::CreateConnectionAndConnectAbilityLocked(
@@ -4222,7 +4217,7 @@ bool JsNapiCommon::CreateConnectionAndConnectAbilityLocked(
 
 sptr<NAPIAbilityConnection> JsNapiCommon::FindConnectionLocked(const Want &want, int64_t &id)
 {
-    HILOG_DEBUG("%{public}s uri:%{public}s", __func__, want.GetElement().GetURI().c_str());
+    HILOG_DEBUG("uri:%{public}s", want.GetElement().GetURI().c_str());
     std::string deviceId = want.GetElement().GetDeviceID();
     std::string bundleName = want.GetBundle();
     std::string abilityName = want.GetElement().GetAbilityName();
@@ -4491,7 +4486,7 @@ napi_value JsNapiCommon::JsGetCacheDir(napi_env env, napi_callback_info info, co
 napi_value JsNapiCommon::JsGetCtxAppType(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("JsGetCtxAppType called");
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4539,7 +4534,7 @@ napi_value JsNapiCommon::JsGetCtxAppType(
 napi_value JsNapiCommon::JsGetCtxHapModuleInfo(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("JsGetCtxHapModuleInfo called");
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4590,7 +4585,7 @@ napi_value JsNapiCommon::JsGetCtxHapModuleInfo(
 napi_value JsNapiCommon::JsGetAppVersionInfo(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("JsGetAppVersionInfo called");
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4641,7 +4636,7 @@ napi_value JsNapiCommon::JsGetAppVersionInfo(
 napi_value JsNapiCommon::JsGetCtxAbilityInfo(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("JsGetCtxAbilityInfo called");
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4692,7 +4687,7 @@ napi_value JsNapiCommon::JsGetCtxAbilityInfo(
 napi_value JsNapiCommon::JsGetOrCreateDistributedDir(
     napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("JsGetOrCreateDistributedDir called");
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -4743,7 +4738,7 @@ napi_value JsNapiCommon::JsGetOrCreateDistributedDir(
 #ifdef SUPPORT_GRAPHICS
 napi_value JsNapiCommon::JsGetDisplayOrientation(napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("JsGetDisplayOrientation called");
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -5132,7 +5127,7 @@ std::string JsNapiCommon::ConvertErrorCode(int32_t errCode)
 
 napi_value JsNapiCommon::JsGetWant(napi_env env, napi_callback_info info, const AbilityType abilityType)
 {
-    HILOG_DEBUG("%{public}s called", __func__);
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -5183,7 +5178,7 @@ napi_value JsNapiCommon::JsGetWant(napi_env env, napi_callback_info info, const 
 
 napi_value JsNapiCommon::CreateWant(napi_env env, const std::shared_ptr<JsWant> &want)
 {
-    HILOG_DEBUG("%{public}s,called", __func__);
+    HILOG_DEBUG("called");
     if (want == nullptr) {
         HILOG_ERROR("CreateWant error, want is nullptr.");
         return CreateJsUndefined(env);
@@ -5194,9 +5189,9 @@ napi_value JsNapiCommon::CreateWant(napi_env env, const std::shared_ptr<JsWant> 
 
 napi_value JsNapiCommon::JsTerminateAbility(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("%{public}s called", __func__);
+    HILOG_DEBUG("called");
     if (info.argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s input params count error, argc=%{public}zu", __func__, info.argc);
+        HILOG_ERROR("input params count error, argc=%{public}zu", info.argc);
         return CreateJsUndefined(env);
     }
 
@@ -5218,7 +5213,7 @@ napi_value JsNapiCommon::JsTerminateAbility(napi_env env, NapiCallbackInfo& info
 
 napi_value JsNapiCommon::JsStartAbility(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_DEBUG("%{public}s called", __func__);
+    HILOG_DEBUG("called");
     auto errorVal = std::make_shared<int32_t>(static_cast<int32_t>(NAPI_ERR_NO_ERROR));
     auto param = std::make_shared<CallAbilityParam>();
     size_t argc = ARGS_MAX_COUNT;
@@ -5240,61 +5235,18 @@ napi_value JsNapiCommon::JsStartAbility(napi_env env, napi_callback_info info, A
         param->want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
     }
 
-    auto execute = [obj = this, value = errorVal, abilityType, paramObj = param, &observer = freeInstallObserver_] () {
+    auto execute = [obj = this, value = errorVal, abilityType, par = param] () {
         if (*value != NAPI_ERR_NO_ERROR) {
             HILOG_ERROR("JsStartAbility params error!");
             return;
         }
 
-        if (obj->ability_ == nullptr) {
-            *value = NAPI_ERR_ACE_ABILITY;
-            HILOG_ERROR("task execute error, the ability is nullptr");
-            return;
-        }
-
-        if (!obj->CheckAbilityType(abilityType)) {
-            *value = NAPI_ERR_ABILITY_TYPE_INVALID;
-            HILOG_ERROR("task execute error, the abilityType is error");
-            return;
-        }
-#ifdef SUPPORT_GRAPHICS
-        // inherit split mode
-        auto windowMode = obj->ability_->GetCurrentWindowMode();
-        if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
-            windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
-            paramObj->want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
-        }
-        HILOG_DEBUG("window mode is %{public}d", windowMode);
-
-        // follow orientation
-        paramObj->want.SetParam("ohos.aafwk.Orientation", 0);
-        if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
-            auto orientation = obj->ability_->GetDisplayOrientation();
-            paramObj->want.SetParam("ohos.aafwk.Orientation", orientation);
-            HILOG_DEBUG("display orientation is %{public}d", orientation);
-        }
-#endif
-        if (paramObj->setting == nullptr) {
-            HILOG_INFO("param.setting == nullptr call StartAbility.");
-            *value = obj->ability_->StartAbility(paramObj->want);
-        } else {
-            HILOG_INFO("param.setting != nullptr call StartAbility.");
-            *value = obj->ability_->StartAbility(paramObj->want, *(paramObj->setting));
-        }
-        if ((paramObj->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
-            *value != 0 && observer != nullptr) {
-            std::string bundleName = paramObj->want.GetElement().GetBundleName();
-            std::string abilityName = paramObj->want.GetElement().GetAbilityName();
-            std::string startTime = paramObj->want.GetStringParam(Want::PARAM_RESV_START_TIME);
-            observer->OnInstallFinished(bundleName, abilityName, startTime, *value);
-        }
+        *value = obj->JsStartAbilityInner(par, abilityType);
     };
 
-    auto complete = [value = errorVal]
-        (napi_env env, NapiAsyncTask& task, int32_t status) {
+    auto complete = [value = errorVal] (napi_env env, NapiAsyncTask& task, int32_t status) {
         if (*value != NAPI_ERR_NO_ERROR) {
-            int32_t errCode = GetStartAbilityErrorCode(*value);
-            task.Reject(env, CreateJsError(env, errCode, "StartAbility Failed"));
+            task.Reject(env, CreateJsError(env, GetStartAbilityErrorCode(*value), "StartAbility Failed"));
             return;
         }
         task.Resolve(env, CreateJsValue(env, *value));
@@ -5314,14 +5266,61 @@ napi_value JsNapiCommon::JsStartAbility(napi_env env, napi_callback_info info, A
     return result;
 }
 
+int32_t JsNapiCommon::JsStartAbilityInner(std::shared_ptr<CallAbilityParam> paramObj, AbilityType abilityType)
+{
+    if (paramObj == nullptr || ability_ == nullptr) {
+        HILOG_ERROR("task execute error, the paramObj or ability is nullptr");
+        return NAPI_ERR_ACE_ABILITY;
+    }
+
+    if (!CheckAbilityType(abilityType)) {
+        HILOG_ERROR("task execute error, the abilityType is error");
+        return NAPI_ERR_ABILITY_TYPE_INVALID;
+    }
+#ifdef SUPPORT_GRAPHICS
+    // inherit split mode
+    auto windowMode = ability_->GetCurrentWindowMode();
+    if (windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
+        windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
+        paramObj->want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
+    }
+    HILOG_DEBUG("window mode is %{public}d", windowMode);
+
+    // follow orientation
+    paramObj->want.SetParam("ohos.aafwk.Orientation", 0);
+    if (windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
+        auto orientation = ability_->GetDisplayOrientation();
+        paramObj->want.SetParam("ohos.aafwk.Orientation", orientation);
+        HILOG_DEBUG("display orientation is %{public}d", orientation);
+    }
+#endif
+    int32_t res = NAPI_ERR_NO_ERROR;
+    if (paramObj->setting == nullptr) {
+        HILOG_INFO("param.setting = nullptr call StartAbility.");
+        res = ability_->StartAbility(paramObj->want);
+    } else {
+        HILOG_INFO("param.setting != nullptr call StartAbility.");
+        res = ability_->StartAbility(paramObj->want, *(paramObj->setting));
+    }
+
+    if ((paramObj->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+        res != 0 && freeInstallObserver_ != nullptr) {
+        std::string bundleName = paramObj->want.GetElement().GetBundleName();
+        std::string abilityName = paramObj->want.GetElement().GetAbilityName();
+        std::string startTime = paramObj->want.GetStringParam(Want::PARAM_RESV_START_TIME);
+        freeInstallObserver_->OnInstallFinished(bundleName, abilityName, startTime, res);
+    }
+    return res;
+}
+
 napi_value JsNapiCommon::JsGetExternalCacheDir(napi_env env, napi_callback_info info, AbilityType abilityType)
 {
-    HILOG_DEBUG("%{public}s called", __func__);
+    HILOG_DEBUG("called");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc > ARGS_ONE) {
-        HILOG_ERROR("%{public}s input params count error, argc=%{public}zu", __func__, argc);
+        HILOG_ERROR("input params count error, argc=%{public}zu", argc);
         return CreateJsUndefined(env);
     }
 

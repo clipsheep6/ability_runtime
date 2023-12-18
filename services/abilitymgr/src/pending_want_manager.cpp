@@ -59,18 +59,8 @@ sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t 
     return GetWantSenderLocked(callingUid, uid, wantSenderInfo.userId, info, callerToken);
 }
 
-sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingUid, const int32_t uid,
-    const int32_t userId, WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
+std::shared_ptr<PendingWantKey> PendingWantManager::CreatePendingWantKey(const WantSenderInfo &wantSenderInfo)
 {
-    HILOG_DEBUG("begin");
-
-    bool needCreate = (static_cast<uint32_t>(wantSenderInfo.flags) &
-        static_cast<uint32_t>(Flags::NO_BUILD_FLAG)) == 0;
-    bool needCancel = (static_cast<uint32_t>(wantSenderInfo.flags) &
-        static_cast<uint32_t>(Flags::CANCEL_PRESENT_FLAG)) != 0;
-    bool needUpdate = (static_cast<uint32_t>(wantSenderInfo.flags) &
-        static_cast<uint32_t>(Flags::UPDATE_PRESENT_FLAG)) != 0;
-
     std::shared_ptr<PendingWantKey> pendingKey = std::make_shared<PendingWantKey>();
     pendingKey->SetBundleName(wantSenderInfo.bundleName);
     pendingKey->SetRequestWho(wantSenderInfo.resultWho);
@@ -83,6 +73,22 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         pendingKey->SetRequestResolvedType(wantSenderInfo.allWants.back().resolvedTypes);
         pendingKey->SetAllWantsInfos(wantSenderInfo.allWants);
     }
+    return pendingKey;
+}
+
+sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingUid, const int32_t uid,
+    const int32_t userId, WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
+{
+    HILOG_DEBUG("begin");
+
+    bool needCreate = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::NO_BUILD_FLAG)) == 0;
+    bool needCancel = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::CANCEL_PRESENT_FLAG)) != 0;
+    bool needUpdate = (static_cast<uint32_t>(wantSenderInfo.flags) &
+        static_cast<uint32_t>(Flags::UPDATE_PRESENT_FLAG)) != 0;
+
+    std::shared_ptr<PendingWantKey> pendingKey = CreatePendingWantKey(wantSenderInfo);
     std::lock_guard<ffrt::mutex> locker(mutex_);
     auto ref = GetPendingWantRecordByKey(pendingKey);
     if (ref != nullptr) {
@@ -105,9 +111,8 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
         return (ref != nullptr) ? ref : nullptr;
     }
 
-    sptr<PendingWantRecord> rec =
-        new (std::nothrow) PendingWantRecord(shared_from_this(), uid, IPCSkeleton::GetCallingTokenID(),
-        callerToken, pendingKey);
+    sptr<PendingWantRecord> rec = new (std::nothrow) PendingWantRecord(
+        shared_from_this(), uid, IPCSkeleton::GetCallingTokenID(), callerToken, pendingKey);
     if (rec != nullptr) {
         rec->SetCallerUid(callingUid);
         pendingKey->SetCode(PendingRecordIdCreate());

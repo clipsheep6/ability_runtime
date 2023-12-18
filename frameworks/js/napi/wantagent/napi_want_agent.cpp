@@ -784,8 +784,7 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
     }
     if (hasExtraInfo) {
         extraInfo = std::make_shared<AAFwk::WantParams>();
-        if (!UnwrapWantParams(env, (jsExtraInfo),
-            *extraInfo)) {
+        if (!UnwrapWantParams(env, (jsExtraInfo), *extraInfo)) {
             HILOG_ERROR("GetTriggerInfo convert extraInfo error!");
             return ERR_NOT_OK;
         }

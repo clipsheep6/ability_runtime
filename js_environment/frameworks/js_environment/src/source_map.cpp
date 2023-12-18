@@ -47,6 +47,9 @@ constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
 const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
 const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
+const std::string CLOSE_BRACE = ")";
+const std::string OPEN_BRACE = "(";
+const std::string CODE_START = "SourceCode (";
 } // namespace
 ReadSourceMapCallback SourceMap::readSourceMapFunc_ = nullptr;
 GetHapPathCallback SourceMap::getHapPathFunc_ = nullptr;
@@ -100,10 +103,19 @@ void SourceMap::Init(bool isModular, const std::string& hapPath)
     }
 }
 
+void SourceMap::GetStartAndEndPos(const std::string& temp, size_t& start, size_t& end)
+{
+    if (isModular_) {
+        start = temp.find(OPEN_BRACE);
+        end = temp.find(":");
+    } else {
+        start = temp.find("/ets/");
+        end = temp.rfind("_.js");
+    }
+}
+
 std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
 {
-    std::string closeBrace = ")";
-    std::string openBrace = "(";
     std::string ans = "";
 
     // find per line of stack
@@ -112,12 +124,11 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
 
     // collect error info first
     uint32_t i = 0;
-    std::string codeStart = "SourceCode (";
     std::string sourceCode = "";
     if (!res.empty()) {
         std::string fristLine = res[0];
-        uint32_t codeStartLen = codeStart.length();
-        if (fristLine.substr(0, codeStartLen).compare(codeStart) == 0) {
+        uint32_t codeStartLen = CODE_START.length();
+        if (fristLine.substr(0, codeStartLen).compare(CODE_START) == 0) {
             sourceCode = fristLine.substr(codeStartLen, fristLine.length() - codeStartLen - 1);
             i = 1;  // 1 means Convert from the second line
         }
@@ -128,19 +139,13 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         std::string temp = res[i];
         size_t start;
         size_t end;
-        if (isModular_) {
-            start = temp.find(openBrace);
-            end = temp.find(":");
-        } else {
-            start = temp.find("/ets/");
-            end = temp.rfind("_.js");
-        }
+        GetStartAndEndPos(temp, start, end);
         if (end <= start) {
             continue;
         }
         std::string key = temp.substr(start + 1, end - start - 1);
-        auto closeBracePos = static_cast<int32_t>(temp.find(closeBrace));
-        auto openBracePos = static_cast<int32_t>(temp.find(openBrace));
+        auto closeBracePos = static_cast<int32_t>(temp.find(CLOSE_BRACE));
+        auto openBracePos = static_cast<int32_t>(temp.find(OPEN_BRACE));
         std::string line;
         std::string column;
         GetPosInfo(temp, closeBracePos, line, column);
@@ -224,7 +229,7 @@ void SourceMap::ExtractStackInfo(const std::string& stackStr, std::vector<std::s
     }
 }
 
-void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData)
+void SourceMap::FillCurMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData)
 {
     std::vector<std::string> sourceKey;
     ExtractKeyInfo(sourceMapData, sourceKey);
@@ -247,7 +252,11 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
             continue;
         }
     }
+}
 
+void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData)
+{
+    FillCurMapData(sourceMapData, curMapData);
     if (curMapData->mappings_.empty()) {
         return;
     }
@@ -289,19 +298,13 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
         if (ans.size() == ANS_MAP_SIZE) {
             curMapData->nowPos_.namesVal += ans[INDEX_FOUR];
         }
-        curMapData->afterPos_.push_back({
-            curMapData->nowPos_.beforeRow,
-            curMapData->nowPos_.beforeColumn,
-            curMapData->nowPos_.afterRow,
-            curMapData->nowPos_.afterColumn,
-            curMapData->nowPos_.sourcesVal,
+        curMapData->afterPos_.push_back({curMapData->nowPos_.beforeRow, curMapData->nowPos_.beforeColumn,
+            curMapData->nowPos_.afterRow, curMapData->nowPos_.afterColumn, curMapData->nowPos_.sourcesVal,
             curMapData->nowPos_.namesVal
         });
     }
     curMapData->mappings_.clear();
     curMapData->mappings_.shrink_to_fit();
-    sourceKey.clear();
-    sourceKey.shrink_to_fit();
 }
 
 MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap, const std::string& key)

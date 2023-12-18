@@ -61,7 +61,7 @@ void PendingWantRecord::UnregisterCancelListener(const sptr<IWantReceiver> &rece
 
 int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    HILOG_INFO("begin.");
     std::lock_guard<ffrt::mutex> locker(lock_);
     if (canceled_) {
         return START_CANCELED;
@@ -69,7 +69,7 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 
     auto pendingWantManager = pendingWantManager_.lock();
     if (pendingWantManager == nullptr) {
-        HILOG_ERROR("%{public}s:pendingWantManager is nullptr.", __func__);
+        HILOG_ERROR("pendingWantManager is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -84,6 +84,8 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     int res = NO_ERROR;
     switch (key_->GetType()) {
         case static_cast<int32_t>(OperationType::START_ABILITY):
+        case static_cast<int32_t>(OperationType::START_SERVICE):
+        case static_cast<int32_t>(OperationType::START_FOREGROUND_SERVICE):
             res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
             break;
         case static_cast<int32_t>(OperationType::START_ABILITIES): {
@@ -92,10 +94,6 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
             res = pendingWantManager->PendingWantStartAbilitys(allWantsInfos, callerToken_, -1, callerUid_);
             break;
         }
-        case static_cast<int32_t>(OperationType::START_SERVICE):
-        case static_cast<int32_t>(OperationType::START_FOREGROUND_SERVICE):
-            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
-            break;
         case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):
             res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_, callerTokenId_);
             (res == ERR_OK) ? (sendFinish = false) : (sendFinish = (senderInfo.finishedReceiver != nullptr));

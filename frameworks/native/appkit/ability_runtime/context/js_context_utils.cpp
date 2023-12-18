@@ -35,6 +35,13 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t INDEX_ONE = 1;
 
+#define THROW_RETURN(env, errorMsg, errorCode) \
+    do {                                                  \
+        HILOG_ERROR(errorMsg);                            \
+        AbilityRuntimeErrorUtil::Throw(env, errorCode);   \
+        return CreateJsUndefined(env);                    \
+    } while (0)
+
 class JsBaseContext {
 public:
     explicit JsBaseContext(std::weak_ptr<Context>&& context) : context_(std::move(context)) {}
@@ -150,9 +157,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Context is already released", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     std::shared_ptr<Context> moduleContext = nullptr;
@@ -161,45 +166,33 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
         HILOG_INFO("Parse inner module name.");
         if (!ConvertFromJsValue(env, info.argv[0], moduleName)) {
-            HILOG_ERROR("Parse moduleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-            return CreateJsUndefined(env);
+            THROW_RETURN(env, "Parse moduleName failed", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         }
         moduleContext = context->CreateModuleContext(moduleName);
     } else {
         std::string bundleName;
         if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
-            HILOG_ERROR("Parse bundleName failed");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-            return CreateJsUndefined(env);
+            THROW_RETURN(env, "Parse bundleName failed", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         }
         if (!CheckCallerIsSystemApp()) {
-            HILOG_ERROR("This application is not system-app, can not use system-api");
-            AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
-            return CreateJsUndefined(env);
+            THROW_RETURN(env, "Not system app", ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
         }
         HILOG_DEBUG("Parse outer module name.");
         moduleContext = context->CreateModuleContext(bundleName, moduleName);
     }
 
     if (!moduleContext) {
-        HILOG_ERROR("failed to create module context.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Failed to create module context", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     napi_value value = CreateJsBaseContext(env, moduleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("invalid systemModule.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Invalid systemModule", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     napi_value object = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        HILOG_ERROR("Failed to get object");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Failed to get object", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(moduleContext);
     napi_coerce_to_native_binding_object(env, object, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
@@ -207,8 +200,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         [](napi_env, void *data, void *) {
             HILOG_DEBUG("Finalizer for weak_ptr module context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
-        },
-        nullptr, nullptr);
+        }, nullptr, nullptr);
     return object;
 }
 
@@ -222,33 +214,23 @@ napi_value JsBaseContext::OnCreateModuleResourceManager(napi_env env, NapiCallba
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("applicationContext is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "ApplicationContext is nullptr", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
-        HILOG_ERROR("Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Parse bundleName failed", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     std::string moduleName;
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
-        HILOG_ERROR("Parse moduleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Parse moduleName failed", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("This application is not system-app, can not use system-api");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Not system app", ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
     }
     auto resourceManager = context->CreateModuleResourceManager(bundleName, moduleName);
     if (resourceManager == nullptr) {
-        HILOG_ERROR("Failed to create resourceManager");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Failed to create resourceManager", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     auto jsResourceManager = CreateJsResourceManager(env, resourceManager, nullptr);
     return jsResourceManager;
@@ -399,16 +381,12 @@ napi_value JsBaseContext::GetGroupDir(napi_env env, napi_callback_info info)
 napi_value JsBaseContext::OnGetGroupDir(napi_env env, NapiCallbackInfo& info)
 {
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-        HILOG_ERROR("Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Not enough params", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     std::string groupId;
     if (!ConvertFromJsValue(env, info.argv[0], groupId)) {
-        HILOG_ERROR("Parse groupId failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Parse groupId failed", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     HILOG_DEBUG("Get Group Dir");
@@ -451,59 +429,43 @@ napi_value JsBaseContext::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& inf
 napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& info)
 {
     if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("This application is not system-app, can not use system-api");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Not system app", ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
     }
 
     if (info.argc == 0) {
-        HILOG_ERROR("Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Not enough params", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Context is nullptr", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     std::string bundleName;
     if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
-        HILOG_ERROR("Parse bundleName failed");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Parse bundleName failed", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     auto bundleContext = context->CreateBundleContext(bundleName);
     if (!bundleContext) {
-        HILOG_ERROR("bundleContext is nullptr");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "BundleContext is nullptr", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     napi_value value = CreateJsBaseContext(env, bundleContext, true);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.Context", &value, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("OnCreateBundleContext, invalid systemModule.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Invalid systemModule", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     napi_value object = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        HILOG_ERROR("Failed to get object");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Failed to get object", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     auto workContext = new (std::nothrow) std::weak_ptr<Context>(bundleContext);
     napi_coerce_to_native_binding_object(env, object, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
-    napi_wrap(env, object, workContext,
-        [](napi_env, void *data, void *) {
+    napi_wrap(env, object, workContext, [](napi_env, void *data, void *) {
             HILOG_DEBUG("Finalizer for weak_ptr bundle context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
-        },
-        nullptr, nullptr);
+        }, nullptr, nullptr);
     return object;
 }
 
@@ -512,16 +474,12 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
     HILOG_DEBUG("start");
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Context is nullptr", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     auto applicationContext = Context::GetApplicationContext();
     if (applicationContext == nullptr) {
-        HILOG_WARN("applicationContext is nullptr");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "ApplicationContext is nullptr", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
 
     if (!applicationContext->GetApplicationInfoUpdateFlag()) {
@@ -536,15 +494,11 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
     napi_value value = JsApplicationContextUtils::CreateJsApplicationContext(env);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Invalid systemModule", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     napi_value object = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        HILOG_ERROR("Failed to get object");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
+        THROW_RETURN(env, "Failed to get object", ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(applicationContext);
     napi_coerce_to_native_binding_object(
@@ -553,8 +507,7 @@ napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo
         [](napi_env, void *data, void *) {
             HILOG_DEBUG("Finalizer for weak_ptr application context is called");
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
-        },
-        nullptr, nullptr);
+        }, nullptr, nullptr);
     napi_ref ref = nullptr;
     napi_create_reference(env, object, 1, &ref);
     ApplicationContextManager::GetApplicationContextManager()

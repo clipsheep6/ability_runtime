@@ -91,7 +91,8 @@ private:
     std::string GetRelativePath(const std::string& sources);
     std::string GetSourceInfo(const std::string& line, const std::string& column,
         const SourceMapData& targetMap, const std::string& key);
-
+    void GetStartAndEndPos(const std::string& temp, size_t& start, size_t& end);
+    void FillCurMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData);
 private:
     bool isModular_ = true;
     std::string hapPath_;

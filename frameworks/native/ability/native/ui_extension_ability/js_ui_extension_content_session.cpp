@@ -240,8 +240,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, Nap
         return CreateJsUndefined(env);
     }
     AAFwk::Want want;
-    bool unWrapWantFlag = OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want);
-    if (!unWrapWantFlag) {
+    if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
         ThrowTooFewParametersError(env);
     }
     decltype(info.argc) unwrapArgc = 1;
@@ -249,8 +248,7 @@ napi_value JsUIExtensionContentSession::OnStartAbilityAsCaller(napi_env env, Nap
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbilityAsCaller start options is used.");
-        bool unWrapStartOptionsFlag = AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
-        if (!unWrapStartOptionsFlag) {
+        if (!AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions)) {
             ThrowTooFewParametersError(env);
         }
         unwrapArgc++;

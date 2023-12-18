@@ -51,6 +51,10 @@ public:
 
     void GetAmi(std::string& ami, const std::string& filePath);
 private:
+    void ReadDataWithModule(const std::string& uri, std::vector<uint8_t>& content, std::string& ami);
+    void ReadDataWithBundle(const std::string& uri, std::vector<uint8_t>& content, std::string& ami);
+    bool ExtractToBuf(const std::string& filePath, const std::string& newHapPath, size_t pos,
+        std::unique_ptr<uint8_t[]>& dataPtr, size_t& fileLen);
     std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
 };
 

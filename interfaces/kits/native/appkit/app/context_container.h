@@ -345,6 +345,8 @@ public:
      */
     void SetLifeCycleStateInfo(const AAFwk::LifeCycleStateInfo &info);
 private:
+    int32_t GetAppType(const BundleInfo &bundleInfo);
+
     std::shared_ptr<ContextDeal> baseContext_ = nullptr;
     std::shared_ptr<ProcessInfo> processInfo_ = nullptr;
     AAFwk::LifeCycleStateInfo lifeCycleStateInfo_;

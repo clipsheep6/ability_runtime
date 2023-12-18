@@ -172,6 +172,7 @@ private:
     sptr<PendingWantRecord> GetPendingWantRecordByCode(int32_t code);
     static int32_t PendingRecordIdCreate();
     void ClearPendingWantRecordTask(const std::string &bundleName, int32_t uid);
+    std::shared_ptr<PendingWantKey> CreatePendingWantKey(const WantSenderInfo &wantSenderInfo);
 
 private:
     std::map<std::shared_ptr<PendingWantKey>, sptr<PendingWantRecord>> wantRecords_;
