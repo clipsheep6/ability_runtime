@@ -40,6 +40,7 @@
 
 #ifdef SUPPORT_GRAPHICS
 #include "pixel_map_napi.h"
+#include "accesstoken_kit.h"
 #endif
 
 namespace OHOS {
@@ -54,6 +55,7 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
 const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
+
 
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
@@ -133,6 +135,17 @@ napi_value JsAbilityContext::StartAbilityForResultWithAccount(napi_env env, napi
 napi_value JsAbilityContext::StartServiceExtensionAbility(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnStartExtensionAbility);
+}
+
+napi_value JsAbilityContext::StartVpnExtensionAbility(napi_env env, napi_callback_info info)
+{
+    HILOG_INFO("enter JsAbilityContext::StartVpnExtensionAbility");
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnStartVpnExtensionAbility);
+}
+
+napi_value JsAbilityContext::StopVpnExtensionAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnStopVpnExtensionAbility);
 }
 
 napi_value JsAbilityContext::StartServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info)
@@ -749,6 +762,84 @@ napi_value JsAbilityContext::OnStartExtensionAbility(napi_env env, NapiCallbackI
     return result;
 }
 
+
+napi_value JsAbilityContext::OnStartVpnExtensionAbility(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_INFO("StartExtensionAbility");
+    if (info.argc < ARGC_ONE) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+        HILOG_ERROR("Failed to parse want!");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto errcode = context->StartVpnExtensionAbility(want);
+            if (errcode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartExtensionAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+napi_value JsAbilityContext::OnStopVpnExtensionAbility(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_INFO("OnStopVpnExtensionAbility");
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("param is too few for stop extension ability.");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto errcode = context->StopVpnExtensionAbility(want);
+            if (errcode == 0) {
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::Schedule("JsAbilityContext::OnStopExtensionAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+
 napi_value JsAbilityContext::OnStartExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
 {
     HILOG_INFO("StartExtensionAbilityWithAccount");
@@ -1341,6 +1432,10 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::StartAbilityForResultWithAccount);
     BindNativeFunction(env, object, "startServiceExtensionAbility", moduleName,
         JsAbilityContext::StartServiceExtensionAbility);
+    BindNativeFunction(env, object, "startVpnExtensionAbility", moduleName,
+        JsAbilityContext::StartVpnExtensionAbility);
+    BindNativeFunction(env, object, "stopVpnExtensionAbility", moduleName,
+        JsAbilityContext::StopVpnExtensionAbility);
     BindNativeFunction(env, object, "startServiceExtensionAbilityWithAccount", moduleName,
         JsAbilityContext::StartServiceExtensionAbilityWithAccount);
     BindNativeFunction(env, object, "stopServiceExtensionAbility", moduleName,

@@ -47,8 +47,10 @@ public:
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResultWithAccount(napi_env env, napi_callback_info info);
     static napi_value StartServiceExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value StartVpnExtensionAbility(napi_env env, napi_callback_info info);
     static napi_value StartServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info);
     static napi_value StopServiceExtensionAbility(napi_env env, napi_callback_info info);
+    static napi_value StopVpnExtensionAbility(napi_env env, napi_callback_info info);
     static napi_value StopServiceExtensionAbilityWithAccount(napi_env env, napi_callback_info info);
     static napi_value ConnectAbility(napi_env env, napi_callback_info info);
     static napi_value ConnectAbilityWithAccount(napi_env env, napi_callback_info info);
@@ -92,6 +94,8 @@ private:
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResultWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStartVpnExtensionAbility(napi_env env, NapiCallbackInfo& info);
+    napi_value OnStopVpnExtensionAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
     napi_value OnStopExtensionAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStopExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info);
