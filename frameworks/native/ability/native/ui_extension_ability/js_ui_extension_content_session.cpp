@@ -517,6 +517,7 @@ napi_value JsUIExtensionContentSession::OnSendData(napi_env env, NapiCallbackInf
         return CreateJsUndefined(env);
     }
 
+    std::unique_lock<std::mutex> lock(uiWindowLock_);
     Rosen::WMError ret = uiWindow_->TransferExtensionData(params);
     if (ret == Rosen::WMError::WM_OK) {
         HILOG_DEBUG("TransferExtensionData success");
