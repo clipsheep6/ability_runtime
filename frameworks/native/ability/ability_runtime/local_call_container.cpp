@@ -21,32 +21,27 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-int LocalCallContainer::StartAbilityByCallInner(const Want& want, const std::shared_ptr<CallerCallBack>& callback,
-    const sptr<IRemoteObject>& callerToken, int32_t accountId)
+int LocalCallContainer::StartAbilityByCallInner(const Want& want, std::shared_ptr<CallerCallBack> callback,
+    sptr<IRemoteObject> callerToken, int32_t accountId)
 {
-    HILOG_DEBUG("start ability by call.");
+    AppExecFwk::ElementName element = want.GetElement();
+    HILOG_DEBUG("start ability by call, element:%{public}s", element.GetURI().c_str());
     if (callback == nullptr) {
         HILOG_ERROR("callback is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    if (want.GetElement().GetBundleName().empty() ||
-        want.GetElement().GetAbilityName().empty()) {
+    if (element.GetBundleName().empty() || element.GetAbilityName().empty()) {
         HILOG_ERROR("the element of want is empty.");
         return ERR_INVALID_VALUE;
     }
-    if (want.GetElement().GetDeviceID().empty()) {
+    if (element.GetDeviceID().empty()) {
         HILOG_DEBUG("start ability by call, element:DeviceID is empty");
     }
-    HILOG_DEBUG("start ability by call, element:%{public}s", want.GetElement().GetURI().c_str());
+
     int32_t oriValidUserId = GetValidUserId(accountId);
-    AppExecFwk::ElementName element = want.GetElement();
     std::shared_ptr<LocalCallRecord> localCallRecord;
     if (!GetCallLocalRecord(element, localCallRecord, oriValidUserId)) {
         localCallRecord = std::make_shared<LocalCallRecord>(element);
-        if (localCallRecord == nullptr) {
-            HILOG_ERROR("LocalCallContainer::StartAbilityByCallInner Create local call record failed");
-            return ERR_INVALID_VALUE;
-        }
         localCallRecord->SetUserId(oriValidUserId);
         HILOG_DEBUG("create local call record and set user id[%{public}d] to record", oriValidUserId);
     }
@@ -61,20 +56,16 @@ int LocalCallContainer::StartAbilityByCallInner(const Want& want, const std::sha
             return ERR_OK;
         }
     }
-    auto abilityClient = AAFwk::AbilityManagerClient::GetInstance();
-    if (abilityClient == nullptr) {
-        HILOG_ERROR("LocalCallContainer::StartAbilityByCallInner abilityClient is nullptr");
-        return ERR_INVALID_VALUE;
-    }
     sptr<CallerConnection> connect = new (std::nothrow) CallerConnection();
     if (connect == nullptr) {
-        HILOG_ERROR("LocalCallContainer::StartAbilityByCallInner Create local call connection failed");
+        HILOG_ERROR("StartAbilityByCallInner Create local call connection failed");
         return ERR_INVALID_VALUE;
     }
     connections_.emplace(connect);
     connect->SetRecordAndContainer(localCallRecord, shared_from_this());
-    HILOG_DEBUG("LocalCallContainer::StartAbilityByCallInner connections_.size is %{public}zu", connections_.size());
-    auto retval = abilityClient->StartAbilityByCall(want, connect, callerToken, oriValidUserId);
+    HILOG_DEBUG("StartAbilityByCallInner connections_.size is %{public}zu", connections_.size());
+    auto retval = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByCall(want, connect,
+        callerToken, oriValidUserId);
     if (retval != ERR_OK) {
         ClearFailedCallConnection(callback);
     }
@@ -95,7 +86,7 @@ int LocalCallContainer::ReleaseCall(const std::shared_ptr<CallerCallBack>& callb
     }
     auto localCallRecord = callback->GetRecord();
     if (localCallRecord == nullptr) {
-        HILOG_ERROR("LocalCallContainer::ReleaseCall abilityClient is nullptr");
+        HILOG_ERROR("LocalCallContainer::ReleaseCall localCallRecord is nullptr");
         return ERR_INVALID_VALUE;
     }
     localCallRecord->RemoveCaller(callback);

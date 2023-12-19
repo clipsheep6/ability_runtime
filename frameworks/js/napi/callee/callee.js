@@ -68,17 +68,8 @@ class Callee extends rpc.RemoteObject {
 
   onRemoteMessageRequest(code, data, reply, option) {
     console.log('Callee onRemoteMessageRequest code [' + typeof code + ' ' + code + ']');
-    if (this.startUpNewRule && rpc.IPCSkeleton.isLocalCalling()) {
-      console.log('Use new start up rule, check caller permission.');
-      let accessManger = accessControl.createAtManager();
-      let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();
-      let grantStatus =
-        accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
-      if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
-        console.log(
-          'Callee onRemoteMessageRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION');
-        return false;
-      }
+    if (!this.StartUpRuleCheck()) {
+      return false;
     }
 
     if (typeof code !== 'number' || typeof data !== 'object' ||
@@ -162,6 +153,22 @@ class Callee extends rpc.RemoteObject {
 
     this.callList.delete(method);
     console.log('Callee off method [' + method + ']');
+  }
+
+  StartUpRuleCheck() {
+    if (this.startUpNewRule && rpc.IPCSkeleton.isLocalCalling()) {
+      console.log('Use new start up rule, check caller permission.');
+      let accessManger = accessControl.createAtManager();
+      let accessTokenId = rpc.IPCSkeleton.getCallingTokenId();
+      let grantStatus =
+        accessManger.verifyAccessTokenSync(accessTokenId, PERMISSION_ABILITY_BACKGROUND_COMMUNICATION);
+      if (grantStatus === accessControl.GrantStatus.PERMISSION_DENIED) {
+        console.log(
+          'Callee onRemoteMessageRequest error, the Caller does not have PERMISSION_ABILITY_BACKGROUND_COMMUNICATION');
+        return false;
+      }
+    }
+    return true;
   }
 }
 
