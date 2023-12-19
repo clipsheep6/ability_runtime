@@ -695,7 +695,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
             return;
         }
         DoOnForegroundForSceneIsNull(want);
-    } else {
+    } else if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto window = scene_->GetMainWindow();
         if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
             auto windowMode = want.GetIntParam(
@@ -768,7 +768,8 @@ void JsUIAbility::RequestFocus(const Want &want)
         return;
     }
     auto window = scene_->GetMainWindow();
-    if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
+    if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE) &&
+        !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto windowMode = want.GetIntParam(
             Want::PARAM_RESV_WINDOW_MODE, AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
