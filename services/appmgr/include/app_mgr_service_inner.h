@@ -881,14 +881,14 @@ public:
      * @param childPid Created child process pid.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
+    virtual int32_t StartChildProcess(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid);
 
     /**
      * Get child process record for self.
      *
      * @return child process record.
      */
-    int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
+    virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
     
     /**
      * Attach child process scheduler to app manager service.
@@ -896,14 +896,28 @@ public:
      * @param pid the child process pid to exit.
      * @param childScheduler scheduler of child process.
      */
-    void AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler);
+    virtual void AttachChildProcess(const pid_t pid, const sptr<IChildScheduler> &childScheduler);
 
     /**
      * Exit child process safely by child process pid.
      *
      * @param pid child process pid.
      */
-    void ExitChildProcessSafelyByChildPid(const pid_t pid);
+    virtual void ExitChildProcessSafelyByChildPid(const pid_t pid);
+
+    /**
+     * Whether the current application process is the last surviving process.
+     * @param bundleName To query the bundle name of a process.
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcessByBundleName(const std::string &bundleName);
+
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    void ClearProcessByToken(sptr<IRemoteObject> token);
 
 private:
 
@@ -1190,6 +1204,7 @@ private:
 
     void ParseServiceExtMultiProcessWhiteList();
     int32_t GetFlag() const;
+    void ClearData(std::shared_ptr<AppRunningRecord> appRecord);
 
     /**
      * Notify the app running status.
@@ -1235,6 +1250,7 @@ private:
     ffrt::mutex userTestLock_;
     ffrt::mutex appStateCallbacksLock_;
     ffrt::mutex renderUidSetLock_;
+    ffrt::mutex exceptionLock_;
     sptr<IStartSpecifiedAbilityResponse> startSpecifiedAbilityResponse_;
     ffrt::mutex configurationObserverLock_;
     std::vector<sptr<IConfigurationObserver>> configurationObservers_;

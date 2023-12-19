@@ -301,8 +301,7 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
         eventPublishData.SetOrdered(true);
         pendingWantCommonEvent = std::make_shared<PendingWantCommonEvent>();
         pendingWantCommonEvent->SetFinishedReceiver(senderInfo.finishedReceiver);
-        WantParams wantParams = {};
-        pendingWantCommonEvent->SetWantParams(wantParams);
+        pendingWantCommonEvent->SetWantParams(senderInfo.want.GetParams());
     }
     bool result = IN_PROCESS_CALL(DelayedSingleton<EventFwk::CommonEvent>::GetInstance()->PublishCommonEvent(
         eventData, eventPublishData, pendingWantCommonEvent, callerUid, callerTokenId));

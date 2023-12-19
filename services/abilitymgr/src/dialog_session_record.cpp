@@ -147,11 +147,12 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         }
         dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
     }
+    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
     if (dialogAppInfos.size() > 1 || dialogAppInfos.size() == 0) {
         dialogSessionInfo->parameters.SetParam("action", AAFwk::String::Box(abilityRequest.want.GetAction()));
         dialogSessionInfo->parameters.SetParam("wantType", AAFwk::String::Box(abilityRequest.want.GetType()));
+        dialogCallerInfo->isSelector = true;
     }
-    std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
     dialogCallerInfo->callerToken = callerToken;
     dialogCallerInfo->requestCode = abilityRequest.requestCode;
     dialogCallerInfo->targetWant = abilityRequest.want;

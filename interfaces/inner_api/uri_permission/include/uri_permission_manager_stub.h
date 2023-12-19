@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,10 +38,13 @@ private:
     int HandleRevokeUriPermission(MessageParcel &data, MessageParcel &reply);
     int HandleRevokeAllUriPermission(MessageParcel &data, MessageParcel &reply);
     int HandleGrantUriPermission(MessageParcel &data, MessageParcel &reply);
+    int HandleGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply);
+    int HandleBatchGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply);
     int HandleBatchGrantUriPermission(MessageParcel &data, MessageParcel &reply);
     int HandleRevokeUriPermissionManually(MessageParcel &data, MessageParcel &reply);
     int HandleCheckPerSiSTableUriPermissionProxy(MessageParcel &data, MessageParcel &reply);
     int HandleVerifyUriPermission(MessageParcel &data, MessageParcel &reply);
+    int HandleIsAuthorizationUriAllowed(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

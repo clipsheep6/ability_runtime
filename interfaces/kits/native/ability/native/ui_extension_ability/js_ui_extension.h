@@ -182,7 +182,9 @@ public:
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
 private:
-    virtual void BindContext(napi_env env, napi_value obj);
+    virtual void BindContext(napi_env env, napi_value obj, std::shared_ptr<AAFwk::Want> want);
+    void CreateJSContext(napi_env env, napi_value &contextObj,
+        std::shared_ptr<UIExtensionContext> context, int32_t screenMode);
 
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
         bool withResult = false);
@@ -210,6 +212,8 @@ private:
     std::set<uint64_t> foregroundWindows_;
     std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
+    int32_t screenMode_ = AAFwk::IDLE_SCREEN_MODE;
+    std::shared_ptr<int32_t> screenModePtr_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

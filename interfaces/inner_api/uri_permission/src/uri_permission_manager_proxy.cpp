@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int MAX_URI_COUNT = 500;
+}
 UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IUriPermissionManager>(impl) {}
 
@@ -93,6 +96,90 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        return INNER_ERR;
+    }
+    return reply.ReadInt32();
+}
+
+int UriPermissionManagerProxy::GrantUriPermissionFor2In1(
+    const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&uri)) {
+        HILOG_ERROR("Write uri failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(targetBundleName)) {
+        HILOG_ERROR("Write targetBundleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(appIndex)) {
+        HILOG_ERROR("Write appIndex failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_GRANT_URI_PERMISSION_FOR_2_IN_1, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        return INNER_ERR;
+    }
+    return reply.ReadInt32();
+}
+
+int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("Exceeded maximum uri count.");
+        return INNER_ERR;
+    }
+    if (!data.WriteUint32(uriVec.size())) {
+        HILOG_ERROR("Write size of uriVec failed.");
+        return INNER_ERR;
+    }
+    for (const auto &uri : uriVec) {
+        if (!data.WriteParcelable(&uri)) {
+            HILOG_ERROR("Write uri failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(targetBundleName)) {
+        HILOG_ERROR("Write targetBundleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(appIndex)) {
+        HILOG_ERROR("Write appIndex failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(isSystemAppCall)) {
+        HILOG_ERROR("Write isSystemAppCall failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fial, error: %{public}d", error);
         return INNER_ERR;
@@ -221,6 +308,28 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_VERIFY_URI_PERMISSION, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
+bool UriPermissionManagerProxy::IsAuthorizationUriAllowed(uint32_t fromTokenId)
+{
+    HILOG_DEBUG("UriPermissionManagerProxy::IsAuthorizationUriAllowed is called.");
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+    if (!data.WriteInt32(fromTokenId)) {
+        HILOG_ERROR("Write fromTokenId failed.");
+        return false;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_IS_Authorization_URI_ALLOWED, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
         return false;

@@ -1454,6 +1454,12 @@ public:
 
     void RemoveLauncherDeathRecipient(int32_t userId);
 
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1712,6 +1718,9 @@ private:
         const std::string& abilityName, const std::string& result);
 
     void AppRecoverKill(pid_t pid, int32_t reason);
+
+    int32_t GenerateEmbeddableUIAbilityRequest(const Want &want, AbilityRequest &request,
+        const sptr<IRemoteObject> &callerToken, int32_t userId);
 
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).

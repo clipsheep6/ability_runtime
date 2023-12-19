@@ -416,10 +416,7 @@ public:
         return scheduler_;
     }
 
-    inline sptr<SessionInfo> GetSessionInfo() const
-    {
-        return sessionInfo_;
-    }
+    sptr<SessionInfo> GetSessionInfo() const;
 
     sptr<SessionInfo> GetUIExtRequestSessionInfo() const
     {
@@ -561,7 +558,7 @@ public:
      * set the ability is created by connect ability mode.
      *
      */
-    void SetCreateByConnectMode();
+    void SetCreateByConnectMode(bool isCreatedByConnect = true);
 
     /**
      * active the ability.
@@ -875,6 +872,7 @@ public:
     bool IsStartToForeground() const;
     void SetStartToForeground(const bool flag);
     void SetSessionInfo(sptr<SessionInfo> sessionInfo);
+    void UpdateSessionInfo(sptr<IRemoteObject> sessionToken);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
     void SetClearMissionFlag(bool clearMissionFlag);
@@ -984,6 +982,11 @@ private:
     }
 
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
+
+    void GrantUriPermissionInner(
+        Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
+    void GrantUriPermissionFor2In1Inner(
+        Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -1117,6 +1120,7 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
+    mutable ffrt::mutex sessionLock_;
     sptr<AbilityAppStateObserver> abilityAppStateObserver_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
     sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;

@@ -115,6 +115,9 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 
     AAFwk::Want want;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    int32_t tokenId = request.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
+        static_cast<int32_t>(IPCSkeleton::GetCallingTokenID()));
+    AddIdentity(tokenId, identity);
     if (dialogAppInfos.size() == 0 && (deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
         if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
             HILOG_INFO("hint dialog doesn't generate.");
@@ -177,9 +180,6 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        int32_t tokenId = request.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
-            static_cast<int32_t>(IPCSkeleton::GetCallingTokenID()));
-        AddIdentity(tokenId, identity);
         return ret;
     }
 

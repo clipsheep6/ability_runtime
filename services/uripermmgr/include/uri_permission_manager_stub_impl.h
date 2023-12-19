@@ -39,6 +39,13 @@ struct GrantInfo {
     const uint32_t targetTokenId;
     int autoremove;
 };
+
+struct PolicyInfo final {
+public:
+    std::string path;
+    uint64_t mode;
+};
+
 class UriPermissionManagerStubImpl : public UriPermissionManagerStub,
                                      public std::enable_shared_from_this<UriPermissionManagerStubImpl> {
 public:
@@ -50,12 +57,17 @@ public:
         const std::string targetBundleName, int32_t appIndex = 0) override;
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string targetBundleName, int32_t appIndex = 0) override;
+    int GrantUriPermissionFor2In1(
+        const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex = 0) override;
+    int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+        const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     void RevokeUriPermission(const TokenId tokenId) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
     bool CheckPersistableUriPermissionProxy(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
+    bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
     
     uint32_t GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex);
 
@@ -90,6 +102,14 @@ private:
         const std::vector<std::string> &uriVec = {});
 
     int CheckRule(unsigned int flag);
+
+    int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
+        const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall);
+
+    void HandleUriPermission(
+        uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
+
+    bool IsFoundationCall();
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

@@ -176,7 +176,7 @@ ohos_shared_library("abilityms") {
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwindow_extension_client",
+    "window_manager:libmodal_system_ui_extension_client",
     "window_manager:libwsutils",
     "window_manager:scene_session",
     "window_manager:sms",
@@ -212,7 +212,11 @@ ohos_shared_library("abilityms") {
       "input:libmmi-client",
       "resource_management:global_resmgr",
       "window_manager:libdm",
+      "window_manager:libmodal_system_ui_extension_client",
       "window_manager:libwm",
+      "window_manager:libwsutils",
+      "window_manager:scene_session",
+      "window_manager:sms",
     ]
   }
 
@@ -238,9 +242,16 @@ ohos_prebuilt_etc("uiextension_picker_config.json") {
   part_name = "ability_runtime"
 }
 
+ohos_prebuilt_etc("proxy_authorization_uri.json") {
+  source = "resource/proxy_authorization_uri.json"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 group("ams_service_config") {
   deps = [
     ":ams_service_config.json",
+    ":proxy_authorization_uri.json",
     ":uiextension_picker_config.json",
   ]
 }

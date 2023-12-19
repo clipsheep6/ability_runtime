@@ -43,6 +43,7 @@ public:
 
     bool operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const;
     static std::string GetPresetAppHapPath(const std::string& inputPath, const std::string& bundleName);
+    static void GetHapPathList(const std::string &bundleName, std::vector<std::string> &hapList);
 
 private:
     std::string GetAppHspPath(const std::string& inputPath) const;

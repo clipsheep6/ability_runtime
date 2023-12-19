@@ -828,6 +828,25 @@ bool AmsMgrProxy::IsAttachDebug(const std::string &bundleName)
     return reply.ReadBool();
 }
 
+void AmsMgrProxy::ClearProcessByToken(sptr<IRemoteObject> token)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Failed to write interface token.");
+        return;
+    }
+    if (!data.WriteRemoteObject(token)) {
+        HILOG_ERROR("Failed to write token");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+}
+
 int32_t AmsMgrProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

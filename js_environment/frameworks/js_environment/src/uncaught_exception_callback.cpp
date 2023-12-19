@@ -53,7 +53,8 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
     std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
     std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-    std::string summary = "Error message:" + errorMsg + "\n";
+    std::string summary = "Error name:" + errorName + "\n";
+    summary += "Error message:" + errorMsg + "\n";
     const JsEnv::ErrorObject errorObj = {
         .name = errorName,
         .message = errorMsg,

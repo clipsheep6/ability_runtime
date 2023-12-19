@@ -37,8 +37,8 @@ class ChildMainThread : public ChildSchedulerStub {
     
 public:
     static void Start(const ChildProcessInfo &processInfo);
-    void ScheduleLoadJs() override;
-    void ScheduleExitProcessSafely() override;
+    bool ScheduleLoadJs() override;
+    bool ScheduleExitProcessSafely() override;
 
 private:
     bool Init(const std::shared_ptr<EventRunner> &runner, const ChildProcessInfo &processInfo);

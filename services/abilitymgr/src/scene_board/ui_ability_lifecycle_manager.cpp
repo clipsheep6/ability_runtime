@@ -1968,5 +1968,36 @@ void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
 {
     isPcDevice_ = (deviceType == "pc" || deviceType == "2in1");
 }
+
+void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    auto SearchFunc = [] (const std::vector<SessionInfo> &sessionInfos, int32_t sessionId) -> sptr<IRemoteObject> {
+        for (const auto& info : sessionInfos) {
+            if (info.persistentId == sessionId) {
+                return info.sessionToken;
+            }
+        }
+        return nullptr;
+    };
+    std::unordered_set<std::shared_ptr<AbilityRecord>> abilitySet;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (auto [sessionId, abilityRecord] : sessionAbilityMap_) {
+            if (abilityRecord->GetOwnerMissionUserId() != userId) {
+                continue;
+            }
+            auto searchRet = SearchFunc(sessionInfos, sessionId);
+            if (searchRet != nullptr) {
+                abilityRecord->UpdateSessionInfo(searchRet);
+            } else {
+                abilitySet.emplace(abilityRecord);
+            }
+        }
+    }
+    for (auto ability : abilitySet) {
+        CloseUIAbility(ability, -1, nullptr, false);
+    }
+    HILOG_INFO("The end of updating session info.");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

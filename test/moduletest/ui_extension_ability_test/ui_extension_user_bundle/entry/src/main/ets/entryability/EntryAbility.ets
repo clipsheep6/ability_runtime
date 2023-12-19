@@ -22,6 +22,28 @@ import window from '@ohos.window';
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    if (want.parameters.hasOwnProperty("ability.want.params.uiExtensionAbilityId")) {
+      let uiExtensionAbilityId = want.parameters["ability.want.params.uiExtensionAbilityId"]
+      hilog.info(0x0000, 'testTag', 'uiExtensionAbilityId is %{public}d', uiExtensionAbilityId);
+      globalThis.uiExtensionComponentWant = {
+        bundleName: 'com.ohos.uiextensionprovider',
+        abilityName: 'UIExtensionProvider',
+        moduleName: 'entry',
+        parameters: {
+          'ability.want.params.uiExtensionType': 'sys/commonUI',
+          'ability.want.params.uiExtensionAbilityId': uiExtensionAbilityId
+        }
+      }
+    } else {
+      globalThis.uiExtensionComponentWant = {
+        bundleName: 'com.ohos.uiextensionprovider',
+        abilityName: 'UIExtensionProvider',
+        moduleName: 'entry',
+        parameters: {
+          'ability.want.params.uiExtensionType': 'sys/commonUI',
+        }
+      }
+    }
   }
 
   onDestroy() {

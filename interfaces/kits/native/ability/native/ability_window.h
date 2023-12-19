@@ -92,7 +92,12 @@ public:
      * @return Returns ERR_OK if success.
      */
     virtual ErrCode SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon);
-    void SetSessionInfo(sptr<AAFwk::SessionInfo> &sessionInfo);
+    void SetSessionToken(sptr<IRemoteObject> sessionToken);
+#endif
+
+private:
+#ifdef SUPPORT_GRAPHICS
+    sptr<IRemoteObject> GetSessionToken();
 #endif
 
 private:
@@ -100,7 +105,8 @@ private:
     std::weak_ptr<IAbilityEvent> ability_;
     std::shared_ptr<Rosen::WindowScene> windowScene_;
     bool isWindowAttached = false;
-    sptr<AAFwk::SessionInfo> sessionInfo_ = nullptr;
+    std::mutex sessionTokenMutex_;
+    sptr<IRemoteObject> sessionToken_ = nullptr;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

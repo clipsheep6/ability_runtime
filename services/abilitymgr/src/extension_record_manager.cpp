@@ -129,7 +129,7 @@ std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetAbilityRecordBy
 {
     CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
     std::lock_guard<std::mutex> lock(mutex_);
-    for (auto it : extensionRecords_) {
+    for (const auto& it : extensionRecords_) {
         if (it.second == nullptr) {
             continue;
         }
@@ -142,6 +142,7 @@ std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetAbilityRecordBy
             continue;
         }
         if (recordSessionInfo->uiExtensionComponentId == sessionInfo->uiExtensionComponentId) {
+            HILOG_DEBUG("found record, uiExtensionComponentId: %{public}" PRIu64, sessionInfo->uiExtensionComponentId);
             return abilityRecord;
         }
     }
@@ -176,6 +177,7 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::Abi
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
         int32_t extensionRecordId = UIExtensionRecord::NeedReuse(abilityRequest);
         if (extensionRecordId != INVALID_EXTENSION_RECORD_ID) {
+            HILOG_DEBUG("reuse record, id: %{public}d", extensionRecordId);
             int32_t ret = GetExtensionRecord(extensionRecordId, hostBundleName, extensionRecord, isLoaded);
             if (ret == ERR_OK) {
                 extensionRecord->Update(abilityRequest);
@@ -194,8 +196,8 @@ int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::Abi
             return ret;
         }
         UpdateProcessName(abilityRequest, abilityRecord);
-        HILOG_DEBUG("extensionProcessMode:%{public}d, process: %{public}s", abilityRequest.extensionProcessMode,
-            abilityRecord->GetAbilityInfo().process.c_str());
+        HILOG_DEBUG("extensionRecordId: %{public}d, extensionProcessMode:%{public}d, process: %{public}s",
+            extensionRecordId, abilityRequest.extensionProcessMode, abilityRecord->GetAbilityInfo().process.c_str());
         isLoaded = false;
         return ERR_OK;
     }

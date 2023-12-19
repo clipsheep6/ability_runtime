@@ -186,5 +186,12 @@ bool LifecycleDeal::PrepareTerminateAbility()
     }
     return abilityScheduler->SchedulePrepareTerminateAbility();
 }
+
+void LifecycleDeal::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    auto abilityScheduler = GetScheduler();
+    CHECK_POINTER(abilityScheduler);
+    abilityScheduler->UpdateSessionToken(sessionToken);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -567,7 +567,12 @@ void AppRunningRecord::ScheduleTerminate()
         HILOG_WARN("appLifeCycleDeal_ is null");
         return;
     }
-    appLifeCycleDeal_->ScheduleTerminate();
+    bool isLastProcess = false;
+    auto serviceInner = appMgrServiceInner_.lock();
+    if (serviceInner != nullptr) {
+        isLastProcess = serviceInner->IsFinalAppProcessByBundleName(GetBundleName());
+    }
+    appLifeCycleDeal_->ScheduleTerminate(isLastProcess);
 }
 
 void AppRunningRecord::LaunchPendingAbilities()

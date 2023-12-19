@@ -97,6 +97,8 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleRegisterAbilityDebugResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
         &AmsMgrStub::HandleIsAttachDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN)] =
+        &AmsMgrStub::HandleClearProcessByToken;
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -502,6 +504,14 @@ int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &repl
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleClearProcessByToken(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    ClearProcessByToken(token);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

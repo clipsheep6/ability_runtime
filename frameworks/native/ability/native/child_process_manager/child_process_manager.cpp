@@ -121,7 +121,7 @@ void ChildProcessManager::HandleSigChild(int32_t signo)
 
 ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
 {
-    if (!AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+    if (!AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
         HILOG_ERROR("Multi process model is not enabled");
         return ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
     }
@@ -165,7 +165,7 @@ void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEnt
     exit(0);
 }
 
-void ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
+bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
     std::unique_ptr<AbilityRuntime::Runtime> &runtime)
 {
     std::shared_ptr<ChildProcessStartInfo> processStartInfo = std::make_shared<ChildProcessStartInfo>();
@@ -179,17 +179,17 @@ void ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecF
     auto process = ChildProcess::Create(runtime);
     if (process == nullptr) {
         HILOG_ERROR("Failed to create ChildProcess.");
-        return;
+        return false;
     }
     bool ret = process->Init(processStartInfo);
     if (!ret) {
         HILOG_ERROR("JsChildProcess init failed.");
-        return;
+        return false;
     }
     process->OnStart();
     HILOG_DEBUG("LoadJsFile end.");
+    return true;
 }
-
 
 std::unique_ptr<AbilityRuntime::Runtime> ChildProcessManager::CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
     const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn)

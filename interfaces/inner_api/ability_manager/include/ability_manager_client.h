@@ -1374,6 +1374,12 @@ public:
      */
     int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list);
 
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId);
+
 private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

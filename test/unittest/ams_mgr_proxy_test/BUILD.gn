@@ -50,8 +50,11 @@ ohos_unittest("AmsMgrProxyTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 group("unittest") {

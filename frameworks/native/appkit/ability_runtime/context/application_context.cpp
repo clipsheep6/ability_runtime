@@ -349,6 +349,20 @@ std::string ApplicationContext::GetTempDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetTempDir() : "";
 }
 
+void ApplicationContext::GetAllTempDir(std::vector<std::string> &tempPaths)
+{
+    if (contextImpl_ == nullptr) {
+        HILOG_ERROR("The contextimpl is nullptr");
+        return;
+    }
+    contextImpl_->GetAllTempDir(tempPaths);
+}
+
+std::string ApplicationContext::GetResourceDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
+}
+
 std::string ApplicationContext::GetFilesDir()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetFilesDir() : "";

@@ -1044,5 +1044,14 @@ void AppMgrService::ExitChildProcessSafely()
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
 }
+
+bool AppMgrService::IsFinalAppProcess()
+{
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return false;
+    }
+    return appMgrServiceInner_->IsFinalAppProcessByBundleName("");
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

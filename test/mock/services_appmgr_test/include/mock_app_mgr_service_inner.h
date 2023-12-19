@@ -61,6 +61,8 @@ public:
     MOCK_METHOD0(GetConfiguration, std::shared_ptr<Configuration>());
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
     MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
+    MOCK_METHOD3(StartChildProcess, int32_t(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
     {}
 

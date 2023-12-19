@@ -79,7 +79,7 @@ public:
     {
         scheduled_ |= BACKGROUND_SCHEDULED;
     }
-    void ScheduleTerminateApplication() override
+    void ScheduleTerminateApplication(bool isLastProcess = false) override
     {
         scheduled_ |= TERMINATE_SCHEDULED;
     }

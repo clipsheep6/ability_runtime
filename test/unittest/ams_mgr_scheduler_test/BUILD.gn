@@ -48,6 +48,7 @@ ohos_unittest("ams_mgr_scheduler_test") {
   ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",
     "ffrt:libffrt",
     "hilog:libhilog",

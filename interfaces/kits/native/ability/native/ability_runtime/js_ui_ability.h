@@ -305,11 +305,12 @@ private:
         napi_env env, napi_value dumpInfo, napi_value onDumpInfo, std::vector<std::string> &info);
     void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
     void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
-    void CreateAbilityContext(napi_env env, napi_value &contextObj, int32_t screenMode);
+    void CreateJSContext(napi_env env, napi_value &contextObj, int32_t screenMode);
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;
     std::shared_ptr<NativeReference> jsAbilityObj_;
+    std::shared_ptr<int32_t> screenModePtr_;
     sptr<IRemoteObject> remoteCallee_;
 };
 } // namespace AbilityRuntime

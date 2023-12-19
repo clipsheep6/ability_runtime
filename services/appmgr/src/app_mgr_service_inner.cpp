@@ -2356,15 +2356,17 @@ void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool is
         return;
     }
 
-    auto appRecord = appRunningManager_->OnRemoteDied(remote);
-    if (!appRecord) {
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    {
+        std::lock_guard lock(exceptionLock_);
+        appRecord = appRunningManager_->OnRemoteDied(remote);
+    }
+    if (appRecord == nullptr) {
+        HILOG_INFO("app record is not exist.");
         return;
     }
 
-    ClearAppRunningData(appRecord, false);
-    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
-        RemoveRunningSharedBundleList(appRecord->GetBundleName());
-    }
+    ClearData(appRecord);
 }
 
 void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRecord> &appRecord, bool containsApp)
@@ -4980,7 +4982,7 @@ int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::st
 
 int32_t AppMgrServiceInner::StartChildProcessPreCheck(const pid_t callingPid)
 {
-    if (!AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+    if (!AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
         HILOG_ERROR("Multi process model is not enabled");
         return ERR_INVALID_OPERATION;
     }
@@ -5114,7 +5116,7 @@ void AppMgrServiceInner::AttachChildProcess(const pid_t pid, const sptr<IChildSc
 void AppMgrServiceInner::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (appRunningManager_) {
-        auto childRecord = appRunningManager_->OnChildProcessRemoteDied(remote);
+        appRunningManager_->OnChildProcessRemoteDied(remote);
     }
 }
 
@@ -5216,6 +5218,29 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
+bool AppMgrServiceInner::IsFinalAppProcessByBundleName(const std::string &bundleName)
+{
+    if (appRunningManager_ == nullptr) {
+        HILOG_ERROR("App running manager is nullptr.");
+        return false;
+    }
+
+    auto name = bundleName;
+    if (bundleName.empty()) {
+        auto callingPid = IPCSkeleton::GetCallingPid();
+        auto appRecord = appRunningManager_->GetAppRunningRecordByPid(callingPid);
+        if (appRecord == nullptr) {
+            HILOG_ERROR("Get app running record is nullptr.");
+            return false;
+        }
+        name = appRecord->GetBundleName();
+    }
+
+    auto count = appRunningManager_->GetAllAppRunningRecordCountByBundleName(name);
+    HILOG_DEBUG("Get application %{public}s process list size[%{public}d].", name.c_str(), count);
+    return count == 1;
+}
+
 void AppMgrServiceInner::ParseServiceExtMultiProcessWhiteList()
 {
     auto serviceExtMultiProcessWhiteList =
@@ -5225,6 +5250,45 @@ void AppMgrServiceInner::ParseServiceExtMultiProcessWhiteList()
         return;
     }
     SplitStr(serviceExtMultiProcessWhiteList, ";", serviceExtensionWhiteList_);
+}
+
+void AppMgrServiceInner::ClearProcessByToken(sptr<IRemoteObject> token)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (token == nullptr) {
+        HILOG_ERROR("token is null");
+        return;
+    }
+
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    {
+        std::lock_guard lock(exceptionLock_);
+        appRecord = GetAppRunningRecordByAbilityToken(token);
+        if (appRecord == nullptr) {
+            HILOG_INFO("app record is not exist for ability token");
+            return;
+        }
+        appRecord->SetApplicationClient(nullptr);
+        auto recordId = appRecord->GetRecordId();
+        if (appRunningManager_ == nullptr) {
+            HILOG_ERROR("appRunningManager_ is nullptr");
+            return;
+        }
+        appRunningManager_->RemoveAppRunningRecordById(recordId);
+    }
+    ClearData(appRecord);
+}
+
+void AppMgrServiceInner::ClearData(std::shared_ptr<AppRunningRecord> appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_WARN("app record is nullptr.");
+        return;
+    }
+    ClearAppRunningData(appRecord, false);
+    if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
+        RemoveRunningSharedBundleList(appRecord->GetBundleName());
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

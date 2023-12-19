@@ -1020,7 +1020,7 @@ HWTEST_F(AmsAppLifeCycleTest, Schedule_043, TestSize.Level1)
     testAppRecord.appRecord_->LaunchPendingAbilities();
     EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
     serviceInner_->TerminateAbility(GetMockToken());
-    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*(testAppRecord.mockAppScheduler_), ScheduleTerminateApplication(_)).Times(1);
     serviceInner_->AbilityTerminated(GetMockToken());
     auto abilityRecord = testAppRecord.appRecord_->GetAbilityRunningRecordByToken(GetMockToken());
     EXPECT_EQ(nullptr, abilityRecord);

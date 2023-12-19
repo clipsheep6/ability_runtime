@@ -113,7 +113,11 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
         if (ret != ERR_OK) {
             jsAutoStartupCallback_ = nullptr;
             HILOG_ERROR("Register auto start up listener wrong[%{public}d].", ret);
-            ThrowError(env, GetJsErrorCodeByNativeError(ret));
+            if (ret == CHECK_PERMISSION_FAILED) {
+                ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_APP_BOOT);
+            } else {
+                ThrowError(env, GetJsErrorCodeByNativeError(ret));
+            }
             return CreateJsUndefined(env);
         }
     }
@@ -155,7 +159,11 @@ napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env
         auto ret = AbilityManagerClient::GetInstance()->UnregisterAutoStartupSystemCallback(
             jsAutoStartupCallback_->AsObject());
         if (ret != ERR_OK) {
-            ThrowError(env, GetJsErrorCodeByNativeError(ret));
+            if (ret == CHECK_PERMISSION_FAILED) {
+                ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_APP_BOOT);
+            } else {
+                ThrowError(env, GetJsErrorCodeByNativeError(ret));
+            }
         }
         jsAutoStartupCallback_ = nullptr;
     }

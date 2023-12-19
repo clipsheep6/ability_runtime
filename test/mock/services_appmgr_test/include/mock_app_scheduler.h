@@ -31,7 +31,7 @@ public:
     virtual ~MockAppScheduler() = default;
     MOCK_METHOD0(ScheduleForegroundApplication, void());
     MOCK_METHOD0(ScheduleBackgroundApplication, void());
-    MOCK_METHOD0(ScheduleTerminateApplication, void());
+    MOCK_METHOD1(ScheduleTerminateApplication, void(bool));
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData&, const Configuration& config));
     MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
         const std::shared_ptr<AAFwk::Want>&));

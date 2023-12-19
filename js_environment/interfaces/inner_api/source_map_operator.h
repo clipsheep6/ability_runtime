@@ -34,20 +34,11 @@ public:
     std::string TranslateBySourceMap(const std::string& stackStr)
     {
         SourceMap sourceMapObj;
-        std::vector<std::string> res;
-        std::set<std::string> hapNames;
-        sourceMapObj.ExtractStackInfo(stackStr, res);
-        for (uint32_t i = 0; i < res.size(); i++) {
-            size_t start = res[i].find_first_of("(");
-            size_t end = res[i].find_first_of("/");
-            if (start != std::string::npos && end != std::string::npos) {
-                hapNames.insert(res[i].substr(start + 1, end - start - 1));
-            }
-        }
-        for (auto &hapName : hapNames) {
-            std::string hapPath = sourceMapObj.GetHapPath(hapName, bundleName_);
-            if (!hapPath.empty()) {
-                sourceMapObj.Init(isModular_, hapPath);
+        std::vector<std::string> hapList;
+        sourceMapObj.GetHapPath(bundleName_, hapList);
+        for (auto &hapInfo : hapList) {
+            if (!hapInfo.empty()) {
+                sourceMapObj.Init(isModular_, hapInfo);
             }
         }
         return sourceMapObj.TranslateBySourceMap(stackStr);
@@ -56,10 +47,12 @@ public:
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
     {
         SourceMap sourceMapObj;
-        size_t pos = url.find_first_of("/");
-        if (pos != std::string::npos) {
-            std::string hapPath = sourceMapObj.GetHapPath(url.substr(0, pos), bundleName_);
-            sourceMapObj.Init(isModular_, hapPath);
+        std::vector<std::string> hapList;
+        sourceMapObj.GetHapPath(bundleName_, hapList);
+        for (auto &hapInfo : hapList) {
+            if (!hapInfo.empty()) {
+                sourceMapObj.Init(isModular_, hapInfo);
+            }
         }
         return sourceMapObj.TranslateUrlPositionBySourceMap(url, line, column);
     }

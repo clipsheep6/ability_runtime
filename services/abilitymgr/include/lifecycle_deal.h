@@ -63,6 +63,7 @@ public:
     void NotifyContinuationResult(int32_t result);
     void ShareData(const int32_t &uniqueId);
     bool PrepareTerminateAbility();
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken);
 
 private:
     sptr<IAbilityScheduler> GetScheduler();

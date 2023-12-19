@@ -146,6 +146,12 @@ public:
      */
     int CreateModalUIExtension(const Want &want) override;
 
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
+
 private:
     void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
     void DumpOtherInfo(std::vector<std::string> &info);

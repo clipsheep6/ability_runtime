@@ -541,5 +541,12 @@ bool AppScheduler::IsAttachDebug(const std::string &bundleName)
     }
     return ERR_OK;
 }
+
+void AppScheduler::ClearProcessByToken(sptr<IRemoteObject> token) const
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->ClearProcessByToken(token);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

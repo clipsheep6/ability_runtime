@@ -1521,5 +1521,14 @@ int FAAbilityThread::CreateModalUIExtension(const Want &want)
     }
     return currentAbility_->CreateModalUIExtension(want);
 }
+
+void FAAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    if (currentAbility_ == nullptr) {
+        HILOG_ERROR("current ability is nullptr");
+        return;
+    }
+    currentAbility_->UpdateSessionToken(sessionToken);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

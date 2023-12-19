@@ -73,9 +73,11 @@ public:
      * ScheduleTerminate, call ScheduleTerminateApplication() through proxy project,
      * Notify application to terminate.
      *
+     * @param isLastProcess When it is the last application process, pass in true.
+     *
      * @return
      */
-    void ScheduleTerminate();
+    void ScheduleTerminate(bool isLastProcess = false);
 
     /**
      * ScheduleForegroundRunning, call ScheduleForegroundApplication() through proxy project,
@@ -196,6 +198,13 @@ public:
 
     int32_t AttachAppDebug();
     int32_t DetachAppDebug();
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess();
 
 private:
     mutable std::mutex schedulerMutex_;

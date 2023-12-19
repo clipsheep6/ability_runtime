@@ -27,12 +27,12 @@ public:
     /**
      * Notify chile process to load js file.
      */
-    virtual void ScheduleLoadJs() = 0;
+    virtual bool ScheduleLoadJs() = 0;
 
     /**
      * Notify chile process to exit safely.
      */
-    virtual void ScheduleExitProcessSafely() = 0;
+    virtual bool ScheduleExitProcessSafely() = 0;
 
     enum class Message {
         SCHEDULE_LOAD_JS = 0,

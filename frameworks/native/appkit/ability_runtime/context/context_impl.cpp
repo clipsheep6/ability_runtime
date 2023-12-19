@@ -68,6 +68,7 @@ const std::string ContextImpl::CONTEXT_TEMP("/temp");
 const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
+const std::string ContextImpl::CONTEXT_RESOURCE_END = "/resources/resfile";
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
@@ -255,6 +256,51 @@ std::string ContextImpl::GetTempDir()
     CreateDirIfNotExist(dir, MODE);
     HILOG_DEBUG("ContextImpl::GetTempDir:%{public}s", dir.c_str());
     return dir;
+}
+
+void ContextImpl::GetAllTempDir(std::vector<std::string> &tempPaths)
+{
+    // Application temp dir
+    auto appTemp = GetTempDir();
+    if (OHOS::FileExists(appTemp)) {
+        tempPaths.push_back(appTemp);
+    }
+    // Module dir
+    if (applicationInfo_ == nullptr) {
+        HILOG_ERROR("The application info is empty");
+        return;
+    }
+
+    std::string baseDir;
+    if (IsCreateBySystemApp()) {
+        baseDir = CONTEXT_DATA_APP + currArea_ + CONTEXT_FILE_SEPARATOR + std::to_string(GetCurrentAccountId()) +
+            CONTEXT_FILE_SEPARATOR + CONTEXT_BASE + CONTEXT_FILE_SEPARATOR + GetBundleName();
+    } else {
+        baseDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_BASE;
+    }
+    for (const auto &moudleItem: applicationInfo_->moduleInfos) {
+        auto moudleTemp = baseDir + CONTEXT_HAPS + CONTEXT_FILE_SEPARATOR + moudleItem.moduleName + CONTEXT_TEMP;
+        if (!OHOS::FileExists(moudleTemp)) {
+            HILOG_WARN("The application moudle[%{public}s] temp path not exists is empty, the path is %{public}s",
+                moudleItem.moduleName.c_str(), moudleTemp.c_str());
+            continue;
+        }
+        tempPaths.push_back(moudleTemp);
+    }
+}
+
+std::string ContextImpl::GetResourceDir()
+{
+    std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfoPtr = GetHapModuleInfo();
+    if (hapModuleInfoPtr == nullptr || hapModuleInfoPtr->moduleName.empty()) {
+        return "";
+    }
+    std::string dir = std::string(LOCAL_CODE_PATH) + CONTEXT_FILE_SEPARATOR +
+        hapModuleInfoPtr->moduleName + CONTEXT_RESOURCE_END;
+    if (OHOS::FileExists(dir)) {
+        return dir;
+    }
+    return "";
 }
 
 std::string ContextImpl::GetFilesDir()

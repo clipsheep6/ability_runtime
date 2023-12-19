@@ -110,6 +110,7 @@ ohos_moduletest("running_infos_module_test") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "safwk:system_ability_fwk",
+    "window_manager:libmodal_system_ui_extension_client",
     "window_manager:libwsutils",
     "window_manager:sms",
   ]
@@ -133,6 +134,8 @@ ohos_moduletest("running_infos_module_test") {
     external_deps += [
       "input:libmmi-client",
       "window_manager:libdm",
+      "window_manager:libwsutils",
+      "window_manager:sms",
     ]
   }
 }
