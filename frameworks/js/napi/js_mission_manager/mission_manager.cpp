@@ -651,6 +651,11 @@ private:
         }
         uint32_t nativeArrayLen = 0;
         napi_get_array_length(env, argv[0], &nativeArrayLen);
+        if (nativeArrayLen == 0) {
+            HILOG_ERROR("OnMoveMissionsToForeground MissionId is null");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
         napi_value element = nullptr;
         for (uint32_t i = 0; i < nativeArrayLen; i++) {
             int32_t missionId = 0;
@@ -705,6 +710,11 @@ private:
         }
         uint32_t nativeArrayLen = 0;
         napi_get_array_length(env, argv[0], &nativeArrayLen);
+        if (nativeArrayLen == 0) {
+            HILOG_ERROR("OnMoveMissionsToBackground MissionId is null");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
         napi_value element = nullptr;
         for (uint32_t i = 0; i < nativeArrayLen; i++) {
             int32_t missionId;
