@@ -25,7 +25,7 @@ namespace AAFwk {
  */
 class ConnectedExtension : public std::enable_shared_from_this<ConnectedExtension> {
 public:
-    static std::shared_ptr<ConnectedExtension> CreateConnectedExtension(const std::shared_ptr<ConnectionRecord> &record)
+    static std::shared_ptr<ConnectedExtension> CreateConnectedExtension(std::shared_ptr<ConnectionRecord> record)
     {
         if (!record) {
             return nullptr;
@@ -44,7 +44,7 @@ public:
         extensionType_ = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
     }
 
-    explicit ConnectedExtension(const std::shared_ptr<AbilityRecord> &target)
+    explicit ConnectedExtension(std::shared_ptr<AbilityRecord> target)
     {
         if (!target) {
             return;
@@ -59,24 +59,25 @@ public:
 
     virtual ~ConnectedExtension() = default;
 
-    bool AddConnection(const sptr<IRemoteObject> &connection)
+    bool AddConnection(sptr<IRemoteObject> connection)
     {
         if (!connection) {
             return false;
         }
 
+        std::lock_guard guard(connectionsMutex_);
         bool needNotify = connections_.empty();
         connections_.emplace(connection);
 
         return needNotify;
     }
 
-    bool RemoveConnection(const sptr<IRemoteObject> &connection)
+    bool RemoveConnection(sptr<IRemoteObject> connection)
     {
         if (!connection) {
             return false;
         }
-
+        std::lock_guard guard(connectionsMutex_);
         connections_.erase(connection);
         return connections_.empty();
     }
@@ -98,6 +99,8 @@ private:
     std::string extensionModuleName_;
     std::string extensionName_;
     AppExecFwk::ExtensionAbilityType extensionType_;
+
+    std::mutex connectionsMutex_;
     std::set<sptr<IRemoteObject>> connections_; // remote object of IAbilityConnection
 };
 
@@ -251,7 +254,7 @@ std::shared_ptr<ConnectionStateItem> ConnectionStateItem::CreateConnectionStateI
         dataCaller.callerPid, dataCaller.callerName);
 }
 
-bool ConnectionStateItem::AddConnection(const std::shared_ptr<ConnectionRecord> &record,
+bool ConnectionStateItem::AddConnection(std::shared_ptr<ConnectionRecord> record,
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
@@ -295,7 +298,7 @@ bool ConnectionStateItem::AddConnection(const std::shared_ptr<ConnectionRecord> 
     return needNotify;
 }
 
-bool ConnectionStateItem::RemoveConnection(const std::shared_ptr<ConnectionRecord> &record,
+bool ConnectionStateItem::RemoveConnection(std::shared_ptr<ConnectionRecord> record,
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
