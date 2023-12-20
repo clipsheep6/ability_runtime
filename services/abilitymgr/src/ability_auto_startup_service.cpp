@@ -537,7 +537,7 @@ void AbilityAutoStartupService::CleanResource(const wptr<IRemoteObject> &remote)
         }
 
         for (auto it = callbackMaps_.begin(); it != callbackMaps_.end();) {
-            auto &callback = it->second;
+            const auto &callback = it->second;
             if (callback == object) {
                 it = callbackMaps_.erase(it);
             } else {

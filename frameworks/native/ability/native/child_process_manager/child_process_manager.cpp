@@ -246,7 +246,7 @@ bool ChildProcessManager::GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleI
     }
     HILOG_DEBUG("hapModueInfos size: %{public}zu", bundleInfo.hapModuleInfos.size());
     bool result = false;
-    for (auto info : bundleInfo.hapModuleInfos) {
+    for (const auto &info : bundleInfo.hapModuleInfos) {
         if (info.moduleType == AppExecFwk::ModuleType::ENTRY) {
             result = true;
             hapModuleInfo = info;
