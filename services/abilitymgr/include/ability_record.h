@@ -821,6 +821,8 @@ public:
     void SetRestartCount(int32_t restartCount);
     void SetKeepAlive();
     bool GetKeepAlive() const;
+    void SetLoading(bool status);
+    bool GetLoading() const;
     int64_t GetRestartTime();
     void SetRestartTime(const int64_t restartTime);
     void SetAppIndex(const int32_t appIndex);
@@ -1015,6 +1017,7 @@ private:
     bool isWindowAttached_ = false;                   // Is window of this ability attached?
     bool isLauncherAbility_ = false;                  // is launcher?
     bool isKeepAlive_ = false;                 // is keep alive or resident ability?
+    bool isLoading_ = false;                 // is ui ability loading?
 
     sptr<IAbilityScheduler> scheduler_ = {};       // kit scheduler
     bool isTerminating_ = false;              // is terminating ?

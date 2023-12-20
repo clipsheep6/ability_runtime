@@ -163,6 +163,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    abilityRecord->SetLoading(false);
     FreezeUtil::LifecycleFlow flow = {token, FreezeUtil::TimeoutState::LOAD};
     FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 
@@ -1168,6 +1169,7 @@ void UIAbilityLifecycleManager::NotifySCBToHandleException(const std::shared_ptr
 void UIAbilityLifecycleManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HILOG_DEBUG("call");
+    abilityRecord->SetLoading(false);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("failed, ability record is nullptr");
         return;
@@ -1207,6 +1209,7 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
     CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
     if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
         handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        abilityRecord->SetLoading(false);
     }
     if (abilityRecord->GetAbilityState() == AbilityState::FOREGROUNDING) {
         handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());

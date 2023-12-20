@@ -1013,6 +1013,7 @@ int MissionListManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     auto eventHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(eventHandler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     eventHandler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    abilityRecord->SetLoading(false);
     FreezeUtil::LifecycleFlow flow = { token, FreezeUtil::TimeoutState::LOAD };
     FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 
@@ -2231,6 +2232,7 @@ void MissionListManager::HandleLoadTimeout(const std::shared_ptr<AbilityRecord> 
         return;
     }
     // root launcher load timeout, notify appMs force terminate the ability and restart immediately.
+    ability->SetLoading(false);
     if (ability->IsLauncherAbility() && ability->IsLauncherRoot()) {
         ability->SetRestarting(true);
         DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
@@ -2490,6 +2492,7 @@ void MissionListManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abilityRec
     CHECK_POINTER_LOG(handler, "Get AbilityEventHandler failed.");
     if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
         handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        abilityRecord->SetLoading(false);
     }
     if (abilityRecord->GetAbilityState() == AbilityState::FOREGROUNDING) {
         handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
