@@ -53,6 +53,7 @@ const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
 const std::string ANCO_PENDING_REQUEST = "ancoPendingRequest";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const int NFC_CALLER_UID = 1027;
+const int NFC_QUERY_LENGTH = 2;
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -248,9 +249,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID && !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
         HILOG_INFO("The NFCNeed caller source is NFC.");
-
-        ImplicitStartProcessor::queryBmsAppInfos(request, userId, dialogAppInfos);
-        return ERR_OK;
+        ImplicitStartProcessor::QueryBmsAppInfos(request, userId, dialogAppInfos);
     }
 
     if (!IsCallFromAncoShell(request.callerToken)) {
@@ -319,7 +318,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     return ERR_OK;
 }
 
-int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {
+int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {
     auto bundleMgrHelper = GetBundleManagerHelper();
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
@@ -328,11 +327,15 @@ int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t us
     std::vector<std::string> apps = request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS);    
     for (std::string appInfoStr : apps) {
         AppExecFwk::AbilityInfo abilityInfo;
-        std::vector<std::string> appInfos = ImplicitStartProcessor::splitStr(appInfoStr, '/');
+        std::vector<std::string> appInfos = ImplicitStartProcessor::SplitStr(appInfoStr, '/');
+        if (appInfos.empty() || appInfos.size() != NFC_QUERY_LENGTH) {
+            continue;
+        }
         std::string bundleName = appInfos[0];
         std::string abilityName = appInfos[1];
+        std::string queryAbilityName = bundleName.append(abilityName);
         Want want;
-        want.SetElementName(bundleName, abilityName);
+        want.SetElementName(appInfos[0], queryAbilityName);
 
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag,
             userId, abilityInfo));
@@ -354,7 +357,7 @@ int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t us
     return ERR_OK;
 }
 
-std::vector<std::string> ImplicitStartProcessor::splitStr(const std::string& str, char delimiter) {
+std::vector<std::string> ImplicitStartProcessor::SplitStr(const std::string& str, char delimiter) {
     std::stringstream ss(str);  
     std::vector<std::string> result;  
     std::string s;  
