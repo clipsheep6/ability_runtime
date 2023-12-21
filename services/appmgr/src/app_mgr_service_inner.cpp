@@ -3308,20 +3308,20 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
     configuration_->Merge(changeKeyV, config);
     // all app
     int32_t result = appRunningManager_->UpdateConfiguration(config);
-    HILOG_INFO("HandleConfigurationChangeTime1");
     HandleConfigurationChange(config);
-    HILOG_INFO("HandleConfigurationChangeTime2");
     if (result != ERR_OK) {
         HILOG_ERROR("update error, not notify");
         return result;
     }
     // notify
-    std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
+    HILOG_INFO("tjwTime1");
+    // std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
         }
     }
+    HILOG_INFO("tjwTime2");
     return result;
 }
 
