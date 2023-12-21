@@ -148,7 +148,7 @@ public:
         const sptr<IDialogTargetTouchListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual void RegisterDialogDeathRecipientListener(const sptr<IDialogDeathRecipientListener>& listener) {}
     virtual void UnregisterDialogDeathRecipientListener(const sptr<IDialogDeathRecipientListener>& listener) {}
-    virtual void NotifyTouchDialogTarget() {}
+    virtual void NotifyTouchDialogTarget(int32_t posX = 0, int32_t posY = 0) {}
     virtual void SetAceAbilityHandler(const sptr<IAceAbilityHandler>& handler) {}
     virtual WMError NapiSetUIContent(const std::string& contentInfo, napi_env env, napi_value storage,
         bool isDistributed = false, sptr<IRemoteObject> token = nullptr,
