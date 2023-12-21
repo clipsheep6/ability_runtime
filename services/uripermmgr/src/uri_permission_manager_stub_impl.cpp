@@ -165,30 +165,6 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     return ret;
 }
 
-int checkPersistPermission(uint64_t tokenId, const std::vector<PolicyInfo> &policy, std::vector<bool> &result)
-{
-    for (auto i = 0; i < policy.size(); i++) {
-        result.emplace_back(true);
-    }
-    HILOG_INFO("Called, result size is %{public}zu", result.size());
-    return 0;
-}
-
-int32_t setPolicy(uint64_t tokenId, const std::vector<PolicyInfo> &policy, uint64_t policyFlag)
-{
-    HILOG_INFO("Called, policy size is %{public}zu", policy.size());
-    return 0;
-}
-
-int persistPermission(const std::vector<PolicyInfo> &policy, std::vector<uint32_t> &result)
-{
-    for (auto i = 0; i < policy.size(); i++) {
-        result.emplace_back(0);
-    }
-    HILOG_INFO("Called, result size is %{public}zu", result.size());
-    return 0;
-}
-
 int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
 {
     // reject sandbox to grant uri permission
@@ -801,6 +777,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
     const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
 {
     HILOG_DEBUG("Called, uriVec size is %{public}zu", uriVec.size());
+#ifdef ABILITY_RUNTIME_FEATURE_PC
     auto checkResult = CheckRule(flag);
     if (checkResult != ERR_OK) {
         return checkResult;
@@ -835,9 +812,11 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
     if (!otherVec.empty()) {
         return GrantUriPermission(otherVec, flag, targetBundleName, appIndex);
     }
+#endif
     return ERR_OK;
 }
 
+#ifdef ABILITY_RUNTIME_FEATURE_PC
 void UriPermissionManagerStubImpl::HandleUriPermission(
     uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall)
 {
@@ -848,7 +827,7 @@ void UriPermissionManagerStubImpl::HandleUriPermission(
     // Handle docs type URI permission
     if (!docsVec.empty()) {
         std::vector<bool> result;
-        checkPersistPermission(tokenId, docsVec, result);
+        AccessControl::SandboxManager::SandboxManagerKit::CheckPersistPermission(tokenId, docsVec, result);
         if (docsVec.size() != result.size()) {
             HILOG_ERROR("Check persist permission failed.");
             return;
@@ -863,15 +842,16 @@ void UriPermissionManagerStubImpl::HandleUriPermission(
             docsItem++;
         }
         if (!policyVec.empty()) {
-            setPolicy(tokenId, policyVec, policyFlag);
+            AccessControl::SandboxManager::SandboxManagerKit::SetPolicy(tokenId, policyVec, policyFlag);
         }
         // The current processing starts from API 11 and maintains 5 versions.
         if (((policyFlag & IS_POLICY_ALLOWED_TO_BE_PRESISTED) != 0) && isSystemAppCall) {
             std::vector<uint32_t> persistResult;
-            persistPermission(policyVec, persistResult);
+            AccessControl::SandboxManager::SandboxManagerKit::PersistPermission(policyVec, persistResult);
         }
     }
 }
+#endif
 
 bool UriPermissionManagerStubImpl::IsFoundationCall()
 {

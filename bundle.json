@@ -80,6 +80,7 @@
             "resource_schedule_service",
             "safwk",
             "samgr",
+            "sandbox_manager",
             "storage_service",
             "toolchain",
             "webview",

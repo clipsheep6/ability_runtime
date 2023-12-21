@@ -27,10 +27,19 @@
 #include "uri_permission_manager_stub.h"
 #include "uri_permission_rdb.h"
 
+#ifdef ABILITY_RUNTIME_FEATURE_PC
+#include "policy_info.h"
+#include "sandbox_manager_kit.h"
+#endif
+
 namespace OHOS::AAFwk {
 namespace {
 using ClearProxyCallback = std::function<void(const wptr<IRemoteObject>&)>;
 using TokenId = Security::AccessToken::AccessTokenID;
+
+#ifdef ABILITY_RUNTIME_FEATURE_PC
+using PolicyInfo = AccessControl::SandboxManager::PolicyInfo;
+#endif
 }
 
 struct GrantInfo {
@@ -38,12 +47,6 @@ struct GrantInfo {
     const uint32_t fromTokenId;
     const uint32_t targetTokenId;
     int autoremove;
-};
-
-struct PolicyInfo final {
-public:
-    std::string path;
-    uint64_t mode;
 };
 
 class UriPermissionManagerStubImpl : public UriPermissionManagerStub,
@@ -105,10 +108,10 @@ private:
 
     int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall);
-
+#ifdef ABILITY_RUNTIME_FEATURE_PC
     void HandleUriPermission(
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
-
+#endif
     bool IsFoundationCall();
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {

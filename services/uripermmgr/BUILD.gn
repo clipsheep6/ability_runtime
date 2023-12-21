@@ -78,7 +78,10 @@ ohos_shared_library("libupms") {
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
   ]
-
+  if (ability_runtime_feature_pc) {
+    external_deps += [ "sandbox_manager:libsandbox_manager_sdk" ]
+    defines = [ "ABILITY_RUNTIME_FEATURE_PC" ]
+  }
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

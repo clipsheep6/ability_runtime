@@ -85,6 +85,7 @@ declare_args() {
   ability_fault_and_exit_test = false
   ability_command_for_test = false
   ability_runtime_feature_coverage = false
+  ability_runtime_feature_pc = false
   ability_runtime_auto_fill_ability =
       "com.ohos.passwordbox/entry/AutoFillAbility"
 
@@ -156,5 +157,11 @@ declare_args() {
     hichecker_enabled = true
   } else {
     hichecker_enabled = false
+  }
+
+  if (root_out_dir = "//out/generic_generic_arm_64only/hisi_all_pc_standard") {
+    ability_runtime_feature_pc = true
+  } else {
+    ability_runtime_feature_pc = false
   }
 }
