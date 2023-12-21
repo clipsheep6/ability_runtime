@@ -17,28 +17,17 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_H
 
 #include "ability_util.h"
-#include "cpp/mutex.h"
-#ifdef SUPPORT_ERMS
-#include "ecological_rule_mgr_service_client.h"
-#else
-#include "erms_mgr_param.h"
-#include "erms_mgr_interface.h"
-#endif
 #include "disposed_observer.h"
+#include "ecological_rule/ability_ecological_rule_mgr_service.h"
 #include "in_process_call_wrapper.h"
 #include "task_handler_wrap.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
-class DisposedObserver;
-#ifdef SUPPORT_ERMS
-using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
-using ExperienceRule = OHOS::EcologicalRuleMgrService::ExperienceRule;
-#else
-using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
-using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
-#endif
+using namespace OHOS::EcologicalRuleMgrService;
+using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::AbilityCallerInfo;
+using ExperienceRule = OHOS::EcologicalRuleMgrService::AbilityExperienceRule;
 
 class AbilityInterceptor {
 public:
@@ -114,11 +103,7 @@ public:
         return;
     };
 private:
-#ifdef SUPPORT_ERMS
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
-#else
-    bool CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule);
-#endif
 };
 
 // ability jump interceptor

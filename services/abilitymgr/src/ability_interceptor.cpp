@@ -24,10 +24,6 @@
 #include "app_jump_control_rule.h"
 #include "app_running_control_rule_result.h"
 #include "bundle_constants.h"
-#ifndef SUPPORT_ERMS
-#include "erms_mgr_interface.h"
-#include "erms_mgr_param.h"
-#endif
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "in_process_call_wrapper.h"
@@ -40,16 +36,6 @@
 #include "want_params_wrapper.h"
 namespace OHOS {
 namespace AAFwk {
-#ifdef SUPPORT_ERMS
-using namespace OHOS::EcologicalRuleMgrService;
-
-constexpr int32_t TYPE_HARMONY_INVALID = 0;
-constexpr int32_t TYPE_HARMONY_APP = 1;
-constexpr int32_t TYPE_HARMONY_SERVICE = 2;
-#else
-using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
-using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
-#endif
 
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 const std::string ACTION_MARKET_DISPOSED = "ohos.want.action.marketDisposed";
@@ -110,7 +96,7 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
             userId, callerAppInfo)
     );
     if (!result) {
-        HILOG_ERROR("GetApplicaionInfo from bms failed.");
+        HILOG_DEBUG("GetApplicaionInfo from bms failed.");
         return false;
     }
 
@@ -377,28 +363,20 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
-#ifdef SUPPORT_ERMS
     GetEcologicalCallerInfo(want, callerInfo, userId);
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "false");
-    if (supportErms == "false" && callerInfo.targetAppType != TYPE_HARMONY_SERVICE &&
-        callerInfo.callerAppType != TYPE_HARMONY_SERVICE) {
+    if (supportErms == "false" && callerInfo.targetAppType != ErmsCallerInfo::TYPE_ATOM_SERVICE &&
+        callerInfo.callerAppType != ErmsCallerInfo::TYPE_ATOM_SERVICE) {
         HILOG_ERROR("Abilityms not support Erms between applications.");
         return ERR_OK;
     }
 
-    int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
+    int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
         callerInfo, rule));
     if (ret != ERR_OK) {
-        HILOG_ERROR("check ecological rule failed, keep going.");
+        HILOG_DEBUG("check ecological rule failed, keep going.");
         return ERR_OK;
     }
-#else
-    int ret = CheckRule(want, callerInfo, rule);
-    if (!ret) {
-        HILOG_ERROR("check ecological rule failed, keep going.");
-        return ERR_OK;
-    }
-#endif
     HILOG_DEBUG("check ecological rule success");
     if (rule.isAllow) {
         HILOG_ERROR("ecological rule is allow, keep going.");
@@ -413,14 +391,13 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     return ERR_ECOLOGICAL_CONTROL_STATUS;
 }
 
-#ifdef SUPPORT_ERMS
 void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
 {
     callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
     callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
-    callerInfo.targetAppType = TYPE_HARMONY_INVALID;
-    callerInfo.callerAppType = TYPE_HARMONY_INVALID;
+    callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
 
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -436,10 +413,10 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         HILOG_ERROR("Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the target type  is atomic service");
-        callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
-        callerInfo.targetAppType = TYPE_HARMONY_APP;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the target type is invalid type");
     }
@@ -457,32 +434,14 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         HILOG_DEBUG("Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the caller type  is atomic service");
-        callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the caller type is app");
-        callerInfo.callerAppType = TYPE_HARMONY_APP;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the caller type is invalid type");
     }
 }
-#else
-bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule)
-{
-    HILOG_DEBUG("Enter Erms CheckRule.");
-    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
-    if (!erms) {
-        HILOG_ERROR("CheckEcologicalRuleMgr failed.");
-        return false;
-    }
-    int ret = IN_PROCESS_CALL(erms->QueryStartExperience(want, callerInfo, rule));
-    if (ret != ERR_OK) {
-        HILOG_ERROR("Failed to query start experience from erms.");
-        return false;
-    }
-
-    return true;
-}
-#endif
 
 ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
     const sptr<IRemoteObject> &callerToken)

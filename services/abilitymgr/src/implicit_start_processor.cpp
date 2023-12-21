@@ -27,21 +27,9 @@
 #include "parameters.h"
 #include "scene_board_judgement.h"
 #include "want.h"
-#ifdef SUPPORT_ERMS
-#include "ecological_rule_mgr_service_client.h"
-#endif
 
 namespace OHOS {
 namespace AAFwk {
-#ifdef SUPPORT_ERMS
-using namespace OHOS::EcologicalRuleMgrService;
-
-constexpr int32_t TYPE_HARMONY_INVALID = 0;
-constexpr int32_t TYPE_HARMONY_APP = 1;
-constexpr int32_t TYPE_HARMONY_SERVICE = 2;
-#else
-using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
-#endif
 const size_t IDENTITY_LIST_MAX_SIZE = 10;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
@@ -466,21 +454,10 @@ sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId)
 {
-#ifdef SUPPORT_ERMS
     ErmsCallerInfo callerInfo;
     GetEcologicalCallerInfo(want, callerInfo, userId);
-    int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->EvaluateResolveInfos(want, callerInfo, 0,
+    int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->EvaluateResolveInfos(want, callerInfo, 0,
         abilityInfos, extensionInfos));
-#else
-    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
-    if (!erms) {
-        HILOG_ERROR("get ecological rule mgr failed.");
-        return false;
-    }
-
-    ErmsCallerInfo callerInfo;
-    int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
-#endif
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to evaluate resolve infos from erms.");
         return false;
@@ -488,14 +465,13 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<App
     return true;
 }
 
-#ifdef SUPPORT_ERMS
 void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
 {
     callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
     callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
-    callerInfo.targetAppType = TYPE_HARMONY_INVALID;
-    callerInfo.callerAppType = TYPE_HARMONY_INVALID;
+    callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
 
     auto bundleMgrHelper = GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -511,10 +487,10 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
         HILOG_ERROR("Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the target type  is atomic service");
-        callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
-        callerInfo.targetAppType = TYPE_HARMONY_APP;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the target type is invalid type");
     }
@@ -532,15 +508,14 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
         HILOG_DEBUG("Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the caller type  is atomic service");
-        callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the caller type is app");
-        callerInfo.callerAppType = TYPE_HARMONY_APP;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the caller type is invalid type");
     }
 }
-#endif
 
 void ImplicitStartProcessor::AddIdentity(int32_t tokenId, std::string identity)
 {

@@ -38,6 +38,8 @@ abilityms_files = [
   "src/dialog_session_record.cpp",
   "src/lifecycle_deal.cpp",
   "src/ability_running_info.cpp",
+  "src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
+  "src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
   "src/extension_config.cpp",
   "src/extension_running_info.cpp",
   "src/caller_info.cpp",

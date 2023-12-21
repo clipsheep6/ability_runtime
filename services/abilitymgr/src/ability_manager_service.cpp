@@ -382,11 +382,7 @@ bool AbilityManagerService::Init()
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
     afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     afterCheckExecuter_->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-#ifdef SUPPORT_ERMS
     afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-#else
-    interceptorExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-#endif
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
