@@ -45,12 +45,16 @@ config("ability_config") {
   defines = [ "AMS_LOG_TAG = \"Ability\"" ]
   if (target_cpu == "arm64") {
     defines += [ "_ARM64_" ]
+  } else if (target_cpu == "riscv64") {
+    defines += [ "_RISCV64_" ]
   }
 
   if (target_cpu == "arm64") {
     defines += [ "APP_USE_ARM64" ]
   } else if (target_cpu == "arm") {
     defines += [ "APP_USE_ARM" ]
+  } else if (target_cpu == "riscv64") {
+    defines += [ "APP_USE_RISCV64" ]
   }
 
   if (ability_runtime_graphics) {
