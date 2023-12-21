@@ -63,7 +63,7 @@ public:
 
 using ReadSourceMapCallback = std::function<bool(const std::string& hapPath,
     const std::string& sourceMapPath, std::string& content)>;
-using GetHapPathCallback = std::function<std::string(const std::string& inputPath, const std::string& bundleName)>;
+using GetHapPathCallback = std::function<void(const std::string &bundleName, std::vector<std::string> &hapList)>;
 class SourceMap final {
 public:
     SourceMap() = default;
@@ -76,7 +76,7 @@ public:
     static void RegisterReadSourceMapCallback(ReadSourceMapCallback readFunc);
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
     static void RegisterGetHapPathCallback(GetHapPathCallback getFunc);
-    static std::string GetHapPath(const std::string& inputPath, const std::string& bundleName);
+    static void GetHapPath(const std::string &bundleName, std::vector<std::string> &hapList);
     bool GetLineAndColumnNumbers(int& line, int& column, SourceMapData& targetMap, std::string& key);
     static void ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res);
 

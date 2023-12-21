@@ -23,11 +23,11 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "appfreeze_manager.h"
+#include "app_utils.h"
 #include "extension_config.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
-#include "mock_session_manager_service.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
 #include "extension_record.h"
@@ -125,7 +125,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
             return ERR_NULL_OBJECT;
         }
         std::string hostBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
-        int32_t ret = GetOrCreateExtensionRecord(abilityRequest, hostBundleName, targetService, isLoadedAbility);
+        int32_t ret = GetOrCreateExtensionRecord(abilityRequest, false, hostBundleName, targetService, isLoadedAbility);
         if (ret != ERR_OK) {
             HILOG_ERROR("Failed to get or create extension record, ret: %{public}d", ret);
             return ret;
@@ -299,7 +299,7 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
     return ERR_OK;
 }
 
-int32_t AbilityConnectManager::GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest,
+int32_t AbilityConnectManager::GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest, bool isCreatedByConnect,
     const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -312,6 +312,7 @@ int32_t AbilityConnectManager::GetOrCreateExtensionRecord(const AbilityRequest &
         if (ret != ERR_OK) {
             return ret;
         }
+        extensionRecord->SetCreateByConnectMode(isCreatedByConnect);
         std::string extensionRecordKey = element.GetURI() + std::to_string(extensionRecord->GetUIExtensionAbilityId());
         extensionRecord->SetURI(extensionRecordKey);
         HILOG_DEBUG("Service map add, hostBundleName:%{public}s, key: %{public}s", hostBundleName.c_str(),
@@ -400,9 +401,9 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     // 1. get target service ability record, and check whether it has been loaded.
     std::shared_ptr<AbilityRecord> targetService;
     bool isLoadedAbility = false;
-    if (IsUIExtensionAbility(targetService) && connectInfo != nullptr) {
+    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && connectInfo != nullptr) {
         int32_t ret = GetOrCreateExtensionRecord(
-            abilityRequest, connectInfo->hostBundleName, targetService, isLoadedAbility);
+            abilityRequest, true, connectInfo->hostBundleName, targetService, isLoadedAbility);
         if (ret != ERR_OK || targetService == nullptr) {
             HILOG_ERROR("Failed to get or create extension record.");
             return ERR_NULL_OBJECT;
@@ -808,6 +809,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
             HILOG_INFO("There exist ui extension component, don't terminate when disconnect.");
         } else {
             HILOG_INFO("Service ability has no any connection, and not started, need terminate.");
+            RemoveUIExtensionAbilityRecord(abilityRecord);
             TerminateRecord(abilityRecord);
         }
     }
@@ -1494,8 +1496,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
     IN_PROCESS_CALL_WITHOUT_RET(abilityRecord->RevokeUriPermission());
     abilityRecord->RemoveAbilityDeathRecipient();
     if (IsSceneBoard(abilityRecord)) {
-        HILOG_INFO("SceneBoard exit normally.");
-        Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
+        HILOG_INFO("To kill processes because scb exit.");
         KillProcessesByUserId();
     }
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
@@ -1546,37 +1547,49 @@ void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRe
 void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
 {
     CHECK_POINTER(connect);
-    CHECK_POINTER(connect->AsObject());
-    auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end()) {
-        HILOG_ERROR("This death recipient has been added.");
-        return;
-    } else {
-        std::weak_ptr<AbilityConnectManager> thisWeakPtr(shared_from_this());
-        sptr<IRemoteObject::DeathRecipient> deathRecipient =
-            new AbilityConnectCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
-                auto abilityConnectManager = thisWeakPtr.lock();
-                if (abilityConnectManager) {
-                    abilityConnectManager->OnCallBackDied(remote);
-                }
-            });
-        if (!connect->AsObject()->AddDeathRecipient(deathRecipient)) {
-            HILOG_ERROR("AddDeathRecipient failed.");
+    auto connectObject = connect->AsObject();
+    CHECK_POINTER(connectObject);
+    {
+        std::lock_guard guard(recipientMapMutex_);
+        auto it = recipientMap_.find(connectObject);
+        if (it != recipientMap_.end()) {
+            HILOG_ERROR("This death recipient has been added.");
+            return;
         }
-        recipientMap_.emplace(connect->AsObject(), deathRecipient);
     }
+
+    std::weak_ptr<AbilityConnectManager> thisWeakPtr(shared_from_this());
+    sptr<IRemoteObject::DeathRecipient> deathRecipient =
+        new AbilityConnectCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+            auto abilityConnectManager = thisWeakPtr.lock();
+            if (abilityConnectManager) {
+                abilityConnectManager->OnCallBackDied(remote);
+            }
+        });
+    if (!connectObject->AddDeathRecipient(deathRecipient)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
+    }
+    std::lock_guard guard(recipientMapMutex_);
+    recipientMap_.emplace(connectObject, deathRecipient);
 }
 
 void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
 {
     CHECK_POINTER(connect);
-    CHECK_POINTER(connect->AsObject());
-    auto it = recipientMap_.find(connect->AsObject());
-    if (it != recipientMap_.end() && it->first != nullptr) {
-        it->first->RemoveDeathRecipient(it->second);
+    auto connectObject = connect->AsObject();
+    CHECK_POINTER(connectObject);
+    sptr<IRemoteObject::DeathRecipient> deathRecipient;
+    {
+        std::lock_guard guard(recipientMapMutex_);
+        auto it = recipientMap_.find(connectObject);
+        if (it == recipientMap_.end()) {
+            return;
+        }
+        deathRecipient = it->second;
         recipientMap_.erase(it);
-        return;
     }
+
+    connectObject->RemoveDeathRecipient(deathRecipient);
 }
 
 void AbilityConnectManager::OnCallBackDied(const wptr<IRemoteObject> &remote)
@@ -1761,7 +1774,8 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         HandleUIExtensionDied(abilityRecord);
     }
 
-    if (GetExtensionFromServiceMapInner(abilityRecord->GetToken()) == nullptr) {
+    auto token = abilityRecord->GetToken();
+    if (GetExtensionFromServiceMapInner(token) == nullptr) {
         HILOG_ERROR("Died ability record is not exist in service map.");
         return;
     }
@@ -1769,6 +1783,10 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     MoveToTerminatingMap(abilityRecord);
     RemoveServiceAbility(abilityRecord);
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
+        if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
+            IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
+                token->AsObject()));
+        }
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         RestartAbility(abilityRecord, currentUserId);
     }
@@ -1812,13 +1830,12 @@ void AbilityConnectManager::RestartAbility(const std::shared_ptr<AbilityRecord> 
     requestInfo.restart = true;
     abilityRecord->SetRestarting(true);
 
-    if (currentUserId != userId_ &&
-        abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
-        HILOG_WARN("delay restart root launcher until switch user.");
-        return;
-    }
-
-    if (abilityRecord->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME) {
+    if (AppUtils::GetInstance().IsLauncherAbility(abilityRecord->GetAbilityInfo().name)) {
+        if (currentUserId != userId_) {
+            HILOG_WARN("delay restart root launcher until switch user.");
+            return;
+        }
+        requestInfo.want.SetParam("ohos.app.recovery", true);
         requestInfo.restartCount = abilityRecord->GetRestartCount();
         HILOG_DEBUG("restart root launcher, number:%{public}d", requestInfo.restartCount);
         StartAbilityLocked(requestInfo);

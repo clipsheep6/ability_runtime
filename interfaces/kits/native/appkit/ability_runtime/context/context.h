@@ -121,6 +121,8 @@ public:
      */
     virtual std::string GetFilesDir() = 0;
 
+    virtual std::string GetResourceDir() = 0;
+
     /**
      * @brief Checks whether the configuration of this ability is changing.
      *

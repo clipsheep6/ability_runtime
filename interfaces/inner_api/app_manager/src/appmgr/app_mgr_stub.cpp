@@ -157,6 +157,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleAttachChildProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY)] =
         &AppMgrStub::HandleExitChildProcessSafely;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS)] =
+        &AppMgrStub::HandleIsFinalAppProcess;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1012,6 +1014,16 @@ int32_t AppMgrStub::HandleExitChildProcessSafely(MessageParcel &data, MessagePar
 {
     HILOG_DEBUG("called.");
     ExitChildProcessSafely();
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    if (!reply.WriteBool(IsFinalAppProcess())) {
+        HILOG_ERROR("Fail to write bool result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

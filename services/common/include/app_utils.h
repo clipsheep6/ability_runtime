@@ -26,14 +26,16 @@ class AppUtils {
 public:
     static AppUtils &GetInstance();
     bool IsLauncher(const std::string &bundleName) const;
+    bool IsLauncherAbility(const std::string &abilityName) const;
     bool JudgePCDevice() const;
-    bool JudgeMultiProcessModelDevice() const;
+    bool isMultiProcessModel() const;
 
 private:
     AppUtils();
     ~AppUtils();
     volatile bool isSceneBoard_ = false;
-    volatile bool isMultiProcesModelDevice_ = false;
+    volatile bool isPcDevice_ = false;
+    volatile bool isMultiProcessModel_ = false;
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk

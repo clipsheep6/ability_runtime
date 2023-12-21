@@ -27,8 +27,8 @@ public:
     explicit ChildSchedulerProxy(const sptr<IRemoteObject> &impl);
     virtual ~ChildSchedulerProxy() = default;
 
-    void ScheduleLoadJs() override;
-    void ScheduleExitProcessSafely() override;
+    bool ScheduleLoadJs() override;
+    bool ScheduleExitProcessSafely() override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

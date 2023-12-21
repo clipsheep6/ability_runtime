@@ -283,6 +283,11 @@ int AbilityThread::CreateModalUIExtension(const Want &want)
     return ERR_INVALID_VALUE;
 }
 
+void AbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    HILOG_DEBUG("called");
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityThread::BlockAbility()
 {

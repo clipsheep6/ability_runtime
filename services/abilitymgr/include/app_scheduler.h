@@ -398,6 +398,13 @@ public:
      */
     bool IsAttachDebug(const std::string &bundleName);
 
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    void ClearProcessByToken(sptr<IRemoteObject> token) const;
+
 protected:
     /**
      * OnAbilityRequestDone, app manager service call this interface after ability request done.

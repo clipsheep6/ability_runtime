@@ -60,9 +60,14 @@ ohos_unittest("app_running_manager_test") {
     "memory_utils:libmeminfo",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "window_manager:libwm",
-    "window_manager:libwsutils",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [
+      "window_manager:libwm",
+      "window_manager:libwsutils",
+    ]
+  }
 }
 
 group("unittest") {

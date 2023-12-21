@@ -85,11 +85,7 @@ ErrCode AbilityContext::TerminateAbility()
         case AppExecFwk::AbilityType::PAGE:
             HILOG_DEBUG("Terminate ability begin, type is page, ability is %{public}s.", info->name.c_str());
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-                if (sessionInfo_ == nullptr) {
-                    HILOG_ERROR("sessionInfo_ is nullptr.");
-                    return ERR_INVALID_VALUE;
-                }
-                auto sessionToken = sessionInfo_->sessionToken;
+                auto sessionToken = GetSessionToken();
                 if (sessionToken == nullptr) {
                     HILOG_ERROR("sessionToken is nullptr.");
                     return ERR_INVALID_VALUE;
@@ -316,6 +312,12 @@ void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
         StartAbility(want, ABILITY_CONTEXT_DEFAULT_REQUEST_CODE);
     }
     HILOG_DEBUG("%{public}s end.", __func__);
+}
+
+sptr<IRemoteObject> AbilityContext::GetSessionToken()
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    return sessionToken_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

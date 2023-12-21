@@ -115,7 +115,7 @@ HWTEST_F(AmsIpcAppSchedulerInterfaceTest, Interface_003, TestSize.Level1)
     sptr<MockApplication> mockApplication(new MockApplication());
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockApplication);
 
-    EXPECT_CALL(*mockApplication, ScheduleTerminateApplication())
+    EXPECT_CALL(*mockApplication, ScheduleTerminateApplication(_))
         .Times(1)
         .WillOnce(InvokeWithoutArgs(mockApplication.GetRefPtr(), &MockApplication::Post));
     client->ScheduleTerminateApplication();

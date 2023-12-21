@@ -266,7 +266,7 @@ void AmsAppLifeCycleModuleTest::ChangeAppToTerminate(const sptr<MockAppScheduler
     ChangeAbilityStateToTerminate(mockAppScheduler, token);
 
     if (isStop) {
-        EXPECT_CALL(*mockAppScheduler, ScheduleTerminateApplication()).Times(1);
+        EXPECT_CALL(*mockAppScheduler, ScheduleTerminateApplication(_)).Times(1);
         EXPECT_CALL(*mockAppStateCallbackStub_, OnAppStateChanged(_)).Times(testing::AtLeast(1));
         serviceInner_->AbilityTerminated(token);
         EXPECT_NE(appRunningRecord, nullptr);

@@ -66,14 +66,8 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+    if (!CheckSessionInfo(sessionInfo)) {
         HILOG_ERROR("sessionInfo is invalid.");
-        return ERR_INVALID_VALUE;
-    }
-    auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
-    auto descriptor = Str16ToStr8(sessionToken->GetDescriptor());
-    if (descriptor != "OHOS.ISession") {
-        HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
         return ERR_INVALID_VALUE;
     }
     abilityRequest.sessionInfo = sessionInfo;
@@ -90,15 +84,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
             uiAbilityRecord->SetWant(abilityRequest.want);
         }
     } else {
-        if (sessionInfo->startSetting != nullptr) {
-            HILOG_DEBUG("startSetting is valid.");
-            abilityRequest.startSetting = sessionInfo->startSetting;
-        }
-        uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
-        HILOG_DEBUG("user id: %{public}d.", sessionInfo->userId);
-        uiAbilityRecord->SetOwnerMissionUserId(sessionInfo->userId);
-        SetRevicerInfo(abilityRequest, uiAbilityRecord);
-        SetLastExitReason(uiAbilityRecord);
+        uiAbilityRecord = CreateAbilityRecord(abilityRequest, sessionInfo);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
 
@@ -110,10 +96,61 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         HILOG_DEBUG("pending state is not FOREGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
     }
+    if (iter == sessionAbilityMap_.end()) {
+        sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
+    }
 
     UpdateAbilityRecordLaunchReason(abilityRequest, uiAbilityRecord);
     NotifyAbilityToken(uiAbilityRecord->GetToken(), abilityRequest);
+    AddCallerRecord(abilityRequest, sessionInfo, uiAbilityRecord);
+    uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
+    CheckSpecified(abilityRequest, uiAbilityRecord);
+    SendKeyEvent(abilityRequest);
+    return ERR_OK;
+}
 
+bool UIAbilityLifecycleManager::CheckSessionInfo(sptr<SessionInfo> sessionInfo) const
+{
+    if (sessionInfo == nullptr || sessionInfo->sessionToken == nullptr) {
+        HILOG_ERROR("sessionInfo is invalid.");
+        return false;
+    }
+    auto sessionToken = iface_cast<Rosen::ISession>(sessionInfo->sessionToken);
+    auto descriptor = Str16ToStr8(sessionToken->GetDescriptor());
+    if (descriptor != "OHOS.ISession") {
+        HILOG_ERROR("token's Descriptor: %{public}s", descriptor.c_str());
+        return false;
+    }
+    return true;
+}
+
+std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::CreateAbilityRecord(AbilityRequest &abilityRequest,
+    sptr<SessionInfo> sessionInfo) const
+{
+    if (sessionInfo->startSetting != nullptr) {
+        HILOG_DEBUG("startSetting is valid.");
+        abilityRequest.startSetting = sessionInfo->startSetting;
+    }
+    auto uiAbilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    if (uiAbilityRecord == nullptr) {
+        HILOG_ERROR("uiAbilityRecord is invalid.");
+        return nullptr;
+    }
+    HILOG_DEBUG("user id: %{public}d.", sessionInfo->userId);
+    uiAbilityRecord->SetOwnerMissionUserId(sessionInfo->userId);
+    SetRevicerInfo(abilityRequest, uiAbilityRecord);
+    SetLastExitReason(uiAbilityRecord);
+    return uiAbilityRecord;
+}
+
+void UIAbilityLifecycleManager::AddCallerRecord(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo,
+    std::shared_ptr<AbilityRecord> uiAbilityRecord) const
+{
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is invalid.");
+        return;
+    }
+    CHECK_POINTER(uiAbilityRecord);
     std::string srcAbilityId = "";
     if (abilityRequest.want.GetBoolParam(Want::PARAM_RESV_FOR_RESULT, false)) {
         std::string srcDeviceId = abilityRequest.want.GetStringParam(DMS_SRC_NETWORK_ID);
@@ -127,25 +164,28 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     }
     uiAbilityRecord->AddCallerRecord(sessionInfo->callerToken,
         sessionInfo->requestCode, srcAbilityId, sessionInfo->callingTokenId);
-    if (iter == sessionAbilityMap_.end()) {
-        sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
-    }
-    uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
+}
+
+void UIAbilityLifecycleManager::CheckSpecified(AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> uiAbilityRecord)
+{
     if (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED && !specifiedInfoQueue_.empty()) {
         SpecifiedInfo specifiedInfo = specifiedInfoQueue_.front();
         specifiedInfoQueue_.pop();
         uiAbilityRecord->SetSpecifiedFlag(specifiedInfo.flag);
         specifiedAbilityMap_.emplace(specifiedInfo, uiAbilityRecord);
     }
-    auto abilityInfo = abilityRequest.abilityInfo;
-    if (abilityInfo.visible == false) {
+}
+
+void UIAbilityLifecycleManager::SendKeyEvent(AbilityRequest &abilityRequest) const
+{
+    if (abilityRequest.abilityInfo.visible == false) {
         EventInfo eventInfo;
-        eventInfo.abilityName = abilityInfo.name;
-        eventInfo.bundleName = abilityInfo.bundleName;
-        eventInfo.moduleName = abilityInfo.moduleName;
+        eventInfo.abilityName = abilityRequest.abilityInfo.name;
+        eventInfo.bundleName = abilityRequest.abilityInfo.bundleName;
+        eventInfo.moduleName = abilityRequest.abilityInfo.moduleName;
         EventReport::SendKeyEvent(EventName::START_PRIVATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     }
-    return ERR_OK;
 }
 
 int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler,
@@ -777,28 +817,20 @@ void UIAbilityLifecycleManager::NotifyAbilityToken(const sptr<IRemoteObject> &to
     }
 }
 
-void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability,
-    uint32_t msgId, bool isHalf)
+void UIAbilityLifecycleManager::PrintTimeOutLog(std::shared_ptr<AbilityRecord> ability, uint32_t msgId, bool isHalf)
 {
     if (ability == nullptr) {
         HILOG_ERROR("failed, ability is nullptr");
         return;
     }
-
     AppExecFwk::RunningProcessInfo processInfo = {};
     DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
     if (processInfo.pid_ == 0) {
-        HILOG_ERROR("failed, error: the ability[%{public}s], app may fork fail or not running.",
-            ability->GetAbilityInfo().name.data());
+        HILOG_ERROR("the ability:%{public}s, app may fork fail or not running.", ability->GetAbilityInfo().name.data());
         return;
     }
     int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
     std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
-    FreezeUtil::TimeoutState state = FreezeUtil::TimeoutState::UNKNOWN;
-    auto search = stateMap.find(msgId);
-    if (search != stateMap.end()) {
-        state = search->second;
-    }
     if (!GetContentAndTypeId(msgId, msgContent, typeId)) {
         HILOG_WARN("msgId is invalid.");
         return;
@@ -807,9 +839,8 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
     std::string eventName = isHalf ?
         AppExecFwk::AppFreezeType::LIFECYCLE_HALF_TIMEOUT : AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT;
     HILOG_WARN("%{public}s: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
-        "msg: %{public}s", eventName.c_str(),
-        processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
-        ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+        "msg: %{public}s", eventName.c_str(), processInfo.uid_, processInfo.pid_,
+        ability->GetAbilityInfo().bundleName.c_str(), ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
 
     AppExecFwk::AppfreezeManager::ParamInfo info = {
         .typeId = typeId,
@@ -817,6 +848,11 @@ void UIAbilityLifecycleManager::PrintTimeOutLog(const std::shared_ptr<AbilityRec
         .eventName = eventName,
         .bundleName = ability->GetAbilityInfo().bundleName,
     };
+    FreezeUtil::TimeoutState state = FreezeUtil::TimeoutState::UNKNOWN;
+    auto search = stateMap.find(msgId);
+    if (search != stateMap.end()) {
+        state = search->second;
+    }
     if (state != FreezeUtil::TimeoutState::UNKNOWN) {
         auto flow = std::make_unique<FreezeUtil::LifecycleFlow>();
         if (ability->GetToken() != nullptr) {
@@ -1967,6 +2003,37 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
 void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
 {
     isPcDevice_ = (deviceType == "pc" || deviceType == "2in1");
+}
+
+void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    auto SearchFunc = [] (const std::vector<SessionInfo> &sessionInfos, int32_t sessionId) -> sptr<IRemoteObject> {
+        for (const auto& info : sessionInfos) {
+            if (info.persistentId == sessionId) {
+                return info.sessionToken;
+            }
+        }
+        return nullptr;
+    };
+    std::unordered_set<std::shared_ptr<AbilityRecord>> abilitySet;
+    {
+        std::lock_guard<ffrt::mutex> guard(sessionLock_);
+        for (auto [sessionId, abilityRecord] : sessionAbilityMap_) {
+            if (abilityRecord->GetOwnerMissionUserId() != userId) {
+                continue;
+            }
+            auto searchRet = SearchFunc(sessionInfos, sessionId);
+            if (searchRet != nullptr) {
+                abilityRecord->UpdateSessionInfo(searchRet);
+            } else {
+                abilitySet.emplace(abilityRecord);
+            }
+        }
+    }
+    for (auto ability : abilitySet) {
+        CloseUIAbility(ability, -1, nullptr, false);
+    }
+    HILOG_INFO("The end of updating session info.");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

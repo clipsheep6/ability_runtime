@@ -3135,7 +3135,10 @@ bool UnwrapParamForWant(napi_env env, napi_value args, AbilityType, CallAbilityP
 
     ret = UnwrapWant(env, jsWant, param.want);
 
-    napi_value jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSetting", napi_object);
+    napi_value jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSettings", napi_object);
+    if (jsSettingObj == nullptr) {
+        jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSetting", napi_object);
+    }
     if (jsSettingObj != nullptr) {
         param.setting = AbilityStartSetting::GetEmptySetting();
         if (!UnwrapAbilityStartSetting(env, jsSettingObj, *(param.setting))) {

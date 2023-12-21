@@ -169,5 +169,30 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
     }
     return presetAppHapPath;
 }
+
+void JsModuleReader::GetHapPathList(const std::string &bundleName, std::vector<std::string> &hapList)
+{
+    auto systemAbilityManagerClient = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManagerClient) {
+        HILOG_ERROR("fail to get system ability mgr.");
+        return;
+    }
+    auto remoteObject = systemAbilityManagerClient->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (!remoteObject) {
+        HILOG_ERROR("fail to get bundle manager proxy.");
+        return;
+    }
+    auto bundleMgrProxy = iface_cast<IBundleMgr>(remoteObject);
+    AppExecFwk::BundleInfo bundleInfo;
+    auto getInfoResult = bundleMgrProxy->GetBundleInfoForSelf(static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::
+        GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
+    if (getInfoResult != 0 || bundleInfo.hapModuleInfos.empty()) {
+        HILOG_ERROR("GetBundleInfoForSelf failed.");
+        return;
+    }
+    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+        hapList.emplace_back(hapModuleInfo.hapPath);
+    }
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

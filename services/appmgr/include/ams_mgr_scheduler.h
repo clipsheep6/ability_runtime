@@ -231,6 +231,13 @@ public:
      */
     bool IsAttachDebug(const std::string &bundleName) override;
 
+    /**
+     * To clear the process by ability token.
+     *
+     * @param token the unique identification to the ability.
+     */
+    virtual void ClearProcessByToken(sptr<IRemoteObject> token) override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

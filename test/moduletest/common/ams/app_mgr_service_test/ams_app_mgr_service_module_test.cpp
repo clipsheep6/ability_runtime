@@ -46,7 +46,7 @@ public:
     {}
     void ScheduleBackgroundApplication() override
     {}
-    void ScheduleTerminateApplication() override
+    void ScheduleTerminateApplication(bool isLastProcess = false) override
     {}
     void ScheduleShrinkMemory(const int) override
     {}

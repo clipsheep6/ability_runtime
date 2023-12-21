@@ -122,7 +122,7 @@ HWTEST_F(OsAccountManagerWrapperTest, RemoveOsAccount_0100, TestSize.Level0)
 HWTEST_F(OsAccountManagerWrapperTest, GetCurrentActiveAccountId_0100, TestSize.Level0)
 {
     int ret = DelayedSingleton<OsAccountManagerWrapper>::GetInstance()->GetCurrentActiveAccountId();
-    EXPECT_EQ(ret, 0);
+    EXPECT_EQ(ret, 100);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

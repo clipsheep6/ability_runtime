@@ -781,7 +781,10 @@ napi_value UnwrapForResultParam(CallAbilityParam &param, napi_env env, napi_valu
     }
 
     // unwrap the param : abilityStartSetting (optional)
-    napi_value jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSetting", napi_object);
+    napi_value jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSettings", napi_object);
+    if (jsSettingObj == nullptr) {
+        jsSettingObj = GetPropertyValueByPropertyName(env, args, "abilityStartSetting", napi_object);
+    }
     if (jsSettingObj != nullptr) {
         param.setting = AbilityStartSetting::GetEmptySetting();
         if (!UnwrapAbilityStartSetting(env, jsSettingObj, *(param.setting))) {

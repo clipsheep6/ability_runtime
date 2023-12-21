@@ -237,6 +237,13 @@ public:
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByChildProcessPid(const pid_t pid);
     std::shared_ptr<ChildProcessRecord> OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote);
     
+    /**
+     * @brief Obtain number of app through bundlename.
+     * @param bundleName The application bundle name.
+     * @return Returns the number of queries.
+     */
+    int32_t GetAllAppRunningRecordCountByBundleName(const std::string &bundleName);
+ 
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(

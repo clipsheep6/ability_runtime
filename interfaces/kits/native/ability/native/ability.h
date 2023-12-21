@@ -1136,6 +1136,12 @@ public:
      */
     int CreateModalUIExtension(const Want &want);
 
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken);
+
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -1228,6 +1234,8 @@ protected:
      *
      */
     virtual void ContinuationRestore(const Want &want);
+
+    void SetSessionToken(sptr<IRemoteObject> sessionToken);
 
     std::shared_ptr<Rosen::WindowScene> scene_ = nullptr;
     sptr<Rosen::IWindowLifeCycle> sceneListener_ = nullptr;

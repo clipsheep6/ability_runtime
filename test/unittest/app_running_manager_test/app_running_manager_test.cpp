@@ -17,6 +17,7 @@
 
 #define private public
 #include "app_running_manager.h"
+#include "child_process_record.h"
 #undef private
 #include "hilog_wrapper.h"
 #include "window_visibility_info.h"
@@ -198,6 +199,29 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100
     EXPECT_FALSE(appRunningManager->appRunningRecordMap_.empty());
     EXPECT_FALSE(appRunningManager->appRunningRecordMap_.at(1)->windowIds_.empty());
     EXPECT_TRUE(appRunningManager->appRunningRecordMap_.at(1)->isUpdateStateFromService_);
+}
+
+/**
+ * @tc.name: AppRunningManager_GetAppRunningRecordByChildProcessPid_0100
+ * @tc.desc: Test GetAppRunningRecordByChildProcessPid works
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProcessPid_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningManager_GetAppRunningRecordByChildProcessPid_0100 called.");
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, "./ets/AProcess.ts", appRecord);
+    pid_t childPid = 201;
+    childRecord->pid_ = childPid;
+    appRecord->AddChildProcessRecord(childPid, childRecord);
+    appRunningManager->appRunningRecordMap_.insert(make_pair(RECORD_ID, appRecord));
+
+    auto record = appRunningManager->GetAppRunningRecordByChildProcessPid(childPid);
+    EXPECT_NE(record, nullptr);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

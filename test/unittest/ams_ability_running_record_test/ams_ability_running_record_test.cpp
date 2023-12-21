@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -485,7 +485,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_007, TestSize.L
     appRunningRecord->SetState(ApplicationState::APP_STATE_BACKGROUND);
     abilityRunningRecord->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
 
-    EXPECT_CALL(*mockedAppClient_, ScheduleTerminateApplication()).Times(1);
+    EXPECT_CALL(*mockedAppClient_, ScheduleTerminateApplication(_)).Times(1);
     EXPECT_CALL(*mockedAppClient_, ScheduleCleanAbility(_)).Times(2);
     auto abilities = appRunningRecord->GetAbilities();
     for (auto iter = abilities.begin(); iter != abilities.end(); iter++) {

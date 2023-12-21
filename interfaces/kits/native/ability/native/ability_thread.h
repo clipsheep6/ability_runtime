@@ -350,6 +350,12 @@ public:
      */
     int CreateModalUIExtension(const Want &want) override;
 
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * @brief Block ability.

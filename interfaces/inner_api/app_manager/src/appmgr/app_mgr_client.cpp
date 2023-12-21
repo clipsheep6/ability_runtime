@@ -909,5 +909,30 @@ int32_t AppMgrClient::UnregisterAppRunningStatusListener(const sptr<IRemoteObjec
     }
     return service->UnregisterAppRunningStatusListener(listener);
 }
+
+bool AppMgrClient::IsFinalAppProcess()
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("Service is nullptr.");
+        return false;
+    }
+    return service->IsFinalAppProcess();
+}
+
+void AppMgrClient::ClearProcessByToken(sptr<IRemoteObject> token) const
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("Service is nullptr.");
+        return;
+    }
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService == nullptr) {
+        HILOG_ERROR("amsService is nullptr.");
+        return;
+    }
+    amsService->ClearProcessByToken(token);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

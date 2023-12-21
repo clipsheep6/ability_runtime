@@ -34,8 +34,8 @@ public:
     LocalCallContainer() = default;
     virtual ~LocalCallContainer() = default;
 
-    int StartAbilityByCallInner(const Want &want, const std::shared_ptr<CallerCallBack> &callback,
-        const sptr<IRemoteObject> &callerToken, int32_t accountId = DEFAULT_INVAL_VALUE);
+    int StartAbilityByCallInner(const Want &want, std::shared_ptr<CallerCallBack> callback,
+        sptr<IRemoteObject> callerToken, int32_t accountId = DEFAULT_INVAL_VALUE);
 
     int ReleaseCall(const std::shared_ptr<CallerCallBack> &callback);
 

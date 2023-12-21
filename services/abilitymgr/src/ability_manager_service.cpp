@@ -61,7 +61,9 @@
 #include "mission_info.h"
 #include "mission_info_mgr.h"
 #include "mock_session_manager_service.h"
+#include "modal_system_ui_extension.h"
 #include "os_account_manager_wrapper.h"
+#include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "permission_constants.h"
 #include "recovery_param.h"
@@ -228,6 +230,7 @@ const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 const std::string IS_CALL_BY_SCB = "isCallBySCB";
+const std::string PROCESS_SUFFIX = "embeddable";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -853,7 +856,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (!isStartAsCaller) {
         HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
-    } else if (callerBundleName == AMS_DIALOG_BUNDLENAME) {
+    } else if (callerBundleName == AMS_DIALOG_BUNDLENAME ||
+        (isSendDialogResult && want.GetBoolParam("isSelector", false))) {
         CHECK_POINTER_AND_RETURN(implicitStartProcessor_, ERR_IMPLICIT_START_ABILITY_FAIL);
         implicitStartProcessor_->ResetCallingIdentityAsCaller(abilityRequest.want.GetIntParam(
             Want::PARAM_RESV_CALLER_TOKEN, 0));
@@ -913,7 +917,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Check permission failed from broker.");
             return CHECK_PERMISSION_FAILED;
         }
-    } else {
+    } else if (!isSendDialogResult || want.GetBoolParam("isSelector", false)) {
         HILOG_DEBUG("Check call ability permission, name is %{public}s.", abilityInfo.name.c_str());
         result = CheckCallAbilityPermission(abilityRequest);
         if (result != ERR_OK) {
@@ -2106,6 +2110,7 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
 
 int AbilityManagerService::RequestModalUIExtension(const Want &want)
 {
+    CHECK_CALLER_IS_SYSTEM_APP;
     return RequestModalUIExtensionInner(want);
 }
 
@@ -2119,16 +2124,16 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     }
 
     // Gets the record corresponding to the current focus appliaction
-    auto Record = Token::GetAbilityRecordByToken(token);
-    if (!Record) {
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (!record) {
         HILOG_ERROR("Record is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
     EventInfo focusInfo;
-    focusInfo.bundleName = Record->GetAbilityInfo().bundleName;
-    focusInfo.abilityName = Record->GetAbilityInfo().name;
+    focusInfo.bundleName = record->GetAbilityInfo().bundleName;
+    focusInfo.abilityName = record->GetAbilityInfo().name;
 
     // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
     EventInfo callerInfo;
@@ -2139,11 +2144,12 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     // Compare
     if (focusInfo.bundleName == callerInfo.bundleName) {
         HILOG_DEBUG("CreateModalUIExtension is called!");
-        return Record->CreateModalUIExtension(want);
+        return record->CreateModalUIExtension(want);
     }
 
     HILOG_DEBUG("Window Modal System Create UIExtension is called!");
-    return ERR_OK;
+    auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
+    return connection->CreateModalUIExtension(want);
 }
 
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -2382,7 +2388,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     abilityRequest.Voluation(extensionSessionInfo->want, DEFAULT_INVAL_VALUE, callerToken);
     abilityRequest.callType = AbilityCallType::START_EXTENSION_TYPE;
     abilityRequest.sessionInfo = extensionSessionInfo;
-    result = GenerateExtensionAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
+    result = GenerateEmbeddableUIAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
     CHECK_POINTER_AND_RETURN(abilityRequest.sessionInfo, ERR_INVALID_VALUE);
     abilityRequest.sessionInfo->uiExtensionComponentId = (
         static_cast<uint64_t>(callerRecord->GetRecordId()) << OFFSET) |
@@ -9401,14 +9407,18 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
         return ERR_INVALID_VALUE;
     }
 
+    (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
     if (callerRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE && token == callerToken) {
         HILOG_DEBUG("create modal ui extension for application");
-        (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
         return callerRecord->CreateModalUIExtension(replaceWant);
     }
     HILOG_DEBUG("create modal ui extension for system");
-    // mock modal system by wms
-    return ERR_OK;
+    auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+    if (connection == nullptr) {
+        HILOG_ERROR("connect ModalSystemUiExtension failed");
+        return INNER_ERR;
+    }
+    return connection->CreateModalUIExtension(replaceWant);
 }
 
 int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
@@ -9426,6 +9436,7 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     }
     auto targetWant = dialogCallerInfo->targetWant;
     targetWant.SetElement(want.GetElement());
+    targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     return StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
@@ -9439,6 +9450,37 @@ void AbilityManagerService::RemoveLauncherDeathRecipient(int32_t userId)
         return;
     }
     connectManager->RemoveLauncherDeathRecipient();
+}
+
+int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
+    const Want &want, AbilityRequest &request, const sptr<IRemoteObject> &callerToken, int32_t userId)
+{
+    int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    int32_t result = ERR_OK;
+    if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+        result = GenerateAbilityRequest(want, -1, request, callerToken, userId);
+        request.abilityInfo.isModuleJson = true;
+        request.abilityInfo.isStageBasedModel = true;
+        request.abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
+        request.abilityInfo.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UI;
+        struct timespec time = {0, 0};
+        clock_gettime(CLOCK_MONOTONIC, &time);
+        int64_t times = static_cast<int64_t>(time.tv_sec);
+        request.abilityInfo.process = request.abilityInfo.bundleName + PROCESS_SUFFIX + std::to_string(times);
+    } else {
+        result = GenerateExtensionAbilityRequest(want, request, callerToken, userId);
+    }
+    return result;
+}
+
+void AbilityManagerService::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
+        HILOG_ERROR("Not sceneboard called, not allowed.");
+        return;
+    }
+    HILOG_INFO("The sceneboard is being restored.");
+    uiAbilityLifecycleManager_->UpdateSessionInfoBySCB(sessionInfos, userId);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

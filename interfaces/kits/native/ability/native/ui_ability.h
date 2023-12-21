@@ -500,6 +500,12 @@ public:
      */
     int CreateModalUIExtension(const AAFwk::Want &want);
 
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken);
+
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -568,6 +574,7 @@ protected:
 private:
     void OnStartForSupportGraphics(const AAFwk::Want &want);
     void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);
+    void SetSessionToken(sptr<IRemoteObject> sessionToken);
 
     bool showOnLockScreen_ = false;
 #endif

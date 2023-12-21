@@ -48,6 +48,8 @@ const std::string TARGET_MODULE_NAME = "entry";
 const std::string USER_BUNDLE_NAME = "com.ohos.uiextensionuser";
 const std::string USER_ABILITY_NAME = "EntryAbility";
 const std::string USER_MODULE_NAME = "entry";
+const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+
 
 static void SetNativeToken()
 {
@@ -87,6 +89,7 @@ public:
     void WaitUntilDisConnectDone(const sptr<UIExtensionConnectModuleTestConnection> &connection);
     void WaitUntilProcessCreated(const sptr<UIExtensionConnectModuleTestObserver> &observer);
     void WaitUntilProcessDied(const sptr<UIExtensionConnectModuleTestObserver> &observer);
+    void CheckProcessNotDied(const sptr<UIExtensionConnectModuleTestObserver> &observer);
     void WaitUntilAbilityForeground(const sptr<UIExtensionConnectModuleTestObserver> &observer);
     void WaitUntilAbilityBackground(const sptr<UIExtensionConnectModuleTestObserver> &observer);
 
@@ -191,6 +194,17 @@ void UIExtensionConnectModuleTest::WaitUntilProcessDied(const sptr<UIExtensionCo
         });
     EXPECT_EQ(waitStatus, true);
     EXPECT_EQ(observer->processDied_, true);
+}
+
+void UIExtensionConnectModuleTest::CheckProcessNotDied(const sptr<UIExtensionConnectModuleTestObserver> &observer)
+{
+    std::unique_lock<std::mutex> lock(observer->observerMutex_);
+    auto waitStatus = observer->observerCondation_.wait_for(lock, std::chrono::milliseconds(CONNECT_TIMEOUT_MS),
+        [observer]() {
+            return observer->processDied_;
+        });
+    EXPECT_EQ(waitStatus, false);
+    EXPECT_EQ(observer->processDied_, false);
 }
 
 void UIExtensionConnectModuleTest::WaitUntilAbilityForeground(
@@ -637,6 +651,187 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0600, TestSize.
 
     // Wait until OnAbilityDisconnectDone has triggered.
     WaitUntilDisConnectDone(connection);
+
+    // Wait until ability has terminate
+    WaitUntilProcessDied(observer);
+
+    SetSelfTokenID(currentId);
+    UnregisterApplicationStateObserver(observer);
+    HILOG_INFO("finish.");
+}
+
+/**
+ * @tc.name: ConnectUIExtensionAbility_0700
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: issueI8JARY
+ */
+HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0700, TestSize.Level1)
+{
+    HILOG_INFO("start.");
+
+    auto currentId = GetSelfTokenID();
+    SetNativeToken();
+
+    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
+    RegisterApplicationStateObserver(observer);
+
+    Want providerWant;
+    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
+    providerWant.SetElement(providerElement);
+
+    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
+    ASSERT_NE(connection, nullptr);
+
+    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
+    ASSERT_NE(sessionInfo, nullptr);
+
+    // Connect ui extension ability firstly.
+    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
+    ASSERT_NE(connectInfo, nullptr);
+    connectInfo->hostBundleName = USER_BUNDLE_NAME;
+    connectInfo->uiExtensionAbilityId = 0;
+    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
+        DEFAULT_INVAL_VALUE, connectInfo);
+    EXPECT_EQ(ret, ERR_OK);
+    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
+    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
+
+    // Wait until OnAbilityConnectDone has triggered.
+    WaitUntilConnectDone(connection);
+
+    // start ui extension user
+    Want userWant;
+    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
+    userWant.SetElement(userElement);
+    userWant.SetParam(UIEXTENSION_ABILITY_ID, connectInfo->uiExtensionAbilityId);
+    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until ability has foregrounded
+    WaitUntilAbilityForeground(observer);
+
+    // Destroy ui extension user.
+    sptr<IRemoteObject> token = nullptr;
+    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Minimize ui extension user
+    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until ability has background
+    WaitUntilAbilityBackground(observer);
+
+    int resultCode = 0;
+    Want resultWant;
+    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until ability has background
+    WaitUntilAbilityBackground(observer);
+
+    // check ability not terminated.
+    CheckProcessNotDied(observer);
+
+    // Disconnect ui extension ability.
+    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until OnAbilityDisconnectDone has triggered.
+    WaitUntilDisConnectDone(connection);
+
+    // Wait until ability has terminated.
+    WaitUntilProcessDied(observer);
+
+    SetSelfTokenID(currentId);
+    UnregisterApplicationStateObserver(observer);
+    HILOG_INFO("finish.");
+}
+
+/**
+ * @tc.name: ConnectUIExtensionAbility_0800
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: issueI8JARY
+ */
+HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0800, TestSize.Level1)
+{
+    HILOG_INFO("start.");
+
+    auto currentId = GetSelfTokenID();
+    SetNativeToken();
+
+    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
+    RegisterApplicationStateObserver(observer);
+
+    Want providerWant;
+    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
+    providerWant.SetElement(providerElement);
+
+    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
+    ASSERT_NE(connection, nullptr);
+
+    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
+    ASSERT_NE(sessionInfo, nullptr);
+
+    // Connect ui extension ability firstly.
+    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
+    ASSERT_NE(connectInfo, nullptr);
+    connectInfo->hostBundleName = USER_BUNDLE_NAME;
+    connectInfo->uiExtensionAbilityId = 0;
+    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
+        DEFAULT_INVAL_VALUE, connectInfo);
+    EXPECT_EQ(ret, ERR_OK);
+    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
+    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
+
+    // Wait until OnAbilityConnectDone has triggered.
+    WaitUntilConnectDone(connection);
+
+    // start ui extension user
+    Want userWant;
+    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
+    userWant.SetElement(userElement);
+    userWant.SetParam(UIEXTENSION_ABILITY_ID, connectInfo->uiExtensionAbilityId);
+    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until ability has foregrounded
+    WaitUntilAbilityForeground(observer);
+
+    // Disconnect ui extension ability.
+    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until OnAbilityDisconnectDone has triggered.
+    WaitUntilDisConnectDone(connection);
+
+    // check ability not terminated.
+    CheckProcessNotDied(observer);
+
+    // Destroy ui extension user.
+    sptr<IRemoteObject> token = nullptr;
+    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Minimize ui extension user
+    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until ability has background
+    WaitUntilAbilityBackground(observer);
+
+    int resultCode = 0;
+    Want resultWant;
+    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+    EXPECT_EQ(ret, ERR_OK);
+
+    // Wait until ability has background
+    WaitUntilAbilityBackground(observer);
+
+    // Wait until ability has terminated.
+    WaitUntilProcessDied(observer);
 
     SetSelfTokenID(currentId);
     UnregisterApplicationStateObserver(observer);

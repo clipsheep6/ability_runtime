@@ -34,6 +34,7 @@ struct DialogCallerInfo {
     int requestCode = -1;
     sptr<IRemoteObject> callerToken;
     Want targetWant;
+    bool isSelector = false;
 };
 
 class DialogSessionRecord {

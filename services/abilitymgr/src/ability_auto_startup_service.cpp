@@ -537,7 +537,7 @@ void AbilityAutoStartupService::CleanResource(const wptr<IRemoteObject> &remote)
         }
 
         for (auto it = callbackMaps_.begin(); it != callbackMaps_.end();) {
-            auto &callback = it->second;
+            const auto &callback = it->second;
             if (callback == object) {
                 it = callbackMaps_.erase(it);
             } else {
@@ -705,6 +705,13 @@ int32_t AbilityAutoStartupService::CheckPermissionForSystem()
         HILOG_ERROR("The caller is not system-app, can not use system-api.");
         return ERR_NOT_SYSTEM_APP;
     }
+
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_MANAGE_APP_BOOT)) {
+        HILOG_ERROR("Not have PERMISSION_MANAGE_APP_BOOT approval.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
     return ERR_OK;
 }
 

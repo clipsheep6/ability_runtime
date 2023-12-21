@@ -1401,6 +1401,12 @@ public:
     {
         return 0;
     }
+
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

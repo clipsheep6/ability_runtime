@@ -507,18 +507,19 @@ void MainThread::ScheduleBackgroundApplication()
  *
  * @brief Schedule the terminate lifecycle of application.
  *
+ * @param isLastProcess When it is the last application process, pass in true.
  */
-void MainThread::ScheduleTerminateApplication()
+void MainThread::ScheduleTerminateApplication(bool isLastProcess)
 {
     HILOG_DEBUG("ScheduleTerminateApplication");
     wptr<MainThread> weak = this;
-    auto task = [weak]() {
+    auto task = [weak, isLastProcess]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
             HILOG_ERROR("appThread is nullptr, HandleTerminateApplication failed.");
             return;
         }
-        appThread->HandleTerminateApplication();
+        appThread->HandleTerminateApplication(isLastProcess);
     };
     if (!mainHandler_->PostTask(task, "MainThread:TerminateApplication")) {
         HILOG_ERROR("MainThread::ScheduleTerminateApplication PostTask task failed");
@@ -1968,8 +1969,9 @@ void MainThread::HandleBackgroundApplication()
  *
  * @brief Terminate the application.
  *
+ * @param isLastProcess When it is the last application process, pass in true.
  */
-void MainThread::HandleTerminateApplication()
+void MainThread::HandleTerminateApplication(bool isLastProcess)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("MainThread::handleTerminateApplication called start.");
@@ -1978,7 +1980,7 @@ void MainThread::HandleTerminateApplication()
         return;
     }
 
-    if (!applicationImpl_->PerformTerminate()) {
+    if (!applicationImpl_->PerformTerminate(isLastProcess)) {
         HILOG_WARN("%{public}s: applicationImpl_->PerformTerminate() failed.", __func__);
     }
 
@@ -2225,7 +2227,7 @@ void MainThread::Start()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("LoadLifecycle: MainThread start come.");
 
-    if (AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+    if (AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
         ChildProcessInfo info;
         if (IsStartChild(info)) {
             ChildMainThread::Start(info);
@@ -2911,7 +2913,8 @@ void MainThread::DetachAppDebug()
 bool MainThread::NotifyDeviceDisConnect()
 {
     HILOG_DEBUG("Called.");
-    ScheduleTerminateApplication();
+    bool isLastProcess = appMgr_->IsFinalAppProcess();
+    ScheduleTerminateApplication(isLastProcess);
     return true;
 }
 }  // namespace AppExecFwk

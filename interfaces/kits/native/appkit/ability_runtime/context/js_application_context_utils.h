@@ -81,6 +81,7 @@ public:
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetTempDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetResourceDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDatabaseDir(napi_env env, NapiCallbackInfo& info);
@@ -100,6 +101,7 @@ public:
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
+    static napi_value GetResourceDir(napi_env env, napi_callback_info info);
     static napi_value GetFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDistributedFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDatabaseDir(napi_env env, napi_callback_info info);

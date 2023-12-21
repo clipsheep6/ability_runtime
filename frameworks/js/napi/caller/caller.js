@@ -55,42 +55,20 @@ class Caller {
 
   call(method, data) {
     return new Promise(async (resolve, reject) => {
-      console.log('Caller call method [' + method + ']');
-      if (typeof method !== 'string' || typeof data !== 'object') {
-        console.log('Caller call ' + typeof method + ' ' + typeof data);
-        reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
-        return;
-      }
-
-      if (method === '' || data == null) {
-        console.log('Caller call ' + method + ', ' + data);
-        reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
-        return;
-      }
-
-      if (this.releaseState === true) {
-        console.log('Caller call this.callee release');
-        reject(new BusinessError(ERROR_CODE_CALLER_RELEASED));
-        return;
-      }
-
-      if (this.__call_obj__.callee == null) {
-        console.log('Caller call this.callee is nullptr');
-        reject(new BusinessError(ERROR_CODE_CLAAEE_INVALID));
+      const checkError = this.callCheck(method, data);
+      if (checkError != null) {
+        reject(checkError);
         return;
       }
 
       console.log('Caller call msgData rpc.MessageSequence create');
-      let msgData = rpc.MessageSequence.create();
-      msgData.writeString(method);
+      let msgData = this.buildMsgData(method, data);
       let msgReply = rpc.MessageSequence.create();
-      let option = rpc.MessageOption();
-      msgData.writeParcelable(data);
 
       let retData = undefined;
       try {
         retData = await this.__call_obj__.callee.sendMessageRequest(EVENT_CALL_NOTIFY, msgData, msgReply,
-          option);
+          rpc.MessageOption());
         console.log('Caller call msgData rpc.sendMessageRequest called');
         if (retData.errCode !== 0) {
           msgData.reclaim();
@@ -107,7 +85,6 @@ class Caller {
         let retval = retData.reply.readInt();
         let str = retData.reply.readString();
         if (retval === REQUEST_SUCCESS && str === 'object') {
-          console.log('Caller call return str ' + str);
           msgData.reclaim();
           msgReply.reclaim();
         } else {
@@ -132,42 +109,21 @@ class Caller {
   callWithResult(method, data) {
     return new Promise(async (resolve, reject) => {
       console.log('Caller callWithResult method [' + method + ']');
-      if (typeof method !== 'string' || typeof data !== 'object') {
-        console.log('Caller callWithResult ' + typeof method + ' ' + typeof data);
-        reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
-        return;
-      }
-
-      if (method === '' || data == null) {
-        console.log('Caller callWithResult ' + method + ', ' + data);
-        reject(new BusinessError(ERROR_CODE_INVALID_PARAM));
-        return;
-      }
-
-      if (this.releaseState === true) {
-        console.log('Caller callWithResult this.callee release');
-        reject(new BusinessError(ERROR_CODE_CALLER_RELEASED));
-        return;
-      }
-
-      if (this.__call_obj__.callee == null) {
-        console.log('Caller callWithResult this.callee is nullptr');
-        reject(new BusinessError(ERROR_CODE_CLAAEE_INVALID));
+      const checkError = this.callCheck(method, data);
+      if (checkError != null) {
+        reject(checkError);
         return;
       }
 
       console.log('Caller callWithResult msgData rpc.MessageSequence create');
-      let msgData = rpc.MessageSequence.create();
-      msgData.writeString(method);
+      let msgData = this.buildMsgData(method, data);
       let msgReply = rpc.MessageSequence.create();
-      let option = rpc.MessageOption();
-      msgData.writeParcelable(data);
 
       let reply = undefined;
       let retData = undefined;
       try {
         retData = await this.__call_obj__.callee.sendMessageRequest(EVENT_CALL_NOTIFY, msgData, msgReply,
-          option);
+          rpc.MessageOption());
         console.log('Caller callWithResult msgData rpc.sendMessageRequest called');
         if (retData.errCode !== 0) {
           msgData.reclaim();
@@ -184,7 +140,6 @@ class Caller {
         let retval = retData.reply.readInt();
         let str = retData.reply.readString();
         if (retval === REQUEST_SUCCESS && str === 'object') {
-          console.log('Caller callWithResult return str ' + str);
           msgData.reclaim();
           reply = retData.reply;
         } else {
@@ -285,6 +240,36 @@ class Caller {
       throw new BusinessError(ERROR_CODE_INVALID_PARAM);
     }
     // Empty
+  }
+
+  callCheck(method, data) {
+    if (typeof method !== 'string' || typeof data !== 'object') {
+      console.log('Caller callCheck ' + typeof method + ' ' + typeof data);
+      return new BusinessError(ERROR_CODE_INVALID_PARAM);
+    }
+
+    if (method === '' || data == null) {
+      console.log('Caller callCheck ' + method + ', ' + data);
+      return new BusinessError(ERROR_CODE_INVALID_PARAM);
+    }
+
+    if (this.releaseState === true) {
+      console.log('Caller callCheck this.callee release');
+      return new BusinessError(ERROR_CODE_CALLER_RELEASED);
+    }
+
+    if (this.__call_obj__.callee == null) {
+      console.log('Caller callCheck this.callee is nullptr');
+      return new BusinessError(ERROR_CODE_CLAAEE_INVALID);
+    }
+    return null;
+  }
+
+  buildMsgData(method, data) {
+    let msgData = rpc.MessageSequence.create();
+    msgData.writeString(method);
+    msgData.writeParcelable(data);
+    return msgData;
   }
 }
 
