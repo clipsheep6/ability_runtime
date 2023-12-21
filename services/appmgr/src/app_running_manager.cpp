@@ -483,15 +483,26 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            appRecord->RemoveTerminateAbilityTimeoutTask(token);
-            HILOG_DEBUG("The ability is the last, kill application");
-            auto pid = appRecord->GetPriorityObject()->GetPid();
-            auto result = appMgrServiceInner->KillProcessByPid(pid);
-            if (result < 0) {
-                HILOG_WARN("Kill application directly failed, pid: %{public}d", pid);
-            }
-            appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
-                EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
+            auto killProcess = [appRecord, token, appMgrServiceInner]() {
+                if (appRecord == nullptr || token == nullptr || appMgrServiceInner == nullptr) {
+                    HILOG_ERROR("Pointer parameter error.");
+                    return;
+                }
+                appRecord->RemoveTerminateAbilityTimeoutTask(token);
+                HILOG_DEBUG("The ability is the last, kill application");
+                auto pid = appRecord->GetPriorityObject()->GetPid();
+                if (pid < 0) {
+                    HILOG_ERROR("Pid error.");
+                    return;
+                }
+                auto result = appMgrServiceInner->KillProcessByPid(pid);
+                if (result < 0) {
+                    HILOG_WARN("Kill application directly failed, pid: %{public}d", pid);
+                }
+                appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
+                    EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
+                };
+            appRecord->PostTask("DELAY_KILL_PROCESS", AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT, killProcess);
         }
     }
 }
