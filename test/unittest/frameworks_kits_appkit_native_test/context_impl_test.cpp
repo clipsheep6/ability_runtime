@@ -364,7 +364,18 @@ HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
     EXPECT_NE(contextImpl, nullptr);
 
     // not create by system app
+    contextImpl->SwitchArea(1);
     auto distributedDir = contextImpl->GetDistributedFilesDir();
+    EXPECT_EQ(distributedDir, "/data/storage/el2/distributedfiles");
+
+    //for areamode is el3, the distributedfiles dir is also el2's distributedfiles dir
+    contextImpl->SwitchArea(2);
+    distributedDir = contextImpl->GetDistributedFilesDir();
+    EXPECT_EQ(distributedDir, "/data/storage/el2/distributedfiles");
+
+    //for areamode is el4, the distributedfiles dir is also el2's distributedfiles dir
+    contextImpl->SwitchArea(3);
+    distributedDir = contextImpl->GetDistributedFilesDir();
     EXPECT_EQ(distributedDir, "/data/storage/el2/distributedfiles");
 
     // create by system app and bundleName is empty
