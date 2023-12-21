@@ -42,7 +42,7 @@ public:
 
 void AppMgrServiceTest::SetUpTestCase(void)
 {
-    AAFwk::AppUtils::GetInstance().isPcDevice_ = true;
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_ = true;
 }
 
 void AppMgrServiceTest::TearDownTestCase(void)
