@@ -1378,7 +1378,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-            DelayedSingleton<AbilityManagerClient>::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
             appThread->ScheduleProcessSecurityExit();
         };
         (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);

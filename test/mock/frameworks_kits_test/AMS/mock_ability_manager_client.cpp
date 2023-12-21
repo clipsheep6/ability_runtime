@@ -13,7 +13,11 @@
  * limitations under the License.
  */
 
+#define private public
+#define protected public
 #include "ability_manager_client.h"
+#undef private
+#undef protected
 #include "ability_manager_interface.h"
 #include "string_ex.h"
 #include "hilog_wrapper.h"
