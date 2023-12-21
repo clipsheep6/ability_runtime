@@ -92,7 +92,7 @@ int ConnectionStateManager::UnregisterObserver(const sptr<AbilityRuntime::IConne
     return 0;
 }
 
-void ConnectionStateManager::AddConnection(const std::shared_ptr<ConnectionRecord> &connectionRecord)
+void ConnectionStateManager::AddConnection(std::shared_ptr<ConnectionRecord> connectionRecord)
 {
     std::shared_ptr<ConnectionObserverController> controller = observerController_;
     if (!controller) {
@@ -112,7 +112,7 @@ void ConnectionStateManager::AddConnection(const std::shared_ptr<ConnectionRecor
     controller->NotifyExtensionConnected(connectionData);
 }
 
-void ConnectionStateManager::RemoveConnection(const std::shared_ptr<ConnectionRecord> &connectionRecord,
+void ConnectionStateManager::RemoveConnection(std::shared_ptr<ConnectionRecord> connectionRecord,
     bool isCallerDied)
 {
     std::shared_ptr<ConnectionObserverController> controller = observerController_;
@@ -320,7 +320,7 @@ void ConnectionStateManager::GetConnectionData(std::vector<AbilityRuntime::Conne
     HILOG_DEBUG("GetConnectionData: %{public}zu", connectionData.size());
 }
 
-bool ConnectionStateManager::AddConnectionInner(const std::shared_ptr<ConnectionRecord> &connectionRecord,
+bool ConnectionStateManager::AddConnectionInner(std::shared_ptr<ConnectionRecord> connectionRecord,
     AbilityRuntime::ConnectionData &data)
 {
     std::shared_ptr<ConnectionStateItem> targetItem = nullptr;
@@ -344,7 +344,7 @@ bool ConnectionStateManager::AddConnectionInner(const std::shared_ptr<Connection
     return targetItem->AddConnection(connectionRecord, data);
 }
 
-bool ConnectionStateManager::RemoveConnectionInner(const std::shared_ptr<ConnectionRecord> &connectionRecord,
+bool ConnectionStateManager::RemoveConnectionInner(std::shared_ptr<ConnectionRecord> connectionRecord,
     AbilityRuntime::ConnectionData &data)
 {
     auto callerPid = connectionRecord->GetCallerPid();

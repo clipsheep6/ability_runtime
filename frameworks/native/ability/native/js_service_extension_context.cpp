@@ -228,36 +228,9 @@ private:
         }
 
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
-        NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, startOptions, unwrapArgc, innerErrorCode,
-            &observer = freeInstallObserver_]() {
-            HILOG_DEBUG("startAbility begin");
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
-                return;
-            }
-
-            (unwrapArgc == 1) ? *innerErrorCode = context->StartAbility(want) :
-                *innerErrorCode = context->StartAbility(want, startOptions);
-            if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
-                *innerErrorCode != 0 && observer != nullptr) {
-                std::string bundleName = want.GetElement().GetBundleName();
-                std::string abilityName = want.GetElement().GetAbilityName();
-                std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-                observer->OnInstallFinished(bundleName, abilityName, startTime, *innerErrorCode);
-            }
-        };
-
-        NapiAsyncTask::CompleteCallback complete =
-            [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (*innerErrorCode == 0) {
-                    HILOG_ERROR("success to StartAbility");
-                    task.Resolve(env, CreateJsUndefined(env));
-                } else {
-                    task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
-                }
-            };
+        auto execute = GetStartAbilityExecFunc(want, startOptions, DEFAULT_INVAL_VALUE,
+            unwrapArgc != 1, innerErrorCode);
+        auto complete = GetSimpleCompleteFunc(innerErrorCode);
 
         napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         napi_value result = nullptr;
@@ -521,35 +494,8 @@ private:
             want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
         }
         auto innerErrorCode = std::make_shared<int>(ERR_OK);
-        NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, accountId, startOptions, unwrapArgc,
-            innerErrorCode, &observer = freeInstallObserver_]() {
-            auto context = weak.lock();
-            if (!context) {
-                HILOG_WARN("context is released");
-                *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
-                return;
-            }
-
-            (unwrapArgc == ARGC_TWO) ? *innerErrorCode = context->StartAbilityWithAccount(want, accountId) :
-                *innerErrorCode = context->StartAbilityWithAccount(want, accountId, startOptions);
-            if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
-                *innerErrorCode != 0 && observer != nullptr) {
-                std::string bundleName = want.GetElement().GetBundleName();
-                std::string abilityName = want.GetElement().GetAbilityName();
-                std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-                observer->OnInstallFinished(bundleName, abilityName, startTime, *innerErrorCode);
-            }
-        };
-
-        NapiAsyncTask::CompleteCallback complete =
-            [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
-                if (*innerErrorCode == 0) {
-                    HILOG_ERROR("StartAbility is success");
-                    task.Resolve(env, CreateJsUndefined(env));
-                } else {
-                    task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
-                }
-            };
+        auto execute = GetStartAbilityExecFunc(want, startOptions, accountId, unwrapArgc != ARGC_TWO, innerErrorCode);
+        auto complete = GetSimpleCompleteFunc(innerErrorCode);
 
         napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         napi_value result = nullptr;
@@ -980,6 +926,52 @@ private:
         NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnRequestModalUIExtension",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
+    }
+
+    NapiAsyncTask::ExecuteCallback GetStartAbilityExecFunc(const AAFwk::Want &want,
+        const AAFwk::StartOptions &startOptions, int32_t userId, bool useOption, std::shared_ptr<int> retCode)
+    {
+        return [weak = context_, want, startOptions, useOption, userId, retCode,
+            &observer = freeInstallObserver_]() {
+            HILOG_DEBUG("startAbility exec begin");
+            if (!retCode) {
+                HILOG_ERROR("retCode null");
+                return;
+            }
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                *retCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+                return;
+            }
+
+            useOption ? *retCode = context->StartAbilityWithAccount(want, userId, startOptions) :
+                *retCode = context->StartAbilityWithAccount(want, userId);
+            if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+                *retCode != 0 && observer != nullptr) {
+                std::string bundleName = want.GetElement().GetBundleName();
+                std::string abilityName = want.GetElement().GetAbilityName();
+                std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+                observer->OnInstallFinished(bundleName, abilityName, startTime, *retCode);
+            }
+        };
+    }
+
+    NapiAsyncTask::CompleteCallback GetSimpleCompleteFunc(std::shared_ptr<int> retCode)
+    {
+        return [retCode](napi_env env, NapiAsyncTask& task, int32_t) {
+            if (!retCode) {
+                HILOG_ERROR("StartAbility is success");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                return;
+            }
+            if (*retCode == 0) {
+                HILOG_INFO("StartAbility is success");
+                task.Resolve(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, *retCode));
+            }
+        };
     }
 };
 } // namespace

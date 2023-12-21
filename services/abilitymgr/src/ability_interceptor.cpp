@@ -68,6 +68,11 @@ const std::string INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
 const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
+#define RETURN_BY_ISEDM(object)                 \
+    if (object) {                               \
+        return ERR_EDM_APP_CONTROLLED;          \
+    }                                           \
+    return ERR_APP_CONTROLLED;                  \
 
 ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
     const sptr<IRemoteObject> &callerToken)
@@ -131,7 +136,7 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
 #ifdef SUPPORT_GRAPHICS
         if (!isForeground || controlRule.controlWant == nullptr) {
             HILOG_ERROR("Can not start control want");
-            return ERR_INVALID_VALUE;
+            RETURN_BY_ISEDM(controlRule.isEdm);
         }
         if (controlRule.controlWant->GetBoolParam(IS_FROM_PARENTCONTROL, false)) {
             auto controlWant = controlRule.controlWant;
@@ -153,10 +158,7 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
             return ret;
         }
 #endif
-        if (controlRule.isEdm) {
-            return ERR_EDM_APP_CONTROLLED;
-        }
-        return ERR_APP_CONTROLLED;
+        RETURN_BY_ISEDM(controlRule.isEdm);
     }
     return ERR_OK;
 }
@@ -198,14 +200,11 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
         if (!isForeground || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
             HILOG_ERROR("Can not start disposed want");
-            if (disposedRule.isEdm) {
-                return ERR_EDM_APP_CONTROLLED;
-            }
-            return ERR_APP_CONTROLLED;
+            RETURN_BY_ISEDM(disposedRule.isEdm);
         }
         if (disposedRule.want->GetBundle() == want.GetBundle()) {
             HILOG_ERROR("Can not start disposed want with same bundleName");
-            return ERR_INVALID_VALUE;
+            RETURN_BY_ISEDM(disposedRule.isEdm);
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
@@ -225,10 +224,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
             }
         }
 #endif
-        if (disposedRule.isEdm) {
-            return ERR_EDM_APP_CONTROLLED;
-        }
-        return ERR_APP_CONTROLLED;
+        RETURN_BY_ISEDM(disposedRule.isEdm);
     }
     if (disposedRule.disposedType != AppExecFwk::DisposedType::NON_BLOCK) {
         return ERR_OK;
