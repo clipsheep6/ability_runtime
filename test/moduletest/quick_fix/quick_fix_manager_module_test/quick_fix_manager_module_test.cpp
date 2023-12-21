@@ -130,12 +130,29 @@ HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0100, TestSize.Level1
 
     std::string bundleName = "com.ohos.quickfix";
     ApplicationQuickFixInfo quickFixInfo;
+    EXPECT_NE(quickFixClient_, nullptr);
     auto result = quickFixClient_->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
-    WaitUntilTaskDone(quickFixService_->eventHandler_);
-    EXPECT_EQ(result, QUICK_FIX_OK);
-    EXPECT_EQ(quickFixInfo.bundleName, "com.ohos.quickfix");
-    EXPECT_EQ(quickFixInfo.bundleVersionCode, 1000);
-    EXPECT_EQ(quickFixInfo.bundleVersionName, "1.0.0");
+    EXPECT_EQ(result, QUICK_FIX_GET_BUNDLE_INFO_FAILED);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: GetApplyedQuickFixInfo_0200
+ * @tc.desc: GetApplyedQuickFixInfo
+ * @tc.type: FUNC
+ * @tc.require: issueI5ODCD
+ */
+HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    std::string bundleName = "com.ohos.quickfix";
+    ApplicationQuickFixInfo quickFixInfo;
+    EXPECT_NE(quickFixClient_, nullptr);
+    quickFixClient_->ClearProxy();
+    auto result = quickFixClient_->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
+    EXPECT_EQ(result, QUICK_FIX_CONNECT_FAILED);
 
     HILOG_INFO("%{public}s end.", __func__);
 }

@@ -123,6 +123,7 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_StartAbility_0100, Function | 
     AAFwk::Want want;
     int requestCode = 0;
     context_->StartAbility(want, requestCode);
+    EXPECT_NE(context_, nullptr);
     GTEST_LOG_(INFO) << "AaFwk_AbilityContext_StartAbility_0100 end";
 }
 
@@ -135,6 +136,7 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_TerminateAbility_0100, Functio
 {
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_TerminateAbility_0100 start";
     context_->TerminateAbility();
+    EXPECT_NE(context_, nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_AbilityContext_TerminateAbility_0100 end";
 }
 
@@ -339,6 +341,7 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_GetAbilityManager_0100, Functi
 {
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
     context_->AttachBaseContext(deal);
+    MockBundleInstaller();
     sptr<AAFwk::IAbilityManager> ptr = context_->GetAbilityManager();
 
     EXPECT_NE(nullptr, ptr);
@@ -551,7 +554,8 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_DisconnectAbility_0100, Functi
     abilityInfo->type = AppExecFwk::AbilityType::SERVICE;
     deal->SetAbilityInfo(abilityInfo);
     context_->AttachBaseContext(deal);
-    context_->DisconnectAbility(nullptr);
+    auto result = context_->DisconnectAbility(nullptr);
+    EXPECT_EQ(result, 0);
 }
 
 /**
@@ -569,7 +573,8 @@ HWTEST_F(AbilityContextTest, AaFwk_AbilityContext_DisconnectAbility_0200, Functi
     deal->SetAbilityInfo(abilityInfo);
     context_->AttachBaseContext(deal);
     OHOS::sptr<AAFwk::IAbilityConnection> callback = new NAPIAbilityConnection();
-    context_->DisconnectAbility(callback);
+    auto result = context_->DisconnectAbility(callback);
+    EXPECT_EQ(result, 0);
 }
 
 /**
