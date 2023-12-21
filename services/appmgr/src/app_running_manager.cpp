@@ -143,7 +143,11 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         // Before using this method, consider whether you need.
+#ifdef __riscv
+        if (appRecord && !appRecord->IsKeepAliveApp()) {
+#else
         if (appRecord) {
+#endif
             pid_t pid = appRecord->GetPriorityObject()->GetPid();
             auto appInfoList = appRecord->GetAppInfoList();
             auto isExist = [&bundleName](const std::shared_ptr<ApplicationInfo> &appInfo) {
