@@ -3287,12 +3287,13 @@ void AppMgrServiceInner::HandleStartSpecifiedProcessTimeout(const int64_t eventI
 
 int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION1__);
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is null");
         return ERR_INVALID_VALUE;
     }
     CHECK_CALLER_IS_SYSTEM_APP;
-
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION2__);
     auto ret = AAFwk::PermissionVerification::GetInstance()->VerifyUpdateConfigurationPerm();
     if (ret != ERR_OK) {
         return ret;
@@ -3305,6 +3306,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         HILOG_ERROR("changeKeyV is empty");
         return ERR_INVALID_VALUE;
     }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION3__);
     configuration_->Merge(changeKeyV, config);
     // all app
     int32_t result = appRunningManager_->UpdateConfiguration(config);
@@ -3315,6 +3317,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         HILOG_ERROR("update error, not notify");
         return result;
     }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION4__);
     // notify
     std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
@@ -3322,6 +3325,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
             observer->OnConfigurationUpdated(config);
         }
     }
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION5__);
     return result;
 }
 
