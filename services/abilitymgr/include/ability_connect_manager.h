@@ -129,6 +129,9 @@ public:
      */
     int AbilityTransitionDone(const sptr<IRemoteObject> &token, int state);
 
+    void ExecuteAbilityRecord(int targetState, const sptr<IRemoteObject> &token, 
+         std::shared_ptr<AbilityRecord> &abilityRecord, std::string abilityState);
+
     /**
      * ScheduleConnectAbilityDoneLocked, service ability call this interface while session was connected.
      *

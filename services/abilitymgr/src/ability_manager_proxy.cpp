@@ -375,7 +375,6 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
             return INNER_ERR;
         }
     }
@@ -386,7 +385,6 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("asCallerSourceToken write failed.");
             return INNER_ERR;
         }
     }

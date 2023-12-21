@@ -657,19 +657,8 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     std::shared_ptr<AbilityRecord> abilityRecord;
-    if (targetState == AbilityState::INACTIVE
-        || targetState == AbilityState::FOREGROUND
-        || targetState == AbilityState::BACKGROUND) {
-        abilityRecord = GetExtensionFromServiceMapInner(token);
-    } else if (targetState == AbilityState::INITIAL) {
-        abilityRecord = GetExtensionFromTerminatingMapInner(token);
-    } else {
-        abilityRecord = nullptr;
-    }
+    AbilityConnectManager::ExecuteAbilityRecord(targetState, token, abilityRecord, abilityState);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-    std::string element = abilityRecord->GetURI();
-    HILOG_DEBUG("Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
-
     switch (targetState) {
         case AbilityState::INACTIVE: {
             if (abilityRecord->GetAbilityInfo().type == AbilityType::SERVICE) {
@@ -713,6 +702,22 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
             return ERR_INVALID_VALUE;
         }
     }
+}
+
+void AbilityConnectManager::ExecuteAbilityRecord(int targetState, const sptr<IRemoteObject> &token, 
+     std::shared_ptr<AbilityRecord> &abilityRecord, std::string abilityState)
+{
+    if (targetState == AbilityState::INACTIVE
+        || targetState == AbilityState::FOREGROUND
+        || targetState == AbilityState::BACKGROUND) {
+        abilityRecord = GetExtensionFromServiceMapInner(token);
+    } else if (targetState == AbilityState::INITIAL) {
+        abilityRecord = GetExtensionFromTerminatingMapInner(token);
+    } else {
+        abilityRecord = nullptr;
+    }
+    std::string element = abilityRecord->GetURI();
+    HILOG_DEBUG("Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 }
 
 void AbilityConnectManager::ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const
