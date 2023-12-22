@@ -351,19 +351,8 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &mod
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
     HILOG_DEBUG("CreateModuleContext begin.");
-    if (bundleName.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext bundleName is empty");
-        return nullptr;
-    }
-
-    if (moduleName.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is empty");
-        return nullptr;
-    }
-
-    int errCode = GetBundleManager();
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+    if (bundleName.empty() || moduleName.empty()) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext bundleName or moduleName is empty");
         return nullptr;
     }
 
@@ -376,19 +365,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (bundleName == GetBundleName()) {
-        bundleMgr_->GetBundleInfoForSelf(
-            (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
-    } else {
-        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
-    }
-
+    GetBundleInfo(bundleName, bundleInfo, accountId);
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
         ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
@@ -496,6 +473,32 @@ int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bu
         }
     }
     return ERR_OK;
+}
+
+void ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo,
+    const int &accountId)
+{
+    HILOG_DEBUG("GetBundleInfo begin");
+    if (bundleMgr_ == nullptr) {
+        int errCode = GetBundleManager();
+        if (errCode != ERR_OK) {
+            HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+            return;
+        }
+    }
+
+    if (bundleName == GetBundleName()) {
+        bundleMgr_->GetBundleInfoForSelf(
+            (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
+    } else {
+        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    }
 }
 
 int ContextImpl::GetArea()
