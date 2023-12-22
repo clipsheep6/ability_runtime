@@ -1047,7 +1047,7 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
     return result;
 }
 
-void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
+int32_t AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
     int32_t callerUid, pid_t callerPid, const int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -1056,24 +1056,24 @@ void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
         newUserId = GetUserIdByUid(callerUid);
     }
     HILOG_INFO("userId:%{public}d", userId);
-    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
+    return ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
 }
 
-void AppMgrServiceInner::ClearUpApplicationDataByUserId(
+int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
     const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId)
 {
     if (callerPid <= 0) {
         HILOG_ERROR("invalid callerPid:%{public}d", callerPid);
-        return;
+        return ERR_INVALID_OPERATION;
     }
     if (callerUid < 0) {
         HILOG_ERROR("invalid callerUid:%{public}d", callerUid);
-        return;
+        return ERR_INVALID_OPERATION;
     }
     auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
-        return;
+        return ERR_INVALID_OPERATION;
     }
 
     // request to clear user information permission.
@@ -1081,25 +1081,25 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
     int32_t result = AccessToken::AccessTokenKit::ClearUserGrantedPermissionState(tokenId);
     if (result) {
         HILOG_ERROR("ClearUserGrantedPermissionState failed, ret:%{public}d", result);
-        return;
+        return ERR_PERMISSION_DENIED;
     }
     // 2.delete bundle side user data
     if (!IN_PROCESS_CALL(bundleMgrHelper->CleanBundleDataFiles(bundleName, userId))) {
         HILOG_ERROR("Delete bundle side user data is fail");
-        return;
+        return ERR_INVALID_OPERATION;
     }
     // 3.kill application
     // 4.revoke user rights
     result = KillApplicationByUserId(bundleName, userId);
     if (result < 0) {
         HILOG_ERROR("Kill Application by bundle name is fail");
-        return;
+        return ERR_INVALID_OPERATION;
     }
     // 5.revoke uri permission rights
     result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
     if (result != 0) {
         HILOG_ERROR("Revoke all uri permissions is fail");
-        return;
+        return ERR_PERMISSION_DENIED;
     }
     auto dataMgr = OHOS::DistributedKv::DistributedDataMgr();
     auto dataRet = dataMgr.ClearAppStorage(bundleName, userId, 0, tokenId);
@@ -1108,6 +1108,7 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
     }
     NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
         EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
+    return ERR_OK;
 }
 
 int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
