@@ -33,6 +33,7 @@ ohos_shared_library("abilityconstant_napi") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "ipc:ipc_core",
   ]
 
   relative_install_dir = "module/application"
@@ -59,6 +60,7 @@ ohos_shared_library("abilityconstant") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "ipc:ipc_core",
   ]
 
   defines = [ "ENABLE_ERRCODE" ]
