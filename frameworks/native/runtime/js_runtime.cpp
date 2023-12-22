@@ -18,6 +18,7 @@
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
+#include <fstream>
 #include <regex>
 
 #include <atomic>
@@ -87,6 +88,13 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
+
+const std::string SYSTEM_KITS_CONFIG_PATH = "/system/etc/system_kits_config.json";
+
+const std::string SYSTEM_KITS = "systemkits";
+const std::string NAMESPACE = "namespace";
+const std::string TARGET_OHM = "targetohm";
+const std::string SINCE_VERSION = "sinceVersion";
 
 static auto PermissionCheckFunc = []() {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
@@ -638,6 +646,8 @@ bool JsRuntime::Initialize(const Options& options)
             panda::JSNApi::SetHostResolveBufferTracker(
                 vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
             isModular = !panda::JSNApi::IsBundle(vm);
+            std::vector<panda::HmsMap> systemKitsMap = GetSystemKitsMap(apiTargetVersion_);
+            panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
         }
     }
 
@@ -1350,6 +1360,64 @@ void JsRuntime::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
     HILOG_DEBUG("Start.");
     CHECK_POINTER(jsEnv_);
     jsEnv_->SetDeviceDisconnectCallback(cb);
+}
+
+std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
+{
+    std::vector<panda::HmsMap> systemKitsMap;
+    nlohmann::json jsonBuf;
+    if (access(SYSTEM_KITS_CONFIG_PATH.c_str(), F_OK) != 0) {
+        return systemKitsMap;
+    }
+
+    std::fstream in;
+    char errBuf[256];
+    errBuf[0] = '\0';
+    in.open(SYSTEM_KITS_CONFIG_PATH, std::ios_base::in);
+    if (!in.is_open()) {
+        strerror_r(errno, errBuf, sizeof(errBuf));
+        return systemKitsMap;
+    }
+
+    in.seekg(0, std::ios::end);
+    int64_t size = in.tellg();
+    if (size <= 0) {
+        HILOG_ERROR("the file is an empty file");
+        in.close();
+        return systemKitsMap;
+    }
+
+    in.seekg(0, std::ios::beg);
+    jsonBuf = nlohmann::json::parse(in, nullptr, false);
+    in.close();
+    if (jsonBuf.is_discarded()) {
+        HILOG_ERROR("bad profile file");
+        return systemKitsMap;
+    }
+
+    if (!jsonBuf.contains(SYSTEM_KITS)) {
+        HILOG_ERROR("json config doesn't contain systemkits.");
+        return systemKitsMap;
+    }
+    for (auto &item : jsonBuf.at(SYSTEM_KITS).items()) {
+        nlohmann::json& jsonObject = item.value();
+        if (!jsonObject.contains(NAMESPACE) || !jsonObject.at(NAMESPACE).is_string() ||
+            !jsonObject.contains(TARGET_OHM) || !jsonObject.at(TARGET_OHM).is_string() ||
+            !jsonObject.contains(SINCE_VERSION) || !jsonObject.at(SINCE_VERSION).is_number()) {
+            continue;
+        }
+        uint32_t sinceVersion = jsonObject.at(SINCE_VERSION).get<uint32_t>();
+        if (version >= sinceVersion) {
+            panda::HmsMap hmsMap = {
+                .originalPath = jsonObject.at(NAMESPACE).get<std::string>(),
+                .targetPath = jsonObject.at(TARGET_OHM).get<std::string>(),
+                .sinceVersion = sinceVersion
+            };
+            systemKitsMap.emplace_back(hmsMap);
+        }
+    }
+    HILOG_DEBUG("The size of the map is %{public}zu", systemKitsMap.size());
+    return systemKitsMap;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

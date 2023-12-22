@@ -40,6 +40,7 @@ config("runtime_public_config") {
   include_dirs = [
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_business_error",
     "include",
+    "//third_party/json/include",
   ]
 }
 
@@ -85,6 +86,7 @@ ohos_shared_library("runtime") {
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
+    "${third_party_path}/jsoncpp:jsoncpp",
     "${third_party_path}/zlib:shared_libz",
   ]
 
