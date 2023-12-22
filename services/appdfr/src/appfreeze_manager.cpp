@@ -190,7 +190,7 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
         HILOG_INFO("pidTemp pids:%{public}d", pidTemp);
         if (pidTemp != pid) {
             std::string content = "PeerBinder catcher stacktrace for pid : " + std::to_string(pidTemp) + "\n";
-            content += CatchJsonStacktrace(pidTemp);
+            content += CatcherStacktrace(pidTemp);
             binderInfo += content;
         }
     }
