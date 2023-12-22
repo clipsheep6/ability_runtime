@@ -288,11 +288,14 @@ void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 
 void NapiAsyncTask::Reject(napi_env env, napi_value error)
 {
+    HILOG_INFO("begin");
     if (deferred_) {
+        HILOG_INFO("deferred_");
         napi_reject_deferred(env, deferred_, error);
         deferred_ = nullptr;
     }
     if (callbackRef_) {
+        HILOG_INFO("callbackRef_");
         napi_value argv[] = {
             error,
             CreateJsUndefined(env),
