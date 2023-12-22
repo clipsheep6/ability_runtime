@@ -202,7 +202,7 @@ int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityReque
 {
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     std::string dialogSessionId;
-    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos)) {
+    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
         HILOG_DEBUG("create dialog by ui extension");
         return abilityMgr->CreateModalDialog(want, abilityRequest.callerToken, dialogSessionId);
     }

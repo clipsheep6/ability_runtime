@@ -58,7 +58,7 @@ public:
     bool QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId);
 
 private:
-    ffrt::mutex dialogSessionRecordLock_;
+    mutable ffrt::mutex dialogSessionRecordLock_;
     std::unordered_map<std::string, sptr<DialogSessionInfo>> dialogSessionInfoMap_;
     std::unordered_map<std::string, std::shared_ptr<DialogCallerInfo>> dialogCallerInfoMap_;
 };
