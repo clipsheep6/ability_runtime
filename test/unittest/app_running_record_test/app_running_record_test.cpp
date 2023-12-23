@@ -16,11 +16,20 @@
 #include <gtest/gtest.h>
 
 #define private public
+#define protected public
+#include "ability_running_record.h"
+#include "ability_window_configuration.h"
 #include "app_running_record.h"
+#include "app_mgr_service_event_handler.h"
+#include "app_mgr_service_inner.h"
 #include "child_process_record.h"
+#include "module_running_record.h"
+#include "want_params.h"
 #undef private
+#undef protected
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
+
 using namespace testing;
 using namespace testing::ext;
 
@@ -259,6 +268,43 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordMap_0100, T
 
     auto childProcessRecordMap = appRecord->GetChildProcessRecordMap();
     EXPECT_EQ(childProcessRecordMap.size(), 0);
+}
+
+/**
+ * @tc.name: GetSplitModeAndFloatingMode_0100
+ * @tc.desc: Test the return when abilityWant is not nullptr and
+ *      the first determine of windowMode is conformed.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, GetSplitModeAndFloatingMode_001, TestSize.Level1)
+{
+    std::shared_ptr<ApplicationInfo> info = nullptr;
+    int32_t recordId = 0;
+    std::string processName = "appRunningRecordProcessName";
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(info, recordId, processName);
+
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    std::shared_ptr<ModuleRunningRecord> moduleRunningRecord = std::make_shared<ModuleRunningRecord>(appInfo, nullptr);
+
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    sptr<IRemoteObject> token = nullptr;
+    std::shared_ptr<AbilityRunningRecord> abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    want->SetParam(AAFwk::Want::PARAM_RESV_WINDOW_MODE,
+        AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING);
+    abilityRecord->SetWant(want);
+    moduleRunningRecord->abilities_.emplace(nullptr, abilityRecord);
+
+    std::vector<std::shared_ptr<ModuleRunningRecord>> hapModulesVector;
+    hapModulesVector.emplace_back(moduleRunningRecord);
+    std::string hapModulesString = "hapModulesString";
+    appRunningRecord->hapModules_.emplace(hapModulesString, hapModulesVector);
+
+    bool isSplitScreenMode = false;
+    bool isFloatingWindowMode = false;
+    appRunningRecord->GetSplitModeAndFloatingMode(isSplitScreenMode, isFloatingWindowMode);
+    EXPECT_EQ(true, isFloatingWindowMode);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

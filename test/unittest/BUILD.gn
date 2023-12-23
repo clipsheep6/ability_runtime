@@ -360,6 +360,8 @@ group("unittest") {
     "app_debug_listener_stub_test:unittest",
     "app_debug_manager_test:unittest",
     "app_exit_reason_data_manager_test:unittest",
+    "app_foreground_state_observer_proxy_test:unittest",
+    "app_foreground_state_observer_stub_test:unittest",
     "app_launch_data_test:unittest",
     "app_lifecycle_deal_test:unittest",
     "app_mgr_client_test:unittest",

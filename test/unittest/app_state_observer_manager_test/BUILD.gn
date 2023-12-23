@@ -21,9 +21,13 @@ ohos_unittest("app_state_observer_manager_test") {
   cflags_cc = []
   include_dirs = [
     "${ability_runtime_services_path}/appmgr/include",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
+    "${ability_runtime_path}/tools/test/unittest/ability_delegator/",
+    "${ability_runtime_test_path}/unittest/appkit/ohos_application_test/",
     "${ability_runtime_test_path}/unittest/ability_foreground_state_observer_stub_test",
+    "${ability_runtime_test_path}/unittest/app_state_observer_manager_test",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/",
+    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
 
   sources =
