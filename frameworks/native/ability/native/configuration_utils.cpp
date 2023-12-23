@@ -37,7 +37,8 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::string language;
     std::string colormode;
     std::string hasPointerDevice;
-    GetGlobalConfig(configuration, language, colormode, hasPointerDevice);
+    std::string theme;
+    GetGlobalConfig(configuration, language, colormode, hasPointerDevice, theme);
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
         HILOG_ERROR("Create resource config failed.");
@@ -72,7 +73,8 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
         HILOG_DEBUG("Update config, hasPointerDevice: %{public}d", resConfig->GetInputDevice());
     }
 
-    Global::Resource::RState ret = resourceManager->UpdateResConfig(*resConfig);
+    bool isThemeEnable = !theme.empty();
+    Global::Resource::RState ret = resourceManager->UpdateResConfig(*resConfig, isThemeEnable);
     if (ret != Global::Resource::RState::SUCCESS) {
         HILOG_ERROR("Update resource config failed with %{public}d.", static_cast<int>(ret));
         return;
@@ -82,11 +84,12 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
 }
 
 void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
-    std::string &language, std::string &colormode, std::string &hasPointerDevice)
+    std::string &language, std::string &colormode, std::string &hasPointerDevice, std::string &theme)
 {
     language = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     colormode = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     hasPointerDevice = configuration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
+    theme = configuration.GetItem(AAFwk::GlobalConfigurationKey::THEME);
 }
 
 #ifdef SUPPORT_GRAPHICS

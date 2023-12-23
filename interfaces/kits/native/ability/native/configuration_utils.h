@@ -41,7 +41,7 @@ public:
 
 private:
     void GetGlobalConfig(const Configuration &configuration, std::string &language, std::string &colormode,
-        std::string &hasPointerDevice);
+        std::string &hasPointerDevice,std::string &theme);
 
 #ifdef SUPPORT_GRAPHICS
 public:
