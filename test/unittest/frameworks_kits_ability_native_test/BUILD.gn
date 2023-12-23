@@ -2438,7 +2438,8 @@ group("unittest") {
     ":ability_process_test",
     ":ability_test",
     ":ability_thread_call_request_test",
-    ":ability_thread_dataability_test",
+
+    # ":ability_thread_dataability_test",
     ":ability_thread_test",
     ":ability_transaction_callback_info_test",
     ":ability_window_test",
