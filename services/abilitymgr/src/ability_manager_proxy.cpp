@@ -851,49 +851,26 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return ERR_INVALID_VALUE;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
     CHECK_POINTER_AND_RETURN_LOG(connect, ERR_INVALID_VALUE, "connect ability fail, connect is nullptr");
     if (connect->AsObject()) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(connect->AsObject())) {
-            HILOG_ERROR("flag and connect write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, connect->AsObject());
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
     if (callerToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, callerToken);
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
-    if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("%{public}s, userId write failed.", __func__);
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("%{public}s, extensionType write failed.", __func__);
-        return INNER_ERR;
-    }
-    if (!data.WriteBool(isQueryExtensionOnly)) {
-        HILOG_ERROR("isQueryExtensionOnly write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, static_cast<int32_t>(extensionType));
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, isQueryExtensionOnly);
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("%{public}s, Send request error: %{public}d", __func__, error);
