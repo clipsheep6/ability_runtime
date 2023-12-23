@@ -116,9 +116,15 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
+    std::vector<AppExecFwk::Metadata> metaData = abilityRequest.abilityInfo.metadata;
+    bool isSingleton = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
+        return metaDataItem.name == "UIExtensionAbilityLaunchTypeTemp" && metaDataItem.value == "singleton";
+    });
+    HILOG_DEBUG("State isSingleton: %{public}d.", isSingleton);
+
     std::shared_ptr<AbilityRecord> targetService;
     bool isLoadedAbility = false;
-    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
+    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && !isSingleton) {
         auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
         if (callerAbilityRecord == nullptr) {
             HILOG_ERROR("Failed to get callerAbilityRecord.");
@@ -151,6 +157,22 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     if (!isLoadedAbility) {
         HILOG_INFO("Target service has not been loaded.");
         LoadAbility(targetService);
+        if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && isSingleton) {
+            HILOG_INFO("Start uiextension in singleton mode.");
+            auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+            if (callerAbilityRecord == nullptr) {
+                HILOG_ERROR("Failed to get callerAbilityRecord.");
+                return ERR_NULL_OBJECT;
+            }
+            std::string hostBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
+            int32_t inputId = abilityRequest.sessionInfo->want.GetIntParam(UIEXTENSION_ABILITY_ID,
+                INVALID_EXTENSION_RECORD_ID);
+            std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
+            CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
+            uiExtensionAbilityRecordMgr_->CreateExtensionRecord(
+                targetService, hostBundleName, extensionRecord, inputId);
+            HILOG_DEBUG("UIExtensionAbility id %{public}d.", inputId);
+        }
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE) && !IsUIExtensionAbility(targetService)) {
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
