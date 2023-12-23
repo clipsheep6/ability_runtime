@@ -429,6 +429,7 @@ group("unittest") {
     "free_install_manager_test:unittest",
     "image_info_test:unittest",
     "implicit_start_processor_test:unittest",
+    "js_auto_fill_extension_test:unittest",
     "js_service_extension_test:unittest",
     "lifecycle_deal_test:unittest",
     "lifecycle_test:unittest",
