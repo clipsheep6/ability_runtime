@@ -942,6 +942,9 @@ public:
     void SetURI(const std::string &uri);
     std::string GetURI() const;
 
+    void DoBackgroundAbilityWindowDelayed(bool needBackground);
+    bool BackgroundAbilityWindowDelayed();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1144,6 +1147,7 @@ private:
     bool isAttachDebug_ = false;
     bool isAppAutoStartup_ = false;
     bool isConnected = false;
+    std::atomic_bool backgroundAbilityWindowDelayed_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

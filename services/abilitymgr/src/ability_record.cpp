@@ -3253,5 +3253,15 @@ int32_t AbilityRecord::GetUIExtensionAbilityId() const
 {
     return uiExtensionAbilityId_;
 }
+
+bool AbilityRecord::BackgroundAbilityWindowDelayed()
+{
+    return backgroundAbilityWindowDelayed_.load();
+}
+
+void AbilityRecord::DoBackgroundAbilityWindowDelayed(bool needBackground)
+{
+    backgroundAbilityWindowDelayed_.store(needBackground);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

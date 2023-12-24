@@ -15,15 +15,14 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-ohos_moduletest("ui_extension_connect_module_test") {
+ohos_moduletest("ui_extension_stability_test") {
   module_out_path = "ability_runtime/ui_extension"
 
   include_dirs = [ "../include" ]
 
   sources = [
-    "../src/ui_extension_connect_module_test_connection.cpp",
     "../src/ui_extension_connect_module_test_observer.cpp",
-    "ui_extension_connect_module_test.cpp",
+    "ui_extension_stability_test.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
@@ -41,6 +40,7 @@ ohos_moduletest("ui_extension_connect_module_test") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:ability_manager",
@@ -56,10 +56,11 @@ ohos_moduletest("ui_extension_connect_module_test") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:scene_session_manager",
   ]
 }
 
 group("moduletest") {
   testonly = true
-  deps = [ ":ui_extension_connect_module_test" ]
+  deps = [ ":ui_extension_stability_test" ]
 }

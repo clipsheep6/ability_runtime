@@ -145,6 +145,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
 
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_START_EXTENSION);
 
+    targetService->DoBackgroundAbilityWindowDelayed(false);
+
     if (IsUIExtensionAbility(targetService) && abilityRequest.sessionInfo && abilityRequest.sessionInfo->sessionToken) {
         auto &remoteObj = abilityRequest.sessionInfo->sessionToken;
         uiExtensionMap_[remoteObj] = UIExtWindowMapValType(targetService, abilityRequest.sessionInfo);
@@ -1485,7 +1487,24 @@ void AbilityConnectManager::BackgroundAbilityWindowLocked(const std::shared_ptr<
         HILOG_ERROR("sessionInfo is nullptr");
         return;
     }
-    CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_BACKGROUND);
+
+    DoBackgroundAbilityWindow(abilityRecord, sessionInfo);
+}
+
+void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<SessionInfo> &sessionInfo)
+{
+    CHECK_POINTER(abilityRecord);
+    CHECK_POINTER(sessionInfo);
+    if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
+        CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_BACKGROUND);
+    } else if (abilityRecord->IsAbilityState(AbilityState::INITIAL) ||
+        abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
+        HILOG_INFO("There exist initial or foregrounding task.");
+        abilityRecord->DoBackgroundAbilityWindowDelayed(true);
+    } else {
+        HILOG_WARN("Invalid ability state when background.");
+    }
 }
 
 void AbilityConnectManager::TerminateAbilityWindowLocked(const std::shared_ptr<AbilityRecord> &abilityRecord,
@@ -2171,6 +2190,11 @@ void AbilityConnectManager::CompleteForeground(const std::shared_ptr<AbilityReco
     }
 
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
+    if (abilityRecord->BackgroundAbilityWindowDelayed()) {
+        HILOG_INFO("Response background request.");
+        abilityRecord->DoBackgroundAbilityWindowDelayed(false);
+        DoBackgroundAbilityWindow(abilityRecord, abilityRecord->GetSessionInfo());
+    }
     CompleteStartServiceReq(abilityRecord->GetURI());
 }
 
@@ -2182,6 +2206,7 @@ void AbilityConnectManager::HandleForegroundTimeoutTask(const std::shared_ptr<Ab
         return;
     }
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
+    abilityRecord->DoBackgroundAbilityWindowDelayed(false);
     CompleteStartServiceReq(abilityRecord->GetURI());
 }
 

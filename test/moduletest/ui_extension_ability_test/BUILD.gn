@@ -21,5 +21,6 @@ group("moduletest") {
 
   if (target_cpu == "arm") {
     deps += [ "ui_extension_connect_module_test:moduletest" ]
+    deps += [ "ui_extension_stability_test:moduletest" ]
   }
 }
