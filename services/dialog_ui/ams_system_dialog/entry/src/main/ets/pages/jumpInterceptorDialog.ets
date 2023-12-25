@@ -12,9 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GlobalThis } from '../utils/GlobalThis';
+import want from '@ohos.app.ability.Want';
 
 interface TipBtn {
-  color:string
+  color: string
 }
 
 @Entry
@@ -24,43 +26,55 @@ struct JumpInterceptorDialog {
   @State private btn: TipBtn = { color: "#FFFFFF" }
   private TAG = "JumpInterceptorDialog_Page"
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     console.log(this.TAG, "dialog page appears");
-    this.deviceType = globalThis.params.deviceType
+    this.deviceType = (GlobalThis.getInstance().getProperty('params') as Record<string, Object>)?.deviceType as string
     if (this.deviceType == "pc") {
       this.btn.color = "#F2F2F2";
     }
   }
 
-  onCloseApp() {
-    globalThis.jumpInterceptorExtensionContext.terminateSelf();
+  onCloseApp(): void {
+    GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext')?.terminateSelf();
   }
 
-  onJumpApp() {
-    globalThis.abilityWant.bundleName =  globalThis.params.bundleName;
-    globalThis.abilityWant.abilityName = globalThis.params.abilityName;
-    globalThis.abilityWant.moduleName = globalThis.params.moduleName;
-    globalThis.jumpInterceptorExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
+  onJumpApp(): void {
+    let abilityWant = GlobalThis.getInstance().getObject('abilityWant') as Record<string, Object>
+    if (abilityWant != undefined) {
+      abilityWant.bundleName = (GlobalThis.getInstance()
+        .getProperty('params') as Record<string, Object>)?.bundleName as string;
+      abilityWant.abilityName = (GlobalThis.getInstance()
+        .getProperty('params') as Record<string, Object>)?.abilityName as string;
+      abilityWant.moduleName = (GlobalThis.getInstance()
+        .getProperty('params') as Record<string, Object>)?.moduleName as string;
+      GlobalThis.getInstance().setObject('abilityWant', abilityWant);
+    }
+
+    GlobalThis.getInstance()
+      .getContext('jumpInterceptorExtensionContext')?.startAbilityAsCaller(GlobalThis.getInstance()
+      .getObject('abilityWant') as want, (error) => {
       if (error) {
-        console.error(this.TAG + "startAbility finish, error: " + JSON.stringify(error));
+        console.error(this.TAG + "startAbilityAsCaller finish, error: " + JSON.stringify(error));
         return;
       }
-      console.log(this.TAG + "startAbility finish, data: " + JSON.stringify(data));
-      globalThis.jumpInterceptorExtensionContext.terminateSelf();
+      console.log(this.TAG + "startAbilityAsCaller finish.");
+      GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext')?.terminateSelf();
     });
   }
 
   build() {
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
-        Text($r('app.string.message_title_jump_interceptor', globalThis.callerAppName, globalThis.targetAppName))
+        Text($r('app.string.message_title_jump_interceptor', GlobalThis.getInstance()
+          .getProperty('callerAppName'), GlobalThis.getInstance().getProperty('targetAppName')))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
           .height("29%")
-          .textOverflow({overflow: TextOverflow.Ellipsis})
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
           .maxLines(2)
-        .textAlign(TextAlign.Center)
+          .textAlign(TextAlign.Center)
       }
+
       Flex({ justifyContent: FlexAlign.Center }) {
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
           Text($r('app.string.message_cancel_jump'))
@@ -76,6 +90,7 @@ struct JumpInterceptorDialog {
         .onClick(() => {
           this.onCloseApp();
         })
+
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
           Text($r('app.string.message_confirm_jump'))
             .fontSize("21fp")
@@ -90,7 +105,7 @@ struct JumpInterceptorDialog {
         .onClick(() => {
           this.onJumpApp();
         })
-      }.margin({ top: 10})
+      }.margin({ top: 10 })
     }
     .borderRadius(20)
     .borderWidth(1)

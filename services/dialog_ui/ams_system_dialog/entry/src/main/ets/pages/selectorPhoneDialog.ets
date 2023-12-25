@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+import want from '@ohos.app.ability.Want';
+import { GlobalThis } from '../utils/GlobalThis';
+import image from '@ohos.multimedia.image';
+
 interface SwiperPhone {
   height: string,
   indicator: boolean,
@@ -22,11 +26,11 @@ interface SwiperPhone {
 }
 
 interface SelectorBtn {
-  marginTop:string,
+  marginTop: string,
 }
 
 interface SelectorPhone {
-  swiper:SwiperPhone,
+  swiper: SwiperPhone,
   btn: SelectorBtn
 }
 
@@ -40,7 +44,6 @@ interface HapInfo {
 
 class SelectorDataSource implements IDataSource {
   private list: string[] = []
-  private listener: DataChangeListener
 
   constructor(list: string[]) {
     this.list = list
@@ -60,14 +63,35 @@ class SelectorDataSource implements IDataSource {
 
   unregisterDataChangeListener() {
   }
+
+  private listener: DataChangeListener = {
+    onDataReloaded: () => {
+    },
+    onDataAdded: (index: number) => {
+    },
+    onDataAdd: (index: number) => {
+    },
+    onDataMoved: (from: number, to: number) => {
+    },
+    onDataMove: (from: number, to: number) => {
+    },
+    onDataDeleted: (index: number) => {
+    },
+    onDataDelete: (index: number) => {
+    },
+    onDataChanged: (index: number) => {
+    },
+    onDataChange: (index: number) => {
+    },
+  }
 }
 
 
 @Entry
 @Component
 struct SelectorPhoneDialog {
-  private phoneShowData: SelectorDataSource = new SelectorDataSource([])
   @StorageLink('oversizeHeight') oversizeHeight: string = 'false';
+  private phoneShowData: SelectorDataSource = new SelectorDataSource([])
   @State private selector: SelectorPhone = {
     swiper: {
       height: "100vp",
@@ -80,36 +104,42 @@ struct SelectorPhoneDialog {
       marginTop: "20vp",
     }
   }
-  @State private hapList: HapInfo[] = [];
+  @State private hapList: Record<string, Object>[] = [];
   private TAG = "SelectorDialog_Phone_Page";
 
   aboutToAppear(): void {
     console.log(this.TAG, "dialog page appears");
-    this.hapList = globalThis.params.hapList;
+    this.hapList = (GlobalThis.getInstance()
+      .getProperty('params') as Record<string, Object>)?.hapList as Record<string, Object>[];
     this.getHapListStyle();
   }
 
-  onPageShow() {
+  onPageShow(): void {
     console.info(this.TAG, 'onPageShow called');
     this.getHapListStyle();
   }
 
-  onSelectApp(item) {
+  onSelectApp(item: string): void {
     console.log(this.TAG, "onSelectApp - start ");
-    globalThis.abilityWant.bundleName = item.split("#")[0];
-    globalThis.abilityWant.abilityName = item.split("#")[1];
-    globalThis.abilityWant.moduleName = item.split("#")[4];
-    globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
+    let abilityWant = GlobalThis.getInstance().getObject('abilityWant') as want
+    if (abilityWant != undefined) {
+      abilityWant.bundleName = item.split("#")[0];
+      abilityWant.abilityName = item.split("#")[1];
+      abilityWant.moduleName = item.split("#")[4];
+    }
+    GlobalThis.getInstance().setObject('abilityWant', abilityWant);
+    GlobalThis.getInstance().getContext('selectExtensionContext')?.startAbilityAsCaller(GlobalThis.getInstance()
+      .getObject('abilityWant') as want, (error) => {
       if (error) {
-        console.error(this.TAG + " startAbility finish, error: " + JSON.stringify(error));
+        console.error(this.TAG + " startAbilityAsCaller finish, error: " + JSON.stringify(error));
         return;
       }
-      console.log(this.TAG + " startAbility finish, data: " + JSON.stringify(data));
-      globalThis.selectExtensionContext.terminateSelf();
+      console.log(this.TAG + " startAbilityAsCaller finish");
+      GlobalThis.getInstance().getContext('selectExtensionContext')?.terminateSelf();
     });
   }
 
-  getHapListStyle() {
+  getHapListStyle(): void {
     if (this.oversizeHeight === 'false') {
       if (this.hapList.length > 8) {
         this.selector.swiper.height = '220vp';
@@ -130,11 +160,12 @@ struct SelectorPhoneDialog {
       } else {
         ;
       }
-      this.phoneShowData = new SelectorDataSource(globalThis.phoneShowHapList);
+      this.phoneShowData = new SelectorDataSource(GlobalThis.getInstance().getProperty('phoneShowHapList') as string[]);
     } else {
       this.selector.swiper.gridColumns = '1fr 1fr 1fr 1fr';
       this.selector.swiper.gridRows = '1fr';
-      this.phoneShowData = new SelectorDataSource(globalThis.signalRowPhoneShowHapList);
+      this.phoneShowData = new SelectorDataSource(GlobalThis.getInstance()
+        .getProperty('signalRowPhoneShowHapList') as string[]);
     }
   }
 
@@ -151,15 +182,16 @@ struct SelectorPhoneDialog {
 
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
         Swiper() {
-          LazyForEach(this.phoneShowData, (item: any) => {
+          LazyForEach(this.phoneShowData, (item: string[]) => {
             Grid() {
-              ForEach(item, (item: any) => {
+              ForEach(item, (item: string) => {
                 GridItem() {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
                     if (item.split("#")[3] != "") {
                       if (item.split("#")[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
-                           + ':' + item.split("#")[1]))
+                        Image((GlobalThis.getInstance()
+                          .getObject('jsonIconMap') as Map<string, image.PixelMap>).get(item.split("#")[0] + ':' + item.split("#")[4]
+                          + ':' + item.split("#")[1]))
                           .height(60)
                           .width(60)
                           .alignSelf(ItemAlign.Center);
@@ -199,7 +231,7 @@ struct SelectorPhoneDialog {
                   })
                 }
                 .margin({ top: 85 })
-              }, item => item)
+              }, (item: string) => item)
             }
             .columnsTemplate(this.selector.swiper.gridColumns)
             .rowsTemplate(this.selector.swiper.gridRows)
@@ -207,7 +239,7 @@ struct SelectorPhoneDialog {
             .rowsGap(12)
             .margin({ top: 30 })
             .height(210)
-          }, item => item)
+          }, (item: string) => item)
         }
         .indicatorStyle({ color: "#bebdc0", selectedColor: "#ff326Ce9", size: 4 })
         .align(Alignment.Center)
@@ -227,7 +259,7 @@ struct SelectorPhoneDialog {
       .borderRadius(20)
       .margin({ bottom: 20, top: 10 })
       .onClick(() => {
-        globalThis.selectExtensionContext.terminateSelf();
+        GlobalThis.getInstance().getContext('selectExtensionContext')?.terminateSelf();
       })
     }
     .borderRadius(24)

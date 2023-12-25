@@ -18,7 +18,7 @@
 struct SwitchUserDialog {
   private TAG = "SwitchUserDialog_Page"
 
-  aboutToAppear() {
+  aboutToAppear(): void {
     console.info(this.TAG, "dialog page appears");
   }
 
