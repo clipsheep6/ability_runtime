@@ -45,6 +45,7 @@ public:
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD1(AbilityTerminated, void(const sptr<IRemoteObject>& token));
     MOCK_METHOD4(ClearUpApplicationData, int32_t(const std::string&, const int32_t, const pid_t, int32_t userId));
+    MOCK_METHOD3(ClearUpApplicationDataBySelf, int32_t(int32_t, pid_t, int32_t userId));
     MOCK_METHOD1(IsBackgroundRunningRestricted, int32_t(const std::string&));
     MOCK_METHOD1(GetAllRunningProcesses, int32_t(std::vector<RunningProcessInfo>&));
     MOCK_METHOD1(GetAllRenderProcesses, int32_t(std::vector<RenderProcessInfo>&));

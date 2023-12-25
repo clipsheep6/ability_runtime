@@ -266,6 +266,17 @@ public:
         const int32_t callerUid, const pid_t callerPid,  const int32_t userId = -1);
 
     /**
+     * ClearUpApplicationDataBySelf, clear the application data.
+     *
+     * @param callerUid, app uid in Application record.
+     * @param callerPid, app pid in Application record.
+     * @param userId, user ID.
+     *
+     * @return ERR_OK, return back success, others fail.
+     */
+    virtual int32_t ClearUpApplicationDataBySelf(int32_t callerUid, pid_t callerPid,  int32_t userId = -1);
+
+    /**
      * GetAllRunningProcesses, Obtains information about application processes that are running on the device.
      *
      * @param info, app name in Application record.
@@ -1162,11 +1173,12 @@ private:
      * @param uid, app uid in Application record.
      * @param pid, app pid in Application record.
      * @param userId, userId.
+     * @param isBySelf, clear data by application self.
      *
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t ClearUpApplicationDataByUserId(const std::string &bundleName,
-        int32_t callerUid, pid_t callerPid, const int userId);
+        int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf = false);
 
     uint32_t BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abilityInfo);
 
