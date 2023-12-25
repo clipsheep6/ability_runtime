@@ -1128,6 +1128,11 @@ bool UnwrapWant(napi_env env, napi_value param, Want &want)
     if (jsValue != nullptr) {
         AAFwk::WantParams wantParams;
         if (UnwrapWantParams(env, jsValue, wantParams)) {
+            int value = wantParams.GetIntParam(SCREEN_MODE_KEY, IDLE_SCREEN_MODE);
+            if (value != FULL_SCREEN_MODE && value != HALF_SCREEN_MODE) {
+                value = IDLE_SCREEN_MODE;
+            }
+            wantParams.SetParam(SCREEN_MODE_KEY, AAFwk::Integer::Box(value));
             want.SetParams(wantParams);
         }
     }

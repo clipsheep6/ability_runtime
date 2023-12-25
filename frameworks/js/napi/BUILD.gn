@@ -49,6 +49,8 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/caller:caller_napi",
     "${ability_runtime_napi_path}/configuration_constant:configurationconstant",
     "${ability_runtime_napi_path}/configuration_constant:configurationconstant_napi",
+    "${ability_runtime_napi_path}/configuration_screenmode:configurationscreenmode",
+    "${ability_runtime_napi_path}/configuration_screenmode:configurationscreenmode_napi",
     "${ability_runtime_napi_path}/dataUriUtils:datauriutils_napi",
     "${ability_runtime_napi_path}/embeddable_ui_ability:embeddableuiability_napi",
     "${ability_runtime_napi_path}/embeddable_ui_ability_context:embeddableuiabilitycontext_napi",
