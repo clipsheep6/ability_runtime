@@ -77,7 +77,7 @@ std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
 static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 namespace {
-#ifdef APP_USE_ARM64
+#if defined(APP_USE_ARM64) || defined(APP_USE_RISCV64)
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 #else
 constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib/libformrender.z.so";
