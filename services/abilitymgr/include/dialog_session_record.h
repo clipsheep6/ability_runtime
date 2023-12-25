@@ -15,6 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_DIALOG_SESSION_RECORD_H
 #define OHOS_ABILITY_RUNTIME_DIALOG_SESSION_RECORD_H
+
 #include <list>
 #include <unordered_map>
 #include <string>
@@ -41,14 +42,14 @@ class DialogSessionRecord {
 public:
     std::string GenerateDialogSessionId();
 
-    void SetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &dilogSessionInfo,
+    void SetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &dilogSessionInfo,
         std::shared_ptr<DialogCallerInfo> &dialogCallerInfo);
 
-    sptr<DialogSessionInfo> GetDialogSessionInfo(const std::string dialogSessionId) const;
+    sptr<DialogSessionInfo> GetDialogSessionInfo(const std::string &dialogSessionId) const;
 
-    std::shared_ptr<DialogCallerInfo> GetDialogCallerInfo(const std::string dialogSessionId) const;
+    std::shared_ptr<DialogCallerInfo> GetDialogCallerInfo(const std::string &dialogSessionId) const;
 
-    void ClearDialogContext(const std::string dialogSessionId);
+    void ClearDialogContext(const std::string &dialogSessionId);
 
     void ClearAllDialogContexts();
 

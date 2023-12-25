@@ -15,6 +15,8 @@
 
 #include "js_dialog_session_utils.h"
 
+#include <array>
+
 #include "hilog_wrapper.h"
 #include "json/json.h"
 #include "napi_common_ability.h"
@@ -27,6 +29,26 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr size_t DIALOG_SESSION_INFO_PROPERTY_NUM = 3;
+constexpr size_t DIALOG_ABILITY_INFO_PROPERTY_NUM = 7;
+
+constexpr std::array<const char*, DIALOG_SESSION_INFO_PROPERTY_NUM> dialogSessionInfoProperty{
+    "callerAbilityInfo",
+    "targetAbilityInfos",
+    "parameters"
+};
+constexpr std::array<const char*, DIALOG_ABILITY_INFO_PROPERTY_NUM> dialogAbilityInfoProperty{
+    "bundleName",
+    "moduleName",
+    "abilityName",
+    "bundleIconId",
+    "bundleLabelId",
+    "abilityIconId",
+    "abilityLabelId"
+};
+}
+
 napi_value WrapArrayDialogAbilityInfoToJS(napi_env env, const std::vector<DialogAbilityInfo> &value)
 {
     napi_value jsArray = nullptr;
@@ -34,13 +56,31 @@ napi_value WrapArrayDialogAbilityInfoToJS(napi_env env, const std::vector<Dialog
     uint32_t index = 0;
 
     NAPI_CALL(env, napi_create_array(env, &jsArray));
-    for (uint32_t i = 0; i < value.size(); i++) {
-        jsValue = WrapDialogAbilityInfo(env, value[i]);
+    for (const auto& dialogAbilityInfo : value) {
+        jsValue = WrapDialogAbilityInfo(env, dialogAbilityInfo);
         if (jsValue && napi_set_element(env, jsArray, index, jsValue) == napi_ok) {
             index++;
         }
     }
     return jsArray;
+}
+
+napi_value WrapDialogSessionInfo(napi_env env, const AAFwk::DialogSessionInfo &dialogSessionInfo)
+{
+    napi_value jsObject = nullptr;
+    napi_value jsValue = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &jsObject));
+
+    napi_value propertyJsValue[DIALOG_SESSION_INFO_PROPERTY_NUM] = {
+        WrapDialogAbilityInfo(env, dialogSessionInfo.callerAbilityInfo),
+        WrapArrayDialogAbilityInfoToJS(env, dialogSessionInfo.targetAbilityInfos),
+        AppExecFwk::WrapWantParams(env, dialogSessionInfo.parameters)
+    };
+
+    for (size_t i = 0; i < DIALOG_SESSION_INFO_PROPERTY_NUM; i++) {
+        SetPropertyValueByPropertyName(env, jsObject, dialogSessionInfoProperty[i], propertyJsValue[i]);
+    }
+    return jsObject;
 }
 
 napi_value WrapDialogAbilityInfo(napi_env env, const AAFwk::DialogAbilityInfo &dialogAbilityInfo)
@@ -49,44 +89,20 @@ napi_value WrapDialogAbilityInfo(napi_env env, const AAFwk::DialogAbilityInfo &d
     napi_value jsValue = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
-    jsValue = nullptr;
-    jsValue = WrapStringToJS(env, dialogAbilityInfo.bundleName);
-    SetPropertyValueByPropertyName(env, jsObject, "bundleName", jsValue);
-    jsValue = WrapStringToJS(env, dialogAbilityInfo.moduleName);
-    SetPropertyValueByPropertyName(env, jsObject, "moduleName", jsValue);
-    jsValue = WrapStringToJS(env, dialogAbilityInfo.abilityName);
-    SetPropertyValueByPropertyName(env, jsObject, "abilityName", jsValue);
+    napi_value propertyJsValue[DIALOG_ABILITY_INFO_PROPERTY_NUM] = {
+        WrapStringToJS(env, dialogAbilityInfo.bundleName),
+        WrapStringToJS(env, dialogAbilityInfo.moduleName),
+        WrapStringToJS(env, dialogAbilityInfo.abilityName),
+        WrapInt32ToJS(env, dialogAbilityInfo.bundleIconId),
+        WrapInt32ToJS(env, dialogAbilityInfo.bundleLabelId),
+        WrapInt32ToJS(env, dialogAbilityInfo.abilityIconId),
+        WrapInt32ToJS(env, dialogAbilityInfo.abilityLabelId),
+    };
 
-    jsValue = nullptr;
-    jsValue = WrapInt32ToJS(env, dialogAbilityInfo.bundleIconId);
-    SetPropertyValueByPropertyName(env, jsObject, "bundleIconId", jsValue);
-    jsValue = WrapInt32ToJS(env, dialogAbilityInfo.bundleLabelId);
-    SetPropertyValueByPropertyName(env, jsObject, "bundleLabelId", jsValue);
-    jsValue = WrapInt32ToJS(env, dialogAbilityInfo.abilityIconId);
-    SetPropertyValueByPropertyName(env, jsObject, "abilityIconId", jsValue);
-    jsValue = WrapInt32ToJS(env, dialogAbilityInfo.abilityLabelId);
-    SetPropertyValueByPropertyName(env, jsObject, "abilityLabelId", jsValue);
-
+    for (size_t i = 0; i < DIALOG_ABILITY_INFO_PROPERTY_NUM; i++) {
+        SetPropertyValueByPropertyName(env, jsObject, dialogAbilityInfoProperty[i], propertyJsValue[i]);
+    }
     return jsObject;
 }
-
-napi_value WrapDialogSessionInfo(napi_env env, const AAFwk::DialogSessionInfo &dialogSessionInfo)
-{
-    napi_value jsObject = nullptr;
-    napi_value jsValue = nullptr;
-    NAPI_CALL(env, napi_create_object(env, &jsObject));
-    jsValue = WrapDialogAbilityInfo(env, dialogSessionInfo.callerAbilityInfo);
-    SetPropertyValueByPropertyName(env, jsObject, "callerAbilityInfo", jsValue);
-
-    jsValue = nullptr;
-    jsValue = WrapArrayDialogAbilityInfoToJS(env, dialogSessionInfo.targetAbilityInfos);
-    SetPropertyValueByPropertyName(env, jsObject, "targetAbilityInfos", jsValue);
-
-    jsValue = nullptr;
-    jsValue = AppExecFwk::WrapWantParams(env, dialogSessionInfo.parameters);
-    SetPropertyValueByPropertyName(env, jsObject, "parameters", jsValue);
-
-    return jsObject;
-}
-} // namespace AbilityRuntime
+} // namespace AppExecFwk
 } // nampspace OHOS

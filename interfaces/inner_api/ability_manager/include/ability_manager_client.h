@@ -1010,8 +1010,8 @@ public:
     void UpdateMissionSnapShot(sptr<IRemoteObject> token,
         std::shared_ptr<OHOS::Media::PixelMap> pixelMap);
 
-    ErrCode GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info);
-    ErrCode SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow);
+    ErrCode GetDialogSessionInfo(const std::string &dialogSessionId, sptr<DialogSessionInfo> &info);
+    ErrCode SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllow);
 #endif
 
     /**

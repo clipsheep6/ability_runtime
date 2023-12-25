@@ -9365,7 +9365,7 @@ int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
     return collaborator->OpenFile(uri, flag);
 }
 
-int AbilityManagerService::GetDialogSessionInfo(const std::string dialogSessionId,
+int AbilityManagerService::GetDialogSessionInfo(const std::string &dialogSessionId,
     sptr<DialogSessionInfo> &dialogSessionInfo)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
@@ -9421,23 +9421,26 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     return connection->CreateModalUIExtension(replaceWant);
 }
 
-int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
+int AbilityManagerService::SendDialogResult(const Want &want, const std::string &dialogSessionId, bool isAllowed)//123
 {
     CHECK_CALLER_IS_SYSTEM_APP;
     if (!isAllowed) {
         HILOG_INFO("user refuse to jump");
+        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
         return ERR_OK;
     }
     CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId);
     if (dialogCallerInfo == nullptr) {
         HILOG_ERROR("dialog caller info is nullptr");
+        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
         return ERR_INVALID_VALUE;
     }
     auto targetWant = dialogCallerInfo->targetWant;
     targetWant.SetElement(want.GetElement());
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
+    dialogSessionRecord_->ClearDialogContext(dialogSessionId);
     return StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
 }
