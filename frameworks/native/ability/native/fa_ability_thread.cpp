@@ -28,9 +28,6 @@
 #include "context_deal.h"
 #include "data_ability_predicates.h"
 #include "dataobs_mgr_client.h"
-#ifdef WITH_DLP
-#include "dlp_file_kits.h"
-#endif // WITH_DLP
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -55,28 +52,7 @@ constexpr static char ACE_DATA_ABILITY_NAME[] = "AceDataAbility";
 constexpr static char ABILITY_NAME[] = "Ability";
 constexpr static char ACE_ABILITY_NAME[] = "AceAbility";
 constexpr static char ACE_FORM_ABILITY_NAME[] = "AceFormAbility";
-constexpr static char FORM_EXTENSION[] = "FormExtension";
-constexpr static char UI_EXTENSION[] = "UIExtensionAbility";
-constexpr static char CUSTOM_EXTENSION[] = "ExtensionAbility";
-constexpr static char MEDIA_CONTROL_EXTENSION[] = "MediaControlExtensionAbility";
-constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
-constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
-constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
 #endif
-constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
-constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
-constexpr static char STATIC_SUBSCRIBER_EXTENSION[] = "StaticSubscriberExtension";
-constexpr static char DATA_SHARE_EXT_ABILITY[] = "DataShareExtAbility";
-constexpr static char WORK_SCHEDULER_EXTENSION[] = "WorkSchedulerExtension";
-constexpr static char ACCESSIBILITY_EXTENSION[] = "AccessibilityExtension";
-constexpr static char WALLPAPER_EXTENSION[] = "WallpaperExtension";
-constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
-constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
-constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
-constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
-#ifdef WITH_DLP
-constexpr static char DLP_PARAMS_SANDBOX[] = "ohos.dlp.params.sandbox";
-#endif // WITH_DLP
 const int32_t PREPARE_TO_TERMINATE_TIMEOUT_MILLISECONDS = 3000;
 }
 
@@ -84,17 +60,10 @@ FAAbilityThread::FAAbilityThread() : abilityImpl_(nullptr), currentAbility_(null
 
 FAAbilityThread::~FAAbilityThread()
 {
-    if (isExtension_) {
-        if (currentExtension_) {
-            currentExtension_.reset();
-        }
-    } else {
-        if (currentAbility_) {
-            currentAbility_->DetachBaseContext();
-            currentAbility_.reset();
-        }
+    if (currentAbility_) {
+        currentAbility_->DetachBaseContext();
+        currentAbility_.reset();
     }
-
     DelayedSingleton<AppExecFwk::AbilityImplFactory>::DestroyInstance();
 }
 
@@ -139,87 +108,12 @@ std::string FAAbilityThread::CreateAbilityName(const std::shared_ptr<AppExecFwk:
 #endif
     } else if (abilityInfo->type == AppExecFwk::AbilityType::DATA) {
         abilityName = ACE_DATA_ABILITY_NAME;
-    } else if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
-        CreateExtensionAbilityName(application, abilityInfo, abilityName);
     } else {
         abilityName = abilityInfo->name;
     }
 
     HILOG_DEBUG("ability name is %{public}s", abilityName.c_str());
     return abilityName;
-}
-
-void FAAbilityThread::CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName)
-{
-    application->GetExtensionNameByType(static_cast<int32_t>(abilityInfo->extensionAbilityType), abilityName);
-    if (abilityName.length() > 0) {
-        HILOG_DEBUG("extension name: %{public}s", abilityName.c_str());
-        return;
-    }
-    abilityName = BASE_SERVICE_EXTENSION;
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::STATICSUBSCRIBER) {
-        abilityName = STATIC_SUBSCRIBER_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DRIVER) {
-        abilityName = BASE_DRIVER_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
-        abilityName = DATA_SHARE_EXT_ABILITY;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WORK_SCHEDULER) {
-        abilityName = WORK_SCHEDULER_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACCESSIBILITY) {
-        abilityName = ACCESSIBILITY_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WALLPAPER) {
-        abilityName = WALLPAPER_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FILEACCESS_EXTENSION) {
-        abilityName = FILEACCESS_EXT_ABILITY;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN) {
-        abilityName = ENTERPRISE_ADMIN_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::INPUTMETHOD) {
-        abilityName = INPUTMETHOD_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::APP_ACCOUNT_AUTHORIZATION) {
-        abilityName = APP_ACCOUNT_AUTHORIZATION_EXTENSION;
-    }
-    CreateExtensionAbilityNameSupportGraphics(abilityInfo, abilityName);
-    HILOG_DEBUG("extension abilityName: %{public}s", abilityName.c_str());
-}
-
-void FAAbilityThread::CreateExtensionAbilityNameSupportGraphics(
-    const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
-    std::string &abilityName)
-{
-#ifdef SUPPORT_GRAPHICS
-    if (abilityInfo->formEnabled || abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::FORM) {
-        abilityName = FORM_EXTENSION;
-    }
-#endif
-    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
-            abilityName = SHARE_EXTENSION;
-        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
-            abilityName = ACTION_EXTENSION;
-        } else {
-            abilityName = UI_EXTENSION;
-        }
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH) {
-        abilityName = USER_AUTH_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL) {
-        abilityName = MEDIA_CONTROL_EXTENSION;
-    }
-    if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::UNSPECIFIED &&
-        abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
-        abilityName = abilityInfo->extensionTypeName + CUSTOM_EXTENSION;
-    }
 }
 
 std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDeal(
@@ -234,15 +128,19 @@ std::shared_ptr<AppExecFwk::ContextDeal> FAAbilityThread::CreateAndInitContextDe
         return contextDeal;
     }
 
-    contextDeal = std::make_shared<AppExecFwk::ContextDeal>();
-    contextDeal->SetAbilityInfo(abilityRecord->GetAbilityInfo());
-    contextDeal->SetApplicationInfo(application->GetApplicationInfo());
-    abilityObject->SetProcessInfo(application->GetProcessInfo());
+    auto abilityInfo = abilityRecord->GetAbilityInfo();
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("abilityInfo is nullptr.");
+        return nullptr;
+    }
 
+    contextDeal = std::make_shared<AppExecFwk::ContextDeal>();
+    contextDeal->SetAbilityInfo(abilityInfo);
+    contextDeal->SetApplicationInfo(application->GetApplicationInfo());
     std::shared_ptr<AppExecFwk::Context> tmpContext = application->GetApplicationContext();
     contextDeal->SetApplicationContext(tmpContext);
-
-    contextDeal->SetBundleCodePath(abilityRecord->GetAbilityInfo()->codePath);
+    contextDeal->SetBundleCodePath(abilityInfo->codePath);
+    abilityObject->SetProcessInfo(application->GetProcessInfo());
     contextDeal->SetContext(abilityObject);
     return contextDeal;
 }
@@ -256,12 +154,8 @@ void FAAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
         HILOG_ERROR("application or abilityRecord or mainRunner is nullptr");
         return;
     }
-    InitExtensionFlag(abilityRecord);
-    if (isExtension_) {
-        AttachExtension(application, abilityRecord, mainRunner);
-        HILOG_DEBUG("Execute AttachExtension");
-        return;
-    }
+
+    InitUIAbilityFlag(abilityRecord);
 
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord, application);
@@ -324,106 +218,6 @@ void FAAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplicat
     FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 }
 
-void FAAbilityThread::AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-    const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if ((application == nullptr) || (abilityRecord == nullptr) || (mainRunner == nullptr)) {
-        HILOG_ERROR("application or abilityRecord or mainRunner is nullptr");
-        return;
-    }
-
-    // 1.new AbilityHandler
-    std::string abilityName = CreateAbilityName(abilityRecord, application);
-    if (abilityName.empty()) {
-        HILOG_ERROR("abilityName is empty");
-        return;
-    }
-    HILOG_DEBUG("extension: %{public}s", abilityRecord->GetAbilityInfo()->name.c_str());
-    abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(mainRunner);
-    if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr");
-        return;
-    }
-
-    // 2.new ability
-    auto extension = AppExecFwk::AbilityLoader::GetInstance().GetExtensionByName(abilityName);
-    if (extension == nullptr) {
-        HILOG_ERROR("extension is nullptr");
-        return;
-    }
-
-    currentExtension_.reset(extension);
-    token_ = abilityRecord->GetToken();
-    abilityRecord->SetEventHandler(abilityHandler_);
-    abilityRecord->SetEventRunner(mainRunner);
-    abilityRecord->SetAbilityThread(this);
-    extensionImpl_ = std::make_shared<ExtensionImpl>();
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-    // 3.new init
-    extensionImpl_->Init(application, abilityRecord, currentExtension_, abilityHandler_, token_);
-    // 4.ipc attach init
-    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("err = %{public}d", err);
-    }
-}
-
-void FAAbilityThread::AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-    const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
-    if ((application == nullptr) || (abilityRecord == nullptr)) {
-        HILOG_ERROR("application or abilityRecord is nullptr");
-        return;
-    }
-
-    // 1.new AbilityHandler
-    std::string abilityName = CreateAbilityName(abilityRecord, application);
-    runner_ = AppExecFwk::EventRunner::Create(abilityName);
-    if (runner_ == nullptr) {
-        HILOG_ERROR("runner is nullptr");
-        return;
-    }
-    abilityHandler_ = std::make_shared<AppExecFwk::AbilityHandler>(runner_);
-    if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr");
-        return;
-    }
-
-    // 2.new ability
-    auto extension = AppExecFwk::AbilityLoader::GetInstance().GetExtensionByName(abilityName);
-    if (extension == nullptr) {
-        HILOG_ERROR("extension is nullptr");
-        return;
-    }
-
-    currentExtension_.reset(extension);
-    token_ = abilityRecord->GetToken();
-    abilityRecord->SetEventHandler(abilityHandler_);
-    abilityRecord->SetEventRunner(runner_);
-    abilityRecord->SetAbilityThread(this);
-    extensionImpl_ = std::make_shared<ExtensionImpl>();
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-    // 3.new init
-    extensionImpl_->Init(application, abilityRecord, currentExtension_, abilityHandler_, token_);
-    // 4.ipc attach init
-    ErrCode err = AbilityManagerClient::GetInstance()->AttachAbilityThread(this, token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("failed err = %{public}d", err);
-        return;
-    }
-    HILOG_DEBUG("end");
-}
-
 void FAAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord, const std::shared_ptr<Context> &stageContext)
 {
@@ -433,12 +227,8 @@ void FAAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
         HILOG_ERROR("application or abilityRecord is nullptr");
         return;
     }
-    InitExtensionFlag(abilityRecord);
-    if (isExtension_) {
-        AttachExtension(application, abilityRecord);
-        HILOG_DEBUG("Execute AttachExtension");
-        return;
-    }
+
+    InitUIAbilityFlag(abilityRecord);
 
     // 1.new AbilityHandler
     std::string abilityName = CreateAbilityName(abilityRecord, application);
@@ -526,19 +316,6 @@ void FAAbilityThread::HandleShareData(const int32_t &uniqueId)
     HILOG_DEBUG("end");
 }
 
-void FAAbilityThread::HandleExtensionTransaction(
-    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-    extensionImpl_->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
-    HILOG_DEBUG("end");
-}
-
 void FAAbilityThread::HandleConnectAbility(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -585,68 +362,6 @@ void FAAbilityThread::HandleCommandAbility(const Want &want, bool restart, int32
     if (err != ERR_OK) {
         HILOG_ERROR("failed err = %{public}d", err);
     }
-    HILOG_DEBUG("end");
-}
-
-void FAAbilityThread::HandleConnectExtension(const Want &want)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-    bool isAsyncCallback = false;
-    sptr<IRemoteObject> service = extensionImpl_->ConnectExtension(want, isAsyncCallback);
-    if (!isAsyncCallback) {
-        extensionImpl_->ConnectExtensionCallback(service);
-    }
-    HILOG_DEBUG("end");
-}
-
-void FAAbilityThread::HandleDisconnectExtension(const Want &want)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-
-    bool isAsyncCallback = false;
-    extensionImpl_->DisconnectExtension(want, isAsyncCallback);
-    if (!isAsyncCallback) {
-        extensionImpl_->DisconnectExtensionCallback();
-    }
-    HILOG_DEBUG("end");
-}
-
-void FAAbilityThread::HandleCommandExtension(const Want &want, bool restart, int32_t startId)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-    extensionImpl_->CommandExtension(want, restart, startId);
-    ErrCode err = AbilityManagerClient::GetInstance()->ScheduleCommandAbilityDone(token_);
-    if (err != ERR_OK) {
-        HILOG_ERROR("failed err = %{public}d", err);
-    }
-    HILOG_DEBUG("end");
-}
-
-void FAAbilityThread::HandleCommandExtensionWindow(
-    const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
-{
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-    extensionImpl_->CommandExtensionWindow(want, sessionInfo, winCmd);
     HILOG_DEBUG("end");
 }
 
@@ -699,12 +414,7 @@ void FAAbilityThread::ScheduleUpdateConfiguration(const AppExecFwk::Configuratio
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleExtensionUpdateConfiguration(config);
-        } else {
-            abilityThread->HandleUpdateConfiguration(config);
-        }
+        abilityThread->HandleUpdateConfiguration(config);
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:UpdateConfiguration");
     if (!ret) {
@@ -722,18 +432,6 @@ void FAAbilityThread::HandleUpdateConfiguration(const AppExecFwk::Configuration 
     }
 
     abilityImpl_->ScheduleUpdateConfiguration(config);
-    HILOG_DEBUG("end");
-}
-
-void FAAbilityThread::HandleExtensionUpdateConfiguration(const AppExecFwk::Configuration &config)
-{
-    HILOG_DEBUG("begin");
-    if (extensionImpl_ == nullptr) {
-        HILOG_ERROR("extensionImpl_ is nullptr");
-        return;
-    }
-
-    extensionImpl_->ScheduleUpdateConfiguration(config);
     HILOG_DEBUG("end");
 }
 
@@ -763,13 +461,7 @@ void FAAbilityThread::ScheduleAbilityTransaction(
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleExtensionTransaction(want, lifeCycleStateInfo, sessionInfo);
-            Want newWant(want);
-            newWant.CloseAllFd();
-        } else {
-            abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
-        }
+        abilityThread->HandleAbilityTransaction(want, lifeCycleStateInfo, sessionInfo);
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:AbilityTransaction");
     if (!ret) {
@@ -805,7 +497,7 @@ void FAAbilityThread::ScheduleShareData(const int32_t &uniqueId)
 
 void FAAbilityThread::ScheduleConnectAbility(const Want &want)
 {
-    HILOG_DEBUG("begin, isExtension_: %{public}d", isExtension_);
+    HILOG_DEBUG("begin");
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("abilityHandler_ is nullptr");
         return;
@@ -817,11 +509,7 @@ void FAAbilityThread::ScheduleConnectAbility(const Want &want)
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleConnectExtension(want);
-        } else {
-            abilityThread->HandleConnectAbility(want);
-        }
+        abilityThread->HandleConnectAbility(want);
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:ConnectAbility");
     if (!ret) {
@@ -833,7 +521,7 @@ void FAAbilityThread::ScheduleConnectAbility(const Want &want)
 void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin, isExtension: %{public}d", isExtension_);
+    HILOG_DEBUG("begin");
     if (abilityHandler_ == nullptr) {
         HILOG_ERROR("abilityHandler_ is nullptr");
         return;
@@ -845,11 +533,7 @@ void FAAbilityThread::ScheduleDisconnectAbility(const Want &want)
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-        if (abilityThread->isExtension_) {
-            abilityThread->HandleDisconnectExtension(want);
-        } else {
-            abilityThread->HandleDisconnectAbility(want);
-        }
+        abilityThread->HandleDisconnectAbility(want);
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:DisconnectAbility");
     if (!ret) {
@@ -871,20 +555,7 @@ void FAAbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int
             HILOG_ERROR("abilityThread is nullptr");
             return;
         }
-        if (abilityThread->isExtension_) {
-            Want newWant(want);
-#ifdef WITH_DLP
-            bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(newWant);
-            newWant.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
-            if (sandboxFlag) {
-                newWant.CloseAllFd();
-            }
-#endif // WITH_DLP
-            abilityThread->HandleCommandExtension(newWant, restart, startId);
-            newWant.CloseAllFd();
-        } else {
-            abilityThread->HandleCommandAbility(want, restart, startId);
-        }
+        abilityThread->HandleCommandAbility(want, restart, startId);
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:CommandAbility");
     if (!ret) {
@@ -940,30 +611,6 @@ bool FAAbilityThread::SchedulePrepareTerminateAbility()
     return isPrepareTerminate_;
 }
 
-void FAAbilityThread::ScheduleCommandAbilityWindow(
-    const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
-{
-    HILOG_DEBUG("begin");
-    if (abilityHandler_ == nullptr) {
-        HILOG_ERROR("abilityHandler_ is nullptr");
-        return;
-    }
-    wptr<FAAbilityThread> weak = this;
-    auto task = [weak, want, sessionInfo, winCmd]() {
-        auto abilityThread = weak.promote();
-        if (abilityThread == nullptr) {
-            HILOG_ERROR("abilityThread is nullptr");
-            return;
-        }
-        abilityThread->HandleCommandExtensionWindow(want, sessionInfo, winCmd);
-    };
-    bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:CommandAbilityWindow");
-    if (!ret) {
-        HILOG_ERROR("PostTask error");
-    }
-    HILOG_DEBUG("end");
-}
-
 void FAAbilityThread::SendResult(int requestCode, int resultCode, const Want &want)
 {
     HILOG_DEBUG("begin");
@@ -982,15 +629,11 @@ void FAAbilityThread::SendResult(int requestCode, int resultCode, const Want &wa
             HILOG_ERROR("requestCode is -1");
             return;
         }
-        if (abilityThread->isExtension_ && abilityThread->extensionImpl_ != nullptr) {
-            abilityThread->extensionImpl_->SendResult(requestCode, resultCode, want);
-            return;
-        }
-        if (!abilityThread->isExtension_ && abilityThread->abilityImpl_ != nullptr) {
+        if (abilityThread->abilityImpl_ != nullptr) {
             abilityThread->abilityImpl_->SendResult(requestCode, resultCode, want);
             return;
         }
-        HILOG_ERROR("%{public}s impl is nullptr", abilityThread->isExtension_ ? "extension" : "ability");
+        HILOG_ERROR("abilityImpl_ is nullptr");
     };
     bool ret = abilityHandler_->PostTask(task, "FAAbilityThread:SendResult");
     if (!ret) {
@@ -1148,14 +791,6 @@ void FAAbilityThread::NotifyContinuationResult(int32_t result)
 void FAAbilityThread::NotifyMemoryLevel(int32_t level)
 {
     HILOG_DEBUG("begin, result: %{public}d", level);
-    if (isExtension_) {
-        if (extensionImpl_ == nullptr) {
-            HILOG_ERROR("extensionImpl_ is nullptr");
-            return;
-        }
-        extensionImpl_->NotifyMemoryLevel(level);
-        return;
-    }
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr");
         return;
@@ -1163,7 +798,7 @@ void FAAbilityThread::NotifyMemoryLevel(int32_t level)
     abilityImpl_->NotifyMemoryLevel(level);
 }
 
-void FAAbilityThread::InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
+void FAAbilityThread::InitUIAbilityFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
 {
     HILOG_DEBUG("begin");
     if (abilityRecord == nullptr) {
@@ -1174,12 +809,6 @@ void FAAbilityThread::InitExtensionFlag(const std::shared_ptr<AppExecFwk::Abilit
     if (abilityInfo == nullptr) {
         HILOG_ERROR("abilityInfo is nullptr");
         return;
-    }
-    if (abilityInfo->type == AppExecFwk::AbilityType::EXTENSION) {
-        HILOG_DEBUG("InitExtensionFlag is true");
-        isExtension_ = true;
-    } else {
-        isExtension_ = false;
     }
     if (abilityInfo->type == AppExecFwk::AbilityType::PAGE) {
         HILOG_DEBUG("isUIAbility_ is assigned true");
@@ -1396,8 +1025,8 @@ void FAAbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, st
 void FAAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     HILOG_DEBUG("begin");
-    if (currentAbility_ == nullptr && currentExtension_ == nullptr) {
-        HILOG_DEBUG("currentAbility and currentExtension_ is nullptr");
+    if (currentAbility_ == nullptr) {
+        HILOG_DEBUG("currentAbility is nullptr");
         return;
     }
     if (currentAbility_ != nullptr) {
@@ -1416,9 +1045,6 @@ void FAAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &param
         }
         currentAbility_->Dump(params, info);
     }
-    if (currentExtension_ != nullptr) {
-        currentExtension_->Dump(params, info);
-    }
     if (params.empty()) {
         DumpOtherInfo(info);
         return;
@@ -1431,10 +1057,6 @@ void FAAbilityThread::DumpAbilityInfoInner(const std::vector<std::string> &param
     HILOG_DEBUG("begin");
     if (currentAbility_ != nullptr) {
         currentAbility_->Dump(params, info);
-    }
-
-    if (currentExtension_ != nullptr) {
-        currentExtension_->Dump(params, info);
     }
     DumpOtherInfo(info);
 }

@@ -104,15 +104,6 @@ public:
     void ScheduleCommandAbility(const Want &want, bool restart, int startId) override;
 
     /**
-     * @brief Schedule Command AbilityWindow
-     * @param want The Want object to command to.
-     * @param sessionInfo Indicates the session info.
-     * @param winCmd Indicates the WindowCommand of winCmd
-     */
-    void ScheduleCommandAbilityWindow(
-        const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
-
-    /**
      * @brief Provide operating system PrepareTerminateAbility information to the observer
      */
     bool SchedulePrepareTerminateAbility() override;
@@ -359,28 +350,10 @@ private:
     void DumpOtherInfo(std::vector<std::string> &info);
 
     /**
-     * @brief Attach The ability thread to the main process.
-     * @param application Indicates the main process.
-     * @param abilityRecord current running ability record
-     * @param mainRunner The runner which main_thread holds.
+     * @brief Init UIAbility flag.
+     * @param abilityRecord current running UIAbility record
      */
-    void AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord,
-        const std::shared_ptr<AppExecFwk::EventRunner> &mainRunner);
-
-    /**
-     * @brief Init extension Ability flag.
-     * @param abilityRecord current running ability record
-     */
-    void InitExtensionFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
-
-    /**
-     * @brief Attach The ability thread to the main process.
-     * @param application Indicates the main process.
-     * @param abilityRecord current running ability record
-     */
-    void AttachExtension(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
+    void InitUIAbilityFlag(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
 
     /**
      * @brief To continue attaching The ability thread to the main process.
@@ -402,23 +375,6 @@ private:
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application);
 
     /**
-     * @brief Create the extension abilityname.
-     * @param application Indicates the application.
-     * @param abilityInfo Indicates the abilityInfo.
-     * @param abilityName Indicates the parameter about abilityName.
-     */
-    void CreateExtensionAbilityName(const std::shared_ptr<AppExecFwk::OHOSApplication> &application,
-        const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo, std::string &abilityName);
-
-    /**
-     * @brief Create the extension abilityname which support graphics.
-     * @param abilityInfo Indicates the abilityInfo.
-     * @param abilityName Indicates the parameter about abilityName.
-     */
-    void CreateExtensionAbilityNameSupportGraphics(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
-        std::string &abilityName);
-
-    /**
      * @brief Create and init contextDeal.
      * @param application Indicates the main process.
      * @param abilityRecord current running ability record
@@ -437,15 +393,6 @@ private:
      * @param sessionInfo Indicates the sessionInfo.
      */
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
-
-    /**
-     * @brief Handle the life cycle of Extension.
-     * @param want Indicates the structure containing lifecycle information about the extension.
-     * @param lifeCycleStateInfo Indicates the lifeCycleStateInfo.
-     * @param sessionInfo Indicates the sessionInfo.
-     */
-    void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
@@ -472,38 +419,6 @@ private:
     void HandleCommandAbility(const Want &want, bool restart, int32_t startId);
 
     /**
-     * @brief Handle the current connection of Extension.
-     * @param want Indicates the structure containing connection information about the extension.
-     */
-    void HandleConnectExtension(const Want &want);
-
-    /**
-     * @brief Handle the current disconnection of Extension.
-     * @param want Indicates the structure containing connection information about the extension.
-     */
-    void HandleDisconnectExtension(const Want &want);
-
-    /**
-     * @brief Handle the current command of Extension.
-     * @param want The Want object to command to.
-     * @param restart Indicates the startup mode. The value true indicates that Service is restarted after being
-     * destroyed, and the value false indicates a normal startup.
-     * @param startId Indicates the number of times the Service extension has been started. The startId is incremented
-     * by 1 every time the extension is started. For example, if the extension has been started for six times, the
-     * value of startId is 6.
-     */
-    void HandleCommandExtension(const Want &want, bool restart, int32_t startId);
-
-    /**
-     * @brief Handle Command Extension Window
-     * @param want The Want object to command to.
-     * @param sessionInfo Indicates the sessionInfo
-     * @param winCmd Indicates the winCmd
-     */
-    void HandleCommandExtensionWindow(
-        const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd);
-
-    /**
      * @brief Handle the restoreAbility state.
      * @param state Indicates save ability state used to dispatchRestoreAbilityState.
      */
@@ -514,12 +429,6 @@ private:
      * @param config Indicates the updated configuration information
      */
     void HandleUpdateConfiguration(const AppExecFwk::Configuration &config);
-
-    /**
-     * @brief Handle the scheduling update configuration of extension.
-     * @param config Indicates the updated configuration information
-     */
-    void HandleExtensionUpdateConfiguration(const AppExecFwk::Configuration &config);
 
     /**
      * @brief Handle the scheduling prepare terminate ability.
@@ -568,9 +477,6 @@ private:
 
     std::shared_ptr<AppExecFwk::AbilityImpl> abilityImpl_;
     std::shared_ptr<AppExecFwk::Ability> currentAbility_;
-    std::shared_ptr<ExtensionImpl> extensionImpl_;
-    std::shared_ptr<Extension> currentExtension_;
-    bool isExtension_ = false;
     bool isUIAbility_ = false;
     bool isPrepareTerminate_ = false;
     std::atomic_bool isPrepareTerminateAbilityDone_ = false;

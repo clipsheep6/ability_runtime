@@ -19,6 +19,9 @@
 #include "ability_handler.h"
 #include "ability_loader.h"
 #include "ability_manager_client.h"
+#ifdef WITH_DLP
+#include "dlp_file_kits.h"
+#endif // WITH_DLP
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ui_extension_utils.h"
@@ -48,6 +51,9 @@ constexpr static char FILEACCESS_EXT_ABILITY[] = "FileAccessExtension";
 constexpr static char ENTERPRISE_ADMIN_EXTENSION[] = "EnterpriseAdminExtension";
 constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
+#ifdef WITH_DLP
+constexpr static char DLP_PARAMS_SANDBOX[] = "ohos.dlp.params.sandbox";
+#endif // WITH_DLP
 }
 
 ExtensionAbilityThread::ExtensionAbilityThread() : extensionImpl_(nullptr), currentExtension_(nullptr) {}
@@ -472,7 +478,16 @@ void ExtensionAbilityThread::ScheduleCommandAbilityInner(const Want &want, bool 
             HILOG_ERROR("AbilityThread is nullptr.");
             return;
         }
+        Want newWant(want);
+#ifdef WITH_DLP
+        bool sandboxFlag = Security::DlpPermission::DlpFileKits::GetSandboxFlag(newWant);
+        newWant.SetParam(DLP_PARAMS_SANDBOX, sandboxFlag);
+        if (sandboxFlag) {
+            newWant.CloseAllFd();
+        }
+#endif // WITH_DLP
         abilityThread->HandleCommandExtension(want, restart, startId);
+        newWant.CloseAllFd();
     };
     bool ret = abilityHandler_->PostTask(task);
     if (!ret) {
