@@ -55,6 +55,7 @@ void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId
 
 sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::string dialogSessionId) const
 {
+    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
     if (it != dialogSessionInfoMap_.end()) {
         return it->second;
@@ -65,6 +66,7 @@ sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::str
 
 std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const std::string dialogSessionId) const
 {
+    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogCallerInfoMap_.find(dialogSessionId);
     if (it != dialogCallerInfoMap_.end()) {
         return it->second;
