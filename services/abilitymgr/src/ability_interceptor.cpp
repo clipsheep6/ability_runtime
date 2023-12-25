@@ -379,9 +379,8 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     ExperienceRule rule;
 #ifdef SUPPORT_ERMS
     GetEcologicalCallerInfo(want, callerInfo, userId);
-    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "false");
-    if (supportErms == "false" && callerInfo.targetAppType != TYPE_HARMONY_SERVICE &&
-        callerInfo.callerAppType != TYPE_HARMONY_SERVICE) {
+    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
+    if (supportErms == "false") {
         HILOG_ERROR("Abilityms not support Erms between applications.");
         return ERR_OK;
     }
