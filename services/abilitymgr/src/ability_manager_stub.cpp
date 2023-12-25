@@ -409,6 +409,7 @@ void AbilityManagerStub::FourthStepInit()
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HILOG_INFO("Received code : %{public}d", code);
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {

@@ -833,7 +833,9 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
         } else {
             HILOG_INFO("Service ability has no any connection, and not started, need terminate.");
             RemoveUIExtensionAbilityRecord(abilityRecord);
-            TerminateRecord(abilityRecord);
+            if (!IsSceneBoard(abilityRecord)) {
+                TerminateRecord(abilityRecord);
+            }
         }
     }
     RemoveConnectionRecordFromMap(connect);
