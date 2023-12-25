@@ -2120,6 +2120,9 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
 {
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
+        return StartExtensionAbilityInner(want, callerToken, userId, extensionType, false);
+    }
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
 }
 
@@ -8109,6 +8112,9 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         return ERR_OK;
     }
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
+        return ERR_OK;
+    }
+    if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
         return ERR_OK;
     }
     const std::string fileAccessPermission = "ohos.permission.FILE_ACCESS_MANAGER";
