@@ -362,13 +362,13 @@ int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t us
 
 std::vector<std::string> ImplicitStartProcessor::SplitStr(const std::string& str, char delimiter)
 {
-    std::stringstream ss(str);  
-    std::vector<std::string> result;  
-    std::string s;  
-    while (std::getline(ss, s, delimiter)) {  
-        result.push_back(s);  
-    }  
-    return result;  
+    std::stringstream ss(str);
+    std::vector<std::string> result;
+    std::string s;
+    while (std::getline(ss, s, delimiter)) {
+        result.push_back(s);
+    }
+    return result;
 }
 
 bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityRequest &request,
