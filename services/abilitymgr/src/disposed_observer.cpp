@@ -18,7 +18,6 @@
 #include "ability_interceptor.h"
 #include "ability_record.h"
 #include "hilog_wrapper.h"
-#include "iservice_registry.h"
 #include "want.h"
 namespace OHOS {
 namespace AAFwk {
@@ -26,26 +25,6 @@ DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
     const std::shared_ptr<DisposedRuleInterceptor> &interceptor)
     : disposedRule_(disposedRule), interceptor_(interceptor)
 {}
-
-sptr<OHOS::AppExecFwk::IAppMgr> DisposedObserver::GetAppMgr()
-{
-    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
-        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (!systemAbilityManager) {
-        HILOG_ERROR("get systemAbilityManager failed");
-        return nullptr;
-    }
-    OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
-    if (!object) {
-        HILOG_ERROR("get systemAbilityManager failed");
-        return nullptr;
-    }
-    sptr<OHOS::AppExecFwk::IAppMgr> appMgr = iface_cast<AppExecFwk::IAppMgr>(object);
-    if (!appMgr || !appMgr->AsObject()) {
-        return nullptr;
-    }
-    return appMgr;
-}
 
 void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData)
 {
