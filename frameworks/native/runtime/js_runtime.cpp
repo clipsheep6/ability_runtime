@@ -363,7 +363,7 @@ void JsRuntime::StartProfiler(
     }
 
     HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid());
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)

@@ -311,7 +311,7 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0100, TestSize.Level1)
     ASSERT_NE(jsEnv, nullptr);
 
     const char* libraryPath = "LIBRARYPATH";
-    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, 0);
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, 0, true);
     ASSERT_EQ(jsEnv->GetVM(), nullptr);
 }
 
@@ -330,7 +330,7 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0200, TestSize.Level1)
     ASSERT_EQ(ret, true);
 
     const char* libraryPath = "LIBRARYPATH";
-    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0, 0);
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0, 0, true);
     ASSERT_NE(jsEnv->GetVM(), nullptr);
 }
 

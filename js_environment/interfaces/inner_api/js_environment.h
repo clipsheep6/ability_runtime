@@ -85,8 +85,8 @@ public:
 
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
 
-    void StartProfiler(
-        const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, uint32_t tid);
+    void StartProfiler(const char* libraryPath,
+        uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, uint32_t tid, bool isDebugApp);
 
     void DestroyHeapProfiler();
 
