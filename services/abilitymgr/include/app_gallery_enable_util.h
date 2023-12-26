@@ -28,7 +28,7 @@ const std::string ENABLE_APP_GALLERY_SELECTOR_UTIL = "abilitymanagerservice.supp
 inline bool IsEnableAppGallerySelector()
 {
     HILOG_DEBUG("call");
-    std::string ret = OHOS::system::GetParameter(ENABLE_APP_GALLERY_SELECTOR_UTIL, "false");
+    std::string ret = OHOS::system::GetParameter(ENABLE_APP_GALLERY_SELECTOR_UTIL, "true");
     if (ret == "true") {
         return true;
     }
