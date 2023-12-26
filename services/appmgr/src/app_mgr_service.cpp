@@ -299,26 +299,12 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
-    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    if (remoteClientManager == nullptr) {
-        HILOG_ERROR("The remoteClientManager is nullptr.");
+    if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-    if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
-        return ERR_INVALID_OPERATION;
-    }
-    int32_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid != 0 || userId < 0) {
-        std::string callerBundleName;
-        auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
-        if (result != ERR_OK) {
-            HILOG_ERROR("GetBundleName failed: %{public}d.", result);
-            return ERR_INVALID_OPERATION;
-        }
+    if (userId < 0) {
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        if (!isSaCall && bundleName != callerBundleName) {
+        if (!isSaCall) {
             auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
                 AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
             if (!isCallingPerm) {
@@ -327,16 +313,19 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
             }
         }
     }
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    return appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
+}
 
+int32_t AppMgrService::ClearUpApplicationDataBySelf(int32_t userId)
+{
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     pid_t pid = IPCSkeleton::GetCallingPid();
-    std::function<void()> clearUpApplicationDataFunc =
-        std::bind(&AppMgrServiceInner::ClearUpApplicationData, appMgrServiceInner_, bundleName, uid, pid, userId);
-    taskHandler_->SubmitTask(clearUpApplicationDataFunc, TASK_CLEAR_UP_APPLICATION_DATA);
-    return ERR_OK;
+    return appMgrServiceInner_->ClearUpApplicationDataBySelf(uid, pid, userId);
 }
 
 int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
@@ -491,11 +480,6 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
 {
     if (!IsReady()) {
         HILOG_ERROR("Not ready");
-        return ERR_INVALID_OPERATION;
-    }
-    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    if (remoteClientManager == nullptr) {
-        HILOG_ERROR("The remoteClientManager is nullptr.");
         return ERR_INVALID_OPERATION;
     }
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();

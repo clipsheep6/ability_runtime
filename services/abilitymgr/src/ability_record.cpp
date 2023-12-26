@@ -2879,8 +2879,8 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
             bool notBelong2Caller = uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
                 uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
                 uriBundleInfo.applicationInfo.accessTokenId != callerTokenId;
-            if (notBelong2Caller) {
-                HILOG_ERROR("the uri does not belong to caller.");
+            if (notBelong2Caller && !permission) {
+                HILOG_ERROR("the uri does not belong to caller and not have uri proxy permission.");
                 continue;
             }
         }
@@ -3252,6 +3252,16 @@ void AbilityRecord::SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId)
 int32_t AbilityRecord::GetUIExtensionAbilityId() const
 {
     return uiExtensionAbilityId_;
+}
+
+bool AbilityRecord::BackgroundAbilityWindowDelayed()
+{
+    return backgroundAbilityWindowDelayed_.load();
+}
+
+void AbilityRecord::DoBackgroundAbilityWindowDelayed(bool needBackground)
+{
+    backgroundAbilityWindowDelayed_.store(needBackground);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

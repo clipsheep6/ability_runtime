@@ -183,9 +183,7 @@ Want SystemDialogScheduler::GetTipsDialogWant(const sptr<IRemoteObject> &callerT
     want.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     want.SetParam(DIALOG_PARAMS, params);
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-    if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
-        want.RemoveParam(CALLER_TOKEN);
-    } else {
+    if (abilityRecord && !UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
         want.SetParam(CALLER_TOKEN, callerToken);
     }
     return want;

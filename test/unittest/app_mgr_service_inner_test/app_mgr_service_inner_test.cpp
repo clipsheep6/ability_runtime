@@ -3938,5 +3938,31 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterAbilityForegroundStateObserver_0100, 
     auto res = appMgrServiceInner->UnregisterAbilityForegroundStateObserver(nullptr);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
+
+/**
+ * @tc.name: RegisterAppForegroundStateObserver_0100
+ * @tc.desc: Test the return when observer is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAppForegroundStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: UnregisterAppForegroundStateObserver_0100
+ * @tc.desc: Test the return when observer is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAppForegroundStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

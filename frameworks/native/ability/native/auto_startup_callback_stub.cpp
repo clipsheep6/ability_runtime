@@ -75,16 +75,14 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOnInner(MessageParcel &data, Messa
     std::shared_ptr<AppExecFwk::EventHandler> handler =
         std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
     wptr<AutoStartupCallBackStub> weak = this;
-    if (handler) {
-        handler->PostSyncTask([weak, info]() {
-            auto autoStartUpCallBackStub = weak.promote();
-            if (autoStartUpCallBackStub == nullptr) {
-                HILOG_ERROR("autoStartUpCallBackStub is nullptr.");
-                return;
-            }
-            autoStartUpCallBackStub->OnAutoStartupOn(*info);
-        });
-    }
+    handler->PostSyncTask([weak, info]() {
+        auto autoStartUpCallBackStub = weak.promote();
+        if (autoStartUpCallBackStub == nullptr) {
+            HILOG_ERROR("autoStartUpCallBackStub is nullptr.");
+            return;
+        }
+        autoStartUpCallBackStub->OnAutoStartupOn(*info);
+    });
 
     return NO_ERROR;
 }
@@ -100,16 +98,14 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOffInner(MessageParcel &data, Mess
     std::shared_ptr<AppExecFwk::EventHandler> handler =
         std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
     wptr<AutoStartupCallBackStub> weak = this;
-    if (handler) {
-        handler->PostSyncTask([weak, info]() {
-            auto autoStartUpCallBackStub = weak.promote();
-            if (autoStartUpCallBackStub == nullptr) {
-                HILOG_ERROR("autoStartUpCallBackStub is nullptr.");
-                return;
-            }
-            autoStartUpCallBackStub->OnAutoStartupOff(*info);
-        });
-    }
+    handler->PostSyncTask([weak, info]() {
+        auto autoStartUpCallBackStub = weak.promote();
+        if (autoStartUpCallBackStub == nullptr) {
+            HILOG_ERROR("autoStartUpCallBackStub is nullptr.");
+            return;
+        }
+        autoStartUpCallBackStub->OnAutoStartupOff(*info);
+    });
 
     return NO_ERROR;
 }

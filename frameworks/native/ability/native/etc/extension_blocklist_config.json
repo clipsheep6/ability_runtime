@@ -1,6 +1,7 @@
 {
     "blocklist": {
         "ServiceExtension": [],
+	"VpnExtension":[],
         "AdsServiceExtension": [
             "multimedia.camera",
             "multimedia.mediaLibrary",

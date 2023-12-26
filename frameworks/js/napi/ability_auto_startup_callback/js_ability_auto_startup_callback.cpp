@@ -46,7 +46,7 @@ void JsAbilityAutoStartupCallBack::Register(napi_value value)
 {
     HILOG_DEBUG("Called.");
     std::lock_guard<std::mutex> lock(mutexlock);
-    for (auto callback : callbacks_) {
+    for (const auto &callback : callbacks_) {
         if (IsJsCallbackEquals(callback, value)) {
             HILOG_ERROR("The current callback already exists.");
             return;
@@ -128,7 +128,8 @@ void JsAbilityAutoStartupCallBack::JSCallFunctionWorker(const AutoStartupInfo &i
     }
 }
 
-bool JsAbilityAutoStartupCallBack::IsJsCallbackEquals(std::shared_ptr<NativeReference> callback, napi_value value)
+bool JsAbilityAutoStartupCallBack::IsJsCallbackEquals(const std::shared_ptr<NativeReference> &callback,
+    napi_value value)
 {
     if (callback == nullptr) {
         HILOG_ERROR("Invalid jsCallback.");

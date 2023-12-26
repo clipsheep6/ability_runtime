@@ -653,7 +653,6 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
         HILOG_ERROR("get app record failed");
         return;
     }
-    appRecord->PopForegroundingAbilityTokens();
     ApplicationState appState = appRecord->GetState();
     if (appState == ApplicationState::APP_STATE_READY || appState == ApplicationState::APP_STATE_BACKGROUND) {
         appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
@@ -666,6 +665,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     }
     appRecord->SetUpdateStateFromService(false);
     appRecord->SetApplicationPendingState(ApplicationPendingState::READY);
+    appRecord->PopForegroundingAbilityTokens();
 
     // push the foregrounded app front of RecentAppList.
     PushAppFront(recordId);
@@ -1029,7 +1029,7 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
     return result;
 }
 
-void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
+int32_t AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
     int32_t callerUid, pid_t callerPid, const int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -1038,24 +1038,44 @@ void AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName,
         newUserId = GetUserIdByUid(callerUid);
     }
     HILOG_INFO("userId:%{public}d", userId);
-    ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
+    return ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
 }
 
-void AppMgrServiceInner::ClearUpApplicationDataByUserId(
-    const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId)
+int32_t AppMgrServiceInner::ClearUpApplicationDataBySelf(int32_t callerUid, pid_t callerPid, int32_t userId)
+{
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+    auto appRecord = GetAppRunningRecordByPid(callerPid);
+    if (!appRecord) {
+        HILOG_ERROR("no such appRecord, callerPid:%{public}d", callerPid);
+        return ERR_INVALID_VALUE;
+    }
+    auto callerbundleName = appRecord->GetBundleName();
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    int32_t newUserId = userId;
+    if (userId == DEFAULT_INVAL_VALUE) {
+        newUserId = GetUserIdByUid(callerUid);
+    }
+    return ClearUpApplicationDataByUserId(callerbundleName, callerUid, callerPid, newUserId, true);
+}
+
+int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
+    const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf)
 {
     if (callerPid <= 0) {
         HILOG_ERROR("invalid callerPid:%{public}d", callerPid);
-        return;
+        return ERR_INVALID_OPERATION;
     }
     if (callerUid < 0) {
         HILOG_ERROR("invalid callerUid:%{public}d", callerUid);
-        return;
+        return ERR_INVALID_OPERATION;
     }
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
-        return;
+        return ERR_INVALID_OPERATION;
     }
 
     // request to clear user information permission.
@@ -1063,25 +1083,29 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
     int32_t result = AccessToken::AccessTokenKit::ClearUserGrantedPermissionState(tokenId);
     if (result) {
         HILOG_ERROR("ClearUserGrantedPermissionState failed, ret:%{public}d", result);
-        return;
+        return ERR_PERMISSION_DENIED;
     }
     // 2.delete bundle side user data
     if (!IN_PROCESS_CALL(bundleMgrHelper->CleanBundleDataFiles(bundleName, userId))) {
         HILOG_ERROR("Delete bundle side user data is fail");
-        return;
+        return ERR_INVALID_OPERATION;
     }
     // 3.kill application
     // 4.revoke user rights
-    result = KillApplicationByUserId(bundleName, userId);
+    if (isBySelf) {
+        result = KillApplicationSelf();
+    } else {
+        result = KillApplicationByUserId(bundleName, userId);
+    }
     if (result < 0) {
         HILOG_ERROR("Kill Application by bundle name is fail");
-        return;
+        return ERR_INVALID_OPERATION;
     }
     // 5.revoke uri permission rights
     result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
     if (result != 0) {
         HILOG_ERROR("Revoke all uri permissions is fail");
-        return;
+        return ERR_PERMISSION_DENIED;
     }
     auto dataMgr = OHOS::DistributedKv::DistributedDataMgr();
     auto dataRet = dataMgr.ClearAppStorage(bundleName, userId, 0, tokenId);
@@ -1090,6 +1114,7 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
     }
     NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
         EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_DATA_CLEARED);
+    return ERR_OK;
 }
 
 int32_t AppMgrServiceInner::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
@@ -4388,19 +4413,18 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
     if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
         AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
 #else
-    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) ||
-        callerBundleName == SCENE_BOARD_BUNDLE_NAME) {
+    if ((AAFwk::PermissionVerification::GetInstance()->IsSACall()) || callerBundleName == SCENE_BOARD_BUNDLE_NAME) {
 #endif
         int32_t pid = faultData.pid;
-        auto appRecord = GetAppRunningRecordByPid(pid);
-        if (appRecord == nullptr) {
-            HILOG_ERROR("no such appRecord");
+        auto record = GetAppRunningRecordByPid(pid);
+        if (record == nullptr) {
+            HILOG_ERROR("no such AppRunningRecord");
             return ERR_INVALID_VALUE;
         }
 
         FaultData transformedFaultData = ConvertDataTypes(faultData);
-        int32_t uid = appRecord->GetUid();
-        std::string bundleName = appRecord->GetBundleName();
+        int32_t uid = record->GetUid();
+        std::string bundleName = record->GetBundleName();
 
         if (faultData.errorObject.name == "appRecovery") {
             AppRecoveryNotifyApp(pid, bundleName, faultData.faultType, "appRecovery");
@@ -4413,15 +4437,14 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         }
         const int64_t timeout = 11000;
         if (faultData.faultType == FaultDataType::APP_FREEZE) {
-            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) ||
-                appRecord->IsDebugApp()) {
+            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugApp()) {
                 return ERR_OK;
             }
             auto timeoutNotifyApp = std::bind(&AppMgrServiceInner::TimeoutNotifyApp, this,
                 pid, uid, bundleName, transformedFaultData);
             taskHandler_->SubmitTask(timeoutNotifyApp, transformedFaultData.timeoutMarkers, timeout);
         }
-        appRecord->NotifyAppFault(transformedFaultData);
+        record->NotifyAppFault(transformedFaultData);
         HILOG_WARN("FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
             "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
             FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
@@ -4982,7 +5005,7 @@ int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::st
 
 int32_t AppMgrServiceInner::StartChildProcessPreCheck(const pid_t callingPid)
 {
-    if (!AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
+    if (!AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
         HILOG_ERROR("Multi process model is not enabled");
         return ERR_INVALID_OPERATION;
     }

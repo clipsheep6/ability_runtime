@@ -37,6 +37,8 @@ std::string DialogSessionRecord::GenerateDialogSessionId()
     int randomDigit = uni(rng);
     return std::to_string(time) + "_" + std::to_string(randomDigit);
     std::string dialogSessionId = std::to_string(time) + "_" + std::to_string(randomDigit);
+
+    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto iter = dialogSessionInfoMap_.find(dialogSessionId);
     while (iter != dialogSessionInfoMap_.end()) {
         dialogSessionId += "_1";
@@ -55,6 +57,7 @@ void DialogSessionRecord::SetDialogSessionInfo(const std::string dialogSessionId
 
 sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::string dialogSessionId) const
 {
+    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogSessionInfoMap_.find(dialogSessionId);
     if (it != dialogSessionInfoMap_.end()) {
         return it->second;
@@ -65,6 +68,7 @@ sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::str
 
 std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const std::string dialogSessionId) const
 {
+    std::lock_guard<ffrt::mutex> guard(dialogSessionRecordLock_);
     auto it = dialogCallerInfoMap_.find(dialogSessionId);
     if (it != dialogCallerInfoMap_.end()) {
         return it->second;
@@ -117,22 +121,22 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
     auto dialogSessionInfo = sptr<DialogSessionInfo>::MakeSptr();
     CHECK_POINTER_AND_RETURN(dialogSessionInfo, ERR_INVALID_VALUE);
     sptr<IRemoteObject> callerToken = abilityRequest.callerToken;
-    CHECK_POINTER_AND_RETURN(callerToken, ERR_INVALID_VALUE);
-    auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
-    CHECK_POINTER_AND_RETURN(callerRecord, ERR_INVALID_VALUE);
-    dialogSessionInfo->callerAbilityInfo.bundleName = callerRecord->GetAbilityInfo().bundleName;
-    dialogSessionInfo->callerAbilityInfo.moduleName = callerRecord->GetAbilityInfo().moduleName;
-    dialogSessionInfo->callerAbilityInfo.abilityName = callerRecord->GetAbilityInfo().name;
-    dialogSessionInfo->callerAbilityInfo.abilityIconId = callerRecord->GetAbilityInfo().iconId;
-    dialogSessionInfo->callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
-    bool ret = QueryDialogAppInfo(dialogSessionInfo->callerAbilityInfo, userId);
-    if (!ret) {
-        HILOG_ERROR("query dialog app info failed");
-        return false;
+    if (callerToken != nullptr) {
+        auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
+        CHECK_POINTER_AND_RETURN(callerRecord, ERR_INVALID_VALUE);
+        dialogSessionInfo->callerAbilityInfo.bundleName = callerRecord->GetAbilityInfo().bundleName;
+        dialogSessionInfo->callerAbilityInfo.moduleName = callerRecord->GetAbilityInfo().moduleName;
+        dialogSessionInfo->callerAbilityInfo.abilityName = callerRecord->GetAbilityInfo().name;
+        dialogSessionInfo->callerAbilityInfo.abilityIconId = callerRecord->GetAbilityInfo().iconId;
+        dialogSessionInfo->callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
+        bool ret = QueryDialogAppInfo(dialogSessionInfo->callerAbilityInfo, userId);
+        if (!ret) {
+            HILOG_ERROR("query dialog app info failed");
+            return false;
+        }
     }
     dialogSessionInfo->parameters.SetParam("deviceType", AAFwk::String::Box(deviceType));
     dialogSessionInfo->parameters.SetParam("userId", AAFwk::Integer::Box(userId));
-
     for (auto &dialogAppInfo : dialogAppInfos) {
         DialogAbilityInfo targetDialogAbilityInfo;
         targetDialogAbilityInfo.bundleName = dialogAppInfo.bundleName;

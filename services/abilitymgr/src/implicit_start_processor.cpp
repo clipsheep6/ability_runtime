@@ -202,7 +202,7 @@ int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityReque
 {
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     std::string dialogSessionId;
-    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos)) {
+    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
         HILOG_DEBUG("create dialog by ui extension");
         return abilityMgr->CreateModalDialog(want, abilityRequest.callerToken, dialogSessionId);
     }
@@ -247,7 +247,8 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     bool withDefault = false;
     withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
 
-    if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID && !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
+    if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID &&
+        !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
         HILOG_INFO("The NFCNeed caller source is NFC.");
         ImplicitStartProcessor::QueryBmsAppInfos(request, userId, dialogAppInfos);
     }
@@ -318,7 +319,9 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     return ERR_OK;
 }
 
-int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {
+int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t userId,
+    std::vector<DialogAppInfo> &dialogAppInfos)
+{
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
@@ -357,7 +360,8 @@ int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t us
     return ERR_OK;
 }
 
-std::vector<std::string> ImplicitStartProcessor::SplitStr(const std::string& str, char delimiter) {
+std::vector<std::string> ImplicitStartProcessor::SplitStr(const std::string& str, char delimiter)
+{
     std::stringstream ss(str);  
     std::vector<std::string> result;  
     std::string s;  

@@ -32,6 +32,7 @@ public:
     static constexpr char ABS_DATA_CODE_PATH[] = "/data/app/el1/bundle/public/";
     static constexpr char BUNDLE[] = "bundle/";
     static constexpr char MERGE_ABC_PATH[] = "ets/modules.abc";
+    static constexpr char SYS_ABS_CODE_PATH[] = "/system/app/appServiceFwk/";
     static constexpr char SHARED_FILE_SUFFIX[] = ".hsp";
     JsModuleReader(const std::string& bundleName, const std::string& hapPath, bool isFormRender = false);
     ~JsModuleReader() = default;

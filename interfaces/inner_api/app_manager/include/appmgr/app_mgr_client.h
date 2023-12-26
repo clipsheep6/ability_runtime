@@ -182,6 +182,15 @@ public:
         const int32_t userId = -1);
 
     /**
+     * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
+     * clear the application data.
+     *
+     * @param userId, the user id.
+     * @return
+     */
+    virtual AppMgrResultCode ClearUpApplicationDataBySelf(int32_t userId = -1);
+
+    /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
      * Obtains information about application processes that are running on the device.
      *

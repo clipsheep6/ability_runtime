@@ -121,7 +121,7 @@ void ChildProcessManager::HandleSigChild(int32_t signo)
 
 ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
 {
-    if (!AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
+    if (!AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
         HILOG_ERROR("Multi process model is not enabled");
         return ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
     }
@@ -246,7 +246,7 @@ bool ChildProcessManager::GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleI
     }
     HILOG_DEBUG("hapModueInfos size: %{public}zu", bundleInfo.hapModuleInfos.size());
     bool result = false;
-    for (auto info : bundleInfo.hapModuleInfos) {
+    for (const auto &info : bundleInfo.hapModuleInfos) {
         if (info.moduleType == AppExecFwk::ModuleType::ENTRY) {
             result = true;
             hapModuleInfo = info;

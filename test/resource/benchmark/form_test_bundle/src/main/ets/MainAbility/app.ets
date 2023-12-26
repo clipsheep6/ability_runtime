@@ -15,11 +15,13 @@
 
 import Logger from '../model/Logger';
 
-export default {
+class MainAbility {
   onCreate() {
     Logger.info('Application onCreate')
-  },
+  }
   onDestroy() {
     Logger.info('Application onDestroy')
-  },
+  }
 }
+
+export default new MainAbility()

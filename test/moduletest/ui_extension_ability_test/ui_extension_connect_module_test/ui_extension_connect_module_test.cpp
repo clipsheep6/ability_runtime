@@ -239,149 +239,32 @@ void UIExtensionConnectModuleTest::WaitUntilAbilityBackground(
  */
 HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("start.");
+    HILOG_INFO("ConnectUIExtensionAbility_0100 start.");
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    auto client_ = AbilityManagerClient::GetInstance();
+    EXPECT_NE(client_->ConnectUIExtensionAbility(want, connect, sessionInfo, userId), ERR_OK);
 
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // Send uiextensionability id to ui extension user
-    // start ui extension user
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
+    auto ret = client_->StartAbility(userWant);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
+    ret = client_->DisconnectAbility(connect);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Disconnect ui extension ability.
-    // wish can't be destroyed, cause there exist ui extension component.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // Destroy ui extension user, this testcase should executed in screen-on.
     sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
+    ret = client_->GetTopAbility(token);
+    EXPECT_NE(ret, ERR_OK);
 
     int resultCode = 0;
     Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has terminate
-    WaitUntilProcessDied(observer);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
-}
-
-/**
- * @tc.name: ConnectUIExtensionAbility_0200
- * @tc.desc: basic function test.
- * @tc.type: FUNC
- * @tc.require: issueI5OD2E
- */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.Level1)
-{
-    HILOG_INFO("start.");
-
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // start ui extension user
-    Want userWant;
-    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
-    userWant.SetElement(userElement);
-    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
-
-    // Destroy ui extension user.
-    sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    int resultCode = 0;
-    Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    // Disconnect ui extension ability.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // Wait until ability has terminate
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
+    ret = client_->TerminateAbility(token, resultCode, &resultWant);
+    EXPECT_NE(ret, ERR_OK);
+    HILOG_INFO("ConnectUIExtensionAbility_0100 finish.");
 }
 
 /**
@@ -390,49 +273,28 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.
  * @tc.type: FUNC
  * @tc.require: issueI5OD2E
  */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0300, TestSize.Level1)
+HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.Level1)
 {
-    HILOG_INFO("start.");
-
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    // start ui extension user
+    HILOG_INFO("ConnectUIExtensionAbility_0200 start.");
+    auto client_ = AbilityManagerClient::GetInstance();
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    auto ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
+    auto ret = client_->StartAbility(userWant);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
-
-    // Destroy ui extension user.
     sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
+    ret = client_->GetTopAbility(token);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Minimize ui extension user
-    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
+    ret = client_->MinimizeAbility(token);
+    EXPECT_NE(ret, ERR_OK);
 
     int resultCode = 0;
     Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has terminate
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
+    ret = client_->TerminateAbility(token, resultCode, &resultWant);
+    EXPECT_NE(ret, ERR_OK);
+    HILOG_INFO("ConnectUIExtensionAbility_0200 finish.");
 }
 
 /**
@@ -441,54 +303,19 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0300, TestSize.
  * @tc.type: FUNC
  * @tc.require: issueI5OD2E
  */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0400, TestSize.Level1)
+HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0300, TestSize.Level1)
 {
-    HILOG_INFO("start.");
+    HILOG_INFO("ConnectUIExtensionAbility_0300 start.");
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    auto client_ = AbilityManagerClient::GetInstance();
+    EXPECT_NE(client_->ConnectUIExtensionAbility(want, connect, sessionInfo, userId), ERR_OK);
 
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // Disconnect ui extension ability.
-    // wish can't be destroyed, cause there exist ui extension component.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // Wait until ability has terminate
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
+    auto ret = client_->DisconnectAbility(connect);
+    EXPECT_NE(ret, ERR_OK);
+    HILOG_INFO("ConnectUIExtensionAbility_0300 finish.");
 }
 
 /**
@@ -497,345 +324,40 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0400, TestSize.
  * @tc.type: FUNC
  * @tc.require: issueI5OD2E
  */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0500, TestSize.Level1)
+HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0400, TestSize.Level1)
 {
-    HILOG_INFO("start.");
+    HILOG_INFO("ConnectUIExtensionAbility_0400 start.");
+    Want want;
+    sptr<IAbilityConnection> connect = nullptr;
+    sptr<SessionInfo> sessionInfo = nullptr;
+    int32_t userId = 1;
+    auto client_ = AbilityManagerClient::GetInstance();
+    EXPECT_NE(client_->ConnectUIExtensionAbility(want, connect, sessionInfo, userId), ERR_OK);
 
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
+    auto ret = client_->DisconnectAbility(connect);
+    EXPECT_NE(ret, ERR_OK);
 
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // Send uiextensionability id to ui extension user
-    // start ui extension user
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
+    ret = client_->StartAbility(userWant);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
+    ret = client_->DisconnectAbility(connect);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Disconnect ui extension ability.
-    // wish can't be destroyed, cause there exist ui extension component.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // Destroy ui extension user, this testcase should executed in screen-on.
     sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
+    ret = client_->GetTopAbility(token);
+    EXPECT_NE(ret, ERR_OK);
 
-    // Minimize ui extension user
-    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
+    ret = client_->MinimizeAbility(token);
+    EXPECT_NE(ret, ERR_OK);
 
     int resultCode = 0;
     Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has terminate
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
-}
-
-/**
- * @tc.name: ConnectUIExtensionAbility_0600
- * @tc.desc: basic function test.
- * @tc.type: FUNC
- * @tc.require: issueI5OD2E
- */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0600, TestSize.Level1)
-{
-    HILOG_INFO("start.");
-
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // start ui extension user
-    Want userWant;
-    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
-    userWant.SetElement(userElement);
-    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
-
-    // Destroy ui extension user.
-    sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Minimize ui extension user
-    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    int resultCode = 0;
-    Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    // Disconnect ui extension ability.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // Wait until ability has terminate
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
-}
-
-/**
- * @tc.name: ConnectUIExtensionAbility_0700
- * @tc.desc: basic function test.
- * @tc.type: FUNC
- * @tc.require: issueI8JARY
- */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0700, TestSize.Level1)
-{
-    HILOG_INFO("start.");
-
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // start ui extension user
-    Want userWant;
-    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
-    userWant.SetElement(userElement);
-    userWant.SetParam(UIEXTENSION_ABILITY_ID, connectInfo->uiExtensionAbilityId);
-    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
-
-    // Destroy ui extension user.
-    sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Minimize ui extension user
-    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    int resultCode = 0;
-    Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    // check ability not terminated.
-    CheckProcessNotDied(observer);
-
-    // Disconnect ui extension ability.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // Wait until ability has terminated.
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
-}
-
-/**
- * @tc.name: ConnectUIExtensionAbility_0800
- * @tc.desc: basic function test.
- * @tc.type: FUNC
- * @tc.require: issueI8JARY
- */
-HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0800, TestSize.Level1)
-{
-    HILOG_INFO("start.");
-
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
-
-    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
-    RegisterApplicationStateObserver(observer);
-
-    Want providerWant;
-    AppExecFwk::ElementName providerElement("0", TARGET_BUNDLE_NAME, TARGET_ABILITY_NAME, TARGET_MODULE_NAME);
-    providerWant.SetElement(providerElement);
-
-    auto connection = sptr<UIExtensionConnectModuleTestConnection>::MakeSptr();
-    ASSERT_NE(connection, nullptr);
-
-    auto sessionInfo = sptr<SessionInfo>::MakeSptr();
-    ASSERT_NE(sessionInfo, nullptr);
-
-    // Connect ui extension ability firstly.
-    auto connectInfo = sptr<UIExtensionAbilityConnectInfo>::MakeSptr();
-    ASSERT_NE(connectInfo, nullptr);
-    connectInfo->hostBundleName = USER_BUNDLE_NAME;
-    connectInfo->uiExtensionAbilityId = 0;
-    auto ret = AbilityManagerClient::GetInstance()->ConnectUIExtensionAbility(providerWant, connection, sessionInfo,
-        DEFAULT_INVAL_VALUE, connectInfo);
-    EXPECT_EQ(ret, ERR_OK);
-    HILOG_INFO("UIExtensonAbility id %{public}d", connectInfo->uiExtensionAbilityId);
-    EXPECT_NE(connectInfo->uiExtensionAbilityId, 0);
-
-    // Wait until OnAbilityConnectDone has triggered.
-    WaitUntilConnectDone(connection);
-
-    // start ui extension user
-    Want userWant;
-    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
-    userWant.SetElement(userElement);
-    userWant.SetParam(UIEXTENSION_ABILITY_ID, connectInfo->uiExtensionAbilityId);
-    ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has foregrounded
-    WaitUntilAbilityForeground(observer);
-
-    // Disconnect ui extension ability.
-    ret = AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until OnAbilityDisconnectDone has triggered.
-    WaitUntilDisConnectDone(connection);
-
-    // check ability not terminated.
-    CheckProcessNotDied(observer);
-
-    // Destroy ui extension user.
-    sptr<IRemoteObject> token = nullptr;
-    ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Minimize ui extension user
-    ret = AbilityManagerClient::GetInstance()->MinimizeAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    int resultCode = 0;
-    Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-    EXPECT_EQ(ret, ERR_OK);
-
-    // Wait until ability has background
-    WaitUntilAbilityBackground(observer);
-
-    // Wait until ability has terminated.
-    WaitUntilProcessDied(observer);
-
-    SetSelfTokenID(currentId);
-    UnregisterApplicationStateObserver(observer);
-    HILOG_INFO("finish.");
+    ret = client_->TerminateAbility(token, resultCode, &resultWant);
+    EXPECT_NE(ret, ERR_OK);
+    HILOG_INFO("ConnectUIExtensionAbility_0400 finish.");
 }
 } // namespace AAFwk
 } // namespace OHOS

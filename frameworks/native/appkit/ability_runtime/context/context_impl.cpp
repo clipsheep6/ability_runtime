@@ -319,7 +319,13 @@ std::string ContextImpl::GetDistributedFilesDir()
         dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
             CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE + GetBundleName();
     } else {
-        dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
+        if (currArea_ == CONTEXT_ELS[1] || currArea_ == CONTEXT_ELS[2] || currArea_ == CONTEXT_ELS[3]) {
+            //when areamode swith to el3/el4, the distributedfiles dir should be always el2's distributedfilesdir dir
+            dir = CONTEXT_DATA_STORAGE + CONTEXT_ELS[1] + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
+        }
+        else {
+            dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
+        }
     }
     CreateDirIfNotExist(dir, 0);
     HILOG_DEBUG("ContextImpl::GetDistributedFilesDir:%{public}s", dir.c_str());
@@ -345,19 +351,8 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &mod
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
     HILOG_DEBUG("CreateModuleContext begin.");
-    if (bundleName.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext bundleName is empty");
-        return nullptr;
-    }
-
-    if (moduleName.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is empty");
-        return nullptr;
-    }
-
-    int errCode = GetBundleManager();
-    if (errCode != ERR_OK) {
-        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+    if (bundleName.empty() || moduleName.empty()) {
+        HILOG_ERROR("ContextImpl::CreateModuleContext bundleName or moduleName is empty");
         return nullptr;
     }
 
@@ -370,19 +365,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     }
 
     AppExecFwk::BundleInfo bundleInfo;
-    if (bundleName == GetBundleName()) {
-        bundleMgr_->GetBundleInfoForSelf(
-            (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
-            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
-    } else {
-        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
-    }
-
+    GetBundleInfo(bundleName, bundleInfo, accountId);
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
         ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
@@ -490,6 +473,32 @@ int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bu
         }
     }
     return ERR_OK;
+}
+
+void ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo,
+    const int &accountId)
+{
+    HILOG_DEBUG("GetBundleInfo begin");
+    if (bundleMgr_ == nullptr) {
+        int errCode = GetBundleManager();
+        if (errCode != ERR_OK) {
+            HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+            return;
+        }
+    }
+
+    if (bundleName == GetBundleName()) {
+        bundleMgr_->GetBundleInfoForSelf(
+            (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+            static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo);
+    } else {
+        bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
+    }
 }
 
 int ContextImpl::GetArea()
@@ -1086,14 +1095,9 @@ void ContextImpl::ChangeToLocalPath(const std::string &bundleName,
 
 void ContextImpl::ClearUpApplicationData()
 {
-    std::string bundleName = GetBundleName();
-    if (bundleName.empty()) {
-        HILOG_ERROR("Can not get bundle name");
-        return;
-    }
-    int errCode = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearUpApplicationData(bundleName);
+    int errCode = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearUpApplicationDataBySelf();
     if (errCode != ERR_OK) {
-        HILOG_ERROR("Delete bundle side user data is fail, bundleName: %{public}s.", bundleName.c_str());
+        HILOG_ERROR("Delete bundle side user data by self is fail.");
         return;
     }
 }

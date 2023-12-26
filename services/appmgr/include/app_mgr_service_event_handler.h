@@ -54,7 +54,7 @@ public:
     static constexpr uint32_t START_SPECIFIED_PROCESS_TIMEOUT = 2000; // ms
     static constexpr uint32_t KILL_PROCESS_TIMEOUT = 3000; // ms
 #endif
-
+    static constexpr uint32_t DELAY_KILL_PROCESS_TIMEOUT = 1000; // ms
 private:
     std::weak_ptr<AppMgrServiceInner> appMgr_;
 };
