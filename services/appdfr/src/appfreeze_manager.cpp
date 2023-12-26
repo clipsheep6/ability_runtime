@@ -202,6 +202,11 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
 int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo,
     const std::string& binderInfo)
 {
+    if (IsProcessDebug(appInfo.pid, appInfo.processName)) {
+        HILOG_INFO("heap dump, don't reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s.",
+            faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str());
+        return 0;
+    }
     HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid,
         EVENT_PID, appInfo.pid, EVENT_PACKAGE_NAME, appInfo.bundleName,
@@ -346,6 +351,19 @@ std::string AppfreezeManager::CatcherStacktrace(int pid) const
         ret = msg;
     }
     return ret;
+}
+
+bool AppfreezeManager::IsProcessDebug(int32_t pid, std::string processName)
+{
+    const int buffSize = 128;
+    char param[buffSize] = {0};
+    std::string filter = "hiviewdfx.freeze.filter." + processName;
+    GetParameter(filter.c_str(), "", param, buffSize - 1);
+    int32_t debugPid = atoi(param);
+    if (debugPid == pid) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
