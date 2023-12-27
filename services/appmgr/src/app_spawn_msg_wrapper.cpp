@@ -92,10 +92,6 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->setAllowInternet = startMsg.setAllowInternet;
         msg_->allowInternet = startMsg.allowInternet;
         msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
-        if (strcpy_s(msg_->ownerId, sizeof(msg_->ownerId), startMsg.ownerId.c_str()) != EOK) {
-            HILOG_ERROR("failed to transform ownerId!");
-            return false;
-        }
         for (uint32_t i = 0; i < startMsg.gids.size(); ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
         }

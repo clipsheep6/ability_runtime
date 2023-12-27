@@ -55,7 +55,6 @@ struct AppSpawnStartMsg {
     std::string overlayInfo; // overlay hap resource path list
     DataGroupInfoList dataGroupInfoList; // list of harmony shared package
     uint32_t mountPermissionFlags;
-    std::string ownerId;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
