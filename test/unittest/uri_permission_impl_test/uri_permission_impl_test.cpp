@@ -290,5 +290,59 @@ HWTEST_F(UriPermissionImplTest, Upms_SendEvent_001, TestSize.Level1)
     std::vector<std::string> uriVec;
     upms->SendEvent(uri, targetBundleName, targetTokenId, uriVec);
 }
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: IsFoundationCall
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * CaseDescription: Granting Uri permissions internally for 2-in-1
+ */
+HWTEST_F(UriPermissionImplTest, IsFoundationCall_001, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    bool res = upms->IsFoundationCall();
+    EXPECT_FALSE(res);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: GrantUriPermissionFor2In1
+ * SubFunction: GrantUriPermissionFor2In1Inner
+ * FunctionPoints: NA
+ * CaseDescription: Granting Uri permissions internally for 2-in-1
+ */
+HWTEST_F(UriPermissionImplTest, GrantUriPermissionFor2In1_001, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    std::string bundleName = "com.example.test";
+    Uri uri(uriStr);
+    int res = upms->GrantUriPermissionFor2In1(uri, perReadFlag, bundleName, 1);
+    EXPECT_EQ(res, ERR_NOT_SYSTEM_APP);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: GrantUriPermissionFor2In1
+ * SubFunction: GrantUriPermissionFor2In1Inner
+ * FunctionPoints: NA
+ * CaseDescription: Granting Uri permissions internally for 2-in-1
+ */
+HWTEST_F(UriPermissionImplTest, GrantUriPermissionFor2In1_002, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
+    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+    std::string bundleName = "com.example.test";
+    Uri uri(uriStr);
+    std::vector<Uri> uriVector {uri};
+    int res = upms->GrantUriPermissionFor2In1(uriVector, perReadFlag, bundleName, 1);
+    EXPECT_EQ(res, INNER_ERR);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
