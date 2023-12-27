@@ -64,6 +64,8 @@ private:
         std::shared_ptr<DataAbilityRecord> &record);
     void ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isNotHap,
         std::shared_ptr<DataAbilityRecord> &record);
+    bool CheckBeforeAcquire(const AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &client, bool isNotHap, const std::string dataAbilityName);
 
 private:
     ffrt::mutex mutex_;

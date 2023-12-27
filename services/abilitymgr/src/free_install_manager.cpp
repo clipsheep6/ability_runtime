@@ -250,10 +250,8 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(freeInstallListLock_);
-    if (freeInstallList_.empty()) {
-        HILOG_INFO("Has no app callback.");
-        return;
-    }
+    bool listIsEmpty = freeInstallList_.empty();
+    CHECK_POINTER_LOG(listIsEmpty, "Has no app callback.");
 
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     HILOG_INFO("isFromRemote = %{public}d", isFromRemote);
