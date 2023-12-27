@@ -86,7 +86,7 @@ public:
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
 
     void StartProfiler(const char* libraryPath,
-        uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, uint32_t tid, bool isDebugApp);
+        uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, int tid, bool isDebugApp);
 
     void DestroyHeapProfiler();
 
@@ -98,7 +98,7 @@ public:
 
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb);
 
-    void NotifyDebugMode(uint32_t tid, const char* libraryPath, uint32_t instanceId, bool isDebugApp, bool debugMode);
+    void NotifyDebugMode(int tid, const char* libraryPath, uint32_t instanceId, bool isDebugApp, bool debugMode);
 
     bool GetDebugMode() const;
 
