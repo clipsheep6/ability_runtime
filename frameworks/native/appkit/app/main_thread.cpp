@@ -1294,6 +1294,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
+        if (!bundleInfo.hapModuleInfos.empty()) {
+            for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+                options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
+            }
+        }
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
