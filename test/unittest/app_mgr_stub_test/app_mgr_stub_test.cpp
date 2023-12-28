@@ -24,6 +24,7 @@
 
 #include "hilog_wrapper.h"
 #include "mock_app_mgr_service.h"
+#include "mock_app_running_status_module_test.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -437,6 +438,50 @@ HWTEST_F(AppMgrStubTest, HandleUnregisterAppForegroundStateObserver_0100, TestSi
     reply.WriteInt32(pid);
     auto res = mockAppMgrService_->HandleUnregisterAppForegroundStateObserver(data, reply);
     EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleRegisterAppRunningStatusListener_001
+ * @tc.desc: Handle Listen for the status of the registration.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleRegisterAppRunningStatusListener_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    sptr<AbilityRuntime::MockAppRunningStatusListenerInterface> listener
+        = new AbilityRuntime::MockAppRunningStatusListenerInterface();
+    EXPECT_NE(listener, nullptr);
+    data.WriteRemoteObject(listener);
+
+    EXPECT_CALL(*mockAppMgrService_, RegisterAppRunningStatusListener(_)).Times(1);
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleRegisterAppRunningStatusListener_001
+ * @tc.desc: Handle Not Listen for the status of the registration.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleUnregisterAppRunningStatusListener_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+    sptr<AbilityRuntime::MockAppRunningStatusListenerInterface> listener
+        = new AbilityRuntime::MockAppRunningStatusListenerInterface();
+    EXPECT_NE(listener, nullptr);
+    data.WriteRemoteObject(listener);
+
+    EXPECT_CALL(*mockAppMgrService_, UnregisterAppRunningStatusListener(_)).Times(1);
+    auto result = mockAppMgrService_->OnRemoteRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

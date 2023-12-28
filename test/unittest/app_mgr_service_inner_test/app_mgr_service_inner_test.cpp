@@ -25,6 +25,7 @@
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_ability_token.h"
+#include "mock_app_running_status_module_test.h"
 #include "mock_app_scheduler.h"
 #include "mock_bundle_manager.h"
 #include "mock_configuration_observer.h"
@@ -4014,6 +4015,44 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterAppForegroundStateObserver_0100, Test
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterAppForegroundStateObserver(observer);
     EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: RegisterAppRunningStatusListener_001
+ * @tc.desc: Check function of RegisterAppRunningStatusListener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterAppRunningStatusListener_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    sptr<IRemoteObject> listener = nullptr;
+    auto ret = appMgrServiceInner->RegisterAppRunningStatusListener(listener);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    listener = new AbilityRuntime::MockAppRunningStatusListenerInterface();
+    EXPECT_NE(listener, nullptr);
+    ret = appMgrServiceInner->RegisterAppRunningStatusListener(listener);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: UnregisterAppRunningStatusListener_001
+ * @tc.desc: Verify the function of UnregisterAppRunningStatusListener, check nullptr listener
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterAppRunningStatusListener_001, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    sptr<IRemoteObject> listener = nullptr;
+    auto ret = appMgrServiceInner->UnregisterAppRunningStatusListener(listener);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+
+    listener = new AbilityRuntime::MockAppRunningStatusListenerInterface();
+    EXPECT_NE(listener, nullptr);
+    ret = appMgrServiceInner->UnregisterAppRunningStatusListener(listener);
+    EXPECT_EQ(ret, ERR_INVALID_OPERATION);
 }
 } // namespace AppExecFwk
 } // namespace OHOS
