@@ -1508,7 +1508,14 @@ void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<Abil
 {
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
+
+    std::vector<AppExecFwk::Metadata> metaData = abilityRecord->GetAbilityInfo().metadata;
+    bool isSingleton = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
+        return metaDataItem.name == "UIExtensionAbilityLaunchTypeTemp" && metaDataItem.value == "singleton";
+    });
+    HILOG_DEBUG("State isSingleton: %{public}d.", isSingleton);
+
+    if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND) || isSingleton) {
         CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_BACKGROUND);
     } else if (abilityRecord->IsAbilityState(AbilityState::INITIAL) ||
         abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
