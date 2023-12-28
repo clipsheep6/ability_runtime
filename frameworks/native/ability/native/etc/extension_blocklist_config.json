@@ -167,7 +167,8 @@
             "application.formProvider",
             "prompt",
             "promptAction",
-            "window"
+            "window",
+            "hms.core.liveview.liveViewManager"
         ],
         "DriverExtension": [
             "abilityAccessCtrl",
@@ -283,7 +284,8 @@
             "application.formProvider",
             "prompt",
             "promptAction",
-            "window"
+            "window",
+            "hms.core.liveview.liveViewManager"
         ],
         "RemoteLocationExtension": [
             "notification",
