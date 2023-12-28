@@ -295,11 +295,12 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
         if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
             HILOG_DEBUG("Item: flag = %{public}i, fromTokenId = %{public}i, targetTokenId = %{public}i,\
                 autoremove = %{public}i", item.flag, item.fromTokenId, item.targetTokenId, item.autoremove);
-            if ((flag & item.flag) == 0) {
+            if ((flag & (item.flag | Want::FLAG_AUTH_READ_URI_PERMISSION)) == 0) {
                 HILOG_INFO("Update uri r/w permission.");
                 item.flag = flag;
+            } else {
+                HILOG_INFO("uri permission has granted, not to grant again.");
             }
-            HILOG_INFO("uri permission has granted, not to grant again.");
             return ERR_OK;
         }
     }
