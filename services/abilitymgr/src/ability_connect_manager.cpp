@@ -413,17 +413,10 @@ void AbilityConnectManager::GetConnectRecordListFromMap(
     }
 }
 
-int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityRequest,
-    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
-    sptr<UIExtensionAbilityConnectInfo> connectInfo)
+int32_t AbilityConnectManager::GetOrCreateTargetServiceRecord(
+    const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
+    std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
-    std::lock_guard guard(Lock_);
-
-    // 1. get target service ability record, and check whether it has been loaded.
-    std::shared_ptr<AbilityRecord> targetService;
-    bool isLoadedAbility = false;
     if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && connectInfo != nullptr) {
         int32_t ret = GetOrCreateExtensionRecord(
             abilityRequest, true, connectInfo->hostBundleName, targetService, isLoadedAbility);
@@ -437,6 +430,24 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
         GetOrCreateServiceRecord(abilityRequest, true, targetService, isLoadedAbility);
     }
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+    return ERR_OK;
+}
+
+int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityRequest,
+    const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
+    sptr<UIExtensionAbilityConnectInfo> connectInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
+    std::lock_guard guard(Lock_);
+
+    // 1. get target service ability record, and check whether it has been loaded.
+    std::shared_ptr<AbilityRecord> targetService;
+    bool isLoadedAbility = false;
+    int32_t ret = GetOrCreateTargetServiceRecord(abilityRequest, connectInfo, targetService, isLoadedAbility);
+    if (ret != ERR_OK) {
+        return ret;
+    }
     // 2. get target connectRecordList, and check whether this callback has been connected.
     ConnectListType connectRecordList;
     GetConnectRecordListFromMap(connect, connectRecordList);
@@ -469,7 +480,6 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
             WindowExtMapValType(targetService->GetApplicationInfo().accessTokenId, abilityRequest.sessionInfo));
     }
 
-    int ret = ERR_OK;
     if (!isLoadedAbility) {
         LoadAbility(targetService);
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE)) {
