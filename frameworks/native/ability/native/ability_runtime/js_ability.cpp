@@ -122,6 +122,33 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         HILOG_ERROR("abilityInfo is nullptr");
         return;
     }
+    auto srcPath = GenerateSrcPath(abilityInfo);
+    if (srcPath.empty()) {
+        return;
+    }
+
+    std::string moduleName(abilityInfo->moduleName);
+    moduleName.append("::").append(abilityInfo->name);
+
+    HandleScope handleScope(jsRuntime_);
+
+    jsAbilityObj_ = jsRuntime_.LoadModule(
+        moduleName, srcPath, abilityInfo->hapPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
+    if (jsAbilityObj_ == nullptr) {
+        HILOG_ERROR("Failed to get AbilityStage object");
+        return;
+    }
+
+    BindContext();
+}
+
+std::string JsAbility::GenerateSrcPath(std::shared_ptr<AbilityInfo> abilityInfo) const
+{
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("abilityInfo is nullptr");
+        return "";
+    }
+
     std::string srcPath(abilityInfo->package);
     if (!abilityInfo->isModuleJson) {
         /* temporary compatibility api8 + config.json */
@@ -133,7 +160,7 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     } else {
         if (abilityInfo->srcEntrance.empty()) {
             HILOG_ERROR("abilityInfo srcEntrance is empty");
-            return;
+            return "";
         }
         srcPath.append("/");
         srcPath.append(abilityInfo->srcEntrance);
@@ -141,20 +168,12 @@ void JsAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
         srcPath.append(".abc");
         HILOG_INFO("JsAbility srcPath is %{public}s", srcPath.c_str());
     }
+    return srcPath;
+}
 
-    std::string moduleName(abilityInfo->moduleName);
-    moduleName.append("::").append(abilityInfo->name);
-
-    HandleScope handleScope(jsRuntime_);
+void JsAbility::BindContext()
+{
     auto env = jsRuntime_.GetNapiEnv();
-
-    jsAbilityObj_ = jsRuntime_.LoadModule(
-        moduleName, srcPath, abilityInfo->hapPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
-    if (jsAbilityObj_ == nullptr) {
-        HILOG_ERROR("Failed to get AbilityStage object");
-        return;
-    }
-
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to check type");
@@ -612,40 +631,9 @@ void JsAbility::DoOnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (scene_ == nullptr) {
-        if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
-            HILOG_ERROR("Ability::OnForeground error. abilityContext_ or sceneListener_ is nullptr!");
+        if (!InitWindowScene(want)) {
             return;
         }
-        scene_ = std::make_shared<Rosen::WindowScene>();
-        int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
-        if (setting_ != nullptr) {
-            std::string strDisplayId =
-                setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
-            std::regex formatRegex("[0-9]{0,9}$");
-            std::smatch sm;
-            bool flag = std::regex_match(strDisplayId, sm, formatRegex);
-            if (flag && !strDisplayId.empty()) {
-                int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
-                displayId = strtol(strDisplayId.c_str(), nullptr, base);
-                HILOG_DEBUG("%{public}s success. displayId is %{public}d", __func__, displayId);
-            } else {
-                HILOG_WARN("%{public}s failed to formatRegex:[%{public}s]", __func__, strDisplayId.c_str());
-            }
-        }
-        auto option = GetWindowOption(want);
-        Rosen::WMError ret = Rosen::WMError::WM_OK;
-        auto sessionToken = GetSessionToken();
-        if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
-            abilityContext_->SetWeakSessionToken(sessionToken);
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
-        } else {
-            ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
-        }
-        if (ret != Rosen::WMError::WM_OK) {
-            HILOG_ERROR("%{public}s error. failed to init window scene!", __func__);
-            return;
-        }
-
         AbilityContinuationOrRecover(want);
         auto window = scene_->GetMainWindow();
         if (window) {
@@ -672,6 +660,48 @@ void JsAbility::DoOnForeground(const Want &want)
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(Ability::sceneFlag_);
     HILOG_DEBUG("%{public}s end scene_->GoForeground.", __func__);
+}
+
+bool JsAbility::InitWindowScene(const Want &want)
+{
+    if ((abilityContext_ == nullptr) || (sceneListener_ == nullptr)) {
+        HILOG_ERROR("abilityContext_ or sceneListener_ is nullptr!");
+        return false;
+    }
+    scene_ = std::make_shared<Rosen::WindowScene>();
+    int32_t displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+    if (setting_ != nullptr) {
+        std::string strDisplayId =
+            setting_->GetProperty(OHOS::AppExecFwk::AbilityStartSetting::WINDOW_DISPLAY_ID_KEY);
+        std::regex formatRegex("[0-9]{0,9}$");
+        std::smatch sm;
+        bool flag = std::regex_match(strDisplayId, sm, formatRegex);
+        if (flag && !strDisplayId.empty()) {
+            int base = 10; // Numerical base (radix) that determines the valid characters and their interpretation.
+            displayId = strtol(strDisplayId.c_str(), nullptr, base);
+            HILOG_DEBUG("The displayId is %{public}d", displayId);
+        } else {
+            HILOG_WARN("Failed to formatRegex:[%{public}s]", strDisplayId.c_str());
+        }
+    }
+    auto option = GetWindowOption(want);
+    Rosen::WMError ret = Rosen::WMError::WM_OK;
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto sessionToken = GetSessionToken();
+        if (sessionToken == nullptr) {
+            HILOG_ERROR("The sessionToken is nullptr!");
+            return false;
+        }
+        abilityContext_->SetWeakSessionToken(sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
+    } else {
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
+    }
+    if (ret != Rosen::WMError::WM_OK) {
+        HILOG_ERROR("Failed to init window scene!");
+        return false;
+    }
+    return true;
 }
 
 void JsAbility::RequestFocus(const Want &want)
@@ -1054,37 +1084,44 @@ void JsAbility::Dump(const std::vector<std::string> &params, std::vector<std::st
     Ability::Dump(params, info);
     HILOG_DEBUG("%{public}s called.", __func__);
     HandleScope handleScope(jsRuntime_);
-    auto env = jsRuntime_.GetNapiEnv();
-    // create js array object of params
-    napi_value argv[] = { CreateNativeArray(env, params) };
 
     if (!jsAbilityObj_) {
         HILOG_WARN("Not found .js");
         return;
     }
 
+    auto env = jsRuntime_.GetNapiEnv();
     napi_value obj = jsAbilityObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get object");
         return;
     }
 
+    if (!AddDumpInfo(env, obj, params, info, "dump")) {
+        return;
+    }
+    if (!AddDumpInfo(env, obj, params, info, "onDump")) {
+        return;
+    }
+
+    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+}
+
+bool JsAbility::AddDumpInfo(napi_env env, napi_value obj, const std::vector<std::string> &params,
+    std::vector<std::string> &info, const std::string &methodName) const
+{
+    // create js array object of params
+    napi_value argv[] = { CreateNativeArray(env, params) };
+
     napi_value method = nullptr;
-    napi_get_named_property(env, obj, "dump", &method);
-    napi_value onDumpMethod = nullptr;
-    napi_get_named_property(env, obj, "onDump", &onDumpMethod);
+    napi_get_named_property(env, obj, methodName.c_str(), &method);
 
     napi_value dumpInfo = nullptr;
     if (method != nullptr) {
         napi_call_function(env, obj, method, 1, argv, &dumpInfo);
     }
 
-    napi_value onDumpInfo = nullptr;
-    if (onDumpMethod != nullptr) {
-        napi_call_function(env, obj, onDumpMethod, 1, argv, &onDumpInfo);
-    }
-
-    if (dumpInfo != nullptr) {
+    if (dumpInfo == nullptr) {
         uint32_t len = 0;
         napi_get_array_length(env, dumpInfo, &len);
         for (uint32_t i = 0; i < len; i++) {
@@ -1093,28 +1130,12 @@ void JsAbility::Dump(const std::vector<std::string> &params, std::vector<std::st
             napi_get_element(env, dumpInfo, i, &element);
             if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
                 HILOG_ERROR("Parse dumpInfoStr failed");
-                return;
+                return false;
             }
             info.push_back(dumpInfoStr);
         }
     }
-
-    if (onDumpInfo != nullptr) {
-        uint32_t len = 0;
-        napi_get_array_length(env, onDumpInfo, &len);
-        for (uint32_t i = 0; i < len; i++) {
-            std::string dumpInfoStr;
-            napi_value element = nullptr;
-            napi_get_element(env, onDumpInfo, i, &element);
-            if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
-                HILOG_ERROR("Parse dumpInfoStr from onDumpInfoNative failed");
-                return;
-            }
-            info.push_back(dumpInfoStr);
-        }
-    }
-
-    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+    return true;
 }
 
 std::shared_ptr<NativeReference> JsAbility::GetJsAbility()

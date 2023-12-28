@@ -363,7 +363,7 @@ void JsRuntime::StartProfiler(
     }
 
     HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
-    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid());
+    jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
 }
 
 bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer)
@@ -646,6 +646,14 @@ bool JsRuntime::Initialize(const Options& options)
             panda::JSNApi::SetHostResolveBufferTracker(
                 vm, JsModuleReader(options.bundleName, options.hapPath, options.isUnique));
             isModular = !panda::JSNApi::IsBundle(vm);
+            panda::JSNApi::SetSearchHapPathTracker(
+                vm, [options](const std::string moduleName, std::string &hapPath) -> bool {
+                    if (options.hapModulePath.find(moduleName) == options.hapModulePath.end()) {
+                        return false;
+                    }
+                    hapPath = options.hapModulePath.find(moduleName)->second;
+                    return true;
+                });
             std::vector<panda::HmsMap> systemKitsMap = GetSystemKitsMap(apiTargetVersion_);
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
         }

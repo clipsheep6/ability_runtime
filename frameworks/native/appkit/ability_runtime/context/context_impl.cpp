@@ -96,7 +96,7 @@ std::string ContextImpl::GetBundleCodeDir()
         dir = LOCAL_CODE_PATH;
     }
     CreateDirIfNotExist(dir, MODE);
-    HILOG_DEBUG("ContextImpl::GetBundleCodeDir:%{public}s", dir.c_str());
+    HILOG_DEBUG("dir:%{public}s", dir.c_str());
     return dir;
 }
 
@@ -104,7 +104,7 @@ std::string ContextImpl::GetCacheDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_CACHE;
     CreateDirIfNotExist(dir, MODE);
-    HILOG_DEBUG("ContextImpl::GetCacheDir:%{public}s", dir.c_str());
+    HILOG_DEBUG("dir:%{public}s", dir.c_str());
     return dir;
 }
 
@@ -254,7 +254,7 @@ std::string ContextImpl::GetTempDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_TEMP;
     CreateDirIfNotExist(dir, MODE);
-    HILOG_DEBUG("ContextImpl::GetTempDir:%{public}s", dir.c_str());
+    HILOG_DEBUG("dir:%{public}s", dir.c_str());
     return dir;
 }
 
@@ -307,13 +307,13 @@ std::string ContextImpl::GetFilesDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILES;
     CreateDirIfNotExist(dir, MODE);
-    HILOG_DEBUG("ContextImpl::GetFilesDir:%{public}s", dir.c_str());
+    HILOG_DEBUG("dir:%{public}s", dir.c_str());
     return dir;
 }
 
 std::string ContextImpl::GetDistributedFilesDir()
 {
-    HILOG_DEBUG("ContextImpl::GetDistributedFilesDir");
+    HILOG_DEBUG("called");
     std::string dir;
     if (IsCreateBySystemApp()) {
         dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
@@ -328,19 +328,19 @@ std::string ContextImpl::GetDistributedFilesDir()
         }
     }
     CreateDirIfNotExist(dir, 0);
-    HILOG_DEBUG("ContextImpl::GetDistributedFilesDir:%{public}s", dir.c_str());
+    HILOG_DEBUG("dir:%{public}s", dir.c_str());
     return dir;
 }
 
 void ContextImpl::SwitchArea(int mode)
 {
-    HILOG_DEBUG("ContextImpl::SwitchArea, mode:%{public}d.", mode);
+    HILOG_DEBUG("mode:%{public}d.", mode);
     if (mode < 0 || mode >= (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0]))) {
         HILOG_ERROR("ContextImpl::SwitchArea, mode is invalid.");
         return;
     }
     currArea_ = CONTEXT_ELS[mode];
-    HILOG_DEBUG("ContextImpl::SwitchArea end, currArea:%{public}s.", currArea_.c_str());
+    HILOG_DEBUG("currArea:%{public}s.", currArea_.c_str());
 }
 
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &moduleName)
@@ -350,13 +350,13 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &mod
 
 std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
 {
-    HILOG_DEBUG("CreateModuleContext begin.");
+    HILOG_DEBUG("begin.");
     if (bundleName.empty() || moduleName.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext bundleName or moduleName is empty");
+        HILOG_ERROR("bundleName or moduleName is empty");
         return nullptr;
     }
 
-    HILOG_DEBUG("ContextImpl::CreateModuleContext length: %{public}zu, bundleName: %{public}s",
+    HILOG_DEBUG("length: %{public}zu, bundleName: %{public}s",
         (size_t)bundleName.length(), bundleName.c_str());
 
     int accountId = GetCurrentAccountId();
@@ -367,10 +367,10 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     AppExecFwk::BundleInfo bundleInfo;
     GetBundleInfo(bundleName, bundleInfo, accountId);
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
-        HILOG_ERROR("ContextImpl::CreateModuleContext GetBundleInfo is error");
+        HILOG_ERROR("GetBundleInfo is error");
         ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
         if (ret != ERR_OK) {
-            HILOG_ERROR("ContextImpl::CreateModuleContext GetDependentBundleInfo failed:%{public}d", ret);
+            HILOG_ERROR("GetDependentBundleInfo failed:%{public}d", ret);
             return nullptr;
         }
     }
@@ -383,7 +383,7 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
                 return hapModuleInfo.moduleName == moduleName;
             });
         if (info == bundleInfo.hapModuleInfos.end()) {
-            HILOG_ERROR("ContextImpl::CreateModuleContext moduleName is error.");
+            HILOG_ERROR("moduleName is error.");
             return nullptr;
         }
         appContext->InitHapModuleInfo(*info);
@@ -443,7 +443,7 @@ int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bu
 
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
-        HILOG_ERROR("GetBundleManager failed, errCode: %{public}d.", errCode);
+        HILOG_ERROR("errCode: %{public}d.", errCode);
         return errCode;
     }
 
@@ -465,7 +465,7 @@ int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bu
     }
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
-        HILOG_WARN("GetBundleInfo is error");
+        HILOG_WARN("bundleInfo is empty");
         ErrCode ret = bundleMgr_->GetUninstalledBundleInfo(bundleName, bundleInfo);
         if (ret != ERR_OK) {
             HILOG_ERROR("GetUninstalledBundleInfo failed:%{public}d", ret);
@@ -478,7 +478,7 @@ int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bu
 void ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo,
     const int &accountId)
 {
-    HILOG_DEBUG("GetBundleInfo begin");
+    HILOG_DEBUG("begin");
     if (bundleMgr_ == nullptr) {
         int errCode = GetBundleManager();
         if (errCode != ERR_OK) {
@@ -503,7 +503,7 @@ void ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::Bundl
 
 int ContextImpl::GetArea()
 {
-    HILOG_DEBUG("ContextImpl::GetArea begin");
+    HILOG_DEBUG("begin");
     int mode = -1;
     for (int i = 0; i < (int)(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
         if (currArea_ == CONTEXT_ELS[i]) {
@@ -512,10 +512,10 @@ int ContextImpl::GetArea()
         }
     }
     if (mode == -1) {
-        HILOG_ERROR("ContextImpl::GetArea not find mode.");
+        HILOG_ERROR("not find mode.");
         return EL_DEFAULT;
     }
-    HILOG_DEBUG("ContextImpl::GetArea end");
+    HILOG_DEBUG("end");
     return mode;
 }
 
@@ -533,7 +533,7 @@ std::string ContextImpl::GetBaseDir() const
             ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
     }
 
-    HILOG_DEBUG("ContextImpl::GetBaseDir:%{public}s", baseDir.c_str());
+    HILOG_DEBUG("Dir:%{public}s", baseDir.c_str());
     return baseDir;
 }
 
@@ -564,12 +564,12 @@ int ContextImpl::GetCurrentActiveAccountId() const
     }
 
     if (accountIds.size() == 0) {
-        HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no accounts.");
+        HILOG_ERROR("no accounts.");
         return 0;
     }
 
     if (accountIds.size() > 1) {
-        HILOG_ERROR("ContextImpl::GetCurrentActiveAccountId error, no current now.");
+        HILOG_ERROR("no current now.");
         return 0;
     }
 
@@ -578,13 +578,13 @@ int ContextImpl::GetCurrentActiveAccountId() const
 
 std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bundleName)
 {
-    HILOG_DEBUG("CreateBundleContext begin.");
+    HILOG_DEBUG("begin.");
     if (parentContext_ != nullptr) {
         return parentContext_->CreateBundleContext(bundleName);
     }
 
     if (bundleName.empty()) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext bundleName is empty");
+        HILOG_ERROR("bundleName is empty");
         return nullptr;
     }
 
@@ -599,12 +599,12 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
     if (accountId == 0) {
         accountId = GetCurrentActiveAccountId();
     }
-    HILOG_DEBUG("ContextImpl::CreateBundleContext length: %{public}zu, bundleName: %{public}s",
+    HILOG_DEBUG("length: %{public}zu, bundleName: %{public}s",
         (size_t)bundleName.length(), bundleName.c_str());
     bundleMgr_->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, accountId);
 
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
-        HILOG_ERROR("ContextImpl::CreateBundleContext GetBundleInfo is error");
+        HILOG_ERROR("bundleInfo is empty");
         return nullptr;
     }
 
@@ -621,7 +621,7 @@ std::shared_ptr<Context> ContextImpl::CreateBundleContext(const std::string &bun
 void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
     const std::shared_ptr<ContextImpl> &appContext, bool currentBundle, const std::string& moduleName)
 {
-    HILOG_DEBUG("InitResourceManager begin, bundleName:%{public}s, moduleName:%{public}s",
+    HILOG_DEBUG("begin, bundleName:%{public}s, moduleName:%{public}s",
         bundleInfo.name.c_str(), moduleName.c_str());
 
     if (appContext == nullptr) {
@@ -634,7 +634,7 @@ void ContextImpl::InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo,
         std::shared_ptr<Global::Resource::ResourceManager> resourceManager = InitOthersResourceManagerInner(
             bundleInfo, currentBundle, moduleName);
         if (resourceManager == nullptr) {
-            HILOG_ERROR("ContextImpl::InitResourceManager create resourceManager failed");
+            HILOG_ERROR("create resourceManager failed");
             return;
         }
         appContext->SetResourceManager(resourceManager);
@@ -757,7 +757,7 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
 {
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        HILOG_ERROR("ContextImpl::InitResourceManager create ResConfig failed");
+        HILOG_ERROR("create ResConfig failed");
         return;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -796,7 +796,7 @@ ErrCode ContextImpl::GetBundleManager()
 void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info)
 {
     if (info == nullptr) {
-        HILOG_ERROR("ContextImpl::SetApplicationInfo failed, info is empty");
+        HILOG_ERROR("info is empty");
         return;
     }
     applicationInfo_ = info;
@@ -804,9 +804,9 @@ void ContextImpl::SetApplicationInfo(const std::shared_ptr<AppExecFwk::Applicati
 
 void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
 {
-    HILOG_DEBUG("ContextImpl::initResourceManager. Start.");
+    HILOG_DEBUG("Start.");
     resourceManager_ = resourceManager;
-    HILOG_DEBUG("ContextImpl::initResourceManager. End.");
+    HILOG_DEBUG("End.");
 }
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::GetResourceManager() const
@@ -853,7 +853,7 @@ void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInf
 
     hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>();
     if (!bundleMgr_->GetHapModuleInfo(*abilityInfo.get(), *hapModuleInfo_)) {
-        HILOG_ERROR("InitHapModuleInfo: GetHapModuleInfo failed, will retval false value");
+        HILOG_ERROR("GetHapModuleInfo failed, will retval false value");
     }
 }
 
@@ -865,7 +865,7 @@ void ContextImpl::InitHapModuleInfo(const AppExecFwk::HapModuleInfo &hapModuleIn
 std::shared_ptr<AppExecFwk::HapModuleInfo> ContextImpl::GetHapModuleInfo() const
 {
     if (hapModuleInfo_ == nullptr) {
-        HILOG_DEBUG("ContextImpl::GetHapModuleInfo, hapModuleInfo is empty");
+        HILOG_DEBUG("hapModuleInfo is empty");
     }
     return hapModuleInfo_;
 }
@@ -892,7 +892,7 @@ std::shared_ptr<ApplicationContext> Context::GetApplicationContext()
 void ContextImpl::SetToken(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        HILOG_DEBUG("ContextImpl::SetToken failed, application is nullptr");
+        HILOG_DEBUG("application is nullptr");
         return;
     }
     token_ = token;
@@ -909,7 +909,7 @@ void ContextImpl::CreateDirIfNotExist(const std::string& dirPath, const mode_t& 
         HILOG_DEBUG("ForceCreateDirectory, dir: %{public}s", dirPath.c_str());
         bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_ERROR("createDir: create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
+            HILOG_ERROR("create dir %{public}s failed, errno is %{public}d.", dirPath.c_str(), errno);
             return;
         }
         if (mode != 0) {
@@ -986,7 +986,7 @@ int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std:
         [](const AppExecFwk::OverlayModuleInfo& lhs, const AppExecFwk::OverlayModuleInfo& rhs) -> bool {
         return lhs.priority > rhs.priority;
     });
-    HILOG_DEBUG("GetOverlayPath end, the size of overlay is: %{public}zu", overlayModuleInfos.size());
+    HILOG_DEBUG("the size of overlay is: %{public}zu", overlayModuleInfos.size());
     return ERR_OK;
 }
 
@@ -1034,7 +1034,7 @@ void ContextImpl::OnOverlayChanged(const EventFwk::CommonEventData &data,
     const std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, const std::string &bundleName,
     const std::string &moduleName, const std::string &loadPath)
 {
-    HILOG_DEBUG("OnOverlayChanged begin.");
+    HILOG_DEBUG("begin.");
     auto want = data.GetWant();
     std::string action = want.GetAction();
     if (action != OVERLAY_STATE_CHANGED) {

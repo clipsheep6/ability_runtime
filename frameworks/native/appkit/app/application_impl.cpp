@@ -33,7 +33,7 @@ ApplicationImpl::ApplicationImpl() : curState_(APP_STATE_CREATE), recordId_(0)
 void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &application)
 {
     if (application == nullptr) {
-        HILOG_ERROR("ApplicationImpl::SetApplication failed, application is nullptr");
+        HILOG_ERROR("application is nullptr");
         return;
     }
     this->application_ = application;
@@ -47,13 +47,13 @@ void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &app
  */
 bool ApplicationImpl::PerformAppReady()
 {
-    HILOG_DEBUG("ApplicationImpl::PerformAppReady called");
+    HILOG_DEBUG("called");
     if (curState_ == APP_STATE_CREATE && application_ != nullptr) {
         application_->OnStart();
         curState_ = APP_STATE_READY;
         return true;
     }
-    HILOG_ERROR("ApplicationImpl::PerformAppReady error! curState is %{public}d", curState_);
+    HILOG_ERROR("curState is %{public}d", curState_);
     return false;
 }
 
@@ -65,13 +65,13 @@ bool ApplicationImpl::PerformAppReady()
  */
 bool ApplicationImpl::PerformForeground()
 {
-    HILOG_DEBUG("ApplicationImpl::performForeground called");
+    HILOG_DEBUG("called");
     if (((curState_ == APP_STATE_READY) || (curState_ == APP_STATE_BACKGROUND)) && application_ != nullptr) {
         application_->OnForeground();
         curState_ = APP_STATE_FOREGROUND;
         return true;
     }
-    HILOG_ERROR("ApplicationImpl::performForeground error! curState is %{public}d", curState_);
+    HILOG_ERROR("curState is %{public}d", curState_);
     return false;
 }
 
@@ -83,13 +83,13 @@ bool ApplicationImpl::PerformForeground()
  */
 bool ApplicationImpl::PerformBackground()
 {
-    HILOG_DEBUG("ApplicationImpl::performBackground called");
+    HILOG_DEBUG("called");
     if (curState_ == APP_STATE_FOREGROUND && application_ != nullptr) {
         application_->OnBackground();
         curState_ = APP_STATE_BACKGROUND;
         return true;
     }
-    HILOG_ERROR("ApplicationImpl::performBackground error! curState is %{public}d", curState_);
+    HILOG_ERROR("curState is %{public}d", curState_);
     return false;
 }
 
@@ -103,7 +103,7 @@ bool ApplicationImpl::PerformBackground()
  */
 bool ApplicationImpl::PerformTerminate(bool isLastProcess)
 {
-    HILOG_DEBUG("ApplicationImpl::PerformTerminate called");
+    HILOG_DEBUG("called");
     if (application_ == nullptr) {
         HILOG_ERROR("Application instance is nullptr");
         return false;
@@ -115,7 +115,7 @@ bool ApplicationImpl::PerformTerminate(bool isLastProcess)
         curState_ = APP_STATE_TERMINATED;
         return true;
     }
-    HILOG_ERROR("ApplicationImpl::performTerminate error! curState is %{public}d", curState_);
+    HILOG_ERROR("curState is %{public}d", curState_);
     return false;
 }
 
@@ -127,9 +127,9 @@ bool ApplicationImpl::PerformTerminate(bool isLastProcess)
  */
 void ApplicationImpl::PerformTerminateStrong()
 {
-    HILOG_DEBUG("ApplicationImpl::PerformTerminateStrong called");
+    HILOG_DEBUG("called");
     if (application_ == nullptr) {
-        HILOG_ERROR("ApplicationImpl::PerformTerminateStrong: invalid application_.");
+        HILOG_ERROR("invalid application_.");
         return;
     }
     application_->OnTerminate();
@@ -143,7 +143,7 @@ void ApplicationImpl::PerformTerminateStrong()
  */
 void ApplicationImpl::PerformMemoryLevel(int level)
 {
-    HILOG_DEBUG("ApplicationImpl::PerformMemoryLevel called");
+    HILOG_DEBUG("called");
     if (application_ != nullptr) {
         application_->OnMemoryLevel(level);
     }
@@ -157,7 +157,7 @@ void ApplicationImpl::PerformMemoryLevel(int level)
  */
 void ApplicationImpl::PerformConfigurationUpdated(const Configuration &config)
 {
-    HILOG_DEBUG("ApplicationImpl::PerformConfigurationUpdated called");
+    HILOG_DEBUG("called");
     if (application_ != nullptr) {
         application_->OnConfigurationUpdated(config);
     }

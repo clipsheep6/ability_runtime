@@ -1610,6 +1610,7 @@ void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnecti
         });
     if (!connectObject->AddDeathRecipient(deathRecipient)) {
         HILOG_ERROR("AddDeathRecipient failed.");
+        return;
     }
     std::lock_guard guard(recipientMapMutex_);
     recipientMap_.emplace(connectObject, deathRecipient);

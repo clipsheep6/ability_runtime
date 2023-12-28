@@ -57,6 +57,7 @@ namespace OHOS {
 namespace NativeRdb {
 class AbsSharedResultSet;
 class DataAbilityPredicates;
+class ValueObject;
 class ValuesBucket;
 } // namespace NativeRdb
 namespace AbilityRuntime {
@@ -1318,6 +1319,17 @@ private:
     void InitConfigurationProperties(const Configuration& changeConfiguration, std::string& language,
         std::string& colormode, std::string& hasPointerDevice);
 
+    void ParseIntValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseDoubleValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseStringValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseBlobValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+    void ParseBoolValue(const NativeRdb::ValueObject &obj, const std::string &key,
+        NativeRdb::ValuesBucket &retValueBucket) const;
+
     std::shared_ptr<ContinuationHandler> continuationHandler_ = nullptr;
     std::shared_ptr<ContinuationManager> continuationManager_ = nullptr;
     std::shared_ptr<ContinuationRegisterManager> continuationRegisterManager_ = nullptr;
@@ -1349,6 +1361,9 @@ private:
 
 #ifdef SUPPORT_GRAPHICS
 private:
+    void InitFAWindow(const Want &want, int32_t displayId);
+    bool UpdateResMgrAndConfiguration(int32_t displayId);
+
     std::shared_ptr<AbilityWindow> abilityWindow_ = nullptr;
     bool bWindowFocus_ = false;
     bool showOnLockScreen_ = false;

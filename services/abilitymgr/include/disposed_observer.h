@@ -30,7 +30,6 @@ public:
     DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
         const std::shared_ptr<DisposedRuleInterceptor> &interceptor);
     ~DisposedObserver() = default;
-    sptr<AppExecFwk::IAppMgr> GetAppMgr();
 
 private:
     void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) override;

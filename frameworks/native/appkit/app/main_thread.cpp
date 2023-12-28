@@ -1294,6 +1294,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
+        if (!bundleInfo.hapModuleInfos.empty()) {
+            for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+                options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
+            }
+        }
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1929,13 +1934,16 @@ void MainThread::HandleForegroundApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
-#endif
+
     if (!applicationImpl_->PerformForeground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformForeground() failed");
         return;
     }
+
+    // Start accessing PurgeableMem if the event of foreground is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
+#endif
 
     HILOG_DEBUG("to foreground success, recordId is %{public}d", applicationImpl_->GetRecordId());
     appMgr_->ApplicationForegrounded(applicationImpl_->GetRecordId());
@@ -1955,13 +1963,17 @@ void MainThread::HandleBackgroundApplication()
         HILOG_ERROR("MainThread::handleBackgroundApplication error!");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
-#endif
+
     if (!applicationImpl_->PerformBackground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformBackground() failed");
         return;
     }
+
+    // End accessing PurgeableMem if the event of background is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
+#endif
+
     appMgr_->ApplicationBackgrounded(applicationImpl_->GetRecordId());
 }
 

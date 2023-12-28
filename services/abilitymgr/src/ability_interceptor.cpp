@@ -32,6 +32,7 @@
 #include "iservice_registry.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
+#include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
@@ -72,7 +73,7 @@ constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
     if (object) {                               \
         return ERR_EDM_APP_CONTROLLED;          \
     }                                           \
-    return ERR_APP_CONTROLLED;                  \
+    return ERR_APP_CONTROLLED;
 
 ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
     const sptr<IRemoteObject> &callerToken)
@@ -215,9 +216,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
             }
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
-            auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-            CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-            int ret = abilityRecord->CreateModalUIExtension(*disposedRule.want);
+            int ret = CreateModalUIExtension(*disposedRule.want, callerToken);
             if (ret != ERR_OK) {
                 HILOG_ERROR("failed to start disposed UIExtension");
                 return ret;
@@ -320,7 +319,7 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
     }
     auto disposedObserver = sptr<DisposedObserver>::MakeSptr(disposedRule, shared_from_this());
     CHECK_POINTER_AND_RETURN(disposedObserver, ERR_INVALID_VALUE);
-    sptr<OHOS::AppExecFwk::IAppMgr> appManager = disposedObserver->GetAppMgr();
+    sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppMgr();
     CHECK_POINTER_AND_RETURN(appManager, ERR_INVALID_VALUE);
     std::vector<std::string> bundleNameList;
     bundleNameList.push_back(bundleName);
@@ -347,9 +346,30 @@ ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk:
     return ERR_OK;
 }
 
+sptr<OHOS::AppExecFwk::IAppMgr> DisposedRuleInterceptor::GetAppMgr()
+{
+    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
+        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        HILOG_ERROR("get systemAbilityManager failed");
+        return nullptr;
+    }
+    OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
+    if (!object) {
+        HILOG_ERROR("get systemAbilityManager failed");
+        return nullptr;
+    }
+    sptr<OHOS::AppExecFwk::IAppMgr> appMgr = iface_cast<AppExecFwk::IAppMgr>(object);
+    if (!appMgr || !appMgr->AsObject()) {
+        return nullptr;
+    }
+    return appMgr;
+}
+
 void DisposedRuleInterceptor::UnregisterObserver(const std::string &bundleName)
 {
     HILOG_DEBUG("Call");
+    taskHandler_->CancelTask(UNREGISTER_TIMEOUT_OBSERVER_TASK);
     auto unregisterTask = [bundleName, interceptor = shared_from_this()] () {
         std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
         auto iter = interceptor->disposedObserverMap_.find(bundleName);
@@ -358,13 +378,24 @@ void DisposedRuleInterceptor::UnregisterObserver(const std::string &bundleName)
         } else {
             auto disposedObserver = iter->second;
             CHECK_POINTER(disposedObserver);
-            sptr<OHOS::AppExecFwk::IAppMgr> appManager = disposedObserver->GetAppMgr();
+            sptr<OHOS::AppExecFwk::IAppMgr> appManager = interceptor->GetAppMgr();
             CHECK_POINTER(appManager);
             IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(disposedObserver));
             interceptor->disposedObserverMap_.erase(iter);
         }
     };
     taskHandler_->SubmitTask(unregisterTask, UNREGISTER_EVENT_TASK);
+}
+
+ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+        return systemUIExtension->CreateModalUIExtension(want);
+    } else {
+        return abilityRecord->CreateModalUIExtension(want);
+    }
 }
 
 ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,

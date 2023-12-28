@@ -155,6 +155,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
     if (dialogAppInfos.size() > 1 || dialogAppInfos.size() == 0) {
         dialogSessionInfo->parameters.SetParam("action", AAFwk::String::Box(abilityRequest.want.GetAction()));
         dialogSessionInfo->parameters.SetParam("wantType", AAFwk::String::Box(abilityRequest.want.GetType()));
+        dialogSessionInfo->parameters.SetParam("uri", AAFwk::String::Box(abilityRequest.want.GetUriString()));
         dialogCallerInfo->isSelector = true;
     }
     dialogCallerInfo->callerToken = callerToken;

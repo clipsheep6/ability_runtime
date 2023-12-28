@@ -3683,11 +3683,17 @@ void AbilityManagerService::CancelWantSender(const sptr<IWantSender> &sender)
     CHECK_POINTER(pendingWantManager_);
     CHECK_POINTER(sender);
 
+    sptr<IRemoteObject> obj = sender->AsObject();
+    if (!obj || obj->IsProxyObject()) {
+        HILOG_ERROR("obj is nullptr or obj is a proxy obj.");
+        return;
+    }
+
     auto bms = GetBundleManager();
     CHECK_POINTER(bms);
 
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
+    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(obj);
 
     int userId = -1;
     if (DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance()->
