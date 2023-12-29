@@ -497,7 +497,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
     HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     if (env == nullptr) {
         HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
-        return std::unique_ptr<NativeReference>();
+        return nullptr;
     }
 
     napi_value globalObj = nullptr;
@@ -524,7 +524,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
     napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
         HILOG_ERROR("Failed to create object instance");
-        return std::unique_ptr<NativeReference>();
+        return nullptr;
     }
 
     napi_ref resultRef = nullptr;
