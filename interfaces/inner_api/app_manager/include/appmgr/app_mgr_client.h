@@ -548,6 +548,7 @@ public:
     /**
      * Register application or process state observer.
      * @param observer, ability token.
+     * @param bundleNameList, the list of bundle names.
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,
