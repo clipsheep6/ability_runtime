@@ -73,6 +73,8 @@ Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::Device
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
+const int32_t API11 = 11;
+const int32_t API_VERSION_MOD = 100;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -758,6 +760,20 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
     if (resConfig == nullptr) {
         HILOG_ERROR("create ResConfig failed");
         return;
+    }
+
+    if (GetHapModuleInfo() != nullptr && GetApplicationInfo() != nullptr) {
+        std::vector<AppExecFwk::Metadata> metadata = GetHapModuleInfo()->metadata;
+        bool load = std::any_of(metadata.begin(), metadata.end(), [](const auto &metadataItem) {
+            return metadataItem.name == "ContextResourceConfigLoadFromParentTemp" && metadataItem.value == "true";
+        });
+        if (load && GetApplicationInfo()->apiTargetVersion % API_VERSION_MOD >= API11) {
+            std::shared_ptr<Global::Resource::ResourceManager> currentResMgr = GetResourceManager();
+            if (currentResMgr != nullptr) {
+                HILOG_DEBUG("apiVersion: %{public}d, load parent config.", GetApplicationInfo()->apiTargetVersion);
+                currentResMgr->GetResConfig(*resConfig);
+            }
+        }
     }
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
