@@ -929,6 +929,8 @@ config("ui_extension_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/insight_intent_executor",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+    "${windowmanager_path}/interfaces/kits/napi/extension_window",
+    "${windowmanager_path}/wm/include",
   ]
 }
 
@@ -969,6 +971,7 @@ ohos_shared_library("ui_extension") {
     "ipc:ipc_core",
     "ipc:ipc_napi",
     "napi:ace_napi",
+    "window_manager:extensionwindow_napi",
   ]
 
   if (ability_runtime_graphics) {
