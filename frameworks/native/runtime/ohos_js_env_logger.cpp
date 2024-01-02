@@ -27,8 +27,13 @@
 #define ENV_LOG_TAG "JsEnv"
 #endif
 
+#ifdef LOG_LABEL
+#undef LOG_LABEL
+#endif
+
 namespace OHOS {
 namespace AbilityRuntime {
+static constexpr HiviewDFX::HiLogLabel LOG_LABEL = {LOG_CORE, ENV_LOG_DOMAIN, ENV_LOG_TAG};
 void JsEnvLogger(JsEnv::JsEnvLogLevel level, const char* fileName, const char* functionName, int line,
     const char* fmt, ...)
 {
@@ -38,28 +43,22 @@ void JsEnvLogger(JsEnv::JsEnvLogLevel level, const char* fileName, const char* f
     va_start(printArgs, fmt);
     switch (level) {
         case JsEnv::JsEnvLogLevel::DEBUG:
-            HILOG_IMPL(LOG_CORE, LOG_DEBUG, ENV_LOG_DOMAIN, ENV_LOG_TAG,
-                cFormat.c_str(), fileName, functionName, line, printArgs);
+            HiviewDFX::HiLog::Debug(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
         case JsEnv::JsEnvLogLevel::INFO:
-            HILOG_IMPL(LOG_CORE, LOG_INFO, ENV_LOG_DOMAIN, ENV_LOG_TAG,
-                cFormat.c_str(), fileName, functionName, line, printArgs);
+            HiviewDFX::HiLog::Info(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
         case JsEnv::JsEnvLogLevel::WARN:
-            HILOG_IMPL(LOG_CORE, LOG_WARN, ENV_LOG_DOMAIN, ENV_LOG_TAG,
-                cFormat.c_str(), fileName, functionName, line, printArgs);
+            HiviewDFX::HiLog::Warn(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
         case JsEnv::JsEnvLogLevel::ERROR:
-            HILOG_IMPL(LOG_CORE, LOG_ERROR, ENV_LOG_DOMAIN, ENV_LOG_TAG,
-                cFormat.c_str(), fileName, functionName, line, printArgs);
+            HiviewDFX::HiLog::Error(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
         case JsEnv::JsEnvLogLevel::FATAL:
-            HILOG_IMPL(LOG_CORE, LOG_FATAL, ENV_LOG_DOMAIN, ENV_LOG_TAG,
-                cFormat.c_str(), fileName, functionName, line, printArgs);
+            HiviewDFX::HiLog::Fatal(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
         default:
-            HILOG_IMPL(LOG_CORE, LOG_INFO, ENV_LOG_DOMAIN, ENV_LOG_TAG,
-                cFormat.c_str(), fileName, functionName, line, printArgs);
+            HiviewDFX::HiLog::Info(LOG_LABEL, cFormat.c_str(), fileName, functionName, line, printArgs);
             break;
     }
     va_end(printArgs);

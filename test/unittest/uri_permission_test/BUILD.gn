@@ -39,6 +39,7 @@ ohos_unittest("uri_permission_test") {
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "hilog:libhilog",
     "init:libbeget_proxy",
     "init:libbegetutil",
     "relational_store:native_rdb",
