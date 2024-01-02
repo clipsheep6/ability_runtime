@@ -4748,7 +4748,7 @@ int32_t AppMgrServiceInner::GetRunningProcessInformation(
 
 int32_t AppMgrServiceInner::ChangeAppGcState(pid_t pid, int32_t state)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("called, pid:%{public}d, state:%{public}d.", pid, state);
     auto appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
         HILOG_ERROR("no such appRecord");

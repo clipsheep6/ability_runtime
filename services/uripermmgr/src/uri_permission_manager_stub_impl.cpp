@@ -167,7 +167,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
 
 int checkPersistPermission(uint64_t tokenId, const std::vector<PolicyInfo> &policy, std::vector<bool> &result)
 {
-    for (auto i = 0; i < policy.size(); i++) {
+    for (size_t i = 0; i < policy.size(); i++) {
         result.emplace_back(true);
     }
     HILOG_INFO("Called, result size is %{public}zu", result.size());
@@ -182,7 +182,7 @@ int32_t setPolicy(uint64_t tokenId, const std::vector<PolicyInfo> &policy, uint6
 
 int persistPermission(const std::vector<PolicyInfo> &policy, std::vector<uint32_t> &result)
 {
-    for (auto i = 0; i < policy.size(); i++) {
+    for (size_t i = 0; i < policy.size(); i++) {
         result.emplace_back(0);
     }
     HILOG_INFO("Called, result size is %{public}zu", result.size());

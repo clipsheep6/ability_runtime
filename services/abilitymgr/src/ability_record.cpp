@@ -2949,7 +2949,7 @@ void AbilityRecord::GrantUriPermissionFor2In1Inner(Want &want, std::vector<std::
         auto &&authority = uri.GetAuthority();
         if (authority == "docs") {
             uri2In1Vec.emplace_back(uri);
-        } else{
+        } else {
             uriOtherVec.emplace_back(str);
         }
     }

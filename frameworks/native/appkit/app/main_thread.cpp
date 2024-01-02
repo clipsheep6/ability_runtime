@@ -2869,7 +2869,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
 
 int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("called, state is %{public}d.", state);
     if (mainHandler_ == nullptr) {
         HILOG_ERROR("mainHandler is nullptr");
         return ERR_INVALID_VALUE;
