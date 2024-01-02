@@ -302,7 +302,24 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    if (userId < 0) {
+    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
+    if (remoteClientManager == nullptr) {
+        HILOG_ERROR("The remoteClientManager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+    int32_t callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid != 0 || userId < 0) {
+        std::string callerBundleName;
+        auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
+        if (result != ERR_OK) {
+            HILOG_ERROR("GetBundleName failed: %{public}d.", result);
+            return ERR_INVALID_OPERATION;
+        }
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
         if (!isSaCall) {
             auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
@@ -315,7 +332,8 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     pid_t pid = IPCSkeleton::GetCallingPid();
-    return appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
+    appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
+    return ERR_OK;
 }
 
 int32_t AppMgrService::ClearUpApplicationDataBySelf(int32_t userId)
