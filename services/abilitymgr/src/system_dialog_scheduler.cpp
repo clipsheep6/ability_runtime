@@ -349,7 +349,7 @@ void SystemDialogScheduler::GetSelectorDialogPositionAndSize(
         lineNums, display->GetVirtualPixelRatio());
 }
 
-Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
+int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos, Want &targetWant,
     const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("GetSelectorDialogWant start");
@@ -375,17 +375,17 @@ Want SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInf
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
             HILOG_ERROR("The bundleMgrHelper is nullptr.");
-            return targetWant;
+            return INNER_ERR;
         }
         std::string bundleName;
-        auto ret = IN_PROCESS_CALL(bundleMgrHelper->QueryAppGalleryBundleName(bundleName));
-        if (ret) {
-            targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
-            targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
-            return targetWant;
+        if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAppGalleryBundleName(bundleName))) {
+            HILOG_ERROR("QueryAppGalleryBundleName failed.");
+            return INNER_ERR;
         }
+        targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
+        targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
     }
-    return targetWant;
+    return ERR_OK;
 }
 
 const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<DialogAppInfo> &infos) const
@@ -413,7 +413,7 @@ const std::string SystemDialogScheduler::GetSelectorParams(const std::vector<Dia
     return jsonObject.dump();
 }
 
-Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
+int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppInfo> &dialogAppInfos,
     Want &targetWant, const std::string &type, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
     HILOG_DEBUG("GetPcSelectorDialogWant start");
@@ -435,17 +435,17 @@ Want SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppI
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
             HILOG_ERROR("The bundleMgrHelper is nullptr.");
-            return targetWant;
+            return INNER_ERR;
         }
         std::string bundleName;
-        auto ret = IN_PROCESS_CALL(bundleMgrHelper->QueryAppGalleryBundleName(bundleName));
-        if (ret) {
-            targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
-            targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
-            return targetWant;
+        if (!IN_PROCESS_CALL(bundleMgrHelper->QueryAppGalleryBundleName(bundleName))) {
+            HILOG_ERROR("QueryAppGalleryBundleName failed.");
+            return INNER_ERR;
         }
+        targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
+        targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
     }
-    return targetWant;
+    return ERR_OK;
 }
 
 const std::string SystemDialogScheduler::GetPcSelectorParams(const std::vector<DialogAppInfo> &infos,
