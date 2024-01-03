@@ -961,6 +961,11 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     EraseAbilityRecord(abilityRecord);
     abilityRecord->SendResultToCallers();
 
+    if (abilityRecord->IsDebug() && isClearSession) {
+        HILOG_DEBUG("notify AppMS terminate");
+        return abilityRecord->TerminateAbility();
+    }
+
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
