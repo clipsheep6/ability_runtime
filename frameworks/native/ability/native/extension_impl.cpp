@@ -41,10 +41,12 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
 
     token_ = record->GetToken();
     extension_ = extension;
-    if (record->GetAbilityInfo() != nullptr &&
-        AAFwk::UIExtensionUtils::IsUIExtension(record->GetAbilityInfo()->extensionAbilityType)) {
-        extension_->SetExtensionWindowLifeCycleListener(
-            sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
+    if (record->GetAbilityInfo() != nullptr) {
+        extensionType_ = record->GetAbilityInfo()->extensionAbilityType;
+        if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_)) {
+            extension_->SetExtensionWindowLifeCycleListener(
+                sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
+        }
     }
     extension_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
@@ -108,11 +110,17 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         }
     }
 
-    if (ret) {
+    if (ret && !UIExtensionAbilityExecuteInsightIntent(want)) {
         HILOG_INFO("call abilityms");
         AAFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, restoreData);
     }
+}
+
+bool ExtensionImpl::UIExtensionAbilityExecuteInsightIntent(const Want &want)
+{
+    return AAFwk::UIExtensionUtils::IsUIExtension(extensionType_) &&
+        AppExecFwk::InsightIntentExecuteParam::IsInsightIntentExecute(want);
 }
 
 void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
@@ -241,7 +249,7 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
         HILOG_ERROR("ExtensionImpl::ConnectAbility extension_ is nullptr");
         return nullptr;
     }
-    
+
     skipCommandExtensionWithIntent_ = true;
     sptr<IRemoteObject> object = extension_->OnConnect(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;

@@ -1244,6 +1244,5 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_VerifyPermission_0100, Func
     EXPECT_EQ(0, abms->VerifyPermission(permission, pid, uid));
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_VerifyPermission_0100";
 }
-#endif
 } // namespace AppExecFwk
 } // namespace OHOS

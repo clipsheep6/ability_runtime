@@ -132,7 +132,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
     int32_t res = ecologicalRuleMgrServiceProxy_->QueryStartExperience(want, callerInfo, rule);
     if (rule.replaceWant != nullptr) {
         rule.replaceWant->SetParam(ERMS_ORIGINAL_TARGET, want.ToString());
-        HILOG_DEBUG("queryStart finish: rule.isAllow = %{public}d, rule.sceneCode = %{public}s, replaceWant = %{public}s",
+        HILOG_DEBUG("queryStart finish: isAllow = %{public}d, sceneCode = %{public}s, replaceWant = %{public}s",
             rule.isAllow, rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
     }
     int64_t cost = GetCurrentTimeMicro() - start;
@@ -149,8 +149,8 @@ AbilityEcologicalRuleMgrServiceProxy::AbilityEcologicalRuleMgrServiceProxy(const
     : IRemoteProxy<IAbilityEcologicalRuleMgrService>(object)
 {}
 
-int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &want, const AbilityCallerInfo &callerInfo,
-    int32_t type, std::vector<AbilityInfo> &abilityInfos)
+int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &want,
+    const AbilityCallerInfo &callerInfo, int32_t type, std::vector<AbilityInfo> &abilityInfos)
 {
     HILOG_DEBUG("called");
     MessageParcel data;
@@ -229,8 +229,8 @@ bool AbilityEcologicalRuleMgrServiceProxy::ReadParcelableVector(std::vector<T> &
     return true;
 }
 
-int32_t AbilityEcologicalRuleMgrServiceProxy::QueryStartExperience(const Want &want, const AbilityCallerInfo &callerInfo,
-    AbilityExperienceRule &rule)
+int32_t AbilityEcologicalRuleMgrServiceProxy::QueryStartExperience(const Want &want,
+    const AbilityCallerInfo &callerInfo, AbilityExperienceRule &rule)
 {
     HILOG_DEBUG("called");
     MessageParcel data;

@@ -182,6 +182,15 @@ public:
         const int32_t userId = -1);
 
     /**
+     * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
+     * clear the application data.
+     *
+     * @param userId, the user id.
+     * @return
+     */
+    virtual AppMgrResultCode ClearUpApplicationDataBySelf(int32_t userId = -1);
+
+    /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
      * Obtains information about application processes that are running on the device.
      *
@@ -539,6 +548,7 @@ public:
     /**
      * Register application or process state observer.
      * @param observer, ability token.
+     * @param bundleNameList, the list of bundle names.
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer,

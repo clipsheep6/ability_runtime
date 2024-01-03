@@ -51,6 +51,7 @@ public:
         std::string packagePathStr;
         std::vector<std::string> assetBasePathStr;
         std::shared_ptr<AppExecFwk::EventRunner> eventRunner;
+        std::map<std::string, std::string> hapModulePath;
         bool loadAce = true;
         bool preload = false;
         bool isBundle = true;

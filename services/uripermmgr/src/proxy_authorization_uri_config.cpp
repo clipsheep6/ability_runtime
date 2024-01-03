@@ -62,7 +62,7 @@ bool ProxyAuthorizationUriConfig::IsAuthorizationUriAllowed(uint32_t fromTokenId
     if (result == Security::AccessToken::AccessTokenKitRet::RET_SUCCESS &&
         bundleNameAllowedList_.find(hapInfo.bundleName) != bundleNameAllowedList_.end()) {
         return true;
-    } 
+    }
     return false;
 }
 

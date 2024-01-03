@@ -128,6 +128,11 @@ std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetAbilityRecordBy
     const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     CHECK_POINTER_AND_RETURN(sessionInfo, nullptr);
+    if (sessionInfo->uiExtensionComponentId == INVALID_EXTENSION_RECORD_ID) {
+        HILOG_DEBUG("Extensionability id invalid or not configured.");
+        return nullptr;
+    }
+
     std::lock_guard<std::mutex> lock(mutex_);
     for (const auto& it : extensionRecords_) {
         if (it.second == nullptr) {

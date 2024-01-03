@@ -26,13 +26,14 @@ namespace OHOS {
 namespace EcologicalRuleMgrService {
 class IAbilityEcologicalRuleMgrService : public OHOS::IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.cloud.ecologicalrulemgrservice.IEcologicalRuleMgrService");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.cloud.ecologicalrulemgrservice.IAbilityEcologicalRuleMgrService");
 
     using Want = OHOS::AAFwk::Want;
 
     using AbilityInfo = OHOS::AppExecFwk::AbilityInfo;
 
-    virtual int32_t QueryStartExperience(const Want &want, const AbilityCallerInfo &callerInfo, AbilityExperienceRule &rule) = 0;
+    virtual int32_t QueryStartExperience(const Want &want, const AbilityCallerInfo &callerInfo,
+        AbilityExperienceRule &rule) = 0;
     virtual int32_t EvaluateResolveInfos(const Want &want, const AbilityCallerInfo &callerInfo, int32_t type,
         std::vector<AbilityInfo> &abilityInfos) = 0;
 

@@ -178,17 +178,7 @@ bool JsEnvironment::StartDebugger(
         JSENV_LOG_E("Abnormal parsing of tid results.");
         return false;
     }
-    panda::JSNApi::DebugOption debugOption = {libraryPath, needBreakPoint};
-    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
-        auto jsEnv = weak.lock();
-        if (jsEnv == nullptr) {
-            JSENV_LOG_E("JsEnv is invalid.");
-            return;
-        }
-        jsEnv->PostTask(task, "JsEnvironment:StartDebugger");
-    };
-    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(
-        static_cast<uint32_t>(identifierId), debugOption, socketFd, debuggerPostTask);
+    debugMode_ = panda::JSNApi::StartDebuggerForSocketPair(identifierId, socketFd);
     return debugMode_;
 }
 
@@ -209,7 +199,7 @@ void JsEnvironment::StopDebugger(std::string& option)
         JSENV_LOG_E("Abnormal parsing of tid results.");
         return;
     }
-    panda::JSNApi::StopDebugger(static_cast<uint32_t>(identifierId));
+    panda::JSNApi::StopDebugger(identifierId);
 }
 
 void JsEnvironment::InitConsoleModule()
@@ -260,7 +250,7 @@ bool JsEnvironment::LoadScript(const std::string& path, uint8_t* buffer, size_t 
 }
 
 void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, PROFILERTYPE profiler,
-    int32_t interval, uint32_t tid)
+    int32_t interval, int tid, bool isDebugApp)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
@@ -281,7 +271,7 @@ void JsEnvironment::StartProfiler(const char* libraryPath, uint32_t instanceId, 
     option.profilerType = ConvertProfilerType(profiler);
     option.interval = interval;
 
-    panda::DFXJSNApi::StartProfiler(vm_, option, tid, instanceId, debuggerPostTask);
+    panda::DFXJSNApi::StartProfiler(vm_, option, tid, instanceId, debuggerPostTask, isDebugApp);
 }
 
 void JsEnvironment::DestroyHeapProfiler()
@@ -325,13 +315,13 @@ void JsEnvironment::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
 }
 
 void JsEnvironment::NotifyDebugMode(
-    uint32_t tid, const char* libraryPath, uint32_t instanceId, bool debug, bool debugMode)
+    int tid, const char* libraryPath, uint32_t instanceId, bool debug, bool debugMode)
 {
     if (vm_ == nullptr) {
         JSENV_LOG_E("Invalid vm.");
         return;
     }
-    panda::JSNApi::DebugOption debugOption = {libraryPath, debugMode};
+    panda::JSNApi::DebugOption debugOption = {libraryPath, debug ? debugMode : false};
     auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
         auto jsEnv = weak.lock();
         if (jsEnv == nullptr) {
@@ -340,7 +330,7 @@ void JsEnvironment::NotifyDebugMode(
         }
         jsEnv->PostTask(task, "JsEnvironment:NotifyDebugMode");
     };
-    panda::JSNApi::NotifyDebugMode(tid, vm_, libraryPath, debugOption, instanceId, debuggerPostTask, debug, debugMode);
+    panda::JSNApi::NotifyDebugMode(tid, vm_, debugOption, instanceId, debuggerPostTask, debug);
 }
 
 int32_t JsEnvironment::ParseHdcRegisterOption(std::string& option)

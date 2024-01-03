@@ -29,6 +29,9 @@
 namespace panda::ecmascript {
 class EcmaVM;
 } // namespace panda::ecmascript
+namespace panda {
+struct HmsMap;
+}
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -163,6 +166,8 @@ private:
     void PostPreload(const Options& options);
     void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
+
+    std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

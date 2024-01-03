@@ -119,6 +119,10 @@ std::shared_ptr<JsExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr
         HILOG_ERROR("abilityInfo srcEntrance is empty");
         return nullptr;
     }
+
+    if (record != nullptr) {
+        token_ = record->GetToken();
+    }
     std::string srcPath(abilityInfo_->moduleName + "/");
     srcPath.append(abilityInfo_->srcEntrance);
     srcPath.erase(srcPath.rfind('.'));
@@ -211,7 +215,7 @@ void JsUIExtensionBase::OnCommandWindow(
         return;
     }
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want) && winCmd == AAFwk::WIN_CMD_FOREGROUND) {
-        bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo);
+        bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo, false);
         if (finish) {
             return;
         }
@@ -234,7 +238,7 @@ void JsUIExtensionBase::OnCommandWindow(
 }
 
 bool JsUIExtensionBase::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
-    const sptr<AAFwk::SessionInfo> &sessionInfo)
+    const sptr<AAFwk::SessionInfo> &sessionInfo, bool needForeground)
 {
     HILOG_DEBUG("called.");
     if (!HandleSessionCreate(want, sessionInfo)) {
@@ -248,16 +252,17 @@ bool JsUIExtensionBase::ForegroundWindowWithInsightIntent(const AAFwk::Want &wan
         HILOG_ERROR("Create async callback failed.");
         return false;
     }
-    executorCallback->Push([weak = weak_from_this(), sessionInfo](AppExecFwk::InsightIntentExecuteResult result) {
-        HILOG_DEBUG("Begin UI extension transaction callback.");
-        auto extension = weak.lock();
-        if (extension == nullptr) {
-            HILOG_ERROR("UI extension is nullptr.");
-            return;
-        }
-        extension->OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
-        extension->OnInsightIntentExecuteDone(sessionInfo, result);
-    });
+    executorCallback->Push(
+        [weak = weak_from_this(), sessionInfo, needForeground](AppExecFwk::InsightIntentExecuteResult result) {
+            HILOG_DEBUG("Begin UI extension transaction callback.");
+            auto extension = weak.lock();
+            if (extension == nullptr) {
+                HILOG_ERROR("UI extension is nullptr.");
+                return;
+            }
+
+            extension->PostInsightIntentExecuted(sessionInfo, result, needForeground);
+        });
 
     InsightIntentExecutorInfo executorInfo;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = context_->GetAbilityInfo();
@@ -280,6 +285,30 @@ bool JsUIExtensionBase::ForegroundWindowWithInsightIntent(const AAFwk::Want &wan
     }
     HILOG_DEBUG("end.");
     return true;
+}
+
+void JsUIExtensionBase::PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
+    const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground)
+{
+    HILOG_DEBUG("Post insightintent executed.");
+    if (needForeground) {
+        // If uiextensionability is started for the first time or need move background to foreground.
+        HandleScope handleScope(jsRuntime_);
+        CallObjectMethod("onForeground");
+    }
+
+    OnInsightIntentExecuteDone(sessionInfo, result);
+
+    if (needForeground) {
+        // If need foreground, that means triggered by onForeground.
+        HILOG_INFO("call abilityms");
+        AAFwk::PacMap restoreData;
+        AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, AAFwk::ABILITY_STATE_FOREGROUND_NEW,
+            restoreData);
+    } else {
+        // If uiextensionability has displayed in the foreground.
+        OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    }
 }
 
 void JsUIExtensionBase::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
@@ -369,6 +398,13 @@ void JsUIExtensionBase::OnCommand(const AAFwk::Want &want, bool restart, int32_t
 void JsUIExtensionBase::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("called");
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo, true);
+        if (finish) {
+            return;
+        }
+    }
+
     ForegroundWindow(want, sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onForeground");

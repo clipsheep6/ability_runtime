@@ -44,7 +44,7 @@ static std::unordered_map<Rosen::WSError, int32_t> SCB_TO_MISSION_ERROR_CODE_MAP
 
 using OHOS::Rosen::SessionManagerLite;
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
-std::recursive_mutex AbilityManagerClient::mutex_;
+std::once_flag AbilityManagerClient::singletonFlag_;
 #ifdef WITH_DLP
 const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 #endif // WITH_DLP
@@ -69,12 +69,9 @@ const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::recursive_mutex> lock_l(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = std::make_shared<AbilityManagerClient>();
-        }
-    }
+    std::call_once(singletonFlag_, [] () {
+        instance_ = std::shared_ptr<AbilityManagerClient>(new AbilityManagerClient());
+    });
     return instance_;
 }
 

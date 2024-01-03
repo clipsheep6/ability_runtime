@@ -548,52 +548,44 @@ void DataAbilityManager::DumpState(std::vector<std::string> &info, const std::st
     }
 }
 
+void DataAbilityManager::DumpClientInfo(std::vector<std::string> &info, bool isClient,
+    std::shared_ptr<DataAbilityRecord> record) const
+{
+    if (record == nullptr) {
+        return;
+    }
+    record->Dump(info);
+    // add dump client info
+    if (isClient && record->GetScheduler() && record->GetAbilityRecord() && record->GetAbilityRecord()->IsReady()) {
+        std::vector<std::string> params;
+        record->GetScheduler()->DumpAbilityInfo(params, info);
+        AppExecFwk::Configuration config;
+        if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
+            info.emplace_back("          configuration: " + config.GetName());
+        }
+    }
+}
+
 void DataAbilityManager::DumpSysState(std::vector<std::string> &info, bool isClient, const std::string &args) const
 {
-    if (!args.empty()) {
-        auto it = std::find_if(dataAbilityRecordsLoaded_.begin(),
-            dataAbilityRecordsLoaded_.end(),
-            [&args](const auto &dataAbilityRecord) { return dataAbilityRecord.first.compare(args) == 0; });
-        if (it != dataAbilityRecordsLoaded_.end()) {
-            info.emplace_back("AbilityName [ " + it->first + " ]");
-            if (it->second) {
-                it->second->Dump(info);
-            }
-            // add dump client info
-            if (isClient && it->second && it->second->GetScheduler() &&
-                it->second->GetAbilityRecord() && it->second->GetAbilityRecord()->IsReady()) {
-                std::vector<std::string> params;
-                it->second->GetScheduler()->DumpAbilityInfo(params, info);
-                AppExecFwk::Configuration config;
-                if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
-                    info.emplace_back("          configuration: " + config.GetName());
-                }
-            }
-        } else {
-            info.emplace_back(args + ": Nothing to dump.");
-        }
-    } else {
+    if (args.empty()) {
         info.emplace_back("  dataAbilityRecords:");
         for (auto &&dataAbilityRecord : dataAbilityRecordsLoaded_) {
             info.emplace_back("    uri [" + dataAbilityRecord.first + "]");
-            if (dataAbilityRecord.second) {
-                dataAbilityRecord.second->Dump(info);
-                dataAbilityRecord.second->GetScheduler();
-            }
-            // add dump client info
-            if (isClient && dataAbilityRecord.second && dataAbilityRecord.second->GetScheduler() &&
-                dataAbilityRecord.second->GetAbilityRecord() &&
-                dataAbilityRecord.second->GetAbilityRecord()->IsReady()) {
-                std::vector<std::string> params;
-                dataAbilityRecord.second->GetScheduler()->DumpAbilityInfo(params, info);
-                AppExecFwk::Configuration config;
-                if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
-                    info.emplace_back("          configuration: " + config.GetName());
-                }
-            }
+            DumpClientInfo(info, isClient, dataAbilityRecord.second);
         }
+        return;
     }
-    return;
+    auto compareFunction = [&args](const auto &dataAbilityRecord) {
+        return dataAbilityRecord.first.compare(args) == 0;
+    };
+    auto it = std::find_if(dataAbilityRecordsLoaded_.begin(), dataAbilityRecordsLoaded_.end(), compareFunction);
+    if (it == dataAbilityRecordsLoaded_.end()) {
+        info.emplace_back(args + ": Nothing to dump.");
+        return;
+    }
+    info.emplace_back("AbilityName [ " + it->first + " ]");
+    DumpClientInfo(info, isClient, it->second);
 }
 
 void DataAbilityManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)

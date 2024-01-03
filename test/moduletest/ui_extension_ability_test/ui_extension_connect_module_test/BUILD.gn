@@ -18,10 +18,12 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 ohos_moduletest("ui_extension_connect_module_test") {
   module_out_path = "ability_runtime/ui_extension"
 
+  include_dirs = [ "../include" ]
+
   sources = [
+    "../src/ui_extension_connect_module_test_connection.cpp",
+    "../src/ui_extension_connect_module_test_observer.cpp",
     "ui_extension_connect_module_test.cpp",
-    "ui_extension_connect_module_test_connection.cpp",
-    "ui_extension_connect_module_test_observer.cpp",
   ]
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]

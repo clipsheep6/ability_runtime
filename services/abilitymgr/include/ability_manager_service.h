@@ -925,7 +925,7 @@ public:
         sptr<DialogSessionInfo> &dialogSessionInfo) override;
 
     bool GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
 
     int CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken, std::string dialogSessionId);
 
@@ -1886,6 +1886,9 @@ private:
 
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
         const int32_t oriValidUserId);
+
+    void InitInterceptor();
+    void InitPushTask();
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

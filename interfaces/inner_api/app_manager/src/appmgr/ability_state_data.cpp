@@ -47,7 +47,7 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
         if (!parcel.WriteBool(true)) {
             return false;
         }
-        if (!parcel.WriteObject(token)) {
+        if (!parcel.WriteRemoteObject(token)) {
             return false;
         }
     }

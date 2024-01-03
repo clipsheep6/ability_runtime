@@ -41,7 +41,7 @@ private:
     napi_value OnSetApplicationAutoStartup(napi_env env, NapiCallbackInfo &info);
     napi_value OnCancelApplicationAutoStartup(napi_env env, NapiCallbackInfo &info);
     napi_value OnQueryAllAutoStartupApplications(napi_env env, const NapiCallbackInfo &info);
-    bool CheckCallerIsSystemApp();
+    static bool CheckCallerIsSystemApp();
 
     sptr<JsAbilityAutoStartupCallBack> jsAutoStartupCallback_;
 };

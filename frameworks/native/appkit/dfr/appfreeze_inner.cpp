@@ -204,7 +204,7 @@ int AppfreezeInner::NotifyANR(const FaultData& faultData)
         faultData.errorObject.name.c_str(), pid, applicationInfo->bundleName.c_str());
 
     // move this call before force stop app ? such as merge to NotifyAppFault ?
-    DelayedSingleton<AbilityManagerClient>::GetInstance()->RecordAppExitReason(REASON_APP_FREEZE);
+    AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_APP_FREEZE);
     int ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
     if (ret != 0) {
         HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,

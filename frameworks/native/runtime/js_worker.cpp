@@ -97,8 +97,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         };
         panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
-        panda::JSNApi::NotifyDebugMode(
-            instanceId, vm, ARK_DEBUGGER_LIB_PATH, debugOption, instanceId, workerPostTask, g_debugApp, needBreakPoint);
+        panda::JSNApi::NotifyDebugMode(instanceId, vm, debugOption, instanceId, workerPostTask, g_debugApp);
     }
 }
 

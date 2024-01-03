@@ -116,6 +116,8 @@ private:
     static napi_value WrapRequestDialogResult(napi_env env, int32_t resultCode, const AAFwk::Want& want);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
+    bool CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        int32_t &userId, napi_value &lastParam);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;

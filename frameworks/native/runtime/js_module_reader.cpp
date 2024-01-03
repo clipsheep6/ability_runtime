@@ -160,6 +160,10 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
         }
         std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
         const std::string sharedBundleName = tmpPath.substr(0, tmpPath.find_first_of("/"));
+        if (baseSharedBundleInfos.size() == 0) {
+            presetAppHapPath = "/system/app/appServiceFwk/" + sharedBundleName + "/" + moduleName + ".hsp";
+            return presetAppHapPath;
+        }
         for (const auto &info : baseSharedBundleInfos) {
             if ((info.bundleName == sharedBundleName) && (info.moduleName == moduleName)) {
                 presetAppHapPath = info.hapPath;

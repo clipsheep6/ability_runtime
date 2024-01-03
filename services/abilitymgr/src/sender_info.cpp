@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,21 +31,24 @@ bool SenderInfo::ReadFromParcel(Parcel &parcel)
     code = parcel.ReadInt32();
     std::unique_ptr<Want> wantResquest(parcel.ReadParcelable<Want>());
     if (wantResquest == nullptr) {
-        HILOG_ERROR("%{public}s:wantResquest is nullptr.", __func__);
+        HILOG_ERROR("wantResquest is nullptr.");
         return false;
     }
     want = *wantResquest;
     resolvedType = Str16ToStr8(parcel.ReadString16());
-    sptr<IRemoteObject> finishedReceiverResquest = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-    if (finishedReceiverResquest != nullptr) {
-        finishedReceiver = iface_cast<IWantReceiver>(finishedReceiverResquest);
-        if (!finishedReceiver) {
+
+    if (parcel.ReadBool()) {
+        sptr<IRemoteObject> finishedReceiverResquest = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
+        if (finishedReceiverResquest == nullptr) {
+            HILOG_ERROR("remote object is nullptr.");
             return false;
         }
-    } else {
-        HILOG_ERROR("nullptr.");
+        finishedReceiver = iface_cast<IWantReceiver>(finishedReceiverResquest);
+        if (!finishedReceiver) {
+            HILOG_ERROR("receiver is nullptr.");
+            return false;
+        }
     }
-
     requiredPermission = Str16ToStr8(parcel.ReadString16());
     return true;
 }
@@ -72,15 +75,36 @@ bool SenderInfo::Marshalling(Parcel &parcel) const
 {
     HILOG_INFO("call");
 
-    parcel.WriteInt32(code);
-    parcel.WriteParcelable(&want);
-    parcel.WriteString16(Str8ToStr16(resolvedType));
-    if (finishedReceiver != nullptr) {
-        (static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(finishedReceiver->AsObject());
-    } else {
-        parcel.WriteParcelable(nullptr);
+    if (!parcel.WriteInt32(code)) {
+        HILOG_ERROR("Failed to write code");
+        return false;
     }
-    parcel.WriteString16(Str8ToStr16(requiredPermission));
+    if (!parcel.WriteParcelable(&want)) {
+        HILOG_ERROR("Failed to write want");
+        return false;
+    }
+    if (!parcel.WriteString16(Str8ToStr16(resolvedType))) {
+        HILOG_ERROR("Failed to write resolvedType");
+        return false;
+    }
+    if (!parcel.WriteBool(finishedReceiver != nullptr)) {
+        HILOG_ERROR("Failed to write the flag which indicate whether receiver is null");
+        return false;
+    }
+    if (finishedReceiver) {
+        if (finishedReceiver->AsObject() == nullptr) {
+            HILOG_ERROR("finishedReceiver->AsObject is null");
+            return false;
+        }
+        if (!(static_cast<MessageParcel*>(&parcel))->WriteRemoteObject(finishedReceiver->AsObject())) {
+            HILOG_ERROR("Failed to write receiver");
+            return false;
+        }
+    }
+    if (!parcel.WriteString16(Str8ToStr16(requiredPermission))) {
+        HILOG_ERROR("Failed to write requiredPermission");
+        return false;
+    }
     return true;
 }
 }  // namespace AAFwk

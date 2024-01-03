@@ -25,4 +25,15 @@
             <option name="shell" value="power-shell setmode 602"/>
         </preparer>
     </target>
+    <target name="ui_extension_stability_test">
+        <preparer>
+            <option name="push" value="ui_extension_user.hap -> /data/test/" src="res"/>
+            <option name="push" value="ui_extension_provider.hap -> /data/test/" src="res"/>
+            <option name="shell" value="bm install -r -p /data/test/ui_extension_user.hap"/>
+            <option name="shell" value="bm install -r -p /data/test/ui_extension_provider.hap"/>
+            <option name="shell" value="power-shell wakeup"/>
+            <option name="shell" value="uinput -T -d 300 600 -m 300 600 300 100 -u 300 100"/>
+            <option name="shell" value="power-shell setmode 602"/>
+        </preparer>
+    </target>
 </configuration>

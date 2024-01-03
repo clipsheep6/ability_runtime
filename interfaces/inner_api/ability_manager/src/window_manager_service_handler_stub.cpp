@@ -96,7 +96,7 @@ int WindowManagerServiceHandlerStub::GetFocusWindowInner(MessageParcel &data, Me
             HILOG_ERROR("To write true failed.");
             return ERR_AAFWK_PARCEL_FAIL;
         }
-        if (!reply.WriteObject(abilityToken)) {
+        if (!reply.WriteRemoteObject(abilityToken)) {
             HILOG_ERROR("To write abilityToken failed.");
             return ERR_AAFWK_PARCEL_FAIL;
         }
@@ -152,7 +152,7 @@ int WindowManagerServiceHandlerStub::CancelStartingWindowInner(MessageParcel &da
     sptr<IRemoteObject> abilityToken = nullptr;
     if (data.ReadBool()) {
         HILOG_DEBUG("abilityToken is valid.");
-        abilityToken = data.ReadObject<IRemoteObject>();
+        abilityToken = data.ReadRemoteObject();
     }
     CancelStartingWindow(abilityToken);
     return ERR_OK;

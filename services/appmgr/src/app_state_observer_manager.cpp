@@ -321,7 +321,6 @@ void AppStateObserverManager::OnProcessCreated(const std::shared_ptr<AppRunningR
             HILOG_ERROR("self is nullptr, OnProcessCreated failed.");
             return;
         }
-        HILOG_DEBUG("OnProcessCreated come.");
         self->HandleOnAppProcessCreated(appRecord);
     };
     handler_->SubmitTask(task);
@@ -820,7 +819,6 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
         appStateData.callerBundleName = callerBundleName;
     } else {
         appStateData.callerBundleName = "";
-        HILOG_ERROR("Get caller bundleName failed.");
     }
     HILOG_DEBUG("Handle state change, bundle:%{public}s, state:%{public}d,"
         "pid:%{public}d ,uid:%{public}d, isFocused:%{public}d, callerBUndleName: %{public}s",

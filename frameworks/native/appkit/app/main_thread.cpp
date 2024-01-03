@@ -1294,6 +1294,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
+        if (!bundleInfo.hapModuleInfos.empty()) {
+            for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+                options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
+            }
+        }
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1378,7 +1383,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-            DelayedSingleton<AbilityManagerClient>::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
             appThread->ScheduleProcessSecurityExit();
         };
         (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
@@ -1929,13 +1934,16 @@ void MainThread::HandleForegroundApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
-#endif
+
     if (!applicationImpl_->PerformForeground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformForeground() failed");
         return;
     }
+
+    // Start accessing PurgeableMem if the event of foreground is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
+#endif
 
     HILOG_DEBUG("to foreground success, recordId is %{public}d", applicationImpl_->GetRecordId());
     appMgr_->ApplicationForegrounded(applicationImpl_->GetRecordId());
@@ -1955,13 +1963,17 @@ void MainThread::HandleBackgroundApplication()
         HILOG_ERROR("MainThread::handleBackgroundApplication error!");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
-#endif
+
     if (!applicationImpl_->PerformBackground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformBackground() failed");
         return;
     }
+
+    // End accessing PurgeableMem if the event of background is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
+#endif
+
     appMgr_->ApplicationBackgrounded(applicationImpl_->GetRecordId());
 }
 
@@ -2227,7 +2239,7 @@ void MainThread::Start()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("LoadLifecycle: MainThread start come.");
 
-    if (AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
+    if (AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
         ChildProcessInfo info;
         if (IsStartChild(info)) {
             ChildMainThread::Start(info);
@@ -2857,7 +2869,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
 
 int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("called, state is %{public}d.", state);
     if (mainHandler_ == nullptr) {
         HILOG_ERROR("mainHandler is nullptr");
         return ERR_INVALID_VALUE;

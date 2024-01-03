@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_EXTENSION_IMPL_H
 
 #include "extension.h"
+#include "extension_ability_info.h"
 #include "lifecycle_state_info.h"
 
 namespace OHOS {
@@ -192,10 +193,13 @@ protected:
     void Background();
 
 private:
+    inline bool UIExtensionAbilityExecuteInsightIntent(const Want &want);
+
     int lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<IRemoteObject> token_;
     std::shared_ptr<Extension> extension_;
     bool skipCommandExtensionWithIntent_ = false;
+    AppExecFwk::ExtensionAbilityType extensionType_ = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
 class ExtensionWindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
 public:

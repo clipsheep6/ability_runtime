@@ -404,6 +404,7 @@ private:
         const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
     void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
     int32_t GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, bool &currentBundle);
+    void GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, const int &accountId);
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;

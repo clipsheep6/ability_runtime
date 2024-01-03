@@ -260,10 +260,6 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
         HILOG_ERROR("Not found Ability.js.");
         return;
     }
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-    if (applicationContext != nullptr) {
-        applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
-    }
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -299,6 +295,10 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     if (delegator) {
         HILOG_DEBUG("Call PostPerformStart.");
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
+    }
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
     HILOG_DEBUG("End ability is %{public}s.", GetAbilityName().c_str());
 }

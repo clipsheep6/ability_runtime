@@ -272,12 +272,7 @@ int32_t ApplicationStateObserverProxy::SendTransactCmd(uint32_t code, MessagePar
         return ERR_NULL_OBJECT;
     }
 
-    auto ret = remote->SendRequest(code, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
-        return ret;
-    }
-    return ret;
+    return remote->SendRequest(code, data, reply, option);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

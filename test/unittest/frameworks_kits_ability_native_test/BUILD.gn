@@ -2418,6 +2418,68 @@ ohos_unittest("share_extension_test") {
   ]
 }
 
+ohos_unittest("auto_fill_extension_module_loader_test") {
+  module_out_path = module_output_path
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/auto_fill_extension_ability" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/auto_fill_extension_ability/auto_fill_extension_module_loader.cpp",
+    "auto_fill_extension_module_loader_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:auto_fill_extension",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
+ohos_unittest("auto_fill_extension_test") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/auto_fill_extension_ability",
+  ]
+
+  sources = [ "auto_fill_extension_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:auto_fill_extension",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -2445,6 +2507,8 @@ group("unittest") {
     ":abilityruntime_test",
     ":action_extension_module_loader_test",
     ":action_extension_test",
+    ":auto_fill_extension_module_loader_test",
+    ":auto_fill_extension_test",
     ":continuation_test",
     ":data_ability_helper_impl_test",
     ":data_ability_helper_test",
