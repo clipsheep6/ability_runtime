@@ -73,14 +73,24 @@ napi_value AttachUIExtensionContext(napi_env env, void *value, void *extValue)
     if (*screenModePtr == AAFwk::IDLE_SCREEN_MODE) {
         auto uiExtObject = JsUIExtensionContext::CreateJsUIExtensionContext(env, ptr);
         CHECK_POINTER_AND_RETURN(uiExtObject, nullptr);
-        contextObj = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
-            &uiExtObject, 1)->GetNapiValue();
+        shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
+            &uiExtObject, 1);
+        if(shellContextRef_ == nullptr){
+            HILOG_DEBUG("Failed to load module");
+            return nullptr;
+        }
+        contextObj = shellContextRef_->GetNapiValue();
     } else {
         auto emUIObject = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
             nullptr, ptr, *screenModePtr);
         CHECK_POINTER_AND_RETURN(emUIObject, nullptr);
-        contextObj = JsRuntime::LoadSystemModuleByEngine(env, "application.EmbeddableUIAbilityContext",
-            &emUIObject, 1)->GetNapiValue();
+        shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.EmbeddableUIAbilityContext",
+            &emUIObject, 1);
+        if(shellContextRef_ == nullptr){
+            HILOG_DEBUG("Failed to load module");
+            return nullptr;
+        }
+        contextObj = shellContextRef_->GetNapiValue();
     }
     if (contextObj == nullptr) {
         HILOG_ERROR("load context error.");

@@ -248,6 +248,10 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionHostWindowProxy(napi_env
         return CreateJsUndefined(env);
     }
     auto value = JsRuntime::LoadSystemModuleByEngine(env, "application.extensionWindow", &jsExtensionWindow, 1);
+    if(value == nullptr){
+        HILOG_DEBUG("Failed to load module");
+        return nullptr;
+    }
     return value->GetNapiValue();
 }
 

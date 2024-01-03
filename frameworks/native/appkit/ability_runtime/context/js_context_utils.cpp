@@ -591,7 +591,6 @@ napi_value AttachBaseContext(napi_env env, void* value, void* hint)
         HILOG_WARN("AttachBaseContext, invalid systemModule.");
         return nullptr;
     }
-
     napi_value contextObj = systemModule->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get object");
