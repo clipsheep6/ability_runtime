@@ -299,6 +299,9 @@ group("unittest") {
   testonly = true
 
   deps = [
+    "ability_auto_startup_data_manager_test:unittest",
+    "ability_auto_startup_service_test:unittest",
+    "ability_bundle_event_callback_test:unittest",
     "ability_business_error_test:unittest",
     "ability_connect_callback_proxy_test:unittest",
     "ability_connect_callback_stub_test:unittest",
@@ -388,6 +391,9 @@ group("unittest") {
     "atomic_service_status_callback_stub_test:unittest",
     "authorization_result_test:unittest",
     "auto_fill_manager_test:unittest",
+    "auto_startup_callback_proxy_test:unittest",
+    "auto_startup_callback_stub_test:unittest",
+    "auto_startup_info_test:unittest",
     "background_task_observer_test:unittest",
     "bundle_mgr_helper_test:unittest",
     "call_record_test:unittest",

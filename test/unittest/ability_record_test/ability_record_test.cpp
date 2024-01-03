@@ -2579,5 +2579,35 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_SetAttachDebug_002, TestSize.Level1)
     abilityRecord_->SetAttachDebug(isAttachDebug);
     EXPECT_EQ(abilityRecord_->isAttachDebug_, false);
 }
+
+/**
+ * @tc.name: AbilityRecordTest_SetLaunchReason_0100
+ * @tc.desc: Test the state of SetLaunchReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, SetLaunchReason_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    LaunchReason reason = LaunchReason::LAUNCHREASON_START_ABILITY;
+    abilityRecord->isAppAutoStartup_ = true;
+    abilityRecord->SetLaunchReason(reason);
+    EXPECT_EQ(abilityRecord->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_AUTO_STARTUP);
+}
+
+/**
+ * @tc.name: AbilityRecordTest_SetLaunchReason_0200
+ * @tc.desc: Test the state of SetLaunchReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityRecordTest, SetLaunchReason_0200, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    LaunchReason reason = LaunchReason::LAUNCHREASON_START_ABILITY;
+    abilityRecord->isAppAutoStartup_ = false;
+    abilityRecord->SetLaunchReason(reason);
+    EXPECT_EQ(abilityRecord->lifeCycleStateInfo_.launchParam.launchReason, LaunchReason::LAUNCHREASON_START_ABILITY);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

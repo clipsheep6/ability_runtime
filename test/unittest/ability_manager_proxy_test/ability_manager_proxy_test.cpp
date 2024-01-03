@@ -2491,5 +2491,182 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetForegroundUIAbilities_0
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+/**
+ * @tc.name: AbilityManagerProxyTest_RegisterAutoStartupSystemCallback_0100
+ * @tc.desc: Test the state of RegisterAutoStartupSystemCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, RegisterAutoStartupSystemCallback_0100, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = nullptr;
+    EXPECT_EQ(callback, nullptr);
+    auto res = proxy_->RegisterAutoStartupSystemCallback(callback);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_RegisterAutoStartupSystemCallback_0200
+ * @tc.desc: Test the state of RegisterAutoStartupSystemCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, RegisterAutoStartupSystemCallback_0200, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(callback, nullptr);
+    auto res = proxy_->RegisterAutoStartupSystemCallback(callback);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_UnregisterAutoStartupSystemCallback_0100
+ * @tc.desc: Test the state of UnregisterAutoStartupSystemCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, UnregisterAutoStartupSystemCallback_0100, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = nullptr;
+    EXPECT_EQ(callback, nullptr);
+    auto res = proxy_->UnregisterAutoStartupSystemCallback(callback);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_UnregisterAutoStartupSystemCallback_0200
+ * @tc.desc: Test the state of UnregisterAutoStartupSystemCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, UnregisterAutoStartupSystemCallback_0200, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(callback, nullptr);
+    auto res = proxy_->UnregisterAutoStartupSystemCallback(callback);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_SetApplicationAutoStartup_0100
+ * @tc.desc: Test the state of SetApplicationAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, SetApplicationAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto res = proxy_->SetApplicationAutoStartup(info);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_CancelApplicationAutoStartup_0100
+ * @tc.desc: Test the state of CancelApplicationAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, CancelApplicationAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto res = proxy_->CancelApplicationAutoStartup(info);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_QueryAllAutoStartupApplications_0100
+ * @tc.desc: Test the state of QueryAllAutoStartupApplications
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize.Level1)
+{
+    std::vector<AutoStartupInfo> infoList;
+    auto res = proxy_->QueryAllAutoStartupApplications(infoList);
+    EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_RegisterAutoStartupCallback_0100
+ * @tc.desc: Test the state of RegisterAutoStartupCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, RegisterAutoStartupCallback_0100, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = nullptr;
+    EXPECT_EQ(callback, nullptr);
+    auto res = proxy_->RegisterAutoStartupCallback(callback);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_RegisterAutoStartupCallback_0200
+ * @tc.desc: Test the state of RegisterAutoStartupCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, RegisterAutoStartupCallback_0200, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(callback, nullptr);
+    auto res = proxy_->RegisterAutoStartupCallback(callback);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_UnregisterAutoStartupCallback_0100
+ * @tc.desc: Test the state of UnregisterAutoStartupCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, UnregisterAutoStartupCallback_0100, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = nullptr;
+    EXPECT_EQ(callback, nullptr);
+    auto res = proxy_->UnregisterAutoStartupCallback(callback);
+    EXPECT_EQ(res, INNER_ERR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_UnregisterAutoStartupCallback_0200
+ * @tc.desc: Test the state of UnregisterAutoStartupCallback
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, UnregisterAutoStartupCallback_0200, TestSize.Level1)
+{
+    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(callback, nullptr);
+    auto res = proxy_->UnregisterAutoStartupCallback(callback);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_SetAutoStartup_0100
+ * @tc.desc: Test the state of SetAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, SetAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto res = proxy_->SetAutoStartup(info);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_CancelAutoStartup_0100
+ * @tc.desc: Test the state of CancelAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, CancelAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    auto res = proxy_->CancelAutoStartup(info);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerProxyTest_IsAutoStartup_0100
+ * @tc.desc: Test the state of IsAutoStartup
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, IsAutoStartup_0100, TestSize.Level1)
+{
+    AutoStartupInfo info;
+    bool isAutoStartup;
+    auto res = proxy_->IsAutoStartup(info, isAutoStartup);
+    EXPECT_EQ(res, NO_ERROR);
+}
+} // namespace AAFwk
+} // namespace OHOS

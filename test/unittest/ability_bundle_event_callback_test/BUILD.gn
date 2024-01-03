@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,68 +16,61 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("ability_manager_service_first_test") {
+ohos_unittest("ability_bundle_event_callback_test") {
   module_out_path = module_output_path
 
   include_dirs = [
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime/",
+    "${ability_runtime_path}/interfaces/inner_api/uri_permission/include",
     "${ability_runtime_path}/interfaces/inner_api/ability_manager/include",
-    "${ability_runtime_test_path}/mock/ability_manager_collaborator",
-    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
-    "${ability_runtime_test_path}/mock/prepare_terminate_callback",
-    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit/include",
-    "${ability_runtime_test_path}/unittest/app_debug_listener_stub_test",
-    "mock/include",
+    "${ability_base_kits_path}/extractortool/include",
+    "${ability_runtime_path}/services/abilitymgr/src/",
   ]
 
   sources = [
+    "${ability_runtime_path}/services/abilitymgr/src/ability_auto_startup_data_manager.cpp",
     "${ability_runtime_path}/services/abilitymgr/src/ability_auto_startup_service.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
-    "ability_manager_service_first_test.cpp",
-    "mock/src/mock_my_flag.cpp",
-    "mock/src/mock_permission_verification.cpp",
+    "${ability_runtime_path}/services/abilitymgr/src/ability_event_util.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_bundle_event_callback.cpp",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
+    "ability_bundle_event_callback_test.cpp",
   ]
 
-  configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
+  configs = [ "${ability_runtime_test_path}/mock/services_abilitymgr_test:aafwk_mock_config" ]
 
   deps = [
-    "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
-    "${ability_runtime_innerkits_path}/ability_manager:mission_info",
-    "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
+    "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
+    "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
-    "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:ability_manager",
-    "bundle_framework:appexecfwk_base",
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
+    "common_event_service:cesfwk_core",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
     "hilog:libhilog",
-    "ipc:ipc_core",
+    "init:libbeget_proxy",
     "kv_store:distributeddata_inner",
+    "window_manager:libwsutils",
+    "window_manager:sms",
   ]
-
   if (ecologic_rule_enabled) {
     external_deps += [ "ecological_rule_manager:erms_client" ]
-  }
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:scene_session" ]
   }
 }
 
 group("unittest") {
   testonly = true
-  deps = [ ":ability_manager_service_first_test" ]
+  deps = [ ":ability_bundle_event_callback_test" ]
 }
