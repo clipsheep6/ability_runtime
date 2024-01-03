@@ -525,11 +525,15 @@ void DataAbilityManager::DumpLocked(const char *func, int line)
 
 void DataAbilityManager::DumpState(std::vector<std::string> &info, const std::string &args) const
 {
+    DataAbilityRecordPtrMap dataAbilityRecordMap;
+    {
+        std::lock_guard<ffrt::mutex> locker(mutex_);
+        dataAbilityRecordMap = dataAbilityRecordsLoaded_;
+    }
     if (!args.empty()) {
-        auto it = std::find_if(dataAbilityRecordsLoaded_.begin(),
-            dataAbilityRecordsLoaded_.end(),
+        auto it = std::find_if(dataAbilityRecordMap.begin(), dataAbilityRecordMap.end(),
             [&args](const auto &dataAbilityRecord) { return dataAbilityRecord.first.compare(args) == 0; });
-        if (it != dataAbilityRecordsLoaded_.end()) {
+        if (it != dataAbilityRecordMap.end()) {
             info.emplace_back("AbilityName [ " + it->first + " ]");
             if (it->second) {
                 it->second->Dump(info);
@@ -539,7 +543,7 @@ void DataAbilityManager::DumpState(std::vector<std::string> &info, const std::st
         }
     } else {
         info.emplace_back("dataAbilityRecords:");
-        for (auto &&dataAbilityRecord : dataAbilityRecordsLoaded_) {
+        for (auto &&dataAbilityRecord : dataAbilityRecordMap) {
             info.emplace_back("  uri [" + dataAbilityRecord.first + "]");
             if (dataAbilityRecord.second) {
                 dataAbilityRecord.second->Dump(info);
@@ -568,9 +572,14 @@ void DataAbilityManager::DumpClientInfo(std::vector<std::string> &info, bool isC
 
 void DataAbilityManager::DumpSysState(std::vector<std::string> &info, bool isClient, const std::string &args) const
 {
+    DataAbilityRecordPtrMap dataAbilityRecordMap;
+    {
+        std::lock_guard<ffrt::mutex> locker(mutex_);
+        dataAbilityRecordMap = dataAbilityRecordsLoaded_;
+    }
     if (args.empty()) {
         info.emplace_back("  dataAbilityRecords:");
-        for (auto &&dataAbilityRecord : dataAbilityRecordsLoaded_) {
+        for (auto &&dataAbilityRecord : dataAbilityRecordMap) {
             info.emplace_back("    uri [" + dataAbilityRecord.first + "]");
             DumpClientInfo(info, isClient, dataAbilityRecord.second);
         }
@@ -579,8 +588,8 @@ void DataAbilityManager::DumpSysState(std::vector<std::string> &info, bool isCli
     auto compareFunction = [&args](const auto &dataAbilityRecord) {
         return dataAbilityRecord.first.compare(args) == 0;
     };
-    auto it = std::find_if(dataAbilityRecordsLoaded_.begin(), dataAbilityRecordsLoaded_.end(), compareFunction);
-    if (it == dataAbilityRecordsLoaded_.end()) {
+    auto it = std::find_if(dataAbilityRecordMap.begin(), dataAbilityRecordMap.end(), compareFunction);
+    if (it == dataAbilityRecordMap.end()) {
         info.emplace_back(args + ": Nothing to dump.");
         return;
     }
