@@ -37,7 +37,11 @@ void ProxyAuthorizationUriConfig::LoadConfiguration()
 {
     HILOG_DEBUG("call");
     nlohmann::json jsonBuf;
-    std::string configPath = CONFIG_PATH_PREFIX + OHOS::system::GetDeviceType() + CONFIG_PATH;
+    std::string deviceType = OHOS::system::GetDeviceType();
+    if (deviceType == "2in1") {
+        deviceType = "pc";
+    }
+    std::string configPath = CONFIG_PATH_PREFIX + deviceType + CONFIG_PATH;
     if (ReadFileInfoJson(configPath, jsonBuf)) {
         LoadBundleNameAllowedList(jsonBuf);
         return;
