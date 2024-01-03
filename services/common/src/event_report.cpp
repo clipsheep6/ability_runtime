@@ -86,7 +86,7 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
 };
 }
 
-void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
+void EventReport::SendProcessEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     constexpr int32_t defaultVal = -1;
     std::string name = ConvertEventName(eventName);
@@ -130,6 +130,19 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_EXIT_RESULT, eventInfo.exitResult,
                 EVENT_KEY_EXIT_PID, eventInfo.pid);
             break;
+        default:
+            break;
+    }
+}
+
+void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == "INVALIDEVENTNAME") {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    switch (eventName) {
         case EventName::APP_STARTUP_TYPE:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -169,6 +182,19 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
                 EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
             break;
+        default:
+            break;
+    }
+}
+
+void EventReport::SendAppSecondEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == "INVALIDEVENTNAME") {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    switch (eventName) {
         case EventName::DRAWN_COMPLETED:
             HILOG_INFO("HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",
                 eventInfo.bundleName.c_str(), eventInfo.abilityName.c_str());
