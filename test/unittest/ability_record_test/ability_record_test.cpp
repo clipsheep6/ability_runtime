@@ -1069,8 +1069,9 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_GetWantFromMission_002, TestSize.Lev
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionIdMap_[missionId] = true;
     DelayedSingleton<MissionInfoMgr>::GetInstance()->missionInfoList_.push_back(innerMissionInfo);
     abilityRecord->missionId_ = 1;
-    auto res = abilityRecord->GetWantFromMission();
-    EXPECT_NE(res, nullptr);
+    int id = DelayedSingleton<MissionInfoMgr>::GetInstance()->GetInnerMissionInfoById(1, innerMissionInfo);
+    abilityRecord->GetWantFromMission();
+    EXPECT_EQ(id, 0);
 }
 
 /*

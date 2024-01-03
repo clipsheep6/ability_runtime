@@ -188,10 +188,13 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_006, TestSize.Level1)
 {
     HILOG_INFO("ams_service_event_drive_test_006 start");
 
-    appMgrService_->OnStart();
-
+    auto appMgrService = std::make_shared<AppMgrService>();
+    std::shared_ptr<OHOS::AAFwk::TaskHandlerWrap> taskHandler_ =
+        OHOS::AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
     std::string bundleName = "bundleName";
-    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName);
     EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     HILOG_INFO("ams_service_event_drive_test_006 end");

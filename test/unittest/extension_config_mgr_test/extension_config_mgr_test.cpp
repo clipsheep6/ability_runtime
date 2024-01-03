@@ -27,7 +27,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-    constexpr int32_t DEFAULT_BLOCKLIST_EXTENSION_NUM = 18;
+    constexpr int32_t DEFAULT_BLOCKLIST_EXTENSION_NUM = 19;
     constexpr int32_t EXTENSION_TYPE_FORM = 0;
     constexpr int32_t EXTENSION_TYPE_WORK_SCHEDULER = 1;
     constexpr int32_t EXTENSION_TYPE_INPUTMETHOD = 2;
