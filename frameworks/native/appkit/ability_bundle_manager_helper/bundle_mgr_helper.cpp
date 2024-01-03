@@ -453,6 +453,19 @@ bool BundleMgrHelper::QueryExtensionAbilityInfos(const Want &want, const int32_t
     return bundleMgr->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos);
 }
 
+ErrCode BundleMgrHelper::GetBundleInfoV9(
+    const std::string &bundleName, int32_t flags, BundleInfo &bundleInfo, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    return bundleMgr->GetBundleInfoV9(bundleName, flags, bundleInfo, userId);
+}
+
 bool BundleMgrHelper::GetApplicationInfo(
     const std::string &appName, const ApplicationFlag flag, const int32_t userId, ApplicationInfo &appInfo)
 {
