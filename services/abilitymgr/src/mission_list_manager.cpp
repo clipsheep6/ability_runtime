@@ -1569,7 +1569,9 @@ int MissionListManager::TerminateAbilityInner(const std::shared_ptr<AbilityRecor
     abilityRecord->SetTerminatingState();
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
-        abilityRecord->SaveResultToCallers(resultCode, resultWant);
+        Want* newWant = const_cast<Want*>(resultWant);
+        newWant->RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+        abilityRecord->SaveResultToCallers(resultCode, newWant);
     } else {
         Want want;
         abilityRecord->SaveResultToCallers(resultCode, &want);

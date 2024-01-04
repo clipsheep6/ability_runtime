@@ -951,7 +951,9 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     abilityRecord->SetClearMissionFlag(isClearSession);
     // save result to caller AbilityRecord
     if (resultWant != nullptr) {
-        abilityRecord->SaveResultToCallers(resultCode, resultWant);
+        Want* newWant = const_cast<Want*>(resultWant);
+        newWant->RemoveParam(Want::PARAM_RESV_CALLER_TOKEN);
+        abilityRecord->SaveResultToCallers(resultCode, newWant);
     } else {
         Want want;
         abilityRecord->SaveResultToCallers(-1, &want);
