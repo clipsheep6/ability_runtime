@@ -372,7 +372,8 @@ std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecord(
     return nullptr;
 }
 
-void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &moduleRecord)
+void AppRunningRecord::RemoveModuleRecord(
+    const std::shared_ptr<ModuleRunningRecord> &moduleRecord, bool isExtensionDebug)
 {
     HILOG_INFO("Remove module record.");
 
@@ -384,7 +385,7 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
         if (iter != item.second.end()) {
             HILOG_DEBUG("Removed a record.");
             iter = item.second.erase(iter);
-            if (item.second.empty()) {
+            if (item.second.empty() && !isExtensionDebug) {
                 {
                     std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
                     HILOG_DEBUG("Removed an appInfo.");
@@ -1068,7 +1069,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
         || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType()))) {
-        RemoveModuleRecord(moduleRecord);
+        RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
