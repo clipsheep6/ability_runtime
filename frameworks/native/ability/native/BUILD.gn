@@ -310,7 +310,6 @@ ohos_shared_library("abilitykit_native") {
       "ability_base:session_info",
       "form_fwk:form_manager",
       "image_framework:image",
-      "image_framework:image",
       "image_framework:image_native",
       "input:libmmi-client",
       "window_manager:libdm",
