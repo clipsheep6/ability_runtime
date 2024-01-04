@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,6 +41,8 @@
 #include "app_exit_reason_data_manager.h"
 #include "application_util.h"
 #include "bundle_mgr_client.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
@@ -409,15 +411,6 @@ bool AbilityManagerService::Init()
     auto initPrepareTerminateConfigTask = [aams = shared_from_this()]() { aams->InitPrepareTerminateConfig(); };
     taskHandler_->SubmitTask(initPrepareTerminateConfigTask, "InitPrepareTerminateConfig");
 
-    auto startAutoStartupAppsTask = [aams = weak_from_this()]() {
-        auto obj = aams.lock();
-        if (obj == nullptr) {
-            HILOG_ERROR("Start auto startup app error, obj is nullptr");
-            return;
-        }
-        obj->StartAutoStartupAppsInner();
-    };
-    taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     RegisterSuspendObserver();
 
     auto initExtensionConfigTask = []() {
@@ -436,6 +429,7 @@ bool AbilityManagerService::Init()
         }
     };
     taskHandler_->SubmitTask(bootCompletedTask, "BootCompletedTask");
+    SubscribeScreenUnlockedEvent();
     HILOG_INFO("Init success.");
     return true;
 }
@@ -5818,10 +5812,9 @@ void AbilityManagerService::StartResidentApps()
     }
 }
 
-void AbilityManagerService::StartAutoStartupAppsInner()
+void AbilityManagerService::StartAutoStartupApps()
 {
     HILOG_DEBUG("Called.");
-    ConnectBmsService();
     if (abilityAutoStartupService_ == nullptr) {
         HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
         return;
@@ -5840,6 +5833,7 @@ void AbilityManagerService::StartAutoStartupAppsInner()
 void AbilityManagerService::RetryStartAutoStartupApps(
     const std::vector<AutoStartupInfo> &infoList, int32_t retryCount)
 {
+    HILOG_DEBUG("Called, retryCount: %{public}d, infoList.size:%{public}zu", retryCount, infoList.size());
     std::vector<AutoStartupInfo> failedList;
     for (auto info : infoList) {
         AppExecFwk::ElementName element;
@@ -5854,6 +5848,7 @@ void AbilityManagerService::RetryStartAutoStartupApps(
         }
     }
 
+    HILOG_DEBUG("RetryCount: %{public}d, failedList.size:%{public}zu", retryCount, failedList.size());
     if (!failedList.empty() && retryCount > 0) {
         auto retryStartAutoStartupAppsTask = [aams = weak_from_this(), list = failedList, retryCount]() {
             auto obj = aams.lock();
@@ -5866,6 +5861,59 @@ void AbilityManagerService::RetryStartAutoStartupApps(
         constexpr int delaytime = 2000;
         taskHandler_->SubmitTask(retryStartAutoStartupAppsTask, "RetryStartAutoStartupApps", delaytime);
     }
+}
+
+void AbilityManagerService::SubscribeScreenUnlockedEvent()
+{
+    HILOG_DEBUG("Called.");
+    // add listen screen unlocked.
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
+    wptr<AbilityManagerService> weak = this;
+    auto callback = [weak]() {
+        HILOG_DEBUG("On screen unlocked.");
+        auto self = weak.promote();
+        if (self == nullptr) {
+            HILOG_ERROR("Invalid self pointer.");
+            return;
+        }
+        self->StartAutoStartupApps();
+        self->UnSubscribeScreenUnlockedEvent();
+    };
+    screenSubscriber_ = std::make_shared<AbilityRuntime::AbilityManagerEventSubscriber>(subscribeInfo, callback);
+    bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(screenSubscriber_);
+    if (!subResult) {
+        constexpr int retryCount = 20;
+        RetrySubscribeScreenUnlockedEvent(retryCount);
+    }
+}
+
+void AbilityManagerService::UnSubscribeScreenUnlockedEvent()
+{
+    HILOG_DEBUG("Called.");
+    bool subResult = EventFwk::CommonEventManager::UnSubscribeCommonEvent(screenSubscriber_);
+    HILOG_DEBUG("Screen unlocked event subscriber unsubscribe result is %{public}d.", subResult);
+}
+
+void AbilityManagerService::RetrySubscribeScreenUnlockedEvent(int32_t retryCount)
+{
+    HILOG_DEBUG("RetryCount: %{public}d.", retryCount);
+    auto retrySubscribeScreenUnlockedEventTask = [aams = weak_from_this(), screenSubscriber = screenSubscriber_,
+                                                     retryCount]() {
+        bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(screenSubscriber);
+        auto obj = aams.lock();
+        if (obj == nullptr) {
+            HILOG_ERROR("Retry subscribe screen unlocked event, obj is nullptr.");
+            return;
+        }
+        if (!subResult && retryCount > 0) {
+            obj->RetrySubscribeScreenUnlockedEvent(retryCount - 1);
+        }
+    };
+    constexpr int delaytime = 200;
+    taskHandler_->SubmitTask(retrySubscribeScreenUnlockedEventTask, "RetrySubscribeScreenUnlockedEvent", delaytime);
 }
 
 void AbilityManagerService::ConnectBmsService()

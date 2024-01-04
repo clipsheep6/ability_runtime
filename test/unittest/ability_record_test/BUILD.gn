@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -108,6 +108,7 @@ ohos_unittest("ability_record_test_call") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_event_subscriber.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_config.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",

@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Huawei Device Co., Ltd.
+# Copyright (c) 2023-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -36,6 +36,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_event_handler.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_event_subscriber.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_config.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
