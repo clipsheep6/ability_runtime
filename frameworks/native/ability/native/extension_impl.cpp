@@ -79,7 +79,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         case AAFwk::ABILITY_STATE_INITIAL: {
             bool isAsyncCallback = false;
             if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-                Stop(isAsyncCallback);
+                Stop(isAsyncCallback, sessionInfo);
             }
             if (isAsyncCallback) {
                 ret = false;
@@ -100,7 +100,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
             break;
         }
         case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
-            Background();
+            Background(sessionInfo);
             break;
         }
         default: {
@@ -179,7 +179,7 @@ void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
  * that it belongs to of the lifecycle status.
  *
  */
-void ExtensionImpl::Stop()
+void ExtensionImpl::Stop(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_INFO("call");
     if (extension_ == nullptr) {
@@ -187,12 +187,12 @@ void ExtensionImpl::Stop()
         return;
     }
 
-    extension_->OnStop();
+    extension_->OnStop(sessionInfo);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     HILOG_INFO("ok");
 }
 
-void ExtensionImpl::Stop(bool &isAsyncCallback)
+void ExtensionImpl::Stop(bool &isAsyncCallback, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_INFO("call");
     if (extension_ == nullptr) {
@@ -203,7 +203,7 @@ void ExtensionImpl::Stop(bool &isAsyncCallback)
 
     auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<>::Create();
     if (callbackInfo == nullptr) {
-        extension_->OnStop();
+        extension_->OnStop(sessionInfo);
         lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
         isAsyncCallback = false;
         return;
@@ -220,7 +220,7 @@ void ExtensionImpl::Stop(bool &isAsyncCallback)
     };
     callbackInfo->Push(asyncCallback);
 
-    extension_->OnStop(callbackInfo, isAsyncCallback);
+    extension_->OnStop(callbackInfo, isAsyncCallback, sessionInfo);
     if (!isAsyncCallback) {
         lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
         AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
@@ -446,14 +446,14 @@ void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessio
     lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
 }
 
-void ExtensionImpl::Background()
+void ExtensionImpl::Background(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("ExtensionImpl::Background begin");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Background ability is nullptr");
         return;
     }
-    extension_->OnBackground();
+    extension_->OnBackground(sessionInfo);
     lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
 }
 

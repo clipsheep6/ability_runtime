@@ -199,9 +199,10 @@ void JsUIExtensionBase::OnStart(const AAFwk::Want &want)
     CallObjectMethod("onCreate");
 }
 
-void JsUIExtensionBase::OnStop()
+void JsUIExtensionBase::OnStop(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("called");
+    DestroyWindow(sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
 }
@@ -410,9 +411,10 @@ void JsUIExtensionBase::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> 
     CallObjectMethod("onForeground");
 }
 
-void JsUIExtensionBase::OnBackground()
+void JsUIExtensionBase::OnBackground(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("called");
+    BackgroundWindow(sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onBackground");
 }

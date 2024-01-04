@@ -1512,7 +1512,7 @@ void AbilityRecord::Terminate(const Closure &task)
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::TERMINATING);
-    lifecycleDeal_->Terminate(GetWant(), lifeCycleStateInfo_);
+    lifecycleDeal_->Terminate(GetWant(), lifeCycleStateInfo_, GetSessionInfo());
 }
 
 void AbilityRecord::ShareData(const int32_t &uniqueId)

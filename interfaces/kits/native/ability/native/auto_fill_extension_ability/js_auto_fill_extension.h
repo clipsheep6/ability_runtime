@@ -83,8 +83,9 @@ public:
      * The ui extension in the <b>STATE_STOP</b> is being destroyed.
      * You can override this function to implement your own processing logic.
      */
-    void OnStop() override;
-    void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback) override;
+    void OnStop(sptr<AAFwk::SessionInfo> sessionInfo) override;
+    void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback,
+        sptr<AAFwk::SessionInfo> sessionInfo) override;
     /**
      * @brief The callback of OnStop.
      */
@@ -106,7 +107,7 @@ public:
      * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
      */
-    void OnBackground() override;
+    void OnBackground(sptr<AAFwk::SessionInfo> sessionInfo) override;
 
 private:
     virtual void BindContext(napi_env env, napi_value obj);

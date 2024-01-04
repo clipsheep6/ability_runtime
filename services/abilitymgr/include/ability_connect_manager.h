@@ -519,6 +519,8 @@ private:
     int32_t GetOrCreateTargetServiceRecord(
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
         std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+    int32_t DoTerminateUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        const sptr<SessionInfo> &sessionInfo);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

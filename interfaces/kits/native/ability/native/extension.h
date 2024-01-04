@@ -166,6 +166,7 @@ public:
      * You can override this function to implement your own processing logic.
      */
     virtual void OnStop();
+    virtual void OnStop(sptr<AAFwk::SessionInfo> sessionInfo);
     /**
      * @brief Called when this extension enters the <b>STATE_STOP</b> state.
      *
@@ -175,19 +176,20 @@ public:
      * @param callbackInfo Indicates the lifecycle transaction callback information
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
      */
-    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback);
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback,
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Called when the system configuration is updated.
      *
      * @param configuration Indicates the updated configuration information.
      */
-    
+
     /**
      * @brief The callback of OnStop.
      */
     virtual void OnStopCallBack();
-    
+
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
 
     /**
@@ -213,7 +215,7 @@ public:
      * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
      */
-    virtual void OnBackground();
+    virtual void OnBackground(sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Called when extension need dump info.
@@ -241,7 +243,7 @@ public:
 
     virtual void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result);
-        
+
     virtual bool HandleInsightIntent(const AAFwk::Want &want);
 
     virtual bool OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result);

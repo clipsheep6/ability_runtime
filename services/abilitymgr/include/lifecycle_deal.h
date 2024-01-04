@@ -50,7 +50,7 @@ public:
     void MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo);
     void ConnectAbility(const Want &want);
     void DisconnectAbility(const Want &want);
-    void Terminate(const Want &want, LifeCycleStateInfo &stateInfo);
+    void Terminate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo = nullptr);
     void CommandAbility(const Want &want, bool reStart, int startId);
     void CommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd);
     void SaveAbilityState();

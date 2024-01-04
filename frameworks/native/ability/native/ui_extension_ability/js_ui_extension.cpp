@@ -266,24 +266,27 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     HILOG_DEBUG("JsUIExtension OnStart end.");
 }
 
-void JsUIExtension::OnStop()
+void JsUIExtension::OnStop(sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    UIExtension::OnStop();
+    DestroyWindow(sessionInfo);
+    UIExtension::OnStop(sessionInfo);
     HILOG_DEBUG("JsUIExtension OnStop begin.");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
     OnStopCallBack();
     HILOG_DEBUG("JsUIExtension OnStop end.");
 }
-void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+void JsUIExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     if (callbackInfo == nullptr) {
         isAsyncCallback = false;
-        OnStop();
+        OnStop(sessionInfo);
         return;
     }
     HILOG_DEBUG("OnStop begin.");
-    UIExtension::OnStop();
+    DestroyWindow(sessionInfo);
+    UIExtension::OnStop(sessionInfo);
     HandleScope handleScope(jsRuntime_);
     napi_value result = CallObjectMethod("onDestroy", nullptr, 0, true);
     if (!CheckPromise(result)) {
@@ -616,13 +619,14 @@ void JsUIExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sess
     HILOG_DEBUG("JsUIExtension OnForeground end.");
 }
 
-void JsUIExtension::OnBackground()
+void JsUIExtension::OnBackground(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("JsUIExtension OnBackground begin.");
+    BackgroundWindow(sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onBackground");
-    Extension::OnBackground();
+    Extension::OnBackground(sessionInfo);
     HILOG_DEBUG("JsUIExtension OnBackground end.");
 }
 

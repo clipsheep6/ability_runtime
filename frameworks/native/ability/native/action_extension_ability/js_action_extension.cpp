@@ -69,16 +69,16 @@ void JsActionExtension::OnStart(const AAFwk::Want &want)
     jsUIExtensionBase_->OnStart(want);
 }
 
-void JsActionExtension::OnStop()
+void JsActionExtension::OnStop(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("called.");
-    ActionExtension::OnStop();
+    ActionExtension::OnStop(sessionInfo);
 
     if (jsUIExtensionBase_ == nullptr) {
         HILOG_ERROR("jsUIExtensionBase_ is nullptr");
         return;
     }
-    jsUIExtensionBase_->OnStop();
+    jsUIExtensionBase_->OnStop(sessionInfo);
 }
 
 void JsActionExtension::OnCommandWindow(
@@ -123,7 +123,7 @@ void JsActionExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> 
     jsUIExtensionBase_->OnForeground(want, sessionInfo);
 }
 
-void JsActionExtension::OnBackground()
+void JsActionExtension::OnBackground(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("called.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -132,8 +132,8 @@ void JsActionExtension::OnBackground()
         HILOG_ERROR("jsUIExtensionBase_ is nullptr");
         return;
     }
-    jsUIExtensionBase_->OnBackground();
-    Extension::OnBackground();
+    jsUIExtensionBase_->OnBackground(sessionInfo);
+    Extension::OnBackground(sessionInfo);
 }
 
 void JsActionExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)

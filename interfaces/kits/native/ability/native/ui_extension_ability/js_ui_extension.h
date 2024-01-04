@@ -129,8 +129,9 @@ public:
      * The ui extension in the <b>STATE_STOP</b> is being destroyed.
      * You can override this function to implement your own processing logic.
      */
-    virtual void OnStop() override;
-    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback) override;
+    virtual void OnStop(sptr<AAFwk::SessionInfo> sessionInfo) override;
+    virtual void OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback,
+        sptr<AAFwk::SessionInfo> sessionInfo) override;
     /**
      * @brief The callback of OnStop.
      */
@@ -159,7 +160,7 @@ public:
      * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
      */
-    virtual void OnBackground() override;
+    virtual void OnBackground(sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when ui extension need dump info.
