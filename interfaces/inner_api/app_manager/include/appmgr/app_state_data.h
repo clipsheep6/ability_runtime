@@ -56,14 +56,20 @@ struct AppStateData : public Parcelable {
      */
     static bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type);
 
+    //the bundleName of target
     std::string bundleName;
     int32_t pid = -1;
     int32_t uid = 0;
+    //the state of Application
     int32_t state = 0;
     int32_t accessTokenId = 0;
+    //whether window is focused
     bool isFocused = false;
+    //whether window focus state is changed
+    bool isWindowFocusChanged = false;
     ExtensionAbilityType extensionType = ExtensionAbilityType::UNSPECIFIED;
     std::vector<int32_t> renderPids;
+    //the bundleName of caller
     std::string callerBundleName;
     bool isSplitScreenMode = false;
     bool isFloatingWindowMode = false;

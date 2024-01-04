@@ -87,7 +87,7 @@ private:
     ProcessData WrapRenderProcessData(const std::shared_ptr<RenderRecord> &renderRecord);
     void OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type);
     AppStateData WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
-    const ApplicationState state);
+        const ApplicationState state, bool isWindowFocusChanged = false);
     void HandleOnProcessCreated(const ProcessData &data);
     void HandleOnProcessStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleOnProcessDied(const ProcessData &data);
