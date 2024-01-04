@@ -99,7 +99,7 @@ private:
 
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
-    bool IsCallFromAncoShell(const sptr<IRemoteObject> &token);
+    bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
 
 private:
     const static std::vector<std::string> blackList;

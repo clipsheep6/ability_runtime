@@ -154,6 +154,7 @@ constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
 
 const std::string DEBUG_APP = "debugApp";
@@ -817,6 +818,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
+    std::string callerAbilityName = abilityRecord ? abilityRecord->GetAbilityInfo().name : "";
     bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
         want.GetElement().GetBundleName() == callerBundleName);
     bool isStartFreeInstallByWant = AbilityUtil::IsStartFreeInstall(want);
@@ -904,8 +906,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Check permission failed");
             return result;
         }
-    } else if (callerBundleName == SHELL_ASSISTANT_BUNDLENAME &&
-        abilityRequest.collaboratorType == CollaboratorType::RESERVE_TYPE) {
+    } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && callerAbilityName == SHELL_ASSISTANT_ABILITYNAME) ||
+        IPCSkeleton::GetCallingUid() == BROKER_UID) {
+        if (abilityRequest.collaboratorType != CollaboratorType::RESERVE_TYPE) {
+            HILOG_DEBUG("Check permission failed");
+            return CHECK_PERMISSION_FAILED;
+        }
         HILOG_DEBUG("Check call service or extension permission, name is %{public}s.", abilityInfo.name.c_str());
         auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
         if (collaborator == nullptr) {

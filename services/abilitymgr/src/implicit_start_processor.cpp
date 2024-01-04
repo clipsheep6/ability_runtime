@@ -43,6 +43,7 @@ constexpr int32_t TYPE_HARMONY_SERVICE = 2;
 using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
 #endif
 const size_t IDENTITY_LIST_MAX_SIZE = 10;
+const int32_t BROKER_UID = 5557;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 const std::string STR_PHONE = "phone";
@@ -273,7 +274,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         ImplicitStartProcessor::QueryBmsAppInfos(request, userId, dialogAppInfos);
     }
 
-    if (!IsCallFromAncoShell(request.callerToken)) {
+    if (!IsCallFromAncoShellOrBroker(request.callerToken)) {
         request.want.RemoveParam(ANCO_PENDING_REQUEST);
     }
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
@@ -637,8 +638,12 @@ bool ImplicitStartProcessor::IsExistDefaultApp(int32_t userId, const std::string
     }
 }
 
-bool ImplicitStartProcessor::IsCallFromAncoShell(const sptr<IRemoteObject> &token)
+bool ImplicitStartProcessor::IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token)
 {
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid == BROKER_UID) {
+        return true;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (!abilityRecord) {
         return false;
