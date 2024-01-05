@@ -95,6 +95,10 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
     } else {
         HILOG_DEBUG("pending state is not FOREGROUND.");
         uiAbilityRecord->SetPendingState(AbilityState::FOREGROUND);
+        if (uiAbilityRecord->IsLoading()) {
+            HILOG_INFO("ability: %{public}s is loading.", abilityRequest.abilityInfo.name.c_str());
+            return ERR_OK;
+        }
     }
     if (iter == sessionAbilityMap_.end()) {
         sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
@@ -203,6 +207,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
     CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
     handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+    abilityRecord->SetLoading(false);
     FreezeUtil::LifecycleFlow flow = {token, FreezeUtil::TimeoutState::LOAD};
     FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 
@@ -1163,6 +1168,7 @@ void UIAbilityLifecycleManager::OnTimeOut(uint32_t msgId, int64_t abilityRecordI
     }
     switch (msgId) {
         case AbilityManagerService::LOAD_TIMEOUT_MSG:
+            abilityRecord->SetLoading(false);
             HandleLoadTimeout(abilityRecord);
             break;
         case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
@@ -1251,6 +1257,7 @@ void UIAbilityLifecycleManager::OnAbilityDied(std::shared_ptr<AbilityRecord> abi
     CHECK_POINTER_LOG(handler, "Fail to get AbilityEventHandler.");
     if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
         handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        abilityRecord->SetLoading(false);
     }
     if (abilityRecord->GetAbilityState() == AbilityState::FOREGROUNDING) {
         handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());

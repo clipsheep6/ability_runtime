@@ -311,6 +311,24 @@ int32_t AbilityRecord::GetPid()
     return pid_;
 }
 
+void AbilityRecord::LoadUIAbility()
+{
+    SetLoading(true);
+    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
+    if (applicationInfo_.asanEnabled) {
+        loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
+    } else {
+        int coldStartTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
+        std::lock_guard guard(wantLock_);
+        auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
+    }
+    std::string methodName = "LoadAbility";
+    g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::LOAD, methodName);
+}
+
 int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -319,19 +337,7 @@ int AbilityRecord::LoadAbility()
     CHECK_POINTER_AND_RETURN(token_, ERR_INVALID_VALUE);
     // only for UIAbility
     if (!IsDebug() && abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
-        int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
-        if (applicationInfo_.asanEnabled) {
-            loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
-            SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
-        } else {
-            int coldStartTimeout =
-                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
-            std::lock_guard guard(wantLock_);
-            auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
-            SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
-        }
-        std::string methodName = "LoadAbility";
-        g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::LOAD, methodName);
+        LoadUIAbility();
     }
 
     std::string appName = applicationInfo_.name;
@@ -356,6 +362,7 @@ int AbilityRecord::LoadAbility()
             callerToken_ = caller->GetToken();
         }
     }
+
     std::lock_guard guard(wantLock_);
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
@@ -2441,6 +2448,16 @@ void AbilityRecord::SetKeepAlive()
 bool AbilityRecord::GetKeepAlive() const
 {
     return isKeepAlive_;
+}
+
+void AbilityRecord::SetLoading(bool status)
+{
+    isLoading_ = status;
+}
+
+bool AbilityRecord::IsLoading() const
+{
+    return isLoading_;
 }
 
 int64_t AbilityRecord::GetRestartTime()

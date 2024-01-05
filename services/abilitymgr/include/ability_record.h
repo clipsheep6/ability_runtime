@@ -330,6 +330,12 @@ public:
     bool Init();
 
     /**
+     * load UI ability.
+     *
+     */
+    void LoadUIAbility();
+
+    /**
      * load ability.
      *
      * @return Returns ERR_OK on success, others on failure.
@@ -832,6 +838,8 @@ public:
     void SetRestartCount(int32_t restartCount);
     void SetKeepAlive();
     bool GetKeepAlive() const;
+    void SetLoading(bool status);
+    bool IsLoading() const;
     int64_t GetRestartTime();
     void SetRestartTime(const int64_t restartTime);
     void SetAppIndex(const int32_t appIndex);
@@ -1051,6 +1059,7 @@ private:
     bool isKeepAlive_ = false;                 // is keep alive or resident ability?
 
     sptr<IAbilityScheduler> scheduler_ = {};       // kit scheduler
+    bool isLoading_ = false;        // is loading?
     bool isTerminating_ = false;              // is terminating ?
     bool isCreateByConnect_ = false;          // is created by connect ability mode?
 

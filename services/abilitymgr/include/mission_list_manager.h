@@ -383,6 +383,9 @@ private:
 #endif
 
 private:
+    void AddRecord(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
+    int GetTargetMission(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
+        std::shared_ptr<AbilityRecord> &targetAbilityRecord);
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     int StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
