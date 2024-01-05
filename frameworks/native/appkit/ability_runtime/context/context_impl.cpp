@@ -369,7 +369,8 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     GetBundleInfo(bundleName, bundleInfo, accountId);
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("GetBundleInfo is error");
-        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
+        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo,
+            AppExecFwk::GetDependentBundleInfoFlag::GET_ALL_DEPENDENT_BUNDLE_INFO);
         if (ret != ERR_OK) {
             HILOG_ERROR("GetDependentBundleInfo failed:%{public}d", ret);
             return nullptr;
@@ -699,6 +700,8 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
             } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::SHARED) {
                 loadPath = std::regex_replace(loadPath, hsp_pattern, hsp_sandbox);
+            } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::APP_SERVICE_FWK) {
+                HILOG_DEBUG("System hsp path, not need translate.");
             } else {
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
             }

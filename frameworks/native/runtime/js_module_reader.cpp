@@ -125,6 +125,46 @@ std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) co
     return realHapPath;
 }
 
+std::string JsModuleReader::GetOtherHspPath(const std::string& bundleName, const std::string& moduleName,
+    const std::string& inputPath)
+{
+    std::string presetAppHapPath = inputPath;
+
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        return presetAppHapPath;
+    }
+
+    std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
+    if (bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
+        HILOG_ERROR("GetBaseSharedBundleInfos failed.");
+        return presetAppHapPath;
+    }
+    std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
+    const std::string sharedBundleName = tmpPath.substr(0, tmpPath.find_first_of("/"));
+    for (const auto &info : baseSharedBundleInfos) {
+        if ((info.bundleName == sharedBundleName) && (info.moduleName == moduleName)) {
+            presetAppHapPath = info.hapPath;
+            break;
+        }
+    }
+    AppExecFwk::BundleInfo bundleInfo;
+    int32_t ret = bundleMgrHelper->GetDependentBundleInfo(sharedBundleName, bundleInfo,
+        AppExecFwk::GetDependentBundleInfoFlag::GET_APP_SERVICE_HSP_BUNDLE_INFO);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetDependentBundleInfo failed.");
+        return presetAppHapPath;
+    }
+    for (const auto &info : bundleInfo.hapModuleInfos) {
+        if (info.moduleName == moduleName) {
+            presetAppHapPath = info.hapPath;
+            break;
+        }
+    }
+    return presetAppHapPath;
+}
+
 std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, const std::string& bundleName)
 {
     std::string presetAppHapPath = inputPath;
@@ -153,23 +193,7 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
             }
         }
     } else {
-        std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
-        if (bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
-            HILOG_ERROR("GetBaseSharedBundleInfos failed.");
-            return presetAppHapPath;
-        }
-        std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
-        const std::string sharedBundleName = tmpPath.substr(0, tmpPath.find_first_of("/"));
-        if (baseSharedBundleInfos.size() == 0) {
-            presetAppHapPath = "/system/app/appServiceFwk/" + sharedBundleName + "/" + moduleName + ".hsp";
-            return presetAppHapPath;
-        }
-        for (const auto &info : baseSharedBundleInfos) {
-            if ((info.bundleName == sharedBundleName) && (info.moduleName == moduleName)) {
-                presetAppHapPath = info.hapPath;
-                break;
-            }
-        }
+        presetAppHapPath = GetOtherHspPath(bundleName, moduleName, presetAppHapPath);
     }
     return presetAppHapPath;
 }

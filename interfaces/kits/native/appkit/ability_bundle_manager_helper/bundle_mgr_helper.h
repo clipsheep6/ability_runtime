@@ -44,9 +44,11 @@ public:
     std::string GetAbilityLabel(const std::string &bundleName, const std::string &abilityName);
     std::string GetAppType(const std::string &bundleName);
     ErrCode GetBaseSharedBundleInfos(
-        const std::string &bundleName, std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos);
+        const std::string &bundleName, std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        GetDependentBundleInfoFlag flag = GetDependentBundleInfoFlag::GET_APP_CROSS_HSP_BUNDLE_INFO);
     ErrCode GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo);
-    ErrCode GetDependentBundleInfo(const std::string &sharedBundleName, BundleInfo &sharedBundleInfo);
+    ErrCode GetDependentBundleInfo(const std::string &sharedBundleName, BundleInfo &sharedBundleInfo,
+        GetDependentBundleInfoFlag flag = GetDependentBundleInfoFlag::GET_APP_CROSS_HSP_BUNDLE_INFO);
     bool GetGroupDir(const std::string &dataGroupId, std::string &dir);
     sptr<IOverlayManager> GetOverlayManagerProxy();
     bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo);
