@@ -168,13 +168,13 @@ protected:
      * that it belongs to of the lifecycle status.
      *
      */
-    void Stop();
+    void Stop(sptr<AAFwk::SessionInfo> sessionInfo);
      /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
      * that it belongs to of the lifecycle status.
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
      */
-    void Stop(bool &isAsyncCallback);
+    void Stop(bool &isAsyncCallback, sptr<AAFwk::SessionInfo> sessionInfo);
     void AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state);
 
     /**
@@ -190,7 +190,7 @@ protected:
      * application that it belongs to of the lifecycle status.
      *
      */
-    void Background();
+    void Background(sptr<AAFwk::SessionInfo> sessionInfo);
 
 private:
     inline bool UIExtensionAbilityExecuteInsightIntent(const Want &want);

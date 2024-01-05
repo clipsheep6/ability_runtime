@@ -87,7 +87,7 @@ public:
      * The action extension in the <b>STATE_STOP</b> is being destroyed.
      * You can override this function to implement your own processing logic.
      */
-    void OnStop() override;
+    void OnStop(sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when the system configuration is updated.
@@ -112,7 +112,7 @@ public:
      * The extension in the <b>STATE_BACKGROUND</b> state is invisible.
      * You can override this function to implement your own processing logic.
      */
-    void OnBackground() override;
+    void OnBackground(sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when action extension need dump info.

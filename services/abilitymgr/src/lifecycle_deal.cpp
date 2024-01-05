@@ -86,13 +86,13 @@ void LifecycleDeal::DisconnectAbility(const Want &want)
     abilityScheduler->ScheduleDisconnectAbility(want);
 }
 
-void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo)
+void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo)
 {
     HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
-    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo);
+    abilityScheduler->ScheduleAbilityTransaction(want, stateInfo, sessionInfo);
 }
 
 void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)

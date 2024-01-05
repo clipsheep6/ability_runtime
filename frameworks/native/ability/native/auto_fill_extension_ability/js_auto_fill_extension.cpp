@@ -211,24 +211,27 @@ void JsAutoFillExtension::OnStart(const AAFwk::Want &want)
     CallObjectMethod("onCreate", argv, ARGC_ONE);
 }
 
-void JsAutoFillExtension::OnStop()
+void JsAutoFillExtension::OnStop(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("Called.");
-    AutoFillExtension::OnStop();
+    DestroyWindow(sessionInfo);
+    AutoFillExtension::OnStop(sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
     OnStopCallBack();
 }
 
-void JsAutoFillExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+void JsAutoFillExtension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("Called.");
     if (callbackInfo == nullptr) {
         isAsyncCallback = false;
-        OnStop();
+        OnStop(sessionInfo);
         return;
     }
 
+    DestroyWindow(sessionInfo);
     AutoFillExtension::OnStop();
     HandleScope handleScope(jsRuntime_);
     napi_value result = CallObjectMethod("onDestroy", nullptr, 0, true);
@@ -412,12 +415,13 @@ void JsAutoFillExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo
     CallObjectMethod("onForeground");
 }
 
-void JsAutoFillExtension::OnBackground()
+void JsAutoFillExtension::OnBackground(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("Called.");
+    BackgroundWindow(sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onBackground");
-    Extension::OnBackground();
+    Extension::OnBackground(sessionInfo);
 }
 
 bool JsAutoFillExtension::HandleAutoFillCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)

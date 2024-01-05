@@ -59,10 +59,16 @@ void Extension::OnStop()
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
-void Extension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
+void Extension::OnStop(sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+}
+
+void Extension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     isAsyncCallback = false;
-    OnStop();
+    OnStop(sessionInfo);
 }
 
 void Extension::OnStopCallBack()
@@ -116,7 +122,7 @@ void Extension::OnForeground(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> s
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
-void Extension::OnBackground()
+void Extension::OnBackground(sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());

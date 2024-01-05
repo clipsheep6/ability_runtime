@@ -936,6 +936,33 @@ int AbilityConnectManager::ScheduleCommandAbilityWindowDone(
     return ERR_OK;
 }
 
+int32_t AbilityConnectManager::DoTerminateUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord,
+    const sptr<SessionInfo> &sessionInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard guard(Lock_);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
+    std::string element = abilityRecord->GetURI();
+    HILOG_DEBUG("Ability: %{public}s, persistentId: %{private}d", element.c_str(), sessionInfo->persistentId);
+
+    abilityRecord->SetAbilityWindowState(sessionInfo, WIN_CMD_DESTROY, false);
+
+    HandleCommandDestroy(sessionInfo);
+    EventInfo eventInfo;
+    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
+    EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    eventInfo.errCode = TerminateAbilityInner(abilityRecord->GetToken());
+    if (eventInfo.errCode != ERR_OK) {
+        EventReport::SendAbilityEvent(EventName::TERMINATE_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+
+    abilityRecord->SetAbilityWindowState(sessionInfo, WIN_CMD_DESTROY, true);
+    CompleteStartServiceReq(element);
+    return ERR_OK;
+}
+
 void AbilityConnectManager::HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo)
 {
     if (sessionInfo == nullptr) {
@@ -1520,7 +1547,8 @@ void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<Abil
     HILOG_DEBUG("State isSingleton: %{public}d.", isSingleton);
 
     if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND) || isSingleton) {
-        CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_BACKGROUND);
+        // CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_BACKGROUND);
+        MoveToBackground(abilityRecord);
     } else if (abilityRecord->IsAbilityState(AbilityState::INITIAL) ||
         abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
         HILOG_INFO("There exist initial or foregrounding task.");
@@ -1542,7 +1570,8 @@ void AbilityConnectManager::TerminateAbilityWindowLocked(const std::shared_ptr<A
         HILOG_ERROR("sessionInfo is nullptr");
         return;
     }
-    CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_DESTROY);
+    // CommandAbilityWindow(abilityRecord, sessionInfo, WIN_CMD_DESTROY);
+    DoTerminateUIExtensionAbility(abilityRecord, sessionInfo);
 }
 
 void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &abilityRecord)
