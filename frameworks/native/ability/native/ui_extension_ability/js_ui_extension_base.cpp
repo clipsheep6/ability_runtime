@@ -68,7 +68,7 @@ napi_value AttachUIExtensionBaseContext(napi_env env, void *value, void*)
     auto contextRef = JsRuntime::LoadSystemModuleByEngine(
         env, "application.UIExtensionContext", &object, 1);
     if (contextRef == nullptr) {
-        HILOG_DEBUG("Failed to load module");
+        HILOG_DEBUG("Failed to get LoadSystemModuleByEngine");
         return nullptr;
     }
     auto contextObj = contextRef->GetNapiValue();
@@ -172,13 +172,13 @@ void JsUIExtensionBase::BindContext(napi_env env, napi_value obj)
         HILOG_ERROR("Create js ui extension context error.");
         return;
     }
-    auto contextRef = JsRuntime::LoadSystemModuleByEngine(
+    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(
         env, "application.UIExtensionContext", &contextObj, ARGC_ONE);
-    if (contextRef == nullptr) {
-        HILOG_DEBUG("Failed to load module");
+    if (shellContextRef_ == nullptr) {
+        HILOG_DEBUG("Failed to get LoadSystemModuleByEngine");
         return;
     }
-    contextObj = contextRef->GetNapiValue();
+    contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get context native object");
         return;
