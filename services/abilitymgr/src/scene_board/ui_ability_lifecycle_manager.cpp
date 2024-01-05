@@ -296,7 +296,8 @@ int UIAbilityLifecycleManager::DispatchState(const std::shared_ptr<AbilityRecord
         case AbilityState::INITIAL: {
             return DispatchTerminate(abilityRecord);
         }
-        case AbilityState::BACKGROUND: {
+        case AbilityState::BACKGROUND:
+        case AbilityState::BACKGROUND_FAILED: {
             return DispatchBackground(abilityRecord);
         }
         case AbilityState::FOREGROUND: {
