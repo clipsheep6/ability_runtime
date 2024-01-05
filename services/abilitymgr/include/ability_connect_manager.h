@@ -473,7 +473,7 @@ private:
     /**
      * When a service is under starting, enque the request and handle it after the service starting completes
      */
-    void EnqueueStartServiceReq(const AbilityRequest &abilityRequest);
+    void EnqueueStartServiceReq(const AbilityRequest &abilityRequest, const std::string &serviceUri = "");
     /**
      * After the service starting completes, complete the request list
      */

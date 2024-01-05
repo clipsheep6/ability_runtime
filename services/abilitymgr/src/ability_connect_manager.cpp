@@ -217,7 +217,7 @@ void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecor
             }
         }
     }
-    EnqueueStartServiceReq(abilityRequest);
+    EnqueueStartServiceReq(abilityRequest, abilityRecord->GetURI());
 }
 
 void AbilityConnectManager::SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityRecord> abilityRecord,
@@ -238,10 +238,14 @@ void AbilityConnectManager::SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityR
     taskHandler_->SubmitTask(callback, taskName, consumeSessionTimeout);
 }
 
-void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &abilityRequest)
+void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &abilityRequest, const std::string &serviceUri)
 {
     std::lock_guard guard(startServiceReqListLock_);
     auto abilityUri = abilityRequest.want.GetElement().GetURI();
+    if (!serviceUri.empty()) {
+        abilityUri = serviceUri;
+    }
+    HILOG_INFO("abilityUri is %{public}s", abilityUri.c_str());
     auto reqListIt = startServiceReqList_.find(abilityUri);
     if (reqListIt != startServiceReqList_.end()) {
         reqListIt->second->push_back(abilityRequest);
