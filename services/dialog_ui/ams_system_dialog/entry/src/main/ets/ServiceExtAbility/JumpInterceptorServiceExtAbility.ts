@@ -30,13 +30,19 @@ export default class JumpInterceptorServiceExtAbility extends extension {
 
   async onRequest(want, startId) {
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = JSON.parse(want.parameters.position);
-    globalThis.interceptor_callerBundleName = want.parameters.interceptor_callerBundleName;
-    globalThis.interceptor_callerModuleName = want.parameters.interceptor_callerModuleName;
-    globalThis.interceptor_callerLabelId = want.parameters.interceptor_callerLabelId;
-    globalThis.interceptor_targetModuleName = want.parameters.interceptor_targetModuleName;
-    globalThis.interceptor_targetLabelId = want.parameters.interceptor_targetLabelId;
+    try {
+      globalThis.params = JSON.parse(want.parameters.params);
+      globalThis.position = JSON.parse(want.parameters.position);
+      globalThis.interceptor_callerBundleName = want.parameters.interceptor_callerBundleName;
+      globalThis.interceptor_callerModuleName = want.parameters.interceptor_callerModuleName;
+      globalThis.interceptor_callerLabelId = want.parameters.interceptor_callerLabelId;
+      globalThis.interceptor_targetModuleName = want.parameters.interceptor_targetModuleName;
+      globalThis.interceptor_targetLabelId = want.parameters.interceptor_targetLabelId;
+    } catch (err) {
+      console.error(TAG, 'Invalid parameters.');
+      this.context.terminateSelf();
+      return;
+    }
     await this.getHapResource();
     display.getDefaultDisplay().then(dis => {
       let navigationBarRect = {
