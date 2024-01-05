@@ -537,6 +537,7 @@ void JsRuntime::FinishPreload()
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
     panda::JSNApi::PreFork(vm);
+    jsEnv_->StopMonitorJSHeapUsage();
 }
 
 void JsRuntime::PostPreload(const Options& options)
@@ -589,6 +590,8 @@ bool JsRuntime::Initialize(const Options& options)
             HILOG_ERROR("Create js environment failed.");
             return false;
         }
+    } else {
+        jsEnv_->StartMonitorJSHeapUsage();
     }
     apiTargetVersion_ = options.apiTargetVersion;
     HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
