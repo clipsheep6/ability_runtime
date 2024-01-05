@@ -318,7 +318,8 @@ int AbilityRecord::LoadAbility()
     startTime_ = AbilityUtil::SystemTimeMillis();
     CHECK_POINTER_AND_RETURN(token_, ERR_INVALID_VALUE);
     // only for UIAbility
-    if (!IsDebug() && abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
+    if (!IsDebug() && GetLoading() && abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
+        SetLoading(true);
         int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
         if (applicationInfo_.asanEnabled) {
             loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
@@ -2441,6 +2442,16 @@ void AbilityRecord::SetKeepAlive()
 bool AbilityRecord::GetKeepAlive() const
 {
     return isKeepAlive_;
+}
+
+void AbilityRecord::SetLoading(bool status)
+{
+    isLoading_ = status;
+}
+
+bool AbilityRecord::GetLoading() const
+{
+    return isLoading_;
 }
 
 int64_t AbilityRecord::GetRestartTime()
