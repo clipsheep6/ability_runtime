@@ -362,16 +362,21 @@ int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(portraitPosition));
     targetWant.SetParam(VERTICAL_SCREEN_DIALOG_POSITION, GetDialogPositionParams(landscapePosition));
     targetWant.SetParam(DIALOG_PARAMS, params);
+    bool isCallerStageBasedModel = true;
     if (callerToken != nullptr) {
         HILOG_DEBUG("set callertoken to targetWant");
         auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
+            isCallerStageBasedModel = false;
+        }
         if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
             targetWant.RemoveParam(CALLER_TOKEN);
         } else {
             targetWant.SetParam(CALLER_TOKEN, callerToken);
         }
     }
-    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()
+        && isCallerStageBasedModel) {
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
             HILOG_ERROR("The bundleMgrHelper is nullptr.");
@@ -384,6 +389,7 @@ int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo
         }
         targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
         targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+        targetWant.SetParam("isCreateAppGallerySelector", true);
     }
     return ERR_OK;
 }
@@ -424,14 +430,19 @@ int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppIn
     targetWant.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_SELECTOR_DIALOG);
     targetWant.SetParam(DIALOG_POSITION, GetDialogPositionParams(position));
     targetWant.SetParam(DIALOG_PARAMS, params);
+    bool isCallerStageBasedModel = true;
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
+        isCallerStageBasedModel = false;
+    }
     if (abilityRecord && UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
         // SelectorDialog can't bind to the window of UIExtension, so set CALLER_TOKEN to null.
         targetWant.RemoveParam(CALLER_TOKEN);
     } else {
         targetWant.SetParam(CALLER_TOKEN, callerToken);
     }
-    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()
+        && isCallerStageBasedModel) {
         auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
         if (bundleMgrHelper == nullptr) {
             HILOG_ERROR("The bundleMgrHelper is nullptr.");
@@ -444,6 +455,7 @@ int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppIn
         }
         targetWant.SetElementName(bundleName, ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG);
         targetWant.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+        targetWant.SetParam("isCreateAppGallerySelector", true);
     }
     return ERR_OK;
 }

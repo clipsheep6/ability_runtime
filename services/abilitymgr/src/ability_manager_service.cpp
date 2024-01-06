@@ -941,7 +941,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("DoProcess failed or replaceWant not exist");
         return result;
     }
-    if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult) {
+    if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult &&
+        callerBundleName != AMS_DIALOG_BUNDLENAME) {
         std::string dialogSessionId;
         std::vector<DialogAppInfo> dialogAppInfos(1);
         if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos, false)) {
@@ -9480,13 +9481,9 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
 {
     (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
     auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
-    if (connection == nullptr) {
-        HILOG_ERROR("connect ModalSystemUiExtension failed");
-        return INNER_ERR;
-    }
     if (callerToken == nullptr) {
         HILOG_DEBUG("create modal ui extension for system");
-        return connection->CreateModalUIExtension(replaceWant);
+        return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
     if (!callerRecord) {
@@ -9506,7 +9503,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
         return callerRecord->CreateModalUIExtension(replaceWant);
     }
     HILOG_DEBUG("create modal ui extension for system");
-    return connection->CreateModalUIExtension(replaceWant);
+    return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
 }
 
 int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
