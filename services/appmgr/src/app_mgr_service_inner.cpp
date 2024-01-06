@@ -2148,7 +2148,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.mountPermissionFlags = AppSpawn::AppspawnMountPermission::GenPermissionCode(permissions);
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
     std::string shortName;
-    OHOS::AccountSA::OsAccount::GetOsAccountShortName(shortName);
+    OHOS::AccountSA::OsAccountManager::GetOsAccountShortName(shortName);
     startMsg.userName = shortName;
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
