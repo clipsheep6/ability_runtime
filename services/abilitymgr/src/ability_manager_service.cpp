@@ -908,7 +908,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && callerAbilityName == SHELL_ASSISTANT_ABILITYNAME) ||
         IPCSkeleton::GetCallingUid() == BROKER_UID) {
-        if (abilityRequest.collaboratorType != CollaboratorType::RESERVE_TYPE) {
+        if (abilityRequest.collaboratorType != CollaboratorType::RESERVE_TYPE && !abilityInfo.visible) {
             HILOG_DEBUG("Check permission failed");
             return CHECK_PERMISSION_FAILED;
         }
