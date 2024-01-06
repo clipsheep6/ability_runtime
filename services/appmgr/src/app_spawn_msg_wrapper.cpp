@@ -96,6 +96,10 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
             HILOG_ERROR("failed to transform ownerId!");
             return false;
         }
+        if (strcpy_s(msg_->userName, sizeof(msg_->userName), startMsg.userName.c_str()) != EOK) {
+            HILOG_ERROR("failed to transform userName!");
+            return false;
+        }
         for (uint32_t i = 0; i < startMsg.gids.size(); ++i) {
             msg_->gidTable[i] = startMsg.gids[i];
         }
