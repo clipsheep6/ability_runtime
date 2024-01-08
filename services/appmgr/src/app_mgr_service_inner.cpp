@@ -4405,7 +4405,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             faultData.errorObject.name.c_str(), faultData.faultType,
             callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
 
-        if (faultData.forceExit && !faultData.waitSaveState && appRecord->IsKeepAliveApp()) {
+        if (faultData.forceExit && !faultData.waitSaveState) {
             HILOG_INFO("FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
                 bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
             innerService->KillProcessByPid(pid);

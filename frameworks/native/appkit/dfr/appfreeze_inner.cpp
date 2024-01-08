@@ -19,6 +19,7 @@
 #include "ability_manager_client.h"
 #include "ability_state.h"
 #include "app_recovery.h"
+#include "ffrt.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -103,7 +104,7 @@ int AppfreezeInner::AppfreezeHandle(const FaultData& faultData, bool onlyMainThr
         handlinglist_.emplace_back(faultData);
         constexpr int HANDLING_MIN_SIZE = 1;
         if (handlinglist_.size() <= HANDLING_MIN_SIZE) {
-            OHOS::HiviewDFX::Watchdog::GetInstance().RunOneShotTask("reportAppFreeze", reportFreeze);
+            ffrt::submit(reportFreeze, {}, {}, ffrt::task_attr().name("reportAppFreeze"));
         }
     }
     return 0;
@@ -155,6 +156,7 @@ int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
         if (isExit) {
             faultData.forceExit = true;
             faultData.waitSaveState = AppRecovery::GetInstance().IsEnabled();
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_APP_FREEZE);
         }
         NotifyANR(faultData);
         if (isExit) {
@@ -203,8 +205,6 @@ int AppfreezeInner::NotifyANR(const FaultData& faultData)
     HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
         faultData.errorObject.name.c_str(), pid, applicationInfo->bundleName.c_str());
 
-    // move this call before force stop app ? such as merge to NotifyAppFault ?
-    AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_APP_FREEZE);
     int ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
     if (ret != 0) {
         HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
