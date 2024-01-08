@@ -1056,6 +1056,8 @@ int32_t AppMgrServiceInner::ClearUpApplicationData(const std::string &bundleName
         newUserId = GetUserIdByUid(callerUid);
     }
     HILOG_INFO("userId:%{public}d", userId);
+    HILOG_ERROR("zwz2_1, bundleName:%{public}s", bundleName.c_str());
+    HILOG_ERROR("zwz5: %{public}d.", newUserId);
     return ClearUpApplicationDataByUserId(bundleName, callerUid, callerPid, newUserId);
 }
 
@@ -1082,16 +1084,20 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataBySelf(int32_t callerUid, pid_
 int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
     const std::string &bundleName, int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf)
 {
+    HILOG_ERROR("zwz2_1, bundleName:%{public}s", bundleName.c_str());
     if (callerPid <= 0) {
+        HILOG_ERROR("zwz1_1");
         HILOG_ERROR("invalid callerPid:%{public}d", callerPid);
         return ERR_INVALID_OPERATION;
     }
     if (callerUid < 0) {
+        HILOG_ERROR("zwz1_2");
         HILOG_ERROR("invalid callerUid:%{public}d", callerUid);
         return ERR_INVALID_OPERATION;
     }
     auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("zwz1_3");
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_INVALID_OPERATION;
     }
@@ -1100,34 +1106,41 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
     auto tokenId = AccessToken::AccessTokenKit::GetHapTokenID(userId, bundleName, 0);
     int32_t result = AccessToken::AccessTokenKit::ClearUserGrantedPermissionState(tokenId);
     if (result) {
+        HILOG_ERROR("zwz1_4");
         HILOG_ERROR("ClearUserGrantedPermissionState failed, ret:%{public}d", result);
         return ERR_PERMISSION_DENIED;
     }
     // 2.delete bundle side user data
     if (!IN_PROCESS_CALL(bundleMgrHelper->CleanBundleDataFiles(bundleName, userId))) {
+        HILOG_ERROR("zwz1_5");
         HILOG_ERROR("Delete bundle side user data is fail");
         return ERR_INVALID_OPERATION;
     }
     // 3.kill application
     // 4.revoke user rights
     if (isBySelf) {
+        HILOG_ERROR("zwz1_6");
         result = KillApplicationSelf();
     } else {
+        HILOG_ERROR("zwz1_7");
         result = KillApplicationByUserId(bundleName, userId);
     }
     if (result < 0) {
+        HILOG_ERROR("zwz1_8");
         HILOG_ERROR("Kill Application by bundle name is fail");
         return ERR_INVALID_OPERATION;
     }
     // 5.revoke uri permission rights
     result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
     if (result != 0) {
+        HILOG_ERROR("zwz1_9");
         HILOG_ERROR("Revoke all uri permissions is fail");
         return ERR_PERMISSION_DENIED;
     }
     auto dataMgr = OHOS::DistributedKv::DistributedDataMgr();
     auto dataRet = dataMgr.ClearAppStorage(bundleName, userId, 0, tokenId);
     if (dataRet != 0) {
+        HILOG_ERROR("zwz1_10");
         HILOG_WARN("Distributeddata clear app storage failed, bundleName:%{public}s", bundleName.c_str());
     }
     NotifyAppStatusByCallerUid(bundleName, userId, callerUid,
