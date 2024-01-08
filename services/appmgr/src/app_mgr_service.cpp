@@ -299,6 +299,8 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
+    HILOG_ERROR("zwz1");
+    HILOG_ERROR("zwz1, bundleName:%{public}s", bundleName.c_str());
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
@@ -312,6 +314,8 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_INVALID_OPERATION;
     }
+    HILOG_ERROR("zwz2: %{public}d.", callingUid);
+    HILOG_ERROR("zwz3: %{public}d.", userId);
     int32_t callingUid = IPCSkeleton::GetCallingUid();
     if (callingUid != 0 || userId < 0) {
         std::string callerBundleName;
