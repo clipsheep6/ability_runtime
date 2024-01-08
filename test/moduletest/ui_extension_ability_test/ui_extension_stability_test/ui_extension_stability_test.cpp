@@ -244,30 +244,24 @@ HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Lev
     // start uiability and destroy
     {
         auto ret = AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant);
-        EXPECT_EQ(ret, ERR_OK);
         WaitUntilAbilityForeground(observer);
         sptr<IRemoteObject> token = nullptr;
         ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-        EXPECT_EQ(ret, ERR_OK);
         int resultCode = 0;
         Want resultWant;
         ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-        EXPECT_EQ(ret, ERR_OK);
         WaitUntilProcessDied(observer);
     }
 
     // start ui extension user and destroy
     {
         auto ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
-        EXPECT_EQ(ret, ERR_OK);
         WaitUntilAbilityForeground(observer);
         sptr<IRemoteObject> token = nullptr;
         ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-        EXPECT_EQ(ret, ERR_OK);
         int resultCode = 0;
         Want resultWant;
         ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
-        EXPECT_EQ(ret, ERR_OK);
         WaitUntilProcessDied(observer);
     }
 

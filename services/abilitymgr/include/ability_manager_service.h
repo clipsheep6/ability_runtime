@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,7 @@
 #include "ability_debug_deal.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
+#include "ability_manager_event_subscriber.h"
 #include "ability_manager_stub.h"
 #include "ams_configuration_parameter.h"
 #include "app_debug_listener_interface.h"
@@ -1677,8 +1678,11 @@ private:
 
     void StartResidentApps();
 
-    void StartAutoStartupAppsInner();
+    void StartAutoStartupApps();
     void RetryStartAutoStartupApps(const std::vector<AutoStartupInfo> &infoList, int32_t retryCount);
+    void SubscribeScreenUnlockedEvent();
+    void UnSubscribeScreenUnlockedEvent();
+    void RetrySubscribeScreenUnlockedEvent(int32_t retryCount);
 
     int VerifyAccountPermission(int32_t userId);
 
@@ -1948,6 +1952,8 @@ private:
      *  FALSE: white list unable.
      */
     bool whiteListassociatedWakeUpFlag_ = true;
+
+    std::shared_ptr<AbilityRuntime::AbilityManagerEventSubscriber> screenSubscriber_;
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
 

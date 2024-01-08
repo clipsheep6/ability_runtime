@@ -200,10 +200,13 @@ private:
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
     void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
-    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        bool needForeground);
     bool HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result) override;
+    void PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
@@ -214,6 +217,7 @@ private:
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
     int32_t screenMode_ = AAFwk::IDLE_SCREEN_MODE;
     std::shared_ptr<int32_t> screenModePtr_;
+    sptr<IRemoteObject> token_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

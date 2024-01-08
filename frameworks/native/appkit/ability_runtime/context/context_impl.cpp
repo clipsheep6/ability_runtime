@@ -73,6 +73,8 @@ Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::Device
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
+const int32_t API11 = 11;
+const int32_t API_VERSION_MOD = 100;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -322,8 +324,7 @@ std::string ContextImpl::GetDistributedFilesDir()
         if (currArea_ == CONTEXT_ELS[1] || currArea_ == CONTEXT_ELS[2] || currArea_ == CONTEXT_ELS[3]) {
             //when areamode swith to el3/el4, the distributedfiles dir should be always el2's distributedfilesdir dir
             dir = CONTEXT_DATA_STORAGE + CONTEXT_ELS[1] + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
-        }
-        else {
+        } else {
             dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
         }
     }
@@ -368,7 +369,8 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
     GetBundleInfo(bundleName, bundleInfo, accountId);
     if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
         HILOG_ERROR("GetBundleInfo is error");
-        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo);
+        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo,
+            AppExecFwk::GetDependentBundleInfoFlag::GET_ALL_DEPENDENT_BUNDLE_INFO);
         if (ret != ERR_OK) {
             HILOG_ERROR("GetDependentBundleInfo failed:%{public}d", ret);
             return nullptr;
@@ -698,6 +700,8 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::InitResourceMana
                 loadPath = std::regex_replace(loadPath, inner_pattern, LOCAL_CODE_PATH);
             } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::SHARED) {
                 loadPath = std::regex_replace(loadPath, hsp_pattern, hsp_sandbox);
+            } else if (bundleInfo.applicationInfo.bundleType == AppExecFwk::BundleType::APP_SERVICE_FWK) {
+                HILOG_DEBUG("System hsp path, not need translate.");
             } else {
                 loadPath = std::regex_replace(loadPath, outer_pattern, LOCAL_BUNDLES);
             }
@@ -759,6 +763,20 @@ void ContextImpl::UpdateResConfig(std::shared_ptr<Global::Resource::ResourceMana
     if (resConfig == nullptr) {
         HILOG_ERROR("create ResConfig failed");
         return;
+    }
+
+    if (GetHapModuleInfo() != nullptr && GetApplicationInfo() != nullptr) {
+        std::vector<AppExecFwk::Metadata> metadata = GetHapModuleInfo()->metadata;
+        bool load = std::any_of(metadata.begin(), metadata.end(), [](const auto &metadataItem) {
+            return metadataItem.name == "ContextResourceConfigLoadFromParentTemp" && metadataItem.value == "true";
+        });
+        if (load && GetApplicationInfo()->apiTargetVersion % API_VERSION_MOD >= API11) {
+            std::shared_ptr<Global::Resource::ResourceManager> currentResMgr = GetResourceManager();
+            if (currentResMgr != nullptr) {
+                HILOG_DEBUG("apiVersion: %{public}d, load parent config.", GetApplicationInfo()->apiTargetVersion);
+                currentResMgr->GetResConfig(*resConfig);
+            }
+        }
     }
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;

@@ -445,5 +445,20 @@ HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_008, TestSize.Level1)
     EXPECT_TRUE(watchdog_->needReport_);
     watchdog_->ReportEvent();
 }
+
+/**
+ * @tc.number: WatchdogTest_ReportEvent_009
+ * @tc.name: ReportEvent
+ * @tc.desc: Verify that function ReportEvent.
+ */
+HWTEST_F(WatchdogTest, WatchdogTest_ReportEvent_009, TestSize.Level1)
+{
+    watchdog_->lastWatchTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count() - TEST_INTERVAL_TIME;
+    watchdog_->isInBackground_ = true;
+    watchdog_->backgroundReportCount_ = 0;
+    watchdog_->ReportEvent();
+    EXPECT_EQ(watchdog_->backgroundReportCount_, 1);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

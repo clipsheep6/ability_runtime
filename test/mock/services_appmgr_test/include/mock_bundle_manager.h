@@ -71,7 +71,8 @@ public:
     };
 
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }
@@ -151,7 +152,8 @@ public:
     void MakingResidentProcData();
     ErrCode GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo);
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }

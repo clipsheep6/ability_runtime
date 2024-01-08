@@ -184,6 +184,10 @@ void JsAbility::BindContext()
     napi_value contextObj = CreateJsAbilityContext(env, context);
     shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
         env, "application.AbilityContext", &contextObj, 1).release());
+    if (shellContextRef_ == nullptr) {
+        HILOG_ERROR("Failed to load module");
+        return;
+    }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get ability native object");

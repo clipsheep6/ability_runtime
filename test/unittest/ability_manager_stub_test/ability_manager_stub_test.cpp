@@ -2593,5 +2593,262 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_GetForegroundUIAbilitiesInne
     auto res = stub_->GetForegroundUIAbilitiesInner(data, reply);
     EXPECT_EQ(res, ERR_OK);
 }
-}  // namespace AAFwk
-}  // namespace OHOS
+
+/**
+ * @tc.name: AbilityManagerStubTest_RegisterAutoStartupSystemCallbackInner_0100
+ * @tc.desc: Test the state of RegisterAutoStartupSystemCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RegisterAutoStartupSystemCallbackInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    sptr<AppExecFwk::MockAbilityToken> token = new (std::nothrow) AppExecFwk::MockAbilityToken();
+    EXPECT_NE(token, nullptr);
+    data.WriteRemoteObject(token);
+    auto result = stub_->RegisterAutoStartupSystemCallbackInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_RegisterAutoStartupSystemCallbackInner_0200
+ * @tc.desc: Test the state of RegisterAutoStartupSystemCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RegisterAutoStartupSystemCallbackInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->RegisterAutoStartupSystemCallbackInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_UnregisterAutoStartupSystemCallbackInner_0100
+ * @tc.desc: Test the state of UnregisterAutoStartupSystemCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, UnregisterAutoStartupSystemCallbackInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    sptr<AppExecFwk::MockAbilityToken> token = new (std::nothrow) AppExecFwk::MockAbilityToken();
+    EXPECT_NE(token, nullptr);
+    data.WriteRemoteObject(token);
+    auto result = stub_->UnregisterAutoStartupSystemCallbackInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_UnregisterAutoStartupSystemCallbackInner_0200
+ * @tc.desc: Test the state of UnregisterAutoStartupSystemCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, UnregisterAutoStartupSystemCallbackInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->UnregisterAutoStartupSystemCallbackInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+/**
+ * @tc.name: AbilityManagerStubTest_SetApplicationAutoStartupInner_0100
+ * @tc.desc: Test the state of SetApplicationAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, SetApplicationAutoStartupInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->SetApplicationAutoStartupInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_SetApplicationAutoStartupInner_0200
+ * @tc.desc: Test the state of SetApplicationAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, SetApplicationAutoStartupInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->SetApplicationAutoStartupInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_CancelApplicationAutoStartupInner_0100
+ * @tc.desc: Test the state of CancelApplicationAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, CancelApplicationAutoStartupInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->CancelApplicationAutoStartupInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_CancelApplicationAutoStartupInner_0200
+ * @tc.desc: Test the state of CancelApplicationAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, CancelApplicationAutoStartupInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->CancelApplicationAutoStartupInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_QueryAllAutoStartupApplicationsInner_0100
+ * @tc.desc: Test the state of QueryAllAutoStartupApplicationsInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, QueryAllAutoStartupApplicationsInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->QueryAllAutoStartupApplicationsInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_RegisterAutoStartupCallbackInner_0100
+ * @tc.desc: Test the state of RegisterAutoStartupCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RegisterAutoStartupCallbackInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    sptr<AppExecFwk::MockAbilityToken> token = new (std::nothrow) AppExecFwk::MockAbilityToken();
+    EXPECT_NE(token, nullptr);
+    data.WriteRemoteObject(token);
+    auto result = stub_->RegisterAutoStartupCallbackInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_RegisterAutoStartupCallbackInner_0200
+ * @tc.desc: Test the state of RegisterAutoStartupCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RegisterAutoStartupCallbackInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->RegisterAutoStartupCallbackInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_UnregisterAutoStartupCallbackInner_0100
+ * @tc.desc: Test the state of UnregisterAutoStartupCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, UnregisterAutoStartupCallbackInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    sptr<AppExecFwk::MockAbilityToken> token = new (std::nothrow) AppExecFwk::MockAbilityToken();
+    EXPECT_NE(token, nullptr);
+    data.WriteRemoteObject(token);
+    auto result = stub_->UnregisterAutoStartupCallbackInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_UnregisterAutoStartupCallbackInner_0200
+ * @tc.desc: Test the state of UnregisterAutoStartupCallbackInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, UnregisterAutoStartupCallbackInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->UnregisterAutoStartupCallbackInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_SetAutoStartupInner_0100
+ * @tc.desc: Test the state of SetAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, SetAutoStartupInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->SetAutoStartupInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_SetAutoStartupInner_0200
+ * @tc.desc: Test the state of SetAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, SetAutoStartupInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->SetAutoStartupInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_CancelAutoStartupInner_0100
+ * @tc.desc: Test the state of CancelAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, CancelAutoStartupInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->CancelAutoStartupInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_CancelAutoStartupInner_0200
+ * @tc.desc: Test the state of CancelAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, CancelAutoStartupInner_0200, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto result = stub_->CancelAutoStartupInner(data, reply);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: AbilityManagerStubTest_IsAutoStartupInner_0100
+ * @tc.desc: Test the state of IsAutoStartupInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, IsAutoStartupInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->IsAutoStartupInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
+} // namespace AAFwk
+} // namespace OHOS

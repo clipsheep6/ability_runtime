@@ -51,6 +51,8 @@ private:
     std::string GetCommonAppHspPath(const std::string& inputPath) const;
     std::string GetFormAppHspPath(const std::string& inputPath) const;
     std::string GetModuleName(const std::string& inputPath) const;
+    static std::string GetOtherHspPath(const std::string& bundleName, const std::string& moduleName,
+        const std::string& inputPath);
 
     bool isSystemPath_ = false;
     bool isFormRender_ = false;

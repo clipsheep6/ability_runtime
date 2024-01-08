@@ -163,6 +163,7 @@ AbilityStartSetting *AbilityStartSetting::Unmarshalling(Parcel &parcel)
     parcel.ReadUint32(size);
 
     if (size > CYCLE_LIMIT) {
+        delete abilityStartSetting;
         return nullptr;
     }
 

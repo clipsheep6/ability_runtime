@@ -48,7 +48,10 @@ config("ability_manager_public_config") {
   }
 
   if (ability_runtime_graphics) {
-    include_dirs += [ "${multimedia_path}/interfaces/innerkits/include" ]
+    include_dirs += [
+      "${multimedia_path}/interfaces/innerkits/include",
+      "${graphic_path}/utils/color_manager/export",
+    ]
 
     defines += [ "SUPPORT_GRAPHICS" ]
   }
@@ -146,6 +149,7 @@ ohos_shared_library("ability_manager") {
     deps += []
     external_deps += [
       "ability_base:session_info",
+      "graphic_2d:color_manager",
       "image_framework:image_native",
       "window_manager:libwsutils",
       "window_manager:session_manager_lite",

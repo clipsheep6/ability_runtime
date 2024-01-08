@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AAFwk {
+using OHOS::AppExecFwk::BundleInfo;
 std::string DialogSessionRecord::GenerateDialogSessionId()
 {
     auto timestamp = std::chrono::system_clock::now().time_since_epoch();
@@ -103,15 +104,15 @@ bool DialogSessionRecord::QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInf
     std::string bundleName = dialogAbilityInfo.bundleName;
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, ERR_INVALID_VALUE);
-    AppExecFwk::ApplicationInfo appInfo;
-    bool ret = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(bundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, appInfo));
-    if (!ret) {
+    BundleInfo bundleInfo;
+    bool ret = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(bundleName,
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
+    if (ret != ERR_OK) {
         HILOG_ERROR("Get application info failed, err:%{public}d.", ret);
         return false;
     }
-    dialogAbilityInfo.bundleIconId = appInfo.iconId;
-    dialogAbilityInfo.bundleLabelId = appInfo.labelId;
+    dialogAbilityInfo.bundleIconId = bundleInfo.applicationInfo.iconId;
+    dialogAbilityInfo.bundleLabelId = bundleInfo.applicationInfo.labelId;
     return true;
 }
 

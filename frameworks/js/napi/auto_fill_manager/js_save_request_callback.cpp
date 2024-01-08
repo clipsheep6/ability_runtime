@@ -52,7 +52,6 @@ void JsSaveRequestCallback::OnSaveRequestFailed()
 void JsSaveRequestCallback::Register(napi_value value)
 {
     HILOG_DEBUG("Called.");
-    std::lock_guard<std::mutex> lock(callbackMutex_);
     if (IsJsCallbackEquals(callback_, value)) {
         HILOG_ERROR("The current callback already exists.");
         return;
@@ -65,9 +64,13 @@ void JsSaveRequestCallback::Register(napi_value value)
 
 void JsSaveRequestCallback::JSCallFunction(const std::string &methodName)
 {
-    NapiAsyncTask::CompleteCallback complete = [this, methodName](napi_env env, NapiAsyncTask &task, int32_t status) {
-        JSCallFunctionWorker(methodName);
-    };
+    auto thisPtr = shared_from_this();
+    NapiAsyncTask::CompleteCallback complete =
+        [thisPtr, methodName](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (thisPtr) {
+                thisPtr->JSCallFunctionWorker(methodName);
+            }
+        };
 
     NapiAsyncTask::Schedule("JsSaveRequestCallback::JSCallFunction:" + methodName,
         env_,
@@ -76,7 +79,6 @@ void JsSaveRequestCallback::JSCallFunction(const std::string &methodName)
 
 void JsSaveRequestCallback::JSCallFunctionWorker(const std::string &methodName)
 {
-    std::lock_guard<std::mutex> lock(callbackMutex_);
     if (callback_ == nullptr) {
         HILOG_ERROR("callback is nullptr.");
         return;

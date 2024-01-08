@@ -294,7 +294,8 @@ public:
     }
 
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }
@@ -340,7 +341,8 @@ public:
         return appControlMgr;
     }
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }

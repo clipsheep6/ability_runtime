@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -95,8 +95,11 @@ ohos_unittest("ability_record_test_call") {
   module_out_path = "ability_runtime/ability_call_test"
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/inner_api/ability_manager/include/",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
+    "${ability_runtime_services_path}/abilitymgr/include/",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
+    "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit/include",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/ability_scheduler_mock",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
@@ -104,7 +107,10 @@ ohos_unittest("ability_record_test_call") {
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_auto_startup_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ability_manager_event_subscriber.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_config.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/lifecycle_deal.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "ability_record_test_call.cpp",  # add mock file
   ]
@@ -127,7 +133,6 @@ ohos_unittest("ability_record_test_call") {
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/aakit:aakit_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_appmgr_mock",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core:appexecfwk_bundlemgr_mock",
-    "${ability_runtime_test_path}/unittest:abilityms_test_source",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]

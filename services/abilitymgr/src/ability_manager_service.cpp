@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,6 +41,8 @@
 #include "app_exit_reason_data_manager.h"
 #include "application_util.h"
 #include "bundle_mgr_client.h"
+#include "common_event_manager.h"
+#include "common_event_support.h"
 #include "connection_state_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
@@ -152,6 +154,7 @@ constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 const std::string KEY_VISIBLE_ID = "ohos.anco.param.visible";
 const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
 
 const std::string DEBUG_APP = "debugApp";
@@ -409,15 +412,6 @@ bool AbilityManagerService::Init()
     auto initPrepareTerminateConfigTask = [aams = shared_from_this()]() { aams->InitPrepareTerminateConfig(); };
     taskHandler_->SubmitTask(initPrepareTerminateConfigTask, "InitPrepareTerminateConfig");
 
-    auto startAutoStartupAppsTask = [aams = weak_from_this()]() {
-        auto obj = aams.lock();
-        if (obj == nullptr) {
-            HILOG_ERROR("Start auto startup app error, obj is nullptr");
-            return;
-        }
-        obj->StartAutoStartupAppsInner();
-    };
-    taskHandler_->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     RegisterSuspendObserver();
 
     auto initExtensionConfigTask = []() {
@@ -436,6 +430,7 @@ bool AbilityManagerService::Init()
         }
     };
     taskHandler_->SubmitTask(bootCompletedTask, "BootCompletedTask");
+    SubscribeScreenUnlockedEvent();
     HILOG_INFO("Init success.");
     return true;
 }
@@ -823,6 +818,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
+    std::string callerAbilityName = abilityRecord ? abilityRecord->GetAbilityInfo().name : "";
     bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
         want.GetElement().GetBundleName() == callerBundleName);
     bool isStartFreeInstallByWant = AbilityUtil::IsStartFreeInstall(want);
@@ -910,8 +906,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Check permission failed");
             return result;
         }
-    } else if (callerBundleName == SHELL_ASSISTANT_BUNDLENAME &&
-        abilityRequest.collaboratorType == CollaboratorType::RESERVE_TYPE) {
+    } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && callerAbilityName == SHELL_ASSISTANT_ABILITYNAME) ||
+        IPCSkeleton::GetCallingUid() == BROKER_UID) {
+        if (abilityRequest.collaboratorType != CollaboratorType::RESERVE_TYPE && !abilityInfo.visible) {
+            HILOG_DEBUG("Check permission failed");
+            return CHECK_PERMISSION_FAILED;
+        }
         HILOG_DEBUG("Check call service or extension permission, name is %{public}s.", abilityInfo.name.c_str());
         auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
         if (collaborator == nullptr) {
@@ -941,7 +941,8 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_ERROR("DoProcess failed or replaceWant not exist");
         return result;
     }
-    if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult) {
+    if (result != ERR_OK && isReplaceWantExist && !isSendDialogResult &&
+        callerBundleName != AMS_DIALOG_BUNDLENAME) {
         std::string dialogSessionId;
         std::vector<DialogAppInfo> dialogAppInfos(1);
         if (GenerateDialogSessionRecord(abilityRequest, GetUserId(), dialogSessionId, dialogAppInfos, false)) {
@@ -5818,10 +5819,9 @@ void AbilityManagerService::StartResidentApps()
     }
 }
 
-void AbilityManagerService::StartAutoStartupAppsInner()
+void AbilityManagerService::StartAutoStartupApps()
 {
     HILOG_DEBUG("Called.");
-    ConnectBmsService();
     if (abilityAutoStartupService_ == nullptr) {
         HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
         return;
@@ -5840,6 +5840,7 @@ void AbilityManagerService::StartAutoStartupAppsInner()
 void AbilityManagerService::RetryStartAutoStartupApps(
     const std::vector<AutoStartupInfo> &infoList, int32_t retryCount)
 {
+    HILOG_DEBUG("Called, retryCount: %{public}d, infoList.size:%{public}zu", retryCount, infoList.size());
     std::vector<AutoStartupInfo> failedList;
     for (auto info : infoList) {
         AppExecFwk::ElementName element;
@@ -5854,6 +5855,7 @@ void AbilityManagerService::RetryStartAutoStartupApps(
         }
     }
 
+    HILOG_DEBUG("RetryCount: %{public}d, failedList.size:%{public}zu", retryCount, failedList.size());
     if (!failedList.empty() && retryCount > 0) {
         auto retryStartAutoStartupAppsTask = [aams = weak_from_this(), list = failedList, retryCount]() {
             auto obj = aams.lock();
@@ -5866,6 +5868,59 @@ void AbilityManagerService::RetryStartAutoStartupApps(
         constexpr int delaytime = 2000;
         taskHandler_->SubmitTask(retryStartAutoStartupAppsTask, "RetryStartAutoStartupApps", delaytime);
     }
+}
+
+void AbilityManagerService::SubscribeScreenUnlockedEvent()
+{
+    HILOG_DEBUG("Called.");
+    // add listen screen unlocked.
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
+    wptr<AbilityManagerService> weak = this;
+    auto callback = [weak]() {
+        HILOG_DEBUG("On screen unlocked.");
+        auto self = weak.promote();
+        if (self == nullptr) {
+            HILOG_ERROR("Invalid self pointer.");
+            return;
+        }
+        self->StartAutoStartupApps();
+        self->UnSubscribeScreenUnlockedEvent();
+    };
+    screenSubscriber_ = std::make_shared<AbilityRuntime::AbilityManagerEventSubscriber>(subscribeInfo, callback);
+    bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(screenSubscriber_);
+    if (!subResult) {
+        constexpr int retryCount = 20;
+        RetrySubscribeScreenUnlockedEvent(retryCount);
+    }
+}
+
+void AbilityManagerService::UnSubscribeScreenUnlockedEvent()
+{
+    HILOG_DEBUG("Called.");
+    bool subResult = EventFwk::CommonEventManager::UnSubscribeCommonEvent(screenSubscriber_);
+    HILOG_DEBUG("Screen unlocked event subscriber unsubscribe result is %{public}d.", subResult);
+}
+
+void AbilityManagerService::RetrySubscribeScreenUnlockedEvent(int32_t retryCount)
+{
+    HILOG_DEBUG("RetryCount: %{public}d.", retryCount);
+    auto retrySubscribeScreenUnlockedEventTask = [aams = weak_from_this(), screenSubscriber = screenSubscriber_,
+                                                     retryCount]() {
+        bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(screenSubscriber);
+        auto obj = aams.lock();
+        if (obj == nullptr) {
+            HILOG_ERROR("Retry subscribe screen unlocked event, obj is nullptr.");
+            return;
+        }
+        if (!subResult && retryCount > 0) {
+            obj->RetrySubscribeScreenUnlockedEvent(retryCount - 1);
+        }
+    };
+    constexpr int delaytime = 200;
+    taskHandler_->SubmitTask(retrySubscribeScreenUnlockedEventTask, "RetrySubscribeScreenUnlockedEvent", delaytime);
 }
 
 void AbilityManagerService::ConnectBmsService()
@@ -9426,13 +9481,9 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
 {
     (const_cast<Want &>(replaceWant)).SetParam("dialogSessionId", dialogSessionId);
     auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
-    if (connection == nullptr) {
-        HILOG_ERROR("connect ModalSystemUiExtension failed");
-        return INNER_ERR;
-    }
     if (callerToken == nullptr) {
         HILOG_DEBUG("create modal ui extension for system");
-        return connection->CreateModalUIExtension(replaceWant);
+        return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
     if (!callerRecord) {
@@ -9452,7 +9503,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
         return callerRecord->CreateModalUIExtension(replaceWant);
     }
     HILOG_DEBUG("create modal ui extension for system");
-    return connection->CreateModalUIExtension(replaceWant);
+    return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
 }
 
 int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)

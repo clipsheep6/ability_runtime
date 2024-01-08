@@ -1314,8 +1314,6 @@ napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
 
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
-    napi_set_named_property(env, exportObj, "actionFlags", WantAgentFlagsInit(env));
-    napi_set_named_property(env, exportObj, "actionType", WantAgentOperationTypeInit(env));
 
     HILOG_DEBUG("JsWantAgentInit BindNativeFunction called");
     const char* moduleName = "JsWantAgent";

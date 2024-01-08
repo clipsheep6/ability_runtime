@@ -311,6 +311,24 @@ int32_t AbilityRecord::GetPid()
     return pid_;
 }
 
+void AbilityRecord::LoadUIAbility()
+{
+    SetLoading(true);
+    int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
+    if (applicationInfo_.asanEnabled) {
+        loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
+    } else {
+        int coldStartTimeout =
+            AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
+        std::lock_guard guard(wantLock_);
+        auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
+        SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
+    }
+    std::string methodName = "LoadAbility";
+    g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::LOAD, methodName);
+}
+
 int AbilityRecord::LoadAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -319,19 +337,7 @@ int AbilityRecord::LoadAbility()
     CHECK_POINTER_AND_RETURN(token_, ERR_INVALID_VALUE);
     // only for UIAbility
     if (!IsDebug() && abilityInfo_.type != AppExecFwk::AbilityType::DATA) {
-        int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
-        if (applicationInfo_.asanEnabled) {
-            loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
-            SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
-        } else {
-            int coldStartTimeout =
-                AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * COLDSTART_TIMEOUT_MULTIPLE;
-            std::lock_guard guard(wantLock_);
-            auto delayTime = want_.GetBoolParam("coldStart", false) ? coldStartTimeout : loadTimeout;
-            SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, delayTime / HALF_TIMEOUT);
-        }
-        std::string methodName = "LoadAbility";
-        g_addLifecycleEventTask(token_, FreezeUtil::TimeoutState::LOAD, methodName);
+        LoadUIAbility();
     }
 
     std::string appName = applicationInfo_.name;
@@ -356,6 +362,7 @@ int AbilityRecord::LoadAbility()
             callerToken_ = caller->GetToken();
         }
     }
+
     std::lock_guard guard(wantLock_);
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
@@ -2443,6 +2450,16 @@ bool AbilityRecord::GetKeepAlive() const
     return isKeepAlive_;
 }
 
+void AbilityRecord::SetLoading(bool status)
+{
+    isLoading_ = status;
+}
+
+bool AbilityRecord::IsLoading() const
+{
+    return isLoading_;
+}
+
 int64_t AbilityRecord::GetRestartTime()
 {
     return restartTime_;
@@ -2836,68 +2853,73 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
 }
 
+bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission,
+    int32_t userId)
+{
+    auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
+    auto &&authority = uri.GetAuthority();
+    HILOG_INFO("uri authority is %{public}s.", authority.c_str());
+    if (!isGrantPersistableUriPermissionEnable_ || authority != "docs") {
+        flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
+    }
+    if (permission) {
+        return true;
+    }
+    if (authority == "media") {
+        HILOG_WARN("the type of uri media, have no permission.");
+        return false;
+    }
+    if (authority == "docs") {
+        if (!isGrantPersistableUriPermissionEnable_ ||
+            !AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
+                uri, flag, callerTokenId)) {
+            HILOG_WARN("the type of uri docs, have no permission.");
+            return false;
+        }
+        flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
+        return true;
+    }
+    // uri of bundle name type
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("bundleMgrHelper is nullptr");
+        return false;
+    };
+    AppExecFwk::BundleInfo uriBundleInfo;
+    if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
+        HILOG_WARN("To fail to get bundle info according to uri.");
+        return false;
+    }
+    auto authorityAccessTokenId = uriBundleInfo.applicationInfo.accessTokenId;
+    if (authorityAccessTokenId != callerAccessTokenId_ && authorityAccessTokenId != callerTokenId) {
+        HILOG_ERROR("the uri does not belong to caller, have not permission");
+        return false;
+    }
+    return true;
+}
+
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
     const std::string &targetBundleName, uint32_t tokenId)
 {
-    auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    uint32_t fromTokenId = 0;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        fromTokenId = tokenId;
-    } else {
-        fromTokenId = IPCSkeleton::GetCallingTokenID();
-    }
-    auto permission =
-        AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(IPCSkeleton::GetCallingTokenID()) ||
-        AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(tokenId);
-    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-    CHECK_POINTER_IS_NULLPTR(bundleMgrHelper);
+    auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
+    auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
     auto userId = GetCurrentAccountId();
-    auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
+    HILOG_INFO("callerTokenId = %{public}u, tokenId = %{public}u, permission = %{public}i",
+        callerTokenId, tokenId, static_cast<int>(permission));
     std::unordered_map<uint32_t, std::vector<Uri>> uriVecMap; // flag, vector
+    uint32_t flag = want.GetFlags();
     for (auto&& str : uriVec) {
         Uri uri(str);
-        auto&& scheme = uri.GetScheme();
-        HILOG_INFO("uri scheme is %{public}s.", scheme.c_str());
+        auto &&scheme = uri.GetScheme();
+        HILOG_INFO("uri is %{private}s, scheme is %{public}s.", str.c_str(), scheme.c_str());
         // only support file scheme
         if (scheme != "file") {
             HILOG_WARN("only support file uri.");
             continue;
         }
-        auto&& authority = uri.GetAuthority();
-        uint32_t flag = want.GetFlags();
-        HILOG_INFO("uri authority is %{public}s.", authority.c_str());
-        if (!isGrantPersistableUriPermissionEnable_ || authority != "docs") {
-            flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
-        }
-
-        if (authority != "docs" && authority != "media") {
-            AppExecFwk::BundleInfo uriBundleInfo;
-            if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
-                HILOG_WARN("To fail to get bundle info according to uri.");
-                continue;
-            }
-            bool notBelong2Caller = uriBundleInfo.applicationInfo.accessTokenId != fromTokenId &&
-                uriBundleInfo.applicationInfo.accessTokenId != callerAccessTokenId_ &&
-                uriBundleInfo.applicationInfo.accessTokenId != callerTokenId;
-            if (notBelong2Caller && !permission) {
-                HILOG_ERROR("the uri does not belong to caller and not have uri proxy permission.");
-                continue;
-            }
-        }
-
-        if (authority == "media" && !permission) {
-            HILOG_WARN("the type of uri media, have no permission.");
+        if (!CheckUriPermission(uri, flag, callerTokenId, permission, userId)) {
+            HILOG_ERROR("no permission to grant uri.");
             continue;
-        }
-
-        if (authority == "docs" && !permission) {
-            if (!isGrantPersistableUriPermissionEnable_ ||
-                !AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
-                    uri, flag, fromTokenId)) {
-                HILOG_WARN("the type of uri docs, have no permission.");
-                continue;
-            }
-            flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
         }
         if (uriVecMap.find(flag) == uriVecMap.end()) {
             std::vector<Uri> uriVec;
@@ -2949,7 +2971,7 @@ void AbilityRecord::GrantUriPermissionFor2In1Inner(Want &want, std::vector<std::
         auto &&authority = uri.GetAuthority();
         if (authority == "docs") {
             uri2In1Vec.emplace_back(uri);
-        } else{
+        } else {
             uriOtherVec.emplace_back(str);
         }
     }

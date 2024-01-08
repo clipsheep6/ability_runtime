@@ -93,6 +93,74 @@ void AbilityManagerServiceSecondTest::TearDown() {}
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartSwitchUserDialog
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSwitchUserDialog
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartSwitchUserDialog_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest StartSwitchUserDialog_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    abilityMs_->StartSwitchUserDialog();
+
+    abilityMs_->userController_ = nullptr;
+    abilityMs_->StartSwitchUserDialog();
+    HILOG_INFO("AbilityManagerServiceSecondTest StartSwitchUserDialog_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartSwitchUserDialogInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartSwitchUserDialogInner
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartSwitchUserDialogInner_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest StartSwitchUserDialogInner_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->StartSwitchUserDialogInner(want, 100);
+    HILOG_INFO("AbilityManagerServiceSecondTest StartSwitchUserDialogInner_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopSwitchUserDialog
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopSwitchUserDialog
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StopSwitchUserDialog_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest StopSwitchUserDialog_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs_, nullptr);
+    abilityMs_->StopSwitchUserDialog();
+
+    abilityMs_->userController_ = nullptr;
+    abilityMs_->StopSwitchUserDialog();
+    HILOG_INFO("AbilityManagerServiceSecondTest StopSwitchUserDialog_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StopSwitchUserDialogInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StopSwitchUserDialogInner
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StopSwitchUserDialogInner_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest StopSwitchUserDialogInner_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    Want want;
+    ASSERT_NE(abilityMs_, nullptr);
+    abilityMs_->StopSwitchUserDialogInner(want, 100);
+    HILOG_INFO("AbilityManagerServiceSecondTest StopSwitchUserDialogInner_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CheckOptExtensionAbility
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CheckOptExtensionAbility

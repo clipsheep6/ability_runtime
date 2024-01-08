@@ -98,6 +98,10 @@ public:
 
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb);
 
+    void StartMonitorJSHeapUsage();
+
+    void StopMonitorJSHeapUsage();
+
     void NotifyDebugMode(int tid, const char* libraryPath, uint32_t instanceId, bool isDebugApp, bool debugMode);
 
     bool GetDebugMode() const;

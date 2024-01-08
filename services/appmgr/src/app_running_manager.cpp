@@ -34,6 +34,8 @@ namespace AppExecFwk {
 namespace {
     const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 }
+using EventFwk::CommonEventSupport;
+
 AppRunningManager::AppRunningManager()
 {}
 AppRunningManager::~AppRunningManager()
@@ -459,49 +461,53 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
 void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool clearMissionFlag,
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner)
 {
-    if (!token) {
-        HILOG_ERROR("token is nullptr.");
-        return;
-    }
-
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
     if (!appRecord) {
         HILOG_ERROR("appRecord is nullptr.");
         return;
     }
-    auto isLastAbility =
-        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
+
+    auto killProcess = [appRecord, token, inner = appMgrServiceInner]() {
+        if (appRecord == nullptr || token == nullptr || inner == nullptr) {
+            HILOG_ERROR("Pointer parameter error.");
+            return;
+        }
+        appRecord->RemoveTerminateAbilityTimeoutTask(token);
+        HILOG_DEBUG("The ability is the last, kill application");
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (priorityObject == nullptr) {
+            HILOG_ERROR("priorityObject is nullptr.");
+            return;
+        }
+        auto pid = priorityObject->GetPid();
+        if (pid < 0) {
+            HILOG_ERROR("Pid error.");
+            return;
+        }
+        auto result = inner->KillProcessByPid(pid);
+        if (result < 0) {
+            HILOG_WARN("Kill application directly failed, pid: %{public}d", pid);
+        }
+        inner->NotifyAppStatus(appRecord->GetBundleName(), CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
+        };
+
+    if (clearMissionFlag && appRecord->IsDebugApp()) {
+        killProcess();
+        return;
+    }
+
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         appRecord->TerminateAbility(token, true);
     } else {
         appRecord->TerminateAbility(token, false);
     }
-
-    auto isKeepAliveApp = appRecord->IsKeepAliveApp();
+    auto isLastAbility =
+        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
-    if (isLastAbility && !isKeepAliveApp && !isLauncherApp) {
+    if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
-            auto killProcess = [appRecord, token, appMgrServiceInner]() {
-                if (appRecord == nullptr || token == nullptr || appMgrServiceInner == nullptr) {
-                    HILOG_ERROR("Pointer parameter error.");
-                    return;
-                }
-                appRecord->RemoveTerminateAbilityTimeoutTask(token);
-                HILOG_DEBUG("The ability is the last, kill application");
-                auto pid = appRecord->GetPriorityObject()->GetPid();
-                if (pid < 0) {
-                    HILOG_ERROR("Pid error.");
-                    return;
-                }
-                auto result = appMgrServiceInner->KillProcessByPid(pid);
-                if (result < 0) {
-                    HILOG_WARN("Kill application directly failed, pid: %{public}d", pid);
-                }
-                appMgrServiceInner->NotifyAppStatus(appRecord->GetBundleName(),
-                    EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
-                };
             appRecord->PostTask("DELAY_KILL_PROCESS", AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT, killProcess);
         }
     }
@@ -568,7 +574,6 @@ void AppRunningManager::ClipStringContent(const std::regex &re, const std::strin
 
 void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &list)
 {
-    HILOG_INFO("%{public}s, begin.", __func__);
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -586,7 +591,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
-            HILOG_INFO("%{public}s, bundleName:%{public}s", __func__, appData.bundleName.c_str());
+            HILOG_INFO("bundleName:%{public}s", appData.bundleName.c_str());
         }
     }
 }
@@ -631,7 +636,6 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
 
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("call %{public}s", __func__);
     std::lock_guard<ffrt::mutex> guard(lock_);
     HILOG_INFO("current app size %{public}zu", appRunningRecordMap_.size());
     int32_t result = ERR_OK;
@@ -658,7 +662,6 @@ bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunni
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
@@ -672,7 +675,7 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
     std::shared_ptr<AppRunningRecord> appRecord;
     {
         std::lock_guard<ffrt::mutex> guard(lock_);
-        HILOG_INFO("call %{public}s, current app size %{public}zu", __func__, appRunningRecordMap_.size());
+        HILOG_INFO("current app size %{public}zu", appRunningRecordMap_.size());
         auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
             auto priorityObject = pair.second->GetPriorityObject();
             return priorityObject && priorityObject->GetPid() == pid;

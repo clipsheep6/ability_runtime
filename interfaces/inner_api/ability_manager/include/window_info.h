@@ -128,7 +128,7 @@ struct AbilityTransitionInfo : public Parcelable {
             if (!parcel.WriteBool(true)) {
                 return false;
             }
-            if (!parcel.WriteObject(abilityToken_)) {
+            if (!parcel.WriteRemoteObject(abilityToken_)) {
                 return false;
             }
         }

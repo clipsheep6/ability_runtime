@@ -110,6 +110,7 @@ constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t START_HIGH_SENSITIVE = 1;
+constexpr int32_t EXIT_HIGH_SENSITIVE = 2;
 constexpr int32_t UNSPECIFIED_USERID = -2;
 
 enum class SignalType {
@@ -1268,7 +1269,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     application_->SetApplicationContext(applicationContext);
 
     HspList hspList;
-    ErrCode ret = bundleMgrHelper->GetBaseSharedBundleInfos(appInfo.bundleName, hspList);
+    ErrCode ret = bundleMgrHelper->GetBaseSharedBundleInfos(appInfo.bundleName, hspList,
+        AppExecFwk::GetDependentBundleInfoFlag::GET_ALL_DEPENDENT_BUNDLE_INFO);
     if (ret != ERR_OK) {
         HILOG_ERROR("Get base shared bundle infos failed: %{public}d.", ret);
     }
@@ -2869,7 +2871,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
 
 int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("called, state is %{public}d.", state);
     if (mainHandler_ == nullptr) {
         HILOG_ERROR("mainHandler is nullptr");
         return ERR_INVALID_VALUE;
@@ -2885,7 +2887,7 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
         appThread->ChangeAppGcState(state);
     };
 
-    if (state == START_HIGH_SENSITIVE) {
+    if (state == START_HIGH_SENSITIVE || state == EXIT_HIGH_SENSITIVE) {
         ChangeAppGcState(state);
     } else {
         mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
