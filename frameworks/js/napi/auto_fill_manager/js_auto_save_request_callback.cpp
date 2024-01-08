@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "js_save_request_callback.h"
+#include "js_auto_save_request_callback.h"
 
 #include "hilog_wrapper.h"
 #include "js_auto_fill_manager.h"
@@ -26,12 +26,13 @@ namespace {
 const std::string METHOD_ON_SAVE_REQUEST_SUCCESS = "onSuccess";
 const std::string METHOD_ON_SAVE_REQUEST_FAILED = "onFailure";
 } // namespace
-JsSaveRequestCallback::JsSaveRequestCallback(napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc)
+JsAutoSaveRequestCallback::JsAutoSaveRequestCallback(
+    napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc)
     : env_(env), instanceId_(instanceId), autoFillManagerFunc_(autoFillManagerFunc) {}
 
-JsSaveRequestCallback::~JsSaveRequestCallback() {}
+JsAutoSaveRequestCallback::~JsAutoSaveRequestCallback() {}
 
-void JsSaveRequestCallback::OnSaveRequestSuccess()
+void JsAutoSaveRequestCallback::OnSaveRequestSuccess()
 {
     HILOG_DEBUG("Called.");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_SUCCESS);
@@ -40,7 +41,7 @@ void JsSaveRequestCallback::OnSaveRequestSuccess()
     }
 }
 
-void JsSaveRequestCallback::OnSaveRequestFailed()
+void JsAutoSaveRequestCallback::OnSaveRequestFailed()
 {
     HILOG_DEBUG("Called.");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_FAILED);
@@ -49,7 +50,7 @@ void JsSaveRequestCallback::OnSaveRequestFailed()
     }
 }
 
-void JsSaveRequestCallback::Register(napi_value value)
+void JsAutoSaveRequestCallback::Register(napi_value value)
 {
     HILOG_DEBUG("Called.");
     if (IsJsCallbackEquals(callback_, value)) {
@@ -62,7 +63,7 @@ void JsSaveRequestCallback::Register(napi_value value)
     callback_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference *>(ref));
 }
 
-void JsSaveRequestCallback::JSCallFunction(const std::string &methodName)
+void JsAutoSaveRequestCallback::JSCallFunction(const std::string &methodName)
 {
     auto thisPtr = shared_from_this();
     NapiAsyncTask::CompleteCallback complete =
@@ -72,12 +73,12 @@ void JsSaveRequestCallback::JSCallFunction(const std::string &methodName)
             }
         };
 
-    NapiAsyncTask::Schedule("JsSaveRequestCallback::JSCallFunction:" + methodName,
+    NapiAsyncTask::Schedule("JsAutoSaveRequestCallback::JSCallFunction:" + methodName,
         env_,
         CreateAsyncTaskWithLastParam(env_, nullptr, nullptr, std::move(complete), nullptr));
 }
 
-void JsSaveRequestCallback::JSCallFunctionWorker(const std::string &methodName)
+void JsAutoSaveRequestCallback::JSCallFunctionWorker(const std::string &methodName)
 {
     if (callback_ == nullptr) {
         HILOG_ERROR("callback is nullptr.");
@@ -99,7 +100,7 @@ void JsSaveRequestCallback::JSCallFunctionWorker(const std::string &methodName)
     napi_call_function(env_, obj, funcObject, 0, NULL, nullptr);
 }
 
-bool JsSaveRequestCallback::IsJsCallbackEquals(std::shared_ptr<NativeReference> callback, napi_value value)
+bool JsAutoSaveRequestCallback::IsJsCallbackEquals(std::shared_ptr<NativeReference> callback, napi_value value)
 {
     if (callback == nullptr) {
         HILOG_ERROR("Invalid jsCallback.");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,14 +20,18 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-AutoFillEventHandler::AutoFillEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &taskHandler)
-    : EventHandlerWrap(taskHandler)
+AutoFillEventHandler::AutoFillEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner)
+    : AppExecFwk::EventHandler(runner)
 {}
 
-void AutoFillEventHandler::ProcessEvent(const AAFwk::EventWrap &event)
+void AutoFillEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
 {
     HILOG_DEBUG("Called.");
-    AutoFillManager::GetInstance().HandleTimeOut(event.GetEventId());
+    if (event == nullptr) {
+        HILOG_ERROR("Event is nullptr.");
+        return;
+    }
+    AutoFillManager::GetInstance().HandleTimeOut(event->GetInnerEventId());
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,8 @@
 
 #include <memory>
 
-#include "event_handler_wrap.h"
+#include "event_handler.h"
+#include "event_runner.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -26,12 +27,13 @@ namespace AbilityRuntime {
  * @class AutoFillEventHandler
  * AutoFillEventHandler handling the ability event.
  */
-class AutoFillEventHandler : public AAFwk::EventHandlerWrap {
+class AutoFillEventHandler : public AppExecFwk::EventHandler {
 public:
-    explicit AutoFillEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &taskHandler);
+    explicit AutoFillEventHandler(const std::shared_ptr<AppExecFwk::EventRunner> &runner);
     virtual ~AutoFillEventHandler() = default;
 
-    void ProcessEvent(const AAFwk::EventWrap &event) override;
+private:
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
