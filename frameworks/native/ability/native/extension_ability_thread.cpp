@@ -255,7 +255,7 @@ void ExtensionAbilityThread::HandleAttachInner(const std::shared_ptr<AppExecFwk:
 }
 
 void ExtensionAbilityThread::HandleExtensionTransaction(
-    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin.");
@@ -380,7 +380,7 @@ void ExtensionAbilityThread::HandleExtensionUpdateConfiguration(const AppExecFwk
 }
 
 void ExtensionAbilityThread::ScheduleAbilityTransaction(
-    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Name is %{public}s, targeState is %{public}d, isNewWant is %{public}d",
