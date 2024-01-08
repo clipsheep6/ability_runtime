@@ -433,7 +433,7 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
     dummyCode_ = __LINE__;
     if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
         if (needNotifyApp && !isFromWindowFocusChanged) {
-            AppStateData data = WrapAppStateData(appRecord, state);
+            AppStateData data = WrapAppStateData(appRecord, state, isFromWindowFocusChanged);
             appRecord->GetSplitModeAndFloatingMode(data.isSplitScreenMode, data.isFloatingWindowMode);
             dummyCode_ = __LINE__;
             std::lock_guard<ffrt::mutex> lockForeground(appForegroundObserverLock_);
@@ -446,7 +446,7 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         dummyCode_ = __LINE__;
         if (!AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType()) &&
             !AAFwk::UIExtensionUtils::IsWindowExtension(appRecord->GetExtensionType())) {
-            AppStateData data = WrapAppStateData(appRecord, state);
+            AppStateData data = WrapAppStateData(appRecord, state, isFromWindowFocusChanged);
             HILOG_DEBUG("HandleAppStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d, notify:%{public}d",
                 data.bundleName.c_str(), data.uid, data.state, needNotifyApp);
             dummyCode_ = __LINE__;
@@ -466,7 +466,7 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
     }
     dummyCode_ = __LINE__;
     if (state == ApplicationState::APP_STATE_CREATE || state == ApplicationState::APP_STATE_TERMINATED) {
-        AppStateData data = WrapAppStateData(appRecord, state);
+        AppStateData data = WrapAppStateData(appRecord, state, isFromWindowFocusChanged);
         HILOG_DEBUG("OnApplicationStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
             data.bundleName.c_str(), data.uid, data.state);
         dummyCode_ = __LINE__;
@@ -790,7 +790,7 @@ void AppStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote, 
 }
 
 AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<AppRunningRecord> &appRecord,
-    const ApplicationState state)
+    const ApplicationState state, bool isWindowFocusChanged)
 {
     AppStateData appStateData;
     appStateData.pid = appRecord->GetPriorityObject()->GetPid();
@@ -802,6 +802,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
         appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
     }
     appStateData.isFocused = appRecord->GetFocusFlag();
+    appStateData.isWindowFocusChanged = isWindowFocusChanged;
     auto renderRecordMap = appRecord->GetRenderRecordMap();
     if (!renderRecordMap.empty()) {
         for (auto iter : renderRecordMap) {
