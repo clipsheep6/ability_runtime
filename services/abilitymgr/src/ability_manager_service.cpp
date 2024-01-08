@@ -5878,16 +5878,28 @@ void AbilityManagerService::SubscribeScreenUnlockedEvent()
     matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED);
     EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
     subscribeInfo.SetThreadMode(EventFwk::CommonEventSubscribeInfo::COMMON);
-    wptr<AbilityManagerService> weak = this;
-    auto callback = [weak]() {
+    auto callback = [abilityManager = weak_from_this()]() {
         HILOG_DEBUG("On screen unlocked.");
-        auto self = weak.promote();
-        if (self == nullptr) {
-            HILOG_ERROR("Invalid self pointer.");
+        auto abilityMgr = abilityManager.lock();
+        if (abilityMgr == nullptr) {
+            HILOG_ERROR("Invalid abilityMgr pointer.");
             return;
         }
-        self->StartAutoStartupApps();
-        self->UnSubscribeScreenUnlockedEvent();
+        auto taskHandler = abilityMgr->GetTaskHandler();
+        if (taskHandler == nullptr) {
+            HILOG_ERROR("Invalid taskHandler pointer.");
+            return;
+        }
+        auto startAutoStartupAppsTask = [abilityManager]() {
+            auto abilityMgr = abilityManager.lock();
+            if (abilityMgr == nullptr) {
+                HILOG_ERROR("Invalid abilityMgr pointer.");
+                return;
+            }
+            abilityMgr->StartAutoStartupApps();
+            abilityMgr->UnSubscribeScreenUnlockedEvent();
+        };
+        taskHandler->SubmitTask(startAutoStartupAppsTask, "StartAutoStartupApps");
     };
     screenSubscriber_ = std::make_shared<AbilityRuntime::AbilityManagerEventSubscriber>(subscribeInfo, callback);
     bool subResult = EventFwk::CommonEventManager::SubscribeCommonEvent(screenSubscriber_);
