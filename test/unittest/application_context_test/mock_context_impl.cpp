@@ -96,7 +96,8 @@ std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string 
     return appContext;
 }
 
-std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string &bundleName, const std::string &moduleName)
+std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string &bundleName,
+    const std::string &moduleName)
 {
     std::shared_ptr<ContextImpl> appContext = std::make_shared<ContextImpl>();
     return appContext;

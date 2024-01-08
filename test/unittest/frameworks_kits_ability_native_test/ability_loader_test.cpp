@@ -66,7 +66,7 @@ HWTEST_F(AbilityLoaderTest, RegisterAbility_0100, TestSize.Level0)
     bool result = false;
     auto it = loader->abilities_.find(abilityName);
     if (it != loader->abilities_.end()) {
-        result = true; 
+        result = true;
     }
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "AbilityLoaderTest RegisterAbility_0100 end";
@@ -87,7 +87,7 @@ HWTEST_F(AbilityLoaderTest, RegisterExtension_0100, TestSize.Level0)
     bool result = false;
     auto it = loader->extensions_.find(abilityName);
     if (it != loader->extensions_.end()) {
-        result = true; 
+        result = true;
     }
     EXPECT_TRUE(result);
     GTEST_LOG_(INFO) << "AbilityLoaderTest RegisterExtension_0100 end";

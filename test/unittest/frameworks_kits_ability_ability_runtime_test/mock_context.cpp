@@ -163,7 +163,7 @@ sptr<IRemoteObject> MockContext::GetToken()
 
 std::shared_ptr<AppExecFwk::HapModuleInfo> MockContext::GetHapModuleInfo() const
 {
-    return nullptr;  
+    return nullptr;
 }
 
 void MockContext::SwitchArea(int mode)

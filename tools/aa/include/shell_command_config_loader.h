@@ -29,7 +29,6 @@ public:
 
     /**
      * @brief Read configuration file.
-     * 
      * @param filePath Configuration directory.
      * @return true Read successfully.
      * @return false Read failed.

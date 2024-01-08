@@ -352,8 +352,7 @@ int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t us
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
-
-    std::vector<std::string> apps = request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS);    
+    std::vector<std::string> apps = request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS);
     for (std::string appInfoStr : apps) {
         AppExecFwk::AbilityInfo abilityInfo;
         std::vector<std::string> appInfos = ImplicitStartProcessor::SplitStr(appInfoStr, '/');

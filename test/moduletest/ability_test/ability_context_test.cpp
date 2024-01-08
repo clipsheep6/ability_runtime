@@ -655,7 +655,7 @@ HWTEST_F(AbilityContextTest, AaFwk_Ability_Context_VerifyPermission_0300, Functi
     AbilityThread::AbilityThreadMain(application, abilityRecord, nullptr);
     std::shared_ptr<ContextDeal> deal = std::make_shared<ContextDeal>();
     deal->SetAbilityInfo(abilityInfo);
-    context_->AttachBaseContext(deal);    
+    context_->AttachBaseContext(deal);
     std::string permission = "permission";
     int32_t pid = 1;
     int32_t uid = 1;

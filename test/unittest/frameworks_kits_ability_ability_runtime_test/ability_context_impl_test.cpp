@@ -441,7 +441,8 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartServiceExtensionAbili
  * @tc.name: StartAbilityForResultWithAccount
  * @tc.desc: Start Ability For Result With Account
  */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0100,
+    Function | MediumTest | Level1)
 {
     AAFwk::Want want;
     int32_t accountId = 1;
@@ -474,7 +475,8 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0100
  * @tc.name: StartAbilityForResultWithAccount
  * @tc.desc: Start Ability For Result With Account
  */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0200, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0200,
+    Function | MediumTest | Level1)
 {
     AAFwk::Want want;
     int32_t requestCode = 1;

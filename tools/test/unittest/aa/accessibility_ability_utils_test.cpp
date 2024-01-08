@@ -303,7 +303,7 @@ HWTEST_F(AccessibilityAbilityUtilsTest, GetUnknownArgumentsMsg_0300, Function | 
     unknownArguments.emplace_back("abilityInfo");
     unknownArguments.emplace_back("bundleInfo");
     auto result = AccessibilityUtils::GetUnknownArgumentsMsg(unknownArguments);
-    EXPECT_EQ(result,"abilityInfo bundleInfo ");
+    EXPECT_EQ(result, "abilityInfo bundleInfo");
 }
 
 /**

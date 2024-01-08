@@ -33,7 +33,7 @@ void RestoreContainerScope(int32_t id);
 void SetJsFramework();
 
 class AssetHelper final {
-public:    
+public:
     explicit AssetHelper(std::shared_ptr<JsEnv::WorkerInfo> workerInfo) : workerInfo_(workerInfo)
     {
         if (!(workerInfo_->codePath).empty() && (workerInfo->codePath).back() != '/') {

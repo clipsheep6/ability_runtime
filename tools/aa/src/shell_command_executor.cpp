@@ -80,7 +80,7 @@ bool ShellCommandExecutor::DoWork()
         return false;
     }
     
-    if(!CheckCommand()) {
+    if (!CheckCommand()) {
         HILOG_ERROR("Invalid command");
         return false;
     }
@@ -130,7 +130,7 @@ bool ShellCommandExecutor::CheckCommand()
     std::istringstream iss(cmd_);
     std::string firstCommand = "";
     iss >> firstCommand;
-    if(ShellCommandConfigLoder::commands_.find(firstCommand) != ShellCommandConfigLoder::commands_.end()) {
+    if (ShellCommandConfigLoder::commands_.find(firstCommand) != ShellCommandConfigLoder::commands_.end()) {
         return true;
     }
     return false;

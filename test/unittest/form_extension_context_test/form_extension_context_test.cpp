@@ -58,7 +58,7 @@ void FormExtensionContextTest::TearDown(void)
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(FormExtensionContextTest, form_extension_context_startAbility_001, TestSize.Level1)
-{   
+{
     FormExtensionContext formExtensionContext;
     Want want;
     int result = formExtensionContext.StartAbility(want);
@@ -74,7 +74,7 @@ HWTEST_F(FormExtensionContextTest, form_extension_context_startAbility_001, Test
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(FormExtensionContextTest, form_extension_context_GetAbilityInfoType_001, TestSize.Level1)
-{   
+{
     FormExtensionContext formExtensionContext;
     EXPECT_EQ(AppExecFwk::AbilityType::UNKNOWN, formExtensionContext.GetAbilityInfoType());
 }

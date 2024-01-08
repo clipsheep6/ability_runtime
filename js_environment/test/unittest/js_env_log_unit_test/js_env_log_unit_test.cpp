@@ -40,7 +40,7 @@ void Logger(JsEnvLogLevel level, const char* fileName, const char* functionName,
     cFormat += fmt;
     va_list printArgs;
     va_start(printArgs, fmt);
-    switch(level) {
+    switch (level) {
         case JsEnvLogLevel::DEBUG:
             HILOG_IMPL(LOG_CORE, LOG_DEBUG, ENV_LOG_DOMAIN, ENV_LOG_TAG,
                 cFormat.c_str(), fileName, functionName, line, printArgs);
@@ -60,6 +60,8 @@ void Logger(JsEnvLogLevel level, const char* fileName, const char* functionName,
         case JsEnvLogLevel::FATAL:
             HILOG_IMPL(LOG_CORE, LOG_FATAL, ENV_LOG_DOMAIN, ENV_LOG_TAG,
                 cFormat.c_str(), fileName, functionName, line, printArgs);
+            break;
+        default:
             break;
     }
     va_end(printArgs);

@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class MockContext : public AbilityRuntime::Context{
+class MockContext : public AbilityRuntime::Context {
 public:
     MockContext() = default;
     virtual ~MockContext() = default;

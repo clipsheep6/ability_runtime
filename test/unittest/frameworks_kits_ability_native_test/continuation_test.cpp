@@ -1088,7 +1088,7 @@ HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbilityWithStack_001, 
 /*
  * @tc.number: continue_manager_HandleContinueAbilityWithStack_002
  * @tc.name: HandleContinueAbilityWithStack
- * @tc.desc: call HandleContinueAbilityWithStack with null continuationHandler 
+ * @tc.desc: call HandleContinueAbilityWithStack with null continuationHandler
  */
 HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbilityWithStack_002, TestSize.Level1)
 {
@@ -1564,7 +1564,9 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_002, TestSiz
 HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_003 start";
-    EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::MISMATCH));
+    EXPECT_CALL(*mockAbility_, OnContinue(_))
+        .Times(1)
+        .WillOnce(Return(ContinuationManager::OnContinueResult::MISMATCH));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     std::weak_ptr<Ability> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);

@@ -87,7 +87,8 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0200, Function | MediumTe
     data.WriteInt64(0);
 
     MockTestObserverStub stub;
-    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_TEST_FINISHED), data, reply, option);
+    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_TEST_FINISHED),
+        data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
     HILOG_INFO("Test_Observer_Stub_Test_0200 end");
@@ -112,7 +113,8 @@ HWTEST_F(TestObserverStubTest, Test_Observer_Stub_Test_0300, Function | MediumTe
     data.WriteInt64(0);
 
     MockTestObserverStub stub;
-    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND), data, reply, option);
+    int res = stub.OnRemoteRequest(static_cast<uint32_t>(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND),
+        data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
     HILOG_INFO("Test_Observer_Stub_Test_0300 end");

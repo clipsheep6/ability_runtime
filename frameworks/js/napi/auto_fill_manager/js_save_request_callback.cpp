@@ -27,7 +27,7 @@ const std::string METHOD_ON_SAVE_REQUEST_SUCCESS = "onSuccess";
 const std::string METHOD_ON_SAVE_REQUEST_FAILED = "onFailure";
 } // namespace
 JsSaveRequestCallback::JsSaveRequestCallback(napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc)
-    : env_(env), instanceId_(instanceId), autoFillManagerFunc_(autoFillManagerFunc){}
+    : env_(env), instanceId_(instanceId), autoFillManagerFunc_(autoFillManagerFunc) {}
 
 JsSaveRequestCallback::~JsSaveRequestCallback() {}
 
