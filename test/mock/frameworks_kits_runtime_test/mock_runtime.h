@@ -24,12 +24,13 @@ namespace OHOS {
 namespace AbilityRuntime {
 class MockRuntime : public Runtime {
 public:
+    const int DEFAULT_LANGUAGE = 100;
     MockRuntime() = default;
     ~MockRuntime() = default;
 
     Language GetLanguage() const override
     {
-        return static_cast<Runtime::Language>(100);
+        return static_cast<Runtime::Language>(DEFAULT_LANGUAGE);
     }
 
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override
