@@ -284,6 +284,22 @@ const std::map<int32_t, AppExecFwk::SupportWindowMode> AbilityManagerService::wi
         AppExecFwk::SupportWindowMode::FLOATING),
 };
 
+const std::unordered_map<std::string, AppExecFwk::ExtensionAbilityType> AbilityManagerService::extsionTypeMap = {
+    { "voip", AppExecFwk::ExtensionAbilityType::VOIP },
+    { "sysDialog/userAuth", AppExecFwk::ExtensionAbilityType::SYSDIALOG_USERAUTH },
+    { "sysDialog/common", AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON },
+    { "sysPicker/mediaControl", AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL },
+    { "sysDialog/atomicServicePanel", AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL },
+    { "sysDialog/power", AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER },
+    { "sysPicker/share", AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE },
+    { "sysDialog/meetimeCall", AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL },
+    { "sysDialog/meetimeContact", AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT },
+    { "sysDialog/meetimeMessage", AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE },
+    { "sysPicker/meetimeContact", AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT },
+    { "sysPicker/meetimeCallLog", AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG },
+    { "sys/commonUI", AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI }
+};
+
 const bool REGISTER_RESULT =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<AbilityManagerService>::GetInstance().get());
 sptr<AbilityManagerService> AbilityManagerService::instance_;
@@ -2384,6 +2400,11 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     abilityRequest.sessionInfo = extensionSessionInfo;
     result = GenerateExtensionAbilityRequest(extensionSessionInfo->want, abilityRequest, callerToken, validUserId);
     CHECK_POINTER_AND_RETURN(abilityRequest.sessionInfo, ERR_INVALID_VALUE);
+    bool isSystemApp = abilityRequest.appInfo.isSystemApp;
+    if (!isSystemApp && (extsionTypeMap.find(abilityRequest.appInfo.bundleName) != extsionTypeMap.end())) {
+        HILOG_ERROR("target is not system app! isSystemApp: %{public}", isSystemApp);
+        return CHECK_PERMISSION_FAILED;
+    }
     abilityRequest.sessionInfo->uiExtensionComponentId = (
         static_cast<uint64_t>(callerRecord->GetRecordId()) << OFFSET) |
         static_cast<uint64_t>(abilityRequest.sessionInfo->persistentId);
