@@ -4424,16 +4424,13 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             HILOG_ERROR("no such AppRunningRecord");
             return ERR_INVALID_VALUE;
         }
-
         FaultData transformedFaultData = ConvertDataTypes(faultData);
         int32_t uid = record->GetUid();
         std::string bundleName = record->GetBundleName();
-
         if (faultData.errorObject.name == "appRecovery") {
             AppRecoveryNotifyApp(pid, bundleName, faultData.faultType, "appRecovery");
             return ERR_OK;
         }
-
         if (transformedFaultData.timeoutMarkers.empty()) {
             transformedFaultData.timeoutMarkers = "notifyFault:" + transformedFaultData.errorObject.name +
                 std::to_string(pid) + "-" + std::to_string(SystemTimeMillisecond());
