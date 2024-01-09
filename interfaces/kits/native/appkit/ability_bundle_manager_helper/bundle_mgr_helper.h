@@ -90,7 +90,6 @@ public:
     ErrCode QueryExtensionAbilityInfosOnlyWithTypeName(const std::string &extensionTypeName,
         const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos);
     sptr<IDefaultApp> GetDefaultAppProxy();
-    ErrCode CleanObsoleteBundleTempFiles();
 
 private:
     sptr<IBundleMgr> Connect();

@@ -48,6 +48,7 @@ void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &app
 bool ApplicationImpl::PerformAppReady()
 {
     HILOG_DEBUG("called");
+    application_->CleanUselessTempData();
     if (curState_ == APP_STATE_CREATE && application_ != nullptr) {
         application_->OnStart();
         curState_ = APP_STATE_READY;
