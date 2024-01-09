@@ -3234,7 +3234,7 @@ EventInfo AbilityManagerService::BuildEventInfo(const Want &want, int32_t userId
     return eventInfo;
 }
 
-int AbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection> &connect)
+int AbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Disconnect ability begin.");

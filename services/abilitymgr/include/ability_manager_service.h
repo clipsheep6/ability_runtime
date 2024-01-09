@@ -522,7 +522,7 @@ public:
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener)override;
 
-    virtual int DisconnectAbility(const sptr<IAbilityConnection> &connect) override;
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect) override;
 
     /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
@@ -823,7 +823,7 @@ public:
         bool checkSystemCaller = true);
 
     int RequestModalUIExtensionInner(const Want &want);
-    
+
     int StartAbilityForOptionWrap(
         const Want &want,
         const StartOptions &startOptions,

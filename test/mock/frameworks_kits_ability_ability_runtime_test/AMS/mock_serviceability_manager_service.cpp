@@ -90,7 +90,7 @@ int MockServiceAbilityManagerService::ConnectAbility(
     return 0;
 }
 
-int MockServiceAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockServiceAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     return 0;
 }

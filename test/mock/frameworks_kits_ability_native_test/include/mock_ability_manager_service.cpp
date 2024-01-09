@@ -92,7 +92,7 @@ int MockAbilityManagerService::ConnectAbility(
     return ERR_OK;
 }
 
-int MockAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::DisconnectAbility";
     return ERR_OK;

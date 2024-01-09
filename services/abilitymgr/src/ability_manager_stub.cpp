@@ -993,7 +993,7 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    auto callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
+    sptr<IAbilityConnection> callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
     int32_t result = DisconnectAbility(callback);
     HILOG_DEBUG("disconnect ability ret = %d", result);
     reply.WriteInt32(result);

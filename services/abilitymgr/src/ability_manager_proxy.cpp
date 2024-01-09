@@ -951,7 +951,7 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::DisconnectAbility(const sptr<IAbilityConnection> &connect)
+int AbilityManagerProxy::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     int error;
     MessageParcel data;

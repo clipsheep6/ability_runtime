@@ -149,7 +149,7 @@ public:
         return 0;
     }
 
-    virtual int DisconnectAbility(const sptr<IAbilityConnection>& connect)
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect)
     {
         return 0;
     }
