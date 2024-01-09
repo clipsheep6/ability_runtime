@@ -427,16 +427,5 @@ bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId
     HILOG_DEBUG("verify AccessToken success");
     return true;
 }
-
-bool PermissionVerification::VerifyStartAbilityWithAnimationPermission() const
-{
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_ABILITY_WITH_ANIMATION)) {
-        HILOG_INFO("Verify permission %{public}s succeed.",
-            PermissionConstants::PERMISSION_START_ABILITY_WITH_ANIMATION);
-        return true;
-    }
-    HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_START_ABILITY_WITH_ANIMATION);
-    return false;
-}
 }  // namespace AAFwk
 }  // namespace OHOS
