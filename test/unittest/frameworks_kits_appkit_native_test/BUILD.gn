@@ -457,8 +457,6 @@ ohos_unittest("form_extension_context_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
-    "form_fwk:fmskit_native",
-    "form_fwk:form_manager",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -467,7 +465,11 @@ ohos_unittest("form_extension_context_test") {
   ]
 
   if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libwm" ]
+    external_deps += [
+      "form_fwk:fmskit_native",
+      "form_fwk:form_manager",
+      "window_manager:libwm",
+    ]
   }
 }
 
