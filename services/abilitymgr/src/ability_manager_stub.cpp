@@ -621,7 +621,7 @@ int AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner(MessageParcel &dat
 
 int AbilityManagerStub::AcquireDataAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_ptr<Uri> uri(new Uri(data.ReadString()));
+    std::unique_ptr<Uri> uri = std::make_unique<Uri>(data.ReadString());
     bool tryBind = data.ReadBool();
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     sptr<IAbilityScheduler> result = AcquireDataAbility(*uri, tryBind, callerToken);
