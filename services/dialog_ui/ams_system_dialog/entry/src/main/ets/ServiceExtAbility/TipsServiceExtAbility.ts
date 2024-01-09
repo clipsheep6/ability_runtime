@@ -31,10 +31,16 @@ export default class TipsServiceExtensionAbility extends extension {
 
   onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
+    try {
+      globalThis.params = JSON.parse(want.parameters.params);
+      globalThis.callerToken = want.parameters.callerToken;
+    } catch (err) {
+      console.error(TAG, 'Invalid parameters.');
+      this.context.terminateSelf();
+      return;
+    }
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
     globalThis.position = PositionUtils.getTipsDialogPosition();
-    globalThis.callerToken = want.parameters.callerToken;
 
     try {
       display.on('change', (data: number) => {

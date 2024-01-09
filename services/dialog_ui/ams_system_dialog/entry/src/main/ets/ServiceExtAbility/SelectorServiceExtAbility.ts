@@ -135,7 +135,14 @@ export default class SelectorServiceExtensionAbility extends extension {
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
+    try {
+      globalThis.params = JSON.parse(want.parameters.params);
+      globalThis.callerToken = want.parameters.callerToken;
+    } catch (err) {
+      console.error(TAG, 'Invalid parameters.');
+      this.context.terminateSelf();
+      return;
+    }
     let displayClass = display.getDefaultDisplaySync();
     let lineNums = 0;
     if (globalThis.params && globalThis.params.hapList && globalThis.params.hapList.length) {
@@ -158,9 +165,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     }
 
     console.debug(TAG, 'onRequest display is' + JSON.stringify(displayClass));
-    console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
-    globalThis.callerToken = want.parameters.callerToken;
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
     if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
