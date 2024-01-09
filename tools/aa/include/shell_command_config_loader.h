@@ -21,8 +21,7 @@
 
 namespace OHOS {
 namespace AAFwk {
-class ShellCommandConfigLoder final
-{
+class ShellCommandConfigLoder final {
 public:
     ShellCommandConfigLoder() = default;
     ~ShellCommandConfigLoder() = default;

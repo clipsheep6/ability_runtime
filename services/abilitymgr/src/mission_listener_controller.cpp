@@ -47,7 +47,8 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
 
     std::lock_guard<ffrt::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
-        [&listener](const sptr<IMissionListener> &item) {
+        [&listener](
+            const sptr<IMissionListener> &item) {
             return (item && item->AsObject() == listener->AsObject());
         }
     );
@@ -84,7 +85,8 @@ void MissionListenerController::DelMissionListener(const sptr<IMissionListener> 
 
     std::lock_guard<ffrt::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
-        [&listener](const sptr<IMissionListener> item) {
+        [&listener](
+            const sptr<IMissionListener> item) {
             return (item && item->AsObject() == listener->AsObject());
         }
     );
@@ -305,7 +307,8 @@ void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote
 
     std::lock_guard<ffrt::mutex> guard(listenerLock_);
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
-        [&remoteObj](const sptr<IMissionListener> item) {
+        [&remoteObj](
+            const sptr<IMissionListener> item) {
             return (item && item->AsObject() == remoteObj);
         }
     );

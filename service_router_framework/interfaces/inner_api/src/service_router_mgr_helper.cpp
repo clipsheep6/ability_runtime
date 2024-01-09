@@ -118,7 +118,9 @@ sptr<IServiceRouterManager> ServiceRouterMgrHelper::GetServiceRouterMgr()
     {
         std::unique_lock<std::mutex> lock(cvLock_);
         auto waitState = mgrConn_.wait_for(lock, std::chrono::milliseconds(LOAD_SA_TIMEOUT_MS),
-            [this](){ return isReady; });
+            [this]() {
+                return isReady;
+            });
         if (!waitState) {
             return nullptr;
         }

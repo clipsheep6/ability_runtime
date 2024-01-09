@@ -734,8 +734,8 @@ uint32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string 
     return bundleInfo.applicationInfo.accessTokenId;
 }
 
-void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied(
-    [[maybe_unused]] const wptr<IRemoteObject>& remote)
+void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied([[maybe_unused]]
+    const wptr<IRemoteObject>& remote)
 {
     if (proxy_) {
         HILOG_DEBUG("mgr stub died.");

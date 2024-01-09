@@ -154,8 +154,8 @@ ErrCode AppMgrService::Init()
     return ERR_OK;
 }
 
-int32_t AppMgrService::CheckPermission(
-    [[maybe_unused]] const int32_t recordId, [[maybe_unused]] const std::string &permission)
+int32_t AppMgrService::CheckPermission([[maybe_unused]]
+    const int32_t recordId, [[maybe_unused]] const std::string &permission)
 {
     HILOG_INFO("check application's permission");
 

@@ -257,7 +257,8 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
     }
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionId](const InnerMissionInfo item) {
+        [&missionId](
+            const InnerMissionInfo item) {
             return item.missionInfo.id == missionId;
         }
     );
@@ -285,7 +286,8 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
     }
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionId](const InnerMissionInfo item) {
+        [&missionId](
+            const InnerMissionInfo item) {
             return item.missionInfo.id == missionId;
         }
     );

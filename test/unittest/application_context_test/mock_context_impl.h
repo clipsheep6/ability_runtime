@@ -67,7 +67,6 @@ public:
 
     void SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info);
 
-
     void SetParentContext(const std::shared_ptr<Context> &context);
 
     std::string GetBundleCodePath() const override;

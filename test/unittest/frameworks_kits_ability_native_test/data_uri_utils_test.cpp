@@ -25,8 +25,7 @@ namespace OHOS {
 namespace AppExecFwk {
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
-namespace
-{
+namespace {
     const int32_t THOUSAND = 1000;
     const int32_t NEGATIVE = -1;
 }

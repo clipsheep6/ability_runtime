@@ -30,8 +30,7 @@ using namespace testing::ext;
 using namespace OHOS;
 using namespace OHOS::AppExecFwk;
 static const std::string URI = "dataability://ohos.demo.TestDataAbilityOperation";
-namespace
-{
+namespace {
     const int32_t ZERO = 0;
     const int32_t ONE = 1;
     const int32_t TWO = 2;
