@@ -79,7 +79,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         case AAFwk::ABILITY_STATE_INITIAL: {
             bool isAsyncCallback = false;
             if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-                Stop(isAsyncCallback);
+                Stop(isAsyncCallback, want, sessionInfo);
             }
             if (isAsyncCallback) {
                 ret = false;
@@ -100,7 +100,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
             break;
         }
         case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
-            Background();
+            Background(want, sessionInfo);
             break;
         }
         default: {
@@ -192,13 +192,17 @@ void ExtensionImpl::Stop()
     HILOG_INFO("ok");
 }
 
-void ExtensionImpl::Stop(bool &isAsyncCallback)
+void ExtensionImpl::Stop(bool &isAsyncCallback, const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_INFO("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Stop extension_ is nullptr");
         isAsyncCallback = false;
         return;
+    }
+
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_) && sessionInfo != nullptr) {
+        CommandExtensionWindow(want, sessionInfo, AAFwk::WIN_CMD_DESTROY);
     }
 
     auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<>::Create();
@@ -412,7 +416,8 @@ bool ExtensionImpl::HandleInsightIntent(const Want &want)
 void ExtensionImpl::CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
-    HILOG_INFO("call");
+    HILOG_INFO("persistentId: %{private}d, componentId: %{public}" PRId64 ", winCmd: %{public}d",
+        sessionInfo->persistentId, sessionInfo->uiExtensionComponentId, winCmd);
     if (extension_ == nullptr) {
         HILOG_ERROR("extension_ is nullptr");
         return;
@@ -446,13 +451,18 @@ void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessio
     lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
 }
 
-void ExtensionImpl::Background()
+void ExtensionImpl::Background(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("ExtensionImpl::Background begin");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Background ability is nullptr");
         return;
     }
+
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_) && sessionInfo != nullptr) {
+        CommandExtensionWindow(want, sessionInfo, AAFwk::WIN_CMD_BACKGROUND);
+    }
+
     extension_->OnBackground();
     lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
 }

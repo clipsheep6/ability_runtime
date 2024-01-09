@@ -469,6 +469,7 @@ private:
     void SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityRecord> abilityRecord, sptr<SessionInfo> sessionInfo);
     void DoBackgroundAbilityWindow(const std::shared_ptr<AbilityRecord> &abilityRecord,
         const sptr<SessionInfo> &sessionInfo);
+    void DoTerminateUIExtensionAbility(std::shared_ptr<AbilityRecord> abilityRecord, sptr<SessionInfo> sessionInfo);
 
     /**
      * When a service is under starting, enque the request and handle it after the service starting completes
