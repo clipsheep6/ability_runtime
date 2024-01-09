@@ -156,10 +156,6 @@ ohos_unittest("ability_record_test_call") {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
 
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
-  }
-
   if (ability_runtime_graphics) {
     external_deps += [ "window_manager:libwm" ]
   }

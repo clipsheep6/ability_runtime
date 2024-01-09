@@ -37,7 +37,11 @@ ohos_fuzztest("ApplicationAnrListenerFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [ "applicationanrlistener_fuzzer.cpp" ]
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
+    "applicationanrlistener_fuzzer.cpp",
+  ]
 
   configs = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config",
@@ -75,10 +79,6 @@ ohos_fuzztest("ApplicationAnrListenerFuzzTest") {
       "i18n:intl_util",
       "window_manager:libwm",
     ]
-  }
-
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
   }
 }
 

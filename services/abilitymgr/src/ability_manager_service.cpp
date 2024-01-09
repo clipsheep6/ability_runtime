@@ -380,16 +380,28 @@ bool AbilityManagerService::Init()
 
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
 
+    InitInterceptor();
+    InitStartAbilityChain();
+
+    abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
+
+    dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
+
+    InitPushTask();
+    
+    SubscribeScreenUnlockedEvent();
+    HILOG_INFO("Init success.");
+    return true;
+}
+
+void AbilityManagerService::InitInterceptor()
+{
     interceptorExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
     afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
     afterCheckExecuter_->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-#ifdef SUPPORT_ERMS
     afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-#else
-    interceptorExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-#endif
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
@@ -397,12 +409,14 @@ bool AbilityManagerService::Init()
         HILOG_INFO("App jump intercetor enabled, add AbilityJumpInterceptor to Executer");
         interceptorExecuter_->AddInterceptor(std::make_shared<AbilityJumpInterceptor>());
     }
-    InitStartAbilityChain();
+}
 
-    abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-
-    dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
-
+void AbilityManagerService::InitPushTask()
+{
+    if (taskHandler_ == nullptr) {
+        HILOG_ERROR("taskHandler_ is nullptr.");
+        return;
+    }
     auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
     taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
 
@@ -430,9 +444,6 @@ bool AbilityManagerService::Init()
         }
     };
     taskHandler_->SubmitTask(bootCompletedTask, "BootCompletedTask");
-    SubscribeScreenUnlockedEvent();
-    HILOG_INFO("Init success.");
-    return true;
 }
 
 void AbilityManagerService::InitStartupFlag()

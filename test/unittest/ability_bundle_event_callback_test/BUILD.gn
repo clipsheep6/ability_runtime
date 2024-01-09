@@ -65,9 +65,6 @@ ohos_unittest("ability_bundle_event_callback_test") {
     "window_manager:libwsutils",
     "window_manager:sms",
   ]
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
-  }
 }
 
 group("unittest") {

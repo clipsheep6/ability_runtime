@@ -567,6 +567,7 @@ void DataAbilityManager::DumpClientInfo(std::vector<std::string> &info, bool isC
         if (DelayedSingleton<AppScheduler>::GetInstance()->GetConfiguration(config) == ERR_OK) {
             info.emplace_back("          configuration: " + config.GetName());
         }
+        return;
     }
 }
 
