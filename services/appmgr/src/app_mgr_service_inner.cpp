@@ -207,7 +207,8 @@ bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissio
     return true;
 }
 
-bool ShouldUseMultipleRenderProcess(std::string& deviceType) {
+bool ShouldUseMultipleRenderProcess(std::string& deviceType)
+{
     // The "default" device type means phone.
     return deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1" ||
            deviceType == "default" || deviceType == "phone";
@@ -1818,7 +1819,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAppRe
         HILOG_ERROR("appRunningManager is nullptr");
         return nullptr;
     }
-    const auto&& appRunningRecordMap = appRunningManager_->GetAppRunningRecordMap();
+    const auto && appRunningRecordMap = appRunningManager_->GetAppRunningRecordMap();
     const auto& iter = appRunningRecordMap.find(recordId);
     return iter != appRunningRecordMap.end() ? iter->second : nullptr;
 }
@@ -1950,7 +1951,7 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
         return ERR_INVALID_OPERATION;
     }
 
-    auto&& startMsg = appRecord->GetStartMsg();
+    auto && startMsg = appRecord->GetStartMsg();
     startMsg.code = static_cast<int32_t>(AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS);
     if (!isSandboxApp) {
         HILOG_DEBUG("debuggablePipe sandbox: false.");
@@ -3366,9 +3367,9 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
         return ERR_INVALID_VALUE;
     }
     std::lock_guard<ffrt::mutex> registerLock(configurationObserverLock_);
-    auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
-        [&observer](const sptr<IConfigurationObserver> &item) {
-            return (item && item->AsObject() == observer->AsObject());
+    auto it = std::find_if(configurationObservers_.begin(),
+        configurationObservers_.end(), [&observer](const sptr<IConfigurationObserver> &item) {
+        return (item && item->AsObject() == observer->AsObject());
         }
     );
     if (it != configurationObservers_.end()) {
@@ -3387,9 +3388,9 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
         return ERR_INVALID_VALUE;
     }
     std::lock_guard<ffrt::mutex> unregisterLock(configurationObserverLock_);
-    auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
-        [&observer](const sptr<IConfigurationObserver> &item) {
-            return (item && item->AsObject() == observer->AsObject());
+    auto it = std::find_if(configurationObservers_.begin(),
+        configurationObservers_.end(), [&observer](const sptr<IConfigurationObserver> &item) {
+        return (item && item->AsObject() == observer->AsObject());
         }
     );
     if (it != configurationObservers_.end()) {
@@ -3745,7 +3746,6 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
 int AppMgrServiceInner::VerifyRequestPermission() const
 {
     auto callerUid = IPCSkeleton::GetCallingUid();
-
     if (callerUid == ROOT_UID || callerUid == FOUNDATION_UID) {
         return ERR_OK;
     } else {
@@ -4028,7 +4028,7 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
     }
     if (abilityInfo.applicationInfo.asanEnabled) {
-	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
     }
     if (want.GetBoolParam("nativeDebug", false)) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
