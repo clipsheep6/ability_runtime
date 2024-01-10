@@ -41,10 +41,10 @@ public:
     CallContainer();
     virtual ~CallContainer();
 
-    void AddCallRecord(const sptr<IAbilityConnection> & connect, const std::shared_ptr<CallRecord>& callRecord);
-    std::shared_ptr<CallRecord> GetCallRecord(const sptr<IAbilityConnection> & connect) const;
-    bool RemoveCallRecord(const sptr<IAbilityConnection> & connect);
-    bool CallRequestDone(const sptr<IRemoteObject> & callStub);
+    void AddCallRecord(const sptr<IAbilityConnection> &connect, const std::shared_ptr<CallRecord> &callRecord);
+    std::shared_ptr<CallRecord> GetCallRecord(const sptr<IAbilityConnection> &connect) const;
+    bool RemoveCallRecord(const sptr<IAbilityConnection> &connect);
+    bool CallRequestDone(const sptr<IRemoteObject> &callStub);
     void Dump(std::vector<std::string> &info) const;
     bool IsNeedToCallRequest() const;
     bool IsExistConnection(const sptr<IAbilityConnection> &connect);
@@ -52,7 +52,7 @@ public:
 private:
     void RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &connect);
     void AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect);
-    void OnConnectionDied(const wptr<IRemoteObject> & remote);
+    void OnConnectionDied(const wptr<IRemoteObject> &remote);
 
 private:
     CallMapType callRecordMap_;

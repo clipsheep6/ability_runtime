@@ -112,7 +112,7 @@ public:
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
     void FreeNativeReference(std::unique_ptr<NativeReference> reference);
-    void FreeNativeReference(std::shared_ptr<NativeReference>&& reference);
+    void FreeNativeReference(std::shared_ptr<NativeReference> && reference);
     void StartProfiler(
         const std::string &perfCmd, bool needBreakPoint, const std::string &processName, bool isDebug = true) override;
 
@@ -158,7 +158,7 @@ private:
     bool InitLoop();
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
-        std::shared_ptr<NativeReference>&& sharedNativeRef);
+        std::shared_ptr<NativeReference> && sharedNativeRef);
     void InitConsoleModule();
     void InitTimerModule();
     void InitWorkerModule(const Options& options);

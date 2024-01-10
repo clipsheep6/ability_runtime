@@ -68,7 +68,7 @@ public:
     };
 
     static std::unique_ptr<Runtime> Create(const Options& options);
-    static void SavePreloaded(std::unique_ptr<Runtime>&& instance);
+    static void SavePreloaded(std::unique_ptr<Runtime> && instance);
     static std::unique_ptr<Runtime> GetPreloaded();
 
     Runtime() = default;

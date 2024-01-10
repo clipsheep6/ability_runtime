@@ -53,7 +53,7 @@ public:
      *
      * @param runtime Runtime instance.
      */
-    void SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runtime);
+    void SetRuntime(std::unique_ptr<AbilityRuntime::Runtime> && runtime);
 
     /**
      * @brief Set ApplicationContext

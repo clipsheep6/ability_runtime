@@ -256,9 +256,9 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
         return -1;
     }
 
-    auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionId](const InnerMissionInfo item) {
-            return item.missionInfo.id == missionId;
+    auto it = std::find_if(missionInfoList_.begin(),
+        missionInfoList_.end(), [&missionId](const InnerMissionInfo item) {
+        return item.missionInfo.id == missionId;
         }
     );
     if (it == missionInfoList_.end()) {
@@ -284,9 +284,9 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
         return MISSION_NOT_FOUND;
     }
 
-    auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionId](const InnerMissionInfo item) {
-            return item.missionInfo.id == missionId;
+    auto it = std::find_if(missionInfoList_.begin(),
+        missionInfoList_.end(), [&missionId](const InnerMissionInfo item) {
+        return item.missionInfo.id == missionId;
         }
     );
     if (it == missionInfoList_.end()) {
@@ -306,8 +306,8 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const
 
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
-        [&missionName, &missionAffinity, &flag, &isFindRecentStandard, &isFromCollaborator](
-            const InnerMissionInfo item) {
+        [&missionName, &missionAffinity, &flag, &isFindRecentStandard, &isFromCollaborator] (
+        const InnerMissionInfo item) {
             if (isFromCollaborator && missionAffinity == item.missionAffinity &&
                 item.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
                 return true;
