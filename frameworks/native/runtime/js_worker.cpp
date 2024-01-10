@@ -28,6 +28,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "core/common/container_scope.h"
 #endif
+#include "declarative_module_preloader.h"
 #include "extractor.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
@@ -81,6 +82,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+    OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
 
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
