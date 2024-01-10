@@ -242,7 +242,7 @@ int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned 
 {
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
     Uri uri_inner = uri;
-    auto&& authority = uri_inner.GetAuthority();
+    auto && authority = uri_inner.GetAuthority();
     auto permission = IsAuthorizationUriAllowed(callerTokenId);
     if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
         newFlag |= Want::FLAG_AUTH_WRITE_URI_PERMISSION;
@@ -386,12 +386,12 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
     const std::string &targetBundleName, int autoremove, int32_t appIndex)
 {
     Uri uri_inner = uri;
-    auto&& scheme = uri_inner.GetScheme();
+    auto && scheme = uri_inner.GetScheme();
     if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
-    auto&& authority = uri_inner.GetAuthority();
+    auto && authority = uri_inner.GetAuthority();
     auto fromTokenId = GetTokenIdByBundleName(authority, 0);
     auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
     unsigned int tmpFlag = 0;
@@ -410,12 +410,12 @@ void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<U
     HILOG_DEBUG("GetUriPermissionBatchFlag Call, flag is %{public}i", flag);
     for (const auto &uri : uriVec) {
         Uri uri_inner = uri;
-        auto&& scheme = uri_inner.GetScheme();
+        auto && scheme = uri_inner.GetScheme();
         if (scheme != "file" && scheme != "content") {
             HILOG_WARN("only support file uri.");
             continue;
         }
-        auto&& authority = uri_inner.GetAuthority();
+        auto && authority = uri_inner.GetAuthority();
         auto fromTokenId = GetTokenIdByBundleName(authority, 0);
         unsigned int tmpFlag = 0;
         auto ret = GetUriPermissionFlag(uri, flag, fromTokenId, targetTokenId, tmpFlag);
@@ -582,8 +582,8 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
     HILOG_INFO("Start to remove uri permission manually.");
     Uri uri_inner = uri;
     auto uriStr = uri.ToString();
-    auto&& authority = uri_inner.GetAuthority();
-    auto&& scheme = uri_inner.GetScheme();
+    auto && authority = uri_inner.GetAuthority();
+    auto && scheme = uri_inner.GetScheme();
     if (scheme != "file" && scheme != "content") {
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;

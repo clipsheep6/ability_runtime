@@ -15,9 +15,9 @@
 
 #include "application_info.h"
 
-#include <errno.h>
+#include <cerrno>
+#include <cstring>
 #include <fcntl.h>
-#include <string.h>
 #include <set>
 #include <unistd.h>
 

@@ -258,9 +258,8 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionId](const InnerMissionInfo item) {
-            return item.missionInfo.id == missionId;
-        }
-    );
+        return item.missionInfo.id == missionId;
+    });
     if (it == missionInfoList_.end()) {
         HILOG_ERROR("no such mission:%{public}d", missionId);
         return -1;
@@ -286,9 +285,8 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionId](const InnerMissionInfo item) {
-            return item.missionInfo.id == missionId;
-        }
-    );
+        return item.missionInfo.id == missionId;
+    });
     if (it == missionInfoList_.end()) {
         HILOG_ERROR("no such mission:%{public}d", missionId);
         return MISSION_NOT_FOUND;
@@ -307,7 +305,7 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName, const
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionName, &missionAffinity, &flag, &isFindRecentStandard, &isFromCollaborator](
-            const InnerMissionInfo item) {
+        const InnerMissionInfo item) {
             if (isFromCollaborator && missionAffinity == item.missionAffinity &&
                 item.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
                 return true;

@@ -31,7 +31,7 @@ public:
     static std::shared_ptr<AbilityStage> Create(
         const std::unique_ptr<Runtime>& runtime, const AppExecFwk::HapModuleInfo& hapModuleInfo);
 
-    JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeReference>&& jsAbilityStageObj);
+    JsAbilityStage(JsRuntime& jsRuntime, std::unique_ptr<NativeReference> && jsAbilityStageObj);
     ~JsAbilityStage() override;
 
     void Init(const std::shared_ptr<Context> &context) override;

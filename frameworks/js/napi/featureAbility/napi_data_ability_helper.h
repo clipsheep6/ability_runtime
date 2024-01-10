@@ -467,7 +467,7 @@ void GetDataAbilityResultForResult(
 void GetDataAbilityHelper(napi_env env, napi_value thisVar, std::shared_ptr<DataAbilityHelper>& dataAbilityHelper);
 void DeleteDAHelperOnOffCB(DAHelperOnOffCB *onCB);
 bool NeedErase(std::vector<DAHelperOnOffCB*>::iterator& iter,
-    const std::shared_ptr<DataAbilityHelper>&& dataAbilityHelper);
+    const std::shared_ptr<DataAbilityHelper> && dataAbilityHelper);
 void EraseMemberProperties(DAHelperOnOffCB* onCB);
 }  // namespace AppExecFwk
 }  // namespace OHOS
