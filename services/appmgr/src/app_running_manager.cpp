@@ -640,6 +640,10 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
     int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
+            HILOG_DEBUG("app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
+            continue;
+        }
         if (appRecord && !isCollaboratorReserveType(appRecord)) {
             HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
             result = appRecord->UpdateConfiguration(config);
