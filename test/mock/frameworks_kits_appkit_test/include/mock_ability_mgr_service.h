@@ -39,7 +39,7 @@ public:
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     MOCK_METHOD4(ConnectAbility, int(const Want& want, const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken, int32_t userId));
-    MOCK_METHOD1(DisconnectAbility, int(const sptr<IAbilityConnection>& connect));
+    MOCK_METHOD1(DisconnectAbility, int(sptr<IAbilityConnection> connect));
     MOCK_METHOD3(AcquireDataAbility, sptr<IAbilityScheduler>(const Uri&, bool, const sptr<IRemoteObject>&));
     MOCK_METHOD2(ReleaseDataAbility, int(sptr<IAbilityScheduler>, const sptr<IRemoteObject>&));
     MOCK_METHOD2(AttachAbilityThread, int(const sptr<IAbilityScheduler>& scheduler,

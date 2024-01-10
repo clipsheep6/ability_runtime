@@ -208,6 +208,39 @@ void UIExtensionStabilityTest::WaitUntilAbilityBackground(
 }
 
 /**
+ * @tc.name: TerminateUIExtensionAbility_0100
+ * @tc.desc: basic function test.
+ * @tc.type: FUNC
+ * @tc.require: issueI8TYNB
+ */
+HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Level1)
+{
+    HILOG_INFO("start.");
+    auto currentId = GetSelfTokenID();
+    SetNativeToken();
+
+    auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
+    RegisterApplicationStateObserver(observer);
+
+    // start uiextension user firstly.
+    Want userWant;
+    AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
+    userWant.SetElement(userElement);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
+    WaitUntilAbilityForeground(observer);
+
+    sptr<IRemoteObject> token = nullptr;
+    auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+    int resultCode = 0;
+    Want resultWant;
+    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+    WaitUntilProcessDied(observer);
+
+    UnregisterApplicationStateObserver(observer);
+    HILOG_INFO("finish.");
+}
+
+/**
  * @tc.name: MinimizeUIExtensionAbility_0100
  * @tc.desc: basic function test.
  * @tc.type: FUNC

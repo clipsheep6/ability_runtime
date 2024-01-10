@@ -98,6 +98,7 @@ public:
     void TerminateAbility(int64_t abilityId) override;
     void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
     void SetMockList(const std::map<std::string, std::string> &mockList) override;
+    void SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb) override;
 private:
     bool OnInit();
     void Run();
@@ -662,7 +663,6 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    SetHostResolveBufferTracker();
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
@@ -783,26 +783,13 @@ std::unique_ptr<Simulator> Simulator::Create(const Options &options)
     return nullptr;
 }
 
-void SimulatorImpl::SetHostResolveBufferTracker()
+void SimulatorImpl::SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb)
 {
-    panda::JSNApi::SetHostResolveBufferTracker(vm_,
-        [](const std::string &inputPath, uint8_t **buff, size_t *buffSize) -> bool {
-            if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
-                HILOG_ERROR("Param invalid.");
-                return false;
-            }
-
-            HILOG_DEBUG("Get module buffer, input path: %{public}s.", inputPath.c_str());
-            auto data = Ide::StageContext::GetInstance().GetModuleBuffer(inputPath);
-            if (data == nullptr) {
-                HILOG_ERROR("Get module buffer failed, input path: %{public}s.", inputPath.c_str());
-                return false;
-            }
-
-            *buff = data->data();
-            *buffSize = data->size();
-            return true;
-        });
+    if (vm_ == nullptr || cb == nullptr) {
+        HILOG_ERROR("Params invalid.");
+        return;
+    }
+    panda::JSNApi::SetHostResolveBufferTracker(vm_, cb);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

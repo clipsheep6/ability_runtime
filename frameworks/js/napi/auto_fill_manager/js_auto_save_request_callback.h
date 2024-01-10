@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_SAVE_REQUEST_CALLBACK_H
-#define OHOS_ABILITY_RUNTIME_JS_SAVE_REQUEST_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_AUTO_SAVE_REQUEST_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_JS_AUTO_SAVE_REQUEST_CALLBACK_H
 
 #include "save_request_callback_interface.h"
 #include "native_engine/native_value.h"
@@ -23,11 +23,11 @@ class NativeReference;
 namespace OHOS {
 namespace AbilityRuntime {
 using AutoFillManagerFunc = std::function<void(int32_t)>;
-class JsSaveRequestCallback : public ISaveRequestCallback,
-                              public std::enable_shared_from_this<JsSaveRequestCallback> {
+class JsAutoSaveRequestCallback : public ISaveRequestCallback,
+                              public std::enable_shared_from_this<JsAutoSaveRequestCallback> {
 public:
-    JsSaveRequestCallback(napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc);
-    virtual ~JsSaveRequestCallback();
+    JsAutoSaveRequestCallback(napi_env env, int32_t instanceId, AutoFillManagerFunc autoFillManagerFunc);
+    virtual ~JsAutoSaveRequestCallback();
 
     void Register(napi_value value);
     void OnSaveRequestSuccess() override;
@@ -45,4 +45,4 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_SAVE_REQUEST_CALLBACK_H
+#endif // OHOS_ABILITY_RUNTIME_JS_AUTO_SAVE_REQUEST_CALLBACK_H

@@ -26,6 +26,7 @@
 #include "ability_thread.h"
 #include "app_loader.h"
 #include "application_context.h"
+#include "application_cleaner.h"
 #include "application_impl.h"
 #include "bundle_mgr_helper.h"
 #include "context_impl.h"
@@ -42,7 +43,6 @@
 namespace OHOS {
 namespace AppExecFwk {
 REGISTER_APPLICATION(OHOSApplication, OHOSApplication)
-constexpr char MARK_SYMBOL[] = "_useless";
 
 OHOSApplication::OHOSApplication()
 {
@@ -802,7 +802,6 @@ bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 
 void OHOSApplication::CleanAppTempData(bool isLastProcess)
 {
-    HILOG_DEBUG("Called");
     if (!isLastProcess) {
         HILOG_ERROR("There are other survival processes in the current application.");
         return;
@@ -811,30 +810,26 @@ void OHOSApplication::CleanAppTempData(bool isLastProcess)
         HILOG_ERROR("Context is nullptr.");
         return;
     }
-    auto bundleMgrHelpers = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-    if (bundleMgrHelpers == nullptr) {
-        HILOG_ERROR("Get bundle mgr is nullptr.");
+
+    auto cleaner = ApplicationCleaner::GetInstance();
+    if (cleaner) {
+        cleaner->SetRuntimeContext(abilityRuntimeContext_);
+        cleaner->RenameTempData();
+    }
+}
+
+void OHOSApplication::CleanUselessTempData()
+{
+    if (abilityRuntimeContext_ == nullptr) {
+        HILOG_ERROR("Context is nullptr.");
         return;
     }
 
-    std::vector<std::string> tempPaths;
-    abilityRuntimeContext_->GetAllTempDir(tempPaths);
-    if (tempPaths.empty()) {
-        HILOG_ERROR("Get app temp path list is empty.");
-        return;
+    auto cleaner = ApplicationCleaner::GetInstance();
+    if (cleaner) {
+        cleaner->SetRuntimeContext(abilityRuntimeContext_);
+        cleaner->ClearTempData();
     }
-    int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
-        system_clock::now().time_since_epoch()).count();
-    std::ostringstream stream;
-    stream << std::hex << now;
-    for (const auto &path : tempPaths) {
-        auto newPath = path + MARK_SYMBOL + stream.str();
-        if (rename(path.c_str(), newPath.c_str()) != 0) {
-            HILOG_ERROR("Rename temp dir failed, msg is %{public}s", strerror(errno));
-        }
-    }
-
-    bundleMgrHelpers->CleanObsoleteBundleTempFiles();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

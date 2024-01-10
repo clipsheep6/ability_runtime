@@ -109,7 +109,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the ability.
      * @param sessionInfo Indicates the sessionInfo.
      */
-    virtual void OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.

@@ -75,6 +75,8 @@ const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
 const int32_t API11 = 11;
 const int32_t API_VERSION_MOD = 100;
+const int AREA2 = 2;
+const int AREA3 = 3;
 
 std::string ContextImpl::GetBundleName() const
 {
@@ -321,7 +323,7 @@ std::string ContextImpl::GetDistributedFilesDir()
         dir = CONTEXT_DISTRIBUTEDFILES_BASE_BEFORE + std::to_string(GetCurrentAccountId()) +
             CONTEXT_DISTRIBUTEDFILES_BASE_MIDDLE + GetBundleName();
     } else {
-        if (currArea_ == CONTEXT_ELS[1] || currArea_ == CONTEXT_ELS[2] || currArea_ == CONTEXT_ELS[3]) {
+        if (currArea_ == CONTEXT_ELS[1] || currArea_ == CONTEXT_ELS[AREA2] || currArea_ == CONTEXT_ELS[AREA3]) {
             //when areamode swith to el3/el4, the distributedfiles dir should be always el2's distributedfilesdir dir
             dir = CONTEXT_DATA_STORAGE + CONTEXT_ELS[1] + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
         } else {

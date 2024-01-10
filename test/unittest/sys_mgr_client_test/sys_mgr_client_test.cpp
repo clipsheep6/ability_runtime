@@ -100,7 +100,7 @@ HWTEST_F(SysMgrClient, RegisterSystemAbility_0100, TestSize.Level1)
 
     OHOS::sptr<OHOS::IRemoteObject> object = new AAFwk::MockAbilityManagerService();
 
-    sysMgr->RegisterSystemAbility( OHOS::ABILITY_MGR_SERVICE_ID, object);
+    sysMgr->RegisterSystemAbility(OHOS::ABILITY_MGR_SERVICE_ID, object);
     GTEST_LOG_(INFO) << "RegisterSystemAbility_0100 end";
 }
 

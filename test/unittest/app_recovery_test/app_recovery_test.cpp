@@ -330,7 +330,6 @@ HWTEST_F(AppRecoveryUnitTest, ScheduleSaveAppState_003, TestSize.Level1)
         EXPECT_TRUE(ret);
     });
     watchdog.join();
-
 }
 
 /**

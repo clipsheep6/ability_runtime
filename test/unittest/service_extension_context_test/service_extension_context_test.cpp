@@ -54,9 +54,9 @@ void ServiceExtensionContextTest::TearDown(void)
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want; 
+    Want want;
     ErrCode result = serviceExtensionContextTest.StartAbility(want);
     EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
 }
@@ -70,9 +70,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_001
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_002, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     StartOptions startOptions;
     ErrCode result = serviceExtensionContextTest.StartAbility(want, startOptions);
     EXPECT_EQ(ERR_IMPLICIT_START_ABILITY_FAIL, result);
@@ -87,9 +87,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_startAbility_002
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityByCall_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     ErrCode result = serviceExtensionContextTest.StartAbilityByCall(want, callback);
     EXPECT_EQ(ERR_INVALID_VALUE, result);
@@ -104,7 +104,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityByCa
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_ReleaseCall_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
     std::shared_ptr<CallerCallBack> callback = std::make_shared<CallerCallBack>();
     ErrCode result = serviceExtensionContextTest.ReleaseCall(callback);
@@ -120,9 +120,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_ReleaseCall_001,
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbility_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     sptr<AbilityConnectCallback> connectCallback;
     ErrCode result = serviceExtensionContextTest.ConnectAbility(want, connectCallback);
     EXPECT_EQ(AAFwk::ERR_INVALID_CALLER, result);
@@ -137,9 +137,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbility_0
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityWithAccount_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     int accountId = 1;
     ErrCode result = serviceExtensionContextTest.StartAbilityWithAccount(want, accountId);
     EXPECT_EQ(CHECK_PERMISSION_FAILED, result);
@@ -154,9 +154,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityWith
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityWithAccount_002, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     int accountId = 1;
     StartOptions startOptions;
     ErrCode result = serviceExtensionContextTest.StartAbilityWithAccount(want, accountId, startOptions);
@@ -172,9 +172,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartAbilityWith
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartServiceExtensionAbility_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     int32_t accountId = 1;
     StartOptions startOptions;
     ErrCode result = serviceExtensionContextTest.StartServiceExtensionAbility(want, accountId);
@@ -190,9 +190,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StartServiceExte
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_StopServiceExtensionAbility_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     int32_t accountId = 1;
     StartOptions startOptions;
     ErrCode result = serviceExtensionContextTest.StopServiceExtensionAbility(want, accountId);
@@ -208,9 +208,9 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_StopServiceExten
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbilityWithAccount_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
-    Want want;  
+    Want want;
     int32_t accountId = 1;
     sptr<AbilityConnectCallback> connectCallback;
     ErrCode result = serviceExtensionContextTest.ConnectAbilityWithAccount(want, accountId, connectCallback);
@@ -226,7 +226,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_ConnectAbilityWi
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_TerminateAbility_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
     ErrCode result = serviceExtensionContextTest.TerminateAbility();
     EXPECT_EQ(ERR_INVALID_VALUE, result);
@@ -241,7 +241,7 @@ HWTEST_F(ServiceExtensionContextTest, service_extension_context_TerminateAbility
  * CaseDescription: Verify startAbility
  */
 HWTEST_F(ServiceExtensionContextTest, service_extension_context_GetAbilityInfoType_001, TestSize.Level1)
-{   
+{
     ServiceExtensionContext serviceExtensionContextTest;
     EXPECT_EQ(AppExecFwk::AbilityType::UNKNOWN, serviceExtensionContextTest.GetAbilityInfoType());
 }

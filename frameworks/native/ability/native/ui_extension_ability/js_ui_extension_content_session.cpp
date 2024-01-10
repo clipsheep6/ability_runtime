@@ -59,7 +59,7 @@ do {                                                                            
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);                   \
         return CreateJsUndefined(env);                                                  \
     }                                                                                   \
-} while(0)
+} while (0)
 
 void UISessionAbilityResultListener::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {

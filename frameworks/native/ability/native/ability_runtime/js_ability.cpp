@@ -490,7 +490,7 @@ void JsAbility::OnForeground(const Want &want)
     }
 
     napi_value jsWant = OHOS::AppExecFwk::WrapWant(env, want);
-    if(jsWant == nullptr) {
+    if (jsWant == nullptr) {
         HILOG_ERROR("jsWant is nullptr");
         return;
     }

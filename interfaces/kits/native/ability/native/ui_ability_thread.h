@@ -77,7 +77,7 @@ public:
      * @param sessionInfo Indicates the session info.
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
      * @brief Provide operating system ShareData information to the observer
@@ -168,7 +168,7 @@ private:
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityRuntime::Context> &stageContext);
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
     void HandleShareData(const int32_t &requestCode);
     void HandlePrepareTermianteAbility();
     void HandleUpdateConfiguration(const AppExecFwk::Configuration &config);

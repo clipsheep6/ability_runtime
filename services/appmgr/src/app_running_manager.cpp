@@ -82,7 +82,6 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("appName: %{public}s, processName: %{public}s, uid: %{public}d, specifiedProcessFlag: %{public}s",
         appName.c_str(), processName.c_str(), uid, specifiedProcessFlag.c_str());
-
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
     auto jointUserId = bundleInfo.jointUserId;
@@ -90,9 +89,9 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     ClipStringContent(rule, bundleInfo.appId, signCode);
 
     auto FindSameProcess = [signCode, specifiedProcessFlag, processName, jointUserId](const auto &pair) {
-        bool checkSpecifiedProcessFlag = (specifiedProcessFlag.empty() ||
-            pair.second->GetSpecifiedProcessFlag() == specifiedProcessFlag);
-        return (checkSpecifiedProcessFlag) &&
+        return (pair.second != nullptr) &&
+            (specifiedProcessFlag.empty() ||
+            pair.second->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
             (pair.second->GetSignCode() == signCode) &&
             (pair.second->GetProcessName() == processName) &&
             (pair.second->GetJointUserId() == jointUserId) &&
@@ -108,9 +107,9 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     }
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        bool checkSpecifiedProcessFlag = (specifiedProcessFlag.empty() ||
-            appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag);
-        if (appRecord && appRecord->GetProcessName() == processName && checkSpecifiedProcessFlag &&
+        if (appRecord && appRecord->GetProcessName() == processName &&
+            (specifiedProcessFlag.empty() ||
+            appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
             !(appRecord->IsTerminating()) && !(appRecord->IsKilling())) {
             auto appInfoList = appRecord->GetAppInfoList();
             HILOG_INFO("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
@@ -641,6 +640,10 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
     int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
+            HILOG_DEBUG("app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
+            continue;
+        }
         if (appRecord && !isCollaboratorReserveType(appRecord)) {
             HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
             result = appRecord->UpdateConfiguration(config);

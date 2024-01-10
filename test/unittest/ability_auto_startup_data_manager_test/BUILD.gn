@@ -59,9 +59,6 @@ ohos_unittest("ability_auto_startup_data_manager_test") {
     "kv_store:distributeddata_inner",
     "window_manager:scene_session",
   ]
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
-  }
 }
 
 group("unittest") {

@@ -1092,20 +1092,16 @@ int32_t AppMgrServiceInner::ClearUpApplicationDataByUserId(
     }
     // 3.kill application
     // 4.revoke user rights
-    if (isBySelf) {
-        result = KillApplicationSelf();
-    } else {
-        result = KillApplicationByUserId(bundleName, userId);
-    }
+    result = isBySelf ? KillApplicationSelf() : KillApplicationByUserId(bundleName, userId);
     if (result < 0) {
         HILOG_ERROR("Kill Application by bundle name is fail");
         return ERR_INVALID_OPERATION;
     }
     // 5.revoke uri permission rights
-    result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
-    if (result != 0) {
-        HILOG_ERROR("Revoke all uri permissions is fail");
-        return ERR_PERMISSION_DENIED;
+    auto ret = IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Revoke all uri permissions is failed");
+        return ret;
     }
     auto dataMgr = OHOS::DistributedKv::DistributedDataMgr();
     auto dataRet = dataMgr.ClearAppStorage(bundleName, userId, 0, tokenId);
@@ -4378,7 +4374,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             faultData.errorObject.name.c_str(), faultData.faultType,
             callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
 
-        if (faultData.forceExit && !faultData.waitSaveState && appRecord->IsKeepAliveApp()) {
+        if (faultData.forceExit && !faultData.waitSaveState) {
             HILOG_INFO("FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
                 bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
             innerService->KillProcessByPid(pid);

@@ -62,7 +62,7 @@ HWTEST_F(AbilityConnectionTest, AbilityRuntime_AbilityConnection_OnAbilityConnec
     AppExecFwk::ElementName element;
     sptr<IRemoteObject> remoteObject = nullptr;
     EXPECT_NE(abilityConnection->GetConnectionState(), 0);
-    abilityConnection->OnAbilityConnectDone(element,remoteObject,-1);
+    abilityConnection->OnAbilityConnectDone(element, remoteObject, -1);
     EXPECT_EQ(abilityConnection->abilityConnectCallbackList_.size(), 0);
     EXPECT_NE(abilityConnection->GetConnectionState(), 0);
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityConnectDone_0100 end";
@@ -82,7 +82,7 @@ HWTEST_F(AbilityConnectionTest, AbilityRuntime_AbilityConnection_OnAbilityConnec
     sptr<MockAbilityConnectCallback> mockAbilityConnectCallback(new MockAbilityConnectCallback());
     abilityConnection->AddConnectCallback(mockAbilityConnectCallback);
     EXPECT_NE(abilityConnection->GetConnectionState(), 0);
-    abilityConnection->OnAbilityConnectDone(element,remoteObject,-1);
+    abilityConnection->OnAbilityConnectDone(element, remoteObject, -1);
     EXPECT_NE(abilityConnection->abilityConnectCallbackList_.size(), 0);
     EXPECT_EQ(abilityConnection->GetConnectionState(), 0);
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityConnectDone_0200 end";
@@ -98,7 +98,7 @@ HWTEST_F(AbilityConnectionTest, AbilityRuntime_AbilityConnection_OnAbilityDiscon
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityDisconnectDone_0100 start";
     sptr<AbilityConnection> abilityConnection = new AbilityConnection();
     AppExecFwk::ElementName element;
-    abilityConnection->OnAbilityDisconnectDone(element,-1);
+    abilityConnection->OnAbilityDisconnectDone(element, -1);
     EXPECT_EQ(abilityConnection->abilityConnectCallbackList_.size(), 0);
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityDisconnectDone_0100 end";
 }
@@ -119,7 +119,7 @@ HWTEST_F(AbilityConnectionTest, AbilityRuntime_AbilityConnection_OnAbilityDiscon
     abilityConnection->AddConnectCallback(mockAbilityConnectCallback);
     EXPECT_NE(abilityConnection->abilityConnectCallbackList_.size(), 0);
     int32_t resultCode = 0;
-    abilityConnection->OnAbilityDisconnectDone(element,resultCode);
+    abilityConnection->OnAbilityDisconnectDone(element, resultCode);
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityDisconnectDone_0200 end";
 }
 
@@ -139,7 +139,7 @@ HWTEST_F(AbilityConnectionTest, AbilityRuntime_AbilityConnection_OnAbilityDiscon
     abilityConnection->AddConnectCallback(mockAbilityConnectCallback);
     EXPECT_NE(abilityConnection->abilityConnectCallbackList_.size(), 0);
     int32_t resultCode = -1;
-    abilityConnection->OnAbilityDisconnectDone(element,resultCode);
+    abilityConnection->OnAbilityDisconnectDone(element, resultCode);
     GTEST_LOG_(INFO) << "AbilityRuntime_AbilityConnection_OnAbilityDisconnectDone_0300 end";
 }
 

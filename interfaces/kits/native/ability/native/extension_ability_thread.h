@@ -64,7 +64,7 @@ public:
      * @param sessionInfo Indicates the session info.
      */
     void ScheduleAbilityTransaction(const Want &want, const LifeCycleStateInfo &targetState,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr) override;
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr) override;
 
     /**
      * @brief Provide operating system ConnectAbility information to the observer
@@ -168,7 +168,7 @@ private:
      * @param sessionInfo Indicates the session info.
      */
     void HandleExtensionTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Handle the current connection of Extension.

@@ -965,6 +965,8 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
     napi_new_instance(env, wantAgentClass, 0, nullptr, &result);
     if (result == nullptr) {
         HILOG_ERROR("create instance failed.");
+        delete wantAgent;
+        wantAgent = nullptr;
         return nullptr;
     }
 

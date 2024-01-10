@@ -23,18 +23,13 @@
 #include "ability_interceptor.h"
 #include "ability_interceptor_executer.h"
 #include "bundlemgr/mock_bundle_manager.h"
-#include "mock_ecological_rule_manager.h"
 
 using namespace testing;
 using namespace testing::ext;
 using namespace OHOS::AppExecFwk;
-#ifndef SUPPORT_ERMS
-using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
-#endif
 
 namespace {
 const std::string BUNDLE_NAME = "testBundle";
-const int32_t  ECOLOGICAL_RULE_SA_ID = 9999;
 const std::string ATOMIC_SERVICE_BUNDLE_NAME = "com.test.atomicservice";
 const std::string PASS_ABILITY_NAME = "com.test.pass";
 const std::string DENY_ABILITY_NAME = "com.test.deny";
@@ -61,8 +56,6 @@ void AbilityInterceptorTest::SetUpTestCase()
 
     OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
         OHOS::BUNDLE_MGR_SERVICE_SYS_ABILITY_ID, new BundleMgrService());
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        ECOLOGICAL_RULE_SA_ID, new MockEcologicalRuleMgrService());
 }
 
 void AbilityInterceptorTest::TearDownTestCase()
@@ -308,132 +301,5 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_005, TestSize.Level1)
     int result = executer->DoProcess(want, requestCode, userId, true);
     EXPECT_EQ(result, ERR_OK);
 }
-
-#ifndef SUPPORT_ERMS
-/**
- * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_001
- * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_OK when erms invalid
- * @tc.type: FUNC
- * @tc.require: issueI6HT6C
- */
-HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_001, TestSize.Level1)
-{
-    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
-    Want want;
-    int requestCode = 0;
-    int userId = 100;
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-        ECOLOGICAL_RULE_SA_ID, nullptr);
-    executer->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
-    OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->RegisterSystemAbility(
-            ECOLOGICAL_RULE_SA_ID, new MockEcologicalRuleMgrService());
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_002
- * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_OK when erms return error
- * @tc.type: FUNC
- * @tc.require: issueI6HT6C
- */
-HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_002, TestSize.Level1)
-{
-    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
-    Want want;
-    ElementName elementName;
-    elementName.SetBundleName(ATOMIC_SERVICE_BUNDLE_NAME);
-    want.SetElement(elementName);
-    int requestCode = 0;
-    int userId = 100;
-
-    executer->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_003
- * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_OK when erms return pass
- * @tc.type: FUNC
- * @tc.require: issueI6HT6C
- */
-HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_003, TestSize.Level1)
-{
-    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
-    Want want;
-    ElementName elementName;
-    elementName.SetBundleName(ATOMIC_SERVICE_BUNDLE_NAME);
-    elementName.SetAbilityName(PASS_ABILITY_NAME);
-    want.SetElement(elementName);
-    int requestCode = 0;
-    int userId = 100;
-
-    executer->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
-    EXPECT_EQ(result, ERR_OK);
-    }
-
-/**
- * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_004
- * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_ECOLOGICAL_CONTROL_STATUS when erms return DENY
- * @tc.type: FUNC
- * @tc.require: issueI6HT6C
- */
-HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_004, TestSize.Level1)
-{
-    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
-    Want want;
-    ElementName elementName;
-    elementName.SetBundleName(ATOMIC_SERVICE_BUNDLE_NAME);
-    elementName.SetAbilityName(DENY_ABILITY_NAME);
-    want.SetElement(elementName);
-    int requestCode = 0;
-    int userId = 100;
-
-    executer->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_005
- * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_ECOLOGICAL_CONTROL_STATUS when erms return JUMP
- * @tc.type: FUNC
- * @tc.require: issueI6HT6C
- */
-HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_005, TestSize.Level1)
-{
-    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
-    Want want;
-    ElementName elementName;
-    elementName.SetBundleName(ATOMIC_SERVICE_BUNDLE_NAME);
-    elementName.SetAbilityName(JUMP_ABILITY_NAME);
-    want.SetElement(elementName);
-    int requestCode = 0;
-    int userId = 100;
-
-    executer->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, false);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityInterceptorTest_EcologicalRuleInterceptor_006
- * @tc.desc: EcologicalRuleInterceptor DoProcess ERR_OK when not ATOMIC_SERVICE
- * @tc.type: FUNC
- * @tc.require: issueI6HT6C
- */
-HWTEST_F(AbilityInterceptorTest, EcologicalRuleInterceptor_006, TestSize.Level1)
-{
-    std::shared_ptr<AbilityInterceptorExecuter> executer = std::make_shared<AbilityInterceptorExecuter>();
-    Want want;
-    int requestCode = 0;
-    int userId = 100;
-    executer->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
-    EXPECT_EQ(result, ERR_OK);
-}
-#endif
 } // namespace AAFwk
 } // namespace OHOS

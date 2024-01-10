@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -70,7 +70,7 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
     }
 
     auto autoSaveMangerFunc = std::bind(&JsAutoFillManager::OnRequestAutoSaveDone, this, std::placeholders::_1);
-    saveCallback = std::make_shared<JsSaveRequestCallback>(env, instanceId, autoSaveMangerFunc);
+    saveCallback = std::make_shared<JsAutoSaveRequestCallback>(env, instanceId, autoSaveMangerFunc);
     if (saveCallback == nullptr) {
         HILOG_ERROR("saveCallback is nullptr.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
@@ -90,7 +90,7 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
 }
 
 void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
-    const std::shared_ptr<JsSaveRequestCallback> &saveRequestCallback)
+    const std::shared_ptr<JsAutoSaveRequestCallback> &saveRequestCallback)
 {
     auto uiContent = Ace::UIContent::GetUIContent(instanceId);
     if (uiContent == nullptr) {
@@ -112,7 +112,7 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
     }
 }
 
-std::shared_ptr<JsSaveRequestCallback> JsAutoFillManager::GetCallbackByInstanceId(int32_t instanceId)
+std::shared_ptr<JsAutoSaveRequestCallback> JsAutoFillManager::GetCallbackByInstanceId(int32_t instanceId)
 {
     std::lock_guard<std::mutex> lock(mutexLock_);
     auto iter = saveRequestObject_.find(instanceId);

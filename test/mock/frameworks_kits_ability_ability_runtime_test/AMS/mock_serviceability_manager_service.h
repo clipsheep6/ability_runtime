@@ -92,7 +92,7 @@ public:
         const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
-    int DisconnectAbility(const sptr<IAbilityConnection>& connect) override;
+    int DisconnectAbility(sptr<IAbilityConnection> connect) override;
 
     int AttachAbilityThread(const sptr<IAbilityScheduler>& scheduler, const sptr<IRemoteObject>& token) override;
 
@@ -231,7 +231,7 @@ public:
     {
         return 0;
     }
-    
+
     int SetMissionContinueState(const sptr<IRemoteObject>& abilityToken, const AAFwk::ContinueState &state) override
     {
         return commonMockResultFlag_ ? 0 : -1;

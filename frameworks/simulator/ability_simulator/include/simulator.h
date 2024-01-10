@@ -35,6 +35,7 @@ class ABILITY_EXPORT Simulator {
 public:
     using TerminateCallback = std::function<void(int64_t)>;
     using FormUpdateCallback = std::function<void(int64_t, const std::string&)>;
+    using ResolveBufferTrackerCallback = std::function<bool(const std::string&, uint8_t **, size_t *)>;
 
     /**
      * Create a simulator instance.
@@ -49,6 +50,7 @@ public:
     virtual void TerminateAbility(int64_t abilityId) = 0;
     virtual void UpdateConfiguration(const AppExecFwk::Configuration &config) = 0;
     virtual void SetMockList(const std::map<std::string, std::string> &mockList) = 0;
+    virtual void SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb) = 0;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

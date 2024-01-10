@@ -653,8 +653,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, ForceTimeoutForTest_001, TestSize.Level
 }
 #endif
 
-
-
 /*
  * Feature: AbilityManagerService
  * Function: JudgeMultiUserConcurrency
