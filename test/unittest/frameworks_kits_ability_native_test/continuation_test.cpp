@@ -74,8 +74,8 @@ public:
 
 class MockReverseContinuationSchedulerPrimaryProxy : public IRemoteProxy<IReverseContinuationSchedulerPrimary> {
 public:
-    explicit MockReverseContinuationSchedulerPrimaryProxy(const sptr<IRemoteObject> &remoteObject) :
-        IRemoteProxy<IReverseContinuationSchedulerPrimary>(remoteObject) {}
+    explicit MockReverseContinuationSchedulerPrimaryProxy(const sptr<IRemoteObject> &remoteObject)
+        : IRemoteProxy<IReverseContinuationSchedulerPrimary>(remoteObject) {}
     virtual ~MockReverseContinuationSchedulerPrimaryProxy() = default;
     MOCK_METHOD0(NotifyReplicaTerminated, void());
     MOCK_METHOD1(ContinuationBack, bool(const AAFwk::Want &want));
@@ -83,8 +83,8 @@ public:
 
 class MockReverseContinuationSchedulerReplicaProxy : public IRemoteProxy<IReverseContinuationSchedulerReplica> {
 public:
-    explicit MockReverseContinuationSchedulerReplicaProxy(const sptr<IRemoteObject> &remoteObject) :
-        IRemoteProxy<IReverseContinuationSchedulerReplica>(remoteObject) {}
+    explicit MockReverseContinuationSchedulerReplicaProxy(const sptr<IRemoteObject> &remoteObject)
+        : IRemoteProxy<IReverseContinuationSchedulerReplica>(remoteObject) {}
     virtual ~MockReverseContinuationSchedulerReplicaProxy() = default;
     MOCK_METHOD1(PassPrimary, void(const sptr<IRemoteObject> &primary));
     MOCK_METHOD0(ReverseContinuation, bool());

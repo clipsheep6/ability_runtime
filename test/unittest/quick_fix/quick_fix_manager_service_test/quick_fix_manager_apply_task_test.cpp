@@ -239,7 +239,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, NotifyApplyStatus_0100, TestSize.Level1)
 HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
         nullptr, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
     applyTask->RemoveTimeoutTask();
@@ -255,7 +255,7 @@ HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0100, TestSize.Level1)
 HWTEST_F(QuickFixManagerApplyTaskTest, RemoveTimeoutTask_0200, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
         quickFixMs_->eventHandler_, quickFixMs_);
     ASSERT_NE(applyTask, nullptr);
     applyTask->RemoveTimeoutTask();

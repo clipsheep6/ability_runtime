@@ -563,7 +563,6 @@ int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, con
         return ERR_INVALID_VALUE;
     }
     std::string bundleNameFromAbilityRecord = abilityRecord->GetAbilityInfo().bundleName;
-
     if (!bundleNameFromWant.empty() && bundleNameFromWant == bundleNameFromIntentMgr &&
         bundleNameFromWant == bundleNameFromAbilityRecord) {
         HILOG_INFO("bundleName match");
@@ -6530,7 +6529,6 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
         }
         missionListMgr->EnableRecoverAbility(record->GetMissionId());
     }
-
 }
 
 void AbilityManagerService::RecoverAbilityRestart(const Want& want)
