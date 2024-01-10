@@ -133,6 +133,11 @@ public:
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback);
     Ability *ability_;
     sptr<AbilityRuntime::JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+private:
+    int32_t JsStartAbilityInner(std::shared_ptr<CallAbilityParam> paramObj, AbilityType abilityType);
+    int32_t JsDisConnectAbilityInner(AbilityType abilityType, sptr<NAPIAbilityConnection>);
+    bool WrapJsConnectFailedResult(napi_env env, const Want &want,
+        int32_t errorVal, std::shared_ptr<ConnectionCallback> cb);
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

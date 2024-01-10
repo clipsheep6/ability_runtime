@@ -281,75 +281,63 @@ std::shared_ptr<Context> ContextContainer::CreateBundleContext(std::string bundl
     return appContext;
 }
 
+int32_t ContextContainer::GetAppType(const BundleInfo &bundleInfo)
+{
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
+        return TYPE_RESERVE;
+    }
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        return TYPE_OTHERS;
+    }
+    return 0;
+}
+
 void ContextContainer::InitResourceManager(BundleInfo &bundleInfo, std::shared_ptr<ContextDeal> &deal)
 {
-    HILOG_DEBUG("InitResourceManager begin, bundleName:%{public}s, codePath:%{public}s",
+    HILOG_DEBUG("bundleName:%{public}s, codePath:%{public}s",
         bundleInfo.name.c_str(), bundleInfo.applicationInfo.codePath.c_str());
     if (deal == nullptr) {
-        HILOG_ERROR("InitResourceManager deal is nullptr");
+        HILOG_ERROR("deal is nullptr");
         return;
     }
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     std::string moduleName;
     std::string hapPath;
     std::vector<std::string> overlayPaths;
-    int32_t appType;
-    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE)) {
-        appType = TYPE_RESERVE;
-    } else if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-        appType = TYPE_OTHERS;
-    } else {
-        appType = 0;
+    int32_t appType = GetAppType(bundleInfo);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("create resourceManager failed");
+        return;
     }
-    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
-        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
-        std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
-            bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
-        if (resourceManager == nullptr) {
-            HILOG_ERROR("ContextImpl::InitResourceManager failed to create resourceManager");
-            return;
-        }
+    if (appType == TYPE_RESERVE || appType == TYPE_OTHERS) {
         deal->initResourceManager(resourceManager);
         return;
     }
 
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
-        bundleInfo.name, moduleName, hapPath, overlayPaths, *resConfig, appType));
-    if (resourceManager == nullptr) {
-        HILOG_ERROR("ContextContainer::InitResourceManager create resourceManager failed");
-        return;
-    }
-
-    HILOG_DEBUG(
-        "ContextContainer::InitResourceManager hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
+    HILOG_DEBUG("hapModuleInfos count: %{public}zu", bundleInfo.hapModuleInfos.size());
     std::regex pattern(AbilityBase::Constants::ABS_CODE_PATH);
     for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
-        std::string loadPath;
-        if (!hapModuleInfo.hapPath.empty()) {
-            loadPath = hapModuleInfo.hapPath;
-        } else {
-            loadPath = hapModuleInfo.resourcePath;
-        }
+        std::string loadPath = hapModuleInfo.hapPath.empty() ? hapModuleInfo.resourcePath : hapModuleInfo.hapPath;
         if (loadPath.empty()) {
             continue;
         }
         loadPath = std::regex_replace(loadPath, pattern, AbilityBase::Constants::LOCAL_BUNDLES);
-        HILOG_DEBUG("ContextContainer::InitResourceManager loadPath: %{public}s", loadPath.c_str());
+        HILOG_DEBUG("loadPath: %{public}s", loadPath.c_str());
         if (!resourceManager->AddResource(loadPath.c_str())) {
-            HILOG_ERROR("ContextContainer::InitResourceManager AddResource failed");
+            HILOG_ERROR("AddResource failed");
         }
     }
 
     resConfig->SetLocaleInfo("zh", "Hans", "CN");
 #ifdef SUPPORT_GRAPHICS
     if (resConfig->GetLocaleInfo() != nullptr) {
-        HILOG_INFO(
-            "ContextContainer::InitResourceManager language: %{public}s, script: %{public}s, region: %{public}s,",
-            resConfig->GetLocaleInfo()->getLanguage(),
-            resConfig->GetLocaleInfo()->getScript(),
+        HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s,",
+            resConfig->GetLocaleInfo()->getLanguage(), resConfig->GetLocaleInfo()->getScript(),
             resConfig->GetLocaleInfo()->getCountry());
     } else {
-        HILOG_INFO("ContextContainer::InitResourceManager language: GetLocaleInfo is null.");
+        HILOG_INFO("language: GetLocaleInfo is null.");
     }
 #endif
     resourceManager->UpdateResConfig(*resConfig);

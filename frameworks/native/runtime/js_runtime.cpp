@@ -958,6 +958,30 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     return std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(resultRef));
 }
 
+bool JsRuntime::LoadCommonChunkScript(std::shared_ptr<Extractor> extractor, std::string modulePath, const std::string abcPath)
+{
+    bool useSafeMempry = apiTargetVersion_ == 0 || apiTargetVersion_ > API8;
+    if (!extractor->IsHapCompress(modulePath) && useSafeMempry) {
+        auto safeData = extractor->GetSafeData(modulePath);
+        if (!safeData) {
+            HILOG_ERROR("Get abc file failed.");
+            return false;
+        }
+        return LoadScript(abcPath, safeData->GetDataPtr(), safeData->GetDataLen(), isBundle_);
+    } else {
+        std::ostringstream outStream;
+        if (!extractor->GetFileBuffer(modulePath, outStream)) {
+            HILOG_ERROR("Get abc file failed");
+            return false;
+        }
+        const auto& outStr = outStream.str();
+        std::vector<uint8_t> buffer;
+        buffer.assign(outStr.begin(), outStr.end());
+
+        return LoadScript(abcPath, &buffer, isBundle_);
+    }
+}
+
 bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath, bool useCommonChunk)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -989,32 +1013,9 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         }
     }
 
-    auto func = [&](std::string modulePath, const std::string abcPath) {
-        bool useSafeMempry = apiTargetVersion_ == 0 || apiTargetVersion_ > API8;
-        if (!extractor->IsHapCompress(modulePath) && useSafeMempry) {
-            auto safeData = extractor->GetSafeData(modulePath);
-            if (!safeData) {
-                HILOG_ERROR("Get abc file failed.");
-                return false;
-            }
-            return LoadScript(abcPath, safeData->GetDataPtr(), safeData->GetDataLen(), isBundle_);
-        } else {
-            std::ostringstream outStream;
-            if (!extractor->GetFileBuffer(modulePath, outStream)) {
-                HILOG_ERROR("Get abc file failed");
-                return false;
-            }
-            const auto& outStr = outStream.str();
-            std::vector<uint8_t> buffer;
-            buffer.assign(outStr.begin(), outStr.end());
-
-            return LoadScript(abcPath, &buffer, isBundle_);
-        }
-    };
-
     if (useCommonChunk) {
-        (void)func(commonsPath, commonsPath);
-        (void)func(vendorsPath, vendorsPath);
+        LoadCommonChunkScript(extractor, commonsPath, commonsPath);
+        LoadCommonChunkScript(extractor, vendorsPath, vendorsPath);
     }
 
     std::string path = srcPath;
@@ -1027,7 +1028,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         panda::JSNApi::SetAssetPath(vm, path);
         panda::JSNApi::SetModuleName(vm, moduleName_);
     }
-    return func(path, srcPath);
+    return LoadCommonChunkScript(extractor, path, srcPath);
 }
 
 bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hapPath)

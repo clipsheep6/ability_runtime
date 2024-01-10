@@ -133,7 +133,8 @@ private:
 
     bool Initialize(const Options& options);
     void Deinitialize();
-
+    bool LoadCommonChunkScript(std::shared_ptr<AbilityBase::Extractor> extractor,
+        std::string modulePath, const std::string abcPath);
     int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
 
     napi_value LoadJsBundle(const std::string& path, const std::string& hapPath, bool useCommonChunk = false);
