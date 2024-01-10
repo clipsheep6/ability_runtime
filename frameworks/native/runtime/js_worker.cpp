@@ -157,7 +157,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         // the @bundle:bundlename/modulename only exist in esmodule.
         // 1.1 start with /modulename
         // 1.2 start with ../
-        // 1.3 start with @namespace
+        // 1.3 start with @namespace [not support]
         // 1.4 start with modulename
         HILOG_DEBUG("The application is packaged using jsbundle mode.");
         if (uri.find_first_of("/") == 0) {
@@ -168,7 +168,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
             realPath = uri.substr(PATH_THREE);
         } else if (uri.find_first_of("@") == 0) {
             HILOG_DEBUG("uri start with @namespace");
-            realPath = workerInfo_->moduleName + uri;
+            realPath = uri.substr(uri.find_first_of("/") + 1);
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
