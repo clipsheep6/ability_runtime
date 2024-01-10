@@ -53,7 +53,6 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     std::string errorMsg = GetNativeStrFromJsTaggedObj(obj, "message");
     std::string errorName = GetNativeStrFromJsTaggedObj(obj, "name");
     std::string errorStack = GetNativeStrFromJsTaggedObj(obj, "stack");
-    std::string originalStack = GetNativeStrFromJsTaggedObj(obj, "originalStack");
     std::string summary = "Error name:" + errorName + "\n";
     summary += "Error message:" + errorMsg + "\n";
     const JsEnv::ErrorObject errorObj = {
@@ -71,7 +70,7 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
         JSENV_LOG_E("errorStack is empty");
         return;
     }
-    auto errorPos = SourceMap::GetErrorPos(originalStack);
+    auto errorPos = SourceMap::GetErrorPos(errorStack);
     std::string error;
     if (obj != nullptr) {
         napi_value fuc = nullptr;
@@ -86,7 +85,7 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
         JSENV_LOG_E("sourceMapOperator_ is empty");
         return;
     }
-    summary += error + "Stacktrace:\n" + errorStack;
+    summary += error + "Stacktrace:\n" + sourceMapOperator_->TranslateBySourceMap(errorStack);
     std::string str = Ace::UIContent::GetCurrentUIStackInfo();
     if (!str.empty()) {
         summary.append(str);
