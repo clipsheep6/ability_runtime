@@ -22,8 +22,6 @@
 #include <thread>
 #include <unordered_map>
 
-#include "EventHandler.h"
-#include "StageContext.h"
 #include "ability_context.h"
 #include "ability_stage_context.h"
 #include "bundle_container.h"
@@ -137,6 +135,7 @@ private:
     std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo_;
     std::shared_ptr<AppExecFwk::HapModuleInfo> moduleInfo_;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
+    CallbackTypePostTask postTask_ = nullptr;
 };
 
 void DebuggerTask::HandleTask(const uv_async_t *req)
@@ -189,6 +188,7 @@ bool SimulatorImpl::Initialize(const Options &options)
     }
 
     options_ = options;
+    postTask_ = options.postTask;
     if (!OnInit()) {
         return false;
     }
@@ -768,9 +768,9 @@ void SimulatorImpl::Run()
         uv_run(uvLoop, UV_RUN_NOWAIT);
     }
 
-    AppExecFwk::EventHandler::PostTask([this]() {
-        Run();
-    });
+    if (postTask_ != nullptr) {
+        postTask_([this]() { Run(); }, 0);
+    }
 }
 }
 
