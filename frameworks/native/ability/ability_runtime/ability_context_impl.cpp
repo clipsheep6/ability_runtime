@@ -98,6 +98,11 @@ std::string AbilityContextImpl::GetTempDir()
     return stageContext_ ? stageContext_->GetTempDir() : "";
 }
 
+std::string AbilityContextImpl::GetResourceDir()
+{
+    return stageContext_ ? stageContext_->GetResourceDir() : "";
+}
+
 std::string AbilityContextImpl::GetFilesDir()
 {
     return stageContext_ ? stageContext_->GetFilesDir() : "";
@@ -140,6 +145,22 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCod
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbility");
+    int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+        auto uiContent = GetUIContent();
+        if (uiContent == nullptr) {
+            HILOG_ERROR("uiContent is nullptr");
+            return ERR_INVALID_VALUE;
+        }
+        Ace::ModalUIExtensionCallbacks callback;
+        Ace::ModalUIExtensionConfig config;
+        int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
+        if (sessionId == 0) {
+            HILOG_ERROR("CreateModalUIExtension failed");
+            return ERR_INVALID_VALUE;
+        }
+        return ERR_OK;
+    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbility. ret=%{public}d", err);
@@ -291,7 +312,7 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
     isTerminating_ = true;
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sessionToken = sessionToken_.promote();
+        auto sessionToken = GetSessionToken();
         if (sessionToken == nullptr) {
             return ERR_INVALID_VALUE;
         }
@@ -311,8 +332,15 @@ ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, 
 
 void AbilityContextImpl::SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken)
 {
+    std::lock_guard lock(sessionTokenMutex_);
     HILOG_DEBUG("Start calling SetWeakSessionToken.");
     sessionToken_ = sessionToken;
+}
+
+sptr<IRemoteObject> AbilityContextImpl::GetSessionToken()
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    return sessionToken_.promote();
 }
 
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
@@ -484,7 +512,7 @@ ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_DEBUG("TerminateSelf");
     isTerminating_ = true;
-    auto sessionToken = sessionToken_.promote();
+    auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
         HILOG_WARN("sessionToken is null");
     }
@@ -579,7 +607,10 @@ void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbil
 ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
-    int32_t left, top, width, height;
+    int32_t left;
+    int32_t top;
+    int32_t width;
+    int32_t height;
     GetWindowRect(left, top, width, height);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, left);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, top);

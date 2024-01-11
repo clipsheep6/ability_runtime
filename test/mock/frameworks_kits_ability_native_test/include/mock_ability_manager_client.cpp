@@ -15,7 +15,11 @@
 
 #include "mock_ability_manager_client.h"
 #include <gtest/gtest.h>
+#define private public
+#define protected public
 #include "ability_manager_client.h"
+#undef private
+#undef protected
 
 namespace OHOS {
 namespace AAFwk {

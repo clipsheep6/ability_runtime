@@ -154,8 +154,8 @@ ErrCode AppMgrService::Init()
     return ERR_OK;
 }
 
-int32_t AppMgrService::CheckPermission(
-    [[maybe_unused]] const int32_t recordId, [[maybe_unused]] const std::string &permission)
+int32_t AppMgrService::CheckPermission([[maybe_unused]]
+    const int32_t recordId, [[maybe_unused]] const std::string &permission)
 {
     HILOG_INFO("check application's permission");
 
@@ -299,6 +299,9 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
     if (remoteClientManager == nullptr) {
         HILOG_ERROR("The remoteClientManager is nullptr.");
@@ -318,7 +321,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
             return ERR_INVALID_OPERATION;
         }
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        if (!isSaCall && bundleName != callerBundleName) {
+        if (!isSaCall) {
             auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
                 AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
             if (!isCallingPerm) {
@@ -327,16 +330,20 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
             }
         }
     }
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
+    return ERR_OK;
+}
 
+int32_t AppMgrService::ClearUpApplicationDataBySelf(int32_t userId)
+{
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     pid_t pid = IPCSkeleton::GetCallingPid();
-    std::function<void()> clearUpApplicationDataFunc =
-        std::bind(&AppMgrServiceInner::ClearUpApplicationData, appMgrServiceInner_, bundleName, uid, pid, userId);
-    taskHandler_->SubmitTask(clearUpApplicationDataFunc, TASK_CLEAR_UP_APPLICATION_DATA);
-    return ERR_OK;
+    return appMgrServiceInner_->ClearUpApplicationDataBySelf(uid, pid, userId);
 }
 
 int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
@@ -1043,6 +1050,15 @@ void AppMgrService::ExitChildProcessSafely()
         .taskName_ = TASK_EXIT_CHILD_PROCESS_SAFELY,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+}
+
+bool AppMgrService::IsFinalAppProcess()
+{
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return false;
+    }
+    return appMgrServiceInner_->IsFinalAppProcessByBundleName("");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

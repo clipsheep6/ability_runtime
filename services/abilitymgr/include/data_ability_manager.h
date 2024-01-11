@@ -64,9 +64,10 @@ private:
         std::shared_ptr<DataAbilityRecord> &record);
     void ReportDataAbilityReleased(const sptr<IRemoteObject> &client, bool isNotHap,
         std::shared_ptr<DataAbilityRecord> &record);
-
+    void DumpClientInfo(std::vector<std::string> &info, bool isClient,
+        std::shared_ptr<DataAbilityRecord> dataAbilityRecord) const;
 private:
-    ffrt::mutex mutex_;
+    mutable ffrt::mutex mutex_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoaded_;
     DataAbilityRecordPtrMap dataAbilityRecordsLoading_;
 };

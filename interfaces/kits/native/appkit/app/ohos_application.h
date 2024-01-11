@@ -210,7 +210,6 @@ public:
     /**
      *
      * @brief Will be called the application ends
-     *
      */
     virtual void OnTerminate();
 
@@ -295,6 +294,11 @@ public:
     bool NotifyHotReloadPage();
 
     bool NotifyUnLoadRepairPatch(const std::string &hqfFile);
+
+    void CleanAppTempData(bool isLastProcess = false);
+
+    void CleanUselessTempData();
+
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
 private:

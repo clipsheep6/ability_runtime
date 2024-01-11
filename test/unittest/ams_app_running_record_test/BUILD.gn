@@ -45,6 +45,7 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "${ability_runtime_services_path}/appmgr:libappms",
     "${ability_runtime_services_path}/common:task_handler_wrap",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
+    "${windowmanager_path}/utils:libwmutil_static",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -58,8 +59,11 @@ ohos_unittest("AmsAppRunningRecordTest") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 }
 
 group("unittest") {

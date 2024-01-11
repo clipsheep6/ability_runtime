@@ -32,6 +32,7 @@ ohos_unittest("ability_manager_service_first_test") {
   ]
 
   sources = [
+    "${ability_runtime_path}/services/abilitymgr/src/ability_auto_startup_service.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
     "ability_manager_service_first_test.cpp",
     "mock/src/mock_my_flag.cpp",
@@ -56,6 +57,7 @@ ohos_unittest("ability_manager_service_first_test") {
     "ability_base:session_info",
     "ability_base:want",
     "ability_base:zuri",
+    "ability_runtime:ability_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
@@ -63,11 +65,11 @@ ohos_unittest("ability_manager_service_first_test") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "window_manager:scene_session",
+    "kv_store:distributeddata_inner",
   ]
 
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:scene_session" ]
   }
 }
 

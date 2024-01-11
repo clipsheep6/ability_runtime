@@ -33,7 +33,7 @@ ChildSchedulerStub::~ChildSchedulerStub()
     memberFuncMap_.clear();
 }
 
-int ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
+int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
     HILOG_INFO("ChildSchedulerStub::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
@@ -55,13 +55,13 @@ int ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
-int ChildSchedulerStub::HandleScheduleLoadJs(MessageParcel &data, MessageParcel &reply)
+int32_t ChildSchedulerStub::HandleScheduleLoadJs(MessageParcel &data, MessageParcel &reply)
 {
     ScheduleLoadJs();
     return ERR_NONE;
 }
 
-int ChildSchedulerStub::HandleScheduleExitProcessSafely(MessageParcel &data, MessageParcel &reply)
+int32_t ChildSchedulerStub::HandleScheduleExitProcessSafely(MessageParcel &data, MessageParcel &reply)
 {
     ScheduleExitProcessSafely();
     return ERR_NONE;

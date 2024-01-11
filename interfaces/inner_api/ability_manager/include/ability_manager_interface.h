@@ -496,7 +496,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DisconnectAbility(const sptr<IAbilityConnection> &connect) = 0;
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect) = 0;
 
     /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
@@ -1417,6 +1417,12 @@ public:
     {
         return 0;
     }
+
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) {}
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -68,6 +68,6 @@ void FreezeUtil::DeleteLifecycleEventInner(const LifecycleFlow &flow)
     if (lifecycleFlow_.count(flow)) {
         lifecycleFlow_.erase(flow);
     }
-    HILOG_INFO("lifecycleFlow_ size: %{public}zu", lifecycleFlow_.size());
+    HILOG_DEBUG("lifecycleFlow_ size: %{public}zu", lifecycleFlow_.size());
 }
 }  // namespace OHOS::AbilityRuntime

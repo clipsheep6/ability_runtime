@@ -140,30 +140,11 @@ int32_t QuickFixManagerService::RevokeQuickFix(const std::string &bundleName)
         return QUICK_FIX_DEPLOYING_TASK;
     }
 
-    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
-    if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager helper.");
-        return QUICK_FIX_CONNECT_FAILED;
-    }
-
-    AppExecFwk::BundleInfo bundleInfo;
-    if (!bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
-        AppExecFwk::Constants::ANY_USERID)) {
-        HILOG_ERROR("Get bundle info failed.");
-        return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
-    }
-
-    auto isSoContained = !bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath.empty();
-    auto patchExists = true;
-    for (auto &item : bundleInfo.hapModuleInfos) {
-        if (!item.hqfInfo.moduleName.empty()) {
-            patchExists = false;
-            break;
-        }
-    }
-
-    if (patchExists) {
-        HILOG_ERROR("Patch does not exist.");
+    auto patchExists = false;
+    auto isSoContained = false;
+    auto ret = GetQuickFixInfo(bundleName, patchExists, isSoContained);
+    if (ret != QUICK_FIX_OK || !patchExists) {
+        HILOG_ERROR("Get bundle info failed or patch does not exist.");
         return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
     }
 
@@ -221,6 +202,32 @@ bool QuickFixManagerService::CheckTaskRunningState(const std::string &bundleName
 
     HILOG_DEBUG("bundleName %{public}s not found in tasks.", bundleName.c_str());
     return false;
+}
+
+int32_t QuickFixManagerService::GetQuickFixInfo(const std::string &bundleName, bool &patchExists, bool &isSoContained)
+{
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Failed to get bundle manager helper.");
+        return QUICK_FIX_CONNECT_FAILED;
+    }
+
+    AppExecFwk::BundleInfo bundleInfo;
+    if (!bundleMgrHelper->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo,
+        AppExecFwk::Constants::ANY_USERID)) {
+        HILOG_ERROR("Get bundle info failed.");
+        return QUICK_FIX_GET_BUNDLE_INFO_FAILED;
+    }
+
+    for (auto &item : bundleInfo.hapModuleInfos) {
+        if (!item.hqfInfo.moduleName.empty()) {
+            patchExists = true;
+            break;
+        }
+    }
+
+    isSoContained = !bundleInfo.applicationInfo.appQuickFix.deployedAppqfInfo.nativeLibraryPath.empty();
+    return QUICK_FIX_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -170,8 +170,8 @@ class MockAppMgrStub : public AppMgrStub {
         return 0;
     }
 
-    int StartUserTestProcess(
-        const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId) override
+    int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &bundleInfo, int32_t userId) override
     {
         return 0;
     }
@@ -268,6 +268,11 @@ class MockAppMgrStub : public AppMgrStub {
     int32_t ChangeAppGcState(pid_t pid, int32_t state) override
     {
         return 0;
+    }
+
+    bool IsFinalAppProcess() override
+    {
+        return true;
     }
 };
 

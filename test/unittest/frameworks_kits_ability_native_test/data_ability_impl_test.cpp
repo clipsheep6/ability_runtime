@@ -659,7 +659,7 @@ HWTEST_F(DataAbilityImplTest, AaFwk_DataAbilityImplTest_GetFileTypes_0200, Funct
     const std::string mimeTypeFilter = "abc";
 
     dataabilityimpl->GetFileTypes(uri, mimeTypeFilter);
-    EXPECT_EQ(value,dataabilityimpl->GetFileTypes(uri, mimeTypeFilter));
+    EXPECT_EQ(value, dataabilityimpl->GetFileTypes(uri, mimeTypeFilter));
     sleep(1);
     GTEST_LOG_(INFO) << "AaFwk_DataAbilityImplTest_GetFileTypes_0200 end";
 }

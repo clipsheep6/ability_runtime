@@ -150,7 +150,7 @@ public:
      * The extension in the <b>STATE_FOREGROUND</b> state is visible.
      * You can override this function to implement your own processing logic.
      */
-    virtual void OnForeground(const Want &want) override;
+    virtual void OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
 
     /**
      * @brief Called when this extension enters the <b>STATE_BACKGROUND</b> state.
@@ -182,7 +182,9 @@ public:
     void OnAbilityResult(int requestCode, int resultCode, const Want &resultData) override;
 
 private:
-    virtual void BindContext(napi_env env, napi_value obj);
+    virtual void BindContext(napi_env env, napi_value obj, std::shared_ptr<AAFwk::Want> want);
+    void CreateJSContext(napi_env env, napi_value &contextObj,
+        std::shared_ptr<UIExtensionContext> context, int32_t screenMode);
 
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
         bool withResult = false);
@@ -198,10 +200,13 @@ private:
     void DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
     void OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd) override;
-    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
+    bool ForegroundWindowWithInsightIntent(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
+        bool needForeground);
     bool HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result) override;
+    void PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
+        const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
@@ -210,6 +215,9 @@ private:
     std::set<uint64_t> foregroundWindows_;
     std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;
     std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
+    int32_t screenMode_ = AAFwk::IDLE_SCREEN_MODE;
+    std::shared_ptr<int32_t> screenModePtr_;
+    sptr<IRemoteObject> token_ = nullptr;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

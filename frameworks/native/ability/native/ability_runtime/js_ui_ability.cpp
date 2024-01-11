@@ -36,6 +36,7 @@
 #include "js_data_struct_converter.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "js_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "js_window_stage.h"
 #endif
@@ -70,10 +71,10 @@ napi_value PromiseCallback(napi_env env, napi_callback_info info)
 }
 } // namespace
 
-napi_value AttachJsAbilityContext(napi_env env, void *value, void *)
+napi_value AttachJsAbilityContext(napi_env env, void *value, void *extValue)
 {
     HILOG_DEBUG("Begin.");
-    if (value == nullptr) {
+    if (value == nullptr || extValue == nullptr) {
         HILOG_ERROR("Invalid parameter.");
         return nullptr;
     }
@@ -82,14 +83,27 @@ napi_value AttachJsAbilityContext(napi_env env, void *value, void *)
         HILOG_ERROR("Invalid context.");
         return nullptr;
     }
-    napi_value object = CreateJsAbilityContext(env, ptr);
-    auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.AbilityContext", &object, 1);
-    if (systemModule == nullptr) {
-        HILOG_ERROR("Invalid systemModule.");
+    std::shared_ptr<NativeReference> systemModule = nullptr;
+    auto screenModePtr = reinterpret_cast<std::weak_ptr<int32_t> *>(extValue)->lock();
+    if (screenModePtr == nullptr) {
+        HILOG_ERROR("Invalid screenModePtr.");
         return nullptr;
     }
+    if (*screenModePtr == AAFwk::IDLE_SCREEN_MODE) {
+        auto uiAbiObject = CreateJsAbilityContext(env, ptr);
+        CHECK_POINTER_AND_RETURN(uiAbiObject, nullptr);
+        systemModule = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(env,
+            "application.AbilityContext", &uiAbiObject, 1).release());
+    } else {
+        auto emUIObject = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
+            ptr, nullptr, *screenModePtr);
+        CHECK_POINTER_AND_RETURN(emUIObject, nullptr);
+        systemModule = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(env,
+            "application.EmbeddableUIAbilityContext", &emUIObject, 1).release());
+    }
+    CHECK_POINTER_AND_RETURN(systemModule, nullptr);
     auto contextObj = systemModule->GetNapiValue();
-    napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, value, nullptr);
+    napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, value, extValue);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(ptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void* data, void*) {
@@ -124,17 +138,21 @@ JsUIAbility::~JsUIAbility()
 #endif
 }
 
-void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
+void JsUIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
     const std::shared_ptr<OHOSApplication> application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    UIAbility::Init(abilityInfo, application, handler, token);
-
+    if (record == nullptr) {
+        HILOG_ERROR("AbilityLocalRecord is nullptr.");
+        return;
+    }
+    auto abilityInfo = record->GetAbilityInfo();
     if (abilityInfo == nullptr) {
         HILOG_ERROR("AbilityInfo is nullptr.");
         return;
     }
+    UIAbility::Init(record, application, handler, token);
 #ifdef SUPPORT_GRAPHICS
     if (abilityContext_ != nullptr) {
         AppExecFwk::AppRecovery::GetInstance().AddAbility(
@@ -164,18 +182,18 @@ void JsUIAbility::Init(const std::shared_ptr<AbilityInfo> &abilityInfo,
     std::string moduleName(abilityInfo->moduleName);
     moduleName.append("::").append(abilityInfo->name);
 
-    SetAbilityContext(abilityInfo, moduleName, srcPath);
+    SetAbilityContext(abilityInfo, record->GetWant(), moduleName, srcPath);
 }
 
-void JsUIAbility::SetAbilityContext(
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::string &moduleName, const std::string &srcPath)
+void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
+    std::shared_ptr<AAFwk::Want> want, const std::string &moduleName, const std::string &srcPath)
 {
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     jsAbilityObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo->hapPath, abilityInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE);
-    if (jsAbilityObj_ == nullptr || abilityContext_ == nullptr) {
-        HILOG_ERROR("jsAbilityObj_ or abilityContext_ is nullptr.");
+    if (jsAbilityObj_ == nullptr || abilityContext_ == nullptr || want == nullptr) {
+        HILOG_ERROR("jsAbilityObj_ or abilityContext_ or want is nullptr.");
         return;
     }
     napi_value obj = jsAbilityObj_->GetNapiValue();
@@ -183,10 +201,9 @@ void JsUIAbility::SetAbilityContext(
         HILOG_ERROR("Failed to check type");
         return;
     }
-
-    napi_value contextObj = CreateJsAbilityContext(env, abilityContext_);
-    shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
-        env, "application.AbilityContext", &contextObj, 1).release());
+    napi_value contextObj = nullptr;
+    int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    CreateJSContext(env, contextObj, screenMode);
     if (shellContextRef_ == nullptr) {
         HILOG_ERROR("shellContextRef_ is nullptr.");
         return;
@@ -197,16 +214,15 @@ void JsUIAbility::SetAbilityContext(
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(abilityContext_);
-    if (workContext == nullptr) {
-        HILOG_ERROR("workContext is nullptr.");
-        return;
-    }
+    CHECK_POINTER(workContext);
+    screenModePtr_ = std::make_shared<int32_t>(screenMode);
+    auto workScreenMode = new (std::nothrow) std::weak_ptr<int32_t>(screenModePtr_);
+    CHECK_POINTER(workScreenMode);
     napi_coerce_to_native_binding_object(
-        env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, workContext, nullptr);
+        env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, workContext, workScreenMode);
     abilityContext_->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
     HILOG_DEBUG("Set ability context");
-
     if (abilityRecovery_ != nullptr) {
         abilityRecovery_->SetJsAbility(reinterpret_cast<uintptr_t>(workContext));
     }
@@ -214,8 +230,24 @@ void JsUIAbility::SetAbilityContext(
         [](napi_env, void *data, void *) {
             HILOG_DEBUG("Finalizer for weak_ptr ability context is called");
             delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
-        },
-        nullptr, nullptr);
+        }, nullptr, nullptr);
+    HILOG_DEBUG("Init end.");
+}
+
+void JsUIAbility::CreateJSContext(napi_env env, napi_value &contextObj, int32_t screenMode)
+{
+    if (screenMode == AAFwk::IDLE_SCREEN_MODE) {
+        contextObj = CreateJsAbilityContext(env, abilityContext_);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
+            env, "application.AbilityContext", &contextObj, 1).release());
+    } else {
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
+            abilityContext_, nullptr, screenMode);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = std::shared_ptr<NativeReference>(JsRuntime::LoadSystemModuleByEngine(
+            env, "application.EmbeddableUIAbilityContext", &contextObj, 1).release());
+    }
 }
 
 void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
@@ -227,10 +259,6 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     if (!jsAbilityObj_) {
         HILOG_ERROR("Not found Ability.js.");
         return;
-    }
-    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
-    if (applicationContext != nullptr) {
-        applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
 
     HandleScope handleScope(jsRuntime_);
@@ -267,6 +295,10 @@ void JsUIAbility::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
     if (delegator) {
         HILOG_DEBUG("Call PostPerformStart.");
         delegator->PostPerformStart(CreateADelegatorAbilityProperty());
+    }
+    auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
+    if (applicationContext != nullptr) {
+        applicationContext->DispatchOnAbilityCreate(jsAbilityObj_);
     }
     HILOG_DEBUG("End ability is %{public}s.", GetAbilityName().c_str());
 }
@@ -703,9 +735,10 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
     }
     auto option = GetWindowOption(want);
     Rosen::WMError ret = Rosen::WMError::WM_OK;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionInfo_ != nullptr) {
-        abilityContext_->SetWeakSessionToken(sessionInfo_->sessionToken);
-        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionInfo_->sessionToken);
+    auto sessionToken = GetSessionToken();
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && sessionToken != nullptr) {
+        abilityContext_->SetWeakSessionToken(sessionToken);
+        ret = scene_->Init(displayId, abilityContext_, sceneListener_, option, sessionToken);
     } else {
         ret = scene_->Init(displayId, abilityContext_, sceneListener_, option);
     }

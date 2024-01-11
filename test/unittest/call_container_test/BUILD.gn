@@ -27,6 +27,8 @@ ohos_unittest("call_container_test") {
 
   sources = [
     "${ability_runtime_services_path}/abilitymgr/src/ability_connect_callback_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "call_container_test.cpp",
   ]
@@ -60,10 +62,6 @@ ohos_unittest("call_container_test") {
     "napi:ace_napi",
     "window_manager:scene_session",
   ]
-
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
-  }
 }
 
 group("unittest") {

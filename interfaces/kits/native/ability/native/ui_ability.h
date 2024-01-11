@@ -20,6 +20,7 @@
 #include "ability_continuation_interface.h"
 #include "ability_lifecycle_executor.h"
 #include "ability_lifecycle_interface.h"
+#include "ability_local_record.h"
 #include "ability_transaction_callback_info.h"
 #include "configuration.h"
 #include "context.h"
@@ -91,7 +92,7 @@ public:
      * @param handler the UIability EventHandler object
      * @param token the remote token
      */
-    virtual void Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+    virtual void Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
         const std::shared_ptr<AppExecFwk::OHOSApplication> application,
         std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token);
 
@@ -108,7 +109,7 @@ public:
      * @param Want Indicates the {@link Want} structure containing startup information about the ability.
      * @param sessionInfo Indicates the sessionInfo.
      */
-    virtual void OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+    virtual void OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief Called when this ability enters the <b>STATE_STOP</b> state.
@@ -500,6 +501,12 @@ public:
      */
     int CreateModalUIExtension(const AAFwk::Want &want);
 
+    /**
+     * @brief Update sessionToken.
+     * @param sessionToken The token of session.
+     */
+    void UpdateSessionToken(sptr<IRemoteObject> sessionToken);
+
 protected:
     class UIAbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:
@@ -568,6 +575,7 @@ protected:
 private:
     void OnStartForSupportGraphics(const AAFwk::Want &want);
     void OnChangeForUpdateConfiguration(const AppExecFwk::Configuration &newConfig);
+    void SetSessionToken(sptr<IRemoteObject> sessionToken);
 
     bool showOnLockScreen_ = false;
 #endif

@@ -95,8 +95,13 @@ napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
         return nullptr;
     }
     napi_value object = CreateJsServiceExtensionContext(env, ptr);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(env,
-        "application.ServiceExtensionContext", &object, 1)->GetNapiValue();
+    auto sysModule = JsRuntime::LoadSystemModuleByEngine(env,
+        "application.ServiceExtensionContext", &object, 1);
+    if (sysModule == nullptr) {
+        HILOG_WARN("load module failed.");
+        return nullptr;
+    }
+    auto contextObj = sysModule->GetNapiValue();
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(ptr);
@@ -227,6 +232,10 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
     napi_value contextObj = CreateJsServiceExtensionContext(env, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
+    if (shellContextRef_ == nullptr) {
+        HILOG_ERROR("Failed to load module");
+        return;
+    }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get context native object");

@@ -31,6 +31,7 @@ class NativeReference;
 namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
+class JsEmbeddableUIAbilityContext;
 class JsAbilityContext final {
 public:
     explicit JsAbilityContext(const std::shared_ptr<AbilityContext>& context) : context_(context) {}
@@ -115,10 +116,13 @@ private:
     static napi_value WrapRequestDialogResult(napi_env env, int32_t resultCode, const AAFwk::Want& want);
     void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
         bool isAbilityResult = false);
+    bool CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        int32_t &userId, napi_value &lastParam);
 
     std::weak_ptr<AbilityContext> context_;
     int curRequestCode_ = 0;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    friend class JsEmbeddableUIAbilityContext;
 };
 
 napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> context);

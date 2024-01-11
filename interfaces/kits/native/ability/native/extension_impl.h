@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_EXTENSION_IMPL_H
 
 #include "extension.h"
+#include "extension_ability_info.h"
 #include "lifecycle_state_info.h"
 
 namespace OHOS {
@@ -172,8 +173,10 @@ protected:
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_INITIAL. And notifies the application
      * that it belongs to of the lifecycle status.
      * @param isAsyncCallback Indicates whether it is an asynchronous lifecycle callback
+     * @param want Indicates want.
+     * @param sessionInfo Indicates the sessionInfo, nullptr when not uiextension.
      */
-    void Stop(bool &isAsyncCallback);
+    void Stop(bool &isAsyncCallback, const Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
     void AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state);
 
     /**
@@ -182,20 +185,24 @@ protected:
      *
      * @param want The Want object to switch the life cycle.
      */
-    void Foreground(const Want &want);
+    void Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
     /**
      * @brief Toggles the lifecycle status of Extension to AAFwk::ABILITY_STATE_BACKGROUND. And notifies the
      * application that it belongs to of the lifecycle status.
-     *
+     * @param want Indicates want.
+     * @param sessionInfo Indicates the sessionInfo, nullptr when not uiextension.
      */
-    void Background();
+    void Background(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo);
 
 private:
+    inline bool UIExtensionAbilityExecuteInsightIntent(const Want &want);
+
     int lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     sptr<IRemoteObject> token_;
     std::shared_ptr<Extension> extension_;
     bool skipCommandExtensionWithIntent_ = false;
+    AppExecFwk::ExtensionAbilityType extensionType_ = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
 
 class ExtensionWindowLifeCycleImpl : public Rosen::IWindowLifeCycle {
 public:

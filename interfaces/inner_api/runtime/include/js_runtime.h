@@ -29,6 +29,9 @@
 namespace panda::ecmascript {
 class EcmaVM;
 } // namespace panda::ecmascript
+namespace panda {
+struct HmsMap;
+}
 namespace OHOS {
 namespace AppExecFwk {
 class EventHandler;
@@ -77,6 +80,8 @@ public:
     void PostSyncTask(const std::function<void()>& task, const std::string& name);
     void RemoveTask(const std::string& name);
     void DumpHeapSnapshot(bool isPrivate) override;
+    void DestroyHeapProfiler() override;
+    void ForceFullGC() override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;
     void NotifyApplicationState(bool isBackground) override;
     bool SuspendVM(uint32_t tid) override;
@@ -161,6 +166,8 @@ private:
     void PostPreload(const Options& options);
     void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
+
+    std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

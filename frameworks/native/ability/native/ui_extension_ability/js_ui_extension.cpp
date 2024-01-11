@@ -19,6 +19,7 @@
 #include "ability_info.h"
 #include "ability_manager_client.h"
 #include "ability_start_setting.h"
+#include "configuration_utils.h"
 #include "connection_manager.h"
 #include "context.h"
 #include "hitrace_meter.h"
@@ -26,12 +27,14 @@
 #include "insight_intent_executor_info.h"
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
+#include "js_embeddable_ui_ability_context.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_ui_extension_content_session.h"
 #include "js_ui_extension_context.h"
+#include "js_utils.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "napi_common_configuration.h"
@@ -48,10 +51,10 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 }
 
-napi_value AttachUIExtensionContext(napi_env env, void *value, void *)
+napi_value AttachUIExtensionContext(napi_env env, void *value, void *extValue)
 {
     HILOG_DEBUG("AttachUIExtensionContext");
-    if (value == nullptr) {
+    if (value == nullptr || extValue == nullptr) {
         HILOG_ERROR("invalid parameter.");
         return nullptr;
     }
@@ -61,14 +64,34 @@ napi_value AttachUIExtensionContext(napi_env env, void *value, void *)
         HILOG_ERROR("invalid context.");
         return nullptr;
     }
-    napi_value object = JsUIExtensionContext::CreateJsUIExtensionContext(env, ptr);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
-        &object, 1)->GetNapiValue();
+    auto screenModePtr = reinterpret_cast<std::weak_ptr<int32_t> *>(extValue)->lock();
+    if (screenModePtr == nullptr) {
+        HILOG_ERROR("Invalid screenModePtr.");
+        return nullptr;
+    }
+    napi_value contextObj = nullptr;
+    if (*screenModePtr == AAFwk::IDLE_SCREEN_MODE) {
+        auto uiExtObject = JsUIExtensionContext::CreateJsUIExtensionContext(env, ptr);
+        CHECK_POINTER_AND_RETURN(uiExtObject, nullptr);
+        auto contextRef = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
+            &uiExtObject, 1);
+        CHECK_POINTER_AND_RETURN(contextRef, nullptr);
+        contextObj = contextRef->GetNapiValue();
+    } else {
+        auto emUIObject = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
+            nullptr, ptr, *screenModePtr);
+        CHECK_POINTER_AND_RETURN(emUIObject, nullptr);
+        auto contextRef = JsRuntime::LoadSystemModuleByEngine(env, "application.EmbeddableUIAbilityContext",
+            &emUIObject, 1);
+        CHECK_POINTER_AND_RETURN(contextRef, nullptr);
+        contextObj = contextRef->GetNapiValue();
+    }
     if (contextObj == nullptr) {
         HILOG_ERROR("load context error.");
         return nullptr;
     }
-    napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachUIExtensionContext, value, nullptr);
+    napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc,
+        AttachUIExtensionContext, value, extValue);
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(ptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
@@ -137,10 +160,15 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("JsUIExtension begin init");
+    CHECK_POINTER(record);
     UIExtension::Init(record, application, handler, token);
     if (Extension::abilityInfo_ == nullptr || Extension::abilityInfo_->srcEntrance.empty()) {
         HILOG_ERROR("JsUIExtension Init abilityInfo error");
         return;
+    }
+
+    if (record != nullptr) {
+        token_ = record->GetToken();
     }
     std::string srcPath(Extension::abilityInfo_->moduleName + "/");
     srcPath.append(Extension::abilityInfo_->srcEntrance);
@@ -165,13 +193,30 @@ void JsUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         return;
     }
 
-    BindContext(env, obj);
+    BindContext(env, obj, record->GetWant());
 
     SetExtensionCommon(
         JsExtensionCommon::Create(jsRuntime_, static_cast<NativeReference&>(*jsObj_), shellContextRef_));
 }
 
-void JsUIExtension::BindContext(napi_env env, napi_value obj)
+void JsUIExtension::CreateJSContext(napi_env env, napi_value &contextObj,
+    std::shared_ptr<UIExtensionContext> context, int32_t screenMode)
+{
+    if (screenMode == AAFwk::IDLE_SCREEN_MODE) {
+        contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
+            &contextObj, ARGC_ONE);
+    } else {
+        contextObj = JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(env,
+            nullptr, context, screenMode);
+        CHECK_POINTER(contextObj);
+        shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.EmbeddableUIAbilityContext",
+            &contextObj, ARGC_ONE);
+    }
+}
+
+void JsUIExtension::BindContext(napi_env env, napi_value obj, std::shared_ptr<AAFwk::Want> want)
 {
     auto context = GetContext();
     if (context == nullptr) {
@@ -179,16 +224,15 @@ void JsUIExtension::BindContext(napi_env env, napi_value obj)
         return;
     }
     HILOG_DEBUG("BindContext CreateJsUIExtensionContext.");
-    napi_value contextObj = JsUIExtensionContext::CreateJsUIExtensionContext(env, context);
-    if (contextObj == nullptr) {
-        HILOG_ERROR("Create js ui extension context error.");
+    if (want == nullptr) {
+        HILOG_ERROR("Want info is null.");
         return;
     }
-
-    shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.UIExtensionContext",
-        &contextObj, ARGC_ONE);
+    int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    napi_value contextObj = nullptr;
+    CreateJSContext(env, contextObj, context, screenMode);
     if (shellContextRef_ == nullptr) {
-        HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
+        HILOG_ERROR("Failed to get LoadSystemModuleByEngine.");
         return;
     }
     contextObj = shellContextRef_->GetNapiValue();
@@ -197,8 +241,12 @@ void JsUIExtension::BindContext(napi_env env, napi_value obj)
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<UIExtensionContext>(context);
+    CHECK_POINTER(workContext);
+    screenModePtr_ = std::make_shared<int32_t>(screenMode);
+    auto workScreenMode = new (std::nothrow) std::weak_ptr<int32_t>(screenModePtr_);
+    CHECK_POINTER(workScreenMode);
     napi_coerce_to_native_binding_object(
-        env, contextObj, DetachCallbackFunc, AttachUIExtensionContext, workContext, nullptr);
+        env, contextObj, DetachCallbackFunc, AttachUIExtensionContext, workContext, workScreenMode);
     context->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
     napi_wrap(env, contextObj, workContext,
@@ -207,7 +255,6 @@ void JsUIExtension::BindContext(napi_env env, napi_value obj)
             delete static_cast<std::weak_ptr<UIExtensionContext>*>(data);
         },
         nullptr, nullptr);
-
     HILOG_DEBUG("Init end.");
 }
 
@@ -379,7 +426,7 @@ void JsUIExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::S
     HILOG_DEBUG("begin. persistentId: %{private}d, winCmd: %{public}d", sessionInfo->persistentId, winCmd);
     Extension::OnCommandWindow(want, sessionInfo, winCmd);
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want) && winCmd == AAFwk::WIN_CMD_FOREGROUND) {
-        bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo);
+        bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo, false);
         if (finish) {
             return;
         }
@@ -402,7 +449,7 @@ void JsUIExtension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::S
 }
 
 bool JsUIExtension::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
-    const sptr<AAFwk::SessionInfo> &sessionInfo)
+    const sptr<AAFwk::SessionInfo> &sessionInfo, bool needForeground)
 {
     HILOG_DEBUG("called.");
     if (!HandleSessionCreate(want, sessionInfo)) {
@@ -416,14 +463,16 @@ bool JsUIExtension::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
         HILOG_ERROR("Create async callback failed.");
         return false;
     }
-    executorCallback->Push([weak = weak_from_this(), sessionInfo](AppExecFwk::InsightIntentExecuteResult result) {
-        auto extension = weak.lock();
-        if (extension == nullptr) {
+
+    auto uiExtension = std::static_pointer_cast<JsUIExtension>(shared_from_this());
+    executorCallback->Push([uiExtension, sessionInfo, needForeground](AppExecFwk::InsightIntentExecuteResult result) {
+        HILOG_INFO("Execute post insightintent.");
+        if (uiExtension == nullptr) {
             HILOG_ERROR("UI extension is nullptr.");
             return;
         }
-        extension->OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
-        extension->OnInsightIntentExecuteDone(sessionInfo, result);
+
+        uiExtension->PostInsightIntentExecuted(sessionInfo, result, needForeground);
     });
 
     auto context = GetContext();
@@ -448,6 +497,30 @@ bool JsUIExtension::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
     }
     HILOG_DEBUG("end.");
     return true;
+}
+
+void JsUIExtension::PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
+    const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground)
+{
+    HILOG_DEBUG("Post insightintent executed.");
+    if (needForeground) {
+        // If uiextensionability is started for the first time or need move background to foreground.
+        HandleScope handleScope(jsRuntime_);
+        CallObjectMethod("onForeground");
+    }
+
+    OnInsightIntentExecuteDone(sessionInfo, result);
+
+    if (needForeground) {
+        // If need foreground, that means triggered by onForeground.
+        HILOG_INFO("call abilityms");
+        AAFwk::PacMap restoreData;
+        AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, AAFwk::ABILITY_STATE_FOREGROUND_NEW,
+            restoreData);
+    } else {
+        // If uiextensionability has displayed in the foreground.
+        OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    }
 }
 
 void JsUIExtension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
@@ -528,12 +601,20 @@ void JsUIExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId
     HILOG_DEBUG("JsUIExtension OnCommand end.");
 }
 
-void JsUIExtension::OnForeground(const Want &want)
+void JsUIExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("JsUIExtension OnForeground begin.");
-    Extension::OnForeground(want);
+    Extension::OnForeground(want, sessionInfo);
 
+    if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
+        bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo, true);
+        if (finish) {
+            return;
+        }
+    }
+
+    ForegroundWindow(want, sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onForeground");
     HILOG_DEBUG("JsUIExtension OnForeground end.");
@@ -585,8 +666,15 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
         napi_create_reference(env, nativeContentSession, 1, &ref);
         contentSessions_.emplace(
             componentId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
-        napi_value argv[] = {napiWant, nativeContentSession};
-        CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+        if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+            screenMode_ = AAFwk::HALF_SCREEN_MODE;
+            napi_value argv[] = {nullptr};
+            CallObjectMethod("onWindowStageCreate", argv, ARGC_ONE);
+        } else {
+            napi_value argv[] = {napiWant, nativeContentSession};
+            CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
+        }
         uiWindowMap_[componentId] = uiWindow;
         if (context->GetWindow() == nullptr) {
             context->SetWindow(uiWindow);
@@ -647,8 +735,13 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
     }
     if (contentSessions_.find(componentId) != contentSessions_.end() && contentSessions_[componentId] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        napi_value argv[] = {contentSessions_[componentId]->GetNapiValue()};
-        CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
+        if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
+            screenMode_ = AAFwk::IDLE_SCREEN_MODE;
+            CallObjectMethod("onWindowStageDestroy");
+        } else {
+            napi_value argv[] = {contentSessions_[componentId]->GetNapiValue()};
+            CallObjectMethod("onSessionDestroy", argv, ARGC_ONE);
+        }
     }
     auto& uiWindow = uiWindowMap_[componentId];
     if (uiWindow) {
@@ -788,6 +881,10 @@ void JsUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& conf
         HILOG_ERROR("Failed to get context");
         return;
     }
+
+    auto configUtils = std::make_shared<ConfigurationUtils>();
+    configUtils->UpdateGlobalConfig(configuration, context->GetResourceManager());
+
     auto fullConfig = context->GetConfiguration();
     if (!fullConfig) {
         HILOG_ERROR("configuration is nullptr.");

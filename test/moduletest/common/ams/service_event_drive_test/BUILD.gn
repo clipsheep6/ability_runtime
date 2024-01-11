@@ -34,10 +34,6 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
     "${ability_runtime_test_path}/moduletest/common/ams:appmgr_mst_source",
   ]
 
-  if (ability_runtime_graphics) {
-    deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
-  }
-
   external_deps = [
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
@@ -46,8 +42,12 @@ ohos_moduletest("AmsServiceEventDriveModuleTest") {
     "hicollie:libhicollie",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [ "${global_path}/i18n/frameworks/intl:intl_util" ]
+    external_deps += [ "window_manager:libwm" ]
+  }
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

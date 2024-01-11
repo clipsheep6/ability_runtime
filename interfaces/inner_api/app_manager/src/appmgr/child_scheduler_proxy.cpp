@@ -32,7 +32,7 @@ bool ChildSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-void ChildSchedulerProxy::ScheduleLoadJs()
+bool ChildSchedulerProxy::ScheduleLoadJs()
 {
     HILOG_DEBUG("ScheduleLoadJs start");
     MessageParcel data;
@@ -40,23 +40,25 @@ void ChildSchedulerProxy::ScheduleLoadJs()
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write interface token failed.");
-        return;
+        return false;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
-        return;
+        return false;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_LOAD_JS), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return false;
     }
     HILOG_DEBUG("ScheduleLoadJs end");
+    return true;
 }
 
-void ChildSchedulerProxy::ScheduleExitProcessSafely()
+bool ChildSchedulerProxy::ScheduleExitProcessSafely()
 {
     HILOG_DEBUG("ScheduleExitProcessSafely start.");
     MessageParcel data;
@@ -64,20 +66,22 @@ void ChildSchedulerProxy::ScheduleExitProcessSafely()
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write interface token failed.");
-        return;
+        return false;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL.");
-        return;
+        return false;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_EXIT_PROCESS_SAFELY), data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d.", ret);
+        return false;
     }
     HILOG_DEBUG("ScheduleExitProcessSafely end.");
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

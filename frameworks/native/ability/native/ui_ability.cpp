@@ -54,14 +54,18 @@ UIAbility *UIAbility::Create(const std::unique_ptr<Runtime> &runtime)
     }
 }
 
-void UIAbility::Init(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
+void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
     const std::shared_ptr<AppExecFwk::OHOSApplication> application,
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin.");
+    if (record == nullptr) {
+        HILOG_ERROR("AbilityLocalRecord is nullptr.");
+        return;
+    }
     application_ = application;
-    abilityInfo_ = abilityInfo;
+    abilityInfo_ = record->GetAbilityInfo();
     handler_ = handler;
     token_ = token;
 #ifdef SUPPORT_GRAPHICS
@@ -111,7 +115,7 @@ void UIAbility::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::Abili
     abilityContext_ = abilityContext;
 }
 
-void UIAbility::OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo)
+void UIAbility::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo_ == nullptr) {
@@ -124,9 +128,11 @@ void UIAbility::OnStart(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> s
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<AAFwk::Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
-    sessionInfo_ = sessionInfo;
     HILOG_DEBUG("Begin ability is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
+    if (sessionInfo != nullptr) {
+        SetSessionToken(sessionInfo->sessionToken);
+    }
     OnStartForSupportGraphics(want);
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
@@ -1007,6 +1013,23 @@ int UIAbility::CreateModalUIExtension(const AAFwk::Want &want)
         return ERR_INVALID_VALUE;
     }
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
+}
+
+void UIAbility::SetSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    sessionToken_ = sessionToken;
+}
+
+void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    SetSessionToken(sessionToken);
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilityContext is nullptr");
+        return;
+    }
+    abilityContextImpl->SetWeakSessionToken(sessionToken);
 }
 #endif
 } // namespace AbilityRuntime

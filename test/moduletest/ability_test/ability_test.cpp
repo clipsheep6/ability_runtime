@@ -21,9 +21,6 @@
 #include "ability_local_record.h"
 #include "context_deal.h"
 #include "data_ability_helper.h"
-#ifndef SUPPORT_ERMS
-#include "erms_mgr_interface.h"
-#endif
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "demo_ability_test.h"
@@ -65,19 +62,6 @@ void AbilityBaseTest::SetUpTestCase(void)
 
 void AbilityBaseTest::TearDownTestCase(void)
 {}
-
-#ifndef SUPPORT_ERMS
-class TestIEcologicalRuleManager : public AppExecFwk::IEcologicalRuleManager {
-public:
-    TestIEcologicalRuleManager() = default;
-    virtual ~TestIEcologicalRuleManager()
-    {};
-    sptr<IRemoteObject> AsObject() override
-    {
-        return nullptr;
-    }
-};
-#endif
 
 void AbilityBaseTest::SetUp(void)
 {
@@ -1260,113 +1244,5 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_VerifyPermission_0100, Func
     EXPECT_EQ(0, abms->VerifyPermission(permission, pid, uid));
     GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_VerifyPermission_0100";
 }
-
-#ifndef SUPPORT_ERMS
-/**
- * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100
- * @tc.name: QueryFreeInstallExperience
- * @tc.desc: test QueryFreeInstallExperience function
- */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
-    EXPECT_NE(erms, nullptr);
-    Want want;
-    ErmsParams::CallerInfo callerInfo;
-    ErmsParams::ExperienceRule rule;
-    EXPECT_EQ(0, erms->QueryFreeInstallExperience(want, callerInfo, rule));
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryFreeInstallExperience_0100";
-}
-
-/**
- * @tc.number: AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100
- * @tc.name: EvaluateResolveInfos
- * @tc.desc: test EvaluateResolveInfos function
- */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
-    EXPECT_NE(erms, nullptr);
-    Want want;
-    ErmsParams::CallerInfo callerInfo;
-    int32_t type = 1;
-    std::vector<AbilityInfo> abilityInfos;
-    std::vector<ExtensionAbilityInfo> extensionInfos;
-    EXPECT_EQ(0, erms->EvaluateResolveInfos(want, callerInfo, type, abilityInfos, extensionInfos));
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_EvaluateResolveInfos_0100";
-}
-
-/**
- * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100
- * @tc.name: QueryStartExperience
- * @tc.desc: test QueryStartExperience function
- */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
-    EXPECT_NE(erms, nullptr);
-    Want want;
-    ErmsParams::CallerInfo callerInfo;
-    ErmsParams::ExperienceRule rule;
-    EXPECT_EQ(0, erms->QueryStartExperience(want, callerInfo, rule));
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryStartExperience_0100";
-}
-
-/**
- * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100
- * @tc.name: QueryPublishFormExperience
- * @tc.desc: test QueryPublishFormExperience function
- */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
-    EXPECT_NE(erms, nullptr);
-    Want want;
-    ErmsParams::ExperienceRule rule;
-    EXPECT_EQ(0, erms->QueryPublishFormExperience(want, rule));
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryPublishFormExperience_0100";
-}
-
-/**
- * @tc.number: AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100
- * @tc.name: IsSupportPublishForm
- * @tc.desc: test IsSupportPublishForm function
- */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
-    EXPECT_NE(erms, nullptr);
-    Want want;
-    ErmsParams::CallerInfo callerInfo;
-    ErmsParams::ExperienceRule rule;
-    EXPECT_EQ(0, erms->IsSupportPublishForm(want, callerInfo, rule));
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_IsSupportPublishForm_0100";
-}
-
-/**
- * @tc.number: AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100
- * @tc.name: QueryLastSyncTime
- * @tc.desc: test QueryLastSyncTime function
- */
-HWTEST_F(AbilityTerminateTest,
-    AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
-    sptr<AppExecFwk::IEcologicalRuleManager> erms = new (std::nothrow) TestIEcologicalRuleManager();
-    EXPECT_NE(erms, nullptr);
-    EXPECT_EQ(0, erms->QueryLastSyncTime());
-    GTEST_LOG_(INFO) << "AppExecFwk_IEcologicalRuleManager_QueryLastSyncTime_0100";
-}
-#endif
 } // namespace AppExecFwk
 } // namespace OHOS

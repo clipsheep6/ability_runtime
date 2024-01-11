@@ -221,5 +221,28 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0300, TestSize.Level1)
 
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.name: GetQuickFixInfo_0100
+ * @tc.desc: RevokeQuickFix GetQuickFixInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(QuickFixManagerServiceTest, GetQuickFixInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("GetQuickFixInfo_0100 start.");
+
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+
+    std::string bundleName = "com.ohos.quickfix";
+    auto patchExists = false;
+    auto isSoContained = false;
+    auto ret = quickFixMs_->GetQuickFixInfo(bundleName, patchExists, isSoContained);
+    EXPECT_EQ(ret, QUICK_FIX_OK);
+    EXPECT_EQ(patchExists, true);
+    EXPECT_EQ(isSoContained, true);
+
+    HILOG_INFO("GetQuickFixInfo_0100 end.");
+}
 } // namespace AppExecFwk
 } // namespace OHOS

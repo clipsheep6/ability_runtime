@@ -61,6 +61,11 @@ std::string MockContext::GetTempDir()
     return "/temp";
 }
 
+std::string MockContext::GetResourceDir()
+{
+    return "/resfile";
+}
+
 std::string MockContext::GetFilesDir()
 {
     return "/files";
@@ -158,7 +163,7 @@ sptr<IRemoteObject> MockContext::GetToken()
 
 std::shared_ptr<AppExecFwk::HapModuleInfo> MockContext::GetHapModuleInfo() const
 {
-    return nullptr;  
+    return nullptr;
 }
 
 void MockContext::SwitchArea(int mode)

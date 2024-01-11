@@ -157,6 +157,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleAttachChildProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY)] =
         &AppMgrStub::HandleExitChildProcessSafely;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS)] =
+        &AppMgrStub::HandleIsFinalAppProcess;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF)] =
+        &AppMgrStub::HandleClearUpApplicationDataBySelf;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -256,6 +260,15 @@ int32_t AppMgrStub::HandleClearUpApplicationData(MessageParcel &data, MessagePar
     std::string bundleName = data.ReadString();
     int32_t userId = data.ReadInt32();
     int32_t result = ClearUpApplicationData(bundleName, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleClearUpApplicationDataBySelf(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t userId = data.ReadInt32();
+    int32_t result = ClearUpApplicationDataBySelf(userId);
     reply.WriteInt32(result);
     return NO_ERROR;
 }
@@ -1012,6 +1025,16 @@ int32_t AppMgrStub::HandleExitChildProcessSafely(MessageParcel &data, MessagePar
 {
     HILOG_DEBUG("called.");
     ExitChildProcessSafely();
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    if (!reply.WriteBool(IsFinalAppProcess())) {
+        HILOG_ERROR("Fail to write bool result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

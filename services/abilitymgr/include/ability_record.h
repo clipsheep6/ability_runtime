@@ -330,6 +330,12 @@ public:
     bool Init();
 
     /**
+     * load UI ability.
+     *
+     */
+    void LoadUIAbility();
+
+    /**
      * load ability.
      *
      * @return Returns ERR_OK on success, others on failure.
@@ -341,7 +347,7 @@ public:
      *
      */
     void ForegroundAbility(uint32_t sceneFlag = 0);
-    void ForegroundAbility(const Closure &task, uint32_t sceneFlag = 0);
+    void ForegroundAbility(const Closure &task, sptr<SessionInfo> sessionInfo = nullptr, uint32_t sceneFlag = 0);
 
     /**
      * process request of foregrounding the ability.
@@ -416,9 +422,16 @@ public:
         return scheduler_;
     }
 
-    inline sptr<SessionInfo> GetSessionInfo() const
+    sptr<SessionInfo> GetSessionInfo() const;
+
+    sptr<SessionInfo> GetUIExtRequestSessionInfo() const
     {
-        return sessionInfo_;
+        return uiExtRequestSessionInfo_;
+    }
+
+    void SetUIExtRequestSessionInfo(sptr<SessionInfo> sessionInfo)
+    {
+        uiExtRequestSessionInfo_ = sessionInfo;
     }
 
     /**
@@ -551,7 +564,7 @@ public:
      * set the ability is created by connect ability mode.
      *
      */
-    void SetCreateByConnectMode();
+    void SetCreateByConnectMode(bool isCreatedByConnect = true);
 
     /**
      * active the ability.
@@ -825,6 +838,8 @@ public:
     void SetRestartCount(int32_t restartCount);
     void SetKeepAlive();
     bool GetKeepAlive() const;
+    void SetLoading(bool status);
+    bool IsLoading() const;
     int64_t GetRestartTime();
     void SetRestartTime(const int64_t restartTime);
     void SetAppIndex(const int32_t appIndex);
@@ -865,6 +880,7 @@ public:
     bool IsStartToForeground() const;
     void SetStartToForeground(const bool flag);
     void SetSessionInfo(sptr<SessionInfo> sessionInfo);
+    void UpdateSessionInfo(sptr<IRemoteObject> sessionToken);
     void SetMinimizeReason(bool fromUser);
     bool IsMinimizeFromUser() const;
     void SetClearMissionFlag(bool clearMissionFlag);
@@ -934,6 +950,9 @@ public:
     void SetURI(const std::string &uri);
     std::string GetURI() const;
 
+    void DoBackgroundAbilityWindowDelayed(bool needBackground);
+    bool BackgroundAbilityWindowDelayed();
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -974,6 +993,13 @@ private:
     }
 
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
+
+    void GrantUriPermissionInner(
+        Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
+    void GrantUriPermissionFor2In1Inner(
+        Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
+
+    bool CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission, int32_t userId);
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -1033,6 +1059,7 @@ private:
     bool isKeepAlive_ = false;                 // is keep alive or resident ability?
 
     sptr<IAbilityScheduler> scheduler_ = {};       // kit scheduler
+    bool isLoading_ = false;        // is loading?
     bool isTerminating_ = false;              // is terminating ?
     bool isCreateByConnect_ = false;          // is created by connect ability mode?
 
@@ -1107,8 +1134,10 @@ private:
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;
+    mutable ffrt::mutex sessionLock_;
     sptr<AbilityAppStateObserver> abilityAppStateObserver_;
     std::map<uint64_t, AbilityWindowState> abilityWindowStateMap_;
+    sptr<SessionInfo> uiExtRequestSessionInfo_ = nullptr;
 
 #ifdef SUPPORT_GRAPHICS
     bool isStartingWindow_ = false;
@@ -1129,6 +1158,7 @@ private:
     bool isAttachDebug_ = false;
     bool isAppAutoStartup_ = false;
     bool isConnected = false;
+    std::atomic_bool backgroundAbilityWindowDelayed_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

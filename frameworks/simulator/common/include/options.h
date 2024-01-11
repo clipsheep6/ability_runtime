@@ -16,6 +16,7 @@
 #ifndef FOUNDATION_ABILITY_RUNTIME_SIMULATOR_OPTIONS_H
 #define FOUNDATION_ABILITY_RUNTIME_SIMULATOR_OPTIONS_H
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -64,6 +65,7 @@ struct DeviceResourceInfo {
 };
 
 using SendCurrentRouterCallback = bool (*)(const std::string currentRouterPath);
+using CallbackTypePostTask = std::function<void(const std::function<void()>&, int64_t)>;
 
 struct Options {
     std::string bundleName;
@@ -99,6 +101,7 @@ struct Options {
     AppExecFwk::AbilityInfo abilityInfo;
     std::shared_ptr<AppExecFwk::Configuration> configuration;
     std::vector<uint8_t> moduleJsonBuffer;
+    CallbackTypePostTask postTask;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

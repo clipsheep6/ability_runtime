@@ -50,6 +50,7 @@ public:
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetTempDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetResourceDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDistributedFilesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetDatabaseDir(napi_env env, NapiCallbackInfo& info);
@@ -59,6 +60,7 @@ public:
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
+    static napi_value GetResourceDir(napi_env env, napi_callback_info info);
     static napi_value GetFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDistributedFilesDir(napi_env env, napi_callback_info info);
     static napi_value GetDatabaseDir(napi_env env, napi_callback_info info);
@@ -81,7 +83,7 @@ private:
 
 void JsBaseContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_DEBUG("JsBaseContext::Finalizer is called");
+    HILOG_DEBUG("called");
     std::unique_ptr<JsBaseContext>(static_cast<JsBaseContext*>(data));
 }
 
@@ -97,7 +99,7 @@ napi_value JsBaseContext::GetApplicationContext(napi_env env, napi_callback_info
 
 napi_value JsBaseContext::SwitchArea(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::SwitchArea is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnSwitchArea, BASE_CONTEXT_NAME);
 }
 
@@ -129,6 +131,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo& info)
     }
     BindNativeProperty(env, object, "cacheDir", GetCacheDir);
     BindNativeProperty(env, object, "tempDir", GetTempDir);
+    BindNativeProperty(env, object, "resourceDir", GetResourceDir);
     BindNativeProperty(env, object, "filesDir", GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
@@ -139,7 +142,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsBaseContext::CreateModuleContext(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::CreateModuleContext is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnCreateModuleContext, BASE_CONTEXT_NAME);
 }
 
@@ -253,7 +256,7 @@ napi_value JsBaseContext::OnCreateModuleResourceManager(napi_env env, NapiCallba
 
 napi_value JsBaseContext::GetArea(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsBaseContext::GetArea is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetArea, BASE_CONTEXT_NAME);
 }
 
@@ -270,7 +273,7 @@ napi_value JsBaseContext::OnGetArea(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsBaseContext::GetCacheDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsBaseContext::GetCacheDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetCacheDir, BASE_CONTEXT_NAME);
 }
 
@@ -287,7 +290,7 @@ napi_value JsBaseContext::OnGetCacheDir(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsBaseContext::GetTempDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::GetTempDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetTempDir, BASE_CONTEXT_NAME);
 }
 
@@ -302,9 +305,26 @@ napi_value JsBaseContext::OnGetTempDir(napi_env env, NapiCallbackInfo& info)
     return CreateJsValue(env, path);
 }
 
+napi_value JsBaseContext::GetResourceDir(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetResourceDir, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnGetResourceDir(napi_env env, NapiCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetResourceDir();
+    return CreateJsValue(env, path);
+}
+
 napi_value JsBaseContext::GetFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::GetFilesDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetFilesDir, BASE_CONTEXT_NAME);
 }
 
@@ -321,7 +341,7 @@ napi_value JsBaseContext::OnGetFilesDir(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsBaseContext::GetDistributedFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::GetDistributedFilesDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetDistributedFilesDir, BASE_CONTEXT_NAME);
 }
 
@@ -338,7 +358,7 @@ napi_value JsBaseContext::OnGetDistributedFilesDir(napi_env env, NapiCallbackInf
 
 napi_value JsBaseContext::GetDatabaseDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::GetDatabaseDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetDatabaseDir, BASE_CONTEXT_NAME);
 }
 
@@ -355,7 +375,7 @@ napi_value JsBaseContext::OnGetDatabaseDir(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsBaseContext::GetPreferencesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::GetPreferencesDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetPreferencesDir, BASE_CONTEXT_NAME);
 }
 
@@ -413,7 +433,7 @@ napi_value JsBaseContext::OnGetGroupDir(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsBaseContext::GetBundleCodeDir(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("JsBaseContext::GetBundleCodeDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetBundleCodeDir, BASE_CONTEXT_NAME);
 }
 
@@ -489,7 +509,7 @@ napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& 
 
 napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("GetApplicationContext start");
+    HILOG_DEBUG("start");
     auto context = context_.lock();
     if (!context) {
         HILOG_WARN("context is already released");
@@ -555,7 +575,7 @@ bool JsBaseContext::CheckCallerIsSystemApp()
 
 napi_value AttachBaseContext(napi_env env, void* value, void* hint)
 {
-    HILOG_DEBUG("AttachBaseContext");
+    HILOG_DEBUG("called");
     if (value == nullptr || env == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -590,7 +610,7 @@ napi_value AttachBaseContext(napi_env env, void* value, void* hint)
 
 napi_value AttachApplicationContext(napi_env env, void* value, void* hint)
 {
-    HILOG_DEBUG("AttachApplicationContext");
+    HILOG_DEBUG("called");
     if (value == nullptr || env == nullptr) {
         HILOG_WARN("invalid parameter.");
         return nullptr;
@@ -654,6 +674,7 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
 
     BindNativeProperty(env, object, "cacheDir", JsBaseContext::GetCacheDir);
     BindNativeProperty(env, object, "tempDir", JsBaseContext::GetTempDir);
+    BindNativeProperty(env, object, "resourceDir", JsBaseContext::GetResourceDir);
     BindNativeProperty(env, object, "filesDir", JsBaseContext::GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", JsBaseContext::GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", JsBaseContext::GetDatabaseDir);

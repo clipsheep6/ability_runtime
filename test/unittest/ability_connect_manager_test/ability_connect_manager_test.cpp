@@ -2784,12 +2784,14 @@ HWTEST_F(AbilityConnectManagerTest, OnAbilityRequestDone_001, TestSize.Level1)
     sptr<IRemoteObject> token = abilityRecord->GetToken();
     abilityRecord->abilityInfo_.extensionAbilityType = ExtensionAbilityType::UI;
     abilityRecord->SetAbilityState(AbilityState::INACTIVE);
+    abilityRecord->SetUIExtRequestSessionInfo(MockSessionInfo(0));
     connectManager->serviceMap_.emplace("first", abilityRecord);
     connectManager->OnAbilityRequestDone(token, 2);
     EXPECT_EQ(abilityRecord->GetAbilityState(), AbilityState::FOREGROUNDING);
     connectManager->serviceMap_.erase("first");
     abilityRecord->abilityInfo_.extensionAbilityType = ExtensionAbilityType::UNSPECIFIED;
     abilityRecord->SetAbilityState(AbilityState::INITIAL);
+    abilityRecord->SetUIExtRequestSessionInfo(nullptr);
 }
 
 /*
@@ -2841,8 +2843,10 @@ HWTEST_F(AbilityConnectManagerTest, MoveToForeground_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
     ASSERT_NE(connectManager, nullptr);
+    serviceRecord_->SetUIExtRequestSessionInfo(MockSessionInfo(0));
     connectManager->MoveToForeground(serviceRecord_);
     EXPECT_EQ(serviceRecord_->GetAbilityState(), AbilityState::FOREGROUNDING);
+    serviceRecord_->SetUIExtRequestSessionInfo(nullptr);
     serviceRecord_->SetAbilityState(AbilityState::INITIAL);
 }
 

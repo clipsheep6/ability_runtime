@@ -110,14 +110,16 @@ constexpr char FORM_RENDER_LIB_PATH[] = "/system/lib64/libformrender.z.so";
 constexpr int32_t DELIVERY_TIME = 200;
 constexpr int32_t DISTRIBUTE_TIME = 100;
 constexpr int32_t START_HIGH_SENSITIVE = 1;
+constexpr int32_t EXIT_HIGH_SENSITIVE = 2;
 constexpr int32_t UNSPECIFIED_USERID = -2;
 
 enum class SignalType {
     SIGNAL_JSHEAP_OLD,
     SIGNAL_JSHEAP,
     SIGNAL_JSHEAP_PRIV,
-    SIGNAL_START_SAMPLE,
-    SIGNAL_STOP_SAMPLE,
+    SIGNAL_NO_TRIGGERID,
+    SIGNAL_NO_TRIGGERID_PRIV,
+    SIGNAL_FORCE_FULLGC,
 };
 
 constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
@@ -506,18 +508,19 @@ void MainThread::ScheduleBackgroundApplication()
  *
  * @brief Schedule the terminate lifecycle of application.
  *
+ * @param isLastProcess When it is the last application process, pass in true.
  */
-void MainThread::ScheduleTerminateApplication()
+void MainThread::ScheduleTerminateApplication(bool isLastProcess)
 {
     HILOG_DEBUG("ScheduleTerminateApplication");
     wptr<MainThread> weak = this;
-    auto task = [weak]() {
+    auto task = [weak, isLastProcess]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
             HILOG_ERROR("appThread is nullptr, HandleTerminateApplication failed.");
             return;
         }
-        appThread->HandleTerminateApplication();
+        appThread->HandleTerminateApplication(isLastProcess);
     };
     if (!mainHandler_->PostTask(task, "MainThread:TerminateApplication")) {
         HILOG_ERROR("MainThread::ScheduleTerminateApplication PostTask task failed");
@@ -1266,7 +1269,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     application_->SetApplicationContext(applicationContext);
 
     HspList hspList;
-    ErrCode ret = bundleMgrHelper->GetBaseSharedBundleInfos(appInfo.bundleName, hspList);
+    ErrCode ret = bundleMgrHelper->GetBaseSharedBundleInfos(appInfo.bundleName, hspList,
+        AppExecFwk::GetDependentBundleInfoFlag::GET_ALL_DEPENDENT_BUNDLE_INFO);
     if (ret != ERR_OK) {
         HILOG_ERROR("Get base shared bundle infos failed: %{public}d.", ret);
     }
@@ -1292,6 +1296,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
+        if (!bundleInfo.hapModuleInfos.empty()) {
+            for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+                options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
+            }
+        }
         auto runtime = AbilityRuntime::Runtime::Create(options);
         if (!runtime) {
             HILOG_ERROR("Failed to create runtime");
@@ -1376,7 +1385,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-            DelayedSingleton<AbilityManagerClient>::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
             appThread->ScheduleProcessSecurityExit();
         };
         (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
@@ -1927,13 +1936,16 @@ void MainThread::HandleForegroundApplication()
         HILOG_ERROR("MainThread::handleForegroundApplication error!");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
-#endif
+
     if (!applicationImpl_->PerformForeground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformForeground() failed");
         return;
     }
+
+    // Start accessing PurgeableMem if the event of foreground is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().BeginAccessPurgeableMem();
+#endif
 
     HILOG_DEBUG("to foreground success, recordId is %{public}d", applicationImpl_->GetRecordId());
     appMgr_->ApplicationForegrounded(applicationImpl_->GetRecordId());
@@ -1953,13 +1965,17 @@ void MainThread::HandleBackgroundApplication()
         HILOG_ERROR("MainThread::handleBackgroundApplication error!");
         return;
     }
-#ifdef IMAGE_PURGEABLE_PIXELMAP
-    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
-#endif
+
     if (!applicationImpl_->PerformBackground()) {
         HILOG_ERROR("MainThread::handleForegroundApplication error!, applicationImpl_->PerformBackground() failed");
         return;
     }
+
+    // End accessing PurgeableMem if the event of background is successful.
+#ifdef IMAGE_PURGEABLE_PIXELMAP
+    PurgeableMem::PurgeableResourceManager::GetInstance().EndAccessPurgeableMem();
+#endif
+
     appMgr_->ApplicationBackgrounded(applicationImpl_->GetRecordId());
 }
 
@@ -1967,8 +1983,9 @@ void MainThread::HandleBackgroundApplication()
  *
  * @brief Terminate the application.
  *
+ * @param isLastProcess When it is the last application process, pass in true.
  */
-void MainThread::HandleTerminateApplication()
+void MainThread::HandleTerminateApplication(bool isLastProcess)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("MainThread::handleTerminateApplication called start.");
@@ -1977,7 +1994,7 @@ void MainThread::HandleTerminateApplication()
         return;
     }
 
-    if (!applicationImpl_->PerformTerminate()) {
+    if (!applicationImpl_->PerformTerminate(isLastProcess)) {
         HILOG_WARN("%{public}s: applicationImpl_->PerformTerminate() failed.", __func__);
     }
 
@@ -2117,6 +2134,7 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
 {
     if (signal != MUSL_SIGNAL_JSHEAP) {
         HILOG_ERROR("HandleSignal failed, signal is %{public}d", signal);
+        return;
     }
     HILOG_INFO("HandleSignal sival_int is %{public}d", siginfo->si_value.sival_int);
     switch (static_cast<SignalType>(siginfo->si_value.sival_int)) {
@@ -2135,12 +2153,25 @@ void MainThread::HandleSignal(int signal, [[maybe_unused]] siginfo_t *siginfo, v
             signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JSHEAP_PRIV");
             break;
         }
-        case SignalType::SIGNAL_START_SAMPLE: {
-            HILOG_ERROR("HandleSignal failed, SIGNAL_START_SAMPLE is retained");
+        case SignalType::SIGNAL_NO_TRIGGERID: {
+            auto heapFunc = std::bind(&MainThread::HandleDumpHeap, false);
+            signalHandler_->PostTask(heapFunc, "MainThread::SIGNAL_JSHEAP");
+
+            auto noTriggerIdFunc = std::bind(&MainThread::DestroyHeapProfiler);
+            signalHandler_->PostTask(noTriggerIdFunc, "MainThread::SIGNAL_NO_TRIGGERID");
             break;
         }
-        case SignalType::SIGNAL_STOP_SAMPLE: {
-            HILOG_ERROR("HandleSignal failed, SIGNAL_STOP_SAMPLE is retained");
+        case SignalType::SIGNAL_NO_TRIGGERID_PRIV: {
+            auto privateHeapFunc = std::bind(&MainThread::HandleDumpHeap, true);
+            signalHandler_->PostTask(privateHeapFunc, "MainThread:SIGNAL_JSHEAP_PRIV");
+
+            auto noTriggerIdFunc = std::bind(&MainThread::DestroyHeapProfiler);
+            signalHandler_->PostTask(noTriggerIdFunc, "MainThread::SIGNAL_NO_TRIGGERID_PRIV");
+            break;
+        }
+        case SignalType::SIGNAL_FORCE_FULLGC: {
+            auto forceFullGCFunc = std::bind(&MainThread::ForceFullGC);
+            signalHandler_->PostTask(forceFullGCFunc, "MainThread:SIGNAL_FORCE_FULLGC");
             break;
         }
         default:
@@ -2167,12 +2198,50 @@ void MainThread::HandleDumpHeap(bool isPrivate)
     mainHandler_->PostTask(task, "MainThread:DumpHeap");
 }
 
+void MainThread::DestroyHeapProfiler()
+{
+    HILOG_DEBUG("Destory heap profiler.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("DestroyHeapProfiler failed, mainHandler is nullptr");
+        return;
+    }
+
+    auto task = [] {
+        auto app = applicationForDump_.lock();
+        if (app == nullptr || app->GetRuntime() == nullptr) {
+            HILOG_ERROR("runtime is nullptr.");
+            return;
+        }
+        app->GetRuntime()->DestroyHeapProfiler();
+    };
+    mainHandler_->PostTask(task, "MainThread:DestroyHeapProfiler");
+}
+
+void MainThread::ForceFullGC()
+{
+    HILOG_DEBUG("Force fullGC.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("ForceFullGC failed, mainHandler is nullptr");
+        return;
+    }
+
+    auto task = [] {
+        auto app = applicationForDump_.lock();
+        if (app == nullptr || app->GetRuntime() == nullptr) {
+            HILOG_ERROR("runtime is nullptr.");
+            return;
+        }
+        app->GetRuntime()->ForceFullGC();
+    };
+    mainHandler_->PostTask(task, "MainThread:ForceFullGC");
+}
+
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_INFO("LoadLifecycle: MainThread start come.");
 
-    if (AAFwk::AppUtils::GetInstance().JudgeMultiProcessModelDevice()) {
+    if (AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
         ChildProcessInfo info;
         if (IsStartChild(info)) {
             ChildMainThread::Start(info);
@@ -2802,7 +2871,7 @@ std::vector<std::string> MainThread::GetRemoveOverlayPaths(const std::vector<Ove
 
 int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
 {
-    HILOG_DEBUG("called.");
+    HILOG_DEBUG("called, state is %{public}d.", state);
     if (mainHandler_ == nullptr) {
         HILOG_ERROR("mainHandler is nullptr");
         return ERR_INVALID_VALUE;
@@ -2818,7 +2887,7 @@ int32_t MainThread::ScheduleChangeAppGcState(int32_t state)
         appThread->ChangeAppGcState(state);
     };
 
-    if (state == START_HIGH_SENSITIVE) {
+    if (state == START_HIGH_SENSITIVE || state == EXIT_HIGH_SENSITIVE) {
         ChangeAppGcState(state);
     } else {
         mainHandler_->PostTask(task, "MainThread:ChangeAppGcState");
@@ -2858,7 +2927,8 @@ void MainThread::DetachAppDebug()
 bool MainThread::NotifyDeviceDisConnect()
 {
     HILOG_DEBUG("Called.");
-    ScheduleTerminateApplication();
+    bool isLastProcess = appMgr_->IsFinalAppProcess();
+    ScheduleTerminateApplication(isLastProcess);
     return true;
 }
 }  // namespace AppExecFwk

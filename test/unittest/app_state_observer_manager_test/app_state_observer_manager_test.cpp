@@ -15,10 +15,17 @@
 
 #include <gtest/gtest.h>
 
+#include "ability_foreground_state_observer_proxy.h"
 #define private public
 #include "app_state_observer_manager.h"
 #undef private
+#include "app_foreground_state_observer_proxy.h"
+#include "app_foreground_state_observer_stub.h"
 #include "application_state_observer_stub.h"
+#include "iapplication_state_observer.h"
+#include "iremote_broker.h"
+#include "mock_ability_foreground_state_observer_server_stub.h"
+#include "mock_i_remote_object.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -56,6 +63,13 @@ public:
     {
         return {};
     }
+};
+class AppForegroundStateObserver : public AppForegroundStateObserverStub {
+public:
+    AppForegroundStateObserver() = default;
+    virtual ~AppForegroundStateObserver() = default;
+    void OnAppStateChanged(const AppStateData &appStateData) override
+    {}
 };
 class AppSpawnSocketTest : public testing::Test {
 public:
@@ -1142,5 +1156,219 @@ HWTEST_F(AppSpawnSocketTest, ObserverExist_002, TestSize.Level0)
     bool res = manager->ObserverExist(observer);
     EXPECT_TRUE(res);
 }
-}  // namespace AppExecFwk
-}  // namespace OHOS
+
+/**
+ * @tc.name: RegisterAbilityForegroundStateObserver_0100
+ * @tc.desc: The test returns when the permission judgment is inconsistent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, RegisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    sptr<IAbilityForegroundStateObserver> observer = new AbilityForegroundStateObserverProxy(nullptr);
+    manager->abilityforegroundObserverSet_.emplace(observer);
+    auto res = manager->RegisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: UnregisterAbilityForegroundStateObserver_0100
+ * @tc.desc: The test returns when the permission judgment is inconsistent.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, UnregisterAbilityForegroundStateObserver_0100, TestSize.Level1)
+{
+    sptr<IAbilityForegroundStateObserver> observer = new AbilityForegroundStateObserverProxy(nullptr);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    manager->abilityforegroundObserverSet_.emplace(observer);
+    auto res = manager->UnregisterAbilityForegroundStateObserver(observer);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: IsAbilityForegroundObserverExist_0100
+ * @tc.desc: Test return when abilityforegroundObserverSet_ is not empty and
+ *      the conditions within the loop are met.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, IsAbilityForegroundObserverExist_0100, TestSize.Level1)
+{
+    sptr<IRemoteBroker> observer = new AppForegroundStateObserverProxy(nullptr);
+    sptr<IAbilityForegroundStateObserver> observers = new AbilityForegroundStateObserverProxy(nullptr);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    manager->abilityforegroundObserverSet_.emplace(observers);
+    auto res = manager->IsAbilityForegroundObserverExist(observer);
+    EXPECT_EQ(res, true);
+}
+
+/**
+ * @tc.name: AddObserverDeathRecipient_0100
+ * @tc.desc: Verify that AddObserverDeathRecipient can be called normally(type is APPLICATION_STATE_OBSERVER)
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, AddObserverDeathRecipient_0100, TestSize.Level1)
+{
+    auto observerStub = new MockAbilityForegroundStateObserverServerStub();
+    sptr<IRemoteBroker> observer = new AppForegroundStateObserverProxy(observerStub);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    ObserverType type = ObserverType::APPLICATION_STATE_OBSERVER;
+    manager->AddObserverDeathRecipient(observer, type);
+    ASSERT_FALSE(manager->recipientMap_.empty());
+}
+
+/**
+ * @tc.name: AddObserverDeathRecipient_0200
+ * @tc.desc: Verify that AddObserverDeathRecipient can be called normally(type is ABILITY_FOREGROUND_STATE_OBSERVER)
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, AddObserverDeathRecipient_0200, TestSize.Level1)
+{
+    auto observerStub = new MockAbilityForegroundStateObserverServerStub();
+    sptr<IRemoteBroker> observer = new AppForegroundStateObserverProxy(observerStub);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    ObserverType type = ObserverType::ABILITY_FOREGROUND_STATE_OBSERVER;
+    manager->AddObserverDeathRecipient(observer, type);
+    ASSERT_FALSE(manager->recipientMap_.empty());
+}
+
+/**
+ * @tc.name: AddObserverDeathRecipient_0300
+ * @tc.desc: Verify that AddObserverDeathRecipient can be called normally(observer is nullptr)
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, AddObserverDeathRecipient_0300, TestSize.Level1)
+{
+    sptr<IRemoteBroker> observer = new AppForegroundStateObserverProxy(nullptr);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    ObserverType type = ObserverType::ABILITY_FOREGROUND_STATE_OBSERVER;
+    manager->AddObserverDeathRecipient(observer, type);
+    ASSERT_TRUE(manager->recipientMap_.empty());
+}
+
+/**
+ * @tc.name: RemoveObserverDeathRecipient_0100
+ * @tc.desc: Verify that RemoveObserverDeathRecipient can be called normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, RemoveObserverDeathRecipient_0100, TestSize.Level1)
+{
+    auto observerStub = new MockAbilityForegroundStateObserverServerStub();
+    sptr<IRemoteBroker> observer = new AppForegroundStateObserverProxy(observerStub);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    manager->RemoveObserverDeathRecipient(observer);
+    ASSERT_TRUE(manager->recipientMap_.empty());
+}
+
+/**
+ * @tc.name: RemoveObserverDeathRecipient_0200
+ * @tc.desc: Verify that RemoveObserverDeathRecipient can be called normally(observer is nullptr)
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, RemoveObserverDeathRecipient_0200, TestSize.Level1)
+{
+    sptr<IRemoteBroker> observer = new AppForegroundStateObserverProxy(nullptr);
+    auto manager = std::make_shared<AppStateObserverManager>();
+    ASSERT_NE(manager, nullptr);
+    manager->RemoveObserverDeathRecipient(observer);
+    ASSERT_TRUE(manager->recipientMap_.empty());
+}
+
+/**
+ * @tc.name: RegisterAppForegroundStateObserver_0100
+ * @tc.desc: Test when observer is not nullptr and without permission.
+ *      and observer not exist.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, RegisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserver();
+    auto res = manager->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+}
+
+/**
+ * @tc.name: UnregisterAppForegroundStateObserver_0100
+ * @tc.desc: Test when observer is not nullptr and without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, UnregisterAppForegroundStateObserver_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserver();
+    manager->appForegroundStateObserverSet_.emplace(observer);
+    auto res = manager->UnregisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+}
+
+/**
+ * @tc.name: IsAppForegroundObserverExist_0100
+ * @tc.desc: Test when observer and appForegroundStateObserverSet is not nullptr
+ *      and asObject of them is same.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, IsAppForegroundObserverExist_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<AppStateObserverManager>();
+    sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserver();
+    manager->appForegroundStateObserverSet_.emplace(observer);
+    auto res = manager->IsAppForegroundObserverExist(observer);
+    EXPECT_EQ(true, res);
+}
+
+/**
+ * @tc.name: OnObserverDied_0100
+ * @tc.desc: Test when observer is not nullptr and type is APPLICATION_STATE_OBSERVER.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, OnObserverDied_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> remoteObject = new (std::nothrow) AppForegroundStateObserver();
+    wptr<IRemoteObject> remote(remoteObject);
+    ObserverType type = ObserverType::APPLICATION_STATE_OBSERVER;
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnObserverDied(remote, type);
+    auto appStateObserverMapSize =
+        DelayedSingleton<AppStateObserverManager>::GetInstance()->appStateObserverMap_.size();
+    EXPECT_EQ(0, appStateObserverMapSize);
+}
+
+/**
+ * @tc.name: OnObserverDied_0200
+ * @tc.desc: Test when observer is not nullptr and type is ABILITY_FOREGROUND_STATE_OBSERVER.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, OnObserverDied_0200, TestSize.Level1)
+{
+    sptr<IRemoteObject> remoteObject = new (std::nothrow) AppForegroundStateObserver();
+    wptr<IRemoteObject> remote(remoteObject);
+    ObserverType type = ObserverType::ABILITY_FOREGROUND_STATE_OBSERVER;
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnObserverDied(remote, type);
+    auto abilityforegroundObserverSetSize =
+        DelayedSingleton<AppStateObserverManager>::GetInstance()->abilityforegroundObserverSet_.size();
+    EXPECT_EQ(0, abilityforegroundObserverSetSize);
+}
+
+/**
+ * @tc.name: OnObserverDied_0300
+ * @tc.desc: Test when observer is not nullptr and type is ABILITY_FOREGROUND_STATE_OBSERVER.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSpawnSocketTest, OnObserverDied_0300, TestSize.Level1)
+{
+    sptr<IRemoteObject> remoteObject = new (std::nothrow) AppForegroundStateObserver();
+    wptr<IRemoteObject> remote(remoteObject);
+    ObserverType type = ObserverType::ABILITY_FOREGROUND_STATE_OBSERVER;
+    DelayedSingleton<AppStateObserverManager>::GetInstance()->OnObserverDied(remote, type);
+    auto appForegroundStateObserverSetSize =
+        DelayedSingleton<AppStateObserverManager>::GetInstance()->appForegroundStateObserverSet_.size();
+    EXPECT_EQ(0, appForegroundStateObserverSetSize);
+}
+} // namespace AppExecFwk
+} // namespace OHOS

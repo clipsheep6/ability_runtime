@@ -44,7 +44,8 @@ public:
     MOCK_METHOD1(KillApplication, int32_t(const std::string& bundleName));
     MOCK_METHOD2(KillApplicationByUid, int(const std::string&, const int uid));
     MOCK_METHOD1(AbilityTerminated, void(const sptr<IRemoteObject>& token));
-    MOCK_METHOD4(ClearUpApplicationData, void(const std::string&, const int32_t, const pid_t, int32_t userId));
+    MOCK_METHOD4(ClearUpApplicationData, int32_t(const std::string&, const int32_t, const pid_t, int32_t userId));
+    MOCK_METHOD3(ClearUpApplicationDataBySelf, int32_t(int32_t, pid_t, int32_t userId));
     MOCK_METHOD1(IsBackgroundRunningRestricted, int32_t(const std::string&));
     MOCK_METHOD1(GetAllRunningProcesses, int32_t(std::vector<RunningProcessInfo>&));
     MOCK_METHOD1(GetAllRenderProcesses, int32_t(std::vector<RenderProcessInfo>&));
@@ -61,6 +62,8 @@ public:
     MOCK_METHOD0(GetConfiguration, std::shared_ptr<Configuration>());
     MOCK_METHOD2(IsSharedBundleRunning, bool(const std::string &bundleName, uint32_t versionCode));
     MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
+    MOCK_METHOD3(StartChildProcess, int32_t(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid));
+    MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
     {}
 

@@ -117,6 +117,15 @@ public:
         const int32_t userId = -1) override;
 
     /**
+     * ClearUpApplicationDataBySelf, call ClearUpApplicationDataBySelf() through proxy project,
+     * clear the application data by self.
+     *
+     * @param userId, user ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ClearUpApplicationDataBySelf(int32_t userId = -1) override;
+
+    /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
      * Obtains information about application processes that are running on the device.
      *
@@ -542,12 +551,19 @@ private:
 
     /**
      * Check whether the bundle is running.
-     * 
+     *
      * @param bundleName Indicates the bundle name of the bundle.
      * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
      * @return Return ERR_OK if success, others fail.
      */
     int32_t IsApplicationRunning(const std::string &bundleName, bool &isRunning) override;
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess() override;
 
 private:
     std::shared_ptr<AppMgrServiceInner> appMgrServiceInner_;

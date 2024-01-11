@@ -38,6 +38,8 @@ public:
 
     std::string GetTempDir() override;
 
+    std::string GetResourceDir() override;
+
     std::string GetFilesDir() override;
 
     std::string GetDatabaseDir() override;
@@ -64,7 +66,6 @@ public:
     sptr<AppExecFwk::IBundleMgr> GetBundleManager() const;
 
     void SetApplicationInfo(const std::shared_ptr<AppExecFwk::ApplicationInfo> &info);
-
 
     void SetParentContext(const std::shared_ptr<Context> &context);
 

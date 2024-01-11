@@ -77,6 +77,15 @@ public:
      */
     std::string GetTempDir() override;
 
+    std::string GetResourceDir() override;
+
+    /**
+     * @brief Get all temporary directories.
+     *
+     * @param tempPaths Return all temporary directories of the application.
+     */
+    virtual void GetAllTempDir(std::vector<std::string> &tempPaths);
+
     /**
      * @brief Obtains the directory for storing files for the application on the device's internal storage.
      *
@@ -356,6 +365,7 @@ private:
     static const std::string CONTEXT_FILES;
     static const std::string CONTEXT_HAPS;
     static const std::string CONTEXT_ELS[];
+    static const std::string CONTEXT_RESOURCE_END;
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
@@ -394,6 +404,7 @@ private:
         const AppExecFwk::BundleInfo &bundleInfo, bool currentBundle, const std::string& moduleName);
     void UpdateResConfig(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager);
     int32_t GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, bool &currentBundle);
+    void GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo, const int &accountId);
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;

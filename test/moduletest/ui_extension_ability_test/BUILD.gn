@@ -15,11 +15,13 @@ group("moduletest") {
   testonly = true
 
   deps = [
+    "ui_extension_info_module_test:moduletest",
     "ui_extension_provider_bundle:assisthap",
     "ui_extension_user_bundle:assisthap",
   ]
 
   if (target_cpu == "arm") {
     deps += [ "ui_extension_connect_module_test:moduletest" ]
+    deps += [ "ui_extension_stability_test:moduletest" ]
   }
 }

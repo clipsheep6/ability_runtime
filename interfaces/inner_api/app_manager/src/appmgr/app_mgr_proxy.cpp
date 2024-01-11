@@ -178,6 +178,26 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, const
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::ClearUpApplicationDataBySelf(int32_t userId)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t ret = SendRequest(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
 {
     MessageParcel data;
@@ -1592,6 +1612,27 @@ void AppMgrProxy::ExitChildProcessSafely()
     if (ret != NO_ERROR) {
         HILOG_ERROR("ExitChildProcessSafely SendRequest is failed, error code: %{public}d", ret);
     }
+}
+
+bool AppMgrProxy::IsFinalAppProcess()
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        return false;
+    }
+
+    return reply.ReadBool();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

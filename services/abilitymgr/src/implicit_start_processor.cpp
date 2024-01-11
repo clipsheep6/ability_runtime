@@ -21,28 +21,18 @@
 #include "app_gallery_enable_util.h"
 #include "default_app_interface.h"
 #include "errors.h"
+#include "ecological_rule/ability_ecological_rule_mgr_service.h"
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
 #include "scene_board_judgement.h"
 #include "want.h"
-#ifdef SUPPORT_ERMS
-#include "ecological_rule_mgr_service_client.h"
-#endif
 
 namespace OHOS {
 namespace AAFwk {
-#ifdef SUPPORT_ERMS
-using namespace OHOS::EcologicalRuleMgrService;
-
-constexpr int32_t TYPE_HARMONY_INVALID = 0;
-constexpr int32_t TYPE_HARMONY_APP = 1;
-constexpr int32_t TYPE_HARMONY_SERVICE = 2;
-#else
-using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
-#endif
 const size_t IDENTITY_LIST_MAX_SIZE = 10;
+const int32_t BROKER_UID = 5557;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
 const std::string STR_PHONE = "phone";
@@ -53,6 +43,7 @@ const std::string PARAM_ABILITY_APPINFOS = "ohos.ability.params.appInfos";
 const std::string ANCO_PENDING_REQUEST = "ancoPendingRequest";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const int NFC_CALLER_UID = 1027;
+const int NFC_QUERY_LENGTH = 2;
 
 const std::vector<std::string> ImplicitStartProcessor::blackList = {
     std::vector<std::string>::value_type(BLACK_ACTION_SELECT_DATA),
@@ -115,25 +106,39 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 
     AAFwk::Want want;
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    int32_t tokenId = request.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
+        static_cast<int32_t>(IPCSkeleton::GetCallingTokenID()));
+    AddIdentity(tokenId, identity);
     if (dialogAppInfos.size() == 0 && (deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
         if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
             HILOG_INFO("hint dialog doesn't generate.");
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
-        if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
-            return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+        ret = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetSelectorDialogWant failed.");
+            return ret;
+        }
+        if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
+            request.want.RemoveParam("isCreateAppGallerySelector");
+            NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+            return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
         want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     } else if (dialogAppInfos.size() == 0 && deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
-        if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            std::string type = MatchTypeAndUri(request.want);
-            want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type,
-                userId, request.callerToken);
-            return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+        std::string type = MatchTypeAndUri(request.want);
+        ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type,
+            userId, request.callerToken);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetPcSelectorDialogWant failed.");
+            return ret;
+        }
+        if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
+            request.want.RemoveParam("isCreateAppGallerySelector");
+            return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
         }
         std::vector<DialogAppInfo> dialogAllAppInfos;
         bool isMoreHapList = true;
@@ -151,9 +156,13 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             abilityMgr->StartAbility(dialogWant);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
-        want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
+        ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
             TYPE_ONLY_MATCH_WILDCARD, userId, request.callerToken);
-        ret = abilityMgr->StartAbility(want, request.callerToken);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetPcSelectorDialogWant failed.");
+            return ret;
+        }
+        ret = abilityMgr->StartAbility(request.want, request.callerToken);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
         return ret;
@@ -170,27 +179,34 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
 
     if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
-        want = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
-        if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-            return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+        ret = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetSelectorDialogWant failed.");
+            return ret;
         }
-        ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
+        if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
+            request.want.RemoveParam("isCreateAppGallerySelector");
+            return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+        }
+        ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
-        int32_t tokenId = request.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
-            static_cast<int32_t>(IPCSkeleton::GetCallingTokenID()));
-        AddIdentity(tokenId, identity);
         return ret;
     }
 
     HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
     std::string type = MatchTypeAndUri(request.want);
 
-    want = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
-    if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        return NotifyCreateModalDialog(request, want, userId, dialogAppInfos);
+    ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetPcSelectorDialogWant failed.");
+        return ret;
     }
-    ret = abilityMgr->StartAbilityAsCaller(want, request.callerToken, nullptr);
+    if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
+        request.want.RemoveParam("isCreateAppGallerySelector");
+        return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+    }
+    ret = abilityMgr->StartAbilityAsCaller(request.want, request.callerToken, nullptr);
     // reset calling indentity
     IPCSkeleton::SetCallingIdentity(identity);
     return ret;
@@ -201,7 +217,7 @@ int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityReque
 {
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     std::string dialogSessionId;
-    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos)) {
+    if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
         HILOG_DEBUG("create dialog by ui extension");
         return abilityMgr->CreateModalDialog(want, abilityRequest.callerToken, dialogSessionId);
     }
@@ -246,14 +262,13 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     bool withDefault = false;
     withDefault = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, withDefault) ? false : true;
 
-    if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID && !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
+    if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID &&
+        !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
         HILOG_INFO("The NFCNeed caller source is NFC.");
-
-        ImplicitStartProcessor::queryBmsAppInfos(request, userId, dialogAppInfos);
-        return ERR_OK;
+        ImplicitStartProcessor::QueryBmsAppInfos(request, userId, dialogAppInfos);
     }
 
-    if (!IsCallFromAncoShell(request.callerToken)) {
+    if (!IsCallFromAncoShellOrBroker(request.callerToken)) {
         request.want.RemoveParam(ANCO_PENDING_REQUEST);
     }
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
@@ -319,20 +334,25 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     return ERR_OK;
 }
 
-int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t userId, std::vector<DialogAppInfo> &dialogAppInfos) {
+int ImplicitStartProcessor::QueryBmsAppInfos(AbilityRequest &request, int32_t userId,
+    std::vector<DialogAppInfo> &dialogAppInfos)
+{
     auto bundleMgrHelper = GetBundleManagerHelper();
     std::vector<AppExecFwk::AbilityInfo> bmsApps;
     auto abilityInfoFlag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_DEFAULT
         | AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_SKILL_URI;
-
-    std::vector<std::string> apps = request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS);    
+    std::vector<std::string> apps = request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS);
     for (std::string appInfoStr : apps) {
         AppExecFwk::AbilityInfo abilityInfo;
-        std::vector<std::string> appInfos = ImplicitStartProcessor::splitStr(appInfoStr, '/');
+        std::vector<std::string> appInfos = ImplicitStartProcessor::SplitStr(appInfoStr, '/');
+        if (appInfos.empty() || appInfos.size() != NFC_QUERY_LENGTH) {
+            continue;
+        }
         std::string bundleName = appInfos[0];
         std::string abilityName = appInfos[1];
+        std::string queryAbilityName = bundleName.append(abilityName);
         Want want;
-        want.SetElementName(bundleName, abilityName);
+        want.SetElementName(appInfos[0], queryAbilityName);
 
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want, abilityInfoFlag,
             userId, abilityInfo));
@@ -354,14 +374,15 @@ int ImplicitStartProcessor::queryBmsAppInfos(AbilityRequest &request, int32_t us
     return ERR_OK;
 }
 
-std::vector<std::string> ImplicitStartProcessor::splitStr(const std::string& str, char delimiter) {
-    std::stringstream ss(str);  
-    std::vector<std::string> result;  
-    std::string s;  
-    while (std::getline(ss, s, delimiter)) {  
-        result.push_back(s);  
-    }  
-    return result;  
+std::vector<std::string> ImplicitStartProcessor::SplitStr(const std::string& str, char delimiter)
+{
+    std::stringstream ss(str);
+    std::vector<std::string> result;
+    std::string s;
+    while (std::getline(ss, s, delimiter)) {
+        result.push_back(s);
+    }
+    return result;
 }
 
 bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityRequest &request,
@@ -466,21 +487,10 @@ sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<AppExecFwk::AbilityInfo> &abilityInfos,
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId)
 {
-#ifdef SUPPORT_ERMS
     ErmsCallerInfo callerInfo;
     GetEcologicalCallerInfo(want, callerInfo, userId);
-    int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->EvaluateResolveInfos(want, callerInfo, 0,
-        abilityInfos, extensionInfos));
-#else
-    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
-    if (!erms) {
-        HILOG_ERROR("get ecological rule mgr failed.");
-        return false;
-    }
-
-    ErmsCallerInfo callerInfo;
-    int ret = IN_PROCESS_CALL(erms->EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
-#endif
+    int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->
+        EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
     if (ret != ERR_OK) {
         HILOG_ERROR("Failed to evaluate resolve infos from erms.");
         return false;
@@ -488,14 +498,13 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<App
     return true;
 }
 
-#ifdef SUPPORT_ERMS
 void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
 {
     callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
     callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
-    callerInfo.targetAppType = TYPE_HARMONY_INVALID;
-    callerInfo.callerAppType = TYPE_HARMONY_INVALID;
+    callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
 
     auto bundleMgrHelper = GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -511,10 +520,10 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
         HILOG_ERROR("Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the target type  is atomic service");
-        callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
-        callerInfo.targetAppType = TYPE_HARMONY_APP;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the target type is invalid type");
     }
@@ -532,15 +541,14 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
         HILOG_DEBUG("Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the caller type  is atomic service");
-        callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the caller type is app");
-        callerInfo.callerAppType = TYPE_HARMONY_APP;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the caller type is invalid type");
     }
 }
-#endif
 
 void ImplicitStartProcessor::AddIdentity(int32_t tokenId, std::string identity)
 {
@@ -610,8 +618,12 @@ bool ImplicitStartProcessor::IsExistDefaultApp(int32_t userId, const std::string
     }
 }
 
-bool ImplicitStartProcessor::IsCallFromAncoShell(const sptr<IRemoteObject> &token)
+bool ImplicitStartProcessor::IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token)
 {
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (callingUid == BROKER_UID) {
+        return true;
+    }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (!abilityRecord) {
         return false;

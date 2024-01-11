@@ -46,7 +46,7 @@ public:
     {}
     void ScheduleBackgroundApplication() override
     {}
-    void ScheduleTerminateApplication() override
+    void ScheduleTerminateApplication(bool isLastProcess = false) override
     {}
     void ScheduleShrinkMemory(const int) override
     {}
@@ -307,9 +307,13 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceModuleTest, ClearUpApplicationData_001, TestSize.Level1)
 {
-    EXPECT_TRUE(appMgrService_);
+    auto appMgrService = std::make_shared<AppMgrService>();
+    std::shared_ptr<OHOS::AAFwk::TaskHandlerWrap> taskHandler_ =
+        OHOS::AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
     std::string bundleName = "bundleName";
-    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName);
     EXPECT_EQ(res, ERR_INVALID_OPERATION);
 }
 

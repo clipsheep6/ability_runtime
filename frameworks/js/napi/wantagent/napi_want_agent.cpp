@@ -772,10 +772,17 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
 
     std::shared_ptr<AAFwk::WantParams> extraInfo = nullptr;
     bool hasExtraInfo = false;
-    napi_has_named_property(env, param, "extraInfo", &hasExtraInfo);
+    napi_value jsExtraInfo = nullptr;
+    napi_has_named_property(env, param, "extraInfos", &hasExtraInfo);
     if (hasExtraInfo) {
-        napi_value jsExtraInfo = nullptr;
-        napi_get_named_property(env, param, "extraInfo", &jsExtraInfo);
+        napi_get_named_property(env, param, "extraInfos", &jsExtraInfo);
+    } else {
+        napi_has_named_property(env, param, "extraInfo", &hasExtraInfo);
+        if (hasExtraInfo) {
+            napi_get_named_property(env, param, "extraInfo", &jsExtraInfo);
+        }
+    }
+    if (hasExtraInfo) {
         extraInfo = std::make_shared<AAFwk::WantParams>();
         if (!UnwrapWantParams(env, (jsExtraInfo),
             *extraInfo)) {
@@ -913,10 +920,17 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
     }
 
     bool hasExtraInfo = false;
-    napi_has_named_property(env, argv[0], "extraInfo", &hasExtraInfo);
+    napi_value jsExtraInfo = nullptr;
+    napi_has_named_property(env, argv[0], "extraInfos", &hasExtraInfo);
     if (hasExtraInfo) {
-        napi_value jsExtraInfo = nullptr;
-        napi_get_named_property(env, argv[0], "extraInfo", &jsExtraInfo);
+        napi_get_named_property(env, argv[0], "extraInfos", &jsExtraInfo);
+    } else {
+        napi_has_named_property(env, argv[0], "extraInfo", &hasExtraInfo);
+        if (hasExtraInfo) {
+            napi_get_named_property(env, argv[0], "extraInfo", &jsExtraInfo);
+        }
+    }
+    if (hasExtraInfo) {
         if (!CheckTypeForNapiValue(env, jsExtraInfo, napi_object)) {
             HILOG_ERROR("ExtraInfo type error!");
             return PARAMETER_ERROR;
@@ -951,6 +965,8 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
     napi_new_instance(env, wantAgentClass, 0, nullptr, &result);
     if (result == nullptr) {
         HILOG_ERROR("create instance failed.");
+        delete wantAgent;
+        wantAgent = nullptr;
         return nullptr;
     }
 
@@ -1300,8 +1316,6 @@ napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
 
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
-    napi_set_named_property(env, exportObj, "actionFlags", WantAgentFlagsInit(env));
-    napi_set_named_property(env, exportObj, "actionType", WantAgentOperationTypeInit(env));
 
     HILOG_DEBUG("JsWantAgentInit BindNativeFunction called");
     const char* moduleName = "JsWantAgent";

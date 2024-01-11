@@ -441,7 +441,8 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartServiceExtensionAbili
  * @tc.name: StartAbilityForResultWithAccount
  * @tc.desc: Start Ability For Result With Account
  */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0100, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0100,
+    Function | MediumTest | Level1)
 {
     AAFwk::Want want;
     int32_t accountId = 1;
@@ -474,7 +475,8 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResult_0100
  * @tc.name: StartAbilityForResultWithAccount
  * @tc.desc: Start Ability For Result With Account
  */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0200, Function | MediumTest | Level1)
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityForResultWithAccount_0200,
+    Function | MediumTest | Level1)
 {
     AAFwk::Want want;
     int32_t requestCode = 1;
@@ -554,6 +556,20 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0400, Functio
     int32_t requestCode = 1;
     auto ret = context_->StartAbility(want, requestCode);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_StartAbility_0500
+ * @tc.name: StartAbility
+ * @tc.desc: Start Ability
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0500, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    want.SetParam("ScreenMode", 1);
+    int32_t requestCode = 1;
+    auto ret = context_->StartAbility(want, requestCode);
+    EXPECT_EQ(ret, ERR_INVALID_VALUE);
 }
 
 /**
@@ -736,6 +752,30 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetTempDir_0200, Function 
 {
     context_->SetStageContext(nullptr);
     auto ret = context_->GetTempDir();
+    EXPECT_EQ(ret, "");
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetResourceDir_0100
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get resource Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetResourceDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    auto ret = context_->GetResourceDir();
+    EXPECT_EQ(ret, "/resfile");
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetResourceDir_0200
+ * @tc.name: GetResourceDir
+ * @tc.desc: Get resource Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetResourceDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    auto ret = context_->GetResourceDir();
     EXPECT_EQ(ret, "");
 }
 

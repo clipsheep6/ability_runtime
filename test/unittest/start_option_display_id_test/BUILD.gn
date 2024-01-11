@@ -42,19 +42,17 @@ ohos_unittest("start_option_display_id_test") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "window_manager:scene_session",
   ]
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
 
-  if (ecologic_rule_enabled) {
-    external_deps += [ "ecological_rule_manager:erms_client" ]
-  }
-
   if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:libwm" ]
+    external_deps += [
+      "window_manager:libwm",
+      "window_manager:scene_session",
+    ]
   }
 }
 

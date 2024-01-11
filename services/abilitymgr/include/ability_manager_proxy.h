@@ -365,7 +365,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DisconnectAbility(const sptr<IAbilityConnection> &connect) override;
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect) override;
 
     /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
@@ -644,7 +644,7 @@ public:
         const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback) override;
 
     virtual int GetDialogSessionInfo(const std::string dialogSessionId, sptr<DialogSessionInfo> &info) override;
-    
+
     virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllow) override;
 #endif
 
@@ -1130,6 +1130,12 @@ public:
      * @return int The file descriptor.
      */
     virtual int32_t OpenFile(const Uri& uri, uint32_t flag) override;
+
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) override;
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

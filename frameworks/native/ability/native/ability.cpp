@@ -169,61 +169,19 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     securityFlag_ = want.GetBoolParam(DLP_PARAMS_SECURITY_FLAG, false);
     (const_cast<Want &>(want)).RemoveParam(DLP_PARAMS_SECURITY_FLAG);
     SetWant(want);
-    sessionInfo_ = sessionInfo;
+    if (sessionInfo != nullptr) {
+        SetSessionToken(sessionInfo->sessionToken);
+    }
     HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
-        int32_t  defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
-        int32_t  displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
+        int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        int32_t displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
         HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
-        if (!abilityInfo_->isStageBasedModel) {
-            auto option = GetWindowOption(want);
-            InitWindow(displayId, option);
-        }
+        InitFAWindow(want, displayId);
 
-        if (abilityWindow_ != nullptr) {
-            HILOG_DEBUG("Get window from abilityWindow.");
-            auto window = abilityWindow_->GetWindow();
-            if (window) {
-                HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
-                abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
-                window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
-            }
-        }
-
-        // Update resMgr, Configuration
-        HILOG_DEBUG("Get display by displayId %{public}d.", displayId);
-        auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
-        if (display) {
-            float density = display->GetVirtualPixelRatio();
-            int32_t width = display->GetWidth();
-            int32_t height = display->GetHeight();
-            std::shared_ptr<Configuration> configuration = nullptr;
-            if (application_) {
-                configuration = application_->GetConfiguration();
-            }
-            if (configuration) {
-                std::string direction = GetDirectionStr(height, width);
-                configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, direction);
-                configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
-                configuration->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
-                UpdateContextConfiguration();
-            }
-
-            std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
-            if (resConfig == nullptr) {
-                HILOG_ERROR("Create resource config failed.");
-                return;
-            }
-            auto resourceManager = GetResourceManager();
-            if (resourceManager != nullptr) {
-                resourceManager->GetResConfig(*resConfig);
-                resConfig->SetScreenDensity(density);
-                resConfig->SetDirection(ConvertDirection(height, width));
-                resourceManager->UpdateResConfig(*resConfig);
-                HILOG_DEBUG("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
-                    resConfig->GetScreenDensity(), resConfig->GetDirection());
-            }
+        if (!UpdateResMgrAndConfiguration(displayId)) {
+            return;
         }
     }
 #endif
@@ -1121,8 +1079,7 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
         return;
     }
     if (index < 0) {
-        HILOG_ERROR(
-            "exec operation result index should not below zero, current index: %{public}d", index);
+        HILOG_ERROR("exec operation result index should not below zero, current index: %{public}d", index);
         return;
     }
     if (operation == nullptr) {
@@ -1133,8 +1090,7 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
 
     int numRows = 0;
     std::shared_ptr<NativeRdb::ValuesBucket> valuesBucket = ParseValuesBucketReference(results, operation, index);
-    std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates =
-        ParsePredictionArgsReference(results, operation, index);
+    auto predicates = ParsePredictionArgsReference(results, operation, index);
     if (operation->IsInsertOperation()) {
         HILOG_DEBUG("exec IsInsertOperation");
         numRows = Insert(*(operation->GetUri().get()), *valuesBucket);
@@ -1147,34 +1103,18 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
     } else if (operation->IsAssertOperation() && predicates) {
         HILOG_DEBUG("exec IsAssertOperation");
         std::vector<std::string> columns;
-        std::shared_ptr<NativeRdb::AbsSharedResultSet> queryResult =
-            Query(*(operation->GetUri().get()), columns, *predicates);
+        auto queryResult = Query(*(operation->GetUri().get()), columns, *predicates);
         if (queryResult == nullptr) {
             HILOG_ERROR("exec Query retval is nullptr");
             results.push_back(std::make_shared<DataAbilityResult>(0));
             return;
         }
-        if (queryResult->GetRowCount(numRows) != 0) {
-            HILOG_ERROR("exec queryResult->GetRowCount(numRows) != E_OK");
-        }
-        if (!CheckAssertQueryResult(queryResult, operation->GetValuesBucket())) {
-            if (queryResult != nullptr) {
-                queryResult->Close();
-            }
-            HILOG_ERROR("Query Result is not equal to expected value.");
-        }
-
-        if (queryResult != nullptr) {
-            queryResult->Close();
-        }
+        (void)CheckAssertQueryResult(queryResult, operation->GetValuesBucket());
+        queryResult->Close();
     } else {
         HILOG_ERROR("exec Expected bad type %{public}d", operation->GetType());
     }
-    if (operation->GetExpectedCount() != numRows) {
-        HILOG_ERROR("exec Expected %{public}d rows but actual %{public}d",
-            operation->GetExpectedCount(),
-            numRows);
-    } else {
+    if (operation->GetExpectedCount() == numRows) {
         if (operation->GetUri() != nullptr) {
             results.push_back(std::make_shared<DataAbilityResult>(*operation->GetUri(), numRows));
         } else {
@@ -1236,21 +1176,17 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
     std::vector<std::shared_ptr<DataAbilityResult>> &results, std::shared_ptr<DataAbilityOperation> &operation,
     int numRefs)
 {
-    NativeRdb::ValuesBucket retValueBucket;
     if (operation == nullptr) {
         HILOG_ERROR("intput is nullptr");
         return nullptr;
     }
-
     if (operation->GetValuesBucketReferences() == nullptr) {
         return operation->GetValuesBucket();
     }
 
+    NativeRdb::ValuesBucket retValueBucket;
     retValueBucket.Clear();
-    if (operation->GetValuesBucket() == nullptr) {
-        HILOG_DEBUG("operation->GetValuesBucket is nullptr");
-    } else {
-        HILOG_DEBUG("operation->GetValuesBucket is nullptr");
+    if (operation->GetValuesBucket() != nullptr) {
         retValueBucket = *operation->GetValuesBucket();
     }
 
@@ -1259,78 +1195,97 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
 
     for (auto itermap : valuesMapReferences) {
         std::string key = itermap.first;
+        HILOG_DEBUG("key is %{public}s", key.c_str());
         NativeRdb::ValueObject obj;
         if (!operation->GetValuesBucketReferences()->GetObject(key, obj)) {
             HILOG_ERROR("operation->GetValuesBucketReferences()->GetObject error");
             continue;
         }
         switch (obj.GetType()) {
-            case NativeRdb::ValueObjectType::TYPE_INT: {
-                int val = 0;
-                if (obj.GetInt(val) != 0) {
-                    HILOG_ERROR("ValueObject->GetInt() error");
-                    break;
-                }
-                HILOG_DEBUG("retValueBucket->PutInt(%{public}s, %{public}d)",
-                    key.c_str(),
-                    val);
-                retValueBucket.PutInt(key, val);
-            } break;
-            case NativeRdb::ValueObjectType::TYPE_DOUBLE: {
-                double val = 0.0;
-                if (obj.GetDouble(val) != 0) {
-                    HILOG_ERROR("ValueObject->GetDouble() error");
-                    break;
-                }
-                HILOG_DEBUG("retValueBucket->PutDouble(%{public}s, %{public}f)",
-                    key.c_str(),
-                    val);
-                retValueBucket.PutDouble(key, val);
-            } break;
-            case NativeRdb::ValueObjectType::TYPE_STRING: {
-                std::string val = "";
-                if (obj.GetString(val) != 0) {
-                    HILOG_ERROR("ValueObject->GetString() error");
-                    break;
-                }
-                HILOG_DEBUG("retValueBucket->PutString(%{public}s, %{public}s)",
-                    key.c_str(),
-                    val.c_str());
-                retValueBucket.PutString(key, val);
-            } break;
-            case NativeRdb::ValueObjectType::TYPE_BLOB: {
-                std::vector<uint8_t> val;
-                if (obj.GetBlob(val) != 0) {
-                    HILOG_ERROR("ValueObject->GetBlob() error");
-                    break;
-                }
-                HILOG_DEBUG("retValueBucket->PutBlob(%{public}s, %{public}zu)",
-                    key.c_str(),
-                    val.size());
-                retValueBucket.PutBlob(key, val);
-            } break;
-            case NativeRdb::ValueObjectType::TYPE_BOOL: {
-                bool val = false;
-                if (obj.GetBool(val) != 0) {
-                    HILOG_ERROR("ValueObject->GetBool() error");
-                    break;
-                }
-                HILOG_DEBUG("retValueBucket->PutBool(%{public}s, %{public}s)",
-                    key.c_str(),
-                    val ? "true" : "false");
-                retValueBucket.PutBool(key, val);
-            } break;
-            default: {
-                HILOG_DEBUG("retValueBucket->PutNull(%{public}s)", key.c_str());
+            case NativeRdb::ValueObjectType::TYPE_INT:
+                ParseIntValue(obj, key, retValueBucket);
+                break;
+            case NativeRdb::ValueObjectType::TYPE_DOUBLE:
+                ParseDoubleValue(obj, key, retValueBucket);
+                break;
+            case NativeRdb::ValueObjectType::TYPE_STRING:
+                ParseStringValue(obj, key, retValueBucket);
+                break;
+            case NativeRdb::ValueObjectType::TYPE_BLOB:
+                ParseBlobValue(obj, key, retValueBucket);
+                break;
+            case NativeRdb::ValueObjectType::TYPE_BOOL:
+                ParseBoolValue(obj, key, retValueBucket);
+                break;
+            default:
                 retValueBucket.PutNull(key);
-            } break;
+                break;
         }
     }
 
     std::map<std::string, NativeRdb::ValueObject> valuesMap;
     retValueBucket.GetAll(valuesMap);
-
     return std::make_shared<NativeRdb::ValuesBucket>(valuesMap);
+}
+
+void Ability::ParseIntValue(const NativeRdb::ValueObject &obj, const std::string &key,
+    NativeRdb::ValuesBucket &retValueBucket) const
+{
+    int val = 0;
+    if (obj.GetInt(val) != 0) {
+        HILOG_ERROR("ValueObject->GetInt() error");
+        return;
+    }
+    HILOG_DEBUG("retValueBucket->PutInt(%{public}s, %{public}d)", key.c_str(), val);
+    retValueBucket.PutInt(key, val);
+}
+
+void Ability::ParseDoubleValue(const NativeRdb::ValueObject &obj, const std::string &key,
+    NativeRdb::ValuesBucket &retValueBucket) const
+{
+    double val = 0.0;
+    if (obj.GetDouble(val) != 0) {
+        HILOG_ERROR("ValueObject->GetDouble() error");
+        return;
+    }
+    HILOG_DEBUG("retValueBucket->PutDouble(%{public}s, %{public}f)", key.c_str(), val);
+    retValueBucket.PutDouble(key, val);
+}
+
+void Ability::ParseStringValue(const NativeRdb::ValueObject &obj, const std::string &key,
+    NativeRdb::ValuesBucket &retValueBucket) const
+{
+    std::string val = "";
+    if (obj.GetString(val) != 0) {
+        HILOG_ERROR("ValueObject->GetString() error");
+        return;
+    }
+    HILOG_DEBUG("retValueBucket->PutString(%{public}s, %{public}s)", key.c_str(), val.c_str());
+    retValueBucket.PutString(key, val);
+}
+
+void Ability::ParseBlobValue(const NativeRdb::ValueObject &obj, const std::string &key,
+    NativeRdb::ValuesBucket &retValueBucket) const
+{
+    std::vector<uint8_t> val;
+    if (obj.GetBlob(val) != 0) {
+        HILOG_ERROR("ValueObject->GetBlob() error");
+        return;
+    }
+    HILOG_DEBUG("retValueBucket->PutBlob(%{public}s, %{public}zu)", key.c_str(), val.size());
+    retValueBucket.PutBlob(key, val);
+}
+
+void Ability::ParseBoolValue(const NativeRdb::ValueObject &obj, const std::string &key,
+    NativeRdb::ValuesBucket &retValueBucket) const
+{
+    bool val = false;
+    if (obj.GetBool(val) != 0) {
+        HILOG_ERROR("ValueObject->GetBool() error");
+        return;
+    }
+    HILOG_DEBUG("retValueBucket->PutBool(%{public}s, %{public}s)", key.c_str(), val ? "true" : "false");
+    retValueBucket.PutBool(key, val);
 }
 
 int Ability::ChangeRef2Value(std::vector<std::shared_ptr<DataAbilityResult>> &results, int numRefs, int index)
@@ -1594,7 +1549,7 @@ void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
         HILOG_ERROR("Ability window is nullptr.");
         return;
     }
-    abilityWindow_->SetSessionInfo(sessionInfo_);
+    abilityWindow_->SetSessionToken(sessionToken_);
     abilityWindow_->InitWindow(abilityContext_, sceneListener_, displayId, option, securityFlag_);
 }
 
@@ -2115,6 +2070,79 @@ int Ability::CreateModalUIExtension(const Want &want)
         return ERR_INVALID_VALUE;
     }
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
+}
+
+void Ability::SetSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    std::lock_guard lock(sessionTokenMutex_);
+    sessionToken_ = sessionToken;
+}
+
+void Ability::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    SetSessionToken(sessionToken);
+    if (abilityWindow_ == nullptr) {
+        HILOG_ERROR("Ability window is nullptr.");
+        return;
+    }
+    abilityWindow_->SetSessionToken(sessionToken);
+}
+
+void Ability::InitFAWindow(const Want &want, int32_t displayId)
+{
+    if (!abilityInfo_->isStageBasedModel) {
+        auto option = GetWindowOption(want);
+        InitWindow(displayId, option);
+    }
+
+    if (abilityWindow_ != nullptr) {
+        HILOG_DEBUG("Get window from abilityWindow.");
+        auto window = abilityWindow_->GetWindow();
+        if (window) {
+            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+            abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
+            window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
+        }
+    }
+}
+
+bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
+{
+    auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
+    if (!display) {
+        HILOG_INFO("The display is invliad.");
+        return true;
+    }
+    float density = display->GetVirtualPixelRatio();
+    int32_t width = display->GetWidth();
+    int32_t height = display->GetHeight();
+    std::shared_ptr<Configuration> configuration = nullptr;
+    if (application_) {
+        configuration = application_->GetConfiguration();
+    }
+    if (configuration) {
+        std::string direction = GetDirectionStr(height, width);
+        configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DIRECTION, direction);
+        configuration->AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
+        configuration->AddItem(ConfigurationInner::APPLICATION_DISPLAYID, std::to_string(displayId));
+        UpdateContextConfiguration();
+    }
+
+    std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
+    if (resConfig == nullptr) {
+        HILOG_ERROR("Create resource config failed.");
+        return false;
+    }
+    auto resourceManager = GetResourceManager();
+    if (resourceManager != nullptr) {
+        resourceManager->GetResConfig(*resConfig);
+        resConfig->SetScreenDensity(density);
+        resConfig->SetDirection(ConvertDirection(height, width));
+        resourceManager->UpdateResConfig(*resConfig);
+        HILOG_DEBUG("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
+            resConfig->GetScreenDensity(), resConfig->GetDirection());
+    }
+    return true;
 }
 #endif
 }  // namespace AppExecFwk

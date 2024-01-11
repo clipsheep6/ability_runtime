@@ -13,32 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ERMS_PARAM_H
-#define OHOS_ABILITY_RUNTIME_ERMS_PARAM_H
+let AbilityContext = requireNapi('application.AbilityContext');
 
-#include <string>
-#include <vector>
+class EmbeddableUIAbilityContext extends AbilityContext {
+  constructor(obj) {
+    super(obj);
+    this.abilityInfo = obj.abilityInfo;
+    this.currentHapModuleInfo = obj.currentHapModuleInfo;
+    this.config = obj.config;
+  }
 
-#include "want.h"
+  onUpdateConfiguration(config) {
+    this.config = config;
+  }
+}
 
-namespace OHOS {
-namespace AppExecFwk {
-namespace ErmsParams {
-using Want = OHOS::AAFwk::Want;
-
-struct ExperienceRule {
-    bool isAllow = false;
-    std::shared_ptr<Want> replaceWant = nullptr;
-    int64_t sceneCode = 0L;
-    int64_t allowTypes;
-};
-
-struct CallerInfo {
-    std::string packageName;
-    int64_t uid = 0L;
-    int64_t pid = 0L;
-};
-}  // namespace ErmsParams
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_ERMS_PARAM_H
+export default EmbeddableUIAbilityContext;

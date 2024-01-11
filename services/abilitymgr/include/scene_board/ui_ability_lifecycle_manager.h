@@ -298,6 +298,12 @@ public:
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
         const int32_t oriValidUserId);
 
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId);
+
 private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
@@ -321,7 +327,7 @@ private:
         std::string errorReason);
     void MoveToBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId, bool isHalf = false);
+    void PrintTimeOutLog(std::shared_ptr<AbilityRecord> ability, uint32_t msgId, bool isHalf = false);
     void DelayCompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsContainsAbilityInner(const sptr<IRemoteObject> &token) const;
@@ -352,6 +358,14 @@ private:
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
+
+    bool CheckSessionInfo(sptr<SessionInfo> sessionInfo) const;
+    std::shared_ptr<AbilityRecord> CreateAbilityRecord(AbilityRequest &abilityRequest,
+        sptr<SessionInfo> sessionInfo) const;
+    void AddCallerRecord(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo,
+        std::shared_ptr<AbilityRecord> uiAbilityRecord) const;
+    void CheckSpecified(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> uiAbilityRecord);
+    void SendKeyEvent(AbilityRequest &abilityRequest) const;
 
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;

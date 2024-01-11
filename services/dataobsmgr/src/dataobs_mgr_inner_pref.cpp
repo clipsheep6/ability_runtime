@@ -99,7 +99,7 @@ int DataObsMgrInnerPref::HandleNotifyChange(const Uri &uri)
         std::string observerKey = uriStr.substr(0, pos);
         auto obsPair = observers_.find(observerKey);
         if (obsPair == observers_.end()) {
-            HILOG_WARN("there is no obs on the uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+            HILOG_DEBUG("there is no obs on the uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
             return NO_OBS_FOR_URI;
         }
         obsList = obsPair->second;

@@ -46,13 +46,13 @@ void UIAbilityImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
     ability_->SetSceneListener(sptr<WindowLifeCycleImpl>(
         new (std::nothrow) WindowLifeCycleImpl(token_, shared_from_this())));
 #endif
-    ability_->Init(record->GetAbilityInfo(), application, handler, token);
+    ability_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
     abilityLifecycleCallbacks_ = application;
     HILOG_DEBUG("End.");
 }
 
-void UIAbilityImpl::Start(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo)
+void UIAbilityImpl::Start(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin.");
@@ -162,7 +162,7 @@ void UIAbilityImpl::DispatchRestoreAbilityState(const AppExecFwk::PacMap &inStat
 }
 
 void UIAbilityImpl::HandleAbilityTransaction(
-    const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AppExecFwk::SessionInfo> sessionInfo)
+    const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",

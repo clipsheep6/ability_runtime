@@ -43,6 +43,7 @@ ohos_unittest("app_spawn_socket_test") {
   ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
     "bundle_framework:appexecfwk_core",
     "ffrt:libffrt",
     "hilog:libhilog",

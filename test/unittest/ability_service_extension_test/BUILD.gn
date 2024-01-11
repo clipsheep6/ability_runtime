@@ -20,6 +20,7 @@ ohos_unittest("ability_service_extension_test") {
 
   include_dirs = [
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_bundle_manager_helper",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_native_path}/runtime",
@@ -28,6 +29,7 @@ ohos_unittest("ability_service_extension_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "ability_service_extension_test.cpp",
   ]
@@ -41,9 +43,11 @@ ohos_unittest("ability_service_extension_test") {
   }
 
   deps = [
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:service_extension",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
@@ -57,12 +61,15 @@ ohos_unittest("ability_service_extension_test") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "samgr:samgr_proxy",
   ]
 
   if (ability_runtime_graphics) {

@@ -33,13 +33,6 @@ ohos_moduletest("AmsServiceAppSpawnClientModuleTest") {
     "${ability_runtime_test_path}/moduletest/common/ams:appmgr_mst_source",
   ]
 
-  if (ability_runtime_graphics) {
-    deps += [
-      "${ability_runtime_native_path}/appkit:appkit_manager_helper",
-      "${global_path}/i18n/frameworks/intl:intl_util",
-    ]
-  }
-
   external_deps = [
     "bundle_framework:appexecfwk_base",
     "ffrt:libffrt",
@@ -47,8 +40,15 @@ ohos_moduletest("AmsServiceAppSpawnClientModuleTest") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "window_manager:libwm",
   ]
+
+  if (ability_runtime_graphics) {
+    deps += [
+      "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+      "${global_path}/i18n/frameworks/intl:intl_util",
+    ]
+    external_deps += [ "window_manager:libwm" ]
+  }
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]

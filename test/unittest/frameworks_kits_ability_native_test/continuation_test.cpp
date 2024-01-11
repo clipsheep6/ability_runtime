@@ -74,8 +74,8 @@ public:
 
 class MockReverseContinuationSchedulerPrimaryProxy : public IRemoteProxy<IReverseContinuationSchedulerPrimary> {
 public:
-    explicit MockReverseContinuationSchedulerPrimaryProxy(const sptr<IRemoteObject> &remoteObject) :
-        IRemoteProxy<IReverseContinuationSchedulerPrimary>(remoteObject) {}
+    explicit MockReverseContinuationSchedulerPrimaryProxy(const sptr<IRemoteObject> &remoteObject)
+        : IRemoteProxy<IReverseContinuationSchedulerPrimary>(remoteObject) {}
     virtual ~MockReverseContinuationSchedulerPrimaryProxy() = default;
     MOCK_METHOD0(NotifyReplicaTerminated, void());
     MOCK_METHOD1(ContinuationBack, bool(const AAFwk::Want &want));
@@ -83,8 +83,8 @@ public:
 
 class MockReverseContinuationSchedulerReplicaProxy : public IRemoteProxy<IReverseContinuationSchedulerReplica> {
 public:
-    explicit MockReverseContinuationSchedulerReplicaProxy(const sptr<IRemoteObject> &remoteObject) :
-        IRemoteProxy<IReverseContinuationSchedulerReplica>(remoteObject) {}
+    explicit MockReverseContinuationSchedulerReplicaProxy(const sptr<IRemoteObject> &remoteObject)
+        : IRemoteProxy<IReverseContinuationSchedulerReplica>(remoteObject) {}
     virtual ~MockReverseContinuationSchedulerReplicaProxy() = default;
     MOCK_METHOD1(PassPrimary, void(const sptr<IRemoteObject> &primary));
     MOCK_METHOD0(ReverseContinuation, bool());
@@ -1088,7 +1088,7 @@ HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbilityWithStack_001, 
 /*
  * @tc.number: continue_manager_HandleContinueAbilityWithStack_002
  * @tc.name: HandleContinueAbilityWithStack
- * @tc.desc: call HandleContinueAbilityWithStack with null continuationHandler 
+ * @tc.desc: call HandleContinueAbilityWithStack with null continuationHandler
  */
 HWTEST_F(ContinuationTest, continue_manager_HandleContinueAbilityWithStack_002, TestSize.Level1)
 {
@@ -1564,7 +1564,9 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_002, TestSiz
 HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_003 start";
-    EXPECT_CALL(*mockAbility_, OnContinue(_)).Times(1).WillOnce(Return(ContinuationManager::OnContinueResult::MISMATCH));
+    EXPECT_CALL(*mockAbility_, OnContinue(_))
+        .Times(1)
+        .WillOnce(Return(ContinuationManager::OnContinueResult::MISMATCH));
     std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
     std::weak_ptr<Ability> abilityTmp = mockAbility_;
     auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);

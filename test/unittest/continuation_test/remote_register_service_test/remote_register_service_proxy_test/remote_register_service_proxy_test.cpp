@@ -37,9 +37,6 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-
-protected:
-
 };
 
 void RemoteRegisterServiceProxyTest::SetUpTestCase(void)

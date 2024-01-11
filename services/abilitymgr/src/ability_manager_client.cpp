@@ -27,7 +27,7 @@
 #include "iservice_registry.h"
 #include "scene_board_judgement.h"
 #include "session_info.h"
-#include "session_manager.h"
+#include "session_manager_lite.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "ws_common.h"
@@ -42,9 +42,9 @@ static std::unordered_map<Rosen::WSError, int32_t> SCB_TO_MISSION_ERROR_CODE_MAP
 };
 }
 
-using OHOS::Rosen::SessionManager;
+using OHOS::Rosen::SessionManagerLite;
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::instance_ = nullptr;
-std::recursive_mutex AbilityManagerClient::mutex_;
+std::once_flag AbilityManagerClient::singletonFlag_;
 #ifdef WITH_DLP
 const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 #endif // WITH_DLP
@@ -69,12 +69,9 @@ const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::GetInstance()
 {
-    if (instance_ == nullptr) {
-        std::lock_guard<std::recursive_mutex> lock_l(mutex_);
-        if (instance_ == nullptr) {
-            instance_ = std::make_shared<AbilityManagerClient>();
-        }
-    }
+    std::call_once(singletonFlag_, [] () {
+        instance_ = std::shared_ptr<AbilityManagerClient>(new AbilityManagerClient());
+    });
     return instance_;
 }
 
@@ -323,7 +320,7 @@ ErrCode AbilityManagerClient::MoveAbilityToBackground(sptr<IRemoteObject> token)
 ErrCode AbilityManagerClient::CloseAbility(sptr<IRemoteObject> token, int resultCode, const Want *resultWant)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
@@ -629,7 +626,7 @@ ErrCode AbilityManagerClient::NotifyContinuationResult(int32_t missionId, int32_
 ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->LockSession(missionId);
@@ -646,7 +643,7 @@ ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
 ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->UnlockSession(missionId);
@@ -670,7 +667,7 @@ void AbilityManagerClient::SetLockedState(int32_t sessionId, bool lockedState)
 ErrCode AbilityManagerClient::RegisterMissionListener(sptr<IMissionListener> listener)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->RegisterSessionListener(listener);
@@ -687,7 +684,7 @@ ErrCode AbilityManagerClient::RegisterMissionListener(sptr<IMissionListener> lis
 ErrCode AbilityManagerClient::UnRegisterMissionListener(sptr<IMissionListener> listener)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->UnRegisterSessionListener(listener);
@@ -737,7 +734,7 @@ ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32
     std::vector<MissionInfo> &missionInfos)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->GetSessionInfos(deviceId, numMax, missionInfos);
@@ -755,7 +752,7 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
     MissionInfo &missionInfo)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->GetSessionInfo(deviceId, missionId, missionInfo);
@@ -772,7 +769,7 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
 ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->ClearSession(missionId);
@@ -789,7 +786,7 @@ ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
 ErrCode AbilityManagerClient::CleanAllMissions()
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->ClearAllSessions();
@@ -821,7 +818,7 @@ ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t
 {
     HILOG_INFO("MoveMissionsToForeground begin, topMissionId:%{public}d", topMissionId);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->MoveSessionsToForeground(missionIds, topMissionId);
@@ -852,7 +849,7 @@ ErrCode AbilityManagerClient::MoveMissionsToBackground(const std::vector<int32_t
 {
     HILOG_INFO("MoveMissionsToBackground begin.");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->MoveSessionsToBackground(missionIds, result);
@@ -1013,7 +1010,7 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
     MissionSnapshot& snapshot, bool isLowResolution)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->GetSessionSnapshot(deviceId, missionId, snapshot, isLowResolution);
@@ -1046,7 +1043,7 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         auto err = sceneSessionManager->GetFocusSessionToken(token);
@@ -1079,7 +1076,7 @@ ErrCode AbilityManagerClient::CheckUIExtensionIsFocused(uint32_t uiExtensionToke
 ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(sptr<IRemoteObject> token)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         sceneSessionManager->PendingSessionToForeground(token);
@@ -1092,7 +1089,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(sptr<IRemoteObject> t
 ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(sptr<IRemoteObject> token)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         sceneSessionManager->PendingSessionToBackgroundForDelegator(token);
@@ -1106,7 +1103,7 @@ ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
     const AAFwk::ContinueState &state)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_DEBUG("call");
         uint32_t value = static_cast<uint32_t>(state);
@@ -1123,7 +1120,7 @@ ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
 ErrCode AbilityManagerClient::SetMissionLabel(sptr<IRemoteObject> token, const std::string& label)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->SetSessionLabel(token, label);
@@ -1141,7 +1138,7 @@ ErrCode AbilityManagerClient::SetMissionIcon(
     sptr<IRemoteObject> abilityToken, std::shared_ptr<OHOS::Media::PixelMap> icon)
 {
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         HILOG_INFO("call");
         auto err = sceneSessionManager->SetSessionIcon(abilityToken, icon);
@@ -1378,7 +1375,7 @@ int32_t AbilityManagerClient::IsValidMissionIds(
 {
     HILOG_INFO("call");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto sceneSessionManager = SessionManager::GetInstance().GetSceneSessionManagerProxy();
+        auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         std::vector<bool> isValidList;
         auto err = sceneSessionManager->IsValidSessionIds(missionIds, isValidList);
@@ -1687,6 +1684,14 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
         return true;
     }
     return abms->OpenFile(uri, flag);
+}
+
+void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->UpdateSessionInfoBySCB(sessionInfos, userId);
 }
 } // namespace AAFwk
 } // namespace OHOS

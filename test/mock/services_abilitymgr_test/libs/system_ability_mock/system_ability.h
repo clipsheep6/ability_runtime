@@ -24,8 +24,6 @@ namespace OHOS {
 #define REGISTER_SYSTEM_ABILITY(abilityClassName, abilityId, runOnCreate)
 #define DECLEAR_SYSTEM_ABILITY(className)
 
-static constexpr HiviewDFX::HiLogLabel LABEL = { LOG_CORE, 0xD001100, "MockSystemAbility" };
-
 class SystemAbility {
 public:
     static bool MakeAndRegisterAbility(SystemAbility*)
@@ -38,27 +36,32 @@ public:
 protected:
     virtual void OnStart()
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnStart called");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility OnStart called");
     }
 
     virtual void OnStop()
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnStop called");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility OnStop called");
     }
 
     virtual void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnAddSystemAbility called");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility OnAddSystemAbility called");
     }
 
     virtual void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility OnRemoveSystemAbility called");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility OnRemoveSystemAbility called");
     }
 
     bool Publish(sptr<IRemoteObject> systemAbility)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility Publish called");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility Publish called");
         systemAbility.ForceSetRefPtr(nullptr);
         // For test just mock to return true
         return true;
@@ -66,17 +69,20 @@ protected:
 
     SystemAbility(bool runOnCreate = false)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility default Creator called %d", runOnCreate);
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility default Creator called %d", runOnCreate);
     }
 
     SystemAbility(const int32_t serviceId, bool runOnCreate = false)
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility Creator called %d", runOnCreate);
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility Creator called %d", runOnCreate);
     }
 
     virtual ~SystemAbility()
     {
-        HiviewDFX::HiLog::Debug(LABEL, "Mock SystemAbility Destructor called");
+        HILOG_IMPL(LOG_CORE, LOG_DEBUG, 0xD001100, "MockSystemAbility",
+            "Mock SystemAbility Destructor called");
     }
 };
 }  // namespace OHOS

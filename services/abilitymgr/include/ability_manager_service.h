@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,7 @@
 #include "ability_debug_deal.h"
 #include "ability_event_handler.h"
 #include "ability_interceptor_executer.h"
+#include "ability_manager_event_subscriber.h"
 #include "ability_manager_stub.h"
 #include "ams_configuration_parameter.h"
 #include "app_debug_listener_interface.h"
@@ -521,7 +522,7 @@ public:
     virtual int UnRegisterMissionListener(const std::string &deviceId,
         const sptr<IRemoteMissionListener> &listener)override;
 
-    virtual int DisconnectAbility(const sptr<IAbilityConnection> &connect) override;
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect) override;
 
     /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
@@ -822,7 +823,7 @@ public:
         bool checkSystemCaller = true);
 
     int RequestModalUIExtensionInner(const Want &want);
-    
+
     int StartAbilityForOptionWrap(
         const Want &want,
         const StartOptions &startOptions,
@@ -925,7 +926,7 @@ public:
         sptr<DialogSessionInfo> &dialogSessionInfo) override;
 
     bool GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos);
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
 
     int CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken, std::string dialogSessionId);
 
@@ -1470,6 +1471,12 @@ public:
 
     void RemoveLauncherDeathRecipient(int32_t userId);
 
+    /**
+     * @brief Update session info.
+     * @param sessionInfos The vector of session info.
+     */
+    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1687,8 +1694,11 @@ private:
 
     void StartResidentApps();
 
-    void StartAutoStartupAppsInner();
+    void StartAutoStartupApps();
     void RetryStartAutoStartupApps(const std::vector<AutoStartupInfo> &infoList, int32_t retryCount);
+    void SubscribeScreenUnlockedEvent();
+    void UnSubscribeScreenUnlockedEvent();
+    void RetrySubscribeScreenUnlockedEvent(int32_t retryCount);
 
     int VerifyAccountPermission(int32_t userId);
 
@@ -1728,6 +1738,9 @@ private:
         const std::string& abilityName, const std::string& result);
 
     void AppRecoverKill(pid_t pid, int32_t reason);
+
+    int32_t GenerateEmbeddableUIAbilityRequest(const Want &want, AbilityRequest &request,
+        const sptr<IRemoteObject> &callerToken, int32_t userId);
 
     /**
      * Check if Caller is allowed to start ServiceAbility(FA) or ServiceExtension(Stage) or DataShareExtension(Stage).
@@ -1894,6 +1907,9 @@ private:
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
         const int32_t oriValidUserId);
 
+    void InitInterceptor();
+    void InitPushTask();
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
@@ -1955,6 +1971,8 @@ private:
      *  FALSE: white list unable.
      */
     bool whiteListassociatedWakeUpFlag_ = true;
+
+    std::shared_ptr<AbilityRuntime::AbilityManagerEventSubscriber> screenSubscriber_;
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
 

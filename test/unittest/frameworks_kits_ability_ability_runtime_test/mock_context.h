@@ -24,7 +24,7 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-class MockContext : public AbilityRuntime::Context{
+class MockContext : public AbilityRuntime::Context {
 public:
     MockContext() = default;
     virtual ~MockContext() = default;
@@ -40,6 +40,8 @@ public:
     bool PrintDrawnCompleted() override;
 
     std::string GetTempDir() override;
+
+    std::string GetResourceDir() override;
 
     std::string GetFilesDir() override;
 

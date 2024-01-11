@@ -17,7 +17,10 @@
 
 #define private public
 #include "app_running_manager.h"
+#include "child_process_record.h"
 #undef private
+#include "hilog_wrapper.h"
+#include "window_visibility_info.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -28,6 +31,8 @@ namespace {
 constexpr int32_t DEBUGINFOS_SIZE = 0;
 constexpr int32_t ABILITYTOKENS_SIZE = 0;
 constexpr int32_t RECORD_ID = 1;
+constexpr uint32_t WINDOW_ID = 100;
+constexpr pid_t PID = 10;
 constexpr int32_t RECORD_MAP_SIZE = 1;
 constexpr int32_t DEBUG_INFOS_SIZE = 1;
 constexpr int32_t ABILITY_TOKENS_SIZE = 1;
@@ -154,6 +159,98 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAbilityTokensByBundleName_0
             EXPECT_EQ(abilityTokens.size(), ABILITY_TOKENS_SIZE);
         }
     }
+}
+
+/**
+ * @tc.name: AppRunningManager_OnWindowVisibilityChanged_0100
+ * @tc.desc: verify the function of OnWindowVisibilityChanged : set windowIds and isUpdateStateFromService_
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100, TestSize.Level1)
+{
+    // 1. create ApprunningManager
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+
+    // 2. createAppRunningRecord and put it into appRunningRecordMap_ of AppRunningManager
+    std::string processName = "processName";
+    std::string appName = "appName";
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = appName;
+    int32_t recordId = AppRecordId::Create();
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    EXPECT_NE(appRunningRecord, nullptr);
+    appRunningRecord->curState_ = ApplicationState::APP_STATE_BACKGROUND;
+    appRunningRecord->isUpdateStateFromService_ = false;
+    appRunningRecord->GetPriorityObject()->SetPid(PID);
+    appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
+
+    // 3. construct WindowVisibilityInfos
+    std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> windowVisibilityInfos;
+    auto info = new (std::nothrow) Rosen::WindowVisibilityInfo();
+    EXPECT_NE(info, nullptr);
+    info->windowId_ = WINDOW_ID;
+    info->pid_ = PID;
+    info->visibilityState_ = Rosen::WindowVisibilityState::WINDOW_VISIBILITY_STATE_NO_OCCLUSION;
+    windowVisibilityInfos.push_back(info);
+
+    // 4. verify the function
+    appRunningManager->OnWindowVisibilityChanged(windowVisibilityInfos);
+    EXPECT_FALSE(appRunningManager->appRunningRecordMap_.empty());
+    EXPECT_FALSE(appRunningManager->appRunningRecordMap_.at(1)->windowIds_.empty());
+    EXPECT_TRUE(appRunningManager->appRunningRecordMap_.at(1)->isUpdateStateFromService_);
+}
+
+/**
+ * @tc.name: AppRunningManager_GetAppRunningRecordByChildProcessPid_0100
+ * @tc.desc: Test GetAppRunningRecordByChildProcessPid works
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProcessPid_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningManager_GetAppRunningRecordByChildProcessPid_0100 called.");
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    
+    auto appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, "./ets/AProcess.ts", appRecord);
+    pid_t childPid = 201;
+    childRecord->pid_ = childPid;
+    appRecord->AddChildProcessRecord(childPid, childRecord);
+    appRunningManager->appRunningRecordMap_.insert(make_pair(RECORD_ID, appRecord));
+
+    auto record = appRunningManager->GetAppRunningRecordByChildProcessPid(childPid);
+    EXPECT_NE(record, nullptr);
+}
+
+/**
+ * @tc.name: AppRunningManager_UpdateConfiguration_0100
+ * @tc.desc: Test UpdateConfiguration works
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0100, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    std::string bundleName;
+    std::vector<AppDebugInfo> debugInfos;
+    bool isDetachDebug = true;
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    int32_t recordId = 1;
+    std::string processName;
+    Configuration config;
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, nullptr);
+    appRunningRecord->SetState(ApplicationState::APP_STATE_READY);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, appRunningRecord);
+    appInfo->name = "com.huawei.shell_assistant";
+    appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, appRunningRecord);
+    EXPECT_EQ(appRunningManager->appRunningRecordMap_.size(), recordId);
+    auto ret = appRunningManager->UpdateConfiguration(config);
+    EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

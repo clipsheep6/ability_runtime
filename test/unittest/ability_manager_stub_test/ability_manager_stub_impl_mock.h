@@ -27,6 +27,10 @@ namespace OHOS {
 namespace AAFwk {
 class AbilityManagerStubImplMock : public AbilityManagerStub {
 public:
+    const int ABILITY_STATE_FIRST_UID = 3000;
+    const int ABILITY_STATE_SECOND_UID = 3001;
+    const int ABILITY_STATE_FIRST_PID = 11291450;
+    const int ABILITY_STATE_SECOND_PID = 11291506;
     AbilityManagerStubImplMock()
     {}
     virtual ~AbilityManagerStubImplMock()
@@ -153,7 +157,7 @@ public:
         return 0;
     }
 
-    virtual int DisconnectAbility(const sptr<IAbilityConnection>& connect)
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect)
     {
         return 0;
     }
@@ -421,8 +425,8 @@ public:
         abilityStateDataOne.moduleName = "entry";
         abilityStateDataOne.abilityName = "EntryAbility";
         abilityStateDataOne.abilityState = AbilityState::FOREGROUND;
-        abilityStateDataOne.pid = 3000;
-        abilityStateDataOne.uid = 11291450;
+        abilityStateDataOne.pid = ABILITY_STATE_FIRST_UID;
+        abilityStateDataOne.uid = ABILITY_STATE_FIRST_PID;
         abilityStateDataOne.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
         list.emplace_back(abilityStateDataOne);
 
@@ -431,8 +435,8 @@ public:
         abilityStateDataTwo.moduleName = "entry";
         abilityStateDataTwo.abilityName = "EntryAbility";
         abilityStateDataTwo.abilityState = AbilityState::INACTIVE;
-        abilityStateDataTwo.pid = 3001;
-        abilityStateDataTwo.uid = 11291506;
+        abilityStateDataTwo.pid = ABILITY_STATE_SECOND_UID;
+        abilityStateDataTwo.uid = ABILITY_STATE_SECOND_PID;
         abilityStateDataTwo.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
         list.emplace_back(abilityStateDataTwo);
         return ERR_OK;

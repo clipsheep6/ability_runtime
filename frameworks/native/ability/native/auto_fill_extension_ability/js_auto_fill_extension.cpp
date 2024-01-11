@@ -403,10 +403,11 @@ void JsAutoFillExtension::OnCommand(const AAFwk::Want &want, bool restart, int s
     HILOG_DEBUG("End.");
 }
 
-void JsAutoFillExtension::OnForeground(const Want &want)
+void JsAutoFillExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HILOG_DEBUG("Called.");
-    Extension::OnForeground(want);
+    Extension::OnForeground(want, sessionInfo);
+    ForegroundWindow(want, sessionInfo);
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onForeground");
 }

@@ -24,6 +24,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
+class JsEmbeddableUIAbilityContext;
+
 class JsUIExtensionContext {
 public:
     explicit JsUIExtensionContext(const std::shared_ptr<UIExtensionContext>& context) : context_(context) {}
@@ -47,6 +49,7 @@ protected:
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
+    friend class JsEmbeddableUIAbilityContext;
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
@@ -73,13 +76,13 @@ private:
     int64_t connectionId_ = -1;
 };
 
-struct ConnectionKey {
+struct UIExtensionConnectionKey {
     AAFwk::Want want;
     int64_t id;
 };
 
 struct key_compare {
-    bool operator()(const ConnectionKey &key1, const ConnectionKey &key2) const
+    bool operator()(const UIExtensionConnectionKey &key1, const UIExtensionConnectionKey &key2) const
     {
         if (key1.id < key2.id) {
             return true;

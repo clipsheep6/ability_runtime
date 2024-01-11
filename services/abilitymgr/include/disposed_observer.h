@@ -20,25 +20,25 @@
 #include "application_state_observer_stub.h"
 #include "app_mgr_interface.h"
 #include "cpp/mutex.h"
-#include "in_process_call_wrapper.h"
 #include "want.h"
 
 namespace OHOS {
 namespace AAFwk {
+class DisposedRuleInterceptor;
 class DisposedObserver : public AppExecFwk::ApplicationStateObserverStub {
 public:
-    DisposedObserver(const AppExecFwk::DisposedRule &disposedRule);
-    ~DisposedObserver();
-    sptr<AppExecFwk::IAppMgr> GetAppMgr();
+    DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
+        const std::shared_ptr<DisposedRuleInterceptor> &interceptor);
+    ~DisposedObserver() = default;
 
 private:
-    bool UnSubScribeAppState();
     void OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData) override;
     void OnPageShow(const AppExecFwk::PageStateData &pageStateData) override;
 private:
     ffrt::mutex observerLock_;
     AppExecFwk::DisposedRule disposedRule_;
     sptr<IRemoteObject> token_ = nullptr;
+    std::shared_ptr<DisposedRuleInterceptor> interceptor_ = nullptr;
 };
 } // namespace AAFwk
 } // namespace OHOS

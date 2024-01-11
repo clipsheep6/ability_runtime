@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,8 @@ DmsSaClient &DmsSaClient::GetInstance()
 bool DmsSaClient::SubscribeDmsSA()
 {
     HILOGI("%{public}s called.", __func__);
-    int32_t ret = saMgrProxy_->SubscribeSystemAbility(DISTRIBUTED_SCHED_SA_ID, this);
+    sptr<DmsSystemAbilityStatusChange> callback(new DmsSystemAbilityStatusChange());
+    int32_t ret = saMgrProxy_->SubscribeSystemAbility(DISTRIBUTED_SCHED_SA_ID, callback);
     if (ret != ERR_OK) {
         HILOGE("Failed to subscribe system ability DISTRIBUTED_SCHED_SA_ID ret:%{public}d", ret);
         return false;
@@ -46,10 +47,10 @@ int32_t DmsSaClient::AddListener(const std::string& type, const sptr<IRemoteOnLi
         AbilityManagerClient::GetInstance()->RegisterOnListener(type, listener);
     }
     std::lock_guard<std::mutex> lock(eventMutex_);
+    listeners_[type] = listener;
     if (!hasSubscribeDmsSA_) {
         if (SubscribeDmsSA()) {
             hasSubscribeDmsSA_ = true;
-            listeners_[type] = listener;
         } else {
             return INNER_ERR;
         }
@@ -92,6 +93,37 @@ void DmsSaClient::OnRemoveSystemAbility(int32_t systemAbilityId, const std::stri
         }
     } else {
         HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %{public}d", systemAbilityId);
+    }
+}
+
+DmsSystemAbilityStatusChange::DmsSystemAbilityStatusChange()
+{
+    HILOGI("DmsSystemAbilityStatusChange create");
+}
+
+DmsSystemAbilityStatusChange::~DmsSystemAbilityStatusChange()
+{
+    HILOGI("DmsSystemAbilityStatusChange delete");
+}
+
+void DmsSystemAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    HILOGI("OnAddSystemAbility called, the systemAbilityId is %d", systemAbilityId);
+    if (systemAbilityId != DISTRIBUTED_SCHED_SA_ID) {
+        HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %d", systemAbilityId);
+        return;
+    }
+
+    DmsSaClient::GetInstance().OnAddSystemAbility(systemAbilityId, deviceId);
+    HILOGI("OnAddSystemAbility called end, the systemAbilityId is %d", systemAbilityId);
+}
+
+void DmsSystemAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
+{
+    HILOGI("OnRemoveSystemAbility called, the systemAbilityId is %d", systemAbilityId);
+    if (systemAbilityId != DISTRIBUTED_SCHED_SA_ID) {
+        HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %d", systemAbilityId);
+        return;
     }
 }
 }  // namespace AAFwk

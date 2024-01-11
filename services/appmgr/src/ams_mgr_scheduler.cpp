@@ -20,6 +20,7 @@
 #include "ipc_skeleton.h"
 #include "system_ability_definition.h"
 
+#include "accesstoken_kit.h"
 #include "app_death_recipient.h"
 #include "app_mgr_constants.h"
 #include "hilog_wrapper.h"
@@ -40,6 +41,7 @@ const std::string TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask"
 const std::string TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
 const std::string TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
 const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
+const std::string TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(
@@ -432,6 +434,25 @@ bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
         return false;
     }
     return amsMgrServiceInner_->IsAttachDebug(bundleName);
+}
+
+void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (nativeInfo.processName != "foundation") {
+        HILOG_ERROR("caller is not foundation.");
+        return;
+    }
+
+    std::function<void()> clearProcessByTokenFunc =
+        std::bind(&AppMgrServiceInner::ClearProcessByToken, amsMgrServiceInner_, token);
+    amsHandler_->SubmitTask(clearProcessByTokenFunc, TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

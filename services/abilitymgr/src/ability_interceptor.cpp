@@ -24,14 +24,12 @@
 #include "app_jump_control_rule.h"
 #include "app_running_control_rule_result.h"
 #include "bundle_constants.h"
-#ifndef SUPPORT_ERMS
-#include "erms_mgr_interface.h"
-#include "erms_mgr_param.h"
-#endif
+#include "ecological_rule/ability_ecological_rule_mgr_service.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
+#include "modal_system_ui_extension.h"
 #include "parameters.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
@@ -40,16 +38,6 @@
 #include "want_params_wrapper.h"
 namespace OHOS {
 namespace AAFwk {
-#ifdef SUPPORT_ERMS
-using namespace OHOS::EcologicalRuleMgrService;
-
-constexpr int32_t TYPE_HARMONY_INVALID = 0;
-constexpr int32_t TYPE_HARMONY_APP = 1;
-constexpr int32_t TYPE_HARMONY_SERVICE = 2;
-#else
-using ErmsCallerInfo = OHOS::AppExecFwk::ErmsParams::CallerInfo;
-using ExperienceRule = OHOS::AppExecFwk::ErmsParams::ExperienceRule;
-#endif
 
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 const std::string ACTION_MARKET_DISPOSED = "ohos.want.action.marketDisposed";
@@ -60,13 +48,19 @@ const std::string JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
 const std::string JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
 const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 const std::string UNREGISTER_EVENT_TASK = "unregister event task";
-const std::string ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE = "abilitymanagerservice.support.ecologicalrulemgrservice";
+const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
+const std::string ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE = "persist.sys.abilityms.support.ecologicalrulemgrservice";
 const std::string IS_FROM_PARENTCONTROL = "ohos.ability.isFromParentControl";
 const std::string INTERCEPT_PARAMETERS = "intercept_parammeters";
 const std::string INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
 const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
-constexpr int KILL_PROCESS_DELAYTIME_MICRO_SECONDS = 5000;
+constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
+#define RETURN_BY_ISEDM(object)                 \
+    if (object) {                               \
+        return ERR_EDM_APP_CONTROLLED;          \
+    }                                           \
+    return ERR_APP_CONTROLLED;
 
 ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
     const sptr<IRemoteObject> &callerToken)
@@ -104,7 +98,7 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
             userId, callerAppInfo)
     );
     if (!result) {
-        HILOG_ERROR("GetApplicaionInfo from bms failed.");
+        HILOG_DEBUG("GetApplicaionInfo from bms failed.");
         return false;
     }
 
@@ -130,7 +124,7 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
 #ifdef SUPPORT_GRAPHICS
         if (!isForeground || controlRule.controlWant == nullptr) {
             HILOG_ERROR("Can not start control want");
-            return ERR_INVALID_VALUE;
+            RETURN_BY_ISEDM(controlRule.isEdm);
         }
         if (controlRule.controlWant->GetBoolParam(IS_FROM_PARENTCONTROL, false)) {
             auto controlWant = controlRule.controlWant;
@@ -152,10 +146,7 @@ ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t
             return ret;
         }
 #endif
-        if (controlRule.isEdm) {
-            return ERR_EDM_APP_CONTROLLED;
-        }
-        return ERR_APP_CONTROLLED;
+        RETURN_BY_ISEDM(controlRule.isEdm);
     }
     return ERR_OK;
 }
@@ -197,10 +188,11 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
         if (!isForeground || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
             HILOG_ERROR("Can not start disposed want");
-            if (disposedRule.isEdm) {
-                return ERR_EDM_APP_CONTROLLED;
-            }
-            return ERR_APP_CONTROLLED;
+            RETURN_BY_ISEDM(disposedRule.isEdm);
+        }
+        if (disposedRule.want->GetBundle() == want.GetBundle()) {
+            HILOG_ERROR("Can not start disposed want with same bundleName");
+            RETURN_BY_ISEDM(disposedRule.isEdm);
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
@@ -211,46 +203,19 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
             }
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
-            auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
-            if (!abilityRecord) {
-                HILOG_ERROR("abilityRecord is nullptr");
-                return ERR_INVALID_VALUE;
-            }
-            int ret = abilityRecord->CreateModalUIExtension(*disposedRule.want);
+            int ret = CreateModalUIExtension(*disposedRule.want, callerToken);
             if (ret != ERR_OK) {
                 HILOG_ERROR("failed to start disposed UIExtension");
                 return ret;
             }
         }
 #endif
-        if (disposedRule.isEdm) {
-            return ERR_EDM_APP_CONTROLLED;
-        }
-        return ERR_APP_CONTROLLED;
+        RETURN_BY_ISEDM(disposedRule.isEdm);
     }
-    if (disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
-        HILOG_INFO("not block");
-        auto disposedObserver = sptr<DisposedObserver>::MakeSptr(disposedRule);
-        if (!disposedObserver) {
-            HILOG_ERROR("disposedObserver is nullptr");
-            return ERR_INVALID_VALUE;
-        }
-        sptr<OHOS::AppExecFwk::IAppMgr> appManager = disposedObserver->GetAppMgr();
-        std::vector<std::string> bundleNameList;
-        bundleNameList.push_back(want.GetBundle());
-        int32_t ret = IN_PROCESS_CALL(appManager->RegisterApplicationStateObserver(disposedObserver, bundleNameList));
-        if (ret != 0) {
-            HILOG_ERROR("register to appmanager failed. err:%{public}d", ret);
-            disposedObserver = nullptr;
-            return ret;
-        }
-        auto unregisterTask = [appManager, disposedObserver] () {
-            HILOG_ERROR("unregister observer timeout, need unregister again");
-            IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(disposedObserver));
-        };
-        taskHandler_->SubmitTask(unregisterTask, UNREGISTER_EVENT_TASK, KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
+    if (disposedRule.disposedType != AppExecFwk::DisposedType::NON_BLOCK) {
+        return ERR_OK;
     }
-    return ERR_OK;
+    return StartNonBlockRule(want, disposedRule);
 }
 
 bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
@@ -320,31 +285,129 @@ bool DisposedRuleInterceptor::CheckDisposedRule(const Want &want, AppExecFwk::Di
     return isAllowed;
 }
 
+ErrCode DisposedRuleInterceptor::StartNonBlockRule(const Want &want, AppExecFwk::DisposedRule &disposedRule)
+{
+    HILOG_INFO("not block");
+    if (disposedRule.want == nullptr) {
+        HILOG_ERROR("Can not start disposed app, want is nullptr");
+        return ERR_OK;
+    }
+    if (disposedRule.want->GetBundle() == want.GetBundle()) {
+        HILOG_ERROR("Can not start disposed app with same bundleName");
+        return ERR_OK;
+    }
+    std::string bundleName = want.GetBundle();
+    {
+        std::lock_guard<ffrt::mutex> guard(observerLock_);
+        if (disposedObserverMap_.find(bundleName) != disposedObserverMap_.end()) {
+            HILOG_DEBUG("start same disposed app, do not need to register again");
+            return ERR_OK;
+        }
+    }
+    auto disposedObserver = sptr<DisposedObserver>::MakeSptr(disposedRule, shared_from_this());
+    CHECK_POINTER_AND_RETURN(disposedObserver, ERR_INVALID_VALUE);
+    sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppMgr();
+    CHECK_POINTER_AND_RETURN(appManager, ERR_INVALID_VALUE);
+    std::vector<std::string> bundleNameList;
+    bundleNameList.push_back(bundleName);
+    int32_t ret = IN_PROCESS_CALL(appManager->RegisterApplicationStateObserver(disposedObserver, bundleNameList));
+    if (ret != 0) {
+        HILOG_ERROR("register to appmanager failed. err:%{public}d", ret);
+        disposedObserver = nullptr;
+        return ret;
+    }
+    {
+        std::lock_guard<ffrt::mutex> guard(observerLock_);
+        disposedObserverMap_.emplace(bundleName, disposedObserver);
+    }
+    auto unregisterTask = [appManager, bundleName, interceptor = shared_from_this()] () {
+        std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
+        auto iter = interceptor->disposedObserverMap_.find(bundleName);
+        if (iter != interceptor->disposedObserverMap_.end()) {
+            HILOG_ERROR("start disposed app time out, need to unregister observer");
+            IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(iter->second));
+            interceptor->disposedObserverMap_.erase(iter);
+        }
+    };
+    taskHandler_->SubmitTask(unregisterTask, UNREGISTER_TIMEOUT_OBSERVER_TASK, UNREGISTER_OBSERVER_MICRO_SECONDS);
+    return ERR_OK;
+}
+
+sptr<OHOS::AppExecFwk::IAppMgr> DisposedRuleInterceptor::GetAppMgr()
+{
+    OHOS::sptr<OHOS::ISystemAbilityManager> systemAbilityManager =
+        OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        HILOG_ERROR("get systemAbilityManager failed");
+        return nullptr;
+    }
+    OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(OHOS::APP_MGR_SERVICE_ID);
+    if (!object) {
+        HILOG_ERROR("get systemAbilityManager failed");
+        return nullptr;
+    }
+    sptr<OHOS::AppExecFwk::IAppMgr> appMgr = iface_cast<AppExecFwk::IAppMgr>(object);
+    if (!appMgr || !appMgr->AsObject()) {
+        return nullptr;
+    }
+    return appMgr;
+}
+
+void DisposedRuleInterceptor::UnregisterObserver(const std::string &bundleName)
+{
+    HILOG_DEBUG("Call");
+    taskHandler_->CancelTask(UNREGISTER_TIMEOUT_OBSERVER_TASK);
+    auto unregisterTask = [bundleName, interceptor = shared_from_this()] () {
+        std::lock_guard<ffrt::mutex> guard{interceptor->observerLock_};
+        auto iter = interceptor->disposedObserverMap_.find(bundleName);
+        if (iter == interceptor->disposedObserverMap_.end()) {
+            HILOG_ERROR("Can not find observer");
+        } else {
+            auto disposedObserver = iter->second;
+            CHECK_POINTER(disposedObserver);
+            sptr<OHOS::AppExecFwk::IAppMgr> appManager = interceptor->GetAppMgr();
+            CHECK_POINTER(appManager);
+            IN_PROCESS_CALL(appManager->UnregisterApplicationStateObserver(disposedObserver));
+            interceptor->disposedObserverMap_.erase(iter);
+        }
+    };
+    taskHandler_->SubmitTask(unregisterTask, UNREGISTER_EVENT_TASK);
+}
+
+ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const sptr<IRemoteObject> &callerToken)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+        return systemUIExtension->CreateModalUIExtension(want);
+    } else {
+        return abilityRecord->CreateModalUIExtension(want);
+    }
+}
+
 ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
     const sptr<IRemoteObject> &callerToken)
 {
-    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "false");
-    if (supportErms == "false") {
-        HILOG_ERROR("Abilityms not support Erms.");
+    if (want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME) ==
+        want.GetElement().GetBundleName()) {
+        HILOG_DEBUG("The same bundle, do not intercept.");
         return ERR_OK;
     }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
-#ifdef SUPPORT_ERMS
     GetEcologicalCallerInfo(want, callerInfo, userId);
-    int ret = IN_PROCESS_CALL(EcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
+    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
+    if (supportErms == "false") {
+        HILOG_ERROR("Abilityms not support Erms between applications.");
+        return ERR_OK;
+    }
+
+    int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
         callerInfo, rule));
     if (ret != ERR_OK) {
-        HILOG_ERROR("check ecological rule failed, keep going.");
+        HILOG_DEBUG("check ecological rule failed, keep going.");
         return ERR_OK;
     }
-#else
-    int ret = CheckRule(want, callerInfo, rule);
-    if (!ret) {
-        HILOG_ERROR("check ecological rule failed, keep going.");
-        return ERR_OK;
-    }
-#endif
     HILOG_DEBUG("check ecological rule success");
     if (rule.isAllow) {
         HILOG_ERROR("ecological rule is allow, keep going.");
@@ -359,14 +422,13 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     return ERR_ECOLOGICAL_CONTROL_STATUS;
 }
 
-#ifdef SUPPORT_ERMS
 void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
 {
     callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
     callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
-    callerInfo.targetAppType = TYPE_HARMONY_INVALID;
-    callerInfo.callerAppType = TYPE_HARMONY_INVALID;
+    callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
 
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -382,10 +444,10 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         HILOG_ERROR("Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the target type  is atomic service");
-        callerInfo.targetAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
-        callerInfo.targetAppType = TYPE_HARMONY_APP;
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the target type is invalid type");
     }
@@ -403,32 +465,14 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         HILOG_DEBUG("Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the caller type  is atomic service");
-        callerInfo.callerAppType = TYPE_HARMONY_SERVICE;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the caller type is app");
-        callerInfo.callerAppType = TYPE_HARMONY_APP;
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
         HILOG_DEBUG("the caller type is invalid type");
     }
 }
-#else
-bool EcologicalRuleInterceptor::CheckRule(const Want &want, ErmsCallerInfo &callerInfo, ExperienceRule &rule)
-{
-    HILOG_DEBUG("Enter Erms CheckRule.");
-    auto erms = AbilityUtil::CheckEcologicalRuleMgr();
-    if (!erms) {
-        HILOG_ERROR("CheckEcologicalRuleMgr failed.");
-        return false;
-    }
-    int ret = IN_PROCESS_CALL(erms->QueryStartExperience(want, callerInfo, rule));
-    if (ret != ERR_OK) {
-        HILOG_ERROR("Failed to query start experience from erms.");
-        return false;
-    }
-
-    return true;
-}
-#endif
 
 ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
     const sptr<IRemoteObject> &callerToken)

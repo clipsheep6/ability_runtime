@@ -372,6 +372,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::NotifySaveAsResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE)] =
         &AbilityManagerStub::SetSessionManagerServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO)] =
+        &AbilityManagerStub::UpdateSessionInfoBySCBInner;
 }
 
 void AbilityManagerStub::FourthStepInit()
@@ -412,6 +414,7 @@ void AbilityManagerStub::FourthStepInit()
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
+    HILOG_DEBUG("Received code : %{public}d", code);
     std::u16string abilityDescriptor = AbilityManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (abilityDescriptor != remoteDescriptor && extensionDescriptor != remoteDescriptor) {
@@ -623,7 +626,7 @@ int AbilityManagerStub::ScheduleCommandAbilityWindowDoneInner(MessageParcel &dat
 
 int AbilityManagerStub::AcquireDataAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    std::unique_ptr<Uri> uri(new Uri(data.ReadString()));
+    std::unique_ptr<Uri> uri = std::make_unique<Uri>(data.ReadString());
     bool tryBind = data.ReadBool();
     sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
     sptr<IAbilityScheduler> result = AcquireDataAbility(*uri, tryBind, callerToken);
@@ -995,7 +998,7 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
 
 int AbilityManagerStub::DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    auto callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
+    sptr<IAbilityConnection> callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
     int32_t result = DisconnectAbility(callback);
     HILOG_DEBUG("disconnect ability ret = %d", result);
     reply.WriteInt32(result);
@@ -3077,6 +3080,28 @@ int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, M
         return ERR_INVALID_VALUE;
     }
     return result;
+}
+
+int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadInt32();
+    int32_t threshold = 512;
+    if (size > threshold) {
+        HILOG_ERROR("Size of vector too large.");
+        return ERR_ENOUGH_DATA;
+    }
+    std::vector<SessionInfo> sessionInfos;
+    for (auto i = 0; i < size; i++) {
+        std::unique_ptr<SessionInfo> info(data.ReadParcelable<SessionInfo>());
+        if (info == nullptr) {
+            HILOG_ERROR("Read session info failed.");
+            return INNER_ERR;
+        }
+        sessionInfos.emplace_back(*info);
+    }
+    int32_t userId = data.ReadInt32();
+    UpdateSessionInfoBySCB(sessionInfos, userId);
+    return ERR_OK;
 }
 } // namespace AAFwk
 } // namespace OHOS

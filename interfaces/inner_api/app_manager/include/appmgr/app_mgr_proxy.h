@@ -100,6 +100,15 @@ public:
         const int32_t userId = -1) override;
 
     /**
+     * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
+     * clear the application data.
+     *
+     * @param bundleName, bundle name in Application record.
+     * @return
+     */
+    virtual int32_t ClearUpApplicationDataBySelf(int32_t userId = -1) override;
+
+    /**
      * GetAllRunningProcesses, call GetAllRunningProcesses() through proxy project.
      * Obtains information about application processes that are running on the device.
      *
@@ -428,7 +437,7 @@ public:
 
     /**
      * Check whether the bundle is running.
-     * 
+     *
      * @param bundleName Indicates the bundle name of the bundle.
      * @param isRunning Obtain the running status of the application, the result is true if running, false otherwise.
      * @return Return ERR_OK if success, others fail.
@@ -462,6 +471,13 @@ public:
      * Exit child process, called by itself.
      */
     void ExitChildProcessSafely() override;
+
+    /**
+     * Whether the current application process is the last surviving process.
+     *
+     * @return Returns true is final application process, others return false.
+     */
+    bool IsFinalAppProcess() override;
 
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);

@@ -59,7 +59,7 @@ void ChildMainThread::Start(const ChildProcessInfo &processInfo)
         return;
     }
 
-    int ret = runner->Run();
+    auto ret = runner->Run();
     if (ret != ERR_OK) {
         HILOG_ERROR("ChildMainThread runner->Run failed ret = %{public}d", ret);
     }
@@ -108,9 +108,13 @@ bool ChildMainThread::Attach()
     return true;
 }
 
-void ChildMainThread::ScheduleLoadJs()
+bool ChildMainThread::ScheduleLoadJs()
 {
     HILOG_INFO("ScheduleLoadJs called.");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler_ is null");
+        return false;
+    }
     wptr<ChildMainThread> weak = this;
     auto task = [weak]() {
         auto childMainThread = weak.promote();
@@ -122,7 +126,9 @@ void ChildMainThread::ScheduleLoadJs()
     };
     if (!mainHandler_->PostTask(task, "ChildMainThread::HandleLoadJs")) {
         HILOG_ERROR("ChildMainThread::ScheduleLoadJs PostTask task failed.");
+        return false;
     }
+    return true;
 }
 
 void ChildMainThread::HandleLoadJs()
@@ -169,9 +175,13 @@ void ChildMainThread::ExitProcessSafely()
     appMgr_->ExitChildProcessSafely();
 }
 
-void ChildMainThread::ScheduleExitProcessSafely()
+bool ChildMainThread::ScheduleExitProcessSafely()
 {
     HILOG_DEBUG("ScheduleExitProcessSafely");
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("mainHandler_ is null");
+        return false;
+    }
     wptr<ChildMainThread> weak = this;
     auto task = [weak]() {
         auto childMainThread = weak.promote();
@@ -183,20 +193,17 @@ void ChildMainThread::ScheduleExitProcessSafely()
     };
     if (!mainHandler_->PostTask(task, "ChildMainThread::HandleExitProcessSafely")) {
         HILOG_ERROR("ScheduleExitProcessSafely PostTask task failed.");
+        return false;
     }
+    return true;
 }
 
 void ChildMainThread::HandleExitProcessSafely()
 {
     HILOG_DEBUG("HandleExitProcessSafely called start.");
-    if (appMgr_ == nullptr) {
-        HILOG_ERROR("appMgr_ is null");
-        return;
-    }
-
     std::shared_ptr<EventRunner> runner = mainHandler_->GetEventRunner();
     if (runner == nullptr) {
-        HILOG_ERROR("HandleExitProcessSafely get mainHandler error.");
+        HILOG_ERROR("HandleExitProcessSafely get runner error.");
         return;
     }
     int ret = runner->Stop();

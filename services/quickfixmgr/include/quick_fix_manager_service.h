@@ -81,6 +81,7 @@ public:
 private:
     bool CheckTaskRunningState(const std::string &bundleName);
     void AddApplyTask(std::shared_ptr<QuickFixManagerApplyTask> applyTask);
+    int32_t GetQuickFixInfo(const std::string &bundleName, bool &patchExists, bool &isSoContained);
 
     static std::mutex mutex_;
     static sptr<QuickFixManagerService> instance_;

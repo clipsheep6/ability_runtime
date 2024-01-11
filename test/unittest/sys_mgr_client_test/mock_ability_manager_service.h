@@ -65,7 +65,7 @@ public:
         const sptr<IAbilityConnection>& connect,
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
-    int DisconnectAbility(const sptr<IAbilityConnection>& connect) override;
+    int DisconnectAbility(sptr<IAbilityConnection> connect) override;
 
     sptr<IAbilityScheduler> AcquireDataAbility(const Uri& uri, bool tryBind, const sptr<IRemoteObject>& callerToken);
 

@@ -1130,6 +1130,24 @@ int32_t AbilitySchedulerProxy::CreateModalUIExtension(const Want &want)
     return reply.ReadInt32();
 }
 
+void AbilitySchedulerProxy::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return;
+    }
+    if (!data.WriteRemoteObject(sessionToken)) {
+        HILOG_ERROR("Write sessionToken failed.");
+        return;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    int32_t err = SendTransactCmd(IAbilityScheduler::UPDATE_SESSION_TOKEN, data, reply, option);
+    if (err != NO_ERROR) {
+        HILOG_ERROR("Fail to SendRequest. err: %{public}d", err);
+    }
+}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilitySchedulerProxy::BlockAbility()
 {

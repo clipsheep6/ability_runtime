@@ -29,6 +29,7 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
 {
     HILOG_DEBUG("Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
+    CloseModalUIExtension();
 
     if (errCode == AutoFill::AUTO_FILL_SUCCESS) {
         SendAutoFillSucess(want);
@@ -43,12 +44,11 @@ void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 {
     HILOG_DEBUG("Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
+    CloseModalUIExtension();
 
     if (errCode != 0) {
         SendAutoFillFailed(AutoFill::AUTO_FILL_RELEASE_FAILED);
     }
-
-    CloseModalUIExtension();
 }
 
 void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name, const std::string &message)
@@ -56,11 +56,11 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
     HILOG_DEBUG("Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
         errCode, name.c_str(), message.c_str());
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
+    CloseModalUIExtension();
 
     if (errCode != 0) {
         SendAutoFillFailed(AutoFill::AUTO_FILL_ON_ERROR);
     }
-    CloseModalUIExtension();
 }
 
 void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
@@ -100,8 +100,8 @@ void AutoFillExtensionCallback::SetEventId(uint32_t eventId)
 
 void AutoFillExtensionCallback::HandleTimeOut()
 {
-    SendAutoFillFailed(AutoFill::AUTO_FILL_REQUEST_TIME_OUT);
     CloseModalUIExtension();
+    SendAutoFillFailed(AutoFill::AUTO_FILL_REQUEST_TIME_OUT);
 }
 
 void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
@@ -132,10 +132,11 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
 void AutoFillExtensionCallback::CloseModalUIExtension()
 {
     if (uiContent_ == nullptr) {
-        HILOG_ERROR("uiContent_ is nullptr.");
+        HILOG_DEBUG("uiContent_ is nullptr.");
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
+    uiContent_ = nullptr;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

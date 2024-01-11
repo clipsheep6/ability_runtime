@@ -1228,7 +1228,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_UnauthUriPermission_0
  * @tc.desc: Test Get Ability Package Context When baseContext is not null,
  *           and verify whether the return value of Get Ability Package Context is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0100, Function | MediumTest | Level1)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0100,
+    Function | MediumTest | Level1)
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
@@ -1244,7 +1245,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageCont
  * @tc.desc: Test Get Ability Package Context When baseContext is null.
  *           and verify whether the return value of Get Ability Package Context is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0200, Function | MediumTest | Level3)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetAbilityPackageContext_0200,
+    Function | MediumTest | Level3)
 {
     EXPECT_EQ(context_->GetAbilityPackageContext(), nullptr);
 }
@@ -1681,7 +1683,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_GetMissionId_0200, Fu
  * @tc.desc: Test Is Updating Configurations When baseContext is not null,
  *           and verify whether the return value of Is Updating Configurations is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0100, Function | MediumTest | Level1)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0100,
+    Function | MediumTest | Level1)
 {
     std::shared_ptr<Ability> ability = std::make_shared<Ability>();
     std::shared_ptr<Context> context(ability);
@@ -1697,7 +1700,8 @@ HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurati
  * @tc.desc: Test Is Updating Configurations When baseContext is null.
  *           and verify whether the return value of Is Updating Configurations is correct.
  */
-HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0200, Function | MediumTest | Level3)
+HWTEST_F(ContextContainerTest, AppExecFwk_ContextContainer_IsUpdatingConfigurations_0200,
+    Function | MediumTest | Level3)
 {
     EXPECT_EQ(context_->IsUpdatingConfigurations(), false);
 }

@@ -17,6 +17,10 @@
 
 namespace OHOS {
 namespace AAFwk {
+const int32_t CREATE_VALUE_ZERO = 0;
+const int32_t CREATE_VALUE_ONE = 1;
+const int32_t CREATE_VALUE_TWO = 2;
+const int32_t CREATE_VALUE_THREE = 3;
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
     napi_status status;
@@ -37,10 +41,10 @@ static napi_value InitAreaModeObject(napi_env env)
     napi_value object;
     NAPI_CALL(env, napi_create_object(env, &object));
 
-    NAPI_CALL(env, SetEnumItem(env, object, "EL1", 0));
-    NAPI_CALL(env, SetEnumItem(env, object, "EL2", 1));
-    NAPI_CALL(env, SetEnumItem(env, object, "EL3", 2));
-    NAPI_CALL(env, SetEnumItem(env, object, "EL4", 3));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL1", CREATE_VALUE_ZERO));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL2", CREATE_VALUE_ONE));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL3", CREATE_VALUE_TWO));
+    NAPI_CALL(env, SetEnumItem(env, object, "EL4", CREATE_VALUE_THREE));
 
     return object;
 }
