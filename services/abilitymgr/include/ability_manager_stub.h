@@ -272,6 +272,8 @@ private:
 
     int32_t SetApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
     int32_t CancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
+    int32_t BatchSetApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
+    int32_t BatchCancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
     int32_t OpenFileInner(MessageParcel &data, MessageParcel &reply);

@@ -107,6 +107,24 @@ ErrCode AbilityAutoStartupClient::CancelApplicationAutoStartupByEDM(const AutoSt
     return abms->CancelApplicationAutoStartupByEDM(info, flag);
 }
 
+ErrCode AbilityAutoStartupClient::SetApplicationAutoStartupByEDM(
+    const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->SetApplicationAutoStartupByEDM(infoList, flag);
+}
+
+ErrCode AbilityAutoStartupClient::CancelApplicationAutoStartupByEDM(
+    const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->CancelApplicationAutoStartupByEDM(infoList, flag);
+}
+
 ErrCode AbilityAutoStartupClient::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
 {
     HILOG_DEBUG("Called.");

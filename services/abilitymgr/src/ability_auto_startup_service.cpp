@@ -228,10 +228,10 @@ int32_t AbilityAutoStartupService::QueryAllAutoStartupApplicationsWithoutPermiss
 {
     HILOG_DEBUG("Called.");
     if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+        HILOG_DEBUG("Query EDM auto start up info list.");
+        return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAllAutoStartupApplications(
+            infoList, true);
     }
-
     return DelayedSingleton<AbilityAutoStartupDataManager>::GetInstance()->QueryAllAutoStartupApplications(infoList);
 }
 
@@ -768,6 +768,60 @@ int32_t AbilityAutoStartupService::CancelApplicationAutoStartupByEDM(const AutoS
     AutoStartupInfo fullInfo(info);
     fullInfo.abilityTypeName = typeName;
     return InnerApplicationAutoStartupByEDM(fullInfo, false, flag);
+}
+
+int32_t AbilityAutoStartupService::SetApplicationAutoStartupByEDM(
+    const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    int32_t errorCode = CheckPermissionForEDM();
+    if (errorCode != ERR_OK) {
+        return errorCode;
+    }
+    int32_t tempErrorCode = ERR_OK;
+    for (auto info : infoList) {
+        std::string typeName;
+        tempErrorCode = GetAbilityInfo(info, typeName);
+        if (tempErrorCode != ERR_OK) {
+            HILOG_ERROR("Get ability info failed, bundleName:%{public}s,moduleName:%{public}s,abilityName:%{public}s,"
+                "flag:%{public}d.", info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), flag);
+            errorCode = tempErrorCode;
+            continue;
+        }
+        info.abilityTypeName = typeName;
+        tempErrorCode = InnerApplicationAutoStartupByEDM(info, true, flag);
+        if (tempErrorCode != ERR_OK) {
+            HILOG_ERROR("Failed to update the database.");
+            errorCode = tempErrorCode;
+        }
+    }
+    return errorCode;
+}
+
+int32_t AbilityAutoStartupService::CancelApplicationAutoStartupByEDM(
+    const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    int32_t errorCode = CheckPermissionForEDM();
+    if (errorCode != ERR_OK) {
+        return errorCode;
+    }
+    int32_t tempErrorCode = ERR_OK;
+    for (auto info : infoList) {
+        std::string typeName;
+        tempErrorCode = GetAbilityInfo(info, typeName);
+        if (tempErrorCode != ERR_OK) {
+            HILOG_ERROR("Get ability info failed, bundleName:%{public}s,moduleName:%{public}s,abilityName:%{public}s,"
+                "flag:%{public}d.", info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str(), flag);
+            errorCode = tempErrorCode;
+            continue;
+        }
+        info.abilityTypeName = typeName;
+        tempErrorCode = InnerApplicationAutoStartupByEDM(info, false, flag);
+        if (tempErrorCode != ERR_OK) {
+            HILOG_ERROR("Failed to update the database.");
+            errorCode = tempErrorCode;
+        }
+    }
+    return errorCode;
 }
 
 int32_t AbilityAutoStartupService::InnerApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool isSet, bool flag)

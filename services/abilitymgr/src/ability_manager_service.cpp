@@ -9283,6 +9283,25 @@ int32_t AbilityManagerService::CancelApplicationAutoStartupByEDM(const AutoStart
     return abilityAutoStartupService_->CancelApplicationAutoStartupByEDM(info, flag);
 }
 
+int32_t AbilityManagerService::SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->SetApplicationAutoStartupByEDM(infoList, flag);
+}
+
+int32_t AbilityManagerService::CancelApplicationAutoStartupByEDM(
+    const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    if (abilityAutoStartupService_ == nullptr) {
+        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
+        return ERR_NO_INIT;
+    }
+    return abilityAutoStartupService_->CancelApplicationAutoStartupByEDM(infoList, flag);
+}
+
 int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
 {
     HILOG_DEBUG("Called.");

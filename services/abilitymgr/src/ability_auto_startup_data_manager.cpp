@@ -269,7 +269,8 @@ AutoStartupStatus AbilityAutoStartupDataManager::QueryAutoStartupData(const Auto
     return asustatus;
 }
 
-int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
+int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList,
+    bool isQueryEdmList)
 {
     HILOG_DEBUG("Called.");
     {
@@ -290,8 +291,14 @@ int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vect
     for (const auto &item : allEntries) {
         bool isAutoStartup, isEdmForce;
         ConvertAutoStartupStatusFromValue(item.value, isAutoStartup, isEdmForce);
-        if (isAutoStartup) {
-            infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
+        if (isQueryEdmList) {
+            if (isAutoStartup && isEdmForce) {
+                infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
+            }
+        } else {
+            if (isAutoStartup) {
+                infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
+            }
         }
     }
     HILOG_DEBUG("InfoList.size: %{public}zu.", infoList.size());

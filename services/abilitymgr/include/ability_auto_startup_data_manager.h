@@ -41,7 +41,7 @@ public:
 
     AutoStartupStatus QueryAutoStartupData(const AutoStartupInfo &info);
 
-    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
+    int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList, bool isQueryEdmList = false);
 
     int32_t GetCurrentAppAutoStartupData(const std::string &bundleName, std::vector<AutoStartupInfo> &infoList);
 

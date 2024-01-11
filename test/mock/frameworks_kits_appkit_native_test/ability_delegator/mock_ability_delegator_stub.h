@@ -172,6 +172,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
     virtual int32_t GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
     {
         return 0;
@@ -353,6 +363,16 @@ public:
     }
 
     int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
     {
         return 0;
     }

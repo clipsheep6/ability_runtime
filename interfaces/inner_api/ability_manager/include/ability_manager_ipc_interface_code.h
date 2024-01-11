@@ -487,6 +487,10 @@ enum class AbilityManagerInterfaceCode {
     SET_APPLICATION_AUTO_STARTUP_BY_EDM = 6113,
     // ipc id for cancel application auto startup by EDM
     CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6114,
+    // ipc id for batch set application auto startup by EDM
+    BATCH_SET_APPLICATION_AUTO_STARTUP_BY_EDM = 6115,
+    // ipc id for batch cancel application auto startup by EDM
+    BATCH_CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6116,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

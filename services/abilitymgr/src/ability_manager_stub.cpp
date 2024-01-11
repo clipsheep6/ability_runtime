@@ -33,6 +33,7 @@ using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
 const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
 constexpr int32_t CYCLE_LIMIT = 1000;
+constexpr int32_t MAX_AUTO_STARTUP_COUNT = 100;
 } // namespace
 AbilityManagerStub::AbilityManagerStub()
 {
@@ -401,6 +402,10 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::SetApplicationAutoStartupByEDMInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM)] =
         &AbilityManagerStub::CancelApplicationAutoStartupByEDMInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BATCH_SET_APPLICATION_AUTO_STARTUP_BY_EDM)] =
+        &AbilityManagerStub::BatchSetApplicationAutoStartupByEDMInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::BATCH_CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM)] =
+        &AbilityManagerStub::BatchCancelApplicationAutoStartupByEDMInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
         &AbilityManagerStub::GetForegroundUIAbilitiesInner;
 }
@@ -2986,6 +2991,47 @@ int32_t AbilityManagerStub::CancelApplicationAutoStartupByEDMInner(MessageParcel
     }
     auto flag = data.ReadBool();
     int32_t result = CancelApplicationAutoStartupByEDM(*info, flag);
+    return reply.WriteInt32(result);
+}
+
+int32_t AbilityManagerStub::BatchSetApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t num = data.ReadInt32();
+    if (num > MAX_AUTO_STARTUP_COUNT) {
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<AutoStartupInfo> infoList;
+    for (int32_t i = 0; i < num; ++i) {
+        sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
+        if (info == nullptr) {
+            HILOG_ERROR("Info is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        infoList.emplace_back(*info);
+    }
+
+    auto flag = data.ReadBool();
+    int32_t result = SetApplicationAutoStartupByEDM(infoList, flag);
+    return reply.WriteInt32(result);
+}
+
+int32_t AbilityManagerStub::BatchCancelApplicationAutoStartupByEDMInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t num = data.ReadInt32();
+    if (num > MAX_AUTO_STARTUP_COUNT) {
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<AutoStartupInfo> infoList;
+    for (int32_t i = 0; i < num; ++i) {
+        sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
+        if (info == nullptr) {
+            HILOG_ERROR("Info is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+        infoList.emplace_back(*info);
+    }
+    auto flag = data.ReadBool();
+    int32_t result = CancelApplicationAutoStartupByEDM(infoList, flag);
     return reply.WriteInt32(result);
 }
 

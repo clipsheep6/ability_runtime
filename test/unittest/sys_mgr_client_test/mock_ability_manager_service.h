@@ -275,6 +275,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
     void CallRequestDone(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callStub) override {}
