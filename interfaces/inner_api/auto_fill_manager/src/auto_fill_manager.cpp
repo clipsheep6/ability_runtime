@@ -30,7 +30,7 @@ constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.aut
 constexpr static char WANT_PARAMS_EXTENSION_TYPE_KEY[] = "ability.want.params.uiExtensionType";
 constexpr static char WANT_PARAMS_AUTO_FILL_TYPE_KEY[] = "ability.want.params.AutoFillType";
 constexpr static char AUTO_FILL_MANAGER_THREAD[] = "AutoFillManager";
-constexpr static uint32_t AUTO_FILL_REQUEST_TIME_OUT_VALUE = 500;
+constexpr static uint32_t AUTO_FILL_REQUEST_TIME_OUT_VALUE = 1000;
 } // namespace
 AutoFillManager &AutoFillManager::GetInstance()
 {
