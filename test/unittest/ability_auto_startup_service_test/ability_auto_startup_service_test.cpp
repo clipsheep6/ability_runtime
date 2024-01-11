@@ -236,7 +236,7 @@ HWTEST_F(AbilityAutoStartupServiceTest, QueryAllAutoStartupApplicationsWithoutPe
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::vector<AutoStartupInfo> infoList;
     auto result = abilityAutoStartupService->QueryAllAutoStartupApplicationsWithoutPermission(infoList);
-    EXPECT_EQ(result, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
+    EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest QueryAllAutoStartupApplicationsWithoutPermission_001 end";
 }
 
@@ -766,6 +766,52 @@ HWTEST_F(AbilityAutoStartupServiceTest, CheckPermissionForEDM_001, TestSize.Leve
     auto result = abilityAutoStartupService->CheckPermissionForEDM();
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckPermissionForEDM_001 end";
+}
+
+/*
+ * Feature: AbilityAutoStartupService
+ * Function: SetApplicationAutoStartupByEDM
+ * SubFunction: NA
+ * FunctionPoints: AbilityAutoStartupService SetApplicationAutoStartupByEDM
+ */
+HWTEST_F(AbilityAutoStartupServiceTest, BatchSetApplicationAutoStartupByEDM_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest SetApplicationAutoStartupByEDM_001 start";
+    SetNativeToken();
+    MyFlag::flag_ = 1;
+    auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
+    AutoStartupInfo info;
+    info.abilityName = "abilityName";
+    info.bundleName = "bundleName";
+    std::vector<AutoStartupInfo> infoList;
+    infoList.push_back(info);
+    bool flag = false;
+    auto result = abilityAutoStartupService->SetApplicationAutoStartupByEDM(infoList, flag);
+    EXPECT_EQ(result, INNER_ERR);
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest SetApplicationAutoStartupByEDM_001 end";
+}
+
+/*
+ * Feature: AbilityAutoStartupService
+ * Function: CancelApplicationAutoStartupByEDM
+ * SubFunction: NA
+ * FunctionPoints: AbilityAutoStartupService CancelApplicationAutoStartupByEDM
+ */
+HWTEST_F(AbilityAutoStartupServiceTest, BatchCancelApplicationAutoStartupByEDM_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CancelApplicationAutoStartupByEDM_001 start";
+    SetNativeToken();
+    MyFlag::flag_ = 1;
+    auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
+    AutoStartupInfo info;
+    info.abilityName = "abilityName";
+    info.bundleName = "bundleName";
+    std::vector<AutoStartupInfo> infoList;
+    infoList.push_back(info);
+    bool flag = false;
+    auto result = abilityAutoStartupService->CancelApplicationAutoStartupByEDM(infoList, flag);
+    EXPECT_EQ(result, INNER_ERR);
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CancelApplicationAutoStartupByEDM_001 end";
 }
 } // namespace AAFwk
 } // namespace OHOS
