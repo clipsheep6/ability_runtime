@@ -142,8 +142,9 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
     std::lock_guard<std::recursive_mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
+        // condition [!appRecord->IsKeepAliveApp()] Is to not kill the resident process.
         // Before using this method, consider whether you need.
-        if (appRecord) {
+        if (appRecord && !appRecord->IsKeepAliveApp()) {
             pid_t pid = appRecord->GetPriorityObject()->GetPid();
             auto appInfoList = appRecord->GetAppInfoList();
             auto isExist = [&bundleName](const std::shared_ptr<ApplicationInfo> &appInfo) {
