@@ -706,7 +706,7 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
 
 void OHOSApplication::DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo)
 {
-    HILOG_INFO("language: %{public}s.", abilityInfo.srcLanguage.c_str());
+    HILOG_DEBUG("language: %{public}s.", abilityInfo.srcLanguage.c_str());
     if (runtime_) {
         runtime_->DoCleanWorkAfterStageCleaned();
     }
@@ -803,7 +803,7 @@ bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 void OHOSApplication::CleanAppTempData(bool isLastProcess)
 {
     if (!isLastProcess) {
-        HILOG_ERROR("There are other survival processes in the current application.");
+        HILOG_ERROR("failed");
         return;
     }
     if (abilityRuntimeContext_ == nullptr) {

@@ -110,7 +110,7 @@ std::shared_ptr<AbilityStage> JsAbilityStage::Create(
         srcPath.append(".abc");
         moduleObj = jsRuntime.LoadModule(moduleName, srcPath, hapModuleInfo.hapPath,
             hapModuleInfo.compileMode == AppExecFwk::CompileMode::ES_MODULE, commonChunkFlag);
-        HILOG_INFO("srcPath is %{public}s", srcPath.c_str());
+        HILOG_DEBUG("srcPath is %{public}s", srcPath.c_str());
     }
     return std::make_shared<JsAbilityStage>(jsRuntime, std::move(moduleObj));
 }
@@ -141,7 +141,7 @@ void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
     }
 
     if (!jsAbilityStageObj_) {
-        HILOG_ERROR("AbilityStageObj is nullptr");
+        HILOG_ERROR("stage is nullptr");
         return;
     }
 
@@ -307,7 +307,7 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     AbilityStage::OnMemoryLevel(level);
 
     if (!jsAbilityStageObj_) {
-        HILOG_WARN("Not found AbilityStage.js");
+        HILOG_WARN("Not found stage");
         return;
     }
 

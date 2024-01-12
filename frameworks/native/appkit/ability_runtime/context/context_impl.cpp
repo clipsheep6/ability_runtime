@@ -285,7 +285,7 @@ void ContextImpl::GetAllTempDir(std::vector<std::string> &tempPaths)
     for (const auto &moudleItem: applicationInfo_->moduleInfos) {
         auto moudleTemp = baseDir + CONTEXT_HAPS + CONTEXT_FILE_SEPARATOR + moudleItem.moduleName + CONTEXT_TEMP;
         if (!OHOS::FileExists(moudleTemp)) {
-            HILOG_WARN("The application moudle[%{public}s] temp path not exists is empty, the path is %{public}s",
+            HILOG_WARN("moudle[%{public}s] temp path not exists,path is %{public}s",
                 moudleItem.moduleName.c_str(), moudleTemp.c_str());
             continue;
         }
@@ -971,7 +971,7 @@ Global::Resource::DeviceType ContextImpl::GetDeviceType() const
     auto config = GetConfiguration();
     if (config != nullptr) {
         auto deviceType = config->GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
-        HILOG_INFO("deviceType is %{public}s.", deviceType.c_str());
+        HILOG_DEBUG("deviceType is %{public}s.", deviceType.c_str());
         deviceType_ = AppExecFwk::ConvertDeviceType(deviceType);
     }
 

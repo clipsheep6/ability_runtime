@@ -116,7 +116,7 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
 
 napi_value JsApplicationContextUtils::SwitchArea(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnSwitchArea, APPLICATION_CONTEXT_NAME);
 }
 
@@ -273,7 +273,7 @@ napi_value JsApplicationContextUtils::OnCreateModuleResourceManager(napi_env env
 
 napi_value JsApplicationContextUtils::GetArea(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetArea, APPLICATION_CONTEXT_NAME);
 }
 
@@ -290,7 +290,7 @@ napi_value JsApplicationContextUtils::OnGetArea(napi_env env, NapiCallbackInfo& 
 
 napi_value JsApplicationContextUtils::GetCacheDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetCacheDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -307,7 +307,7 @@ napi_value JsApplicationContextUtils::OnGetCacheDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetTempDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetTempDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -324,7 +324,7 @@ napi_value JsApplicationContextUtils::OnGetTempDir(napi_env env, NapiCallbackInf
 
 napi_value JsApplicationContextUtils::GetResourceDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetResourceDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -341,7 +341,7 @@ napi_value JsApplicationContextUtils::OnGetResourceDir(napi_env env, NapiCallbac
 
 napi_value JsApplicationContextUtils::GetFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetFilesDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -358,7 +358,7 @@ napi_value JsApplicationContextUtils::OnGetFilesDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetDistributedFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
         OnGetDistributedFilesDir, APPLICATION_CONTEXT_NAME);
 }
@@ -376,7 +376,7 @@ napi_value JsApplicationContextUtils::OnGetDistributedFilesDir(napi_env env, Nap
 
 napi_value JsApplicationContextUtils::GetDatabaseDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetDatabaseDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -393,14 +393,14 @@ napi_value JsApplicationContextUtils::OnGetDatabaseDir(napi_env env, NapiCallbac
 
 napi_value JsApplicationContextUtils::GetPreferencesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(
         env, info, JsApplicationContextUtils, OnGetPreferencesDir, APPLICATION_CONTEXT_NAME);
 }
 
 napi_value JsApplicationContextUtils::GetGroupDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetGroupDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -452,7 +452,7 @@ napi_value JsApplicationContextUtils::OnGetGroupDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetBundleCodeDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(
         env, info, JsApplicationContextUtils, OnGetBundleCodeDir, APPLICATION_CONTEXT_NAME);
 }
@@ -648,7 +648,7 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
 
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     std::unique_ptr<JsApplicationContextUtils>(static_cast<JsApplicationContextUtils *>(data));
 }
 
@@ -838,7 +838,7 @@ napi_value JsApplicationContextUtils::Off(napi_env env, napi_callback_info info)
 
 napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
 
     if (info.argc != ARGC_TWO) {
         HILOG_ERROR("Not enough params.");
@@ -883,7 +883,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);

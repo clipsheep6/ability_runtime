@@ -132,7 +132,6 @@ std::shared_ptr<AbilityLocalRecord> AbilityRecordMgr::GetAbilityItem(const sptr<
 
     const auto &iter = abilityRecords_.find(token);
     if (iter != abilityRecords_.end()) {
-        HILOG_INFO("the ability found");
         return iter->second;
     }
     HILOG_WARN("the ability not found");
