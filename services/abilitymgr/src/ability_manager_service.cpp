@@ -156,6 +156,7 @@ const std::string START_ABILITY_TYPE = "ABILITY_INNER_START_WITH_ACCOUNT";
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
+const std::string STR_PHONE = "phone";
 
 const std::string DEBUG_APP = "debugApp";
 const std::string AUTO_FILL_PASSWORD_TPYE = "autoFill/password";
@@ -916,8 +917,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Check permission failed");
             return result;
         }
-    } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && callerAbilityName == SHELL_ASSISTANT_ABILITYNAME) ||
+    } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && OHOS::system::GetDeviceType() == STR_PHONE) ||
         IPCSkeleton::GetCallingUid() == BROKER_UID) {
+        // temp add for broker, remove when delete issacall
         if (abilityRequest.collaboratorType != CollaboratorType::RESERVE_TYPE && !abilityInfo.visible) {
             HILOG_DEBUG("Check permission failed");
             return CHECK_PERMISSION_FAILED;
@@ -8085,6 +8087,14 @@ void AbilityManagerService::InitPrepareTerminateConfig()
 
 int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abilityRequest)
 {
+    if (abilityRequest.want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid()) == BROKER_UID &&
+        abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
+        auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
+        if (collaborator != nullptr) {
+            HILOG_INFO("Collaborator CheckCallAbilityPermission.");
+            return collaborator->CheckCallAbilityPermission(abilityRequest.want);
+        }
+    }
     if (abilityRequest.abilityInfo.isStageBasedModel) {
         auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
         HILOG_INFO("extensionType is %{public}d.", static_cast<int>(extensionType));
