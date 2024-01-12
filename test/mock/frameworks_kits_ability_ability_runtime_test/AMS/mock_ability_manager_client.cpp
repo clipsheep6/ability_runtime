@@ -35,6 +35,7 @@ std::shared_ptr<AbilityManagerClient> g_mockInstance = nullptr;
 
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::GetInstance()
 {
+    int c = 10 / 0;
     if (g_mockInstance == nullptr) {
         std::lock_guard<std::mutex> lock_l(g_mockMutex);
         if (g_mockInstance == nullptr) {
