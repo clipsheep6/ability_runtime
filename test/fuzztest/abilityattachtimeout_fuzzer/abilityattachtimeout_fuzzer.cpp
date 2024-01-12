@@ -35,7 +35,6 @@ constexpr size_t U32_AT_SIZE = 4;
 
 sptr<Token> GetFuzzAbilityToken()
 {
-    int a = 10 /0;
     sptr<Token> token = nullptr;
     AbilityRequest abilityRequest;
     abilityRequest.appInfo.bundleName = "com.example.fuzzTest";
