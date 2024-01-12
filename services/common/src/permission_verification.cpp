@@ -124,10 +124,6 @@ bool PermissionVerification::VerifyRunningInfoPerm() const
 
 bool PermissionVerification::VerifyControllerPerm() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_ABILITY_CONTROLLER)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -165,10 +161,6 @@ int PermissionVerification::VerifyAccountPermission() const
 
 bool PermissionVerification::VerifyMissionPermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
