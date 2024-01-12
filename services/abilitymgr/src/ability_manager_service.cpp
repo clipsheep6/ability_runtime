@@ -2489,7 +2489,9 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
 {
     HILOG_INFO("Stop extension ability come, bundlename: %{public}s, ability is %{public}s, userId is %{public}d",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    CHECK_CALLER_IS_SYSTEM_APP;
+    if (extensionType != AppExecFwk::ExtensionAbilityType::VPN) {
+        CHECK_CALLER_IS_SYSTEM_APP;
+    }
     EventInfo eventInfo = BuildEventInfo(want, userId);
     eventInfo.extensionType = static_cast<int32_t>(extensionType);
     EventReport::SendExtensionEvent(EventName::STOP_SERVICE, HiSysEventType::BEHAVIOR, eventInfo);
