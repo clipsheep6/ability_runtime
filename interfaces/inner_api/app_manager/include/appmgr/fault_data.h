@@ -73,6 +73,7 @@ struct FaultData : public Parcelable {
 struct AppFaultDataBySA : public Parcelable {
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
+    bool MarshallingInner(Parcel &parcel) const;
     static AppFaultDataBySA *Unmarshalling(Parcel &parcel);
     // error object
     ErrorObject errorObject;

@@ -231,7 +231,11 @@ bool AppFaultDataBySA::Marshalling(Parcel &parcel) const
         HILOG_ERROR("WaitSaveState [%{public}s] write bool failed.", waitSaveState ? "true" : "false");
         return false;
     }
+    return MarshallingInner(parcel);
+}
 
+bool AppFaultDataBySA::MarshallingInner(Parcel &parcel) const
+{
     if (!parcel.WriteBool(notifyApp)) {
         HILOG_ERROR("NotifyApp [%{public}s] write bool failed.", notifyApp ? "true" : "false");
         return false;
