@@ -108,6 +108,7 @@ private:
     bool isSyncRegistered = false;
     std::shared_ptr<UISessionAbilityResultListener> listener_;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    bool isFirstTriggerBindModal_ = true;
 };
 
 class JsUIExtensionContentSession::CallbackWrapper {

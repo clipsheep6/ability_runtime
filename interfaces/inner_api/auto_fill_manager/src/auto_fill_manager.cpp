@@ -112,6 +112,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
         extensionCallback, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     callback.onReceive = std::bind(&AutoFillExtensionCallback::OnReceive, extensionCallback, std::placeholders::_1);
     Ace::ModalUIExtensionConfig config;
+    config.isAsyncModalBinding = true;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
         HILOG_ERROR("Create modal ui extension is failed.");
