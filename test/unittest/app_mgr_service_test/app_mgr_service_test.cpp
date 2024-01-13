@@ -233,41 +233,6 @@ HWTEST_F(AppMgrServiceTest, AbilityCleaned_002, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
- * Function: AddAppDeathRecipient
- * SubFunction: NA
- * FunctionPoints: AppMgrService AddAppDeathRecipient
- * EnvConditions: NA
- * CaseDescription: Verify AddAppDeathRecipient
- */
-HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_001, TestSize.Level0)
-{
-    auto appMgrService = std::make_shared<AppMgrService>();
-    ASSERT_NE(appMgrService, nullptr);
-    pid_t pid = 1;
-    appMgrService->SetInnerService(nullptr);
-    appMgrService->AddAppDeathRecipient(pid);
-}
-
-/*
- * Feature: AppMgrService
- * Function: AddAppDeathRecipient
- * SubFunction: NA
- * FunctionPoints: AppMgrService AddAppDeathRecipient
- * EnvConditions: NA
- * CaseDescription: Verify AddAppDeathRecipient
- */
-HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_002, TestSize.Level0)
-{
-    auto appMgrService = std::make_shared<AppMgrService>();
-    ASSERT_NE(appMgrService, nullptr);
-    pid_t pid = 1;
-    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
-    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
-    appMgrService->AddAppDeathRecipient(pid);
-}
-
-/*
- * Feature: AppMgrService
  * Function: StartupResidentProcess
  * SubFunction: NA
  * FunctionPoints: AppMgrService StartupResidentProcess

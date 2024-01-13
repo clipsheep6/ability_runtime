@@ -576,8 +576,21 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
         return;
     }
     HILOG_INFO("attach, pid:%{public}d.", pid);
+    sptr<AppDeathRecipient> appDeathRecipient = new (std::nothrow) AppDeathRecipient();
+    if (appDeathRecipient == nullptr) {
+        HILOG_ERROR("Failed to create death recipient.");
+        return;
+    }
+    appDeathRecipient->SetTaskHandler(taskHandler_);
+    appDeathRecipient->SetAppMgrServiceInner(shared_from_this());
+    auto object = appScheduler->AsObject();
+    if (!object || !object->AddDeathRecipient(appDeathRecipient)) {
+        HILOG_ERROR("Failed to add DeathRecipient for %{public}s.", appRecord->GetProcessName().c_str());
+        return;
+    }
+
+    appRecord->SetAppDeathRecipient(appDeathRecipient);
     appRecord->SetApplicationClient(appScheduler);
-    appRecord->RegisterAppDeathRecipient();
     if (appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
         LaunchApplication(appRecord);
     }
@@ -2487,15 +2500,6 @@ void AppMgrServiceInner::AddAppToRecentList(
 const std::shared_ptr<AppTaskInfo> AppMgrServiceInner::GetAppTaskInfoById(const int32_t recordId) const
 {
     return appProcessManager_->GetAppTaskInfoById(recordId);
-}
-
-void AppMgrServiceInner::AddAppDeathRecipient(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient) const
-{
-    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    std::shared_ptr<AppRunningRecord> appRecord = GetAppRunningRecordByPid(pid);
-    if (appRecord) {
-        appRecord->SetAppDeathRecipient(appDeathRecipient);
-    }
 }
 
 void AppMgrServiceInner::HandleTimeOut(const AAFwk::EventWrap &event)

@@ -476,16 +476,6 @@ private:
     bool IsReady() const;
 
     /**
-     * AddAppDeathRecipient, Add monitoring death application record.
-     *
-     * @param pid, the application pid.
-     * @param appDeathRecipient, Application death recipient list.
-     *
-     * @return
-     */
-    void AddAppDeathRecipient(const pid_t pid) const;
-
-    /**
      * SetInnerService, Setting application service Inner instance.
      *
      * @return

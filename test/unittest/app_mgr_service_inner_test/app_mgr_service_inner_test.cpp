@@ -1888,28 +1888,6 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_004, TestSize.Level0)
 }
 
 /**
- * @tc.name: AddAppDeathRecipient_001
- * @tc.desc: add app death recipient.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, AddAppDeathRecipient_001, TestSize.Level0)
-{
-    HILOG_INFO("AddAppDeathRecipient_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    sptr<AppDeathRecipient> appDeathRecipient;
-    pid_t pid = 999;
-    appMgrServiceInner->AddAppDeathRecipient(pid, appDeathRecipient);
-
-    pid_t pid1 = 123;
-    appMgrServiceInner->AddAppDeathRecipient(pid1, appDeathRecipient);
-
-    HILOG_INFO("AddAppDeathRecipient_001 end");
-}
-
-/**
  * @tc.name: HandleTimeOut_001
  * @tc.desc: handle time out.
  * @tc.type: FUNC

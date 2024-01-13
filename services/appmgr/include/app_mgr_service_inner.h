@@ -498,17 +498,6 @@ public:
      */
     void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false, bool isChildProcess = false);
 
-    /**
-     * AddAppDeathRecipient, Add monitoring death application record.
-     *
-     * @param pid, the application pid.
-     * @param appDeathRecipient, Application death recipient list.
-     *
-     * @return
-     */
-
-    virtual void AddAppDeathRecipient(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient) const;
-
     void HandleTimeOut(const AAFwk::EventWrap &event);
 
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)

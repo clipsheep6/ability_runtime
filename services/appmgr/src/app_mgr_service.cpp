@@ -171,7 +171,6 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
     }
 
     pid_t pid = IPCSkeleton::GetCallingPid();
-    AddAppDeathRecipient(pid);
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
     taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
@@ -257,19 +256,6 @@ bool AppMgrService::IsReady() const
 
     HILOG_WARN("Not ready");
     return false;
-}
-
-void AppMgrService::AddAppDeathRecipient(const pid_t pid) const
-{
-    if (!IsReady()) {
-        return;
-    }
-    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
-    appDeathRecipient->SetTaskHandler(taskHandler_);
-    appDeathRecipient->SetAppMgrServiceInner(appMgrServiceInner_);
-    std::function<void()> addAppRecipientFunc =
-        std::bind(&AppMgrServiceInner::AddAppDeathRecipient, appMgrServiceInner_, pid, appDeathRecipient);
-    taskHandler_->SubmitTask(addAppRecipientFunc, TASK_ADD_APP_DEATH_RECIPIENT);
 }
 
 void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)

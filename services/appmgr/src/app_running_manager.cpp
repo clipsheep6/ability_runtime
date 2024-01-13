@@ -323,7 +323,13 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
     }
     auto appRecord = iter->second;
     if (appRecord != nullptr) {
+        appRecord->RemoveAppDeathRecipient();
         appRecord->SetApplicationClient(nullptr);
+        HILOG_INFO("processName: %{public}s.", appRecord->GetProcessName().c_str());
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (priorityObject != nullptr) {
+            HILOG_INFO("pid: %{public}zu.", priorityObject->GetPid());
+        }
     }
     appRunningRecordMap_.erase(iter);
     return appRecord;

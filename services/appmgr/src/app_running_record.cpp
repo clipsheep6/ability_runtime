@@ -1091,22 +1091,6 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
     return moduleRecordList;
 }
 
-void AppRunningRecord::RegisterAppDeathRecipient() const
-{
-    if (appLifeCycleDeal_ == nullptr) {
-        HILOG_ERROR("appLifeCycleDeal_ is null");
-        return;
-    }
-    if (!appLifeCycleDeal_->GetApplicationClient()) {
-        HILOG_ERROR("appThread is nullptr");
-        return;
-    }
-    auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
-    if (!object || !object->AddDeathRecipient(appDeathRecipient_)) {
-        HILOG_ERROR("AddDeathRecipient failed.");
-    }
-}
-
 void AppRunningRecord::RemoveAppDeathRecipient() const
 {
     if (appLifeCycleDeal_ == nullptr) {
@@ -1119,7 +1103,9 @@ void AppRunningRecord::RemoveAppDeathRecipient() const
     }
     auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
     if (object) {
-        object->RemoveDeathRecipient(appDeathRecipient_);
+        if (!object->RemoveDeathRecipient(appDeathRecipient_)) {
+            HILOG_WARN("Failed to remove deathRecipient.");
+        }
     }
 }
 
