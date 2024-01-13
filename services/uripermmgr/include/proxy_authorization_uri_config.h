@@ -31,10 +31,11 @@ public:
     void LoadConfiguration();
     bool IsAuthorizationUriAllowed(uint32_t fromTokenId);
 private:
-    void LoadBundleNameAllowedList(const nlohmann::json &object);
+    void LoadAllowedList(const nlohmann::json &object);
     bool ReadFileInfoJson(const std::string &filePath, nlohmann::json &jsonBuf);
 
     std::set<std::string> bundleNameAllowedList_;
+    std::set<std::string> processNameAllowedList_;
 };
 } // OHOS
 } // AAFwk
