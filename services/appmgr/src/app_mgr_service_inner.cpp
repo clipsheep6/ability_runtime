@@ -147,6 +147,9 @@ constexpr char EVENT_KEY_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_KEY_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 
+// Developer mode param
+constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
+
 // Msg length is less than 48 characters
 const std::string EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT = "Terminate Ability TimeOut!";
 const std::string EVENT_MESSAGE_TERMINATE_APPLICATION_TIMEOUT = "Terminate Application TimeOut!";
@@ -4763,6 +4766,11 @@ int32_t AppMgrServiceInner::ChangeAppGcState(pid_t pid, int32_t state)
 int32_t AppMgrServiceInner::RegisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
     HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (appDebugManager_ == nullptr) {
         HILOG_ERROR("appDebugManager_ is nullptr.");
         return ERR_NO_INIT;
@@ -4773,6 +4781,11 @@ int32_t AppMgrServiceInner::RegisterAppDebugListener(const sptr<IAppDebugListene
 int32_t AppMgrServiceInner::UnregisterAppDebugListener(const sptr<IAppDebugListener> &listener)
 {
     HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (appDebugManager_ == nullptr) {
         HILOG_ERROR("appDebugManager_ is nullptr.");
         return ERR_NO_INIT;
@@ -4783,6 +4796,17 @@ int32_t AppMgrServiceInner::UnregisterAppDebugListener(const sptr<IAppDebugListe
 int32_t AppMgrServiceInner::AttachAppDebug(const std::string &bundleName)
 {
     HILOG_DEBUG("Called.");
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer Mode is false.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (appRunningManager_ == nullptr) {
         HILOG_ERROR("appRunningManager_ is nullptr.");
         return ERR_NO_INIT;
@@ -4801,6 +4825,12 @@ int32_t AppMgrServiceInner::AttachAppDebug(const std::string &bundleName)
 int32_t AppMgrServiceInner::DetachAppDebug(const std::string &bundleName)
 {
     HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (appRunningManager_ == nullptr) {
         HILOG_ERROR("appRunningManager_ is nullptr.");
         return ERR_NO_INIT;
