@@ -171,10 +171,6 @@ bool PermissionVerification::VerifyMissionPermission() const
 
 int PermissionVerification::VerifyAppStateObserverPermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
         HILOG_DEBUG("Permission verification succeeded.");
         return ERR_OK;
