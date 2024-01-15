@@ -208,7 +208,7 @@ ErrCode ServiceExtensionContext::RequestModalUIExtension(const Want &want)
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
     if (err != ERR_OK) {
-        HILOG_ERROR("ServiceExtensionContext::TerminateAbility is failed %{public}d", err);
+        HILOG_ERROR("ServiceExtensionContext::RequestModalUIExtension is failed %{public}d", err);
     }
     HILOG_INFO("%{public}s end.", __func__);
     return err;
