@@ -72,6 +72,7 @@ ohos_unittest("AmsAppLifeCycleTest") {
     "init:libbeget_proxy",
     "ipc:ipc_core",
     "memory_utils:libmeminfo",
+    "os_account:os_account_innerkits",
   ]
 }
 
