@@ -56,7 +56,10 @@ sptr<AbilityEcologicalRuleMgrServiceClient> AbilityEcologicalRuleMgrServiceClien
     if (instance_ == nullptr) {
         std::lock_guard<std::mutex> autoLock(instanceLock_);
         if (instance_ == nullptr) {
-            instance_ = new AbilityEcologicalRuleMgrServiceClient;
+            instance_ = new (std::nothrow) AbilityEcologicalRuleMgrServiceClient;
+            if (instance_ == nullptr) {
+                HILOG_ERROR("failed to create AbilityEcologicalRuleMgrServiceClient");
+            }
         }
     }
     return instance_;
@@ -76,7 +79,10 @@ sptr<IAbilityEcologicalRuleMgrService> AbilityEcologicalRuleMgrServiceClient::Co
         return nullptr;
     }
 
-    deathRecipient_ = new AbilityEcologicalRuleMgrServiceDeathRecipient();
+    deathRecipient_ = new (std::nothrow) AbilityEcologicalRuleMgrServiceDeathRecipient();
+    if (deathRecipient_ == nullptr) {
+        HILOG_ERROR("failed to create AbilityEcologicalRuleMgrServiceDeathRecipient");
+    }
     systemAbility->AddDeathRecipient(deathRecipient_);
 
     return iface_cast<IAbilityEcologicalRuleMgrService>(systemAbility);
@@ -104,6 +110,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     const AbilityCallerInfo &callerInfo, int32_t type, vector<AbilityInfo> &abilityInfos,
     const vector<AppExecFwk::ExtensionAbilityInfo> &extInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
     HILOG_DEBUG("want: %{public}s, callerInfo: %{public}s, type: %{public}d", want.ToString().c_str(),
         callerInfo.ToString().c_str(), type);
@@ -119,6 +126,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
 int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::AAFwk::Want &want,
     const AbilityCallerInfo &callerInfo, AbilityExperienceRule &rule)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
     HILOG_DEBUG("callerInfo: %{public}s, want: %{public}s", callerInfo.ToString().c_str(), want.ToString().c_str());
     if (callerInfo.packageName.find_first_not_of(' ') == std::string::npos) {
