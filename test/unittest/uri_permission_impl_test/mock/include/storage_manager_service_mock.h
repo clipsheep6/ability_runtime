@@ -241,6 +241,11 @@ public:
     {
         return E_OK;
     }
+
+    virtual int32_t GetUserStorageStatsByType(int32_t userId, StorageStats &storageStats, std::string type) override
+    {
+        return E_OK;
+    }
 };
 
 bool StorageManagerServiceMock::isZero = true;
