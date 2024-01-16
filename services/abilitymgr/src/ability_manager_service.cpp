@@ -7205,7 +7205,7 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
             return ERR_INVALID_VALUE;
         }
         NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
-        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+        auto && abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
         auto want = abilityRecord->GetWant();
         if (!IsAbilityControllerStart(want, want.GetBundle())) {

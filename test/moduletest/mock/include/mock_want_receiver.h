@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_WANT_RECEIVER_H
+#define OHOS_ABILITY_RUNTIME_WANT_RECEIVER_H
+
 #include "want_receiver_interface.h"
 #include "cancel_listener.h"
 #include "gmock/gmock.h"
@@ -33,3 +36,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_WANT_RECEIVER_H

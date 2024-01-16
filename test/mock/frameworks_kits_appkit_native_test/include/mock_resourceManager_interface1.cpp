@@ -31,7 +31,7 @@ public:
     ResourceManagerTestInstance() {};
     ~ResourceManagerTestInstance() override {};
 
-    virtual bool AddResource(const char* path)
+    bool AddResource(const char* path) override
     {
         return false;
     };

@@ -77,7 +77,7 @@ napi_value FeatureAbilityInit(napi_env env, napi_value exports)
 class JsFeatureAbility : public JsNapiCommon {
 public:
     JsFeatureAbility() = default;
-    virtual ~JsFeatureAbility() override = default;
+    ~JsFeatureAbility() override = default;
 
     Ability* GetAbility(napi_env env);
     static void Finalizer(napi_env env, void *data, void *hint);

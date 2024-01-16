@@ -15,9 +15,9 @@
 
 #include "ability_info.h"
 
-#include <errno.h>
+#include <cerrno>
+#include <cstring>
 #include <fcntl.h>
-#include <string.h>
 #include <unistd.h>
 
 #include "bundle_constants.h"

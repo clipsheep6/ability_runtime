@@ -35,7 +35,7 @@ public:
     virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
     virtual bool IsMatch(int requestCode);
     void OnAbilityResultInner(int requestCode, int resultCode, const Want &resultData);
-    void SaveResultCallbacks(int requestCode, RuntimeTask&& task);
+    void SaveResultCallbacks(int requestCode, RuntimeTask && task);
 private:
     std::map<int, RuntimeTask> resultCallbacks_;
 };

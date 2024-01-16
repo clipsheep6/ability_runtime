@@ -200,7 +200,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     if (!IsContainsAbilityInner(token)) {
         return ERR_INVALID_VALUE;
     }
-    auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+    auto && abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     HILOG_INFO("Lifecycle: name is %{public}s.", abilityRecord->GetAbilityInfo().name.c_str());
 
@@ -238,7 +238,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
-        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+        auto && abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());

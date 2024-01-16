@@ -100,8 +100,8 @@ public:
         return this;
     };
 
-    virtual void Connect(const string &deviceId, const string &deviceType) override {};
-    virtual void Disconnect(const string &deviceId) override {};
+    void Connect(const string &deviceId, const string &deviceType) override {};
+    void Disconnect(const string &deviceId) override {};
 
     bool asObject_ = true;
 };
