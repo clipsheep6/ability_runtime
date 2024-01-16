@@ -1997,5 +1997,68 @@ HWTEST_F(AbilityManagerClientBranchTest, OpenFile_0100, TestSize.Level1)
     EXPECT_EQ(result, 0);
     GTEST_LOG_(INFO) << "OpenFile_0100 end";
 }
+
+/**
+ * @tc.name: AbilityManagerClient_GetDialogSessionInfo_0100
+ * @tc.desc: GetDialogSessionInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetDialogSessionInfo_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetDialogSessionInfo_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
+    std::string dialogSessionId;
+    sptr<DialogSessionInfo> info;
+    auto result = client_->GetDialogSessionInfo(dialogSessionId, info);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "GetDialogSessionInfo_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SendDialogResult_0100
+ * @tc.desc: SendDialogResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SendDialogResult_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SendDialogResult_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    std::string dialogSessionId;
+    bool isAllow = true;
+    auto result = client_->SendDialogResult(want, dialogSessionId, isAllow);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "SendDialogResult_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RequestModalUIExtension_0100
+ * @tc.desc: RequestModalUIExtension
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RequestModalUIExtension_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RequestModalUIExtension_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    auto result = client_->RequestModalUIExtension(want);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "RequestModalUIExtension_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UpdateSessionInfoBySCB_0100
+ * @tc.desc: UpdateSessionInfoBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UpdateSessionInfoBySCB_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 start";
+    std::vector<SessionInfo> sessionInfos;
+    int32_t userId = 1;
+    client_->UpdateSessionInfoBySCB(sessionInfos, userId);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS
