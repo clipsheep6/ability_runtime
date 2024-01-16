@@ -140,6 +140,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
     }
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+    HILOG_INFO("Start ability: %{public}s", targetService->GetURI().c_str());
 
     targetService->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
 
@@ -200,7 +201,8 @@ void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecor
     const AbilityRequest &abilityRequest)
 {
     CHECK_POINTER(abilityRecord);
-    HILOG_INFO("Foreground ability: %{public}s, persistentId: %{private}d", abilityRecord->GetURI().c_str(),
+    CHECK_POINTER(abilityRequest.sessionInfo);
+    HILOG_INFO("Foreground ability: %{public}s, persistentId: %{public}d", abilityRecord->GetURI().c_str(),
         abilityRequest.sessionInfo->persistentId);
     if (abilityRecord->IsReady() && !abilityRecord->IsAbilityState(AbilityState::INACTIVATING) &&
         !abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING) &&
@@ -1490,7 +1492,7 @@ void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<Abil
 {
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    HILOG_INFO("Background ability: %{public}s, persistentId: %{private}d", abilityRecord->GetURI().c_str(),
+    HILOG_INFO("Background ability: %{public}s, persistentId: %{public}d", abilityRecord->GetURI().c_str(),
         sessionInfo->persistentId);
 
     std::vector<AppExecFwk::Metadata> metaData = abilityRecord->GetAbilityInfo().metadata;
@@ -1531,7 +1533,7 @@ void AbilityConnectManager::DoTerminateUIExtensionAbility(std::shared_ptr<Abilit
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    HILOG_INFO("Terminate ability: %{public}s, persistentId: %{private}d", abilityRecord->GetURI().c_str(),
+    HILOG_INFO("Terminate ability: %{public}s, persistentId: %{public}d", abilityRecord->GetURI().c_str(),
         sessionInfo->persistentId);
 
     EventInfo eventInfo;

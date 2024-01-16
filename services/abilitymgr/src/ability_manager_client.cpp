@@ -261,10 +261,10 @@ ErrCode AbilityManagerClient::StartUIExtensionAbility(sptr<SessionInfo> extensio
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    CHECK_POINTER_RETURN_NOT_CONNECTED(extensionSessionInfo);
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+    CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
+    HILOG_INFO("name: %{public}s %{public}s, persistentId: %{public}d, userId: %{public}d.",
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
-        extensionSessionInfo->want.GetElement().GetBundleName().c_str(), userId);
+        extensionSessionInfo->want.GetElement().GetBundleName().c_str(), extensionSessionInfo->persistentId, userId);
     return abms->StartUIExtensionAbility(extensionSessionInfo, userId);
 }
 
@@ -304,7 +304,10 @@ ErrCode AbilityManagerClient::TerminateUIExtensionAbility(sptr<SessionInfo> exte
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("call");
+    CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
+    HILOG_INFO("name: %{public}s %{public}s, persistentId: %{public}d.",
+        extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
+        extensionSessionInfo->want.GetElement().GetBundleName().c_str(), extensionSessionInfo->persistentId);
     return abms->TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
 }
 
@@ -364,7 +367,10 @@ ErrCode AbilityManagerClient::MinimizeUIExtensionAbility(sptr<SessionInfo> exten
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("fromUser:%{public}d.", fromUser);
+    CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
+    HILOG_INFO("name: %{public}s %{public}s, persistentId: %{public}d, fromUser: %{public}d.",
+        extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
+        extensionSessionInfo->want.GetElement().GetBundleName().c_str(), extensionSessionInfo->persistentId, fromUser);
     return abms->MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
 }
 

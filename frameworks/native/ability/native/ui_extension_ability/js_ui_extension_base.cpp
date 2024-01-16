@@ -115,6 +115,7 @@ std::shared_ptr<JsExtensionCommon> JsUIExtensionBase::Init(const std::shared_ptr
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
     if (abilityInfo_ == nullptr) {
         HILOG_ERROR("abilityInfo is nullptr");
@@ -202,6 +203,7 @@ void JsUIExtensionBase::BindContext(napi_env env, napi_value obj)
 
 void JsUIExtensionBase::OnStart(const AAFwk::Want &want)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onCreate");
@@ -209,6 +211,7 @@ void JsUIExtensionBase::OnStart(const AAFwk::Want &want)
 
 void JsUIExtensionBase::OnStop()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onDestroy");
@@ -217,6 +220,7 @@ void JsUIExtensionBase::OnStop()
 void JsUIExtensionBase::OnCommandWindow(
     const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
     if (sessionInfo == nullptr) {
         HILOG_ERROR("sessionInfo is nullptr.");
@@ -248,6 +252,7 @@ void JsUIExtensionBase::OnCommandWindow(
 bool JsUIExtensionBase::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
     const sptr<AAFwk::SessionInfo> &sessionInfo, bool needForeground)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called.");
     if (!HandleSessionCreate(want, sessionInfo)) {
         HILOG_ERROR("HandleSessionCreate failed.");
@@ -298,6 +303,7 @@ bool JsUIExtensionBase::ForegroundWindowWithInsightIntent(const AAFwk::Want &wan
 void JsUIExtensionBase::PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
     const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Post insightintent executed.");
     if (needForeground) {
         // If uiextensionability is started for the first time or need move background to foreground.
@@ -321,6 +327,7 @@ void JsUIExtensionBase::PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo>
 
 void JsUIExtensionBase::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called.");
     if (context_ == nullptr) {
         HILOG_ERROR("Error to get context");
@@ -342,6 +349,7 @@ void JsUIExtensionBase::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sess
 void JsUIExtensionBase::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
     const AppExecFwk::InsightIntentExecuteResult &result)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
         HILOG_ERROR("Invalid sessionInfo.");
         return;
@@ -405,6 +413,7 @@ void JsUIExtensionBase::OnCommand(const AAFwk::Want &want, bool restart, int32_t
 
 void JsUIExtensionBase::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
     if (InsightIntentExecuteParam::IsInsightIntentExecute(want)) {
         bool finish = ForegroundWindowWithInsightIntent(want, sessionInfo, true);
@@ -420,6 +429,7 @@ void JsUIExtensionBase::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> 
 
 void JsUIExtensionBase::OnBackground()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
     HandleScope handleScope(jsRuntime_);
     CallObjectMethod("onBackground");
@@ -456,6 +466,7 @@ bool JsUIExtensionBase::CallJsOnSessionCreate(const AAFwk::Want &want, const spt
 
 bool JsUIExtensionBase::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr || sessionInfo->uiExtensionComponentId == 0) {
         HILOG_ERROR("Invalid sessionInfo.");
         return false;
@@ -493,6 +504,7 @@ bool JsUIExtensionBase::HandleSessionCreate(const AAFwk::Want &want, const sptr<
 
 void JsUIExtensionBase::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!HandleSessionCreate(want, sessionInfo)) {
         HILOG_ERROR("HandleSessionCreate failed.");
         return;
@@ -508,6 +520,7 @@ void JsUIExtensionBase::ForegroundWindow(const AAFwk::Want &want, const sptr<AAF
 
 void JsUIExtensionBase::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
         HILOG_ERROR("Invalid sessionInfo.");
         return;
@@ -528,6 +541,7 @@ void JsUIExtensionBase::BackgroundWindow(const sptr<AAFwk::SessionInfo> &session
 
 void JsUIExtensionBase::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
         HILOG_ERROR("Invalid sessionInfo.");
         return;
@@ -581,6 +595,7 @@ napi_value JsUIExtensionBase::CallObjectMethod(const char *name, napi_value cons
 
 void JsUIExtensionBase::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called.");
     if (context_ == nullptr) {
         HILOG_ERROR("context is nullptr");

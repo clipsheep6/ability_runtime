@@ -1163,8 +1163,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.
 {
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
     Want want;
-    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100),
-        ABILITY_SERVICE_NOT_CONNECTED);
+    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100), ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
 }
 
@@ -1177,7 +1176,7 @@ HWTEST_F(AbilityManagerClientBranchTest, TerminateUIExtensionAbility_0100, TestS
 {
     GTEST_LOG_(INFO) << "TerminateUIExtensionAbility_0100 start";
     Want* resultWant = nullptr;
-    EXPECT_EQ(client_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_OK);
+    EXPECT_EQ(client_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "TerminateUIExtensionAbility_0100 end";
 }
 
@@ -1189,7 +1188,7 @@ HWTEST_F(AbilityManagerClientBranchTest, TerminateUIExtensionAbility_0100, TestS
 HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIExtensionAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 start";
-    EXPECT_EQ(client_->MinimizeUIExtensionAbility(nullptr, true), ERR_OK);
+    EXPECT_EQ(client_->MinimizeUIExtensionAbility(nullptr, true), ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 end";
 }
 

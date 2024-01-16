@@ -64,10 +64,9 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
 void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("sourceState:%{public}d;targetState:%{public}d;isNewWant:%{public}d",
-        lifecycleState_,
-        targetState.state,
-        targetState.isNewWant);
+        lifecycleState_, targetState.state, targetState.isNewWant);
     if (lifecycleState_ == targetState.state) {
         HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
         return;
@@ -158,6 +157,7 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
  */
 void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Start extension_ is nullptr");
@@ -194,6 +194,7 @@ void ExtensionImpl::Stop()
 
 void ExtensionImpl::Stop(bool &isAsyncCallback, const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Stop extension_ is nullptr");
@@ -416,13 +417,14 @@ bool ExtensionImpl::HandleInsightIntent(const Want &want)
 void ExtensionImpl::CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
-    HILOG_INFO("persistentId: %{private}d, componentId: %{public}" PRId64 ", winCmd: %{public}d",
-        sessionInfo->persistentId, sessionInfo->uiExtensionComponentId, winCmd);
-    if (extension_ == nullptr) {
-        HILOG_ERROR("extension_ is nullptr");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (extension_ == nullptr || sessionInfo == nullptr) {
+        HILOG_ERROR("extension_ or sessionInfo is nullptr");
         return;
     }
 
+    HILOG_INFO("persistentId: %{private}d, componentId: %{public}" PRId64 ", winCmd: %{public}d",
+        sessionInfo->persistentId, sessionInfo->uiExtensionComponentId, winCmd);
     extension_->OnCommandWindow(want, sessionInfo, winCmd);
     HILOG_INFO("ok");
 }
@@ -441,6 +443,7 @@ void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resu
 
 void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ExtensionImpl::Foreground begin");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Foreground ability is nullptr");
@@ -453,6 +456,7 @@ void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessio
 
 void ExtensionImpl::Background(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ExtensionImpl::Background begin");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Background ability is nullptr");

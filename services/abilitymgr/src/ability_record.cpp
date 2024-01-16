@@ -44,6 +44,7 @@
 #include "parameters.h"
 #include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
+#include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #include "permission_constants.h"
 #ifdef SUPPORT_GRAPHICS
@@ -1957,7 +1958,8 @@ void AbilityRecord::GetAbilityTypeString(std::string &typeStr)
         }
 #endif
         case AppExecFwk::AbilityType::SERVICE: {
-            typeStr = "SERVICE";
+            typeStr = UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType) ?
+                "UIEXTENSION" : "SERVICE";
             break;
         }
         // for config.json type
@@ -2131,7 +2133,11 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
                       std::to_string(GetStartTime()) + "]");
     info.emplace_back("      main name [" + GetAbilityInfo().name + "]");
     info.emplace_back("      bundle name [" + GetAbilityInfo().bundleName + "]");
-    info.emplace_back("      ability type [SERVICE]");
+    if (UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType)) {
+        info.emplace_back("      ability type [UIEXTENSION]");
+    } else {
+        info.emplace_back("      ability type [SERVICE]");
+    }
     info.emplace_back("      app state #" + AbilityRecord::ConvertAppState(appState_));
 
     std::string isKeepAlive = isKeepAlive_ ? "true" : "false";

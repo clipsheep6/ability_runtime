@@ -790,7 +790,12 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool loadSucceed = false;
-    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_ERROR("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -816,7 +821,12 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool reloadPageSucceed = false;
-    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_ERROR("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -843,7 +853,12 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool unLoadSucceed = false;
-    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_ERROR("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
