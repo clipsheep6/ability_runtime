@@ -328,7 +328,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         HILOG_INFO("processName: %{public}s.", appRecord->GetProcessName().c_str());
         auto priorityObject = appRecord->GetPriorityObject();
         if (priorityObject != nullptr) {
-            HILOG_INFO("pid: %{public}zu.", priorityObject->GetPid());
+            HILOG_INFO("pid: %{public}d.", priorityObject->GetPid());
         }
     }
     appRunningRecordMap_.erase(iter);
@@ -942,6 +942,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("App running record is nullptr.");
             return;
         }
+        HILOG_INFO("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
         pids.emplace(info->pid_);
     }

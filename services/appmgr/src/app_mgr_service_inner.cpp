@@ -4111,7 +4111,7 @@ void AppMgrServiceInner::HandleFocused(const sptr<OHOS::Rosen::FocusChangeInfo> 
         HILOG_WARN("focused, invalid focusChangeInfo");
         return;
     }
-    HILOG_DEBUG("focused, uid:%{public}d, pid:%{public}d", focusChangeInfo->uid_, focusChangeInfo->pid_);
+    HILOG_INFO("focused, uid:%{public}d, pid:%{public}d", focusChangeInfo->uid_, focusChangeInfo->pid_);
 
     if (focusChangeInfo->pid_ <= 0) {
         HILOG_ERROR("invalid pid:%{public}d", focusChangeInfo->pid_);
