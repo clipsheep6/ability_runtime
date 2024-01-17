@@ -90,6 +90,15 @@ namespace {
         return ERR_PERMISSION_DENIED;                                                               \
     }
 
+#ifdef CHECK_POINTER_AND_RETURN
+#undef CHECK_POINTER_AND_RETURN
+#endif
+#define CHECK_POINTER_AND_RETURN(object, value) \
+    if (object == nullptr) {                    \
+        HILOG_ERROR("pointer is nullptr.");     \
+        return value;                           \
+    }
+
 // NANOSECONDS mean 10^9 nano second
 constexpr int64_t NANOSECONDS = 1000000000;
 // MICROSECONDS mean 10^6 milli second
@@ -172,6 +181,7 @@ constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 #endif
 
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
+constexpr int64_t timeout = 11000;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -4433,10 +4443,7 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
 
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
-    if (remoteClientManager_ == nullptr) {
-        HILOG_ERROR("The remoteClientManager_ is nullptr.");
-        return ERR_NO_INIT;
-    }
+    CHECK_POINTER_AND_RETURN(remoteClientManager_, ERR_NO_INIT);
     std::string callerBundleName;
     if (auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper(); bundleMgrHelper != nullptr) {
         int32_t callingUid = IPCSkeleton::GetCallingUid();
@@ -4450,10 +4457,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
 #endif
         int32_t pid = faultData.pid;
         auto record = GetAppRunningRecordByPid(pid);
-        if (record == nullptr) {
-            HILOG_ERROR("no such AppRunningRecord");
-            return ERR_INVALID_VALUE;
-        }
+        CHECK_POINTER_AND_RETURN(record, ERR_INVALID_VALUE);
 
         FaultData transformedFaultData = ConvertDataTypes(faultData);
         int32_t uid = record->GetUid();
@@ -4468,7 +4472,6 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             transformedFaultData.timeoutMarkers = "notifyFault:" + transformedFaultData.errorObject.name +
                 std::to_string(pid) + "-" + std::to_string(SystemTimeMillisecond());
         }
-        const int64_t timeout = 11000;
         if (faultData.faultType == FaultDataType::APP_FREEZE) {
             if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugApp()) {
                 return ERR_OK;
@@ -4481,11 +4484,10 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         HILOG_WARN("FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
             "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
             FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
-    } else {
-        HILOG_DEBUG("this is not called by SA.");
-        return AAFwk::CHECK_PERMISSION_FAILED;
+        return ERR_OK;
     }
-    return ERR_OK;
+    HILOG_DEBUG("this is not called by SA.");
+    return AAFwk::CHECK_PERMISSION_FAILED;
 }
 
 FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData)
