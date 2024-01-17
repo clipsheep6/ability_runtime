@@ -22,7 +22,7 @@ bool AppModuleChecker::CheckModuleLoadable(const char *moduleName,
                                            std::unique_ptr<ApiAllowListChecker> &apiAllowListChecker)
 {
     apiAllowListChecker = nullptr;
-    HILOG_INFO("check blocklist, moduleName = %{public}s, processExtensionType_ = %{public}d",
+    HILOG_DEBUG("check blocklist, moduleName = %{public}s, processExtensionType_ = %{public}d",
         moduleName, static_cast<int32_t>(processExtensionType_));
     const auto& blockListIter = moduleBlocklist_.find(processExtensionType_);
     if (blockListIter == moduleBlocklist_.end()) {
