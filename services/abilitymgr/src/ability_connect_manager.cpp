@@ -114,7 +114,7 @@ int AbilityConnectManager::StopServiceAbility(const AbilityRequest &abilityReque
 int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityRequest)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
+    HILOG_DEBUG("ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
     std::vector<AppExecFwk::Metadata> metaData = abilityRequest.abilityInfo.metadata;
     bool isSingleton = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
@@ -157,10 +157,10 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     }
 
     if (!isLoadedAbility) {
-        HILOG_INFO("Target service has not been loaded.");
+        HILOG_DEBUG("Target service has not been loaded.");
         LoadAbility(targetService);
         if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && isSingleton) {
-            HILOG_INFO("Start uiextension in singleton mode.");
+            HILOG_DEBUG("Start uiextension in singleton mode.");
             auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
             if (callerAbilityRecord == nullptr) {
                 HILOG_ERROR("Failed to get callerAbilityRecord.");
@@ -275,12 +275,12 @@ void AbilityConnectManager::EnqueueStartServiceReq(const AbilityRequest &ability
 int AbilityConnectManager::TerminateAbilityLocked(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Terminate ability locked.");
+    HILOG_DEBUG("called");
     auto abilityRecord = GetExtensionFromTerminatingMapInner(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
 
     if (abilityRecord->IsTerminating()) {
-        HILOG_INFO("Ability is on terminating.");
+        HILOG_DEBUG("Ability is on terminating.");
         return ERR_OK;
     }
 
@@ -444,7 +444,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     sptr<UIExtensionAbilityConnectInfo> connectInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
+    HILOG_DEBUG("callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
     std::lock_guard guard(Lock_);
 
     // 1. get target service ability record, and check whether it has been loaded.
@@ -492,7 +492,7 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
         targetService->SetWant(abilityRequest.want);
         HandleActiveAbility(targetService, connectRecord);
     } else {
-        HILOG_INFO("Target service is activating, wait for callback");
+        HILOG_DEBUG("Target service is activating, wait for callback");
     }
 
     auto token = targetService->GetToken();
@@ -529,7 +529,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
 int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect, bool force)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
 
     // 1. check whether callback was connected.
     ConnectListType connectRecordList;
@@ -546,7 +546,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
         if (connectRecord) {
             auto abilityRecord = connectRecord->GetAbilityRecord();
             CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
-            HILOG_INFO("abilityName: %{public}s, bundleName: %{public}s",
+            HILOG_DEBUG("abilityName: %{public}s, bundleName: %{public}s",
                 abilityRecord->GetAbilityInfo().name.c_str(), abilityRecord->GetAbilityInfo().bundleName.c_str());
             if (abilityRecord->GetAbilityInfo().type == AbilityType::EXTENSION) {
                 RemoveExtensionDelayDisconnectTask(connectRecord);
@@ -847,7 +847,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
         if (IsUIExtensionAbility(abilityRecord) && CheckUIExtensionAbilitySessionExistLocked(abilityRecord)) {
             HILOG_INFO("There exist ui extension component, don't terminate when disconnect.");
         } else {
-            HILOG_INFO("Service ability has no any connection, and not started, need terminate.");
+            HILOG_DEBUG("Service ability has no any connection, and not started, need terminate.");
             RemoveUIExtensionAbilityRecord(abilityRecord);
             if (!IsSceneBoard(abilityRecord)) {
                 TerminateRecord(abilityRecord);
@@ -1586,10 +1586,10 @@ void AbilityConnectManager::RemoveConnectionRecordFromMap(const std::shared_ptr<
         auto &connectList = connectCallback.second;
         auto connectRecord = std::find(connectList.begin(), connectList.end(), connection);
         if (connectRecord != connectList.end()) {
-            HILOG_INFO("connrecord(%{public}d)", (*connectRecord)->GetRecordId());
+            HILOG_DEBUG("connrecord(%{public}d)", (*connectRecord)->GetRecordId());
             connectList.remove(connection);
             if (connectList.empty()) {
-                HILOG_INFO("connlist");
+                HILOG_DEBUG("connlist");
                 sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(connectCallback.first);
                 RemoveConnectDeathRecipient(connect);
                 connectMap_.erase(connectCallback.first);
@@ -1667,7 +1667,7 @@ void AbilityConnectManager::OnCallBackDied(const wptr<IRemoteObject> &remote)
 
 void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &connect)
 {
-    HILOG_INFO("Handle call back died task.");
+    HILOG_DEBUG("Handle call back died task.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(connect);
     auto item = windowExtensionMap_.find(connect);
@@ -1690,7 +1690,7 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
 
 void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
-    HILOG_INFO("On ability died.");
+    HILOG_DEBUG("called.");
     CHECK_POINTER(abilityRecord);
     if (abilityRecord->GetAbilityInfo().type != AbilityType::SERVICE &&
         abilityRecord->GetAbilityInfo().type != AbilityType::EXTENSION) {
@@ -1810,7 +1810,7 @@ bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<Ability
 void AbilityConnectManager::HandleAbilityDiedTask(
     const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
-    HILOG_INFO("Handle ability died task.");
+    HILOG_DEBUG("called.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
     abilityRecord->SetConnRemoteObject(nullptr);

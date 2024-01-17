@@ -44,7 +44,7 @@ void JsExtensionContext::ConfigurationUpdated(napi_env env, const std::shared_pt
         return;
     }
 
-    HILOG_INFO("JsExtensionContext call onUpdateConfiguration.");
+    HILOG_DEBUG("JsExtensionContext call onUpdateConfiguration.");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_call_function(env, object, method, 1, argv, nullptr);
 }

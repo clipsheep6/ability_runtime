@@ -65,7 +65,7 @@ void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
 
 void JsErrorObserver::CallJsFunction(napi_value obj, const char* methodName, napi_value const* argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    HILOG_DEBUG("CallJsFunction begin, method:%{public}s", methodName);
     if (obj == nullptr) {
         HILOG_ERROR("Failed to get object");
         return;

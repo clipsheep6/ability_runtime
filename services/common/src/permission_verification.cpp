@@ -87,7 +87,7 @@ bool PermissionVerification::IsGatewayCall() const
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
     }
-    HILOG_INFO("%{public}s: Permission verification failed.", __func__);
+    HILOG_DEBUG("%{public}s: Permission verification failed.", __func__);
     return false;
 }
 

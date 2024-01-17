@@ -57,7 +57,7 @@ const int PARA_SIZE_IS_TWO = 2;
  */
 napi_value FeatureAbilityInit(napi_env env, napi_value exports)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_DEBUG("%{public}s,called", __func__);
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("finishWithResult", NAPI_SetResult),
         DECLARE_NAPI_FUNCTION("getAppType", NAPI_GetAppType),
@@ -105,7 +105,7 @@ private:
 
 void JsFeatureAbility::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_INFO("JsFeatureAbility::Finalizer is called");
+    HILOG_DEBUG("called");
     std::unique_ptr<JsFeatureAbility>(static_cast<JsFeatureAbility*>(data));
 }
 

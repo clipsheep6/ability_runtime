@@ -28,7 +28,7 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Init begin.");
+    HILOG_DEBUG("Init begin.");
     if ((record == nullptr) || (application == nullptr) || (handler == nullptr) || (token == nullptr)) {
         HILOG_ERROR("Extension::init failed, some object is nullptr");
         return;
@@ -41,7 +41,7 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
 void Extension::OnStart(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
     SetLaunchWant(want);
     SetLastRequestWant(want);
 }
@@ -49,7 +49,7 @@ void Extension::OnStart(const AAFwk::Want &want)
 void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("extension:%{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
     SetLaunchWant(want);
     SetLastRequestWant(want);
 }

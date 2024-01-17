@@ -3185,7 +3185,7 @@ bool NapiJsContext::DataInit(napi_env env)
     if (status != napi_ok) {
         HILOG_WARN("Failed to get external ability info.");
     }
-    HILOG_INFO("Get Ability to done");
+    HILOG_DEBUG("Get Ability to done");
 
     return true;
 }

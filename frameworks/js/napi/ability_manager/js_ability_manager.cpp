@@ -486,14 +486,14 @@ private:
 
 napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("JsAbilityManagerInit is called");
+    HILOG_DEBUG("JsAbilityManagerInit is called");
 
     std::unique_ptr<JsAbilityManager> jsAbilityManager = std::make_unique<JsAbilityManager>();
     napi_wrap(env, exportObj, jsAbilityManager.release(), JsAbilityManager::Finalizer, nullptr, nullptr);
 
     napi_set_named_property(env, exportObj, "AbilityState", AbilityStateInit(env));
 
-    HILOG_INFO("JsAbilityManagerInit BindNativeFunction called");
+    HILOG_DEBUG("JsAbilityManagerInit BindNativeFunction called");
     const char *moduleName = "JsAbilityManager";
     BindNativeFunction(env, exportObj, "getAbilityRunningInfos", moduleName,
         JsAbilityManager::GetAbilityRunningInfos);
@@ -507,7 +507,7 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
         env, exportObj, "getForegroundUIAbilities", moduleName, JsAbilityManager::GetForegroundUIAbilities);
     BindNativeFunction(env, exportObj, "on", moduleName, JsAbilityManager::On);
     BindNativeFunction(env, exportObj, "off", moduleName, JsAbilityManager::Off);
-    HILOG_INFO("JsAbilityManagerInit end");
+    HILOG_DEBUG("JsAbilityManagerInit end");
     return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime

@@ -39,7 +39,7 @@ bool InnerWrapConfigurationString(
 
 napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &configuration)
 {
-    HILOG_INFO("%{public}s called, config size %{public}d", __func__, static_cast<int>(configuration.GetItemSize()));
+    HILOG_DEBUG("%{public}s called, config size %{public}d", __func__, static_cast<int>(configuration.GetItemSize()));
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
