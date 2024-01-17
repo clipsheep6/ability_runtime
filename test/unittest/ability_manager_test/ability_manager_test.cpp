@@ -86,7 +86,7 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0300, TestSize.Level1)
     HILOG_INFO("AbilityManagerTest_0300 is start");
     const std::string bundleName = "test";
     auto res = AbilityManager::GetInstance().ClearUpApplicationData(bundleName);
-    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
     HILOG_INFO("AbilityManagerTest_0300 is end");
 }
 

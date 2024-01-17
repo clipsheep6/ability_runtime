@@ -359,44 +359,23 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&startOptions)) {
-        HILOG_ERROR("startOptions write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &startOptions);
     if (callerToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
-            return INNER_ERR;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, callerToken);
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return INNER_ERR;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
     if (asCallerSourceToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(asCallerSourceToken)) {
-            HILOG_ERROR("flag and asCallerSourceToken write failed.");
-            return INNER_ERR;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, asCallerSourceToken);
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("asCallerSourceToken write failed.");
-            return INNER_ERR;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
-    if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, requestCode);
+
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
@@ -889,49 +868,27 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
-    if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
-        return ERR_INVALID_VALUE;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
     CHECK_POINTER_AND_RETURN_LOG(connect, ERR_INVALID_VALUE, "connect ability fail, connect is nullptr");
     if (connect->AsObject()) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(connect->AsObject())) {
-            HILOG_ERROR("flag and connect write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, connect->AsObject());
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
     CHECK_POINTER_AND_RETURN_LOG(sessionInfo, ERR_INVALID_VALUE, "connect ability fail, sessionInfo is nullptr");
     if (sessionInfo) {
-        if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, sessionInfo);
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
-    if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("UserId write failed.");
-        return INNER_ERR;
-    }
-
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
     if (connectInfo != nullptr) {
-        if (!data.WriteBool(true) || !data.WriteParcelable(connectInfo)) {
-            HILOG_ERROR("flag and connectInfo write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, connectInfo);
     } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
-            return ERR_INVALID_VALUE;
-        }
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
     }
 
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY, data, reply, option);
@@ -939,7 +896,6 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
     }
-
     if (connectInfo != nullptr) {
         sptr<UIExtensionAbilityConnectInfo> replyInfo = reply.ReadParcelable<UIExtensionAbilityConnectInfo>();
         if (replyInfo != nullptr) {
@@ -947,7 +903,6 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
             HILOG_DEBUG("UIExtensionAbilityId is %{public}d.", connectInfo->uiExtensionAbilityId);
         }
     }
-
     return reply.ReadInt32();
 }
 

@@ -140,6 +140,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         GetOrCreateServiceRecord(abilityRequest, false, targetService, isLoadedAbility);
     }
     CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+    HILOG_INFO("Start ability: %{public}s", targetService->GetURI().c_str());
 
     targetService->AddCallerRecord(abilityRequest.callerToken, abilityRequest.requestCode);
 
@@ -200,7 +201,8 @@ void AbilityConnectManager::DoForegroundUIExtension(std::shared_ptr<AbilityRecor
     const AbilityRequest &abilityRequest)
 {
     CHECK_POINTER(abilityRecord);
-    HILOG_INFO("Foreground ability: %{public}s, persistentId: %{private}d", abilityRecord->GetURI().c_str(),
+    CHECK_POINTER(abilityRequest.sessionInfo);
+    HILOG_INFO("Foreground ability: %{public}s, persistentId: %{public}d", abilityRecord->GetURI().c_str(),
         abilityRequest.sessionInfo->persistentId);
     if (abilityRecord->IsReady() && !abilityRecord->IsAbilityState(AbilityState::INACTIVATING) &&
         !abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING) &&
@@ -1490,7 +1492,7 @@ void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<Abil
 {
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    HILOG_INFO("Background ability: %{public}s, persistentId: %{private}d", abilityRecord->GetURI().c_str(),
+    HILOG_INFO("Background ability: %{public}s, persistentId: %{public}d", abilityRecord->GetURI().c_str(),
         sessionInfo->persistentId);
 
     std::vector<AppExecFwk::Metadata> metaData = abilityRecord->GetAbilityInfo().metadata;
@@ -1531,7 +1533,7 @@ void AbilityConnectManager::DoTerminateUIExtensionAbility(std::shared_ptr<Abilit
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(sessionInfo);
-    HILOG_INFO("Terminate ability: %{public}s, persistentId: %{private}d", abilityRecord->GetURI().c_str(),
+    HILOG_INFO("Terminate ability: %{public}s, persistentId: %{public}d", abilityRecord->GetURI().c_str(),
         sessionInfo->persistentId);
 
     EventInfo eventInfo;
@@ -1586,10 +1588,10 @@ void AbilityConnectManager::RemoveConnectionRecordFromMap(const std::shared_ptr<
         auto &connectList = connectCallback.second;
         auto connectRecord = std::find(connectList.begin(), connectList.end(), connection);
         if (connectRecord != connectList.end()) {
-            HILOG_DEBUG("connrecord(%{public}d)", (*connectRecord)->GetRecordId());
+            HILOG_INFO("connrecord(%{public}d)", (*connectRecord)->GetRecordId());
             connectList.remove(connection);
             if (connectList.empty()) {
-                HILOG_DEBUG("connlist");
+                HILOG_INFO("connlist");
                 sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(connectCallback.first);
                 RemoveConnectDeathRecipient(connect);
                 connectMap_.erase(connectCallback.first);
@@ -1690,8 +1692,8 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
 
 void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
-    HILOG_DEBUG("called.");
     CHECK_POINTER(abilityRecord);
+    HILOG_DEBUG("On ability died: %{public}s.", abilityRecord->GetURI().c_str());
     if (abilityRecord->GetAbilityInfo().type != AbilityType::SERVICE &&
         abilityRecord->GetAbilityInfo().type != AbilityType::EXTENSION) {
         HILOG_DEBUG("Ability type is not service.");
@@ -1813,6 +1815,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     HILOG_DEBUG("called.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
+    HILOG_INFO("Ability died: %{public}s", abilityRecord->GetURI().c_str());
     abilityRecord->SetConnRemoteObject(nullptr);
     ConnectListType connlist = abilityRecord->GetConnectRecordList();
     for (auto &connectRecord : connlist) {
@@ -1846,11 +1849,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     MoveToTerminatingMap(abilityRecord);
     RemoveServiceAbility(abilityRecord);
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
+        HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
         }
-        HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         RestartAbility(abilityRecord, currentUserId);
     }
 }
@@ -1884,7 +1887,7 @@ void AbilityConnectManager::HandleUIExtensionDied(const std::shared_ptr<AbilityR
 
 void AbilityConnectManager::RestartAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
-    HILOG_INFO("Restart ability");
+    HILOG_INFO("Restart ability: %{public}s.", abilityRecord->GetURI().c_str());
     AbilityRequest requestInfo;
     requestInfo.want = abilityRecord->GetWant();
     requestInfo.abilityInfo = abilityRecord->GetAbilityInfo();

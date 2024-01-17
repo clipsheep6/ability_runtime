@@ -389,7 +389,7 @@ bool AbilityManagerService::Init()
     dialogSessionRecord_ = std::make_shared<DialogSessionRecord>();
 
     InitPushTask();
-    
+
     SubscribeScreenUnlockedEvent();
     HILOG_INFO("Init success.");
     return true;
@@ -2184,7 +2184,7 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
 
     HILOG_DEBUG("Window Modal System Create UIExtension is called!");
     auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
-    return connection->CreateModalUIExtension(want);
+    return connection->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
 }
 
 int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
@@ -3275,7 +3275,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     bool isQueryExtensionOnly, sptr<UIExtensionAbilityConnectInfo> connectInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Connect local ability begin.");
+    HILOG_INFO("Connect local ability begin.");
     bool isEnterpriseAdmin = AAFwk::UIExtensionUtils::IsEnterpriseAdmin(extensionType);
     if (!isEnterpriseAdmin && !JudgeMultiUserConcurrency(userId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -3655,7 +3655,7 @@ int AbilityManagerService::UnRegisterMissionListener(const std::string &deviceId
 sptr<IWantSender> AbilityManagerService::GetWantSender(
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("Get want Sender.");
+    HILOG_INFO("Get want Sender.");
     CHECK_POINTER_AND_RETURN(pendingWantManager_, nullptr);
 
     auto bms = GetBundleManager();
@@ -4785,8 +4785,7 @@ int AbilityManagerService::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
 
     auto abilityInfo = abilityRecord->GetAbilityInfo();
-    HILOG_DEBUG("Lifecycle: bundle: %{public}s, ability: %{public}s.", abilityInfo.bundleName.c_str(),
-        abilityInfo.name.c_str());
+    HILOG_DEBUG("Lifecycle: ability: %{public}s.", abilityRecord->GetURI().c_str());
     auto type = abilityInfo.type;
     auto userId = abilityRecord->GetApplicationInfo().uid / BASE_USER_RANGE;
     // force timeout ability for test
@@ -6975,7 +6974,7 @@ int32_t AbilityManagerService::GetValidUserId(const int32_t userId)
 
     if (DEFAULT_INVAL_VALUE == userId) {
         validUserId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
-        HILOG_DEBUG("validUserId = %{public}d, CallingUid = %{public}d.", validUserId,
+        HILOG_INFO("validUserId = %{public}d, CallingUid = %{public}d.", validUserId,
             IPCSkeleton::GetCallingUid());
         if (validUserId == U0_USER_ID) {
             validUserId = GetUserId();
@@ -8097,13 +8096,13 @@ int AbilityManagerService::CheckCallServicePermission(const AbilityRequest &abil
         abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME) {
         auto collaborator = GetCollaborator(CollaboratorType::RESERVE_TYPE);
         if (collaborator != nullptr) {
-            HILOG_DEBUG("Collaborator CheckCallAbilityPermission.");
+            HILOG_INFO("Collaborator CheckCallAbilityPermission.");
             return collaborator->CheckCallAbilityPermission(abilityRequest.want);
         }
     }
     if (abilityRequest.abilityInfo.isStageBasedModel) {
         auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
-        HILOG_DEBUG("extensionType is %{public}d.", static_cast<int>(extensionType));
+        HILOG_INFO("extensionType is %{public}d.", static_cast<int>(extensionType));
         if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE ||
             extensionType == AppExecFwk::ExtensionAbilityType::DATASHARE) {
             return CheckCallServiceExtensionPermission(abilityRequest);

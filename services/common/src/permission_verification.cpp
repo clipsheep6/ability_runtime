@@ -392,10 +392,6 @@ bool PermissionVerification::IsSystemAppCall() const
 
 bool PermissionVerification::VerifyPrepareTerminatePermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;

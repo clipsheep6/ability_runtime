@@ -1029,5 +1029,41 @@ HWTEST_F(JsRuntimeTest, SetRequestAotCallback_0100, TestSize.Level0)
     EXPECT_NE(ret, -1);
     HILOG_INFO("finish");
 }
+
+/**
+ * @tc.name: DestroyHeapProfiler_0100
+ * @tc.desc: JsRuntime test for DestroyHeapProfiler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, DestroyHeapProfiler_0100, TestSize.Level0)
+{
+    HILOG_INFO("DestroyHeapProfiler_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    jsRuntime->DestroyHeapProfiler();
+    ASSERT_NE(jsRuntime, nullptr);
+    HILOG_INFO("DestroyHeapProfiler_0100 end");
+}
+
+/**
+ * @tc.name: ForceFullGC_0100
+ * @tc.desc: JsRuntime test for ForceFullGC.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, ForceFullGC_0100, TestSize.Level0)
+{
+    HILOG_INFO("ForceFullGC_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    jsRuntime->ForceFullGC();
+    ASSERT_NE(jsRuntime, nullptr);
+    HILOG_INFO("ForceFullGC_0100 end");
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
