@@ -155,6 +155,7 @@ bool JsEnvironmentCallback::UnRegister(int32_t callbackId, bool isSync)
             return false;
         }
         HILOG_DEBUG("callbacksSync_.callbackId : %{public}d", it->first);
+        napi_delete_reference(env_, callbacksSync_[callbackId]);
         return callbacksSync_.erase(callbackId) == 1;
     }
     auto it = callbacks_.find(callbackId);
@@ -163,6 +164,7 @@ bool JsEnvironmentCallback::UnRegister(int32_t callbackId, bool isSync)
         return false;
     }
     HILOG_DEBUG("callbacks_.callbackId : %{public}d", it->first);
+    napi_delete_reference(env_, callbacks_[callbackId]);
     return callbacks_.erase(callbackId) == 1;
 }
 
