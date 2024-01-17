@@ -246,6 +246,11 @@ public:
     {
         return E_OK;
     }
+
+    virtual int32_t UpdateMemoryPara(int32_t size, int32_t &oldSize) override
+    {
+        return E_OK;
+    }
 };
 
 bool StorageManagerServiceMock::isZero = true;
