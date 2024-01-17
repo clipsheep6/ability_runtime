@@ -938,6 +938,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
 
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_INFO("TerminateSelfWithResult async");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -1144,6 +1145,7 @@ napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo& inf
 
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_INFO("TerminateSelf async");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");

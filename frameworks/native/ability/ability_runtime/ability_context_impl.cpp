@@ -308,7 +308,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
-    HILOG_DEBUG("TerminateAbilityWithResult");
+    HILOG_INFO("TerminateAbilityWithResult");
     isTerminating_ = true;
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -510,7 +510,7 @@ ErrCode AbilityContextImpl::MoveAbilityToBackground()
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
-    HILOG_DEBUG("TerminateSelf");
+    HILOG_INFO("TerminateSelf");
     isTerminating_ = true;
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
