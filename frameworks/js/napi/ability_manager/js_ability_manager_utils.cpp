@@ -103,7 +103,7 @@ napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunn
 
 napi_value AbilityStateInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    HILOG_DEBUG("enter");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 

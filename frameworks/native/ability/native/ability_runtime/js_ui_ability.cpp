@@ -711,7 +711,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
         window->SetSystemPrivacyMode(true);
     }
 
-    HILOG_INFO("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
+    HILOG_DEBUG("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
     HILOG_DEBUG("End.");
@@ -762,7 +762,7 @@ void JsUIAbility::DoOnForegroundForSceneIsNull(const Want &want)
 
 void JsUIAbility::RequestFocus(const Want &want)
 {
-    HILOG_INFO("Lifecycle: begin.");
+    HILOG_DEBUG("Lifecycle: begin.");
     if (scene_ == nullptr) {
         HILOG_ERROR("scene_ is nullptr.");
         return;
@@ -776,7 +776,7 @@ void JsUIAbility::RequestFocus(const Want &want)
     }
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
-    HILOG_INFO("Lifecycle: end.");
+    HILOG_DEBUG("Lifecycle: end.");
 }
 
 void JsUIAbility::ContinuationRestore(const Want &want)
@@ -1191,7 +1191,7 @@ sptr<IRemoteObject> JsUIAbility::CallRequest()
 napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Lifecycle: the begin of %{public}s", name);
+    HILOG_DEBUG("Lifecycle: the begin of %{public}s", name);
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Not found Ability.js");
         return nullptr;
@@ -1225,7 +1225,7 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
     if (tryCatch.HasCaught()) {
         reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
     }
-    HILOG_INFO("Lifecycle: the end of %{public}s", name);
+    HILOG_DEBUG("Lifecycle: the end of %{public}s", name);
     return nullptr;
 }
 

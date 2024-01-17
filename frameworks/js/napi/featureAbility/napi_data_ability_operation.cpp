@@ -31,7 +31,7 @@ napi_value DataAbilityOperationInit(napi_env env, napi_value exports)
     const int UPDATE = 2;
     const int DELETE = 3;
     const int ASSERT = 4;
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("%{public}s called.", __func__);
 
     napi_value dataAbilityOperationType = nullptr;
     napi_create_object(env, &dataAbilityOperationType);
