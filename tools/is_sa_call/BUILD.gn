@@ -11,12 +11,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-group("tools_target") {
+ohos_executable("is_sa_call_data") {
+  sources = [ "is_sa_call_test.cpp" ]
+
   deps = [
-    "aa:tools_aa",
-    "is_sa_call:is_sa_call",
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_services_path}/common:perm_verification",
   ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+  ]
+
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+group("is_sa_call") {
+  deps = [ ":is_sa_call_data" ]
 }
