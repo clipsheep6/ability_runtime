@@ -31,7 +31,7 @@ OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     if (eventRunner != nullptr) {
         HILOG_DEBUG("Create event handler.");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);

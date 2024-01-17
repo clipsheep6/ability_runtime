@@ -164,7 +164,7 @@ int32_t AppMgrService::CheckPermission([[maybe_unused]]
 
 void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
 {
-    HILOG_INFO("LoadLifecycle: appMGR receives a binding request.");
+    HILOG_DEBUG("called");
     if (!IsReady()) {
         HILOG_ERROR("AttachApplication failed, not ready.");
         return;

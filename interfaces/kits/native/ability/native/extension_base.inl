@@ -26,7 +26,7 @@ void ExtensionBase<C>::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     Extension::Init(record, application, handler, token);
-    HILOG_INFO("begin init context");
+    HILOG_DEBUG("begin init context");
     context_ = CreateAndInitContext(record, application, handler, token);
 }
 
@@ -36,7 +36,7 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("begin init base");
+    HILOG_DEBUG("begin init base");
     std::shared_ptr<C> context = std::make_shared<C>();
     context->SetToken(token);
     auto appContext = Context::GetApplicationContext();
@@ -51,7 +51,7 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
         HILOG_ERROR("ServiceExtension::CreateAndInitContext record is nullptr");
         return context;
     }
-    HILOG_INFO("begin init abilityInfo");
+    HILOG_DEBUG("begin init abilityInfo");
     auto abilityInfo = record->GetAbilityInfo();
     context->SetAbilityInfo(abilityInfo);
     context->InitHapModuleInfo(abilityInfo);
@@ -76,7 +76,7 @@ template<class C>
 void ExtensionBase<C>::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
     Extension::OnConfigurationUpdated(configuration);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
 
     if (!context_) {
         HILOG_ERROR("context is nullptr.");
@@ -98,7 +98,7 @@ template<class C>
 void ExtensionBase<C>::OnMemoryLevel(int level)
 {
     Extension::OnMemoryLevel(level);
-    HILOG_INFO("%{public}s called.", __func__);
+    HILOG_DEBUG("called.");
 
     if (extensionCommon_) {
         extensionCommon_->OnMemoryLevel(level);

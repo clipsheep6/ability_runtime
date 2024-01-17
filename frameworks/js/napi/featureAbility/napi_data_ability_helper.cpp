@@ -58,7 +58,7 @@ std::vector<DAHelperOnOffCB *> g_registerInstances;
  */
 napi_value DataAbilityHelperInit(napi_env env, napi_value exports)
 {
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_DEBUG("called");
     napi_property_descriptor properties[] = {
         DECLARE_NAPI_FUNCTION("insert", NAPI_Insert),
         DECLARE_NAPI_FUNCTION("notifyChange", NAPI_NotifyChange),

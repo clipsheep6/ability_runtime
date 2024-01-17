@@ -39,7 +39,7 @@ napi_value FAConstantInit(napi_env env, napi_value exports)
     const int INVALID_PARAMETER = -1;
     const int ABILITY_NOT_FOUND = -2;
     const int PERMISSION_DENY = -3;
-    HILOG_INFO("%{public}s,called", __func__);
+    HILOG_DEBUG("called");
     napi_value abilityStartSetting = nullptr;
     napi_value abilityWindowConfiguration = nullptr;
     napi_value errorCode = nullptr;

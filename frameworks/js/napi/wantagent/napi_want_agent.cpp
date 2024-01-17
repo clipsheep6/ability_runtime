@@ -1240,7 +1240,7 @@ napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info 
 
 napi_value WantAgentFlagsInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    HILOG_DEBUG("called");
 
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters");
@@ -1276,7 +1276,7 @@ napi_value WantAgentFlagsInit(napi_env env)
 
 napi_value WantAgentOperationTypeInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    HILOG_DEBUG("called");
 
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters");
