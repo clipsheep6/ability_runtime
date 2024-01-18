@@ -765,7 +765,6 @@ std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRunningRecordByT
     const sptr<IRemoteObject> &token) const
 {
     if (!token) {
-        HILOG_ERROR("token is null");
         return nullptr;
     }
 
@@ -887,6 +886,10 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         && pendingState_ != ApplicationPendingState::BACKGROUNDING) {
         // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
+        if (moduleRecord == nullptr) {
+            HILOG_ERROR("moduleRecord is nullptr");
+            return;
+        }
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         auto serviceInner = appMgrServiceInner_.lock();
@@ -928,6 +931,10 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
     // First change ability to background.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
+    if (moduleRecord == nullptr) {
+        HILOG_ERROR("moduleRecord is nullptr");
+        return;
+    }
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
     if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
@@ -1024,6 +1031,10 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
     for (auto iter = foregroundingAbilityTokens_.begin(); iter != foregroundingAbilityTokens_.end();) {
         auto ability = GetAbilityRunningRecordByToken(*iter);
         auto moduleRecord = GetModuleRunningRecordByToken(*iter);
+        if (!moduleRecord) {
+            HILOG_ERROR("can not find module record");
+            continue;
+        }
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         iter = foregroundingAbilityTokens_.erase(iter);

@@ -7305,7 +7305,6 @@ void AbilityManagerService::UpdateCallerInfo(Want& want, const sptr<IRemoteObjec
 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (!abilityRecord) {
-        HILOG_WARN("%{public}s caller abilityRecord is null.", __func__);
         want.RemoveParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
         want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, std::string(""));
         want.RemoveParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
@@ -8971,7 +8970,6 @@ int32_t AbilityManagerService::TerminateMission(int32_t missionId)
 sptr<IAbilityManagerCollaborator> AbilityManagerService::GetCollaborator(int32_t type)
 {
     if (!CheckCollaboratorType(type)) {
-        HILOG_ERROR("collaborator: CheckCollaboratorType failed");
         return nullptr;
     }
     {
@@ -8987,7 +8985,6 @@ sptr<IAbilityManagerCollaborator> AbilityManagerService::GetCollaborator(int32_t
 bool AbilityManagerService::CheckCollaboratorType(int32_t type)
 {
     if (type != CollaboratorType::RESERVE_TYPE && type != CollaboratorType::OTHERS_TYPE) {
-        HILOG_ERROR("type is invalid");
         return false;
     }
     return true;
