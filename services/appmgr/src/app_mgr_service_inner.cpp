@@ -1238,8 +1238,7 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     HILOG_INFO("AppMgrServiceInner start");
 
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-    if (!isSaCall && !isGatewayCall) {
+    if (!isSaCall) {
         HILOG_ERROR("callerToken not SA %{public}s", __func__);
         return ERR_INVALID_VALUE;
     }
@@ -3619,9 +3618,6 @@ int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) c
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
     if (isCallingPerm) {
-        if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
-            return ERR_OK;
-        }
         auto callerPid = IPCSkeleton::GetCallingPid();
         auto appRecord = GetAppRunningRecordByPid(callerPid);
         if (!appRecord || appRecord->GetBundleName() != bundleName) {
@@ -3651,9 +3647,6 @@ int AppMgrServiceInner::VerifyProcessPermission(const sptr<IRemoteObject> &token
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
     if (isCallingPerm) {
-        if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
-            return ERR_OK;
-        }
         auto callerUid = IPCSkeleton::GetCallingUid();
         auto appRecord = GetAppRunningRecordByAbilityToken(token);
         if (!appRecord || appRecord->GetUid() != callerUid) {

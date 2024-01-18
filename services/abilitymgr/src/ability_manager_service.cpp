@@ -894,11 +894,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return ERR_WRONG_INTERFACE_CALL;
     } else if (type == AppExecFwk::AbilityType::EXTENSION) {
         auto isSACall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
         auto isSystemAppCall = AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall();
         auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
         auto isToPermissionMgr = IsTargetPermission(want);
-        if (!isSACall && !isGatewayCall && !isSystemAppCall && !isShellCall && !isToPermissionMgr) {
+        if (!isSACall && !isSystemAppCall && !isShellCall && !isToPermissionMgr) {
             HILOG_ERROR("Cannot start extension by start ability, use startServiceExtensionAbility.");
             return ERR_WRONG_INTERFACE_CALL;
         }
@@ -5144,14 +5143,6 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
-    sptr<IRemoteObject> abilityInfoCallback = want.GetRemoteObject(Want::PARAM_RESV_ABILITY_INFO_CALLBACK);
-    if (abilityInfoCallback != nullptr) {
-        auto isPerm = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-        if (isPerm) {
-            request.abilityInfoCallback = abilityInfoCallback;
-        }
-    }
-
     auto bms = GetBundleManager();
     CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
     auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
@@ -6271,9 +6262,6 @@ int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityI
     }
     if (AccessTokenKit::VerifyAccessToken(callerTokenId,
         PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == AppExecFwk::Constants::PERMISSION_GRANTED) {
-        return ERR_OK;
-    }
-    if (AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
         return ERR_OK;
     }
     HILOG_ERROR("callerToken: %{private}u, targetToken: %{private}u, caller doesn's have permission",
@@ -7912,8 +7900,7 @@ int AbilityManagerService::SetMissionIcon(const sptr<IRemoteObject> &token,
 int AbilityManagerService::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler> &handler)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-    if (!isSaCall && !isGatewayCall) {
+    if (!isSaCall) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
     }
@@ -8328,7 +8315,7 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
     } else {
         auto callerPid = IPCSkeleton::GetCallingPid();
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
-        if (processInfo.processName_.empty() && !AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
+        if (processInfo.processName_.empty()) {
             HILOG_DEBUG("Can not find caller application by callerPid: %{private}d.", callerPid);
             if (AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
                 PermissionConstants::PERMISSION_START_ABILITIES_FROM_BACKGROUND)) {
@@ -8497,7 +8484,7 @@ bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord>
 
     auto callingTokenId = IPCSkeleton::GetCallingTokenID();
     auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
-    if (callingTokenId != tokenID && !AAFwk::PermissionVerification::GetInstance()->IsGatewayCall()) {
+    if (callingTokenId != tokenID) {
         HILOG_ERROR("Is not self, not enabled");
         return false;
     }
@@ -8509,12 +8496,6 @@ int AbilityManagerService::SetComponentInterception(
     const sptr<AppExecFwk::IComponentInterception> &componentInterception)
 {
     HILOG_DEBUG("%{public}s", __func__);
-    auto isPerm = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-    if (!isPerm) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
     std::lock_guard<ffrt::mutex> guard(globalLock_);
     componentInterception_ = componentInterception;
     HILOG_DEBUG("%{public}s, end", __func__);
@@ -8613,11 +8594,6 @@ int32_t AbilityManagerService::SendResultToAbilityByToken(const Want &want, cons
     int32_t requestCode, int32_t resultCode, int32_t userId)
 {
     HILOG_DEBUG("%{public}s, requestCode: %{public}d, resultCode: %{public}d", __func__, requestCode, resultCode);
-    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-    if (!isGatewayCall) {
-        HILOG_ERROR("%{public}s, Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
     std::shared_ptr<AbilityRecord> abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
     if (abilityRecord == nullptr) {
         HILOG_ERROR("%{public}s, abilityRecord is null", __func__);

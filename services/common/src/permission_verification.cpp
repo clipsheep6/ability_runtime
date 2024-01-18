@@ -81,16 +81,6 @@ bool PermissionVerification::IsShellCall() const
     return false;
 }
 
-bool PermissionVerification::IsGatewayCall() const
-{
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGER_ABILITY_FROM_GATEWAY)) {
-        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
-        return true;
-    }
-    HILOG_INFO("%{public}s: Permission verification failed.", __func__);
-    return false;
-}
-
 bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 {
     HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
