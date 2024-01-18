@@ -784,7 +784,7 @@ void AbilityImpl::Background()
     } else {
         lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND;
     }
-    HILOG_INFO("%{public}s end.", __func__);
+    HILOG_DEBUG("end");
 }
 
 void AbilityImpl::DoKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)

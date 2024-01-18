@@ -334,8 +334,6 @@ private:
     bool CheckProperties(const std::shared_ptr<AbilityRecord> &abilityRecord, const AbilityRequest &abilityRequest,
         AppExecFwk::LaunchMode launchMode, int32_t userId) const;
     void NotifyAbilityToken(const sptr<IRemoteObject> &token, const AbilityRequest &abilityRequest) const;
-    int CloseUIAbilityInner(std::shared_ptr<AbilityRecord> abilityRecord,
-        int resultCode, const Want *resultWant, bool isClearSession);
 
     // byCall
     int CallAbilityLocked(const AbilityRequest &abilityRequest, int32_t userId);

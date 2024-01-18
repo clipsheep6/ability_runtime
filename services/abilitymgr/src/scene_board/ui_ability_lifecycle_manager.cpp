@@ -198,7 +198,6 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (!IsContainsAbilityInner(token)) {
-        HILOG_WARN("Not in running list");
         return ERR_INVALID_VALUE;
     }
     auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -253,7 +252,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
-    HILOG_INFO("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
+    HILOG_DEBUG("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
 
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto abilityRecord = GetAbilityRecordByToken(token);
@@ -336,12 +335,12 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_INFO("ForegroundLifecycle: end.");
+    HILOG_DEBUG("ForegroundLifecycle: end.");
     handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::FOREGROUND);
     auto self(weak_from_this());
     if (success) {
-        HILOG_INFO("foreground succeeded.");
+        HILOG_DEBUG("foreground succeeded.");
         auto task = [self, abilityRecord]() {
             auto selfObj = self.lock();
             if (!selfObj) {
@@ -384,7 +383,7 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_INFO("BackgroundLifecycle: end.");
+    HILOG_DEBUG("end.");
     // remove background timeout task.
     handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
@@ -464,7 +463,9 @@ void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<Abi
     NotifySCBToHandleException(ability,
         static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleForegroundTimeout");
 
-    CloseUIAbilityInner(ability, 0, nullptr, false);
+    EraseAbilityRecord(ability);
+    // foreground failed, notify appMs force terminate the ability
+    DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
 }
 
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
@@ -944,12 +945,6 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     HILOG_DEBUG("call");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    return CloseUIAbilityInner(abilityRecord, resultCode, resultWant, isClearSession);
-}
-
-int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord> abilityRecord,
-    int resultCode, const Want *resultWant, bool isClearSession)
-{
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_INFO("call, from ability: %{public}s", element.c_str());
@@ -1788,7 +1783,7 @@ void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info, int32_t t
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    HILOG_INFO("Call.");
+    HILOG_DEBUG("Call.");
     if (info.state == AppState::TERMINATED || info.state == AppState::END) {
         for (const auto& abilityRecord : terminateAbilityList_) {
             if (abilityRecord == nullptr) {
@@ -1891,7 +1886,7 @@ void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
             sessionAbilityMapLocked[sessionId] = abilityRecord;
         }
     }
-
+    
     int userId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
     std::string dumpInfo = "User ID #" + std::to_string(userId);
     info.push_back(dumpInfo);
@@ -1906,7 +1901,7 @@ void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
         if (abilityRecord->GetOwnerMissionUserId() != userId) {
             continue;
         }
-
+        
         sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
         dumpInfo = "    Mission ID #" + std::to_string(sessionId);
         if (sessionInfo) {

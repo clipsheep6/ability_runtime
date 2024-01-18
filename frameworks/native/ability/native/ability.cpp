@@ -172,7 +172,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
     }
-    HILOG_INFO("AbilityName is %{public}s.", abilityInfo_->name.c_str());
+    HILOG_DEBUG("AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
@@ -542,7 +542,7 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
 
 void Ability::OnMemoryLevel(int level)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     if (scene_ == nullptr) {
         HILOG_DEBUG("WindowScene is null");
         return;

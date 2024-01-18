@@ -72,7 +72,7 @@ OHOS::AppExecFwk::FormProviderInfo FormExtension::OnCreate(const OHOS::AAFwk::Wa
 
 void FormExtension::OnDestroy(const int64_t formId)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
 }
 
 void FormExtension::OnEvent(const int64_t formId, const std::string& message)
@@ -82,7 +82,7 @@ void FormExtension::OnEvent(const int64_t formId, const std::string& message)
 
 void FormExtension::OnUpdate(const int64_t formId)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
 }
 
 void FormExtension::OnCastToNormal(const int64_t formId)

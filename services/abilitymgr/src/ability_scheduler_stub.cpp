@@ -171,7 +171,7 @@ int AbilitySchedulerStub::CommandAbilityInner(MessageParcel &data, MessageParcel
     }
     bool reStart = data.ReadBool();
     int startId = data.ReadInt32();
-    HILOG_INFO("ReadInt32, startId:%{public}d", startId);
+    HILOG_DEBUG("ReadInt32, startId:%{public}d", startId);
     ScheduleCommandAbility(*want, reStart, startId);
     return NO_ERROR;
 }

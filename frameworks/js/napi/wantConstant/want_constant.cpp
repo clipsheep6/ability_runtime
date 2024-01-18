@@ -28,7 +28,7 @@ namespace AppExecFwk {
  */
 napi_value WantConstantInit(napi_env env, napi_value exports)
 {
-    HILOG_INFO("%{public}s,called1", __func__);
+    HILOG_DEBUG("called");
     napi_value action = nullptr;
     napi_value entity = nullptr;
     napi_value Flags = nullptr;

@@ -234,7 +234,7 @@ void UIAbilityThread::HandleAbilityTransaction(
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
-    HILOG_INFO("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr.");
         return;
