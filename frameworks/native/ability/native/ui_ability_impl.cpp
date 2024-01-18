@@ -214,6 +214,9 @@ void UIAbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleStat
     std::string entry = std::to_string(TimeUtil::SystemTimeMillisecond()) +
         "; AbilityManagerClient::AbilityTransitionDone; the transaction start.";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+    if (state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
+    }
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
     if (ret == ERR_OK && state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
         FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
@@ -429,6 +432,7 @@ void UIAbilityImpl::WindowLifeCycleImpl::AfterForeground()
         entry = std::to_string(TimeUtil::SystemTimeMillisecond()) +
             "; AbilityManagerClient::AbilityTransitionDone; the transaction start.";
         FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+        owner->lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
         AppExecFwk::PacMap restoreData;
         auto ret = AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
             token_, AAFwk::AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW, restoreData);
@@ -517,7 +521,6 @@ void UIAbilityImpl::Foreground(const AAFwk::Want &want)
 
     HILOG_DEBUG("Call onForeground.");
     ability_->OnForeground(want);
-    lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
     {
         std::lock_guard<std::mutex> lock(notifyForegroundLock_);
         notifyForegroundByAbility_ = true;

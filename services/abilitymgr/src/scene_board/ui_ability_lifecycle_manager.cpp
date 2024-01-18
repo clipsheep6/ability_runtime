@@ -198,6 +198,7 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (!IsContainsAbilityInner(token)) {
+        HILOG_WARN("Not in running list");
         return ERR_INVALID_VALUE;
     }
     auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -463,9 +464,7 @@ void UIAbilityLifecycleManager::HandleForegroundFailed(const std::shared_ptr<Abi
     NotifySCBToHandleException(ability,
         static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_LOAD_TIMEOUT), "handleForegroundTimeout");
 
-    EraseAbilityRecord(ability);
-    // foreground failed, notify appMs force terminate the ability
-    DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(ability->GetToken());
+    CloseUIAbilityInner(ability, 0, nullptr, false);
 }
 
 std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
@@ -945,6 +944,12 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
     HILOG_DEBUG("call");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    return CloseUIAbilityInner(abilityRecord, resultCode, resultWant, isClearSession);
+}
+
+int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord> abilityRecord,
+    int resultCode, const Want *resultWant, bool isClearSession)
+{
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_INFO("call, from ability: %{public}s", element.c_str());
@@ -1886,7 +1891,7 @@ void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
             sessionAbilityMapLocked[sessionId] = abilityRecord;
         }
     }
-    
+
     int userId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
     std::string dumpInfo = "User ID #" + std::to_string(userId);
     info.push_back(dumpInfo);
@@ -1901,7 +1906,7 @@ void UIAbilityLifecycleManager::Dump(std::vector<std::string> &info)
         if (abilityRecord->GetOwnerMissionUserId() != userId) {
             continue;
         }
-        
+
         sptr<SessionInfo> sessionInfo = abilityRecord->GetSessionInfo();
         dumpInfo = "    Mission ID #" + std::to_string(sessionId);
         if (sessionInfo) {
