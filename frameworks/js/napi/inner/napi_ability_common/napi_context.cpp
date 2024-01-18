@@ -3198,16 +3198,22 @@ napi_value NapiJsContext::OnRequestPermissionsFromUser(napi_env env, napi_callba
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc == ARGS_ZERO || argc > ARGS_THREE) {
         HILOG_ERROR("input params count error, argc=%{public}zu", argc);
+        napi_throw(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_PARAM_INVALID),
+                                      "input params count error"));
         return CreateJsUndefined(env);
     }
     CallAbilityPermissionParam permissionParam;
     if (!GetStringsValue(env, argv[PARAM0], permissionParam.permission_list)) {
         HILOG_ERROR("input params string error");
+        napi_throw(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_PARAM_INVALID),
+                                      "input param permissions error"));
         return CreateJsUndefined(env);
     }
 
     if (!ConvertFromJsValue(env, argv[PARAM1], permissionParam.requestCode)) {
         HILOG_ERROR("input params int error");
+        napi_throw(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_PARAM_INVALID),
+                                      "input param requestCode error"));
         return CreateJsUndefined(env);
     }
 
@@ -3220,11 +3226,8 @@ napi_value NapiJsContext::OnRequestPermissionsFromUser(napi_env env, napi_callba
     if (ability_ == nullptr) {
         HILOG_ERROR("OnRequestPermissionsFromUser ability is nullptr.");
         errorCode = NAPI_ERR_ACE_ABILITY;
-    }
-
-    if (permissionParam.permission_list.size() == 0) {
-        HILOG_ERROR("OnRequestPermissionsFromUser permission_list size is 0");
-        errorCode = NAPI_ERR_PARAM_INVALID;
+        napi_throw(env, CreateJsError(env, static_cast<int32_t>(NAPI_ERR_ACE_ABILITY),
+                                      "OnRequestPermissionsFromUser ability is nullptr"));
     }
 
     if (errorCode != NAPI_ERR_NO_ERROR) {
