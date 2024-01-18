@@ -138,10 +138,6 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
 
 int PermissionVerification::VerifyAccountPermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
         return ERR_OK;
     }

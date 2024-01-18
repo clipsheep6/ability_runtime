@@ -3725,11 +3725,6 @@ bool AppMgrServiceInner::VerifyAPL() const
 
 int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionName, const int userId) const
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return ERR_OK;
-    }
-
     if (userId != currentUserId_) {
         auto isCallingPermAccount = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
             AAFwk::PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS);
