@@ -165,7 +165,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
     const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
+    HILOG_DEBUG("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
@@ -209,7 +209,7 @@ void UIAbilityImpl::HandleShareData(int32_t uniqueId)
 
 void UIAbilityImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
 {
-    HILOG_INFO("Lifecycle: notify ability manager service.");
+    HILOG_DEBUG("Lifecycle: notify ability manager service.");
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
     std::string entry = std::to_string(TimeUtil::SystemTimeMillisecond()) +
         "; AbilityManagerClient::AbilityTransitionDone; the transaction start.";
@@ -404,7 +404,7 @@ void UIAbilityImpl::AfterFocusedCommon(bool isFocused)
 void UIAbilityImpl::WindowLifeCycleImpl::AfterForeground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Lifecycle: Call.");
+    HILOG_DEBUG("Lifecycle: Call.");
     auto owner = owner_.lock();
     if (owner == nullptr) {
         HILOG_ERROR("Owner is nullptr.");
@@ -451,7 +451,7 @@ void UIAbilityImpl::WindowLifeCycleImpl::AfterBackground()
         "; UIAbilityImpl::WindowLifeCycleImpl::AfterBackground; the background lifecycle.";
     FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
 
-    HILOG_INFO("Lifecycle: window after background.");
+    HILOG_DEBUG("Lifecycle: window after background.");
     AppExecFwk::PacMap restoreData;
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(
         token_, AAFwk::AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW, restoreData);

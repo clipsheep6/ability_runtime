@@ -51,7 +51,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
             break;
         }
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG: {
-            HILOG_INFO("Inactive timeout.");
+            HILOG_DEBUG("Inactive timeout.");
             // inactivate pre ability immediately in case blocking next ability start
             ProcessInactiveTimeOut(event.GetParam());
             break;
@@ -73,7 +73,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
 
 void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 {
-    HILOG_INFO("Attach timeout.");
+    HILOG_DEBUG("called.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     if (event.GetRunCount() == 0) {
@@ -91,7 +91,7 @@ void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 
 void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 {
-    HILOG_INFO("Active timeout.");
+    HILOG_DEBUG("called.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleActiveTimeOut(abilityRecordId);
@@ -99,7 +99,7 @@ void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 
 void AbilityEventHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
 {
-    HILOG_INFO("Inactive timeout.");
+    HILOG_DEBUG("called.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleInactiveTimeOut(abilityRecordId);

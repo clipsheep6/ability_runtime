@@ -311,7 +311,7 @@ void FAAbilityThread::AttachInner(const std::shared_ptr<AppExecFwk::OHOSApplicat
     }
     abilityImpl_->Init(application, abilityRecord, currentAbility_, abilityHandler_, token_);
     // 4. ability attach : ipc
-    HILOG_INFO("LoadLifecycle: Attach ability.");
+    HILOG_DEBUG("LoadLifecycle: Attach ability.");
     FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::LOAD };
     std::string entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
         "; AbilityThread::Attach; the load lifecycle.";
@@ -482,7 +482,7 @@ void FAAbilityThread::HandleAbilityTransaction(
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
-    HILOG_INFO("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr");
         return;
@@ -741,7 +741,7 @@ void FAAbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Lifecycle: name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
+    HILOG_DEBUG("Lifecycle: name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",
         want.GetElement().GetAbilityName().c_str(),
         lifeCycleStateInfo.state,
         lifeCycleStateInfo.isNewWant);

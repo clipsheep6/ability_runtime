@@ -68,7 +68,7 @@ std::mutex g_mutex;
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_INFO("InitWorkerFunc called");
+    HILOG_DEBUG("called");
     if (nativeEngine == nullptr) {
         HILOG_ERROR("Input nativeEngine is nullptr");
         return;
@@ -105,7 +105,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
 void OffWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_INFO("OffWorkerFunc called");
+    HILOG_DEBUG("OffWorkerFunc called");
     if (nativeEngine == nullptr) {
         HILOG_ERROR("Input nativeEngine is nullptr");
         return;
@@ -149,7 +149,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         return;
     }
 
-    HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
+    HILOG_DEBUG("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
     std::string realPath;
     std::string filePath;
 
@@ -293,7 +293,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
             }
         }
     }
-    HILOG_INFO("HapPath: %{private}s", newHapPath.c_str());
+    HILOG_DEBUG("HapPath: %{private}s", newHapPath.c_str());
     bool newCreate = false;
     std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
