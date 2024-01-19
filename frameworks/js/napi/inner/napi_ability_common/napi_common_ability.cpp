@@ -34,6 +34,33 @@ using namespace OHOS::AbilityRuntime;
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+class LocalScope {
+public:
+    LocalScope(napi_env env) : env_(env)
+    {
+        if (env_ != nullptr) {
+            napi_open_handle_scope(env_, &scope_);
+        }
+    }
+    LocalScope(LocalScope &) = delete;
+    void operator=(LocalScope &) = delete;
+    ~LocalScope()
+    {
+        if (env_ != nullptr && scope_ != nullptr) {
+            napi_close_handle_scope(env_, scope_);
+        }
+    }
+    bool IsOK()
+    {
+        return scope_ != nullptr;
+    }
+
+private:
+    napi_env env_ = nullptr;
+    napi_handle_scope scope_ = nullptr;
+};
+}
 napi_ref thread_local g_contextObject = nullptr;
 napi_ref thread_local g_dataAbilityHelper = nullptr;
 bool thread_local g_dataAbilityHelperStatus = false;
@@ -3379,9 +3406,8 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
         return;
     }
     CallbackInfo &cbInfo = connectAbilityCB->cbBase.cbInfo;
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(cbInfo.env, &scope);
-    if (scope == nullptr) {
+    LocalScope localScope(cbInfo.env);
+    if (!localScope.IsOK()) {
         HILOG_ERROR("napi_open_handle_scope failed");
         return;
     }
@@ -3415,7 +3441,6 @@ void UvWorkOnAbilityConnectDone(uv_work_t *work, int status)
     if (cbInfo.callback != nullptr) {
         napi_delete_reference(cbInfo.env, cbInfo.callback);
     }
-    napi_close_handle_scope(cbInfo.env, scope);
     HILOG_INFO("UvWorkOnAbilityConnectDone, uv_queue_work end");
 }
 
@@ -3500,9 +3525,8 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
         return;
     }
     CallbackInfo &cbInfo = connectAbilityCB->cbBase.cbInfo;
-    napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(cbInfo.env, &scope);
-    if (scope == nullptr) {
+    LocalScope localScope(cbInfo.env);
+    if (!localScope.IsOK()) {
         HILOG_ERROR("napi_open_handle_scope failed");
         return;
     }
@@ -3517,7 +3541,6 @@ void UvWorkOnAbilityDisconnectDone(uv_work_t *work, int status)
         napi_delete_reference(cbInfo.env, cbInfo.callback);
         cbInfo.callback = nullptr;
     }
-    napi_close_handle_scope(cbInfo.env, scope);
 
     // release connect
     std::lock_guard<std::mutex> lock(g_connectionsLock_);
