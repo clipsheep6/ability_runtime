@@ -67,6 +67,12 @@ const std::unordered_map<std::string, std::string> trustMap = {
 const std::unordered_set<std::string> FROZEN_WHITE_LIST {
     "com.huawei.hmos.huaweicast"
 };
+
+bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    auto it = trustMap.find(abilityInfo.bundleName);
+    return (it != trustMap.end() && it->second == abilityInfo.name);
+}
 }
 
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
@@ -367,7 +373,6 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
     bool noReuse = UIExtensionUtils::IsWindowExtension(abilityRequest.abilityInfo.extensionAbilityType);
     AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
         abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
-    HILOG_DEBUG("Service map element is %{public}s.", element.GetURI().c_str());
     auto serviceMapIter = serviceMap_.find(element.GetURI());
     std::string frsKey = "";
     if (FRS_BUNDLE_NAME == abilityRequest.abilityInfo.bundleName) {
@@ -379,6 +384,9 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
             serviceMap_.erase(frsKey);
         } else {
             serviceMap_.erase(element.GetURI());
+        }
+        if (IsSpecialAbility(abilityRequest.abilityInfo)) {
+            HILOG_INFO("Removing ability: %{public}s", element.GetURI().c_str());
         }
     }
     if (noReuse || serviceMapIter == serviceMap_.end()) {
@@ -1016,6 +1024,17 @@ std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionFromServiceMap
     auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
     if (serviceRecord != serviceMap_.end()) {
         return serviceRecord->second;
+    }
+    return nullptr;
+}
+
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetExtensionFromServiceMapInner(
+    int32_t abilityRecordId)
+{
+    for (const auto &[key, value] : serviceMap_) {
+        if (value && value->GetAbilityRecordId() == abilityRecordId) {
+            return value;
+        }
     }
     return nullptr;
 }
@@ -1743,8 +1762,7 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
 
 bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto iter = trustMap.find(abilityRecord->GetApplicationInfo().bundleName);
-    if (iter != trustMap.end() && abilityRecord->GetAbilityInfo().name == iter->second) {
+    if (IsSpecialAbility(abilityRecord->GetAbilityInfo())) {
         return true;
     }
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
@@ -1841,13 +1859,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     }
 
     auto token = abilityRecord->GetToken();
-    if (GetExtensionFromServiceMapInner(token) == nullptr) {
-        HILOG_ERROR("Died ability record is not exist in service map.");
-        return;
+    if (GetExtensionFromServiceMapInner(abilityRecord->GetAbilityRecordId()) != nullptr) {
+        MoveToTerminatingMap(abilityRecord);
+        RemoveServiceAbility(abilityRecord);
     }
 
-    MoveToTerminatingMap(abilityRecord);
-    RemoveServiceAbility(abilityRecord);
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
@@ -2321,6 +2337,9 @@ void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRe
             element.GetURI() + std::to_string(abilityRecord->GetWant().GetIntParam(FRS_APP_INDEX, 0)));
     } else {
         serviceMap_.erase(abilityRecord->GetURI());
+    }
+    if (IsSpecialAbility(abilityRecord->GetAbilityInfo())) {
+        HILOG_INFO("Moving ability: %{public}s", abilityRecord->GetURI().c_str());
     }
 }
 
