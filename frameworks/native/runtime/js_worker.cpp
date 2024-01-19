@@ -50,7 +50,8 @@ namespace AbilityRuntime {
 namespace {
 constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
 const std::string BUNDLE_NAME_FLAG = "@bundle:";
-const std::string CACHE_DIRECTORY = "el2";
+const std::string CACHE_DIRECTORY_EL1 = "el1";
+const std::string CACHE_DIRECTORY_EL2 = "el2";
 const int PATH_THREE = 3;
 #ifdef APP_USE_ARM
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
@@ -186,7 +187,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         }
 
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
-        if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
+        if (ami.find(CACHE_DIRECTORY_EL1) != std::string::npos || ami.find(CACHE_DIRECTORY_EL2) != std::string::npos) {
             if (!ReadAmiData(ami, content)) {
                 HILOG_ERROR("Get asset content by ami failed.");
             }
@@ -224,7 +225,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         filePath = NormalizedFileName(realPath);
         ami = workerInfo_->codePath + filePath;
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
-        if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
+        if (ami.find(CACHE_DIRECTORY_EL1) != std::string::npos || ami.find(CACHE_DIRECTORY_EL2) != std::string::npos) {
             if (!ReadAmiData(ami, content)) {
                 HILOG_ERROR("Get asset content by ami failed.");
             }
