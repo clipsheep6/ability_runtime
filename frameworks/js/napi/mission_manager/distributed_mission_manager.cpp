@@ -1116,6 +1116,7 @@ void UvWorkOnCallback(uv_work_t *work, int status)
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName2.c_str(), jsValue2);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiState.c_str(), result[0]);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiInfo.c_str(), result[1]);
+    HILOG_INFO("vecCallbacks size: %{public}zu.", onCB->cbBase.cbInfo.vecCallbacks.size());
     for (auto ele = onCB->cbBase.cbInfo.vecCallbacks.begin(); ele != onCB->cbBase.cbInfo.vecCallbacks.end(); ++ele) {
         napi_value undefined = nullptr;
         napi_get_undefined(onCB->cbBase.cbInfo.env, &undefined);
