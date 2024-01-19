@@ -501,13 +501,13 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         return;
     }
 
+    auto isLastAbility =
+        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         appRecord->TerminateAbility(token, true);
     } else {
         appRecord->TerminateAbility(token, false);
     }
-    auto isLastAbility =
-        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
     if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
