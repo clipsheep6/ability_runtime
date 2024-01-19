@@ -934,20 +934,6 @@ public:
     virtual int32_t UnregisterIAbilityManagerCollaborator(int32_t type) override;
 
     /**
-     * @brief Notify to move mission to backround.
-     * @param missionId missionId.
-     * @return 0 or else.
-    */
-    virtual int32_t MoveMissionToBackground(int32_t missionId) override;
-
-    /**
-     * @brief Notify to terminate mission. it is not clear.
-     * @param missionId missionId.
-     * @return 0 or else.
-    */
-    virtual int32_t TerminateMission(int32_t missionId) override;
-
-    /**
      * @brief Register auto start up callback for system api.
      * @param callback The point of JsAbilityAutoStartupCallBack.
      * @return Returns ERR_OK on success, others on failure.

@@ -1281,20 +1281,6 @@ public:
     ErrCode UnregisterIAbilityManagerCollaborator(int32_t type);
 
     /**
-     * @brief Notify to move mission to backround.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode MoveMissionToBackground(int32_t missionId);
-
-    /**
-     * @brief Notify to terminate mission. it is not clear.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode TerminateMission(int32_t missionId);
-
-    /**
      * @brief Register session handler.
      * @param object The handler.
      *

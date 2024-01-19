@@ -62,8 +62,6 @@ const char* PREPARE_TERMINATE_ENABLE_PARAMETER = "persist.sys.prepare_terminate"
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
 const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
-const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
-const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const int GET_TARGET_MISSION_OVER = 200;
 std::string GetCurrentTime()
 {
@@ -395,22 +393,6 @@ int MissionListManager::GetTargetMission(const AbilityRequest &abilityRequest, s
     UpdateAbilityRecordLaunchReason(abilityRequest, targetAbilityRecord);
     AddRecord(abilityRequest, targetAbilityRecord);
 
-    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-            abilityRequest.collaboratorType);
-        if (collaborator == nullptr) {
-            HILOG_ERROR("collaborator: GetCollaborator is nullptr.");
-            return RESOLVE_ABILITY_ERR;
-        }
-
-        int32_t ret = collaborator->NotifyLoadAbility(
-            abilityRequest.abilityInfo, targetMission->GetMissionId(), abilityRequest.want);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("collaborator notify broker load ability failed, errCode: %{public}d.", ret);
-            return RESOLVE_ABILITY_ERR;
-        }
-        HILOG_INFO("collaborator notify broker load ability success.");
-    }
     return GET_TARGET_MISSION_OVER;
 }
 
@@ -569,18 +551,15 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     }
 
     std::string missionName = GetMissionName(abilityRequest);
-    std::string missionAffinity = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
-    bool isFromCollaborator = (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE);
     auto mgr = DelayedSingleton<MissionInfoMgr>::GetInstance();
     if (needFind && mgr &&
-        mgr->FindReusedMissionInfo(missionName, missionAffinity, abilityRequest.specifiedFlag, isFindRecentStandard,
-            isFromCollaborator, info)
+        mgr->FindReusedMissionInfo(missionName, abilityRequest.specifiedFlag, isFindRecentStandard, info)
         && info.missionInfo.id > 0) {
         reUsedMissionInfo = true;
     }
     HILOG_INFO("result:%{public}d", reUsedMissionInfo);
 
-    BuildInnerMissionInfo(info, missionName, missionAffinity, abilityRequest);
+    BuildInnerMissionInfo(info, missionName, abilityRequest);
     return reUsedMissionInfo;
 }
 
@@ -618,8 +597,6 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
             info.missionName, info.startMethod);
         targetRecord->UpdateRecoveryInfo(info.hasRecoverInfo);
         info.hasRecoverInfo = false;
-        std::string missionAffinity = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
-        targetMission->SetMissionAffinity(missionAffinity);
         targetMission->SetLockedState(info.missionInfo.lockedState);
         targetMission->SetUnclearable(info.missionInfo.unclearable);
         targetMission->UpdateMissionTime(info.missionInfo.time);
@@ -642,10 +619,6 @@ void MissionListManager::GetTargetMissionAndAbility(const AbilityRequest &abilit
         return;
     }
 
-    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        NotifyCollaboratorMissionCreated(abilityRequest, targetMission, info);
-    }
-
     if (findReusedMissionInfo) {
         DelayedSingleton<MissionInfoMgr>::GetInstance()->UpdateMissionInfo(info);
     } else {
@@ -665,10 +638,9 @@ void MissionListManager::EnableRecoverAbility(int32_t missionId)
 }
 
 void MissionListManager::BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-    const std::string &missionAffinity, const AbilityRequest &abilityRequest) const
+    const AbilityRequest &abilityRequest) const
 {
     info.missionName = missionName;
-    info.missionAffinity = missionAffinity;
     info.launchMode = static_cast<int32_t>(abilityRequest.abilityInfo.launchMode);
     info.startMethod = CallType2StartMethod(abilityRequest.callType);
     info.bundleName = abilityRequest.abilityInfo.bundleName;
@@ -838,23 +810,7 @@ std::shared_ptr<Mission> MissionListManager::GetReusedStandardMission(const Abil
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::STANDARD) {
         return nullptr;
     }
-
-    // reuse mission temp
-    bool isLauncherStartAnco = false;
-    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-    if (callerAbility != nullptr && callerAbility->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME &&
-        abilityRequest.want.GetElement().GetBundleName() == SHELL_ASSISTANT_BUNDLENAME &&
-        abilityRequest.collaboratorType == CollaboratorType::DEFAULT_TYPE) {
-        HILOG_DEBUG("The launcher start anco shell");
-        isLauncherStartAnco = true;
-    }
-
-    bool isFromCollaborator = false;
-    if (abilityRequest.collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        isFromCollaborator = true;
-    }
-
-    if (!abilityRequest.startRecent && !isFromCollaborator && !isLauncherStartAnco) {
+    if (!abilityRequest.startRecent) {
         return nullptr;
     }
 
@@ -875,37 +831,17 @@ std::shared_ptr<Mission> MissionListManager::GetReusedStandardMission(const Abil
         if (!missionList) {
             continue;
         }
-
-        if (isFromCollaborator) {
-            std::string missionAffinity = abilityRequest.want.GetStringParam(PARAM_MISSION_AFFINITY_KEY);
-            HILOG_DEBUG("begin find reused mission, missionAffinity:%{public}s", missionAffinity.c_str());
-            auto mission = missionList->GetRecentStandardMissionWithAffinity(missionAffinity);
-            if (mission && mission->GetMissionTime() >= missionTime) {
-                missionTime = mission->GetMissionTime();
-                reUsedMission = mission;
-                HILOG_DEBUG("find mission success");
-            }
-        } else if (isLauncherStartAnco) {
-            // reuse mission temp
-            auto mission = missionList->GetRecentStandardMission(missionName);
-            if (mission && mission->GetMissionTime() >= missionTime && mission->GetMissionAffinity() == "") {
-                missionTime = mission->GetMissionTime();
-                reUsedMission = mission;
-            }
-        } else {
-            auto mission = missionList->GetRecentStandardMission(missionName);
-            if (mission && mission->GetMissionTime() >= missionTime) {
-                missionTime = mission->GetMissionTime();
-                reUsedMission = mission;
-            }
+        
+        auto mission = missionList->GetRecentStandardMission(missionName);
+        if (mission && mission->GetMissionTime() >= missionTime) {
+            missionTime = mission->GetMissionTime();
+            reUsedMission = mission;
         }
     }
 
-    if (!isFromCollaborator && !isLauncherStartAnco) {
-        auto mission = defaultStandardList_->GetRecentStandardMission(missionName);
-        if (mission && mission->GetMissionTime() >= missionTime) {
-            reUsedMission = mission;
-        }
+    auto mission = defaultStandardList_->GetRecentStandardMission(missionName);
+    if (mission && mission->GetMissionTime() >= missionTime) {
+        reUsedMission = mission;
     }
 
     return reUsedMission;
@@ -1916,20 +1852,6 @@ int MissionListManager::ClearMissionLocked(int missionId, const std::shared_ptr<
     if (abilityRecord == nullptr || abilityRecord->IsTerminating()) {
         HILOG_WARN("Ability record is not exist or is on terminating.");
         return ERR_OK;
-    }
-
-    int collaboratorType = abilityRecord->GetCollaboratorType();
-    if (collaboratorType != CollaboratorType::DEFAULT_TYPE) {
-        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-            collaboratorType);
-        if (collaborator == nullptr) {
-            HILOG_DEBUG("collaborator is nullptr");
-        } else {
-            int ret = collaborator->NotifyClearMission(missionId);
-            if (ret != ERR_OK) {
-                HILOG_ERROR("notify broker clear mission failed, err: %{public}d", ret);
-            }
-        }
     }
 
     abilityRecord->SetTerminatingState();
@@ -4112,68 +4034,6 @@ void MissionListManager::CallRequestDone(const std::shared_ptr<AbilityRecord> &a
         return;
     }
     abilityRecord->CallRequestDone(callStub);
-}
-
-void MissionListManager::NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
-    const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info)
-{
-    if (targetMission == nullptr) {
-        HILOG_ERROR("targetMission is nullptr.");
-        return;
-    }
-    info.collaboratorType = abilityRequest.collaboratorType;
-    auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
-        abilityRequest.collaboratorType);
-    if (collaborator == nullptr) {
-        HILOG_ERROR("collaborator: GetCollaborator is nullptr.");
-        return;
-    }
-
-    int32_t ret = collaborator->NotifyMissionCreated(targetMission->GetMissionId(), abilityRequest.want);
-    if (ret != ERR_OK) {
-        HILOG_ERROR("collaborator NotifyMissionCreated failed, errCode: %{public}d.", ret);
-        return;
-    }
-    // update lable and icon from broker
-    InnerMissionInfoDto innerMissionInfoDto = info.ConvertInnerMissionInfoDto();
-    collaborator->UpdateMissionInfo(innerMissionInfoDto);
-    info.UpdateMissionInfo(innerMissionInfoDto);
-    HILOG_INFO("collaborator NotifyMissionCreated success.");
-}
-
-int32_t MissionListManager::MoveMissionToBackground(int32_t missionId)
-{
-    HILOG_INFO("call");
-    std::shared_ptr<Mission> mission = GetMissionById(missionId);
-    if (!mission) {
-        HILOG_ERROR("mission is null.");
-        return ERR_INVALID_VALUE;
-    }
-    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
-    if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is null.");
-        return ERR_INVALID_VALUE;
-    }
-    std::lock_guard guard(managerLock_);
-    MoveToBackgroundTask(abilityRecord);
-    return ERR_OK;
-}
-
-int32_t MissionListManager::TerminateMission(int32_t missionId)
-{
-    HILOG_INFO("call");
-    std::shared_ptr<Mission> mission = GetMissionById(missionId);
-    if (!mission) {
-        HILOG_ERROR("mission is null.");
-        return ERR_INVALID_VALUE;
-    }
-    std::shared_ptr<AbilityRecord> abilityRecord = mission->GetAbilityRecord();
-    if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is null.");
-        return ERR_INVALID_VALUE;
-    }
-    std::lock_guard guard(managerLock_);
-    return TerminateAbilityInner(abilityRecord, DEFAULT_INVAL_VALUE, nullptr, true);
 }
 
 void MissionListManager::SendKeyEvent(const AbilityRequest &abilityRequest)

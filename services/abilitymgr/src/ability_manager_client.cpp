@@ -1499,22 +1499,6 @@ ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type
     return abms->UnregisterIAbilityManagerCollaborator(type);
 }
 
-ErrCode AbilityManagerClient::MoveMissionToBackground(int32_t missionId)
-{
-    HILOG_INFO("call");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->MoveMissionToBackground(missionId);
-}
-
-ErrCode AbilityManagerClient::TerminateMission(int32_t missionId)
-{
-    HILOG_INFO("call");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->TerminateMission(missionId);
-}
-
 ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)
 {
     HILOG_DEBUG("Called.");

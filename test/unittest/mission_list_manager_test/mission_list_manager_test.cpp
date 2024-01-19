@@ -850,11 +850,10 @@ HWTEST_F(MissionListManagerTest, BuildInnerMissionInfo_001, TestSize.Level1)
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     InnerMissionInfo info;
     std::string missionName = "missionName";
-    std::string missionAffinity = "";
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::INVALID_TYPE;
     abilityRequest.want.SetParam(DLP_INDEX, 0);
-    missionListManager->BuildInnerMissionInfo(info, missionName, missionAffinity, abilityRequest);
+    missionListManager->BuildInnerMissionInfo(info, missionName, abilityRequest);
     missionListManager.reset();
 }
 
@@ -877,11 +876,10 @@ HWTEST_F(MissionListManagerTest, BuildInnerMissionInfo_002, TestSize.Level1)
     std::string bundleName = "bundleName";
     std::string abilityName = "abilityName";
     std::string moduleName = "moduleName";
-    std::string missionAffinity = "";
     abilityRequest.callType = AbilityCallType::START_OPTIONS_TYPE;
     abilityRequest.want.SetParam(DLP_INDEX, 1);
     abilityRequest.want.SetElementName(deviceId, bundleName, abilityName, moduleName);
-    missionListManager->BuildInnerMissionInfo(info, missionName, missionAffinity, abilityRequest);
+    missionListManager->BuildInnerMissionInfo(info, missionName, abilityRequest);
     missionListManager.reset();
 }
 

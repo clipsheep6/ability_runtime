@@ -4134,52 +4134,6 @@ int32_t AbilityManagerProxy::UnregisterIAbilityManagerCollaborator(int32_t type)
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::MoveMissionToBackground(int32_t missionId)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::MOVE_MISSION_TO_BACKGROUND, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", ret);
-        return ret;
-    }
-    return reply.ReadInt32();
-}
-
-int32_t AbilityManagerProxy::TerminateMission(int32_t missionId)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::TERMINATE_MISSION, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", ret);
-        return ret;
-    }
-    return reply.ReadInt32();
-}
-
 int32_t AbilityManagerProxy::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
 {
     MessageParcel data;

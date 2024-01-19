@@ -1392,7 +1392,6 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     in.seekg(0, std::ios::end);
     int64_t size = in.tellg();
     if (size <= 0) {
-        HILOG_ERROR("the file is an empty file");
         in.close();
         return systemKitsMap;
     }
@@ -1401,12 +1400,10 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     jsonBuf = nlohmann::json::parse(in, nullptr, false);
     in.close();
     if (jsonBuf.is_discarded()) {
-        HILOG_ERROR("bad profile file");
         return systemKitsMap;
     }
 
     if (!jsonBuf.contains(SYSTEM_KITS)) {
-        HILOG_ERROR("json config doesn't contain systemkits.");
         return systemKitsMap;
     }
     for (auto &item : jsonBuf.at(SYSTEM_KITS).items()) {

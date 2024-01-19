@@ -247,8 +247,6 @@ private:
 
     int32_t RegisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
-    int32_t MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply);
-    int32_t TerminateMissionInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t RegisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);

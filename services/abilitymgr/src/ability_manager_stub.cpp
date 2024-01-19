@@ -149,10 +149,6 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR)] =
         &AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_BACKGROUND)] =
-        &AbilityManagerStub::MoveMissionToBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
-        &AbilityManagerStub::TerminateMissionInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER)] =
         &AbilityManagerStub::RegisterAppDebugListenerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER)] =
@@ -2650,22 +2646,6 @@ int32_t AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner(MessagePa
 {
     int32_t type = data.ReadInt32();
     int32_t ret = UnregisterIAbilityManagerCollaborator(type);
-    reply.WriteInt32(ret);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t missionId = data.ReadInt32();
-    int32_t ret = MoveMissionToBackground(missionId);
-    reply.WriteInt32(ret);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t missionId = data.ReadInt32();
-    int32_t ret = TerminateMission(missionId);
     reply.WriteInt32(ret);
     return NO_ERROR;
 }

@@ -1827,30 +1827,6 @@ HWTEST_F(AbilityManagerClientBranchTest, UnregisterIAbilityManagerCollaborator_0
 }
 
 /**
- * @tc.name: AbilityManagerClient_MoveMissionToBackground_0100
- * @tc.desc: MoveMissionToBackground
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, MoveMissionToBackground_0100, TestSize.Level1)
-{
-    int32_t missionId = 0;
-    auto result = client_->MoveMissionToBackground(missionId);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerClient_TerminateMission_0100
- * @tc.desc: TerminateMission
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateMission_0100, TestSize.Level1)
-{
-    int32_t missionId = 0;
-    auto result = client_->TerminateMission(missionId);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
  * @tc.name: AbilityManagerClient_StartAbilityByInsightIntent_0100
  * @tc.desc: StartAbilityByInsightIntent
  * @tc.type: FUNC
