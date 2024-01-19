@@ -969,8 +969,6 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
         Want want;
         abilityRecord->SaveResultToCallers(-1, &want);
     }
-
-    terminateAbilityList_.push_back(abilityRecord);
     EraseAbilityRecord(abilityRecord);
     abilityRecord->SendResultToCallers();
 
@@ -981,6 +979,7 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
 
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
+        terminateAbilityList_.push_back(abilityRecord);
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
         MoveToBackground(abilityRecord);
         return ERR_OK;
@@ -988,6 +987,7 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
 
     // ability on background, schedule to terminate.
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
+        terminateAbilityList_.push_back(abilityRecord);
         auto self(shared_from_this());
         auto task = [abilityRecord, self]() {
             HILOG_WARN("close ability by scb timeout");
