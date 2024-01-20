@@ -692,6 +692,7 @@ bool JsRuntime::Initialize(const Options& options)
 bool JsRuntime::CreateJsEnv(const Options& options)
 {
     panda::RuntimeOption pandaOption;
+    pandaOption.SetProcessStartRealtime(GetCurrentRealtime());
     int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
     std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
     size_t gcThreadNum = OHOS::system::GetUintParameter<size_t>("persist.ark.gcthreads", 7);
@@ -727,6 +728,16 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     }
 
     return true;
+}
+
+int JsRuntime::GetCurrentRealtime()
+{
+    struct timespec timessys = {0, 0};
+    auto res = clock_gettime(CLOCK_MONOTONIC, &timessys);
+    if (res) {
+        return 0;
+    }
+    return int(timessys.tv_sec * 1000) + int(timessys.tv_nsec / 1000000);
 }
 
 void JsRuntime::PreloadAce(const Options& options)
