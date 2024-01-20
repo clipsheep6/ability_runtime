@@ -118,6 +118,12 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
         delete work;
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(dataWorkerData->env, &scope);
+    if (scope == nullptr) {
+        HILOG_ERROR("napi_open_handle_scope failed");
+        return;
+    }
     napi_value args[ARGC_TWO] = {0};
     napi_value objValueFirst = nullptr;
     napi_create_object(dataWorkerData->env, &objValueFirst);
@@ -160,6 +166,7 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
     napi_value value = dataWorkerData->nativeRef->GetNapiValue();
     napi_value callback = dataWorkerData->nativeRef->GetNapiValue();
     napi_call_function(dataWorkerData->env, value, callback, ARGC_TWO, args, nullptr);
+    napi_close_handle_scope(dataWorkerData->env, scope);
     delete dataWorkerData;
     dataWorkerData = nullptr;
     delete work;
