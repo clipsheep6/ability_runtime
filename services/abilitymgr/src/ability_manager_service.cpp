@@ -212,6 +212,7 @@ const int32_t APP_MEMORY_SIZE = 512;
 const int32_t GET_PARAMETER_INCORRECT = -9;
 const int32_t GET_PARAMETER_OTHER = -1;
 const int32_t SIZE_10 = 10;
+const int32_t HIDUMPER_SERVICE_UID = 1212;
 const int32_t ACCOUNT_MGR_SERVICE_UID = 3058;
 const int32_t BROKER_UID = 5557;
 const int32_t BROKER_RESERVE_UID = 5005;
@@ -4725,8 +4726,9 @@ void AbilityManagerService::DataDumpStateInner(const std::string &args, std::vec
 void AbilityManagerService::DumpState(const std::string &args, std::vector<std::string> &info)
 {
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    if (!isShellCall) {
-        HILOG_ERROR("Not shell call");
+    auto isHidumperServiceCall = (IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID);
+    if (!isShellCall && !isHidumperServiceCall) {
+        HILOG_ERROR("Permission deny.");
         return;
     }
     std::vector<std::string> argList;
@@ -4755,8 +4757,9 @@ void AbilityManagerService::DumpSysState(
 {
     HILOG_DEBUG("%{public}s begin", __func__);
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    if (!isShellCall) {
-        HILOG_ERROR("Not shell call");
+    auto isHidumperServiceCall = (IPCSkeleton::GetCallingUid() == HIDUMPER_SERVICE_UID);
+    if (!isShellCall && !isHidumperServiceCall) {
+        HILOG_ERROR("Permission deny.");
         return;
     }
     std::vector<std::string> argList;
