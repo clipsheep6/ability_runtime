@@ -100,10 +100,6 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_RUNNING_INFO)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
