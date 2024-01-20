@@ -112,6 +112,7 @@ ohos_shared_library("ability_simulator_inner") {
 
     external_deps = [
       "ability_base:string_utils",
+      "ace_engine:ace_uicontent",
       "ets_runtime:libark_jsruntime",
       "ets_utils:console",
       "ets_utils:timer",
