@@ -184,7 +184,7 @@ void AppMgrService::ApplicationForegrounded(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function<void()> applicationForegroundedFunc =
@@ -200,7 +200,7 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function<void()> applicationBackgroundedFunc =
@@ -216,7 +216,7 @@ void AppMgrService::ApplicationTerminated(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function<void()> applicationTerminatedFunc =
@@ -769,6 +769,22 @@ bool AppMgrService::JudgeSelfCalledByRecordId(int32_t recordId)
         return true;
     }
 
+    if (appMgrServiceInner_ == nullptr) {
+        return false;
+    }
+
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner_->GetAppRunningRecordByAppRecordId(recordId);
+    if (appRecord == nullptr || ((appRecord->GetApplicationInfo())->accessTokenId) != callingTokenId) {
+        HILOG_ERROR("Is not self, not enabled");
+        return false;
+    }
+
+    return true;
+}
+
+bool AppMgrService::JudgeAppSelfCalled(int32_t recordId)
+{
     if (appMgrServiceInner_ == nullptr) {
         return false;
     }

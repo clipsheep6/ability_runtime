@@ -523,6 +523,8 @@ private:
 
     bool JudgeSelfCalledByRecordId(int32_t recordId);
 
+    bool JudgeAppSelfCalled(int32_t recordId);
+
     /**
      * @brief Notify AbilityManagerService the page show.
      * @param token Ability identify.
