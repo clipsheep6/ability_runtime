@@ -4724,6 +4724,11 @@ void AbilityManagerService::DataDumpStateInner(const std::string &args, std::vec
 
 void AbilityManagerService::DumpState(const std::string &args, std::vector<std::string> &info)
 {
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isShellCall) {
+        HILOG_ERROR("Not shell call");
+        return;
+    }
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
@@ -4749,6 +4754,11 @@ void AbilityManagerService::DumpSysState(
     const std::string& args, std::vector<std::string>& info, bool isClient, bool isUserID, int userId)
 {
     HILOG_DEBUG("%{public}s begin", __func__);
+    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
+    if (!isShellCall) {
+        HILOG_ERROR("Not shell call");
+        return;
+    }
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
