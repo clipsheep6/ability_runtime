@@ -401,7 +401,7 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function <void()> addAbilityStageDone =
@@ -561,7 +561,7 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
         HILOG_ERROR("not ready");
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
@@ -575,7 +575,7 @@ void AppMgrService::ScheduleNewProcessRequestDone(const int32_t recordId, const 
         HILOG_ERROR("not ready");
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleNewProcessRequestDone(recordId, want, flag); };
@@ -760,27 +760,6 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
-}
-
-bool AppMgrService::JudgeSelfCalledByRecordId(int32_t recordId)
-{
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return true;
-    }
-
-    if (appMgrServiceInner_ == nullptr) {
-        return false;
-    }
-
-    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
-    std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner_->GetAppRunningRecordByAppRecordId(recordId);
-    if (appRecord == nullptr || ((appRecord->GetApplicationInfo())->accessTokenId) != callingTokenId) {
-        HILOG_ERROR("Is not self, not enabled");
-        return false;
-    }
-
-    return true;
 }
 
 bool AppMgrService::JudgeAppSelfCalled(int32_t recordId)

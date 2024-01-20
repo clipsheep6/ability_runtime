@@ -521,8 +521,6 @@ private:
     void Dump(const std::vector<std::u16string>& args, std::string& result) const;
     void ShowHelp(std::string& result) const;
 
-    bool JudgeSelfCalledByRecordId(int32_t recordId);
-
     bool JudgeAppSelfCalled(int32_t recordId);
 
     /**
