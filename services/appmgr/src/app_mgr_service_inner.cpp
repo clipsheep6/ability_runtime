@@ -39,6 +39,7 @@
 #include "common_event_support.h"
 #include "datetime_ex.h"
 #include "distributed_data_mgr.h"
+#include "ffrt.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -4408,7 +4409,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
         }
     };
 
-    taskHandler_->SubmitTask(notifyAppTask, "notifyAppFaultTask");
+    ffrt::submit(notifyAppTask, {}, {}, ffrt::task_attr().name("notifyAppFaultTask"));
     return ERR_OK;
 }
 
