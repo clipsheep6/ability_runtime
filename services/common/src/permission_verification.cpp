@@ -223,12 +223,6 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
 
 int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const
 {
-    if (IPCSkeleton::GetCallingUid() != BROKER_UID &&
-        SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return ERR_OK;
-    }
-
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start ServiceAbility from background after API8.");

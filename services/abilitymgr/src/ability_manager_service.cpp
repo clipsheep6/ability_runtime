@@ -902,13 +902,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Cannot start extension by start ability, use startServiceExtensionAbility.");
             return ERR_WRONG_INTERFACE_CALL;
         }
-
-        if (IPCSkeleton::GetCallingUid() == BROKER_UID || isSystemAppCall || isToPermissionMgr) {
-            result = CheckCallServicePermission(abilityRequest);
-            if (result != ERR_OK) {
-                HILOG_ERROR("Check permission failed");
-                return result;
-            }
+        result = CheckCallServicePermission(abilityRequest);
+        if (result != ERR_OK) {
+            HILOG_ERROR("Check permission failed");
+            return result;
         }
     } else if (type == AppExecFwk::AbilityType::SERVICE) {
         HILOG_DEBUG("Check call service or extension permission, name is %{public}s.", abilityInfo.name.c_str());
