@@ -1033,6 +1033,7 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
         auto moduleRecord = GetModuleRunningRecordByToken(*iter);
         if (!moduleRecord) {
             HILOG_ERROR("can not find module record");
+            ++iter;
             continue;
         }
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
