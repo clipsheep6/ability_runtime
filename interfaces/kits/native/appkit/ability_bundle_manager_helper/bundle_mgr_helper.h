@@ -44,9 +44,11 @@ public:
     std::string GetAbilityLabel(const std::string &bundleName, const std::string &abilityName);
     std::string GetAppType(const std::string &bundleName);
     ErrCode GetBaseSharedBundleInfos(
-        const std::string &bundleName, std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos);
+        const std::string &bundleName, std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        GetDependentBundleInfoFlag flag = GetDependentBundleInfoFlag::GET_APP_CROSS_HSP_BUNDLE_INFO);
     ErrCode GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo);
-    ErrCode GetDependentBundleInfo(const std::string &sharedBundleName, BundleInfo &sharedBundleInfo);
+    ErrCode GetDependentBundleInfo(const std::string &sharedBundleName, BundleInfo &sharedBundleInfo,
+        GetDependentBundleInfoFlag flag = GetDependentBundleInfoFlag::GET_APP_CROSS_HSP_BUNDLE_INFO);
     bool GetGroupDir(const std::string &dataGroupId, std::string &dir);
     sptr<IOverlayManager> GetOverlayManagerProxy();
     bool QueryAbilityInfo(const Want &want, AbilityInfo &abilityInfo);
@@ -58,6 +60,8 @@ public:
     sptr<IAppControlMgr> GetAppControlProxy();
     bool QueryExtensionAbilityInfos(const Want &want, const int32_t &flag, const int32_t &userId,
         std::vector<ExtensionAbilityInfo> &extensionInfos);
+    ErrCode GetBundleInfoV9(
+        const std::string &bundleName, int32_t flags, BundleInfo &bundleInfo, int32_t userId);
     bool GetApplicationInfo(
         const std::string &appName, const ApplicationFlag flag, const int32_t userId, ApplicationInfo &appInfo);
     bool GetApplicationInfo(const std::string &appName, int32_t flags, int32_t userId, ApplicationInfo &appInfo);
@@ -86,7 +90,6 @@ public:
     ErrCode QueryExtensionAbilityInfosOnlyWithTypeName(const std::string &extensionTypeName,
         const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos);
     sptr<IDefaultApp> GetDefaultAppProxy();
-    ErrCode CleanObsoleteBundleTempFiles();
 
 private:
     sptr<IBundleMgr> Connect();

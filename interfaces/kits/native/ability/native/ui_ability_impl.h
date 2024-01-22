@@ -71,7 +71,7 @@ public:
      * @param sessionInfo Indicates the sessionInfo
      */
     void HandleAbilityTransaction(const AAFwk::Want &want, const AAFwk::LifeCycleStateInfo &targetState,
-        sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+        sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
 
     /**
      * @brief The life cycle callback.
@@ -192,7 +192,7 @@ protected:
 #endif
 
 protected:
-    void Start(const AAFwk::Want &want, sptr<AppExecFwk::SessionInfo> sessionInfo = nullptr);
+    void Start(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
     void Stop();
     void Stop(bool &isAsyncCallback);
     void StopCallback();

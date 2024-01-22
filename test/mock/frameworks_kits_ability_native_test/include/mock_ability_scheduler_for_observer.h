@@ -56,8 +56,10 @@ public:
     MOCK_METHOD2(BatchInsert, int(const Uri&, const std::vector<NativeRdb::ValuesBucket>&));
     MOCK_METHOD1(DenormalizeUri, Uri(const Uri&));
     MOCK_METHOD1(NormalizeUri, Uri(const Uri&));
-    MOCK_METHOD2(ScheduleRegisterObserver, bool(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver));
-    MOCK_METHOD2(ScheduleUnregisterObserver, bool(const Uri& uri, const sptr<AAFwk::IDataAbilityObserver>& dataObserver));
+    MOCK_METHOD2(ScheduleRegisterObserver, bool(const Uri& uri,
+        const sptr<AAFwk::IDataAbilityObserver>& dataObserver));
+    MOCK_METHOD2(ScheduleUnregisterObserver, bool(const Uri& uri,
+        const sptr<AAFwk::IDataAbilityObserver>& dataObserver));
     MOCK_METHOD1(ScheduleNotifyChange, bool(const Uri& uri));
     MOCK_METHOD1(ExecuteBatch, std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>>(
         const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>>& operation));

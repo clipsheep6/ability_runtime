@@ -118,6 +118,12 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
         delete work;
         return;
     }
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(dataWorkerData->env, &scope);
+    if (scope == nullptr) {
+        HILOG_ERROR("napi_open_handle_scope failed");
+        return;
+    }
     napi_value args[ARGC_TWO] = {0};
     napi_value objValueFirst = nullptr;
     napi_create_object(dataWorkerData->env, &objValueFirst);
@@ -160,6 +166,7 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
     napi_value value = dataWorkerData->nativeRef->GetNapiValue();
     napi_value callback = dataWorkerData->nativeRef->GetNapiValue();
     napi_call_function(dataWorkerData->env, value, callback, ARGC_TWO, args, nullptr);
+    napi_close_handle_scope(dataWorkerData->env, scope);
     delete dataWorkerData;
     dataWorkerData = nullptr;
     delete work;
@@ -965,6 +972,8 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
     napi_new_instance(env, wantAgentClass, 0, nullptr, &result);
     if (result == nullptr) {
         HILOG_ERROR("create instance failed.");
+        delete wantAgent;
+        wantAgent = nullptr;
         return nullptr;
     }
 
@@ -1238,7 +1247,7 @@ napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info 
 
 napi_value WantAgentFlagsInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    HILOG_DEBUG("called");
 
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters");
@@ -1274,7 +1283,7 @@ napi_value WantAgentFlagsInit(napi_env env)
 
 napi_value WantAgentOperationTypeInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    HILOG_DEBUG("called");
 
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters");
@@ -1314,8 +1323,6 @@ napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
 
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
-    napi_set_named_property(env, exportObj, "actionFlags", WantAgentFlagsInit(env));
-    napi_set_named_property(env, exportObj, "actionType", WantAgentOperationTypeInit(env));
 
     HILOG_DEBUG("JsWantAgentInit BindNativeFunction called");
     const char* moduleName = "JsWantAgent";

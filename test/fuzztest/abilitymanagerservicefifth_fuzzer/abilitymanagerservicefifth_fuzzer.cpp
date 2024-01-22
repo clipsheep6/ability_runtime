@@ -32,14 +32,22 @@ using namespace OHOS::AppExecFwk;
 #define DISABLE_FUZZ
 namespace OHOS {
 namespace {
+constexpr int INPUT_ZERO = 0;
+constexpr int INPUT_ONE = 1;
+constexpr int INPUT_TWO = 2;
+constexpr int INPUT_THREE = 3;
 constexpr size_t FOO_MAX_LEN = 1024;
 constexpr size_t U32_AT_SIZE = 4;
+constexpr int OFFSET_ZERO = 24;
+constexpr int OFFSET_ONE = 16;
+constexpr int OFFSET_TWO = 8;
 }
 
 uint32_t GetU32Data(const char* ptr)
 {
     // convert fuzz input data to an integer
-    return (ptr[0] << 24) | (ptr[1] << 16) | (ptr[2] << 8) | ptr[3];
+    return (ptr[INPUT_ZERO] << OFFSET_ZERO) | (ptr[INPUT_ONE] << OFFSET_ONE) | (ptr[INPUT_TWO] << OFFSET_TWO) |
+        ptr[INPUT_THREE];
 }
 
 sptr<Token> GetFuzzAbilityToken()

@@ -1,6 +1,7 @@
 {
     "blocklist": {
         "ServiceExtension": [],
+	"VpnExtension":[],
         "AdsServiceExtension": [
             "multimedia.camera",
             "multimedia.mediaLibrary",
@@ -166,7 +167,8 @@
             "application.formProvider",
             "prompt",
             "promptAction",
-            "window"
+            "window",
+            "core.liveview.liveViewManager"
         ],
         "DriverExtension": [
             "abilityAccessCtrl",
@@ -282,7 +284,8 @@
             "application.formProvider",
             "prompt",
             "promptAction",
-            "window"
+            "window",
+            "core.liveview.liveViewManager"
         ],
         "RemoteLocationExtension": [
             "notification",

@@ -23,11 +23,11 @@
 #include "ability_record.h"
 #include "bundle_mgr_helper.h"
 #include "system_dialog_scheduler.h"
-#ifdef SUPPORT_ERMS
-#include "ecological_rule_mgr_service_client.h"
-#endif
 
 namespace OHOS {
+namespace EcologicalRuleMgrService {
+struct AbilityCallerInfo;
+}
 namespace AAFwk {
 struct IdentityNode {
     int32_t tokenId;
@@ -46,10 +46,8 @@ struct AddInfoParam {
     std::string typeName;
     std::vector<std::string> infoNames;
 };
-#ifdef SUPPORT_ERMS
 using namespace OHOS::EcologicalRuleMgrService;
-using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::CallerInfo;
-#endif
+using ErmsCallerInfo = OHOS::EcologicalRuleMgrService::AbilityCallerInfo;
 /**
  * @class ImplicitStartProcessor
  * ImplicitStartProcessor.
@@ -89,9 +87,7 @@ private:
         std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos, int32_t userId);
     sptr<AppExecFwk::IDefaultApp> GetDefaultAppProxy();
 
-#ifdef SUPPORT_ERMS
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
-#endif
 
     void AddIdentity(int32_t tokenId, std::string identity);
 
@@ -99,7 +95,7 @@ private:
 
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
-    bool IsCallFromAncoShell(const sptr<IRemoteObject> &token);
+    bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
 
 private:
     const static std::vector<std::string> blackList;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,7 +30,7 @@ constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.aut
 constexpr static char WANT_PARAMS_EXTENSION_TYPE_KEY[] = "ability.want.params.uiExtensionType";
 constexpr static char WANT_PARAMS_AUTO_FILL_TYPE_KEY[] = "ability.want.params.AutoFillType";
 constexpr static char AUTO_FILL_MANAGER_THREAD[] = "AutoFillManager";
-constexpr static uint32_t AUTO_FILL_REQUEST_TIME_OUT_VALUE = 500;
+constexpr static uint32_t AUTO_FILL_REQUEST_TIME_OUT_VALUE = 1000;
 } // namespace
 AutoFillManager &AutoFillManager::GetInstance()
 {
@@ -43,10 +43,6 @@ AutoFillManager::~AutoFillManager()
     HILOG_DEBUG("Called.");
     if (eventHandler_ != nullptr) {
         eventHandler_.reset();
-    }
-
-    if (taskHandler_ != nullptr) {
-        taskHandler_.reset();
     }
 }
 
@@ -89,9 +85,10 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
         HILOG_ERROR("UIContent or fillCallback&saveCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
-    std::lock_guard<std::mutex> lock(mutexLock_);
-    SetTimeOutEvent(++eventId_);
-
+    {
+        std::lock_guard<std::mutex> lock(mutexLock_);
+        SetTimeOutEvent(++eventId_);
+    }
     AAFwk::Want want;
     want.SetParam(WANT_PARAMS_EXTENSION_TYPE_KEY, WANT_PARAMS_EXTENSION_TYPE);
     want.SetParam(WANT_PARAMS_VIEW_DATA_KEY, viewdata.ToJsonString());
@@ -114,8 +111,8 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     callback.onError = std::bind(&AutoFillExtensionCallback::OnError,
         extensionCallback, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     callback.onReceive = std::bind(&AutoFillExtensionCallback::OnReceive, extensionCallback, std::placeholders::_1);
-
     Ace::ModalUIExtensionConfig config;
+    config.isAsyncModalBinding = true;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
         HILOG_ERROR("Create modal ui extension is failed.");
@@ -125,6 +122,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     extensionCallback->SetUIContent(uiContent);
     extensionCallback->SetSessionId(sessionId);
     extensionCallback->SetEventId(eventId_);
+    std::lock_guard<std::mutex> lock(mutexLock_);
     extensionCallbacks_.emplace(eventId_, extensionCallback);
     return AutoFill::AUTO_FILL_SUCCESS;
 }
@@ -132,14 +130,10 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
 void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 {
     HILOG_DEBUG("Called.");
-    if (taskHandler_ == nullptr) {
-        HILOG_DEBUG("Taskhandler is nullptr.");
-        taskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler(AUTO_FILL_MANAGER_THREAD);
-    }
-
+    auto runner = AppExecFwk::EventRunner::Create(AUTO_FILL_MANAGER_THREAD);
     if (eventHandler_ == nullptr) {
         HILOG_DEBUG("Eventhandler is nullptr.");
-        eventHandler_ = std::make_shared<AutoFillEventHandler>(taskHandler_);
+        eventHandler_ = std::make_shared<AutoFillEventHandler>(runner);
     }
     eventHandler_->SendEvent(eventId, AUTO_FILL_REQUEST_TIME_OUT_VALUE);
 }

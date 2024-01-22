@@ -73,7 +73,7 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
     }
     auto ret = reply.ReadInt32();
     if (ret == 0 && reply.ReadBool()) {
-        abilityToken = reply.ReadObject<IRemoteObject>();
+        abilityToken = reply.ReadRemoteObject();
     }
     HILOG_DEBUG("ending");
     return ret;
@@ -151,7 +151,7 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
             HILOG_ERROR("Write true failed.");
             return;
         }
-        if (!data.WriteObject(abilityToken)) {
+        if (!data.WriteRemoteObject(abilityToken)) {
             HILOG_ERROR("Write abilityToken failed.");
             return;
         }

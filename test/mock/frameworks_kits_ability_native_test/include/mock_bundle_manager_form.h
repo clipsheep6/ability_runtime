@@ -67,7 +67,8 @@ public:
     bool GetBundleInfo(
         const std::string& bundleName, const BundleFlag flag, BundleInfo& bundleInfo, int32_t userId) override;
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }
@@ -114,7 +115,8 @@ public:
         const std::string& moduleName,
         std::vector<FormInfo>& formInfo) override;
     ErrCode GetBaseSharedBundleInfos(const std::string &bundleName,
-        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos) override
+        std::vector<BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag) override
     {
         return ERR_OK;
     }

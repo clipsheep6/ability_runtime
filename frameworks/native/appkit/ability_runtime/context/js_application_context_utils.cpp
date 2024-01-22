@@ -107,7 +107,7 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
     napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr bundle context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr bundle context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr, nullptr);
@@ -116,7 +116,7 @@ napi_value JsApplicationContextUtils::OnCreateBundleContext(napi_env env, NapiCa
 
 napi_value JsApplicationContextUtils::SwitchArea(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::SwitchArea is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnSwitchArea, APPLICATION_CONTEXT_NAME);
 }
 
@@ -176,7 +176,7 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
     std::string moduleName;
     std::shared_ptr<Context> moduleContext = nullptr;
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
-        HILOG_INFO("Parse inner module name.");
+        HILOG_DEBUG("Parse inner module name.");
         if (!ConvertFromJsValue(env, info.argv[0], moduleName)) {
             HILOG_ERROR("Parse moduleName failed");
             AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -222,7 +222,7 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
     napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachBaseContext, workContext, nullptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr module context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr module context is called");
             delete static_cast<std::weak_ptr<Context> *>(data);
         },
         nullptr, nullptr);
@@ -273,7 +273,7 @@ napi_value JsApplicationContextUtils::OnCreateModuleResourceManager(napi_env env
 
 napi_value JsApplicationContextUtils::GetArea(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetArea is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetArea, APPLICATION_CONTEXT_NAME);
 }
 
@@ -290,7 +290,7 @@ napi_value JsApplicationContextUtils::OnGetArea(napi_env env, NapiCallbackInfo& 
 
 napi_value JsApplicationContextUtils::GetCacheDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetCacheDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetCacheDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -307,7 +307,7 @@ napi_value JsApplicationContextUtils::OnGetCacheDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetTempDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetTempDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetTempDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -324,7 +324,7 @@ napi_value JsApplicationContextUtils::OnGetTempDir(napi_env env, NapiCallbackInf
 
 napi_value JsApplicationContextUtils::GetResourceDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetResourceDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetResourceDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -341,7 +341,7 @@ napi_value JsApplicationContextUtils::OnGetResourceDir(napi_env env, NapiCallbac
 
 napi_value JsApplicationContextUtils::GetFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetFilesDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetFilesDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -358,7 +358,7 @@ napi_value JsApplicationContextUtils::OnGetFilesDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetDistributedFilesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetDistributedFilesDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
         OnGetDistributedFilesDir, APPLICATION_CONTEXT_NAME);
 }
@@ -376,7 +376,7 @@ napi_value JsApplicationContextUtils::OnGetDistributedFilesDir(napi_env env, Nap
 
 napi_value JsApplicationContextUtils::GetDatabaseDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetDatabaseDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetDatabaseDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -393,14 +393,14 @@ napi_value JsApplicationContextUtils::OnGetDatabaseDir(napi_env env, NapiCallbac
 
 napi_value JsApplicationContextUtils::GetPreferencesDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetPreferencesDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(
         env, info, JsApplicationContextUtils, OnGetPreferencesDir, APPLICATION_CONTEXT_NAME);
 }
 
 napi_value JsApplicationContextUtils::GetGroupDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnGetGroupDir, APPLICATION_CONTEXT_NAME);
 }
 
@@ -452,7 +452,7 @@ napi_value JsApplicationContextUtils::OnGetGroupDir(napi_env env, NapiCallbackIn
 
 napi_value JsApplicationContextUtils::GetBundleCodeDir(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("JsApplicationContextUtils::GetBundleCodeDir is called");
+    HILOG_DEBUG("called");
     GET_NAPI_INFO_WITH_NAME_AND_CALL(
         env, info, JsApplicationContextUtils, OnGetBundleCodeDir, APPLICATION_CONTEXT_NAME);
 }
@@ -648,7 +648,7 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
 
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_INFO("JsApplicationContextUtils::Finalizer is called");
+    HILOG_DEBUG("called");
     std::unique_ptr<JsApplicationContextUtils>(static_cast<JsApplicationContextUtils *>(data));
 }
 
@@ -668,7 +668,7 @@ napi_value JsApplicationContextUtils::UnregisterAbilityLifecycleCallback(
 napi_value JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
     napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("OnRegisterAbilityLifecycleCallback is called");
+    HILOG_DEBUG("called");
     // only support one params
     if (info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params.");
@@ -687,14 +687,14 @@ napi_value JsApplicationContextUtils::OnRegisterAbilityLifecycleCallback(
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(env);
     int32_t callbackId = callback_->Register(info.argv[INDEX_ZERO]);
     applicationContext->RegisterAbilityLifecycleCallback(callback_);
-    HILOG_INFO("OnRegisterAbilityLifecycleCallback is end");
+    HILOG_INFO("end");
     return CreateJsValue(env, callbackId);
 }
 
 napi_value JsApplicationContextUtils::OnUnregisterAbilityLifecycleCallback(
     napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("OnUnregisterAbilityLifecycleCallback is called");
+    HILOG_DEBUG("called");
     int32_t errCode = 0;
     auto applicationContext = applicationContext_.lock();
     if (applicationContext == nullptr) {
@@ -755,7 +755,7 @@ napi_value JsApplicationContextUtils::UnregisterEnvironmentCallback(
 napi_value JsApplicationContextUtils::OnRegisterEnvironmentCallback(
     napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("OnRegisterEnvironmentCallback is called");
+    HILOG_DEBUG("called");
     // only support one params
     if (info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params.");
@@ -774,14 +774,14 @@ napi_value JsApplicationContextUtils::OnRegisterEnvironmentCallback(
     envCallback_ = std::make_shared<JsEnvironmentCallback>(env);
     int32_t callbackId = envCallback_->Register(info.argv[INDEX_ZERO]);
     applicationContext->RegisterEnvironmentCallback(envCallback_);
-    HILOG_DEBUG("OnRegisterEnvironmentCallback is end");
+    HILOG_DEBUG("end");
     return CreateJsValue(env, callbackId);
 }
 
 napi_value JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
     napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("OnUnregisterEnvironmentCallback is called");
+    HILOG_DEBUG("called");
     int32_t errCode = 0;
     auto applicationContext = applicationContext_.lock();
     if (applicationContext == nullptr) {
@@ -790,7 +790,7 @@ napi_value JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
     }
     int32_t callbackId = -1;
     if (info.argc != ARGC_ONE && info.argc != ARGC_TWO) {
-        HILOG_ERROR("OnUnregisterEnvironmentCallback, Not enough params");
+        HILOG_ERROR("Not enough params");
         errCode = ERROR_CODE_ONE;
     } else {
         napi_get_value_int32(env, info.argv[INDEX_ZERO], &callbackId);
@@ -810,7 +810,7 @@ napi_value JsApplicationContextUtils::OnUnregisterEnvironmentCallback(
                 return;
             }
 
-            HILOG_DEBUG("OnUnregisterEnvironmentCallback begin");
+            HILOG_DEBUG("begin");
             if (!env_callback->UnRegister(callbackId)) {
                 HILOG_ERROR("call UnRegister failed!");
                 task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "call UnRegister failed!"));
@@ -838,7 +838,7 @@ napi_value JsApplicationContextUtils::Off(napi_env env, napi_callback_info info)
 
 napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("OnOn is called");
+    HILOG_DEBUG("called");
 
     if (info.argc != ARGC_TWO) {
         HILOG_ERROR("Not enough params.");
@@ -883,7 +883,7 @@ napi_value JsApplicationContextUtils::OnOn(napi_env env, NapiCallbackInfo& info)
 
 napi_value JsApplicationContextUtils::OnOff(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("OnOff is called");
+    HILOG_DEBUG("called");
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -957,7 +957,7 @@ napi_value JsApplicationContextUtils::OnOnAbilityLifecycle(
     callback_ = std::make_shared<JsAbilityLifecycleCallback>(env);
     int32_t callbackId = callback_->Register(info.argv[1], isSync);
     applicationContext->RegisterAbilityLifecycleCallback(callback_);
-    HILOG_INFO("OnOnAbilityLifecycle is end");
+    HILOG_INFO("end");
     return CreateJsValue(env, callbackId);
 }
 
@@ -1176,7 +1176,7 @@ napi_value JsApplicationContextUtils::GetApplicationContext(napi_env env, napi_c
 
 napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("GetApplicationContext start");
+    HILOG_DEBUG("called");
     auto applicationContext = applicationContext_.lock();
     if (!applicationContext) {
         HILOG_WARN("applicationContext is already released");
@@ -1187,7 +1187,7 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
     napi_value value = CreateJsApplicationContext(env);
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
-        HILOG_WARN("OnGetApplicationContext, invalid systemModule.");
+        HILOG_WARN("invalid systemModule.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -1202,7 +1202,7 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
         env, contextObj, DetachCallbackFunc, AttachApplicationContext, workContext, nullptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            HILOG_INFO("Finalizer for weak_ptr application context is called");
+            HILOG_DEBUG("Finalizer for weak_ptr application context is called");
             delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
         },
         nullptr, nullptr);
@@ -1220,7 +1220,7 @@ bool JsApplicationContextUtils::CheckCallerIsSystemApp()
 
 napi_value JsApplicationContextUtils::CreateJsApplicationContext(napi_env env)
 {
-    HILOG_DEBUG("CreateJsApplicationContext start");
+    HILOG_DEBUG("start");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
@@ -1339,7 +1339,7 @@ napi_value JsApplicationContextUtils::IsAutoStartup(napi_env env, napi_callback_
 
 napi_value JsApplicationContextUtils::OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("OnRegisterAutoStartupCallback Called.");
+    HILOG_DEBUG("called.");
     if (info.argc < ARGC_TWO) {
         HILOG_ERROR("The param is invalid.");
         ThrowTooFewParametersError(env);

@@ -653,8 +653,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, ForceTimeoutForTest_001, TestSize.Level
 }
 #endif
 
-
-
 /*
  * Feature: AbilityManagerService
  * Function: JudgeMultiUserConcurrency
@@ -961,38 +959,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, CheckUIExtensionIsFocused_001, TestSize
     bool isFocused = false;
     EXPECT_EQ(abilityMs_->CheckUIExtensionIsFocused(0, isFocused), CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceThirdTest CheckUIExtensionIsFocused_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: MoveMissionToBackground
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService MoveMissionToBackground
- * @tc.require: issueI7LF4X
- */
-HWTEST_F(AbilityManagerServiceThirdTest, MoveMissionToBackground_001, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    int32_t missionId = 1;
-    abilityMs_->currentMissionListManager_ = nullptr;
-    int res = abilityMs_->MoveMissionToBackground(missionId);
-    EXPECT_EQ(res, CHECK_PERMISSION_FAILED);
-}
-
-/*
- * Feature: AbilityManagerService
- * Function: TerminateMission
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService TerminateMission
- * @tc.require: issueI7LF4X
- */
-HWTEST_F(AbilityManagerServiceThirdTest, TerminateMission_001, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    int32_t missionId = 1;
-    abilityMs_->currentMissionListManager_ = nullptr;
-    int res = abilityMs_->TerminateMission(missionId);
-    EXPECT_EQ(res, CHECK_PERMISSION_FAILED);
 }
 
 /*

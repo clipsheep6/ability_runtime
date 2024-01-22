@@ -33,11 +33,7 @@ void OHOSLoopHandler::OnTriggered()
 {
     HILOG_DEBUG("OHOSLoopHandler::OnTriggered is triggered");
 
-    auto fd = uv_backend_fd(uvLoop_);
-    struct epoll_event ev;
-    do {
-        uv_run(uvLoop_, UV_RUN_NOWAIT);
-    } while (epoll_wait(fd, &ev, 1, 0) > 0);
+    uv_run(uvLoop_, UV_RUN_NOWAIT);
 
     auto eventHandler = GetOwner();
     if (!eventHandler) {

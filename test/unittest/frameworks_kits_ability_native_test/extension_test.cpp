@@ -478,5 +478,32 @@ HWTEST_F(ExtensionTest, AaFwk_Extension_2600, Function | MediumTest | Level1)
     EXPECT_TRUE(ret);
     GTEST_LOG_(INFO) << "AaFwk_Extension_2600 end";
 }
+
+/**
+ * @tc.number: AaFwk_Extension_2700
+ * @tc.name: OnStopCallBack
+ * @tc.desc: OnStopCallBack.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2700, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2700 start";
+    extension_->OnStopCallBack();
+    EXPECT_NE(extension_, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2700 end";
+}
+
+/**
+ * @tc.number: AaFwk_Extension_2800
+ * @tc.name: OnCommandWindowDone
+ * @tc.desc: OnCommandWindowDone.
+ */
+HWTEST_F(ExtensionTest, AaFwk_Extension_2800, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2800 start";
+    sptr<AAFwk::SessionInfo> sessionInfo;
+    extension_->OnCommandWindowDone(sessionInfo, AAFwk::WIN_CMD_FOREGROUND);
+    EXPECT_NE(extension_, nullptr);
+    GTEST_LOG_(INFO) << "AaFwk_Extension_2800 end";
+}
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -167,7 +167,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
 
 int checkPersistPermission(uint64_t tokenId, const std::vector<PolicyInfo> &policy, std::vector<bool> &result)
 {
-    for (auto i = 0; i < policy.size(); i++) {
+    for (size_t i = 0; i < policy.size(); i++) {
         result.emplace_back(true);
     }
     HILOG_INFO("Called, result size is %{public}zu", result.size());
@@ -182,7 +182,7 @@ int32_t setPolicy(uint64_t tokenId, const std::vector<PolicyInfo> &policy, uint6
 
 int persistPermission(const std::vector<PolicyInfo> &policy, std::vector<uint32_t> &result)
 {
-    for (auto i = 0; i < policy.size(); i++) {
+    for (size_t i = 0; i < policy.size(); i++) {
         result.emplace_back(0);
     }
     HILOG_INFO("Called, result size is %{public}zu", result.size());
@@ -295,11 +295,12 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
         if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
             HILOG_DEBUG("Item: flag = %{public}i, fromTokenId = %{public}i, targetTokenId = %{public}i,\
                 autoremove = %{public}i", item.flag, item.fromTokenId, item.targetTokenId, item.autoremove);
-            if ((flag & item.flag) == 0) {
+            if ((flag & (item.flag | Want::FLAG_AUTH_READ_URI_PERMISSION)) == 0) {
                 HILOG_INFO("Update uri r/w permission.");
                 item.flag = flag;
+            } else {
+                HILOG_INFO("uri permission has granted, not to grant again.");
             }
-            HILOG_INFO("uri permission has granted, not to grant again.");
             return ERR_OK;
         }
     }
@@ -488,11 +489,7 @@ int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<
 void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 {
     HILOG_INFO("Start to remove uri permission.");
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::NativeTokenInfo nativeInfo;
-    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
-    HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
-    if (nativeInfo.processName != "foundation") {
+    if (!IsFoundationCall()) {
         HILOG_ERROR("RevokeUriPermission can only be called by foundation");
         return;
     }
@@ -531,6 +528,10 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
 {
     HILOG_INFO("Start to remove all uri permission for uninstalled app or clear app data.");
+    if (!IsFoundationCall()) {
+        HILOG_ERROR("RevokeAllUriPermissions can only be called by foundation");
+        return CHECK_PERMISSION_FAILED;
+    }
     std::map<unsigned int, std::vector<std::string>> uriLists;
     {
         std::lock_guard<std::mutex> guard(mutex_);
@@ -560,17 +561,15 @@ int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
         HILOG_ERROR("ConnectStorageManager failed.");
         return INNER_ERR;
     }
-
     if (!uriLists.empty()) {
         for (auto iter = uriLists.begin(); iter != uriLists.end(); iter++) {
             storageManager_->DeleteShareFile(iter->first, iter->second);
         }
     }
-
+    // delete persistable uri permission
     if (!isGrantPersistableUriPermissionEnable_) {
         return ERR_OK;
     }
-    // delete persistable uri permission
     if (uriPermissionRdb_ == nullptr) {
         HILOG_ERROR("rdb manager is nullptr");
         return INNER_ERR;
@@ -735,8 +734,8 @@ uint32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string 
     return bundleInfo.applicationInfo.accessTokenId;
 }
 
-void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied(
-    [[maybe_unused]] const wptr<IRemoteObject>& remote)
+void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied([[maybe_unused]]
+    const wptr<IRemoteObject>& remote)
 {
     if (proxy_) {
         HILOG_DEBUG("mgr stub died.");

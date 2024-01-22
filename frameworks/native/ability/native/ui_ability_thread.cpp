@@ -229,12 +229,12 @@ void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
 }
 
 void UIAbilityThread::HandleAbilityTransaction(
-    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     std::string connector = "##";
     std::string traceName = __PRETTY_FUNCTION__ + connector + want.GetElement().GetAbilityName();
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, traceName);
-    HILOG_INFO("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("Lifecycle: name is %{public}s.", want.GetElement().GetAbilityName().c_str());
     if (abilityImpl_ == nullptr) {
         HILOG_ERROR("abilityImpl_ is nullptr.");
         return;
@@ -335,7 +335,7 @@ void UIAbilityThread::HandleUpdateConfiguration(const AppExecFwk::Configuration 
 }
 
 void UIAbilityThread::ScheduleAbilityTransaction(
-    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AppExecFwk::SessionInfo> sessionInfo)
+    const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("Lifecycle: name:%{public}s,targeState:%{public}d,isNewWant:%{public}d",

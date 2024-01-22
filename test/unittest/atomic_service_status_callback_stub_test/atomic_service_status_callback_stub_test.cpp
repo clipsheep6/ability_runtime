@@ -54,7 +54,8 @@ void AtomicServiceStatusCallbackStubTest::TearDown()
  * EnvConditions: want is nullptr
  * CaseDescription: Verify that on remote request is normal and abnormal
  */
-HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnInstallFinishedInner_001, TestSize.Level1)
+HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnInstallFinishedInner_001,
+    TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
@@ -84,7 +85,8 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
  * EnvConditions: want is not nullptr
  * CaseDescription: Verify that on remote request is normal and abnormal
  */
-HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnInstallFinishedInner_002, TestSize.Level1)
+HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnInstallFinishedInner_002,
+    TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
@@ -115,7 +117,8 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
  * EnvConditions: want is nullptr
  * CaseDescription: Verify that on remote request is normal and abnormal
  */
-HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoteInstallFinishedInner_001, TestSize.Level1)
+HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoteInstallFinishedInner_001,
+    TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
@@ -134,7 +137,8 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
     data.WriteInt32(userId);
     EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoteInstallFinished(_, _, _)).Times(0);
     int res = mockAtomicServiceStatusCallbackStub->OnRemoteRequest(
-        IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE, data, reply, option);
+        IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE,
+            data, reply, option);
     EXPECT_NE(res, NO_ERROR);
 }
 
@@ -146,7 +150,8 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
  * EnvConditions: want is not nullptr
  * CaseDescription: Verify that on remote request is normal and abnormal
  */
-HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoteInstallFinishedInner_002, TestSize.Level1)
+HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_OnRemoteInstallFinishedInner_002,
+    TestSize.Level1)
 {
     sptr<MockAtomicServiceStatusCallbackStub> mockAtomicServiceStatusCallbackStub(
         new MockAtomicServiceStatusCallbackStub());
@@ -165,7 +170,8 @@ HWTEST_F(AtomicServiceStatusCallbackStubTest, AtomicServiceStatusCallbackStub_On
     data.WriteInt32(userId);
     EXPECT_CALL(*mockAtomicServiceStatusCallbackStub, OnRemoteInstallFinished(_, _, _)).Times(1);
     int res = mockAtomicServiceStatusCallbackStub->OnRemoteRequest(
-        IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE, data, reply, option);
+        IAtomicServiceStatusCallback::IAtomicServiceStatusCallbackCmd::ON_REMOTE_FREE_INSTALL_DONE,
+            data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 }
 }  // namespace AAFwk

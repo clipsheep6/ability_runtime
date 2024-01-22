@@ -95,6 +95,7 @@ ohos_unittest("appfreeze_inner_test") {
     "faultloggerd:libbacktrace_local",
     "faultloggerd:libdfx_procinfo",
     "faultloggerd:libfaultloggerd",
+    "ffrt:libffrt",
     "graphic_2d:librender_service_client",
     "hicollie:libhicollie",
     "hilog:libhilog",

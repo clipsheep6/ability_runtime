@@ -50,8 +50,13 @@ napi_value AttachFormExtensionContext(napi_env env, void* value, void*)
         return nullptr;
     }
     napi_value object = CreateJsFormExtensionContext(env, ptr);
-    auto contextObj = JsRuntime::LoadSystemModuleByEngine(env,
-        "application.FormExtensionContext", &object, 1)->GetNapiValue();
+    auto sysModule = JsRuntime::LoadSystemModuleByEngine(env,
+        "application.FormExtensionContext", &object, 1);
+    if (sysModule == nullptr) {
+        HILOG_WARN("load module failed");
+        return nullptr;
+    }
+    auto contextObj = sysModule->GetNapiValue();
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachFormExtensionContext, value, nullptr);
     auto workContext = new (std::nothrow) std::weak_ptr<FormExtensionContext>(ptr);
@@ -88,7 +93,7 @@ void JsFormExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     FormExtension::Init(record, application, handler, token);
     std::string srcPath;
     GetSrcPath(srcPath);
@@ -127,9 +132,13 @@ void JsFormExtension::BindContext(napi_env env, napi_value obj)
         HILOG_ERROR("Failed to get context");
         return;
     }
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     napi_value contextObj = CreateJsFormExtensionContext(env, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.FormExtensionContext", &contextObj, 1);
+    if (shellContextRef_ == nullptr) {
+        HILOG_ERROR("Failed to load module");
+        return;
+    }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
         HILOG_ERROR("Failed to get context native object");
@@ -148,7 +157,7 @@ void JsFormExtension::BindContext(napi_env env, napi_value obj)
         },
         nullptr, nullptr);
 
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 }
 
 OHOS::AppExecFwk::FormProviderInfo JsFormExtension::OnCreate(const OHOS::AAFwk::Want& want)
@@ -282,23 +291,23 @@ void JsFormExtension::OnVisibilityChange(const std::map<int64_t, int32_t>& formE
 
 sptr<IRemoteObject> JsFormExtension::OnConnect(const OHOS::AAFwk::Want& want)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     Extension::OnConnect(want);
     if (providerRemoteObject_ == nullptr) {
-        HILOG_INFO("providerRemoteObject_ is nullptr, need init.");
+        HILOG_DEBUG("providerRemoteObject_ is nullptr, need init.");
         sptr<FormExtensionProviderClient> providerClient = new (std::nothrow) FormExtensionProviderClient();
         std::shared_ptr<JsFormExtension> formExtension = std::static_pointer_cast<JsFormExtension>(shared_from_this());
         providerClient->SetOwner(formExtension);
         providerRemoteObject_ = providerClient->AsObject();
     }
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
     return providerRemoteObject_;
 }
 
 napi_value JsFormExtension::CallObjectMethod(const char* name, const char *bakName, napi_value const* argv,
     size_t argc)
 {
-    HILOG_INFO("CallObjectMethod(%{public}s)", name);
+    HILOG_DEBUG("CallObjectMethod(%{public}s)", name);
     if (!jsObj_) {
         HILOG_WARN("jsObj_ is nullptr");
         return nullptr;
@@ -327,7 +336,7 @@ napi_value JsFormExtension::CallObjectMethod(const char* name, const char *bakNa
             return nullptr;
         }
     }
-    HILOG_INFO("CallFunction(%{public}s), ok", name);
+    HILOG_DEBUG("CallFunction(%{public}s), ok", name);
     napi_value result = nullptr;
     napi_call_function(env, obj, method, argc, argv, &result);
     return handleEscape.Escape(result);

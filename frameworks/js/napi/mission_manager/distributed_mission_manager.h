@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "mission_continue_stub.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "js_runtime_utils.h"
 #include "securec.h"
 #include "want.h"
 #include "remote_mission_listener_stub.h"
@@ -84,16 +85,19 @@ public:
     void OnCallback(const uint32_t continueState, const std::string &srcDeviceId,
         const std::string &bundleName) override;
     void SetEnv(const napi_env &env);
-    void SetOnCallbackCBRef(const napi_ref &ref);
+    void SetOnCallbackCBRef(std::shared_ptr<NativeReference> &ref);
+    std::vector<std::shared_ptr<NativeReference>> GetOnCallbackCBRef();
+    bool DelOnCallbackCBRef(napi_env env, std::shared_ptr<NativeReference> &ref);
 
 private:
     napi_env env_ = nullptr;
-    napi_ref onCallbackRef_ = nullptr;
+    std::vector<std::shared_ptr<NativeReference>> callbacks_;
 };
 
 struct CallbackInfo {
     napi_env env;
     napi_ref callback;
+    std::vector<std::shared_ptr<NativeReference>> vecCallbacks;
     napi_deferred deferred;
 };
 
@@ -124,6 +128,7 @@ struct RegisterMissionCB {
 struct OnCallbackCB {
     napi_env env = nullptr;
     napi_ref callback = nullptr;
+    std::shared_ptr<NativeReference> napiCallback;
     int resultCode = 0;
 };
 

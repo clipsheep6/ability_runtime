@@ -1163,8 +1163,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUIExtensionAbility_0100, TestSize.
 {
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 start";
     Want want;
-    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100),
-        ABILITY_SERVICE_NOT_CONNECTED);
+    EXPECT_EQ(client_->StartUIExtensionAbility(nullptr, 100), ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "StartUIExtensionAbility_0100 end";
 }
 
@@ -1177,7 +1176,7 @@ HWTEST_F(AbilityManagerClientBranchTest, TerminateUIExtensionAbility_0100, TestS
 {
     GTEST_LOG_(INFO) << "TerminateUIExtensionAbility_0100 start";
     Want* resultWant = nullptr;
-    EXPECT_EQ(client_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_OK);
+    EXPECT_EQ(client_->TerminateUIExtensionAbility(nullptr, 1, resultWant), ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "TerminateUIExtensionAbility_0100 end";
 }
 
@@ -1189,7 +1188,7 @@ HWTEST_F(AbilityManagerClientBranchTest, TerminateUIExtensionAbility_0100, TestS
 HWTEST_F(AbilityManagerClientBranchTest, MinimizeUIExtensionAbility_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 start";
-    EXPECT_EQ(client_->MinimizeUIExtensionAbility(nullptr, true), ERR_OK);
+    EXPECT_EQ(client_->MinimizeUIExtensionAbility(nullptr, true), ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "MinimizeUIExtensionAbility_0100 end";
 }
 
@@ -1828,30 +1827,6 @@ HWTEST_F(AbilityManagerClientBranchTest, UnregisterIAbilityManagerCollaborator_0
 }
 
 /**
- * @tc.name: AbilityManagerClient_MoveMissionToBackground_0100
- * @tc.desc: MoveMissionToBackground
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, MoveMissionToBackground_0100, TestSize.Level1)
-{
-    int32_t missionId = 0;
-    auto result = client_->MoveMissionToBackground(missionId);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerClient_TerminateMission_0100
- * @tc.desc: TerminateMission
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, TerminateMission_0100, TestSize.Level1)
-{
-    int32_t missionId = 0;
-    auto result = client_->TerminateMission(missionId);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
  * @tc.name: AbilityManagerClient_StartAbilityByInsightIntent_0100
  * @tc.desc: StartAbilityByInsightIntent
  * @tc.type: FUNC
@@ -1997,6 +1972,69 @@ HWTEST_F(AbilityManagerClientBranchTest, OpenFile_0100, TestSize.Level1)
     auto result = client_->OpenFile(uri, flag);
     EXPECT_EQ(result, 0);
     GTEST_LOG_(INFO) << "OpenFile_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetDialogSessionInfo_0100
+ * @tc.desc: GetDialogSessionInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetDialogSessionInfo_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetDialogSessionInfo_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
+    std::string dialogSessionId;
+    sptr<DialogSessionInfo> info;
+    auto result = client_->GetDialogSessionInfo(dialogSessionId, info);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "GetDialogSessionInfo_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SendDialogResult_0100
+ * @tc.desc: SendDialogResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SendDialogResult_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SendDialogResult_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    std::string dialogSessionId;
+    bool isAllow = true;
+    auto result = client_->SendDialogResult(want, dialogSessionId, isAllow);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "SendDialogResult_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RequestModalUIExtension_0100
+ * @tc.desc: RequestModalUIExtension
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, RequestModalUIExtension_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RequestModalUIExtension_0100 start";
+    EXPECT_TRUE(client_ != nullptr);
+    Want want;
+    auto result = client_->RequestModalUIExtension(want);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "RequestModalUIExtension_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_UpdateSessionInfoBySCB_0100
+ * @tc.desc: UpdateSessionInfoBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, UpdateSessionInfoBySCB_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 start";
+    std::vector<SessionInfo> sessionInfos;
+    int32_t userId = 1;
+    client_->UpdateSessionInfoBySCB(sessionInfos, userId);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

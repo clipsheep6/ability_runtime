@@ -488,13 +488,6 @@ public:
     void SetAppDeathRecipient(const sptr<AppDeathRecipient> &appDeathRecipient);
 
     /**
-     * RegisterAppDeathRecipient, Register application death recipient.
-     *
-     * @return
-     */
-    void RegisterAppDeathRecipient() const;
-
-    /**
      * @brief Obtains application priority info.
      *
      * @return Returns the application priority info.
@@ -502,7 +495,7 @@ public:
     std::shared_ptr<PriorityObject> GetPriorityObject();
 
     /**
-     * RegisterAppDeathRecipient, Remove application death recipient record.
+     * Remove application death recipient record.
      *
      * @return
      */
@@ -749,7 +742,7 @@ private:
 
     void SendClearTask(uint32_t msg, int64_t timeOut);
 
-    void RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &record);
+    void RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &record, bool isExtensionDebug = false);
 
 private:
     class RemoteObjHash {

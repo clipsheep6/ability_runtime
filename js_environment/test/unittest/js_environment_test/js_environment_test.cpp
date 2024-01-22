@@ -311,7 +311,7 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0100, TestSize.Level1)
     ASSERT_NE(jsEnv, nullptr);
 
     const char* libraryPath = "LIBRARYPATH";
-    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, 0);
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU, 0, 0, true);
     ASSERT_EQ(jsEnv->GetVM(), nullptr);
 }
 
@@ -330,7 +330,7 @@ HWTEST_F(JsEnvironmentTest, StartProfiler_0200, TestSize.Level1)
     ASSERT_EQ(ret, true);
 
     const char* libraryPath = "LIBRARYPATH";
-    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0, 0);
+    jsEnv->StartProfiler(libraryPath, 0, JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP, 0, 0, true);
     ASSERT_NE(jsEnv->GetVM(), nullptr);
 }
 
@@ -424,6 +424,35 @@ HWTEST_F(JsEnvironmentTest, SetDeviceDisconnectCallback_0100, TestSize.Level0)
     };
     jsEnv->SetDeviceDisconnectCallback(task);
     ASSERT_EQ(taskExecuted, false);
+}
+
+/**
+ * @tc.name: DestroyHeapProfiler_0100
+ * @tc.desc: Js environment DestroyHeapProfiler.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, DestroyHeapProfiler_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    jsEnv->DestroyHeapProfiler();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: NotifyDebugMode_0100
+ * @tc.desc: Js environment NotifyDebugMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, NotifyDebugMode_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    int tid = 1;
+    char* libraryPath;
+    uint32_t instanceId = 1;
+    bool debug = true;
+    bool debugMode = true;
+    jsEnv->NotifyDebugMode(tid, libraryPath, instanceId, debug, debugMode);
+    ASSERT_NE(jsEnv, nullptr);
 }
 } // namespace JsEnv
 } // namespace OHOS

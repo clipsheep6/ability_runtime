@@ -223,5 +223,34 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProc
     auto record = appRunningManager->GetAppRunningRecordByChildProcessPid(childPid);
     EXPECT_NE(record, nullptr);
 }
+
+/**
+ * @tc.name: AppRunningManager_UpdateConfiguration_0100
+ * @tc.desc: Test UpdateConfiguration works
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0100, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    EXPECT_NE(appRunningManager, nullptr);
+    std::string bundleName;
+    std::vector<AppDebugInfo> debugInfos;
+    bool isDetachDebug = true;
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    int32_t recordId = 1;
+    std::string processName;
+    Configuration config;
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningManager->appRunningRecordMap_.emplace(recordId, appRunningRecord);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, nullptr);
+    appRunningRecord->SetState(ApplicationState::APP_STATE_READY);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, appRunningRecord);
+    appInfo->name = "com.huawei.shell_assistant";
+    appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    appRunningManager->appRunningRecordMap_.emplace(++recordId, appRunningRecord);
+    EXPECT_EQ(appRunningManager->appRunningRecordMap_.size(), recordId);
+    auto ret = appRunningManager->UpdateConfiguration(config);
+    EXPECT_EQ(ret, ERR_OK);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

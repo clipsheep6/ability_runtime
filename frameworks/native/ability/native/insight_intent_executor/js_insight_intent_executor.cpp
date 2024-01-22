@@ -99,6 +99,12 @@ bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightInten
     return true;
 }
 
+bool JsInsightIntentExecutor::ExecuteIntentCheckError()
+{
+    ReplyFailedInner();
+    STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+}
+
 bool JsInsightIntentExecutor::HandleExecuteIntent(
     InsightIntentExecuteMode mode,
     const std::string& name,
@@ -121,40 +127,34 @@ bool JsInsightIntentExecutor::HandleExecuteIntent(
         case InsightIntentExecuteMode::UIABILITY_FOREGROUND:
             if (!JsInsightIntentExecutor::CheckParametersUIAbilityForeground(pageLoader)) {
                 HILOG_ERROR("CheckParametersUIAbilityForeground error");
-                ReplyFailedInner();
-                STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+                return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentUIAbilityForeground(name, param, pageLoader);
             break;
         case InsightIntentExecuteMode::UIABILITY_BACKGROUND:
             if (!JsInsightIntentExecutor::CheckParametersUIAbilityBackground()) {
                 HILOG_ERROR("CheckParametersUIAbilityBackground error");
-                ReplyFailedInner();
-                STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+                return ExecuteIntentCheckError();
             }
-            HILOG_DEBUG("ExecuteInsightIntentUIAbilityBackground");
             successful = ExecuteInsightIntentUIAbilityBackground(name, param);
             break;
         case InsightIntentExecuteMode::UIEXTENSION_ABILITY:
             if (!JsInsightIntentExecutor::CheckParametersUIExtension(pageLoader)) {
-                HILOG_ERROR("CheckParametersUIAbilityBackground error");
-                ReplyFailedInner();
-                STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+                HILOG_ERROR("CheckParametersUIExtension error");
+                return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentUIExtension(name, param, pageLoader);
             break;
         case InsightIntentExecuteMode::SERVICE_EXTENSION_ABILITY:
             if (!JsInsightIntentExecutor::CheckParametersServiceExtension()) {
-                HILOG_ERROR("CheckParametersUIAbilityBackground error");
-                ReplyFailedInner();
-                STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+                HILOG_ERROR("CheckParametersServiceExtension error");
+                return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentServiceExtension(name, param);
             break;
         default:
             HILOG_ERROR("InsightIntentExecuteMode not supported yet");
-            ReplyFailedInner();
-            STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
+            return ExecuteIntentCheckError();
     }
     isAsync = isAsync_;
     return successful;

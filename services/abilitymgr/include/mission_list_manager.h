@@ -347,8 +347,6 @@ public:
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
 
-    int32_t MoveMissionToBackground(int32_t missionId);
-
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 #ifdef SUPPORT_GRAPHICS
 public:
@@ -374,8 +372,6 @@ public:
 
     void PostMissionLabelUpdateTask(int missionId) const;
 
-    int32_t TerminateMission(int32_t missionId);
-
 private:
     Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void PostCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -383,6 +379,9 @@ private:
 #endif
 
 private:
+    void AddRecord(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetAbilityRecord);
+    int GetTargetMission(const AbilityRequest &abilityRequest, std::shared_ptr<Mission> &targetMission,
+        std::shared_ptr<AbilityRecord> &targetAbilityRecord);
     int StartAbilityLocked(const std::shared_ptr<AbilityRecord> &currentTopAbility,
         const std::shared_ptr<AbilityRecord> &callerAbility, const AbilityRequest &abilityRequest);
     int StartAbility(const std::shared_ptr<AbilityRecord> &currentTopAbility,
@@ -480,7 +479,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const std::string &missionAffinity, const AbilityRequest &abilityRequest) const;
+        const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
@@ -517,8 +516,6 @@ private:
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
 
-    void NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
-        const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);

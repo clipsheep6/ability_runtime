@@ -188,10 +188,13 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_006, TestSize.Level1)
 {
     HILOG_INFO("ams_service_event_drive_test_006 start");
 
-    appMgrService_->OnStart();
-
+    auto appMgrService = std::make_shared<AppMgrService>();
+    std::shared_ptr<OHOS::AAFwk::TaskHandlerWrap> taskHandler_ =
+        OHOS::AAFwk::TaskHandlerWrap::CreateQueueHandler(Constants::APP_MGR_SERVICE_NAME);
     std::string bundleName = "bundleName";
-    int32_t res = appMgrService_->ClearUpApplicationData(bundleName);
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->ClearUpApplicationData(bundleName);
     EXPECT_EQ(res, OHOS::ERR_INVALID_OPERATION);
 
     HILOG_INFO("ams_service_event_drive_test_006 end");
@@ -729,79 +732,6 @@ HWTEST_F(AmsServiceEventDriveTest, EventDrive_030, TestSize.Level1)
     appMgrService_->ApplicationBackgrounded(recordId);
     innerService->Wait();
     HILOG_INFO("ams_service_event_drive_test_030 end");
-}
-
-/*
- * Feature: AppMgrService
- * Function: Service
- * SubFunction: EventDrive
- * FunctionPoints: AppMgrService event drive program model
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Verify if post AddAppDeathRecipient task success
- */
-HWTEST_F(AmsServiceEventDriveTest, EventDrive_034, TestSize.Level1)
-{
-    HILOG_INFO("ams_service_event_drive_test_034 start");
-    std::shared_ptr<MockAppMgrServiceInner> innerService = std::make_shared<MockAppMgrServiceInner>();
-    appMgrService_->SetInnerService(innerService);
-    appMgrService_->OnStart();
-
-    EXPECT_CALL(*innerService, AddAppDeathRecipient(_, _))
-        .WillOnce(InvokeWithoutArgs(innerService.get(), &MockAppMgrServiceInner::Post));
-
-    pid_t pid = 1;
-    appMgrService_->AddAppDeathRecipient(pid);
-    innerService->Wait();
-    HILOG_INFO("ams_service_event_drive_test_034 end");
-}
-
-/*
- * Feature: AppMgrService
- * Function: Service
- * SubFunction: EventDrive
- * FunctionPoints: AppMgrService event drive program model
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Verify if AddAppDeathRecipient act normal without initialize AppMgrService
- */
-HWTEST_F(AmsServiceEventDriveTest, EventDrive_035, TestSize.Level1)
-{
-    HILOG_INFO("ams_service_event_drive_test_035 start");
-
-    appMgrService_->OnStop();
-    std::shared_ptr<MockAppMgrServiceInner> innerService = std::make_shared<MockAppMgrServiceInner>();
-    appMgrService_->SetInnerService(innerService);
-
-    EXPECT_CALL(*innerService, AddAppDeathRecipient(_, _)).Times(0);
-
-    pid_t pid = 1;
-    appMgrService_->AddAppDeathRecipient(pid);
-
-    HILOG_INFO("ams_service_event_drive_test_035 end");
-}
-
-/*
- * Feature: AppMgrService
- * Function: Service
- * SubFunction: EventDrive
- * FunctionPoints: AppMgrService event drive program model
- * EnvConditions: Mobile that can run ohos test framework
- * CaseDescription: Verify if AddAppDeathRecipient act normal after AppMgrService stopped
- */
-HWTEST_F(AmsServiceEventDriveTest, EventDrive_036, TestSize.Level1)
-{
-    HILOG_INFO("ams_service_event_drive_test_036 start");
-
-    std::shared_ptr<MockAppMgrServiceInner> innerService = std::make_shared<MockAppMgrServiceInner>();
-    appMgrService_->SetInnerService(innerService);
-    appMgrService_->OnStart();
-    appMgrService_->OnStop();
-
-    EXPECT_CALL(*innerService, AddAppDeathRecipient(_, _)).Times(0);
-
-    pid_t pid = 1;
-    appMgrService_->AddAppDeathRecipient(pid);
-
-    HILOG_INFO("ams_service_event_drive_test_036 end");
 }
 
 /*

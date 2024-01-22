@@ -44,7 +44,7 @@ JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string&
 
 bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const
 {
-    HILOG_INFO("JsModuleReader operator start: %{private}s", inputPath.c_str());
+    HILOG_DEBUG("JsModuleReader operator start: %{private}s", inputPath.c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
         HILOG_ERROR("Invalid param");
@@ -115,7 +115,7 @@ std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) co
         realHapPath = std::string(ABS_CODE_PATH) + inputPath + suffix;
     }
 
-    HILOG_INFO("realHapPath: %{private}s", realHapPath.c_str());
+    HILOG_DEBUG("realHapPath: %{private}s", realHapPath.c_str());
     if (realHapPath.empty() ||
         realHapPath.length() < suffix.length() ||
         realHapPath.compare(realHapPath.length() - suffix.length(), suffix.length(), suffix) != 0) {
@@ -123,6 +123,46 @@ std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) co
         return realHapPath;
     }
     return realHapPath;
+}
+
+std::string JsModuleReader::GetOtherHspPath(const std::string& bundleName, const std::string& moduleName,
+    const std::string& inputPath)
+{
+    std::string presetAppHapPath = inputPath;
+
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        return presetAppHapPath;
+    }
+
+    std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
+    if (bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
+        HILOG_ERROR("GetBaseSharedBundleInfos failed.");
+        return presetAppHapPath;
+    }
+    std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
+    const std::string sharedBundleName = tmpPath.substr(0, tmpPath.find_first_of("/"));
+    for (const auto &info : baseSharedBundleInfos) {
+        if ((info.bundleName == sharedBundleName) && (info.moduleName == moduleName)) {
+            presetAppHapPath = info.hapPath;
+            break;
+        }
+    }
+    AppExecFwk::BundleInfo bundleInfo;
+    int32_t ret = bundleMgrHelper->GetDependentBundleInfo(sharedBundleName, bundleInfo,
+        AppExecFwk::GetDependentBundleInfoFlag::GET_APP_SERVICE_HSP_BUNDLE_INFO);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("GetDependentBundleInfo failed.");
+        return presetAppHapPath;
+    }
+    for (const auto &info : bundleInfo.hapModuleInfos) {
+        if (info.moduleName == moduleName) {
+            presetAppHapPath = info.hapPath;
+            break;
+        }
+    }
+    return presetAppHapPath;
 }
 
 std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, const std::string& bundleName)
@@ -153,19 +193,7 @@ std::string JsModuleReader::GetPresetAppHapPath(const std::string& inputPath, co
             }
         }
     } else {
-        std::vector<AppExecFwk::BaseSharedBundleInfo> baseSharedBundleInfos;
-        if (bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, baseSharedBundleInfos) != 0) {
-            HILOG_ERROR("GetBaseSharedBundleInfos failed.");
-            return presetAppHapPath;
-        }
-        std::string tmpPath = inputPath.substr(inputPath.find_first_of("/") + 1);
-        const std::string sharedBundleName = tmpPath.substr(0, tmpPath.find_first_of("/"));
-        for (const auto &info : baseSharedBundleInfos) {
-            if ((info.bundleName == sharedBundleName) && (info.moduleName == moduleName)) {
-                presetAppHapPath = info.hapPath;
-                break;
-            }
-        }
+        presetAppHapPath = GetOtherHspPath(bundleName, moduleName, presetAppHapPath);
     }
     return presetAppHapPath;
 }

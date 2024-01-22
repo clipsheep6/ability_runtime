@@ -97,6 +97,7 @@ ohos_unittest("application_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
@@ -112,6 +113,7 @@ ohos_unittest("application_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -133,6 +135,7 @@ ohos_unittest("application_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -149,6 +152,7 @@ ohos_unittest("context_container_test") {
   module_out_path = module_output_path
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
@@ -160,6 +164,7 @@ ohos_unittest("context_container_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -180,6 +185,7 @@ ohos_unittest("context_container_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -201,6 +207,7 @@ ohos_unittest("context_deal_test") {
 
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
@@ -218,6 +225,7 @@ ohos_unittest("context_deal_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -239,6 +247,7 @@ ohos_unittest("context_deal_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -256,6 +265,7 @@ ohos_unittest("application_impl_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
@@ -273,6 +283,7 @@ ohos_unittest("application_impl_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -291,6 +302,7 @@ ohos_unittest("application_impl_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -365,6 +377,7 @@ ohos_unittest("ability_stage_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include/mock_overlay_manager.cpp",
@@ -380,6 +393,7 @@ ohos_unittest("ability_stage_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -401,6 +415,7 @@ ohos_unittest("ability_stage_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -418,6 +433,7 @@ ohos_unittest("form_extension_context_test") {
 
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "form_extension_context_test.cpp",
   ]
@@ -426,6 +442,7 @@ ohos_unittest("form_extension_context_test") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_start_setting",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -445,6 +462,7 @@ ohos_unittest("form_extension_context_test") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
+    "ffrt:libffrt",
     "form_fwk:fmskit_native",
     "form_fwk:form_manager",
     "hilog:libhilog",
@@ -470,6 +488,7 @@ ohos_unittest("bms_context_impl_test") {
   sources = [
     "${ability_runtime_native_path}/appkit/app/app_context.cpp",
     "${ability_runtime_native_path}/appkit/app/app_loader.cpp",
+    "${ability_runtime_native_path}/appkit/app/application_cleaner.cpp",
     "${ability_runtime_native_path}/appkit/app/ohos_application.cpp",
     "bms_context_impl_test.cpp",
   ]
@@ -479,6 +498,7 @@ ohos_unittest("bms_context_impl_test") {
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
+    "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
@@ -499,6 +519,7 @@ ohos_unittest("bms_context_impl_test") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",

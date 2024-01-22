@@ -2306,7 +2306,7 @@ HWTEST_F(UIAbilityLifecycleManagerTest, OnAcceptWantResponse_002, TestSize.Level
     abilityRecord->abilityInfo_.moduleName = "entry";
     abilityRecord->SetAppIndex(1);
     abilityRecord->SetSpecifiedFlag(flag);
-    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1,abilityRecord);
+    uiAbilityLifecycleManager->sessionAbilityMap_.emplace(1, abilityRecord);
     uiAbilityLifecycleManager->OnAcceptWantResponse(want, flag);
 
     UIAbilityLifecycleManager::SpecifiedInfo specifiedInfo;

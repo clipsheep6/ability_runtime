@@ -170,8 +170,8 @@ class MockAppMgrStub : public AppMgrStub {
         return 0;
     }
 
-    int StartUserTestProcess(
-        const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId) override
+    int StartUserTestProcess(const AAFwk::Want &want, const sptr<IRemoteObject> &observer,
+        const BundleInfo &bundleInfo, int32_t userId) override
     {
         return 0;
     }

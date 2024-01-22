@@ -86,8 +86,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_INFO("StartFreeInstall called");
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isGatewayCall = AAFwk::PermissionVerification::GetInstance()->IsGatewayCall();
-    if (!isSaCall && !isGatewayCall && !IsTopAbility(callerToken)) {
+    if (!isSaCall && !IsTopAbility(callerToken)) {
         return NOT_TOP_ABILITY;
     }
     FreeInstallInfo info = BuildFreeInstallInfo(want, userId, requestCode, callerToken, isAsync);

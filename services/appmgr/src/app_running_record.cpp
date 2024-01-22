@@ -318,6 +318,12 @@ void AppRunningRecord::SetState(const ApplicationState state)
     if (state == ApplicationState::APP_STATE_FOREGROUND || state == ApplicationState::APP_STATE_BACKGROUND) {
         restartResidentProcCount_ = MAX_RESTART_COUNT;
     }
+    std::string foreTag = "ForeApp:";
+    if (state == ApplicationState::APP_STATE_FOREGROUND) {
+        StartAsyncTrace(HITRACE_TAG_APP, foreTag + mainBundleName_, 0);
+    } else if (state == ApplicationState::APP_STATE_BACKGROUND) {
+        FinishAsyncTrace(HITRACE_TAG_APP, foreTag + mainBundleName_, 0);
+    }
     curState_ = state;
 }
 
@@ -354,7 +360,7 @@ sptr<IAppScheduler> AppRunningRecord::GetApplicationClient() const
 
 std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
-    HILOG_INFO("Get ability running record by eventId.");
+    HILOG_DEBUG("called");
     auto moduleRecordList = GetAllModuleRecord();
     for (const auto &moduleRecord : moduleRecordList) {
         auto abilityRecord = moduleRecord->GetAbilityRunningRecord(eventId);
@@ -366,9 +372,10 @@ std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityRunningRecord(
     return nullptr;
 }
 
-void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRecord> &moduleRecord)
+void AppRunningRecord::RemoveModuleRecord(
+    const std::shared_ptr<ModuleRunningRecord> &moduleRecord, bool isExtensionDebug)
 {
-    HILOG_INFO("Remove module record.");
+    HILOG_DEBUG("called");
 
     std::lock_guard<ffrt::mutex> hapModulesLock(hapModulesLock_);
     for (auto &item : hapModules_) {
@@ -378,7 +385,7 @@ void AppRunningRecord::RemoveModuleRecord(const std::shared_ptr<ModuleRunningRec
         if (iter != item.second.end()) {
             HILOG_DEBUG("Removed a record.");
             iter = item.second.erase(iter);
-            if (item.second.empty()) {
+            if (item.second.empty() && !isExtensionDebug) {
                 {
                     std::lock_guard<ffrt::mutex> appInfosLock(appInfosLock_);
                     HILOG_DEBUG("Removed an appInfo.");
@@ -424,7 +431,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
-    HILOG_INFO("Schedule launch application, app is %{public}s.", GetName().c_str());
+    HILOG_DEBUG("app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
 
@@ -505,7 +512,7 @@ void AppRunningRecord::AddAbilityStageBySpecifiedProcess(const std::string &bund
 
 void AppRunningRecord::AddAbilityStageDone()
 {
-    HILOG_INFO("Add ability stage done. bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
+    HILOG_INFO("bundle %{public}s and eventId %{public}d", mainBundleName_.c_str(),
         static_cast<int>(eventId_));
 
     if (!eventHandler_) {
@@ -658,7 +665,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
     const std::shared_ptr<AbilityInfo> &abilityInfo, const sptr<IRemoteObject> &token,
     const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want)
 {
-    HILOG_INFO("Add module.");
+    HILOG_DEBUG("called");
 
     if (!appInfo) {
         HILOG_ERROR("appInfo is null");
@@ -706,7 +713,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
 std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleName(
     const std::string bundleName, const std::string &moduleName)
 {
-    HILOG_INFO("Get module record by module name.");
+    HILOG_DEBUG("called");
     auto moduleRecords = hapModules_.find(bundleName);
     if (moduleRecords != hapModules_.end()) {
         for (auto &iter : moduleRecords->second) {
@@ -745,7 +752,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
-        HILOG_INFO("extension type, not notify any more.");
+        HILOG_DEBUG("extension type, not notify any more.");
         return;
     }
     auto serviceInner = appMgrServiceInner_.lock();
@@ -758,7 +765,6 @@ std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRunningRecordByT
     const sptr<IRemoteObject> &token) const
 {
     if (!token) {
-        HILOG_ERROR("token is null");
         return nullptr;
     }
 
@@ -812,7 +818,7 @@ std::shared_ptr<AbilityRunningRecord> AppRunningRecord::GetAbilityByTerminateLis
 
 bool AppRunningRecord::UpdateAbilityFocusState(const sptr<IRemoteObject> &token, bool isFocus)
 {
-    HILOG_INFO("focus state is :%{public}d", isFocus);
+    HILOG_DEBUG("focus state is :%{public}d", isFocus);
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
         HILOG_ERROR("can not find ability record");
@@ -834,7 +840,7 @@ bool AppRunningRecord::UpdateAbilityFocusState(const sptr<IRemoteObject> &token,
 
 void AppRunningRecord::UpdateAbilityState(const sptr<IRemoteObject> &token, const AbilityState state)
 {
-    HILOG_INFO("state is :%{public}d", static_cast<int32_t>(state));
+    HILOG_DEBUG("state is :%{public}d", static_cast<int32_t>(state));
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
         HILOG_ERROR("can not find ability record");
@@ -873,13 +879,17 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
         return;
     }
 
-    HILOG_INFO("appState: %{public}d, bundle: %{public}s, ability: %{public}s",
+    HILOG_DEBUG("appState: %{public}d, bundle: %{public}s, ability: %{public}s",
         curState_, mainBundleName_.c_str(), ability->GetName().c_str());
     // We need schedule application to foregrounded when current application state is ready or background running.
     if (curState_ == ApplicationState::APP_STATE_FOREGROUND
         && pendingState_ != ApplicationPendingState::BACKGROUNDING) {
         // Just change ability to foreground if current application state is foreground or focus.
         auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
+        if (moduleRecord == nullptr) {
+            HILOG_ERROR("moduleRecord is nullptr");
+            return;
+        }
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         auto serviceInner = appMgrServiceInner_.lock();
@@ -891,12 +901,12 @@ void AppRunningRecord::AbilityForeground(const std::shared_ptr<AbilityRunningRec
     if (curState_ == ApplicationState::APP_STATE_READY || curState_ == ApplicationState::APP_STATE_BACKGROUND
         || curState_ == ApplicationState::APP_STATE_FOREGROUND) {
         if (foregroundingAbilityTokens_.empty() || pendingState_ == ApplicationPendingState::BACKGROUNDING) {
-            HILOG_INFO("application foregrounding.");
+            HILOG_DEBUG("application foregrounding.");
             SetApplicationPendingState(ApplicationPendingState::FOREGROUNDING);
             ScheduleForegroundRunning();
         }
         foregroundingAbilityTokens_.insert(ability->GetToken());
-        HILOG_INFO("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
+        HILOG_DEBUG("foregroundingAbility size: %{public}d", static_cast<int32_t>(foregroundingAbilityTokens_.size()));
         if (curState_ == ApplicationState::APP_STATE_BACKGROUND) {
             SendAppStartupTypeEvent(ability, AppStartType::HOT);
         }
@@ -912,7 +922,7 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
         HILOG_ERROR("ability is null");
         return;
     }
-    HILOG_INFO("ability is %{public}s", mainBundleName_.c_str());
+    HILOG_DEBUG("ability is %{public}s", mainBundleName_.c_str());
     if (ability->GetState() != AbilityState::ABILITY_STATE_FOREGROUND &&
         ability->GetState() != AbilityState::ABILITY_STATE_READY) {
         HILOG_ERROR("ability state is not foreground or focus");
@@ -921,6 +931,10 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
 
     // First change ability to background.
     auto moduleRecord = GetModuleRunningRecordByToken(ability->GetToken());
+    if (moduleRecord == nullptr) {
+        HILOG_ERROR("moduleRecord is nullptr");
+        return;
+    }
     moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_BACKGROUND);
     StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND), true, false);
     if (curState_ == ApplicationState::APP_STATE_FOREGROUND) {
@@ -936,8 +950,6 @@ void AppRunningRecord::AbilityBackground(const std::shared_ptr<AbilityRunningRec
                 break;
             }
         }
-
-
 
         // Then schedule application background when all ability is not foreground.
         if (foregroundSize == 0 && mainBundleName_ != LAUNCHER_NAME && windowIds_.empty()) {
@@ -1019,6 +1031,10 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
     for (auto iter = foregroundingAbilityTokens_.begin(); iter != foregroundingAbilityTokens_.end();) {
         auto ability = GetAbilityRunningRecordByToken(*iter);
         auto moduleRecord = GetModuleRunningRecordByToken(*iter);
+        if (!moduleRecord) {
+            HILOG_ERROR("can not find module record");
+            continue;
+        }
         moduleRecord->OnAbilityStateChanged(ability, AbilityState::ABILITY_STATE_FOREGROUND);
         StateChangedNotifyObserver(ability, static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND), true, false);
         iter = foregroundingAbilityTokens_.erase(iter);
@@ -1027,7 +1043,7 @@ void AppRunningRecord::PopForegroundingAbilityTokens()
 
 void AppRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, const bool isForce)
 {
-    HILOG_INFO("Terminate ability, isForce: %{public}d", static_cast<int>(isForce));
+    HILOG_DEBUG("isForce: %{public}d", static_cast<int>(isForce));
 
     auto moduleRecord = GetModuleRunningRecordByToken(token);
     if (!moduleRecord) {
@@ -1043,7 +1059,7 @@ void AppRunningRecord::TerminateAbility(const sptr<IRemoteObject> &token, const 
 
 void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("AbilityTerminated come.");
+    HILOG_DEBUG("called");
     auto moduleRecord = GetModuleRunningRecordByTerminateLists(token);
     if (!moduleRecord) {
         HILOG_ERROR("AbilityTerminated error, can not find module record");
@@ -1062,7 +1078,7 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
         || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType()))) {
-        RemoveModuleRecord(moduleRecord);
+        RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
@@ -1086,22 +1102,6 @@ std::list<std::shared_ptr<ModuleRunningRecord>> AppRunningRecord::GetAllModuleRe
     return moduleRecordList;
 }
 
-void AppRunningRecord::RegisterAppDeathRecipient() const
-{
-    if (appLifeCycleDeal_ == nullptr) {
-        HILOG_ERROR("appLifeCycleDeal_ is null");
-        return;
-    }
-    if (!appLifeCycleDeal_->GetApplicationClient()) {
-        HILOG_ERROR("appThread is nullptr");
-        return;
-    }
-    auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
-    if (!object || !object->AddDeathRecipient(appDeathRecipient_)) {
-        HILOG_ERROR("AddDeathRecipient failed.");
-    }
-}
-
 void AppRunningRecord::RemoveAppDeathRecipient() const
 {
     if (appLifeCycleDeal_ == nullptr) {
@@ -1114,7 +1114,9 @@ void AppRunningRecord::RemoveAppDeathRecipient() const
     }
     auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
     if (object) {
-        object->RemoveDeathRecipient(appDeathRecipient_);
+        if (!object->RemoveDeathRecipient(appDeathRecipient_)) {
+            HILOG_WARN("Failed to remove deathRecipient.");
+        }
     }
 }
 
@@ -1222,7 +1224,7 @@ void AppRunningRecord::SendClearTask(uint32_t msg, int64_t timeOut)
     } else if (msg == AMSEventHandler::ADD_ABILITY_STAGE_INFO_TIMEOUT_MSG) {
         eventId = &addAbilityStageInfoEventId_;
     } else {
-        HILOG_INFO("Other msg: %{public}d", msg);
+        HILOG_DEBUG("Other msg: %{public}d", msg);
         return;
     }
     taskHandler_->SubmitTask([wthis = weak_from_this(), eventId]() {
@@ -1513,7 +1515,7 @@ const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("call %{public}s", __func__);
+    HILOG_DEBUG("called");
     if (!appLifeCycleDeal_) {
         HILOG_INFO("appLifeCycleDeal_ is null");
         return ERR_INVALID_VALUE;
@@ -1574,7 +1576,7 @@ AppSpawnStartMsg AppRunningRecord::GetStartMsg()
 
 void AppRunningRecord::SetDebugApp(bool isDebugApp)
 {
-    HILOG_INFO("SetDebugApp come, value is %{public}d", isDebugApp);
+    HILOG_DEBUG("value is %{public}d", isDebugApp);
     isDebugApp_ = isDebugApp;
 }
 
@@ -1886,7 +1888,7 @@ void AppRunningRecord::AddChildProcessRecord(pid_t pid, const std::shared_ptr<Ch
 
 void AppRunningRecord::RemoveChildProcessRecord(const std::shared_ptr<ChildProcessRecord> record)
 {
-    HILOG_INFO("Removing child process record, pid: %{public}d", record->GetPid());
+    HILOG_INFO("pid: %{public}d", record->GetPid());
     if (!record) {
         HILOG_ERROR("record is null.");
         return;

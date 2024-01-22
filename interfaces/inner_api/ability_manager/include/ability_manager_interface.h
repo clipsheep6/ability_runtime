@@ -496,7 +496,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int DisconnectAbility(const sptr<IAbilityConnection> &connect) = 0;
+    virtual int DisconnectAbility(sptr<IAbilityConnection> connect) = 0;
 
     /**
      * AcquireDataAbility, acquire a data ability by its authority, if it not existed,
@@ -1172,26 +1172,6 @@ public:
      * @return 0 or else.
     */
     virtual int32_t UnregisterIAbilityManagerCollaborator(int32_t type)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Notify to move mission to backround.
-     * @param missionId missionId
-     * @return 0 or else
-    */
-    virtual int32_t MoveMissionToBackground(int32_t missionId)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Notify to terminate mission. it is not clear.
-     * @param missionId missionId
-     * @return 0 or else
-    */
-    virtual int32_t TerminateMission(int32_t missionId)
     {
         return 0;
     }

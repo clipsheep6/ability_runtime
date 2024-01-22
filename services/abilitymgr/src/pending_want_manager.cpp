@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,7 +45,7 @@ PendingWantManager::~PendingWantManager()
 sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const bool isSystemApp,
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("PendingWantManager::GetWantSender begin.");
+    HILOG_DEBUG("begin.");
     if (wantSenderInfo.type != static_cast<int32_t>(OperationType::SEND_COMMON_EVENT)) {
         if (callingUid != uid &&
             !isSystemApp &&
@@ -120,7 +120,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
 
 void PendingWantManager::MakeWantSenderCanceledLocked(PendingWantRecord &record)
 {
-    HILOG_INFO("begin");
+    HILOG_DEBUG("begin");
 
     record.SetCanceled();
     for (auto &callback : record.GetCancelCallbacks()) {
@@ -180,8 +180,8 @@ int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const Sende
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> obj = target->AsObject();
-    if(obj == nullptr) {
-        HILOG_ERROR("target obj is nullptr.");
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
         return ERR_INVALID_VALUE;
     }
     sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(obj);
@@ -191,7 +191,7 @@ int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const Sende
 
 void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWantSender> &sender)
 {
-    HILOG_INFO("begin");
+    HILOG_DEBUG("begin");
 
     if (sender == nullptr) {
         HILOG_ERROR("sender is nullptr.");
@@ -205,13 +205,18 @@ void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWa
         return;
     }
 
-    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(sender->AsObject());
+    sptr<IRemoteObject> obj = sender->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return;
+    }
+    sptr<PendingWantRecord> record = iface_cast<PendingWantRecord>(obj);
     CancelWantSenderLocked(*record, true);
 }
 
 void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool cleanAbility)
 {
-    HILOG_INFO("begin.");
+    HILOG_DEBUG("begin.");
 
     MakeWantSenderCanceledLocked(record);
     if (cleanAbility) {
@@ -310,7 +315,7 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
 
 int32_t PendingWantManager::PendingRecordIdCreate()
 {
-    HILOG_INFO("begin");
+    HILOG_DEBUG("begin");
 
     static std::atomic_int id(0);
     return ++id;
@@ -318,7 +323,7 @@ int32_t PendingWantManager::PendingRecordIdCreate()
 
 sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t code)
 {
-    HILOG_INFO("begin. wantRecords_ size = %{public}zu", wantRecords_.size());
+    HILOG_DEBUG("begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
     auto iter = std::find_if(wantRecords_.begin(), wantRecords_.end(), [&code](const auto &pair) {
@@ -335,8 +340,13 @@ int32_t PendingWantManager::GetPendingWantUid(const sptr<IWantSender> &target)
         HILOG_ERROR("target is nullptr.");
         return -1;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return -1;
+    }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     return ((record != nullptr) ? (record->GetUid()) : (-1));
 }
@@ -349,8 +359,12 @@ int32_t PendingWantManager::GetPendingWantUserId(const sptr<IWantSender> &target
         HILOG_ERROR("%{public}s:target is nullptr.", __func__);
         return -1;
     }
-
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return -1;
+    }
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     return ((record != nullptr) ? (record->GetKey()->GetUserId()) : (-1));
 }
@@ -363,14 +377,13 @@ std::string PendingWantManager::GetPendingWantBundleName(const sptr<IWantSender>
         HILOG_ERROR("%{public}s:target is nullptr.", __func__);
         return "";
     }
-
-    auto remote = target->AsObject();
-    if (remote == nullptr) {
-        HILOG_ERROR("%{public}s:target->AsObject() is nullptr.", __func__);
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
         return "";
     }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(remote);
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record != nullptr) {
         return record->GetKey()->GetBundleName();
@@ -386,8 +399,13 @@ int32_t PendingWantManager::GetPendingWantCode(const sptr<IWantSender> &target)
         HILOG_ERROR("%{public}s:target is nullptr.", __func__);
         return -1;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return -1;
+    }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     return ((record != nullptr) ? (record->GetKey()->GetCode()) : (-1));
 }
@@ -400,8 +418,13 @@ int32_t PendingWantManager::GetPendingWantType(const sptr<IWantSender> &target)
         HILOG_ERROR("%{public}s:target is nullptr.", __func__);
         return -1;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return -1;
+    }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     return ((record != nullptr) ? (record->GetKey()->GetType()) : (-1));
 }
@@ -414,8 +437,13 @@ void PendingWantManager::RegisterCancelListener(const sptr<IWantSender> &sender,
         HILOG_ERROR("%{public}s:sender is nullptr or recevier is nullptr.", __func__);
         return;
     }
+    sptr<IRemoteObject> obj = sender->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return;
+    }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(sender->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record == nullptr) {
         HILOG_ERROR("%{public}s:record is nullptr. code = %{public}d", __func__, targetRecord->GetKey()->GetCode());
@@ -436,8 +464,13 @@ void PendingWantManager::UnregisterCancelListener(const sptr<IWantSender> &sende
         HILOG_ERROR("%{public}s:sender is nullptr or recevier is nullptr.", __func__);
         return;
     }
+    sptr<IRemoteObject> obj = sender->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return;
+    }
 
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(sender->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record == nullptr) {
         HILOG_ERROR("%{public}s:record is nullptr.", __func__);
@@ -454,11 +487,17 @@ int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &targe
         HILOG_ERROR("%{public}s:target is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return ERR_INVALID_VALUE;
+    }
+
     if (want == nullptr) {
         HILOG_ERROR("%{public}s:want is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
 
     if (targetRecord == nullptr) {
         HILOG_ERROR("%{public}s:targetRecord is nullptr.", __func__);
@@ -471,7 +510,7 @@ int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &targe
         return ERR_INVALID_VALUE;
     }
     want.reset(new (std::nothrow) Want(record->GetKey()->GetRequestWant()));
-    HILOG_ERROR("%{public}s:want is ok.", __func__);
+    HILOG_DEBUG("want is ok.");
     return NO_ERROR;
 }
 
@@ -482,11 +521,16 @@ int32_t PendingWantManager::GetWantSenderInfo(const sptr<IWantSender> &target, s
         HILOG_ERROR("%{public}s:target is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr || obj->IsProxyObject()) {
+        HILOG_ERROR("target obj is nullptr or is a proxy object.");
+        return ERR_INVALID_VALUE;
+    }
     if (info == nullptr) {
         HILOG_ERROR("%{public}s:info is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
-    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(target->AsObject());
+    sptr<PendingWantRecord> targetRecord = iface_cast<PendingWantRecord>(obj);
     auto record = GetPendingWantRecordByCode(targetRecord->GetKey()->GetCode());
     if (record == nullptr) {
         HILOG_ERROR("%{public}s:record is nullptr.", __func__);

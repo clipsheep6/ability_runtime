@@ -32,7 +32,7 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
     const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if ((token == nullptr) || (application == nullptr) || (handler == nullptr) || (record == nullptr) ||
         extension == nullptr) {
         HILOG_ERROR("ExtensionImpl::init failed, some object is nullptr");
@@ -41,10 +41,12 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
 
     token_ = record->GetToken();
     extension_ = extension;
-    if (record->GetAbilityInfo() != nullptr &&
-        AAFwk::UIExtensionUtils::IsUIExtension(record->GetAbilityInfo()->extensionAbilityType)) {
-        extension_->SetExtensionWindowLifeCycleListener(
-            sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
+    if (record->GetAbilityInfo() != nullptr) {
+        extensionType_ = record->GetAbilityInfo()->extensionAbilityType;
+        if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_)) {
+            extension_->SetExtensionWindowLifeCycleListener(
+                sptr<ExtensionWindowLifeCycleImpl>(new ExtensionWindowLifeCycleImpl(token_, shared_from_this())));
+        }
     }
     extension_->Init(record, application, handler, token);
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
@@ -62,10 +64,9 @@ void ExtensionImpl::Init(const std::shared_ptr<AppExecFwk::OHOSApplication> &app
 void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    HILOG_INFO("sourceState:%{public}d;targetState:%{public}d;isNewWant:%{public}d",
-        lifecycleState_,
-        targetState.state,
-        targetState.isNewWant);
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("sourceState:%{public}d;targetState:%{public}d;isNewWant:%{public}d",
+        lifecycleState_, targetState.state, targetState.isNewWant);
     if (lifecycleState_ == targetState.state) {
         HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
         return;
@@ -77,7 +78,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         case AAFwk::ABILITY_STATE_INITIAL: {
             bool isAsyncCallback = false;
             if (lifecycleState_ != AAFwk::ABILITY_STATE_INITIAL) {
-                Stop(isAsyncCallback);
+                Stop(isAsyncCallback, want, sessionInfo);
             }
             if (isAsyncCallback) {
                 ret = false;
@@ -98,7 +99,7 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
             break;
         }
         case AAFwk::ABILITY_STATE_BACKGROUND_NEW: {
-            Background();
+            Background(want, sessionInfo);
             break;
         }
         default: {
@@ -108,16 +109,22 @@ void ExtensionImpl::HandleExtensionTransaction(const Want &want, const AAFwk::Li
         }
     }
 
-    if (ret) {
-        HILOG_INFO("call abilityms");
+    if (ret && !UIExtensionAbilityExecuteInsightIntent(want)) {
+        HILOG_DEBUG("call abilityms");
         AAFwk::PacMap restoreData;
         AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, restoreData);
     }
 }
 
+bool ExtensionImpl::UIExtensionAbilityExecuteInsightIntent(const Want &want)
+{
+    return AAFwk::UIExtensionUtils::IsUIExtension(extensionType_) &&
+        AppExecFwk::InsightIntentExecuteParam::IsInsightIntentExecute(want);
+}
+
 void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration &config)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::ScheduleUpdateConfiguration extension_ is nullptr");
         return;
@@ -130,7 +137,7 @@ void ExtensionImpl::ScheduleUpdateConfiguration(const AppExecFwk::Configuration 
 
 void ExtensionImpl::NotifyMemoryLevel(int level)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::NotifyMemoryLevel extension_ is nullptr");
         return;
@@ -150,20 +157,21 @@ void ExtensionImpl::NotifyMemoryLevel(int level)
  */
 void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    HILOG_INFO("call");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Start extension_ is nullptr");
         return;
     }
 
-    HILOG_INFO("ExtensionImpl::Start");
+    HILOG_DEBUG("ExtensionImpl::Start");
     if (extension_->abilityInfo_->extensionAbilityType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         extension_->OnStart(want, sessionInfo);
     } else {
         extension_->OnStart(want);
     }
     lifecycleState_ = AAFwk::ABILITY_STATE_INACTIVE;
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 }
 
 /**
@@ -173,7 +181,7 @@ void ExtensionImpl::Start(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo
  */
 void ExtensionImpl::Stop()
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Stop extension_ is nullptr");
         return;
@@ -181,16 +189,21 @@ void ExtensionImpl::Stop()
 
     extension_->OnStop();
     lifecycleState_ = AAFwk::ABILITY_STATE_INITIAL;
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 }
 
-void ExtensionImpl::Stop(bool &isAsyncCallback)
+void ExtensionImpl::Stop(bool &isAsyncCallback, const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    HILOG_INFO("call");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Stop extension_ is nullptr");
         isAsyncCallback = false;
         return;
+    }
+
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_) && sessionInfo != nullptr) {
+        CommandExtensionWindow(want, sessionInfo, AAFwk::WIN_CMD_DESTROY);
     }
 
     auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<>::Create();
@@ -223,7 +236,7 @@ void ExtensionImpl::Stop(bool &isAsyncCallback)
 
 void ExtensionImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleState &state)
 {
-    HILOG_INFO("call abilityms");
+    HILOG_DEBUG("called");
     AAFwk::PacMap restoreData;
     AAFwk::AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, restoreData);
 }
@@ -236,23 +249,23 @@ void ExtensionImpl::AbilityTransactionCallback(const AAFwk::AbilityLifeCycleStat
  */
 sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::ConnectAbility extension_ is nullptr");
         return nullptr;
     }
-    
+
     skipCommandExtensionWithIntent_ = true;
     sptr<IRemoteObject> object = extension_->OnConnect(want);
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 
     return object;
 }
 
 sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want, bool &isAsyncCallback)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::ConnectAbility extension_ is nullptr");
         isAsyncCallback = false;
@@ -287,7 +300,7 @@ sptr<IRemoteObject> ExtensionImpl::ConnectExtension(const Want &want, bool &isAs
         AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Destroy(callbackInfo);
     }
     // else: callbackInfo will be destroyed after the async callback
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
     return object;
 }
 
@@ -306,14 +319,14 @@ void ExtensionImpl::ConnectExtensionCallback(sptr<IRemoteObject> &service)
  */
 void ExtensionImpl::DisconnectExtension(const Want &want)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::DisconnectAbility extension_ is nullptr");
         return;
     }
 
     extension_->OnDisconnect(want);
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 }
 
 void ExtensionImpl::DisconnectExtension(const Want &want, bool &isAsyncCallback)
@@ -372,7 +385,7 @@ void ExtensionImpl::DisconnectExtensionCallback()
  */
 void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::CommandAbility extension_ is nullptr");
         return;
@@ -382,12 +395,12 @@ void ExtensionImpl::CommandExtension(const Want &want, bool restart, int startId
         extension_->OnCommand(want, restart, startId);
     }
     lifecycleState_ = AAFwk::ABILITY_STATE_ACTIVE;
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 }
 
 bool ExtensionImpl::HandleInsightIntent(const Want &want)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::HandleInsightIntent extension_ is nullptr");
         return false;
@@ -397,21 +410,23 @@ bool ExtensionImpl::HandleInsightIntent(const Want &want)
         HILOG_ERROR("ExtensionImpl::extension HandleInsightIntent failed");
         return false;
     }
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
     return true;
 }
 
 void ExtensionImpl::CommandExtensionWindow(const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
-    HILOG_INFO("call");
-    if (extension_ == nullptr) {
-        HILOG_ERROR("extension_ is nullptr");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (extension_ == nullptr || sessionInfo == nullptr) {
+        HILOG_ERROR("extension_ or sessionInfo is nullptr");
         return;
     }
 
+    HILOG_DEBUG("persistentId: %{private}d, componentId: %{public}" PRId64 ", winCmd: %{public}d",
+        sessionInfo->persistentId, sessionInfo->uiExtensionComponentId, winCmd);
     extension_->OnCommandWindow(want, sessionInfo, winCmd);
-    HILOG_INFO("ok");
+    HILOG_DEBUG("ok");
 }
 
 void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resultData)
@@ -428,6 +443,7 @@ void ExtensionImpl::SendResult(int requestCode, int resultCode, const Want &resu
 
 void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ExtensionImpl::Foreground begin");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Foreground ability is nullptr");
@@ -438,13 +454,19 @@ void ExtensionImpl::Foreground(const Want &want, sptr<AAFwk::SessionInfo> sessio
     lifecycleState_ = AAFwk::ABILITY_STATE_FOREGROUND_NEW;
 }
 
-void ExtensionImpl::Background()
+void ExtensionImpl::Background(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("ExtensionImpl::Background begin");
     if (extension_ == nullptr) {
         HILOG_ERROR("ExtensionImpl::Background ability is nullptr");
         return;
     }
+
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType_) && sessionInfo != nullptr) {
+        CommandExtensionWindow(want, sessionInfo, AAFwk::WIN_CMD_BACKGROUND);
+    }
+
     extension_->OnBackground();
     lifecycleState_ = AAFwk::ABILITY_STATE_BACKGROUND_NEW;
 }

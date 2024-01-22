@@ -54,7 +54,7 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr int32_t TRACE_ATOMIC_SERVICE_ID = 201;
 const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
-
+constexpr int32_t CALLER_TIME_OUT = 10; // 10s
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
 int64_t g_serialNumber = 0;
@@ -76,7 +76,7 @@ void RemoveConnection(int64_t connectId)
         HILOG_DEBUG("remove connection ability not exist");
     }
 }
-}
+
 class StartAbilityByCallParameters {
 public:
     int err = 0;
@@ -86,9 +86,96 @@ public:
     std::condition_variable condition;
 };
 
+void GenerateCallerCallBack(std::shared_ptr<StartAbilityByCallParameters> calls,
+    std::shared_ptr<CallerCallBack> callerCallBack)
+{
+    if (calls == nullptr) {
+        HILOG_ERROR("calls is nullptr");
+        return;
+    }
+    if (callerCallBack == nullptr) {
+        HILOG_ERROR("callerCallBack is nullptr");
+        return;
+    }
+    auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
+        HILOG_DEBUG("OnStartAbilityByCall callBackDone mutexlock");
+        std::unique_lock<std::mutex> lock(calldata->mutexlock);
+        HILOG_DEBUG("OnStartAbilityByCall callBackDone remoteCallee assignment");
+        calldata->remoteCallee = obj;
+        calldata->condition.notify_all();
+        HILOG_DEBUG("OnStartAbilityByCall callBackDone is called end");
+    };
+
+    auto releaseListen = [](const std::string &str) {
+        HILOG_INFO("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
+    };
+
+    callerCallBack->SetCallBack(callBackDone);
+    callerCallBack->SetOnRelease(releaseListen);
+}
+
+void StartAbilityByCallExecuteDone(std::shared_ptr<StartAbilityByCallParameters> calldata)
+{
+    if (calldata == nullptr) {
+        HILOG_ERROR("calldata is nullptr.");
+        return;
+    }
+    std::unique_lock<std::mutex> lock(calldata->mutexlock);
+    if (calldata->remoteCallee != nullptr) {
+        HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t nullptr");
+        return;
+    }
+
+    if (calldata->condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
+        HILOG_ERROR("OnStartAbilityByCall callExecute waiting callee timeout");
+        calldata->err = -1;
+    }
+    HILOG_DEBUG("OnStartAbilityByCall callExecute end");
+}
+
+void StartAbilityByCallComplete(napi_env env, NapiAsyncTask& task, std::weak_ptr<AbilityContext> abilityContext,
+    std::shared_ptr<StartAbilityByCallParameters> calldata, std::shared_ptr<CallerCallBack> callerCallBack)
+{
+    if (calldata == nullptr) {
+        HILOG_ERROR("calldata is nullptr.");
+        return;
+    }
+    if (calldata->err != 0) {
+        HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
+        task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+        HILOG_DEBUG("clear failed call of startup is called.");
+        auto context = abilityContext.lock();
+        if (context == nullptr || callerCallBack == nullptr) {
+            HILOG_ERROR("clear failed call of startup input param is nullptr.");
+            return;
+        }
+        context->ClearFailedCallConnection(callerCallBack);
+        return;
+    }
+    auto context = abilityContext.lock();
+    if (context == nullptr || callerCallBack == nullptr || calldata->remoteCallee == nullptr) {
+        HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
+            context == nullptr ? "context" : (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
+        task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+        HILOG_DEBUG("OnStartAbilityByCall callComplete end");
+        return;
+    }
+    auto releaseCallAbilityFunc = [abilityContext] (const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
+        auto contextForRelease = abilityContext.lock();
+        if (contextForRelease == nullptr) {
+            HILOG_ERROR("releaseCallAbilityFunction, context is nullptr");
+            return -1;
+        }
+        return contextForRelease->ReleaseCall(callback);
+    };
+    task.Resolve(env, CreateJsCallerComplex(env, releaseCallAbilityFunc, calldata->remoteCallee, callerCallBack));
+    HILOG_DEBUG("OnStartAbilityByCall callComplete end");
+}
+}
+
 void JsAbilityContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_INFO("JsAbilityContext::Finalizer is called");
+    HILOG_DEBUG("called");
     std::unique_ptr<JsAbilityContext>(static_cast<JsAbilityContext*>(data));
 }
 
@@ -234,7 +321,7 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
-    HILOG_INFO("StartAbility, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbility start options is used.");
@@ -421,112 +508,71 @@ napi_value JsAbilityContext::OnStartAbilityWithAccount(napi_env env, NapiCallbac
     return result;
 }
 
-napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo& info)
+bool JsAbilityContext::CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info,
+    AAFwk::Want &want, int32_t &userId, napi_value &lastParam)
 {
-    HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
     if (info.argc < ARGC_ONE) {
         ThrowTooFewParametersError(env);
-        return CreateJsUndefined(env);
+        return false;
     }
 
-    AAFwk::Want want;
     if (!CheckTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object) ||
         !AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
         HILOG_ERROR("Failed to parse want!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return CreateJsUndefined(env);
+        return false;
     }
+
     InheritWindowMode(want);
 
-    std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
-    napi_value lastParam = nullptr;
-    napi_value retsult = nullptr;
-    int32_t userId = DEFAULT_INVAL_VALUE;
-    if (info.argc > ARGC_ONE) {
-        if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_number)) {
-            if (!ConvertFromJsValue(env, info.argv[INDEX_ONE], userId)) {
-                HILOG_ERROR("Failed to parse accountId!");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-                return CreateJsUndefined(env);
-            }
-        } else if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function)) {
-            lastParam = info.argv[INDEX_ONE];
-        } else {
-            HILOG_ERROR("Failed, input param type invalid");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-            return CreateJsUndefined(env);
-        }
+    if (info.argc == ARGC_ONE) {
+        return true;
+    }
+    bool paramOneIsNumber = CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_number);
+    bool paramOneIsFunction = CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_function);
+    if (!paramOneIsNumber && !paramOneIsFunction) {
+        HILOG_ERROR("Failed, input param type invalid");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return false;
+    }
+    if (paramOneIsNumber && !ConvertFromJsValue(env, info.argv[INDEX_ONE], userId)) {
+        HILOG_ERROR("Failed to parse accountId!");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return false;
+    }
+    if (paramOneIsFunction) {
+        lastParam = info.argv[INDEX_ONE];
     }
 
     if (info.argc > ARGC_TWO && CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
         lastParam = info.argv[INDEX_TWO];
     }
+    return true;
+}
 
-    auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
-        HILOG_DEBUG("OnStartAbilityByCall callBackDone mutexlock");
-        std::unique_lock<std::mutex> lock(calldata->mutexlock);
-        HILOG_DEBUG("OnStartAbilityByCall callBackDone remoteCallee assignment");
-        calldata->remoteCallee = obj;
-        calldata->condition.notify_all();
-        HILOG_DEBUG("OnStartAbilityByCall callBackDone is called end");
-    };
+napi_value JsAbilityContext::OnStartAbilityByCall(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("JsAbilityContext::%{public}s, called", __func__);
+    // 1. check params
+    napi_value lastParam = nullptr;
+    int32_t userId = DEFAULT_INVAL_VALUE;
+    AAFwk::Want want;
+    if (!CheckStartAbilityByCallParams(env, info, want, userId, lastParam)) {
+        return CreateJsUndefined(env);
+    }
 
-    auto releaseListen = [](const std::string &str) {
-        HILOG_INFO("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
-    };
-
-    auto callExecute = [calldata = calls] () {
-        constexpr int CALLER_TIME_OUT = 10; // 10s
-        std::unique_lock<std::mutex> lock(calldata->mutexlock);
-        if (calldata->remoteCallee != nullptr) {
-            HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t nullptr");
-            return;
-        }
-
-        if (calldata->condition.wait_for(lock, std::chrono::seconds(CALLER_TIME_OUT)) == std::cv_status::timeout) {
-            HILOG_ERROR("OnStartAbilityByCall callExecute waiting callee timeout");
-            calldata->err = -1;
-        }
-        HILOG_DEBUG("OnStartAbilityByCall callExecute end");
-    };
-
+    // 2. create CallBack function
+    std::shared_ptr<StartAbilityByCallParameters> calls = std::make_shared<StartAbilityByCallParameters>();
+    auto callExecute = [calldata = calls] () { StartAbilityByCallExecuteDone(calldata); };
     auto callerCallBack = std::make_shared<CallerCallBack>();
+    GenerateCallerCallBack(calls, callerCallBack);
     auto callComplete = [weak = context_, calldata = calls, callerCallBack] (
         napi_env env, NapiAsyncTask& task, int32_t status) {
-        if (calldata->err != 0) {
-            HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
-            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-            ClearFailedCallConnection(weak, callerCallBack);
-            return;
-        }
-
-        auto context = weak.lock();
-        if (context != nullptr && callerCallBack != nullptr && calldata->remoteCallee != nullptr) {
-            auto releaseCallAbilityFunc = [weak] (
-                const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
-                auto contextForRelease = weak.lock();
-                if (contextForRelease == nullptr) {
-                    HILOG_ERROR("releaseCallAbilityFunction, context is nullptr");
-                    return -1;
-                }
-                return contextForRelease->ReleaseCall(callback);
-            };
-            task.Resolve(env,
-                CreateJsCallerComplex(
-                    env, releaseCallAbilityFunc, calldata->remoteCallee, callerCallBack));
-        } else {
-            HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
-                context == nullptr ? "context" :
-                    (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
-            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
-        }
-
-        HILOG_DEBUG("OnStartAbilityByCall callComplete end");
+        StartAbilityByCallComplete(env, task, weak, calldata, callerCallBack);
     };
 
-    callerCallBack->SetCallBack(callBackDone);
-    callerCallBack->SetOnRelease(releaseListen);
-
+    // 3. StartAbilityByCall
+    napi_value retsult = nullptr;
     auto context = context_.lock();
     if (context == nullptr) {
         HILOG_ERROR("OnStartAbilityByCall context is nullptr");
@@ -892,6 +938,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
 
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_INFO("TerminateSelfWithResult async");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -1098,6 +1145,7 @@ napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo& inf
 
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_INFO("TerminateSelf async");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -1244,7 +1292,7 @@ napi_value JsAbilityContext::WrapRequestDialogResult(napi_env env,
 
 void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 {
-    HILOG_INFO("InheritWindowMode");
+    HILOG_DEBUG("called");
 #ifdef SUPPORT_GRAPHICS
     // only split mode need inherit
     auto context = context_.lock();
@@ -1266,7 +1314,7 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 void JsAbilityContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_INFO("ConfigurationUpdated");
+    HILOG_DEBUG("called");
     if (jsContext == nullptr || config == nullptr) {
         HILOG_INFO("jsContext is nullptr.");
         return;
@@ -1512,7 +1560,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;

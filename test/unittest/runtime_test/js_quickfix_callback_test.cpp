@@ -46,7 +46,6 @@ void JsQuickfixCallbackTest::TearDown()
  * @tc.name: JsQuickfixCallbackTest_0100
  * @tc.desc: JsQuickfixCallbackTest Test
  * @tc.type: FUNC
- * @tc.require: 
  */
 HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0100, TestSize.Level0)
 {
@@ -68,7 +67,6 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0100, TestSize.Level0)
  * @tc.name: JsQuickfixCallbackTest_0200
  * @tc.desc: JsQuickfixCallbackTest Test
  * @tc.type: FUNC
- * @tc.require: 
  */
 HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0200, TestSize.Level0)
 {
@@ -90,7 +88,6 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0200, TestSize.Level0)
  * @tc.name: JsQuickfixCallbackTest_0300
  * @tc.desc: JsQuickfixCallbackTest Test
  * @tc.type: FUNC
- * @tc.require: 
  */
 HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0300, TestSize.Level0)
 {
@@ -112,7 +109,6 @@ HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0300, TestSize.Level0)
  * @tc.name: JsQuickfixCallbackTest_0400
  * @tc.desc: JsQuickfixCallbackTest Test
  * @tc.type: FUNC
- * @tc.require: 
  */
 HWTEST_F(JsQuickfixCallbackTest, JsQuickfixCallbackTest_0400, TestSize.Level0)
 {

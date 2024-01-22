@@ -154,8 +154,8 @@ ErrCode AppMgrService::Init()
     return ERR_OK;
 }
 
-int32_t AppMgrService::CheckPermission(
-    [[maybe_unused]] const int32_t recordId, [[maybe_unused]] const std::string &permission)
+int32_t AppMgrService::CheckPermission([[maybe_unused]]
+    const int32_t recordId, [[maybe_unused]] const std::string &permission)
 {
     HILOG_INFO("check application's permission");
 
@@ -164,14 +164,13 @@ int32_t AppMgrService::CheckPermission(
 
 void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
 {
-    HILOG_INFO("LoadLifecycle: appMGR receives a binding request.");
+    HILOG_DEBUG("called");
     if (!IsReady()) {
         HILOG_ERROR("AttachApplication failed, not ready.");
         return;
     }
 
     pid_t pid = IPCSkeleton::GetCallingPid();
-    AddAppDeathRecipient(pid);
     std::function<void()> attachApplicationFunc =
         std::bind(&AppMgrServiceInner::AttachApplication, appMgrServiceInner_, pid, iface_cast<IAppScheduler>(app));
     taskHandler_->SubmitTask(attachApplicationFunc, AAFwk::TaskAttribute{
@@ -185,7 +184,7 @@ void AppMgrService::ApplicationForegrounded(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function<void()> applicationForegroundedFunc =
@@ -201,7 +200,7 @@ void AppMgrService::ApplicationBackgrounded(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function<void()> applicationBackgroundedFunc =
@@ -217,7 +216,7 @@ void AppMgrService::ApplicationTerminated(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function<void()> applicationTerminatedFunc =
@@ -259,19 +258,6 @@ bool AppMgrService::IsReady() const
     return false;
 }
 
-void AppMgrService::AddAppDeathRecipient(const pid_t pid) const
-{
-    if (!IsReady()) {
-        return;
-    }
-    sptr<AppDeathRecipient> appDeathRecipient = new AppDeathRecipient();
-    appDeathRecipient->SetTaskHandler(taskHandler_);
-    appDeathRecipient->SetAppMgrServiceInner(appMgrServiceInner_);
-    std::function<void()> addAppRecipientFunc =
-        std::bind(&AppMgrServiceInner::AddAppDeathRecipient, appMgrServiceInner_, pid, appDeathRecipient);
-    taskHandler_->SubmitTask(addAppRecipientFunc, TASK_ADD_APP_DEATH_RECIPIENT);
-}
-
 void AppMgrService::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
 {
     if (!IsReady()) {
@@ -299,6 +285,9 @@ sptr<IAmsMgr> AppMgrService::GetAmsMgr()
 
 int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
     if (remoteClientManager == nullptr) {
         HILOG_ERROR("The remoteClientManager is nullptr.");
@@ -318,7 +307,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
             return ERR_INVALID_OPERATION;
         }
         auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        if (!isSaCall && bundleName != callerBundleName) {
+        if (!isSaCall) {
             auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
                 AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
             if (!isCallingPerm) {
@@ -327,16 +316,20 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
             }
         }
     }
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    appMgrServiceInner_->ClearUpApplicationData(bundleName, uid, pid, userId);
+    return ERR_OK;
+}
 
+int32_t AppMgrService::ClearUpApplicationDataBySelf(int32_t userId)
+{
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
     pid_t pid = IPCSkeleton::GetCallingPid();
-    std::function<void()> clearUpApplicationDataFunc =
-        std::bind(&AppMgrServiceInner::ClearUpApplicationData, appMgrServiceInner_, bundleName, uid, pid, userId);
-    taskHandler_->SubmitTask(clearUpApplicationDataFunc, TASK_CLEAR_UP_APPLICATION_DATA);
-    return ERR_OK;
+    return appMgrServiceInner_->ClearUpApplicationDataBySelf(uid, pid, userId);
 }
 
 int32_t AppMgrService::GetAllRunningProcesses(std::vector<RunningProcessInfo> &info)
@@ -408,7 +401,7 @@ void AppMgrService::AddAbilityStageDone(const int32_t recordId)
     if (!IsReady()) {
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     std::function <void()> addAbilityStageDone =
@@ -568,7 +561,7 @@ void AppMgrService::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::
         HILOG_ERROR("not ready");
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleAcceptWantDone(recordId, want, flag); };
@@ -582,7 +575,7 @@ void AppMgrService::ScheduleNewProcessRequestDone(const int32_t recordId, const 
         HILOG_ERROR("not ready");
         return;
     }
-    if (!JudgeSelfCalledByRecordId(recordId)) {
+    if (!JudgeAppSelfCalled(recordId)) {
         return;
     }
     auto task = [=]() { appMgrServiceInner_->ScheduleNewProcessRequestDone(recordId, want, flag); };
@@ -769,13 +762,8 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
     return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
 }
 
-bool AppMgrService::JudgeSelfCalledByRecordId(int32_t recordId)
+bool AppMgrService::JudgeAppSelfCalled(int32_t recordId)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
-        return true;
-    }
-
     if (appMgrServiceInner_ == nullptr) {
         return false;
     }

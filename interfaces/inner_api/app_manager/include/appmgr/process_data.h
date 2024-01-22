@@ -18,8 +18,8 @@
 
 #include <sys/types.h>
 
-#include "parcel.h"
 #include "iremote_object.h"
+#include "parcel.h"
 #include "running_process_info.h"
 
 namespace OHOS {

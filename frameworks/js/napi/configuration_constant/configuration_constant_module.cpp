@@ -46,6 +46,18 @@ static napi_value InitColorModeObject(napi_env env)
     return object;
 }
 
+static napi_value InitTimeFormatObject(napi_env env)
+{
+    napi_value object;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "HOUR_NOT_SET", Global::Resource::HOUR_NOT_SET));
+    NAPI_CALL(env, SetEnumItem(env, object, "HOUR_12", Global::Resource::HOUR_12));
+    NAPI_CALL(env, SetEnumItem(env, object, "HOUR_24", Global::Resource::HOUR_24));
+
+    return object;
+}
+
 static napi_value InitDirectionObject(napi_env env)
 {
     napi_value object;
@@ -82,6 +94,9 @@ static napi_value ConfigurationConstantInit(napi_env env, napi_value exports)
     napi_value colorMode = InitColorModeObject(env);
     NAPI_ASSERT(env, colorMode != nullptr, "failed to create color mode object");
 
+    napi_value time24 = InitTimeFormatObject(env);
+    NAPI_ASSERT(env, time24 != nullptr, "failed to create time format object");
+
     napi_value direction = InitDirectionObject(env);
     NAPI_ASSERT(env, direction != nullptr, "failed to create direction object");
 
@@ -90,6 +105,7 @@ static napi_value ConfigurationConstantInit(napi_env env, napi_value exports)
 
     napi_property_descriptor exportObjs[] = {
         DECLARE_NAPI_PROPERTY("ColorMode", colorMode),
+        DECLARE_NAPI_PROPERTY("Time24", time24),
         DECLARE_NAPI_PROPERTY("Direction", direction),
         DECLARE_NAPI_PROPERTY("ScreenDensity", screenDensity),
     };

@@ -87,7 +87,6 @@ class AbilityRuntimeErrorUtil {
 public:
     /**
      * @brief Throw an runtime exception for js.
-     *
      * @param engine js runtime engine.
      * @param errCode external errorcode.
      * @param errMessage error msg.
@@ -97,7 +96,6 @@ public:
 
     /**
      * @brief Throw an runtime exception for js with internal error code.
-     *
      * @param engine js runtime engine.
      * @param errCode internal errorcode.
      * @return true if success.
@@ -106,7 +104,6 @@ public:
 
     /**
      * @brief Create a Error By Internal errorCode
-     *
      * @param engine js runtime engine.
      * @param errCode internal errorcode.
      * @return js error object.
@@ -115,7 +112,6 @@ public:
 
     /**
      * @brief Get error message By error code
-     * 
      * @param errCode internal errorcode.
      * @return error message.
      */

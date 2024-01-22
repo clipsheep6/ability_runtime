@@ -44,8 +44,6 @@ struct VerificationInfo {
 
     bool IsShellCall() const;
 
-    bool IsGatewayCall() const;
-
     bool CheckSpecificSystemAbilityAccessPermission() const;
 
     bool VerifyRunningInfoPerm() const;
@@ -91,8 +89,6 @@ struct VerificationInfo {
     bool VerifyPrepareTerminatePermission() const;
 
     bool VerifyPrepareTerminatePermission(const int &tokenId) const;
-
-    bool VerifyStartAbilityWithAnimationPermission() const;
 
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);

@@ -1141,5 +1141,19 @@ HWTEST_F(ApplicationContextTest, CreateModuleResourceManager_0100, TestSize.Leve
     EXPECT_EQ(ret, nullptr);
     GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 end";
 }
+
+/**
+ * @tc.number: GetAllTempDir_0100
+ * @tc.name: GetAllTempDir
+ * @tc.desc: GetAllTempDir
+ */
+HWTEST_F(ApplicationContextTest, GetAllTempDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetAllTempDir_0100 start";
+    std::vector<std::string> tempPaths;
+    context_->GetAllTempDir(tempPaths);
+    EXPECT_NE(context_, nullptr);
+    GTEST_LOG_(INFO) << "GetAllTempDir_0100 end";
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

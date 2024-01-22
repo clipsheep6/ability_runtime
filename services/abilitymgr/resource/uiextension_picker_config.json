@@ -3,6 +3,10 @@
         {
             "type": "share",
             "typePicker": "sysPicker/share"
+        },
+        {
+            "type": "photoPicker",
+            "typePicker": "sysPicker/photoPicker"
         }
     ]
 }

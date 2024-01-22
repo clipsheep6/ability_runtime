@@ -143,9 +143,9 @@ export default {
     Logger.log(`FormAbility onCreate, want: ${JSON.stringify(want)}`);
 
     // get form info
-    let formId = want.parameters[FORM_PARAM_IDENTITY_KEY];
-    let formName = want.parameters[FORM_PARAM_NAME_KEY];
-    let tempFlag = want.parameters[FORM_PARAM_TEMPORARY_KEY];
+    let formId = want.parameters[FORM_PARAM_IDENTITY_KEY].toString();
+    let formName = want.parameters[FORM_PARAM_NAME_KEY].toString();
+    let tempFlag = want.parameters[FORM_PARAM_TEMPORARY_KEY] as boolean;
     storeFormInfo(formId, formName, tempFlag);
 
     let obj = {

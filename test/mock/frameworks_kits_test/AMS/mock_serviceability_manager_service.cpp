@@ -90,7 +90,7 @@ int MockServiceAbilityManagerService::ConnectAbility(
     return -1;
 }
 
-int MockServiceAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockServiceAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     GTEST_LOG_(INFO) << "MockServiceAbilityManagerService::DisconnectAbility";
     if (abilityScheduler_ != nullptr) {

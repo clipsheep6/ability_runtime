@@ -22,8 +22,6 @@
 #include <thread>
 #include <unordered_map>
 
-#include "EventHandler.h"
-#include "StageContext.h"
 #include "ability_context.h"
 #include "ability_stage_context.h"
 #include "bundle_container.h"
@@ -98,6 +96,7 @@ public:
     void TerminateAbility(int64_t abilityId) override;
     void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
     void SetMockList(const std::map<std::string, std::string> &mockList) override;
+    void SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb) override;
 private:
     bool OnInit();
     void Run();
@@ -136,6 +135,7 @@ private:
     std::shared_ptr<AppExecFwk::ApplicationInfo> appInfo_;
     std::shared_ptr<AppExecFwk::HapModuleInfo> moduleInfo_;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
+    CallbackTypePostTask postTask_ = nullptr;
 };
 
 void DebuggerTask::HandleTask(const uv_async_t *req)
@@ -188,6 +188,7 @@ bool SimulatorImpl::Initialize(const Options &options)
     }
 
     options_ = options;
+    postTask_ = options.postTask;
     if (!OnInit()) {
         return false;
     }
@@ -662,7 +663,6 @@ bool SimulatorImpl::OnInit()
         return false;
     }
 
-    SetHostResolveBufferTracker();
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, (options_.debugPort != 0), options_.debugPort};
     panda::JSNApi::StartDebugger(vm_, debugOption, 0,
         std::bind(&DebuggerTask::OnPostTask, &debuggerTask_, std::placeholders::_1));
@@ -768,9 +768,9 @@ void SimulatorImpl::Run()
         uv_run(uvLoop, UV_RUN_NOWAIT);
     }
 
-    AppExecFwk::EventHandler::PostTask([this]() {
-        Run();
-    });
+    if (postTask_ != nullptr) {
+        postTask_([this]() { Run(); }, 0);
+    }
 }
 }
 
@@ -783,26 +783,13 @@ std::unique_ptr<Simulator> Simulator::Create(const Options &options)
     return nullptr;
 }
 
-void SimulatorImpl::SetHostResolveBufferTracker()
+void SimulatorImpl::SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb)
 {
-    panda::JSNApi::SetHostResolveBufferTracker(vm_,
-        [](const std::string &inputPath, uint8_t **buff, size_t *buffSize) -> bool {
-            if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
-                HILOG_ERROR("Param invalid.");
-                return false;
-            }
-
-            HILOG_DEBUG("Get module buffer, input path: %{public}s.", inputPath.c_str());
-            auto data = Ide::StageContext::GetInstance().GetModuleBuffer(inputPath);
-            if (data == nullptr) {
-                HILOG_ERROR("Get module buffer failed, input path: %{public}s.", inputPath.c_str());
-                return false;
-            }
-
-            *buff = data->data();
-            *buffSize = data->size();
-            return true;
-        });
+    if (vm_ == nullptr || cb == nullptr) {
+        HILOG_ERROR("Params invalid.");
+        return;
+    }
+    panda::JSNApi::SetHostResolveBufferTracker(vm_, cb);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

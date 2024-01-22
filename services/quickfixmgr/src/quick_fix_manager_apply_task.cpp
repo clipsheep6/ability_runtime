@@ -784,7 +784,6 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixTask()
             HILOG_ERROR("Revoke task is nullptr.");
             return;
         }
-
         if (applyTask->GetRunningState()) {
             applyTask->HandleRevokeQuickFixAppRunning();
             return;

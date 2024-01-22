@@ -125,7 +125,7 @@ bool AbilityContextImpl::PrintDrawnCompleted()
 
 void AbilityContextImpl::SwitchArea(int mode)
 {
-    HILOG_INFO("mode:%{public}d.", mode);
+    HILOG_DEBUG("mode:%{public}d.", mode);
     if (stageContext_ != nullptr) {
         stageContext_->SwitchArea(mode);
     }
@@ -308,7 +308,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
-    HILOG_DEBUG("TerminateAbilityWithResult");
+    HILOG_INFO("TerminateAbilityWithResult");
     isTerminating_ = true;
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -510,7 +510,7 @@ ErrCode AbilityContextImpl::MoveAbilityToBackground()
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
-    HILOG_DEBUG("TerminateSelf");
+    HILOG_INFO("TerminateSelf");
     isTerminating_ = true;
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
@@ -600,14 +600,17 @@ void AbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerC
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     abilityCallback_ = abilityCallback;
 }
 
 ErrCode AbilityContextImpl::RequestDialogService(napi_env env, AAFwk::Want &want, RequestDialogResultTask &&task)
 {
     want.SetParam(RequestConstants::REQUEST_TOKEN_KEY, token_);
-    int32_t left, top, width, height;
+    int32_t left;
+    int32_t top;
+    int32_t width;
+    int32_t height;
     GetWindowRect(left, top, width, height);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, left);
     want.SetParam(RequestConstants::WINDOW_RECTANGLE_TOP_KEY, top);

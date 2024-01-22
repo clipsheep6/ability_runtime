@@ -467,11 +467,14 @@ private:
 
     void DoForegroundUIExtension(std::shared_ptr<AbilityRecord> abilityRecord, const AbilityRequest &abilityRequest);
     void SaveUIExtRequestSessionInfo(std::shared_ptr<AbilityRecord> abilityRecord, sptr<SessionInfo> sessionInfo);
+    void DoBackgroundAbilityWindow(const std::shared_ptr<AbilityRecord> &abilityRecord,
+        const sptr<SessionInfo> &sessionInfo);
+    void DoTerminateUIExtensionAbility(std::shared_ptr<AbilityRecord> abilityRecord, sptr<SessionInfo> sessionInfo);
 
     /**
      * When a service is under starting, enque the request and handle it after the service starting completes
      */
-    void EnqueueStartServiceReq(const AbilityRequest &abilityRequest);
+    void EnqueueStartServiceReq(const AbilityRequest &abilityRequest, const std::string &serviceUri = "");
     /**
      * After the service starting completes, complete the request list
      */
@@ -503,6 +506,7 @@ private:
     void DisconnectRecordForce(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord);
     std::shared_ptr<AbilityRecord> GetServiceRecordByElementNameInner(const std::string &element);
     std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(int32_t abilityRecordId);
     std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token);
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
@@ -514,6 +518,9 @@ private:
     inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int32_t GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest, bool isCreatedByConnect,
         const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded);
+    int32_t GetOrCreateTargetServiceRecord(
+        const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
+        std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

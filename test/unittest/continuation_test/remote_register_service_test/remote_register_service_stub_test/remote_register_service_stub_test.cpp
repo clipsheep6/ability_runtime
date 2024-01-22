@@ -36,9 +36,6 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-
-protected:
-
 };
 
 void RemoteRegisterServiceStubTest::SetUpTestCase(void)

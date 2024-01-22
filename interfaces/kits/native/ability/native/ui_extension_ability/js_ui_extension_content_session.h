@@ -60,6 +60,7 @@ public:
 
     static napi_value StartAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
+    static napi_value GetUIExtensionHostWindowProxy(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
@@ -74,6 +75,7 @@ public:
 protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetUIExtensionHostWindowProxy(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
@@ -95,7 +97,7 @@ protected:
         napi_env env, NapiCallbackInfo& info, std::shared_ptr<int> &innerErrorCode);
     void StartAbilityForResultRuntimeTask(napi_env env, AAFwk::Want &want,
         std::shared_ptr<NapiAsyncTask> asyncTask, size_t& unwrapArgc, AAFwk::StartOptions startOptions);
-    
+
 private:
     sptr<AAFwk::SessionInfo> sessionInfo_;
     sptr<Rosen::Window> uiWindow_;
@@ -106,6 +108,7 @@ private:
     bool isSyncRegistered = false;
     std::shared_ptr<UISessionAbilityResultListener> listener_;
     sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
+    bool isFirstTriggerBindModal_ = true;
 };
 
 class JsUIExtensionContentSession::CallbackWrapper {

@@ -35,8 +35,9 @@ public:
     MOCK_METHOD3(GetHapModuleInfo,
         bool(const AppExecFwk::AbilityInfo &abilityInfo, int32_t userId, AppExecFwk::HapModuleInfo &hapModuleInfo));
     MOCK_METHOD1(GetAppType, std::string(const std::string &bundleName));
-    MOCK_METHOD2(GetBaseSharedBundleInfos,
-        ErrCode(const std::string &bundleName, std::vector<AppExecFwk::BaseSharedBundleInfo> &baseSharedBundleInfos));
+    MOCK_METHOD3(GetBaseSharedBundleInfos,
+        ErrCode(const std::string &bundleName, std::vector<AppExecFwk::BaseSharedBundleInfo> &baseSharedBundleInfos,
+        AppExecFwk::GetDependentBundleInfoFlag flag));
     MOCK_METHOD2(GetBundleInfoForSelf, ErrCode(int32_t flags, AppExecFwk::BundleInfo &bundleInfo));
 
     sptr<AppExecFwk::IOverlayManager> GetOverlayManagerProxy()

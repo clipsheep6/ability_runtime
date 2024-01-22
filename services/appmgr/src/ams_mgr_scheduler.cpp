@@ -73,7 +73,7 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
         return;
     }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
-    HILOG_INFO("SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(), abilityInfo->name.c_str());
+    HILOG_DEBUG("SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(), abilityInfo->name.c_str());
     std::function<void()> loadAbilityFunc =
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
 

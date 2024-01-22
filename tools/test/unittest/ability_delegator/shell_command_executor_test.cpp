@@ -60,7 +60,7 @@ HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0100, TestSize.Le
 {
     GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0100 start";
     Command_->cmd_ = "";
-    EXPECT_EQ(Command_->DoWork(),false);
+    EXPECT_EQ(Command_->DoWork(), false);
     GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0100 end";
 }
 
@@ -73,7 +73,7 @@ HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0200, TestSize.Le
 {
     GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0200 start";
     Command_->handler_ = nullptr;
-    EXPECT_EQ(Command_->DoWork(),false);
+    EXPECT_EQ(Command_->DoWork(), false);
     GTEST_LOG_(INFO) << "ShellCommandExecutor_DoWork_0200 end";
 }
 
@@ -96,7 +96,7 @@ HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0300, TestSize.Le
 /**
  * @tc.number: ShellCommandExecutor_DoWork_0400
  * @tc.name: DoWork
- * @tc.desc: Verify that PostTask conditions are met and cmd_ Exception, calling DoWork function branch 
+ * @tc.desc: Verify that PostTask conditions are met and cmd_ Exception, calling DoWork function branch
  *           failed to reach coverage.
  */
 HWTEST_F(ShellCommandExecutorTest, ShellCommandExecutor_DoWork_0400, TestSize.Level1)

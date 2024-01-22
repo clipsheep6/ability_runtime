@@ -56,8 +56,7 @@ public:
 
     int MockGetCurrentState()
     {
-        int value;
-        value = GetCurrentState();
+        int value = GetCurrentState();
         return value;
     }
 

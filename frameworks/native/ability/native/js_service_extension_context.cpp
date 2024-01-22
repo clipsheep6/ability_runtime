@@ -1100,7 +1100,7 @@ void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
 void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityConnectDone begin, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("resultCode:%{public}d", resultCode);
     // wrap ElementName
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
 

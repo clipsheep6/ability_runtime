@@ -107,7 +107,7 @@ int MockAbilityManagerService::ConnectAbility(
     return 0;
 }
 
-int MockAbilityManagerService::DisconnectAbility(const sptr<IAbilityConnection>& connect)
+int MockAbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
 {
     GTEST_LOG_(INFO) << "MockAbilityManagerService::DisconnectAbility";
     AbilityLifeCycleState lifeState = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;

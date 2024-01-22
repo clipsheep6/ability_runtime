@@ -230,6 +230,11 @@ std::map<int, int> DataAbilityOperation::GetDataAbilityPredicatesBackReferences(
     HILOG_DEBUG("DataAbilityOperation::GetDataAbilityPredicatesBackReferences");
     return dataAbilityPredicatesBackReferences_;
 }
+bool DataAbilityOperation::IsValidOperation() const
+{
+    HILOG_DEBUG("DataAbilityOperation::IsValidOperation: type is %{public}d", type_);
+    return (type_ == TYPE_INSERT || type_ == TYPE_UPDATE || type_ == TYPE_DELETE || type_ == TYPE_ASSERT);
+}
 bool DataAbilityOperation::IsInsertOperation() const
 {
     HILOG_DEBUG("DataAbilityOperation::IsInsertOperation: %{public}d", type_ == TYPE_INSERT);
@@ -255,116 +260,123 @@ bool DataAbilityOperation::IsInterruptionAllowed() const
     HILOG_DEBUG("DataAbilityOperation::IsInterruptionAllowed: %{public}d", interrupted_);
     return interrupted_;
 }
+
+bool DataAbilityOperation::WriteUri(Parcel &out) const
+{
+    if (uri_ == nullptr) {
+        HILOG_DEBUG("Uri is nullptr");
+        return out.WriteInt32(VALUE_NULL);
+    }
+    if (!out.WriteInt32(VALUE_OBJECT)) {
+        HILOG_ERROR("Write VALUE_OBJECT error");
+        return false;
+    }
+    if (!out.WriteParcelable(uri_.get())) {
+        HILOG_ERROR("Write Uri error");
+        return false;
+    }
+    return true;
+}
+
+bool DataAbilityOperation::WriteValuesBucket(Parcel &out) const
+{
+    if (valuesBucket_ == nullptr) {
+        HILOG_DEBUG("ValuesBucket is nullptr");
+        return out.WriteInt32(VALUE_NULL);
+    }
+    if (!out.WriteInt32(VALUE_OBJECT)) {
+        HILOG_ERROR("Write VALUE_OBJECT error");
+        return false;
+    }
+    if (!valuesBucket_->Marshalling(out)) {
+        HILOG_ERROR("Write ValuesBucket error");
+        return false;
+    }
+    return true;
+}
+
+bool DataAbilityOperation::WritePredicates(Parcel &out) const
+{
+    if (dataAbilityPredicates_ == nullptr) {
+        HILOG_DEBUG("DataAbilityPredicates is nullptr");
+        return out.WriteInt32(VALUE_NULL);
+    }
+    if (!out.WriteInt32(VALUE_OBJECT)) {
+        HILOG_ERROR("Write VALUE_OBJECT error");
+        return false;
+    }
+    if (!out.WriteParcelable(dataAbilityPredicates_.get())) {
+        HILOG_ERROR("Write DataAbilityPredicates error");
+        return false;
+    }
+    return true;
+}
+
+bool DataAbilityOperation::WriteValuesBucketReferences(Parcel &out) const
+{
+    if (valuesBucketReferences_ == nullptr) {
+        HILOG_DEBUG("ValuesBucketReferences is nullptr");
+        return out.WriteInt32(VALUE_NULL);
+    }
+    if (!out.WriteInt32(VALUE_OBJECT)) {
+        HILOG_ERROR("Write VALUE_OBJECT error");
+        return false;
+    }
+    if (!valuesBucketReferences_->Marshalling(out)) {
+        HILOG_ERROR("ValuesBucketReferences Marshalling error");
+        return false;
+    }
+    return true;
+}
+
 bool DataAbilityOperation::Marshalling(Parcel &out) const
 {
     HILOG_DEBUG("DataAbilityOperation::Marshalling start");
     if (!out.WriteInt32(type_)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(type_) error");
+        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(type) error");
         return false;
     }
     if (!out.WriteInt32(expectedCount_)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(expectedCount) error");
         return false;
     }
-
     if (!out.WriteBool(interrupted_)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(interrupted) error");
         return false;
     }
-
-    if (uri_ != nullptr) {
-        if (!out.WriteInt32(VALUE_OBJECT)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-
-        if (!out.WriteParcelable(uri_.get())) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-    } else {
-        if (!out.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
+    if (!WriteUri(out) || !WriteValuesBucket(out) || !WritePredicates(out) || !WriteValuesBucketReferences(out)) {
+        HILOG_ERROR("Marshalling error");
+        return false;
     }
-
-    if (valuesBucket_ != nullptr) {
-        if (!out.WriteInt32(VALUE_OBJECT)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-
-        if (!valuesBucket_->Marshalling(out)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-    } else {
-        if (!out.WriteInt32(VALUE_NULL)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-    }
-
-    if (dataAbilityPredicates_ != nullptr) {
-        if (!out.WriteInt32(VALUE_OBJECT)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-        if (!out.WriteParcelable(dataAbilityPredicates_.get())) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-    } else {
-        if (!out.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    }
-
-    if (valuesBucketReferences_ != nullptr) {
-        if (!out.WriteInt32(VALUE_OBJECT)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-        if (!valuesBucketReferences_->Marshalling(out)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-    } else {
-        if (!out.WriteInt32(VALUE_NULL)) {
-            return false;
-        }
-    }
-
-    int referenceSize = 0;
-    if (!dataAbilityPredicatesBackReferences_.empty()) {
-        referenceSize = (int)dataAbilityPredicatesBackReferences_.size();
-        if (!out.WriteInt32(referenceSize)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-            return false;
-        }
-        if (referenceSize >= REFERENCE_THRESHOLD) {
-            HILOG_INFO("DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
-            return true;
-        }
-        for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();
-             it++) {
-            if (!out.WriteInt32(it->first)) {
-                HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-                return false;
-            }
-            if (!out.WriteInt32(it->second)) {
-                HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
-                return false;
-            }
-        }
-    } else {
+    int referenceSize = (int)dataAbilityPredicatesBackReferences_.size();
+    if (dataAbilityPredicatesBackReferences_.empty()) {
         HILOG_DEBUG("DataAbilityOperation::Marshalling dataAbilityPredicatesBackReferences_ is empty");
         if (!out.WriteInt32(referenceSize)) {
             HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
+        HILOG_DEBUG("DataAbilityOperation::Marshalling end");
+        return true;
     }
-
+    if (!out.WriteInt32(referenceSize)) {
+        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+        return false;
+    }
+    if (referenceSize >= REFERENCE_THRESHOLD) {
+        HILOG_INFO("DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
+        return true;
+    }
+    for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();
+        it++) {
+        if (!out.WriteInt32(it->first)) {
+            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            return false;
+        }
+        if (!out.WriteInt32(it->second)) {
+            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            return false;
+        }
+    }
     HILOG_DEBUG("DataAbilityOperation::Marshalling end");
     return true;
 }
@@ -380,69 +392,89 @@ DataAbilityOperation *DataAbilityOperation::Unmarshalling(Parcel &in)
     HILOG_DEBUG("DataAbilityOperation::Unmarshalling end");
     return dataAbilityOperation;
 }
-bool DataAbilityOperation::ReadFromParcel(Parcel &in)
-{
-    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel start");
-    if (!in.ReadInt32(type_)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(type_) error");
-        return false;
-    }
-    if (!in.ReadInt32(expectedCount_)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
-        return false;
-    }
-    interrupted_ = in.ReadBool();
 
+bool DataAbilityOperation::ReadUriFromParcel(Parcel &in)
+{
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
         HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
+        HILOG_DEBUG("empty is VALUE_OBJECT");
         uri_.reset(in.ReadParcelable<Uri>());
-    } else {
-        uri_.reset();
+        return true;
     }
+    uri_.reset();
+    return true;
+}
 
-    empty = VALUE_NULL;
+bool DataAbilityOperation::ReadValuesBucketFromParcel(Parcel &in)
+{
+    int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
         HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
-    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel empty is %{public}s",
-        empty == VALUE_OBJECT ? "VALUE_OBJECT" : "VALUE_NULL");
     if (empty == VALUE_OBJECT) {
+        HILOG_DEBUG("empty is VALUE_OBJECT");
         valuesBucket_ = std::make_shared<NativeRdb::ValuesBucket>(NativeRdb::ValuesBucket::Unmarshalling(in));
-    } else {
-        valuesBucket_.reset();
+        return true;
     }
+    valuesBucket_.reset();
+    return true;
+}
 
-    empty = VALUE_NULL;
+bool DataAbilityOperation::ReadDataAbilityPredicatesFromParcel(Parcel &in)
+{
+    int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
         HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
-    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel empty is %{public}s",
-        empty == VALUE_OBJECT ? "VALUE_OBJECT" : "VALUE_NULL");
     if (empty == VALUE_OBJECT) {
+        HILOG_DEBUG("empty is VALUE_OBJECT");
         dataAbilityPredicates_.reset(in.ReadParcelable<NativeRdb::DataAbilityPredicates>());
-    } else {
-        dataAbilityPredicates_.reset();
+        return true;
     }
+    dataAbilityPredicates_.reset();
+    return true;
+}
 
-    empty = VALUE_NULL;
+bool DataAbilityOperation::ReadValuesBucketReferencesFromParcel(Parcel &in)
+{
+    int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
         HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
-    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel empty is %{public}s",
-        (empty == VALUE_OBJECT) ? "VALUE_OBJECT" : "VALUE_NULL");
     if (empty == VALUE_OBJECT) {
-        valuesBucketReferences_ = std::make_shared<NativeRdb::ValuesBucket>(NativeRdb::ValuesBucket::Unmarshalling(in));
-    } else {
-        valuesBucketReferences_.reset();
+        HILOG_DEBUG("empty is VALUE_OBJECT");
+        valuesBucketReferences_ = std::make_shared<NativeRdb::ValuesBucket>(
+            NativeRdb::ValuesBucket::Unmarshalling(in));
+        return true;
     }
+    valuesBucketReferences_.reset();
+    return true;
+}
 
+bool DataAbilityOperation::ReadFromParcel(Parcel &in)
+{
+    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel start");
+    if (!in.ReadInt32(type_)) {
+        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(type) error");
+        return false;
+    }
+    if (!in.ReadInt32(expectedCount_)) {
+        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(expectedCount) error");
+        return false;
+    }
+    interrupted_ = in.ReadBool();
+    if (!ReadUriFromParcel(in) || !ReadValuesBucketFromParcel(in) || !ReadDataAbilityPredicatesFromParcel(in) ||
+        !ReadValuesBucketReferencesFromParcel(in)) {
+        HILOG_ERROR("DataAbilityOperation::ReadFromParcel error");
+        return false;
+    }
     int referenceSize = 0;
     if (!in.ReadInt32(referenceSize)) {
         HILOG_ERROR("DataAbilityOperation::ReadFromParcel end");

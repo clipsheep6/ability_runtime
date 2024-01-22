@@ -55,7 +55,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("JsMissionManager::Finalizer is called");
+        HILOG_DEBUG("called");
         std::unique_ptr<JsMissionManager>(static_cast<JsMissionManager*>(data));
     }
 
@@ -357,7 +357,7 @@ private:
     napi_value OnGetMissionInfo(napi_env env, size_t argc, napi_value* argv)
     {
         HILOG_INFO("%{public}s is called", __FUNCTION__);
-        if (argc < 2) {
+        if (argc < ARG_COUNT_TWO) {
             HILOG_ERROR("Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
@@ -792,7 +792,7 @@ private:
 
 napi_value JsMissionManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("JsMissionManagerInit is called");
+    HILOG_DEBUG("called");
     if (env == nullptr || exportObj == nullptr) {
         HILOG_INFO("Invalid input parameters");
         return nullptr;

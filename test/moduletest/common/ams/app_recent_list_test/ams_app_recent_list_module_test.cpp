@@ -120,13 +120,9 @@ void AmsAppRecentListModuleTest::CreateAppRecentList(const int32_t appNum)
         pid_t pid = i;
         sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
         MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
-
-        EXPECT_CALL(*mockedSpawnClient, StartProcess(_, _))
-            .Times(1)
-            .WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
-
-        serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));
-        serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+        std::string appName = "test_appName";
+        std::string processName = "test_processName";
+        serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
     }
     return;
 }
@@ -193,8 +189,9 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
     MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
     EXPECT_CALL(*mockedSpawnClient, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
 
-    serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    std::string appName = "test_appName";
+    std::string processName = "test_processName";
+    serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
     EXPECT_EQ(INDEX_NUM_10 + INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     HILOG_INFO("Create_Recent_List_002 end");
 }
@@ -210,17 +207,10 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
 HWTEST_F(AmsAppRecentListModuleTest, Update_Recent_List_002, TestSize.Level1)
 {
     HILOG_INFO("Update_Recent_List_002 start");
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_10);
-    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-
-    auto appRecord = CreateAppRunningRecordByIndex(INDEX_NUM_10 - INDEX_NUM_3);
-    sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
-    sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
-    appRecord->SetApplicationClient(client);
-    sptr<IRemoteObject> object = client->AsObject();
-    wptr<IRemoteObject> app = object;
-    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
+    std::string appName = "test_appName";
+    std::string processName = "test_processName";
+    serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
+    EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     HILOG_INFO("Update_Recent_List_002 end");
 }
 
@@ -235,22 +225,18 @@ HWTEST_F(AmsAppRecentListModuleTest, Update_Recent_List_002, TestSize.Level1)
 HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_001, TestSize.Level1)
 {
     HILOG_INFO("Remove_Recent_List_001 start");
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_10);
-    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
+    std::string appName = "test_appName";
+    std::string appName1 = "test_appName1";
+    std::string processName = "test_processName";
+    std::string processName1 = "test_processName1";
+    serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
+    serviceInner_->appProcessManager_->AddAppToRecentList(appName1, processName1, 0, 0);
 
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-    appInfo->name = TEST_APP_NAME + std::to_string(INDEX_NUM_10 - INDEX_NUM_1);
-    appInfo->bundleName = appInfo->name;
-
-    auto appRecord = CreateAppRunningRecordByIndex(INDEX_NUM_10 - INDEX_NUM_1);
-    sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
-    sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
-    appRecord->SetApplicationClient(client);
-    EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-
-    serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->bundleName);  // specify process condition
-    EXPECT_EQ(INDEX_NUM_10 - INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
+    appInfo->name = appName;
+    appInfo->process = processName;
+    serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->process);  // specify process condition
+    EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     HILOG_INFO("Remove_Recent_List_001 end");
 }
 
@@ -265,21 +251,14 @@ HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_001, TestSize.Level1)
 HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_002, TestSize.Level1)
 {
     HILOG_INFO("Remove_Recent_List_002 start");
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_10);
-    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    for (int32_t i = 0; i < INDEX_NUM_10; i++) {
-        std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-        appInfo->name = TEST_APP_NAME + std::to_string(i);
-        appInfo->bundleName = appInfo->name;
+    std::string appName = "test_appName";
+    std::string processName = "test_processName";
+    serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
 
-        auto appRecord = CreateAppRunningRecordByIndex(i);
-        sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
-        sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
-        appRecord->SetApplicationClient(client);
-        EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-        serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->bundleName);  // specify process condition
-    }
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    appInfo->name = appName;
+    appInfo->process = processName;
+    serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->process);  // specify process condition
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
     HILOG_INFO("Remove_Recent_List_002 end");
 }
@@ -294,30 +273,13 @@ HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Clear_Recent_List_001, TestSize.Level1)
 {
-    HILOG_INFO("Clear_Recent_List_002 start");
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    CreateAppRecentList(INDEX_NUM_10);
-    EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-
-    for (int32_t i = 0; i < INDEX_NUM_10; i++) {
-        std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
-        appInfo->name = TEST_APP_NAME + std::to_string(i);
-        appInfo->bundleName = appInfo->name;
-
-        auto appRecord = CreateAppRunningRecordByIndex(i);
-        sptr<MockAppScheduler> mockAppScheduler = new MockAppScheduler();
-        sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
-
-        if (appRecord) {
-            appRecord->SetApplicationClient(client);
-        }
-
-        EXPECT_CALL(*mockAppScheduler, ScheduleProcessSecurityExit()).Times(1);
-        serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->bundleName);  //  specify process condition
-    }
+    HILOG_INFO("Clear_Recent_List_001 start");
+    std::string appName = "test_appName";
+    std::string processName = "test_processName";
+    serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
     serviceInner_->ClearRecentAppList();
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    HILOG_INFO("Clear_Recent_List_002 end");
+    HILOG_INFO("Clear_Recent_List_001 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

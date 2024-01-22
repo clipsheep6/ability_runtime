@@ -79,7 +79,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
         };
         eventHandler_->PostTask(task, "SrCommonEventSubscriber:DeleteBundleInfo");
     } else {
-        APP_LOGW("warnning, invalid action.");
+        APP_LOGW("invalid action.");
     }
 }
 } // AbilityRuntime

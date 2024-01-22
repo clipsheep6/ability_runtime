@@ -99,7 +99,7 @@ ErrCode WantAgentHelper::GetWantAgent(
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    HILOG_INFO("bundle:%{public}s; ability:%{public}s",
+    HILOG_DEBUG("bundle:%{public}s; ability:%{public}s",
         wants[0]->GetElement().GetBundleName().c_str(),
         wants[0]->GetElement().GetAbilityName().c_str());
 

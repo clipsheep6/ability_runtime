@@ -391,24 +391,25 @@ private:
     napi_value OnOffForeground(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("Called.");
-        if (observerForeground_ == nullptr || appManager_ == nullptr) {
-            HILOG_ERROR("Observer or appManager nullptr.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
-            return CreateJsUndefined(env);
-        }
         if (argc < ARGC_ONE) {
             HILOG_ERROR("Not enough params when off.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
+        if (argc == ARGC_TWO && !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            HILOG_ERROR("Invalid param.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (observerForeground_ == nullptr || appManager_ == nullptr) {
+            HILOG_ERROR("Observer or appManager nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+            return CreateJsUndefined(env);
+        }
+
         if (argc == ARGC_ONE) {
             observerForeground_->RemoveAllJsObserverObjects();
         } else if (argc == ARGC_TWO) {
-            if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
-                HILOG_ERROR("Invalid param.");
-                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-                return CreateJsUndefined(env);
-            }
             observerForeground_->RemoveJsObserverObject(argv[INDEX_ONE]);
         }
         if (observerForeground_->IsEmpty()) {

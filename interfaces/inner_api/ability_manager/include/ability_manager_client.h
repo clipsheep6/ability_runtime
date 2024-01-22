@@ -39,7 +39,6 @@ using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
  */
 class AbilityManagerClient {
 public:
-    AbilityManagerClient();
     virtual ~AbilityManagerClient();
     static std::shared_ptr<AbilityManagerClient> GetInstance();
 
@@ -1282,20 +1281,6 @@ public:
     ErrCode UnregisterIAbilityManagerCollaborator(int32_t type);
 
     /**
-     * @brief Notify to move mission to backround.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode MoveMissionToBackground(int32_t missionId);
-
-    /**
-     * @brief Notify to terminate mission. it is not clear.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode TerminateMission(int32_t missionId);
-
-    /**
      * @brief Register session handler.
      * @param object The handler.
      *
@@ -1381,6 +1366,9 @@ public:
     void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId);
 
 private:
+    AbilityManagerClient();
+    DISALLOW_COPY_AND_MOVE(AbilityManagerClient);
+
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         AbilityMgrDeathRecipient() = default;
@@ -1394,7 +1382,8 @@ private:
     void ResetProxy(wptr<IRemoteObject> remote);
     void HandleDlpApp(Want &want);
 
-    static std::recursive_mutex mutex_;
+    static std::once_flag singletonFlag_;
+    std::recursive_mutex mutex_;
     static std::shared_ptr<AbilityManagerClient> instance_;
     sptr<IAbilityManager> proxy_;
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;

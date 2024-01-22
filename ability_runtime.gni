@@ -145,13 +145,6 @@ declare_args() {
   }
 
   if (!defined(global_parts_info) ||
-      defined(global_parts_info.bundlemanager_ecological_rule_manager)) {
-    ecologic_rule_enabled = true
-  } else {
-    ecologic_rule_enabled = false
-  }
-
-  if (!defined(global_parts_info) ||
       defined(global_parts_info.hiviewdfx_hichecker)) {
     hichecker_enabled = true
   } else {

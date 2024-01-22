@@ -28,6 +28,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "core/common/container_scope.h"
 #endif
+#include "declarative_module_preloader.h"
 #include "extractor.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
@@ -67,7 +68,7 @@ std::mutex g_mutex;
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_INFO("InitWorkerFunc called");
+    HILOG_DEBUG("called");
     if (nativeEngine == nullptr) {
         HILOG_ERROR("Input nativeEngine is nullptr");
         return;
@@ -81,6 +82,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     }
 
     OHOS::JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(nativeEngine));
+    OHOS::Ace::DeclarativeModulePreloader::PreloadWorker(*nativeEngine);
 
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
@@ -97,14 +99,13 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         };
         panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
-        panda::JSNApi::NotifyDebugMode(
-            instanceId, vm, ARK_DEBUGGER_LIB_PATH, debugOption, instanceId, workerPostTask, g_debugApp, needBreakPoint);
+        panda::JSNApi::NotifyDebugMode(instanceId, vm, debugOption, instanceId, workerPostTask, g_debugApp);
     }
 }
 
 void OffWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_INFO("OffWorkerFunc called");
+    HILOG_DEBUG("OffWorkerFunc called");
     if (nativeEngine == nullptr) {
         HILOG_ERROR("Input nativeEngine is nullptr");
         return;
@@ -148,7 +149,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         return;
     }
 
-    HILOG_INFO("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
+    HILOG_DEBUG("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
     std::string realPath;
     std::string filePath;
 
@@ -158,7 +159,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         // the @bundle:bundlename/modulename only exist in esmodule.
         // 1.1 start with /modulename
         // 1.2 start with ../
-        // 1.3 start with @namespace
+        // 1.3 start with @namespace [not support]
         // 1.4 start with modulename
         HILOG_DEBUG("The application is packaged using jsbundle mode.");
         if (uri.find_first_of("/") == 0) {
@@ -169,7 +170,7 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
             realPath = uri.substr(PATH_THREE);
         } else if (uri.find_first_of("@") == 0) {
             HILOG_DEBUG("uri start with @namespace");
-            realPath = workerInfo_->moduleName + uri;
+            realPath = uri.substr(uri.find_first_of("/") + 1);
         } else {
             HILOG_DEBUG("uri start with modulename");
             realPath = uri;
@@ -292,7 +293,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
             }
         }
     }
-    HILOG_INFO("HapPath: %{private}s", newHapPath.c_str());
+    HILOG_DEBUG("HapPath: %{private}s", newHapPath.c_str());
     bool newCreate = false;
     std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);

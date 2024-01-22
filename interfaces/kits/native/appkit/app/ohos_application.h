@@ -297,6 +297,8 @@ public:
 
     void CleanAppTempData(bool isLastProcess = false);
 
+    void CleanUselessTempData();
+
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
 private:

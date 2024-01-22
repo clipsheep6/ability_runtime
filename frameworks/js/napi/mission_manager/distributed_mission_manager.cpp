@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -642,6 +642,8 @@ bool CreateOnCallbackReference(napi_env &env, const napi_value &jsMethod,
     }
     napi_create_reference(env, jsMethod, 1, &onCB->onCallbackCB.callback);
     napi_create_reference(env, jsMethod, 1, &onCB->callbackRef);
+    onCB->onCallbackCB.napiCallback =
+        std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference *>(onCB->onCallbackCB.callback));
     HILOG_INFO("%{public}s called end.", __func__);
     return true;
 }
@@ -763,8 +765,17 @@ void OnExecuteCB(napi_env &env, OnCB *onCB)
         return;
     }
     onCB->onRegistration->SetEnv(env);
+    std::vector<std::shared_ptr<NativeReference>> vecCallback = onCB->onRegistration->GetOnCallbackCBRef();
+    bool result = false;
+    for (auto ele = vecCallback.begin(); ele != vecCallback.end(); ++ele) {
+        napi_strict_equals(env, (*ele)->GetNapiValue(), onCB->onCallbackCB.napiCallback->GetNapiValue(), &result);
+        if (result) {
+            HILOG_ERROR("Object does match value.");
+            return;
+        }
+    }
     onCB->onRegistration->
-        SetOnCallbackCBRef(onCB->onCallbackCB.callback);
+        SetOnCallbackCBRef(onCB->onCallbackCB.napiCallback);
     HILOG_INFO("set callback success.");
     onCB->result = DmsSaClient::GetInstance().AddListener(onCB->type, onCB->onRegistration);
     if (onCB->result == NO_ERROR) {
@@ -800,6 +811,7 @@ napi_value OnWrap(napi_env &env, napi_callback_info info,
         int32_t errCode = ErrorCodeReturn(onCB->result);
         napi_throw(env, GenerateBusinessError(env, errCode, ErrorMessageReturn(errCode)));
     }
+    onCB->onCallbackCB.napiCallback = nullptr;
     if (onCB->callbackRef != nullptr) {
         napi_delete_reference(env, onCB->callbackRef);
     }
@@ -824,6 +836,11 @@ void OffExecuteCB(napi_env env, OnCB *onCB)
         return;
     }
     onCB->onRegistration = registrationOfOn;
+    onCB->onRegistration->DelOnCallbackCBRef(env, onCB->onCallbackCB.napiCallback);
+    if (!onCB->onRegistration->GetOnCallbackCBRef().empty()) {
+        HILOG_INFO("There are still other remaining callback");
+        return;
+    }
     DmsSaClient::GetInstance().DelListener(onCB->type, onCB->onRegistration);
     if (onCB->result == NO_ERROR) {
         HILOG_INFO("remove registration.");
@@ -973,16 +990,7 @@ NAPIRemoteMissionListener::~NAPIRemoteMissionListener()
     }
 }
 
-NAPIRemoteOnListener::~NAPIRemoteOnListener()
-{
-    if (env_ == nullptr) {
-        return;
-    }
-    if (onCallbackRef_ != nullptr) {
-        napi_delete_reference(env_, onCallbackRef_);
-        onCallbackRef_ = nullptr;
-    }
-}
+NAPIRemoteOnListener::~NAPIRemoteOnListener() {}
 
 void NAPIRemoteMissionListener::SetEnv(const napi_env &env)
 {
@@ -999,9 +1007,29 @@ void NAPIRemoteMissionListener::SetNotifyMissionsChangedCBRef(const napi_ref &re
     notifyMissionsChangedRef_ = ref;
 }
 
-void NAPIRemoteOnListener::SetOnCallbackCBRef(const napi_ref &ref)
+void NAPIRemoteOnListener::SetOnCallbackCBRef(std::shared_ptr<NativeReference> &ref)
 {
-    onCallbackRef_ = ref;
+    callbacks_.push_back(ref);
+}
+
+std::vector<std::shared_ptr<NativeReference>> NAPIRemoteOnListener::GetOnCallbackCBRef()
+{
+    return callbacks_;
+}
+
+bool NAPIRemoteOnListener::DelOnCallbackCBRef(napi_env env, std::shared_ptr<NativeReference> &ref)
+{
+    bool result = false;
+    for (auto ele = callbacks_.begin(); ele != callbacks_.end(); ++ele) {
+        napi_strict_equals(env, (*ele)->GetNapiValue(), ref->GetNapiValue(), &result);
+        if (result) {
+            HILOG_ERROR("Object does match value, need delete this callback.");
+            callbacks_.erase(ele);
+            return result;
+        }
+    }
+
+    return result;
 }
 
 void NAPIRemoteMissionListener::SetNotifySnapshotCBRef(const napi_ref &ref)
@@ -1088,14 +1116,13 @@ void UvWorkOnCallback(uv_work_t *work, int status)
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[1], paramName2.c_str(), jsValue2);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiState.c_str(), result[0]);
     napi_set_named_property(onCB->cbBase.cbInfo.env, result[ARGS_TWO], napiInfo.c_str(), result[1]);
-
-    napi_value callback = nullptr;
-    napi_value undefined = nullptr;
-    napi_get_undefined(onCB->cbBase.cbInfo.env, &undefined);
-    napi_value callResult = nullptr;
-    napi_get_reference_value(onCB->cbBase.cbInfo.env, onCB->cbBase.cbInfo.callback, &callback);
-
-    napi_call_function(onCB->cbBase.cbInfo.env, undefined, callback, ARGS_ONE, &result[ARGS_TWO], &callResult);
+    for (auto ele = onCB->cbBase.cbInfo.vecCallbacks.begin(); ele != onCB->cbBase.cbInfo.vecCallbacks.end(); ++ele) {
+        napi_value undefined = nullptr;
+        napi_get_undefined(onCB->cbBase.cbInfo.env, &undefined);
+        napi_value callResult = nullptr;
+        napi_call_function(onCB->cbBase.cbInfo.env, undefined,
+            (*ele)->GetNapiValue(), ARGS_ONE, &result[ARGS_TWO], &callResult);
+    }
     delete onCB;
     onCB = nullptr;
     delete work;
@@ -1156,8 +1183,10 @@ void NAPIRemoteOnListener::OnCallback(const uint32_t continueState, const std::s
         delete work;
         return;
     }
+    for (auto ele = callbacks_.begin(); ele != callbacks_.end(); ++ele) {
+        onCB->cbBase.cbInfo.vecCallbacks.push_back(*ele);
+    }
     onCB->cbBase.cbInfo.env = env_;
-    onCB->cbBase.cbInfo.callback = onCallbackRef_;
     onCB->continueState = continueState;
     onCB->srcDeviceId = srcDeviceId;
     onCB->bundleName = bundleName;
