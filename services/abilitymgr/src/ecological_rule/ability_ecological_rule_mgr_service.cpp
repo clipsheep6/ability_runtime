@@ -18,6 +18,7 @@
 #include "iservice_registry.h"
 #include "iremote_broker.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace EcologicalRuleMgrService {
@@ -103,6 +104,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     const AbilityCallerInfo &callerInfo, int32_t type, vector<AbilityInfo> &abilityInfos,
     const vector<AppExecFwk::ExtensionAbilityInfo> &extInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
     HILOG_DEBUG("want: %{public}s, callerInfo: %{public}s, type: %{public}d", want.ToString().c_str(),
         callerInfo.ToString().c_str(), type);
@@ -118,6 +120,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
 int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::AAFwk::Want &want,
     const AbilityCallerInfo &callerInfo, AbilityExperienceRule &rule)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
     HILOG_DEBUG("callerInfo: %{public}s, want: %{public}s", callerInfo.ToString().c_str(), want.ToString().c_str());
     if (callerInfo.packageName.find_first_not_of(' ') == std::string::npos) {
