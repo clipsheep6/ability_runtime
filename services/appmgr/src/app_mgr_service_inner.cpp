@@ -4408,7 +4408,12 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
         }
     };
 
-    taskHandler_->SubmitTask(notifyAppTask, "notifyAppFaultTask");
+    if (AppExecFwk::AppfreezeManager::GetInstance()->IsProcessDebug(pid, bundleName)) {
+        HILOG_WARN("heap dump, don't reportEvent and kill:%{public}s, pid:%{public}d, bundleName:%{public}s.",
+            faultData.errorObject.name.c_str(), pid, bundleName.c_str());
+    } else {
+        taskHandler_->SubmitTask(notifyAppTask, "notifyAppFaultTask");
+    }
     return ERR_OK;
 }
 
