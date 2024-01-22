@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,8 +45,9 @@ ContinuationManager::ContinuationManager()
     progressState_ = ProgressState::INITIAL;
 }
 
-bool ContinuationManager::Init(const std::shared_ptr<AbilityRuntime::BaseAbility> &ability, const sptr<IRemoteObject> &continueToken,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ContinuationHandler> &continuationHandler)
+bool ContinuationManager::Init(const std::shared_ptr<AbilityRuntime::BaseAbility> &ability,
+    const sptr<IRemoteObject> &continueToken, const std::shared_ptr<AbilityInfo> &abilityInfo,
+    const std::shared_ptr<ContinuationHandler> &continuationHandler)
 {
     HILOG_DEBUG("%{public}s called begin", __func__);
     if (ability == nullptr) {

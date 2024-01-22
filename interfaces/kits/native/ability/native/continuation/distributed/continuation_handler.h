@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,7 +43,8 @@ class ContinuationHandler : public IDistributeScheduleHandler,
                             public IReverseContinuationSchedulerPrimaryHandler,
                             public IReverseContinuationSchedulerReplicaHandler {
 public:
-    ContinuationHandler(std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<AbilityRuntime::BaseAbility> &ability);
+    ContinuationHandler(
+        std::weak_ptr<ContinuationManager> &continuationManager, std::weak_ptr<AbilityRuntime::BaseAbility> &ability);
     virtual ~ContinuationHandler() = default;
     virtual bool HandleStartContinuation(const sptr<IRemoteObject> &token, const std::string &deviceId) override;
     virtual void HandleReceiveRemoteScheduler(const sptr<IRemoteObject> &remoteReplica) override;
