@@ -2814,12 +2814,7 @@ int AbilityManagerService::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionI
 int AbilityManagerService::SendResultToAbility(int32_t requestCode, int32_t resultCode, Want &resultWant)
 {
     HILOG_INFO("%{public}s", __func__);
-    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
-    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
-    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-        result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+    if (!CheckCallerIsDmsProcess()) {
         HILOG_ERROR("Check processName failed");
         return ERR_INVALID_VALUE;
     }
@@ -3449,13 +3444,7 @@ int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const
 int AbilityManagerService::ContinueAbility(const std::string &deviceId, int32_t missionId, uint32_t versionCode)
 {
     HILOG_INFO("ContinueAbility missionId = %{public}d, version = %{public}u.", missionId, versionCode);
-
-    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
-    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
-    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
-    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-        result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+    if (!CheckCallerIsDmsProcess()) {
         HILOG_ERROR("Check processName failed");
         return ERR_INVALID_VALUE;
     }
@@ -4116,8 +4105,11 @@ int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &to
         HILOG_ERROR("token is invalid.");
         return -1;
     }
-
-    return GetMissionIdByAbilityToken(token);
+    if (!CheckCallerIsDmsProcess()) {
+        HILOG_ERROR("Check processName failed");
+        return ERR_INVALID_VALUE;
+    }
+    return GetMissionIdByAbilityTokenInner(token);
 }
 
 bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
@@ -6035,8 +6027,17 @@ int32_t AbilityManagerService::GetMissionIdByAbilityToken(const sptr<IRemoteObje
         HILOG_ERROR("abilityRecord is Null.");
         return -1;
     }
+    if (!JudgeSelfCalled(abilityRecord)) {
+        return -1;
+    }
+    return GetMissionIdByAbilityTokenInner(token);
+}
 
-    if (!JudgeSelfCalled(abilityRecord) && (IPCSkeleton::GetCallingPid() != getpid())) {
+int32_t AbilityManagerService::GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token)
+{
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is Null.");
         return -1;
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -8466,8 +8467,7 @@ int AbilityManagerService::CheckDlpForExtension(
 
 bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (isSaCall) {
+    if (IPCSkeleton::GetCallingPid() == getpid()) {
         return true;
     }
 
@@ -9572,6 +9572,19 @@ bool AbilityManagerService::CheckSenderWantInfo(int32_t callerUid, const WantSen
             HILOG_ERROR("wantSender bundleName check failed");
             return false;
         }
+    }
+    return true;
+}
+
+bool AbilityManagerService::CheckCallerIsDmsProcess()
+{
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
+        result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+        return false;
     }
     return true;
 }
