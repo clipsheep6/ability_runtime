@@ -3683,6 +3683,10 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         }
         HILOG_DEBUG("App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
+    if (!CheckSenderWantInfo(callerUid, wantSenderInfo)) {
+        HILOG_ERROR("check bundleName failed");
+        return nullptr;
+    }
 
     bool isSystemApp = false;
     if (!wantSenderInfo.bundleName.empty()) {
@@ -9554,6 +9558,25 @@ void AbilityManagerService::UpdateSessionInfoBySCB(const std::vector<SessionInfo
     }
     HILOG_INFO("The sceneboard is being restored.");
     uiAbilityLifecycleManager_->UpdateSessionInfoBySCB(sessionInfos, userId);
+}
+
+bool AbilityManagerService::CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo)
+{
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        auto bms = GetBundleManager();
+        CHECK_POINTER_AND_RETURN(bms, false);
+
+        std::string bundleName;
+        if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+            HILOG_ERROR("Get Bundle Name failed.");
+            return false;
+        }
+        if (wantSenderInfo.bundleName != bundleName) {
+            HILOG_ERROR("wantSender bundleName check failed");
+            return false;
+        }
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

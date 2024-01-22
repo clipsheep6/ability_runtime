@@ -1882,6 +1882,8 @@ private:
     void InitInterceptor();
     void InitPushTask();
 
+    bool CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

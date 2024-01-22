@@ -1571,5 +1571,23 @@ HWTEST_F(AbilityManagerServiceSecondTest, IsSystemUI_001, TestSize.Level1)
     EXPECT_TRUE(abilityMs_->IsSystemUI(bundleName));
     HILOG_INFO("AbilityManagerServiceSecondTest IsSystemUI_001 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckSenderWantInfo
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService CheckSenderWantInfo
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, CheckSenderWantInfo_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest CheckSenderWantInfo_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    WantSenderInfo wantSenderInfo;
+    wantSenderInfo.bundleName = "badeName";
+    int32_t callerUid = 0;
+    EXPECT_FALSE(abilityMs_->CheckSenderWantInfo(callerUid, wantSenderInfo));
+
+    HILOG_INFO("AbilityManagerServiceSecondTest CheckSenderWantInfo_001 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS
