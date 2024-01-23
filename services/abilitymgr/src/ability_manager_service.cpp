@@ -168,6 +168,7 @@ constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewDat
 
 constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
+const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 std::atomic<bool> g_isDmsAlive = false;
@@ -681,7 +682,7 @@ int AbilityManagerService::StartAbilityPublicPrechainCheck(StartAbilityParams &p
     // 1. CheckCallerToken
     if (params.callerToken != nullptr && !VerificationAllToken(params.callerToken)) {
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
-            CheckSpecificSystemAbilityAccessPermission();
+            CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
         if (!isSpecificSA) {
             HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
             return ERR_INVALID_CALLER;
@@ -776,7 +777,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
-            CheckSpecificSystemAbilityAccessPermission();
+            CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
         if (!isSpecificSA) {
             HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
             return ERR_INVALID_CALLER;
@@ -2503,7 +2504,7 @@ int AbilityManagerService::StopExtensionAbility(const Want &want, const sptr<IRe
 
     if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
         HILOG_ERROR("%{public}s VerificationAllToken failed.", __func__);
-        if (!AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission()) {
+        if (!PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME)) {
             HILOG_ERROR("VerificationAllToken failed.");
             eventInfo.errCode = ERR_INVALID_VALUE;
             EventReport::SendExtensionEvent(EventName::STOP_EXTENSION_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -6482,7 +6483,10 @@ int32_t AbilityManagerService::GetMissionSnapshot(const std::string& deviceId, i
 void AbilityManagerService::UpdateMissionSnapShot(const sptr<IRemoteObject> &token,
     const std::shared_ptr<Media::PixelMap> &pixelMap)
 {
-    if (AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+    if (!PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_PROCESS_NAME)) {
+        return;
+    }
+    if (currentMissionListManager_) {
         currentMissionListManager_->UpdateSnapShot(token, pixelMap);
     }
 }

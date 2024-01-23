@@ -26,7 +26,6 @@ namespace OHOS {
 namespace AAFwk {
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
-const std::string DMS_PROCESS_NAME = "distributedsched";
 namespace {
 const int32_t BROKER_UID = 5557;
 }
@@ -81,7 +80,7 @@ bool PermissionVerification::IsShellCall() const
     return false;
 }
 
-bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
+bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const
 {
     HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
     if (!IsSACall()) {
@@ -91,7 +90,7 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
     auto callerToken = GetCallingTokenID();
     Security::AccessToken::NativeTokenInfo nativeTokenInfo;
     int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
-    if (result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+    if (result != ERR_OK || nativeTokenInfo.processName != processName) {
         HILOG_ERROR("Check process name failed.");
         return false;
     }

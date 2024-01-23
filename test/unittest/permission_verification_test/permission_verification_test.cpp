@@ -141,7 +141,8 @@ HWTEST_F(PermissionVerificationTest, CheckCallAbilityPermission_0100, TestSize.L
  */
 HWTEST_F(PermissionVerificationTest, CheckSpecificSystemAbilityAccessPermission_0100, TestSize.Level0)
 {
-    bool result = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission();
+    std::string processName;
+    bool result = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(processName);
     EXPECT_FALSE(result);
 }
 
