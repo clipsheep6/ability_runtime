@@ -34,8 +34,16 @@ namespace OHOS {
 namespace AAFwk {
 namespace {
 constexpr size_t PARAM_LENGTH = 1024;
+constexpr int EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR = 1;
+constexpr int EXTRA_ARGUMENTS_FOR_NULL_STRING = 0;
+constexpr int OPTION_PARAMETER_VALUE_OFFSET = 1;
 
-const std::string SHORT_OPTIONS = "ch:d:a:b:p:s:m:CDSN";
+constexpr int OPTION_PARAMETER_INTEGER = 257;
+constexpr int OPTION_PARAMETER_STRING = 258;
+constexpr int OPTION_PARAMETER_BOOL = 259;
+constexpr int OPTION_PARAMETER_NULL_STRING = 260;
+
+const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},
     {"device", required_argument, nullptr, 'd'},
@@ -47,6 +55,14 @@ constexpr struct option LONG_OPTIONS[] = {
     {"cold-start", no_argument, nullptr, 'C'},
     {"debug", no_argument, nullptr, 'D'},
     {"native-debug", no_argument, nullptr, 'N'},
+    {"action", required_argument, nullptr, 'A'},
+    {"URI", required_argument, nullptr, 'U'},
+    {"entity", required_argument, nullptr, 'e'},
+    {"type", required_argument, nullptr, 't'},
+    {"pi", required_argument, nullptr, OPTION_PARAMETER_INTEGER},
+    {"ps", required_argument, nullptr, OPTION_PARAMETER_STRING},
+    {"pb", required_argument, nullptr, OPTION_PARAMETER_BOOL},
+    {"psn", required_argument, nullptr, OPTION_PARAMETER_NULL_STRING},
     {nullptr, 0, nullptr, 0},
 };
 const std::string SHORT_OPTIONS_APPLICATION_NOT_RESPONDING = "hp:";
@@ -807,6 +823,106 @@ bool AbilityManagerShellCommand::CheckPerfCmdString(
     return true;
 }
 
+bool IsNum(const std::string& s)
+{
+    for (auto c : s)
+        if (!std::isdigit(c))
+            return false;
+    return true;
+}
+
+bool AbilityManagerShellCommand::CheckParameters(int extraArguments)
+{
+    if (optind + extraArguments >= argc_) return false;
+    int index = optind + 1; // optind is the index of 'start' which is right behind optarg
+    int count = 0;
+    while (index < argc_ && argv_[index][0] != '-') {
+        count++;
+        index++;
+    }
+    return count == extraArguments;
+}
+
+// parse integer parameters
+ErrCode AbilityManagerShellCommand::ParseParam(ParametersInteger& pi)
+{
+    std::string key = optarg;
+    std::string intString = argv_[optind + OPTION_PARAMETER_VALUE_OFFSET];
+    if (!IsNum(intString)) {
+        resultReceiver_.append("invalid parameter ");
+        resultReceiver_.append(intString);
+        resultReceiver_.append(" for integer option\n");
+
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    pi[key] = atoi(argv_[optind + OPTION_PARAMETER_VALUE_OFFSET]);
+    return OHOS::ERR_OK;
+}
+
+// parse string parameters
+ErrCode AbilityManagerShellCommand::ParseParam(ParametersString& ps, bool isNull = false)
+{
+    std::string key = optarg;
+    std::string value = "";
+    if (!isNull)
+        value = argv_[optind + OPTION_PARAMETER_VALUE_OFFSET];
+
+    ps[key] = value;
+
+    return OHOS::ERR_OK;
+}
+
+// parse bool parameters
+ErrCode AbilityManagerShellCommand::ParseParam(ParametersBool& pb)
+{
+    std::string key = optarg;
+    std::string boolString = argv_[optind + OPTION_PARAMETER_VALUE_OFFSET];
+    std::transform(boolString.begin(), boolString.end(), boolString.begin(), ::tolower);
+    bool value;
+    if (boolString == "true" || boolString == "t") {
+        value = true;
+    } else if (boolString == "false" || boolString == "f") {
+        value = false;
+    } else {
+        resultReceiver_.append("invalid parameter ");
+        resultReceiver_.append(argv_[optind + OPTION_PARAMETER_VALUE_OFFSET]);
+        resultReceiver_.append(" for bool option\n");
+
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    pb[key] = value;
+
+    return OHOS::ERR_OK;
+}
+
+void AbilityManagerShellCommand::SetParams(const ParametersInteger& pi, Want& want)
+{
+    for (auto it = pi.begin(); it != pi.end(); it++) {
+        want.SetParam(it->first, it->second);
+    }
+}
+
+void AbilityManagerShellCommand::SetParams(const ParametersString& ps, Want& want)
+{
+    for (auto it = ps.begin(); it != ps.end(); it++) {
+        want.SetParam(it->first, it->second);
+    }
+}
+
+void AbilityManagerShellCommand::SetParams(const ParametersBool& pb, Want& want)
+{
+    for (auto it = pb.begin(); it != pb.end(); it++) {
+        want.SetParam(it->first, it->second);
+    }
+}
+
+void AddEntities(const std::vector<std::string>& entities, Want& want)
+{
+    for (auto entity : entities)
+        want.AddEntity(entity);
+}
+
 ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
 {
     int result = OHOS::ERR_OK;
@@ -1114,6 +1230,13 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     std::string abilityName = "";
     std::string moduleName;
     std::string perfCmd;
+    ParametersInteger parametersInteger;
+    ParametersString parametersString;
+    ParametersBool parametersBool;
+    std::string uri;
+    std::string action;
+    std::vector<std::string> entities;
+    std::string typeVal;
     bool isColdStart = false;
     bool isDebugApp = false;
     bool isContinuation = false;
@@ -1187,6 +1310,26 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     result = OHOS::ERR_INVALID_VALUE;
                     break;
                 }
+                case 'e': {
+                    // 'aa start -e' with no argument
+                    HILOG_INFO("'aa %{public}s -e with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case 't': {
+                    // 'aa start -t' with no argument
+                    HILOG_INFO("'aa %{public}s -t with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
                 case 's': {
                     // 'aa start -s' with no argument
                     // 'aa stop-service -s' with no argument
@@ -1219,6 +1362,73 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     resultReceiver_.append("requires a value.\n");
 
                     result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+                case OPTION_PARAMETER_INTEGER: {
+                    // 'aa start --pi' with no argumnet
+                    HILOG_INFO("'aa %{public}s --pi' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_PARAMETER_STRING: {
+                    // 'aa start --ps' with no argumnet
+                    HILOG_INFO("'aa %{public}s --ps' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_PARAMETER_BOOL: {
+                    // 'aa start --pb' with no argumnet
+                    HILOG_INFO("'aa %{public}s -pb' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case OPTION_PARAMETER_NULL_STRING: {
+                    // 'aa start --psn' with no argumnet
+                    HILOG_INFO("'aa %{public}s --psn' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+
+                case 'A': {
+                    // 'aa start -A' with no argumnet
+                    HILOG_INFO("'aa %{public}s -A' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
+                    break;
+                }
+                case 'U': {
+                    // 'aa start -U' with no argumnet
+                    HILOG_INFO("'aa %{public}s -U' with no argument.", cmd_.c_str());
+
+                    resultReceiver_.append("error: option ");
+                    resultReceiver_.append("requires a value.\n");
+
+                    result = OHOS::ERR_INVALID_VALUE;
+
                     break;
                 }
                 case 0: {
@@ -1288,6 +1498,20 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 bundleName = optarg;
                 break;
             }
+            case 'e': {
+                // 'aa start -e xxx'
+
+                // save entity
+                entities.push_back(optarg);
+                break;
+            }
+            case 't': {
+                // 'aa start -t xxx'
+
+                // save type
+                typeVal = optarg;
+                break;
+            }
             case 's': {
                 // 'aa start -s xxx'
                 // save windowMode
@@ -1311,6 +1535,78 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     HILOG_ERROR("input perfCmd is invalid %{public}s", perfCmd.c_str());
                     result = OHOS::ERR_INVALID_VALUE;
                 }
+                break;
+            }
+            case OPTION_PARAMETER_INTEGER: {
+                // 'aa start --pi xxx'
+                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
+                    resultReceiver_.append("invalid number of parameters for option --pi\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+
+                // parse option arguments into a key-value map
+                result = ParseParam(parametersInteger);
+
+                optind++;
+
+                break;
+            }
+            case OPTION_PARAMETER_STRING: {
+                // 'aa start --ps xxx'
+                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
+                    resultReceiver_.append("invalid number of parameters for option --ps\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+
+                // parse option arguments into a key-value map
+                result = ParseParam(parametersString);
+
+                optind++;
+
+                break;
+            }
+            case OPTION_PARAMETER_BOOL: {
+                // 'aa start --pb xxx'
+                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_KEY_VALUE_PAIR)) {
+                    resultReceiver_.append("invalid number of parameters for option --pb\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+
+                // parse option arguments into a key-value map
+                result = ParseParam(parametersBool);
+
+                optind++;
+
+                break;
+            }
+            case OPTION_PARAMETER_NULL_STRING: {
+                // 'aa start --psn xxx'
+                if (!CheckParameters(EXTRA_ARGUMENTS_FOR_NULL_STRING)) {
+                    resultReceiver_.append("invalid number of parameters for option --psn\n");
+                    result = OHOS::ERR_INVALID_VALUE;
+                    break;
+                }
+
+                // parse option arguments into a key-value map
+                result = ParseParam(parametersString, true);
+
+                break;
+            }
+            case 'U': {
+                // 'aa start -U xxx'
+
+                // save URI
+                uri = optarg;
+                break;
+            }
+            case 'A': {
+                // 'aa start -A xxx'
+
+                // save action
+                action = optarg;
                 break;
             }
             case 'C': {
@@ -1388,6 +1684,27 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             if (isNativeDebug) {
                 want.SetParam("nativeDebug", isNativeDebug);
+            }
+            if (!parametersInteger.empty()) {
+                SetParams(parametersInteger, want);
+            }
+            if (!parametersBool.empty()) {
+                SetParams(parametersBool, want);
+            }
+            if (!parametersString.empty()) {
+                SetParams(parametersString, want);
+            }
+            if (!action.empty()) {
+                want.SetAction(action);
+            }
+            if (!uri.empty()) {
+                want.SetUri(uri);
+            }
+            if (!entities.empty()) {
+                AddEntities(entities, want);
+            }
+            if (!typeVal.empty()) {
+                want.SetType(typeVal);
             }
         }
     }
