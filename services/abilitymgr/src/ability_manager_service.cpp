@@ -8623,6 +8623,11 @@ std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()
 
 int AbilityManagerService::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, bool& isFocused)
 {
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return CHECK_PERMISSION_FAILED;
+    }
+
     sptr<IRemoteObject> token;
     auto ret = GetTopAbility(token);
     if (ret != ERR_OK) {

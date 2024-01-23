@@ -4247,6 +4247,11 @@ bool AppMgrServiceInner::GetAppRunningStateByBundleName(const std::string &bundl
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("function called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     if (!appRunningManager_) {
         HILOG_ERROR("app running manager is nullptr.");
         return false;
