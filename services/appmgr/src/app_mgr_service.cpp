@@ -306,14 +306,11 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
             HILOG_ERROR("GetBundleName failed: %{public}d.", result);
             return ERR_INVALID_OPERATION;
         }
-        auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-        if (!isSaCall) {
-            auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
-                AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
-            if (!isCallingPerm) {
-                HILOG_ERROR("Permission verification failed");
-                return ERR_PERMISSION_DENIED;
-            }
+        auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
+            AAFwk::PermissionConstants::PERMISSION_CLEAN_APPLICATION_DATA);
+        if (!isCallingPerm) {
+            HILOG_ERROR("Permission verification failed");
+            return ERR_PERMISSION_DENIED;
         }
     }
     int32_t uid = IPCSkeleton::GetCallingUid();
