@@ -945,13 +945,13 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_001, TestSize.Level1)
     ConnectManager()->SetEventHandler(EventHandler());
 
     auto callback = new AbilityConnectCallback();
-    auto result = ConnectManager()->DisconnectAbilityLocked(callback);
+    auto result = ConnectManager()->DisconnectAbilityLocked(callback->AsObject());
     EXPECT_EQ(result, OHOS::AAFwk::CONNECTION_NOT_EXIST);
 
     auto result1 = ConnectManager()->ConnectAbilityLocked(abilityRequest_, callbackA_, nullptr);
     EXPECT_EQ(0, result1);
 
-    auto result2 = ConnectManager()->DisconnectAbilityLocked(callbackA_);
+    auto result2 = ConnectManager()->DisconnectAbilityLocked(callbackA_->AsObject());
     EXPECT_EQ(result2, OHOS::AAFwk::INVALID_CONNECTION_STATE);
 
     auto list = ConnectManager()->GetConnectRecordListByCallback(callbackA_);
@@ -961,7 +961,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_001, TestSize.Level1)
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
-    auto result3 = ConnectManager()->DisconnectAbilityLocked(callbackA_);
+    auto result3 = ConnectManager()->DisconnectAbilityLocked(callbackA_->AsObject());
     EXPECT_EQ(result3, OHOS::ERR_OK);
 }
 
@@ -1004,7 +1004,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Kit_Disconnect_002, TestSize.Level1)
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
-    auto result5 = ConnectManager()->DisconnectAbilityLocked(callbackA_);
+    auto result5 = ConnectManager()->DisconnectAbilityLocked(callbackA_->AsObject());
     WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(result5, OHOS::ERR_OK);
     auto serviceMap = ConnectManager()->GetServiceMap();
@@ -1083,7 +1083,7 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_020, TestSize.Level1)
         it->SetConnectState(ConnectionState::CONNECTED);
     }
 
-    auto result2 = ConnectManager()->DisconnectAbilityLocked(callbackA_);
+    auto result2 = ConnectManager()->DisconnectAbilityLocked(callbackA_->AsObject());
     WaitUntilTaskDone(TaskHandler());
     EXPECT_EQ(result2, OHOS::ERR_OK);
 
@@ -1308,12 +1308,12 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_027, TestSize.Level1)
     ConnectManager()->AddConnectDeathRecipient(nullptr);
     EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
 
-    ConnectManager()->AddConnectDeathRecipient(callbackA_);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
+    ConnectManager()->AddConnectDeathRecipient(callbackA_->AsObject());
+    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 0);
 
     // Add twice, do not add repeatedly
-    ConnectManager()->AddConnectDeathRecipient(callbackA_);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
+    ConnectManager()->AddConnectDeathRecipient(callbackA_->AsObject());
+    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 0);
 }
 
 /*
@@ -1329,13 +1329,13 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_028, TestSize.Level1)
     ConnectManager()->SetTaskHandler(TaskHandler());
     ConnectManager()->SetEventHandler(EventHandler());
 
-    ConnectManager()->AddConnectDeathRecipient(callbackA_);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
+    ConnectManager()->AddConnectDeathRecipient(callbackA_->AsObject());
+    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 0);
 
     ConnectManager()->RemoveConnectDeathRecipient(nullptr);
-    EXPECT_FALSE(ConnectManager()->recipientMap_.empty());
+    EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
 
-    ConnectManager()->RemoveConnectDeathRecipient(callbackA_);
+    ConnectManager()->RemoveConnectDeathRecipient(callbackA_->AsObject());
     EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
 }
 

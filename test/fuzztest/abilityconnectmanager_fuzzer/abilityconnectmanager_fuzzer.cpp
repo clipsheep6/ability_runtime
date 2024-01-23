@@ -102,7 +102,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityConnectManager->GetConnectRecordListFromMap(connect, connectRecordList);
     sptr<IRemoteObject> callerToken = GetFuzzAbilityToken();
     abilityConnectManager->ConnectAbilityLocked(abilityRequest, connect, callerToken);
-    abilityConnectManager->DisconnectAbilityLocked(connect);
+    abilityConnectManager->DisconnectAbilityLocked(connect->AsObject());
     sptr<IAbilityScheduler> scheduler = nullptr;
     abilityConnectManager->AttachAbilityThreadLocked(scheduler, token);
     AppInfo appInfo;
