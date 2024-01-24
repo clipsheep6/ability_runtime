@@ -13,88 +13,95 @@
  * limitations under the License.
  */
 
+import common from '@ohos.app.ability.common';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
 import display from '@ohos.display';
-import PositionUtils from '../utils/PositionUtils';
+import { GlobalThis } from '../utils/GlobalThis';
+import PositionUtils, { Position } from '../utils/PositionUtils';
 
 const TAG = 'TipsDialog_Service';
 
 let winNum = 1;
-let win;
+let win: window.Window;
 
 export default class TipsServiceExtensionAbility extends extension {
-  onCreate(want) {
+  onCreate(want: want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
-    globalThis.tipsExtensionContext = this.context;
+    GlobalThis.getInstance().setContext('tipsExtensionContext', this.context);
   }
 
-  onRequest(want, startId) {
+  onRequest(want: want, startId: number) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
-    globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = PositionUtils.getTipsDialogPosition();
-    globalThis.callerToken = want.parameters.callerToken;
+    GlobalThis.getInstance().setObject('abilityWant', want);
+    GlobalThis.getInstance().setProperty('params', JSON.parse(want.parameters?.params as string));
+    GlobalThis.getInstance().setObject('position', PositionUtils.getTipsDialogPosition());
+    GlobalThis.getInstance().setObject('callerToken', want.parameters?.callerToken);
 
     try {
       display.on('change', (data: number) => {
         let position = PositionUtils.getTipsDialogPosition();
-        if (position.offsetX !== globalThis.position.offsetX || position.offsetY !== globalThis.position.offsetY) {
-          win.moveTo(position.offsetX, position.offsetY);
+        if (position.offsetX !== (GlobalThis.getInstance().getObject('position') as Position)?.offsetX || position.offsetY !== (GlobalThis.getInstance().getObject('position') as Position)?.offsetY) {
+          win.moveWindowTo(position.offsetX, position.offsetY);
         }
-        if (position.width !== globalThis.position.width || position.height !== globalThis.position.height) {
-          win.resetSize(position.width, position.height);
+        if (position.width !== (GlobalThis.getInstance().getObject('position') as Position)?.width || position.height !== (GlobalThis.getInstance().getObject('position') as Position)?.height) {
+          win.resize(position.width, position.height);
         }
-        globalThis.position = position;
+        GlobalThis.getInstance().setObject('position', position);
       });
     } catch (exception) {
       console.error('Failed to register callback. Code: ' + JSON.stringify(exception));
     }
 
-    display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = {
-        left: globalThis.position.offsetX,
-        top: globalThis.position.offsetY,
-        width: globalThis.position.width,
-        height: globalThis.position.height
-      };
-      if (winNum > 1) {
-        win.destroy();
-        winNum--;
-      }
-      let windowType = (typeof(globalThis.callerToken) === 'object' && globalThis.callerToken !== null) ?
-        window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
-      this.createWindow('TipsDialog' + startId, windowType, navigationBarRect);
-      winNum++;
-    });
+    let result = display.getDefaultDisplaySync();
+    let navigationBarRect : window.Rect = {
+      left: (GlobalThis.getInstance().getObject('position') as Position)?.offsetX as number,
+      top: (GlobalThis.getInstance().getObject('position') as Position)?.offsetY as number,
+      width: (GlobalThis.getInstance().getObject('position') as Position)?.width as number,
+      height: (GlobalThis.getInstance().getObject('position') as Position)?.height as number
+    };
+    if (winNum > 1) {
+      win.destroyWindow();
+      winNum--;
+    }
+    let windowType = (typeof(GlobalThis.getInstance().getProperty('callerToken')) === 'object' && GlobalThis.getInstance().getProperty('callerToken') !== null) ?
+    window.WindowType.TYPE_DIALOG : window.WindowType.TYPE_SYSTEM_ALERT;
+    this.createWindow('TipsDialog' + startId, windowType, navigationBarRect);
+    winNum++;
   }
 
   onDestroy() {
     console.info(TAG, 'onDestroy.');
     if (win !== undefined) {
-      win.destroy();
+      win.destroyWindow();
     }
   }
 
-  private async createWindow(name: string, windowType: number, rect) {
+  private async createWindow(name: string, windowType: window.WindowType, rect: window.Rect) {
     console.info(TAG, 'create window');
     try {
-      win = await window.create(globalThis.tipsExtensionContext, name, windowType);
+      let configuration: window.Configuration = {
+        name: name,
+        windowType: windowType,
+        ctx: GlobalThis.getInstance().getContext('tipsExtensionContext') as common.BaseContext,
+      };
+      win = await window.createWindow(configuration);
       if (windowType === window.WindowType.TYPE_DIALOG) {
-        await win.bindDialogTarget(globalThis.callerToken.value, () => {
+        await win.bindDialogTarget((GlobalThis.getInstance().getProperty('callerToken') as Record<string, Object>)?.value, () => {
           win.destroyWindow();
           winNum--;
           if (winNum === 0) {
-            globalThis.tipsExtensionContext.terminateSelf();
+            GlobalThis.getInstance().getContext('tipsExtensionContext')?.terminateSelf();
           }
         });
       }
       await win.hideNonSystemFloatingWindows(true);
-      await win.moveTo(rect.left, rect.top);
-      await win.resetSize(rect.width, rect.height);
-      await win.loadContent('pages/tipsDialog');
-      await win.setBackgroundColor('#00000000');
-      await win.show();
+      await win.moveWindowTo(rect.left, rect.top);
+      await win.resize(rect.width, rect.height);
+      await win.setUIContent('pages/tipsDialog');
+      await win.setWindowBackgroundColor('#00000000');
+      await win.showWindow();
     } catch {
       console.error(TAG, 'window create failed!');
     }
