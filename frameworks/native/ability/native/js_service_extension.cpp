@@ -275,7 +275,9 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
     napi_env env = jsRuntime_.GetNapiEnv();
 
     // display config has changed, need update context.config
-    JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
+    if (context != nullptr) {
+        JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
+    }
 
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};

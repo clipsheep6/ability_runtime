@@ -8000,7 +8000,9 @@ int AbilityManagerService::PrepareTerminateAbility(const sptr<IRemoteObject> &to
     if (!res) {
         callback->DoPrepareTerminate();
     }
-    taskHandler_->CancelTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    if (taskHandler_) {
+        taskHandler_->CancelTask("PrepareTermiante_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+    }
     return ERR_OK;
 }
 

@@ -482,6 +482,10 @@ bool JsUIExtension::ForegroundWindowWithInsightIntent(const AAFwk::Want &want,
     });
 
     auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Failed to get context");
+        return false;
+    }
     InsightIntentExecutorInfo executorInfo;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo = context->GetAbilityInfo();
     if (abilityInfo != nullptr) {
