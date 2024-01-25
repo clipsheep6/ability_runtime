@@ -26,6 +26,7 @@
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "istart_specified_ability_response.h"
+#include "load_ability_param.h"
 #include "running_process_info.h"
 
 namespace OHOS {
@@ -46,6 +47,14 @@ public:
     virtual void LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
         const std::shared_ptr<AAFwk::Want> &want) = 0;
+
+    /**
+     * LoadAbility, call LoadAbility() through proxy project, load the ability that needed to be started.
+     *
+     * @param loadAbilityParam, the parameters to start the ability.
+     * @return
+     */
+    virtual void LoadAbility(const LoadAbilityParam &loadAbilityParam) {}
 
     /**
      * TerminateAbility, call TerminateAbility() through the proxy object, terminate the token ability.

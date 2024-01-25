@@ -86,7 +86,9 @@ constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
-int64_t AbilityRecord::abilityRecordId = 0;
+std::mutex AbilityRecord::g_recordMapMutex;
+std::unordered_map<int32_t, std::weak_ptr<AbilityRecord>> AbilityRecord::g_abilityRecordMap;
+int32_t AbilityRecord::g_abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
 const int32_t SEND_RESULT_CANCELED = -1;
 const int VECTOR_SIZE = 2;
@@ -209,7 +211,7 @@ AbilityRecord::AbilityRecord(const Want &want, const AppExecFwk::AbilityInfo &ab
     const AppExecFwk::ApplicationInfo &applicationInfo, int requestCode)
     : want_(want), abilityInfo_(abilityInfo), applicationInfo_(applicationInfo), requestCode_(requestCode)
 {
-    recordId_ = abilityRecordId++;
+    recordId_ = GenerateNextAbilityRecordId();
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (abilityMgr) {
         bool isRootLauncher = (applicationInfo_.bundleName == LAUNCHER_BUNDLE_NAME);
@@ -234,6 +236,7 @@ AbilityRecord::~AbilityRecord()
         }
     }
     RemoveAppStateObserver();
+    RemoveAbilityRecord(recordId_);
 }
 
 std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityRequest &abilityRequest)
@@ -266,7 +269,56 @@ std::shared_ptr<AbilityRecord> AbilityRecord::CreateAbilityRecord(const AbilityR
         DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->RegisterApplicationStateObserver(
             abilityRecord->abilityAppStateObserver_, {abilityRequest.abilityInfo.bundleName});
     }
+    AddAbilityRecord(abilityRecord->recordId_, abilityRecord);
     return abilityRecord;
+}
+
+std::shared_ptr<AbilityRecord> AbilityRecord::GetAbilityRecordById(int32_t abilityRecordId)
+{
+    if (abilityRecordId < 0) {
+        return nullptr;
+    }
+    std::lock_guard guard(g_recordMapMutex);
+    auto it = g_abilityRecordMap.find(abilityRecordId);
+    if (it != g_abilityRecordMap.end()) {
+        return it->second.lock();
+    }
+    return nullptr;
+}
+
+int32_t AbilityRecord::GenerateNextAbilityRecordId()
+{
+    std::lock_guard guard(g_recordMapMutex);
+    if (g_abilityRecordMap.size() == INT_MAX) {
+        HILOG_ERROR("Ids used up!");
+        return 0;
+    }
+
+    auto preId = g_abilityRecordId;
+    do {
+        g_abilityRecordId++;
+        if (g_abilityRecordId >= INT_MAX) {
+            g_abilityRecordId = 0;
+        }
+    } while (g_abilityRecordMap.count(g_abilityRecordId));
+
+    return g_abilityRecordId;
+}
+
+void AbilityRecord::AddAbilityRecord(int32_t abilityRecordId, std::weak_ptr<AbilityRecord> record)
+{
+    std::lock_guard guard(g_recordMapMutex);
+    if (g_abilityRecordMap.count(abilityRecordId)) {
+        HILOG_ERROR("Id in use!");
+        return;
+    }
+    g_abilityRecordMap.emplace(abilityRecordId, record);
+}
+
+void AbilityRecord::RemoveAbilityRecord(int32_t abilityRecordId)
+{
+    std::lock_guard guard(g_recordMapMutex);
+    g_abilityRecordMap.erase(abilityRecordId);
 }
 
 void AbilityRecord::RemoveAppStateObserver()
@@ -355,11 +407,13 @@ int AbilityRecord::LoadAbility()
         restartTime_ = AbilityUtil::SystemTimeMillis();
     }
 
-    sptr<Token> callerToken_ = nullptr;
+    sptr<Token> callerToken = nullptr;
+    int32_t callerRecordId = -1;
     if (!callerList_.empty() && callerList_.back()) {
         auto caller = callerList_.back()->GetCaller();
         if (caller) {
-            callerToken_ = caller->GetToken();
+            callerToken = caller->GetToken();
+            callerRecordId = caller->recordId_;
         }
     }
 
@@ -367,7 +421,7 @@ int AbilityRecord::LoadAbility()
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-        token_, callerToken_, abilityInfo_, applicationInfo_, want_);
+        token_, callerToken, abilityInfo_, applicationInfo_, want_, recordId_, callerRecordId);
     want_.RemoveParam(ABILITY_OWNER_USERID);
 
     auto isAttachDebug = DelayedSingleton<AppScheduler>::GetInstance()->IsAttachDebug(abilityInfo_.bundleName);

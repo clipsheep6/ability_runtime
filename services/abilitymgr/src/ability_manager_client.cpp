@@ -912,6 +912,16 @@ void AbilityManagerClient::GetAbilityTokenByCalleeObj(sptr<IRemoteObject> callSt
     abms->GetAbilityTokenByCalleeObj(callStub, token);
 }
 
+int32_t AbilityManagerClient::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
+{
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("proxy null");
+        return -1;
+    }
+    return abms->GetAbilityRecordIdByCalleeObj(callStub);
+}
+
 ErrCode AbilityManagerClient::ReleaseCall(
     sptr<IAbilityConnection> connect, const AppExecFwk::ElementName &element)
 {

@@ -127,13 +127,15 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = nullptr;
-    sptr<IRemoteObject> preToke = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
     if (data.ReadBool()) {
         token = data.ReadRemoteObject();
     }
     if (data.ReadBool()) {
-        preToke = data.ReadRemoteObject();
+        preToken = data.ReadRemoteObject();
     }
+    int32_t abilityRecordId = data.ReadInt32();
+    int32_t preRecordId = data.ReadInt32();
     std::shared_ptr<AbilityInfo> abilityInfo(data.ReadParcelable<AbilityInfo>());
     if (!abilityInfo) {
         HILOG_ERROR("ReadParcelable<AbilityInfo> failed");
@@ -151,8 +153,19 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("ReadParcelable want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
-
-    LoadAbility(token, preToke, abilityInfo, appInfo, want);
+    if (abilityRecordId >= 0) {
+        LoadAbility(LoadAbilityParam{
+            .abilityRecordId = abilityRecordId,
+            .token = token,
+            .preRecordId = preRecordId,
+            .preToken = preToken,
+            .abilityInfo = abilityInfo,
+            .appInfo = appInfo,
+            .want = want
+        });
+    } else {
+        LoadAbility(token, preToken, abilityInfo, appInfo, want);
+    }
     return NO_ERROR;
 }
 
@@ -198,15 +211,15 @@ ErrCode AmsMgrStub::HandleAbilityBehaviorAnalysis(MessageParcel &data, MessagePa
 {
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    sptr<IRemoteObject> preToke = nullptr;
+    sptr<IRemoteObject> preToken = nullptr;
     if (data.ReadBool()) {
-        preToke = data.ReadRemoteObject();
+        preToken = data.ReadRemoteObject();
     }
     int32_t visibility = data.ReadInt32();
     int32_t perceptibility = data.ReadInt32();
     int32_t connectionState = data.ReadInt32();
 
-    AbilityBehaviorAnalysis(token, preToke, visibility, perceptibility, connectionState);
+    AbilityBehaviorAnalysis(token, preToken, visibility, perceptibility, connectionState);
     return NO_ERROR;
 }
 

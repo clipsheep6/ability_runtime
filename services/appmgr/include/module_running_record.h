@@ -30,6 +30,7 @@
 #include "app_mgr_constants.h"
 #include "app_lifecycle_deal.h"
 #include "app_mgr_service_event_handler.h"
+#include "load_ability_param.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -76,6 +77,8 @@ public:
 
     std::shared_ptr<AbilityRunningRecord> AddAbility(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want);
+
+    std::shared_ptr<AbilityRunningRecord> AddAbility(const LoadAbilityParam &abilityParam);
 
     bool IsLastAbilityRecord(const sptr<IRemoteObject> &token);
 
@@ -157,7 +160,7 @@ public:
     const std::shared_ptr<ApplicationInfo> GetAppInfo();
 
     bool RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteObject>& token) const;
-    
+
     bool IsAbilitiesBackgrounded();
 
 private:

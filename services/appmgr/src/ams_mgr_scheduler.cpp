@@ -74,8 +74,36 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     }
     PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
     HILOG_DEBUG("SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(), abilityInfo->name.c_str());
-    std::function<void()> loadAbilityFunc =
-        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
+    auto loadAbilityFunc = [appMgrInner = amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want]() {
+        appMgrInner->LoadAbility(token, preToken, abilityInfo, appInfo, want);
+    };
+
+    amsHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
+        .taskName_ = TASK_LOAD_ABILITY,
+        .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
+    });
+}
+
+void AmsMgrScheduler::LoadAbility(const LoadAbilityParam &loadAbilityParam)
+{
+    auto abilityInfo = loadAbilityParam.abilityInfo;
+    if (!abilityInfo || !loadAbilityParam.appInfo) {
+        HILOG_ERROR("param error");
+        return;
+    }
+
+    if (!IsReady()) {
+        return;
+    }
+
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        HILOG_ERROR("Permission verification failed.");
+        return;
+    }
+    PerfProfile::GetInstance().SetAbilityLoadStartTime(GetTickCount());
+    auto loadAbilityFunc = [appMgrInner = amsMgrServiceInner_, loadAbilityParam]() {
+        appMgrInner->LoadAbility(loadAbilityParam);
+    };
 
     amsHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_LOAD_ABILITY,

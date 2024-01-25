@@ -39,8 +39,35 @@ void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
     const std::shared_ptr<AAFwk::Want> &want)
 {
+    LoadAbility(LoadAbilityParam{
+        .token = token,
+        .preToken = preToken,
+        .abilityInfo = abilityInfo,
+        .appInfo = appInfo,
+        .want = want
+    });
+}
+
+bool WriteTokenObject(MessageParcel &data, sptr<IRemoteObject> token)
+{
+    if (token) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+            HILOG_ERROR("Failed to write flag or token");
+            return false;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("Failed to write flag");
+            return false;
+        }
+    }
+    return true;
+}
+
+void AmsMgrProxy::LoadAbility(const LoadAbilityParam &loadAbilityParam)
+{
     HILOG_DEBUG("start");
-    if (!abilityInfo || !appInfo) {
+    if (!loadAbilityParam.abilityInfo || !loadAbilityParam.appInfo) {
         HILOG_ERROR("param error");
         return;
     }
@@ -52,33 +79,21 @@ void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
         return;
     }
 
-    if (token) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("Failed to write flag and token");
-            return;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
-            return;
-        }
+    if (!WriteTokenObject(data, loadAbilityParam.token)) {
+        return;
+    }
+    if (!WriteTokenObject(data, loadAbilityParam.preToken)) {
+        return;
     }
 
-    if (preToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(preToken)) {
-            HILOG_ERROR("Failed to write flag and preToken");
-            return;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
-            return;
-        }
+    if (!data.WriteInt32(loadAbilityParam.abilityRecordId) || !data.WriteInt32(loadAbilityParam.preRecordId)) {
+        HILOG_ERROR("Write ability record id failed.");
+        return;
     }
 
-    data.WriteParcelable(abilityInfo.get());
-    data.WriteParcelable(appInfo.get());
-    if (!data.WriteParcelable(want.get())) {
+    data.WriteParcelable(loadAbilityParam.abilityInfo.get());
+    data.WriteParcelable(loadAbilityParam.appInfo.get());
+    if (!data.WriteParcelable(loadAbilityParam.want.get())) {
         HILOG_ERROR("Write data want failed.");
         return;
     }
@@ -786,7 +801,7 @@ int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugRespon
         HILOG_ERROR("Write interface token failed.");
         return ERR_INVALID_DATA;
     }
-    
+
     if (response == nullptr || !data.WriteRemoteObject(response->AsObject())) {
         HILOG_ERROR("Failed to write remote object.");
         return ERR_INVALID_DATA;

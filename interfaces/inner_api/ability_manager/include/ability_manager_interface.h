@@ -960,6 +960,17 @@ public:
      */
     virtual void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) = 0;
 
+    /**
+     * Get ability record id by connect.
+     *
+     * @param callStub The callee object.
+     * @return The record id of ability.
+     */
+    virtual int32_t GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
+    {
+        return -1;
+    }
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.

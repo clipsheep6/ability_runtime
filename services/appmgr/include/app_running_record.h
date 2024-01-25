@@ -294,6 +294,8 @@ public:
         const sptr<IRemoteObject> &token, const HapModuleInfo &hapModuleInfo,
         const std::shared_ptr<AAFwk::Want> &want);
 
+    void AddModule(const LoadAbilityParam &abilityParam, const HapModuleInfo &hapModuleInfo);
+
     void AddModules(const std::shared_ptr<ApplicationInfo> &appInfo, const std::vector<HapModuleInfo> &moduleInfos);
 
     std::shared_ptr<ModuleRunningRecord> GetModuleRecordByModuleName(

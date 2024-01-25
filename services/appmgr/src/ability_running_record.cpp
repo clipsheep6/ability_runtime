@@ -21,6 +21,10 @@ AbilityRunningRecord::AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &i
     : info_(info), token_(token)
 {}
 
+AbilityRunningRecord::AbilityRunningRecord(std::shared_ptr<AbilityInfo> info, sptr<IRemoteObject> token,
+        int32_t abilityRecordId) : info_(info), abilityRecordId_(abilityRecordId), token_(token)
+{}
+
 AbilityRunningRecord::~AbilityRunningRecord()
 {}
 

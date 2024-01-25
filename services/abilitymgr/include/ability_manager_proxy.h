@@ -766,6 +766,14 @@ public:
      */
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override;
 
+    /**
+     * Get ability record id by connect.
+     *
+     * @param callStub The callee object.
+     * @return The record id of ability.
+     */
+    int32_t GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub) override;
+
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.

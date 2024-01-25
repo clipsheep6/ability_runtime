@@ -31,7 +31,7 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
     HILOG_DEBUG("Call");
     std::lock_guard<ffrt::mutex> guard(observerLock_);
     if (abilityStateData.abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND)) {
-        token_ = abilityStateData.token;
+        abilityRecordId_ = abilityStateData.abilityRecordId;
     }
 }
 
@@ -47,7 +47,7 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
         }
     }
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
-        auto abilityRecord = Token::GetAbilityRecordByToken(token_);
+        auto abilityRecord = AbilityRecord::GetAbilityRecordById(abilityRecordId_);
         if (!abilityRecord) {
             interceptor_->UnregisterObserver(pageStateData.bundleName);
             HILOG_ERROR("abilityRecord is nullptr");

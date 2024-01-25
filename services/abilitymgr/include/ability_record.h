@@ -321,6 +321,7 @@ public:
      * @return Returns ability record ptr.
      */
     static std::shared_ptr<AbilityRecord> CreateAbilityRecord(const AbilityRequest &abilityRequest);
+    static std::shared_ptr<AbilityRecord> GetAbilityRecordById(int32_t abilityRecordId);
 
     /**
      * Init ability record.
@@ -962,6 +963,9 @@ protected:
     Want want_ = {};                                       // want to start this ability
 
 private:
+    static void AddAbilityRecord(int32_t abilityRecordId, std::weak_ptr<AbilityRecord> record);
+    static void RemoveAbilityRecord(int32_t abilityRecordId);
+    static int32_t GenerateNextAbilityRecordId();
     /**
      * get the type of ability.
      *
@@ -1042,9 +1046,10 @@ private:
     void GetColdStartingWindowResource(std::shared_ptr<Media::PixelMap> &bg, uint32_t &bgColor);
     void SetAbilityStateInner(AbilityState state);
 #endif
-
-    static int64_t abilityRecordId;
-    int recordId_ = 0;                                // record id
+    static std::mutex g_recordMapMutex;
+    static std::unordered_map<int32_t, std::weak_ptr<AbilityRecord>> g_abilityRecordMap;
+    static int32_t g_abilityRecordId;
+    int32_t recordId_ = 0;                                // record id
     int32_t uiExtensionAbilityId_ = 0;                // uiextension ability id
     AppExecFwk::AbilityInfo abilityInfo_ = {};             // the ability info get from BMS
     AppExecFwk::ApplicationInfo applicationInfo_ = {};     // the ability info get from BMS

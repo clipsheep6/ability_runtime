@@ -737,6 +737,7 @@ public:
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) override;
 
     void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override;
+    int32_t GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub) override;
 
     virtual int StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag) override;
 

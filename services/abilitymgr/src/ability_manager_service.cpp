@@ -8420,6 +8420,17 @@ void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject>
     token = callStubTokenMap_[callStub];
 }
 
+int32_t AbilityManagerService::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
+{
+    std::lock_guard autoLock(abilityTokenLock_);
+    auto it = callStubTokenMap_.find(callStub);
+    if (it == callStubTokenMap_.end()) {
+        return -1;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(it->second);
+    return abilityRecord ? abilityRecord->GetRecordId() : -1;
+}
+
 int AbilityManagerService::AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken)
 {
     if (AAFwk::PermissionVerification::GetInstance()->IsSACall() ||

@@ -76,8 +76,6 @@ HWTEST_F(AbilityForegroundStateObserverProxyTest, OnAbilityStateChanged_0100, Te
 {
     GTEST_LOG_(INFO) << "OnAbilityStateChanged_0100 start";
     AbilityStateData abilityStateData;
-    sptr<IRemoteObject> token = new MockAbilityForegroundStateObserverServerStub();
-    abilityStateData.token = token;
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &MockAbilityForegroundStateObserverStub::InvokeSendRequest));

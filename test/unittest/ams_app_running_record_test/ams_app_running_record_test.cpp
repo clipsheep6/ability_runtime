@@ -1013,14 +1013,14 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_002, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
 
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr, -1);
     auto moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRecord2 = moduleRecord->GetAbilityRunningRecordByToken(token2);
     EXPECT_TRUE(abilityRecord2 != nullptr);
 
     sptr<IRemoteObject> token3 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo3, token3, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo3, token3, hapModuleInfo, nullptr, -1);
     auto moduleRecord3 = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord3);
     auto abilityRecord3 = moduleRecord3->GetAbilityRunningRecordByToken(token3);
@@ -1150,14 +1150,14 @@ HWTEST_F(AmsAppRunningRecordTest, LaunchAbilityForApp_005, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
 
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr, -1);
     auto moduleRecord2 = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord2);
     auto abilityRecord2 = moduleRecord2->GetAbilityRunningRecordByToken(token2);
     abilityRecord2->SetState(AbilityState::ABILITY_STATE_READY);
 
     sptr<IRemoteObject> token3 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo3, token3, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo3, token3, hapModuleInfo, nullptr, -1);
     auto moduleRecord3 = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord3);
     auto abilityRecord3 = moduleRecord3->GetAbilityRunningRecordByToken(token3);
@@ -1380,20 +1380,20 @@ HWTEST_F(AmsAppRunningRecordTest, AddModule_001, TestSize.Level1)
         record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(!moduleRecord);
 
-    record->AddModule(nullptr, nullptr, nullptr, hapModuleInfo, nullptr);
-    record->AddModule(appInfo, nullptr, nullptr, hapModuleInfo, nullptr);
-    record->AddModule(appInfo, abilityInfo, nullptr, hapModuleInfo, nullptr);
-    record->AddModule(appInfo, nullptr, token2, hapModuleInfo, nullptr);
+    record->AddModule(nullptr, nullptr, nullptr, hapModuleInfo, nullptr, -1);
+    record->AddModule(appInfo, nullptr, nullptr, hapModuleInfo, nullptr, -1);
+    record->AddModule(appInfo, abilityInfo, nullptr, hapModuleInfo, nullptr, -1);
+    record->AddModule(appInfo, nullptr, token2, hapModuleInfo, nullptr, -1);
     moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_FALSE(!moduleRecord);
-    record->AddModule(appInfo, abilityInfo, token2, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo, token2, hapModuleInfo, nullptr, -1);
 
     auto abilityInfo2 = std::make_shared<AbilityInfo>();
     abilityInfo2->name = GetTestAbilityName() + "_1";
     abilityInfo2->applicationName = GetTestAppName();
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
 
     moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 2);
@@ -1433,7 +1433,7 @@ HWTEST_F(AmsAppRunningRecordTest, AddModule_002, TestSize.Level1)
     abilityInfo2->name = GetTestAbilityName() + "_1";
     abilityInfo2->applicationName = GetTestAppName();
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr, -1);
 
     moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 1);
@@ -1477,12 +1477,12 @@ HWTEST_F(AmsAppRunningRecordTest, GetModuleRecordByModuleName_001, TestSize.Leve
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo1, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo1, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
     EXPECT_TRUE(record->hapModules_.size() == 1);
     moduleRecord = record->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord == nullptr);
 
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
     EXPECT_TRUE(record->hapModules_.size() == 2);
 
     std::string moduleName1 = "module123";
@@ -1524,7 +1524,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilities_001, TestSize.Level1)
     abilityInfo2->name = GetTestAbilityName() + "_1";
     abilityInfo2->applicationName = GetTestAppName();
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo, nullptr, -1);
 
     auto abilities = record->GetAbilities();
     EXPECT_TRUE(abilities.size() == 2);
@@ -1562,7 +1562,7 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilities_002, TestSize.Level1)
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
 
     auto abilities = record->GetAbilities();
     EXPECT_TRUE(abilities.size() == 2);
@@ -1601,7 +1601,7 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveModuleRecord_001, TestSize.Level1)
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
 
     std::shared_ptr<ModuleRunningRecord> moduleRecord0;
     record->RemoveModuleRecord(moduleRecord0);
@@ -2280,14 +2280,14 @@ HWTEST_F(AmsAppRunningRecordTest, GetAbilityRunningRecord_002, TestSize.Level1)
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
 
     sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, -1);
     auto abilityInfo1 = std::make_shared<AbilityInfo>();
     abilityInfo1->name = GetTestAbilityName() + "_1";
     abilityInfo1->applicationName = GetTestAppName();
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "";
     sptr<IRemoteObject> token1 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo1, token1, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo1, token1, hapModuleInfo1, nullptr, -1);
     auto moduleRecordList = record->GetAllModuleRecord();
     EXPECT_TRUE(moduleRecordList.size() == 2);
 
@@ -2339,7 +2339,7 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStage_001, TestSize.Level1)
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
     record->mainBundleName_ = bundleName;
     record->AddAbilityStage();
     HILOG_INFO("AmsAppRunningRecordTest AddAbilityStage_001 end");
@@ -2392,7 +2392,7 @@ HWTEST_F(AmsAppRunningRecordTest, AddAbilityStageBySpecifiedAbility_001, TestSiz
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token2 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo, abilityInfo2, token2, hapModuleInfo1, nullptr, -1);
 
     record->appLifeCycleDeal_ = std::make_shared<AppLifeCycleDeal>();
     record->AddAbilityStageBySpecifiedAbility(bundleName);
@@ -2487,12 +2487,12 @@ HWTEST_F(AmsAppRunningRecordTest, GetModuleRunningRecordByToken_001, TestSize.Le
     HapModuleInfo hapModuleInfo1;
     hapModuleInfo1.moduleName = "module123";
     sptr<IRemoteObject> token1 = new (std::nothrow) MockAbilityToken();
-    record->AddModule(appInfo1, abilityInfo1, token1, hapModuleInfo1, nullptr);
+    record->AddModule(appInfo1, abilityInfo1, token1, hapModuleInfo1, nullptr, -1);
     EXPECT_TRUE(record->hapModules_.size() == 1);
     moduleRecord = record->GetModuleRunningRecordByToken(token);
     EXPECT_TRUE(moduleRecord == nullptr);
 
-    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, -1);
     EXPECT_TRUE(record->hapModules_.size() == 2);
     moduleRecord = record->GetModuleRunningRecordByToken(token);
     EXPECT_TRUE(moduleRecord != nullptr);
@@ -2537,8 +2537,8 @@ HWTEST_F(AmsAppRunningRecordTest, GetModuleRunningRecordByTerminateLists_001, Te
     moduleRecord = record->GetModuleRunningRecordByTerminateLists(token);
     EXPECT_TRUE(moduleRecord == nullptr);
 
-    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
-    record->AddModule(appInfo1, abilityInfo1, token1, hapModuleInfo, nullptr);
+    record->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, -1);
+    record->AddModule(appInfo1, abilityInfo1, token1, hapModuleInfo, nullptr, -1);
     EXPECT_TRUE(record->hapModules_.size() == 2);
     moduleRecord = record->GetModuleRunningRecordByTerminateLists(token);
     EXPECT_TRUE(moduleRecord == nullptr);
