@@ -39,6 +39,7 @@ config("wantagent_innerkits_public_config") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
+    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit",
