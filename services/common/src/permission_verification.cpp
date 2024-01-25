@@ -28,6 +28,10 @@ const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 namespace {
 const int32_t BROKER_UID = 5557;
+const std::set<std::string> OBSERVER_NATIVE_CALLER = {
+    "memmgrservice",
+    "resource_schedule_service",
+};
 }
 bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const std::string &permissionName) const
 {
@@ -92,6 +96,24 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const st
     int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
     if (result != ERR_OK || nativeTokenInfo.processName != processName) {
         HILOG_ERROR("Check process name failed.");
+        return false;
+    }
+    return true;
+}
+
+bool PermissionVerification::CheckObserverCallerPermission() const
+{
+    HILOG_DEBUG("called");
+    if (!IsSACall()) {
+        HILOG_ERROR("caller tokenType is not native");
+        return false;
+    }
+    auto callerToken = GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
+    if (result != ERR_OK ||
+        OBSERVER_NATIVE_CALLER.find(nativeTokenInfo.processName) == OBSERVER_NATIVE_CALLER.end()) {
+        HILOG_ERROR("Check native token failed.");
         return false;
     }
     return true;

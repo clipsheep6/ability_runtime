@@ -830,7 +830,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
-    std::string callerAbilityName = abilityRecord ? abilityRecord->GetAbilityInfo().name : "";
     bool selfFreeInstallEnable = (result == RESOLVE_ABILITY_ERR && want.GetElement().GetModuleName() != "" &&
         want.GetElement().GetBundleName() == callerBundleName);
     bool isStartFreeInstallByWant = AbilityUtil::IsStartFreeInstall(want);
@@ -3551,11 +3550,19 @@ int AbilityManagerService::StopSyncRemoteMissions(const std::string& devId)
 
 int AbilityManagerService::RegisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
 {
+    if (!PermissionVerification::GetInstance()->CheckObserverCallerPermission()) {
+        HILOG_ERROR("Permission verification failed");
+        return CHECK_PERMISSION_FAILED;
+    }
     return DelayedSingleton<ConnectionStateManager>::GetInstance()->RegisterObserver(observer);
 }
 
 int AbilityManagerService::UnregisterObserver(const sptr<AbilityRuntime::IConnectionObserver> &observer)
 {
+    if (!PermissionVerification::GetInstance()->CheckObserverCallerPermission()) {
+        HILOG_ERROR("Permission verification failed");
+        return CHECK_PERMISSION_FAILED;
+    }
     return DelayedSingleton<ConnectionStateManager>::GetInstance()->UnregisterObserver(observer);
 }
 

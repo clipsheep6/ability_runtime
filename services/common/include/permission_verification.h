@@ -46,6 +46,8 @@ struct VerificationInfo {
 
     bool CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const;
 
+    bool CheckObserverCallerPermission() const;
+
     bool VerifyRunningInfoPerm() const;
 
     bool VerifyControllerPerm() const;
