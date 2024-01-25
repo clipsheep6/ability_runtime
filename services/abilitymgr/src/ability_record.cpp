@@ -80,6 +80,7 @@ const std::string PARAMS_URI = "ability.verify.uri";
 const std::string PARAMS_FILE_SAVING_URL_KEY = "pick_path_return";
 const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window resource timeout.
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
 const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
 constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
@@ -1361,6 +1362,8 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
             HILOG_ERROR("AddDeathRecipient failed.");
         }
         pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
+        // add collaborator mission bind pid
+        NotifyMissionBindPid();
         HandleDlpAttached();
     } else {
         HILOG_ERROR("scheduler is nullptr");
@@ -3096,6 +3099,28 @@ void AbilityRecord::NotifyRemoveShellProcess(int32_t type)
         if (ret != ERR_OK) {
             HILOG_ERROR("notify broker remove shell process failed, err: %{public}d", ret);
         }
+    }
+}
+
+void AbilityRecord::NotifyMissionBindPid()
+{
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        return;
+    }
+    auto sessionInfo = GetSessionInfo();
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return;
+    }
+    int32_t persistentId = sessionInfo->persistentId;
+    if (abilityInfo_.bundleName == SHELL_ASSISTANT_BUNDLENAME && abilityInfo_.name == SHELL_ASSISTANT_ABILITYNAME) {
+        auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(
+            CollaboratorType::RESERVE_TYPE);
+        if (collaborator == nullptr) {
+            HILOG_DEBUG("collaborator is nullptr");
+            return;
+        }
+        collaborator->NotifyMissionBindPid(persistentId, pid_);
     }
 }
 

@@ -476,6 +476,29 @@ int32_t AbilityManagerCollaboratorProxy::OpenFile(const Uri& uri, uint32_t flag)
     return reply.ReadFileDescriptor();
 }
 
+void AbilityManagerCollaboratorProxy::NotifyMissionBindPid(int32_t missionId, int32_t pid)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!data.WriteInterfaceToken(AbilityManagerCollaboratorProxy::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+    if (!data.WriteInt32(missionId)) {
+        HILOG_ERROR("Write missionId failed.");
+        return;
+    }
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("Write pid failed.");
+        return;
+    }
+    auto error = SendTransactCmd(IAbilityManagerCollaborator::NOTIFY_MISSION_BIND_PID, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send config error: %{public}d", error);
+    }
+}
+
 int32_t AbilityManagerCollaboratorProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
