@@ -5263,8 +5263,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
         HILOG_ERROR("extensionInfo empty.");
         return RESOLVE_ABILITY_ERR;
     }
-    HILOG_DEBUG("Extension ability info found, name=%{public}s.",
-        extensionInfo.name.c_str());
+    HILOG_DEBUG("Extension ability info found, name=%{public}s.", extensionInfo.name.c_str());
     // For compatibility translates to AbilityInfo
     InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
     request.extensionProcessMode = extensionInfo.extensionProcessMode;
