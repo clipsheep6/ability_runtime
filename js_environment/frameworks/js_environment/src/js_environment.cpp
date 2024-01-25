@@ -283,6 +283,15 @@ void JsEnvironment::DestroyHeapProfiler()
     panda::DFXJSNApi::DestroyHeapProfiler(vm_);
 }
 
+void JsEnvironment::GetHeapPrepare()
+{
+    if (vm_ == nullptr) {
+        JSENV_LOG_E("Invalid vm.");
+        return;
+    }
+    panda::DFXJSNApi::GetHeapPrepare(vm_);
+}
+
 void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
 {
     JSENV_LOG_D("ReInit jsenv impl.");

@@ -1073,7 +1073,7 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
 {
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
-    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
+    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
 void JsRuntime::DestroyHeapProfiler()
@@ -1087,6 +1087,19 @@ void JsRuntime::ForceFullGC()
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
     panda::JSNApi::TriggerGC(vm, panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
+}
+
+void JsRuntime::AllowCrossThreadExecution()
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    panda::JSNApi::AllowCrossThreadExecution(vm);
+}
+
+void JsRuntime::GetHeapPrepare()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->GetHeapPrepare();
 }
 
 bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)

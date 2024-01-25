@@ -81,6 +81,8 @@ public:
     virtual void DumpHeapSnapshot(bool isPrivate) = 0;
     virtual void DestroyHeapProfiler() = 0;
     virtual void ForceFullGC() = 0;
+    virtual void AllowCrossThreadExecution() = 0;
+    virtual void GetHeapPrepare() = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;
     virtual bool SuspendVM(uint32_t tid) = 0;
     virtual void ResumeVM(uint32_t tid) = 0;
