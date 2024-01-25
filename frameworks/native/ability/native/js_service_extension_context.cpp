@@ -688,24 +688,30 @@ private:
         sptr<JSServiceExtensionConnection> connection = nullptr;
         FindConnection(want, connection, connectId);
         // begin disconnect
+        auto resultCode = std::make_shared<int32_t>(0);
+        auto executeCallback = [resultCode, weak = context_, want, connection]() {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                *resultCode = ERROR_CODE_ONE;
+                return;
+            }
+            if (connection == nullptr) {
+                HILOG_WARN("connection null");
+                *resultCode = ERROR_CODE_TWO;
+                return;
+            }
+            *resultCode = context->DisconnectAbility(want, connection);
+        };
         NapiAsyncTask::CompleteCallback complete =
-            [weak = context_, want, connection](
-                napi_env env, NapiAsyncTask& task, int32_t status) {
-                auto context = weak.lock();
-                if (!context) {
-                    HILOG_WARN("context is released");
-                    task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "Context is released"));
-                    return;
-                }
-                if (connection == nullptr) {
-                    HILOG_WARN("connection null");
-                    task.Reject(env, CreateJsError(env, ERROR_CODE_TWO, "not found connection"));
-                    return;
-                }
-                HILOG_DEBUG("context->DisconnectAbility");
-                auto innerErrorCode = context->DisconnectAbility(want, connection);
+            [resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+                auto innerErrorCode = *resultCode;
                 if (innerErrorCode == 0) {
                     task.Resolve(env, CreateJsUndefined(env));
+                } else if (innerErrorCode == ERROR_CODE_ONE) {
+                    task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "Context is released"));
+                } else if (innerErrorCode == ERROR_CODE_TWO) {
+                    task.Reject(env, CreateJsError(env, ERROR_CODE_TWO, "not found connection"));
                 } else {
                     task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
                 }
@@ -713,8 +719,8 @@ private:
 
         napi_value lastParam = (info.argc == ARGC_ONE) ? nullptr : info.argv[INDEX_ONE];
         napi_value result = nullptr;
-        NapiAsyncTask::Schedule("JSServiceExtensionConnection::OnDisconnectAbility",
-            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        NapiAsyncTask::Schedule("JSServiceExtensionConnection::OnDisconnectAbility", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(executeCallback), std::move(complete), &result));
         return result;
     }
 
