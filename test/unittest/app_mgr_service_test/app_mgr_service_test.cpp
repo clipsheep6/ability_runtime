@@ -1062,7 +1062,7 @@ HWTEST_F(AppMgrServiceTest, NotifyLoadRepairPatch_002, TestSize.Level0)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyLoadRepairPatch(bundleName, callback);
-    EXPECT_NE(res, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
 
 /*
@@ -1101,7 +1101,7 @@ HWTEST_F(AppMgrServiceTest, NotifyHotReloadPage_002, TestSize.Level0)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyHotReloadPage(bundleName, callback);
-    EXPECT_NE(res, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -1180,7 +1180,7 @@ HWTEST_F(AppMgrServiceTest, NotifyUnLoadRepairPatch_002, TestSize.Level0)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyUnLoadRepairPatch(bundleName, callback);
-    EXPECT_NE(res, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
 
 /*

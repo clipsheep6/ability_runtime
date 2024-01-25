@@ -259,6 +259,7 @@ ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
 
 ErrCode AbilityManagerClient::StartUIExtensionAbility(sptr<SessionInfo> extensionSessionInfo, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
@@ -302,6 +303,7 @@ ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> token, int re
 ErrCode AbilityManagerClient::TerminateUIExtensionAbility(sptr<SessionInfo> extensionSessionInfo,
     int resultCode, const Want *resultWant)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
