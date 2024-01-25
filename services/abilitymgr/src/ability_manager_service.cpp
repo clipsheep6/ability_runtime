@@ -5222,9 +5222,6 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.uid = request.appInfo.uid;
     HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, moduleName name: %{public}s, uid: %{public}d.",
         request.appInfo.name.c_str(), request.abilityInfo.moduleName.c_str(), request.uid);
-    if (!CheckDebugAppInDeveloperMode(request.appInfo.debug)) {
-        return ERR_NOT_DEVELOPER_MODE;
-    }
 
     request.want.SetModuleName(request.abilityInfo.moduleName);
 
@@ -5290,9 +5287,6 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     request.uid = request.appInfo.uid;
     HILOG_DEBUG("GenerateAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
         request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
-    if (!CheckDebugAppInDeveloperMode(request.appInfo.debug)) {
-        return ERR_NOT_DEVELOPER_MODE;
-    }
 
     HILOG_DEBUG("GenerateExtensionAbilityRequest, moduleName: %{public}s.", request.abilityInfo.moduleName.c_str());
     request.want.SetModuleName(request.abilityInfo.moduleName);
@@ -9236,15 +9230,6 @@ bool AbilityManagerService::IsAbilityStarted(AbilityRequest &abilityRequest,
         return false;
     }
     return missionListMgr->IsAbilityStarted(abilityRequest, targetRecord);
-}
-
-bool AbilityManagerService::CheckDebugAppInDeveloperMode(bool isDebugApp)
-{
-    if (isDebugApp && !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        HILOG_ERROR("Debugging application cannot run in non developer mode.");
-        return false;
-    }
-    return true;
 }
 
 int32_t AbilityManagerService::OnExecuteIntent(AbilityRequest &abilityRequest,
