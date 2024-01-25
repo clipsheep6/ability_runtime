@@ -6589,6 +6589,11 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         HILOG_ERROR("%{public}s AppRecovery::failed find abilityRecord by given token.", __func__);
         return;
     }
+    if (!record->IsForeground() && !record->GetAbilityForegroundingFlag()) {
+        HILOG_ERROR("%{public}s AppRecovery::failed to recoveryAbility."
+            "due to it is background", __func__);
+        return;
+    }
 
     auto callingTokenId = IPCSkeleton::GetCallingTokenID();
     auto tokenID = record->GetApplicationInfo().accessTokenId;

@@ -291,8 +291,10 @@ void AppRecovery::DoRecoverApp(StateReason reason)
     }
 
     if (abilityRecoverys_.size() == 1) {
-        abilityRecoverys_.front()->ScheduleRecoverAbility(reason, want);
-        return;
+        if (abilityRecoverys_.front()->IsOnForeground()) {
+            abilityRecoverys_.front()->ScheduleRecoverAbility(reason, want);
+            return;
+        }
     }
 
     for (auto itr = abilityRecoverys_.rbegin(); itr != abilityRecoverys_.rend(); itr++) {
