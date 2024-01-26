@@ -9500,12 +9500,12 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
 int AbilityManagerService::SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed)
 {
     CHECK_CALLER_IS_SYSTEM_APP;
+    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     if (!isAllowed) {
         HILOG_INFO("user refuse to jump");
         dialogSessionRecord_->ClearDialogContext(dialogSessionId);
         return ERR_OK;
     }
-    CHECK_POINTER_AND_RETURN(dialogSessionRecord_, ERR_INVALID_VALUE);
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId);
     if (dialogCallerInfo == nullptr) {
         HILOG_ERROR("dialog caller info is nullptr");
