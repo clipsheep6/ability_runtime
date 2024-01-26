@@ -91,6 +91,8 @@ public:
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
+    MOCK_METHOD1(RegisterAppRunningStatusListener, int(const sptr<IRemoteObject> &listener));
+    MOCK_METHOD1(UnregisterAppRunningStatusListener, int(const sptr<IRemoteObject> &listener));
 
     MOCK_METHOD0(IsFinalAppProcess, bool());
     virtual int StartUserTestProcess(
@@ -212,16 +214,6 @@ public:
     int code_;
 
     virtual int32_t ChangeAppGcState(pid_t pid, int32_t state)
-    {
-        return 0;
-    }
-
-    int32_t RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
-    {
-        return 0;
-    }
-
-    int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
     {
         return 0;
     }

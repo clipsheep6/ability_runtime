@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2023 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,19 +16,16 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/appmgrservice"
 
-ohos_unittest("AppMgrStubTest") {
+ohos_unittest("app_running_status_stub_test") {
   module_out_path = module_output_path
 
-  configs = [ "${ability_runtime_services_path}/common:common_config" ]
+  include_dirs = [ "${ability_runtime_services_path}/appmgr/include" ]
 
-  include_dirs = [
-    "${ability_runtime_test_path}/mock/services_appmgr_test/include",
-    "${ability_runtime_test_path}/unittest/app_running_status_module_test",
-  ]
-
-  sources = [ "app_mgr_stub_test.cpp" ]
+  sources = [ "app_running_status_stub_test.cpp" ]
 
   deps = [
+    "${ability_runtime_services_path}/appmgr:libappms",
+    "${ability_runtime_services_path}/common:task_handler_wrap",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -37,24 +34,27 @@ ohos_unittest("AppMgrStubTest") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:app_manager",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "hilog:libhilog",
+    "ffrt:libffrt",
+    "init:libbeget_proxy",
+    "init:libbegetutil",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   defines = []
   if (background_task_mgr_continuous_task_enable) {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
-
-  if (ability_command_for_test) {
-    defines += [ "ABILITY_COMMAND_FOR_TEST" ]
-  }
 }
 
 group("unittest") {
   testonly = true
 
-  deps = [ ":AppMgrStubTest" ]
+  deps = [ ":app_running_status_stub_test" ]
 }

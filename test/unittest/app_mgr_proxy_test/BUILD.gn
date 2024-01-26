@@ -24,6 +24,7 @@ ohos_unittest("AppMgrProxyTest") {
   include_dirs = [
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
     "${ability_runtime_test_path}/unittest/ability_foreground_state_observer_proxy_test",
+    "${ability_runtime_test_path}/unittest/app_running_status_module_test",
   ]
 
   sources = [ "app_mgr_proxy_test.cpp" ]
