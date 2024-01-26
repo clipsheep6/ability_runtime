@@ -1663,16 +1663,9 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
 
     auto requestCode = sessionInfo->requestCode;
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
-
-    std::string bundleName;
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_ERROR("Get Bundle Name failed.");
-        return ERR_INVALID_VALUE;
-    }
-    if (bundleName == BUNDLE_NAME_SCENEBOARD) {
+    auto callerAbility = Token::GetAbilityRecordByToken(sessionInfo->callerToken);
+    if (!sessionInfo->callerToken || !callerAbility ||
+        callerAbility->GetAbilityInfo().bundleName == BUNDLE_NAME_SCENEBOARD) {
         HILOG_DEBUG("interceptorExecuter_ called.");
         auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(sessionInfo->want, requestCode, currentUserId, true);
@@ -1699,7 +1692,8 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         HILOG_ERROR("Only support for page type ability.");
         return ERR_INVALID_VALUE;
     }
-    if (bundleName == BUNDLE_NAME_SCENEBOARD) {
+    if (!sessionInfo->callerToken || !callerAbility ||
+        callerAbility->GetAbilityInfo().bundleName == BUNDLE_NAME_SCENEBOARD) {
         HILOG_DEBUG("afterCheckExecuter_ called.");
         result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE : afterCheckExecuter_->DoProcess(
             abilityRequest.want, requestCode, GetUserId(), true, sessionInfo->callerToken);
