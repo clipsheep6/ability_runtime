@@ -121,7 +121,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 
 void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -132,7 +132,7 @@ void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &a
 
 void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessCreated begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has cancelled storage");
         return;
@@ -155,7 +155,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessCreated begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -166,7 +166,7 @@ void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessStateChanged begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has destoryed");
         return;
@@ -189,7 +189,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessStateChanged begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -200,7 +200,7 @@ void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processD
 
 void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessDied begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has destoryed");
         return;
@@ -223,7 +223,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessDied begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();

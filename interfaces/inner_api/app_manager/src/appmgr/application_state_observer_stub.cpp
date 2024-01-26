@@ -247,7 +247,7 @@ int32_t ApplicationStateObserverStub::HandleOnAppStateChanged(MessageParcel &dat
 
 void ApplicationStateObserverRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    HILOG_ERROR("ApplicationStateObserverRecipient On remote died.");
+    HILOG_DEBUG("called");
     if (handler_) {
         handler_(remote);
     }
