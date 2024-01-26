@@ -125,7 +125,7 @@ bool AbilityContextImpl::PrintDrawnCompleted()
 
 void AbilityContextImpl::SwitchArea(int mode)
 {
-    HILOG_DEBUG("mode:%{public}d.", mode);
+    HILOG_INFO("mode:%{public}d.", mode);
     if (stageContext_ != nullptr) {
         stageContext_->SwitchArea(mode);
     }
@@ -600,7 +600,7 @@ void AbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerC
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     abilityCallback_ = abilityCallback;
 }
 

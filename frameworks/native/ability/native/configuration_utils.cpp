@@ -134,7 +134,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
     if (changeKeyV.empty()) {
-        HILOG_DEBUG("There's no changed config, return.");
+        HILOG_INFO("There's no changed config, return.");
         return;
     }
     configuration->Merge(changeKeyV, newConfig);
@@ -170,7 +170,7 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
     float &density, std::string &direction)
 {
     // resourceManager has checked in caller function.
-    HILOG_DEBUG("Update resConfig, density: %{public}f, direction: %{public}s.", density, direction.c_str());
+    HILOG_INFO("Update resConfig, density: %{public}f, direction: %{public}s.", density, direction.c_str());
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
         HILOG_ERROR("Create resConfig failed.");
@@ -181,7 +181,7 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
     resConfig->SetScreenDensity(density);
     resConfig->SetDirection(ConvertDirection(direction));
     resourceManager->UpdateResConfig(*resConfig);
-    HILOG_DEBUG("Update resConfig finished, density: %{public}f, direction: %{public}d.", resConfig->GetScreenDensity(),
+    HILOG_INFO("Update resConfig finished, density: %{public}f, direction: %{public}d.", resConfig->GetScreenDensity(),
         resConfig->GetDirection());
 }
 #endif

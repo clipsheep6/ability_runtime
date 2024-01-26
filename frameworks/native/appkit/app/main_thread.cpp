@@ -219,7 +219,7 @@ void GetPatchNativeLibPath(const HapModuleInfo &hapInfo, std::string &patchNativ
     std::string appLibPathKey = hapInfo.bundleName + "/" + hapInfo.moduleName;
     std::string patchLibPath = LOCAL_CODE_PATH;
     patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-    HILOG_DEBUG("appLibPathKey: %{public}s, patch lib path: %{private}s", appLibPathKey.c_str(), patchLibPath.c_str());
+    HILOG_INFO("appLibPathKey: %{public}s, patch lib path: %{private}s", appLibPathKey.c_str(), patchLibPath.c_str());
     appLibPaths[appLibPathKey].emplace_back(patchLibPath);
 }
 } // namespace
@@ -703,7 +703,7 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
+    HILOG_INFO("ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
     AAFwk::Want newWant(*want);
     newWant.CloseAllFd();
@@ -1845,7 +1845,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
         HILOG_ERROR("record->GetAbilityInfo() failed");
         return;
     }
-    HILOG_DEBUG("ability name: %{public}s", abilityInfo->name.c_str());
+    HILOG_INFO("ability name: %{public}s", abilityInfo->name.c_str());
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
     application_->CleanAbilityStage(token, abilityInfo);
@@ -2294,7 +2294,7 @@ void MainThread::ForceFullGC()
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    HILOG_INFO("called");
 
     if (AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
         ChildProcessInfo info;
@@ -2741,7 +2741,7 @@ bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
             (!hapInfo.hqfInfo.hqfFilePath.empty())) {
             std::string resolvedHapPath(AbilityBase::GetLoadPath(hapInfo.hapPath));
             std::string resolvedHqfFile(AbilityBase::GetLoadPath(hapInfo.hqfInfo.hqfFilePath));
-            HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
+            HILOG_INFO("bundleName: %{public}s, moduleName: %{public}s, processName: %{private}s, "
                 "hqf file: %{private}s, hap path: %{private}s.", bundleName.c_str(), hapInfo.moduleName.c_str(),
                 hapInfo.process.c_str(), resolvedHqfFile.c_str(), resolvedHapPath.c_str());
             fileMap.push_back(std::pair<std::string, std::string>(resolvedHqfFile, resolvedHapPath));
@@ -2835,7 +2835,7 @@ void MainThread::SetProcessExtensionType(const std::shared_ptr<AbilityLocalRecor
         HILOG_ERROR("abilityInfo is null");
         return;
     }
-    HILOG_DEBUG("type = %{public}d",
+    HILOG_INFO("type = %{public}d",
         static_cast<int32_t>(abilityRecord->GetAbilityInfo()->extensionAbilityType));
     extensionConfigMgr_->SetProcessExtensionType(
         static_cast<int32_t>(abilityRecord->GetAbilityInfo()->extensionAbilityType));

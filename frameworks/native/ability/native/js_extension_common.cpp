@@ -85,7 +85,7 @@ void JsExtensionCommon::OnMemoryLevel(int level)
 
 napi_value JsExtensionCommon::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
-    HILOG_DEBUG("name: %{public}s", name);
+    HILOG_INFO("JsExtensionCommon::CallObjectMethod(%{public}s), begin", name);
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -101,7 +101,7 @@ napi_value JsExtensionCommon::CallObjectMethod(const char* name, napi_value cons
         HILOG_ERROR("Failed to get '%{public}s' from js object", name);
         return nullptr;
     }
-    HILOG_DEBUG("(%{public}s), success", name);
+    HILOG_INFO("JsExtensionCommon::CallFunction(%{public}s), success", name);
     napi_value result = nullptr;
     napi_call_function(env, obj, method, argc, argv, &result);
     return result;

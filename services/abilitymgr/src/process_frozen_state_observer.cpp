@@ -101,7 +101,7 @@ void ProcessFrozenStateObserver::OnDoze(const int32_t uid)
 
 void ProcessFrozenStateObserver::OnFrozen(const std::vector<int32_t> &pidList, const int32_t uid)
 {
-    HILOG_DEBUG("OnFrozen: %{public}d", uid);
+    HILOG_INFO("OnFrozen: %{public}d", uid);
     if (pidList.empty()) {
         HILOG_WARN("OnFrozen pidList empty");
         return;

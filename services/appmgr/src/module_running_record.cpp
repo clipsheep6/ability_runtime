@@ -31,7 +31,7 @@ ModuleRunningRecord::ModuleRunningRecord(
 
 ModuleRunningRecord::~ModuleRunningRecord()
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("ModuleRunningRecord");
 }
 
 void ModuleRunningRecord::Init(const HapModuleInfo &info)
@@ -139,7 +139,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
 
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("Get ability running record by eventId.");
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
@@ -177,7 +177,7 @@ void ModuleRunningRecord::OnAbilityStateChanged(
 void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    HILOG_INFO("Launch ability.");
     if (!ability || !ability->GetToken()) {
         HILOG_ERROR("null abilityRecord or abilityToken");
         return;
@@ -185,7 +185,7 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     const auto &iter = abilities_.find(ability->GetToken());
     if (iter != abilities_.end() && appLifeCycleDeal_->GetApplicationClient()) {
-        HILOG_DEBUG("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
+        HILOG_INFO("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
         appLifeCycleDeal_->LaunchAbility(ability);
         ability->SetState(AbilityState::ABILITY_STATE_READY);
     } else {
@@ -207,7 +207,7 @@ void ModuleRunningRecord::LaunchPendingAbilities()
         HILOG_DEBUG("state : %{public}d", ability->GetState());
         if (ability->GetState() == AbilityState::ABILITY_STATE_CREATE && ability->GetToken() &&
             appLifeCycleDeal_->GetApplicationClient()) {
-            HILOG_DEBUG("name is %{public}s.", ability->GetName().c_str());
+            HILOG_INFO("name is %{public}s.", ability->GetName().c_str());
             appLifeCycleDeal_->LaunchAbility(ability);
             ability->SetState(AbilityState::ABILITY_STATE_READY);
         }
@@ -217,7 +217,7 @@ void ModuleRunningRecord::LaunchPendingAbilities()
 void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecord> &appRecord,
     const sptr<IRemoteObject> &token, const bool isForce)
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("Terminate ability.");
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
         HILOG_ERROR("abilityRecord is nullptr");
@@ -254,7 +254,7 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
         }
     }
 
-    HILOG_DEBUG("end");
+    HILOG_INFO("ModuleRunningRecord::TerminateAbility end");
 }
 
 void ModuleRunningRecord::SendEvent(
@@ -273,7 +273,7 @@ void ModuleRunningRecord::SendEvent(
 
 void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("Ability terminated.");
     if (!token) {
         HILOG_ERROR("token is null");
         return;

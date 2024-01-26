@@ -38,12 +38,12 @@ static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILE
 
 JsEnvironment::JsEnvironment(std::unique_ptr<JsEnvironmentImpl> impl) : impl_(std::move(impl))
 {
-    JSENV_LOG_D("called");
+    JSENV_LOG_I("Js environment costructor.");
 }
 
 JsEnvironment::~JsEnvironment()
 {
-    JSENV_LOG_D("called");
+    JSENV_LOG_I("Js environment destructor.");
 
     if (engine_ != nullptr) {
         delete engine_;
@@ -294,7 +294,7 @@ void JsEnvironment::GetHeapPrepare()
 
 void JsEnvironment::ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl)
 {
-    JSENV_LOG_D("ReInit jsenv impl.");
+    JSENV_LOG_I("ReInit jsenv impl.");
     impl_ = std::move(impl);
 }
 

@@ -22,7 +22,7 @@ using AbilityManagerClient = OHOS::AAFwk::AbilityManagerClient;
 void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState,
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("ServiceAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
+    HILOG_INFO("ServiceAbilityImpl::HandleAbilityTransaction begin sourceState:%{public}d; targetState: %{public}d; "
              "isNewWant: %{public}d",
         lifecycleState_,
         targetState.state,
@@ -66,7 +66,7 @@ void ServiceAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk:
 
 void ServiceAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
-    HILOG_DEBUG("called.");
+    HILOG_INFO("Handle service transaction done, notify ability manager service.");
     AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
 }
 }  // namespace AppExecFwk

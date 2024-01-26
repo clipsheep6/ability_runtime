@@ -158,7 +158,7 @@ void AbilitySchedulerProxy::ScheduleCommandAbility(const Want &want, bool restar
         HILOG_ERROR("WriteBool failed");
         return;
     }
-    HILOG_DEBUG("WriteInt32,startId:%{public}d", startId);
+    HILOG_INFO("WriteInt32,startId:%{public}d", startId);
     if (!data.WriteInt32(startId)) {
         HILOG_ERROR("fail to WriteInt32");
         return;

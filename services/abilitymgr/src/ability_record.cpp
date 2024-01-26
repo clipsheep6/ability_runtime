@@ -1333,7 +1333,7 @@ void AbilityRecord::SetAbilityState(AbilityState state)
 
 void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_DEBUG("bundle:%{public}s, ability: %{public}s", applicationInfo_.bundleName.c_str(),
+    HILOG_INFO("bundle:%{public}s, ability: %{public}s", applicationInfo_.bundleName.c_str(),
         abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     if (scheduler != nullptr) {
@@ -1482,7 +1482,7 @@ void AbilityRecord::Activate()
 void AbilityRecord::Inactivate()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("ability:%{public}s.", abilityInfo_.name.c_str());
+    HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
     if (!IsDebug()) {
@@ -1500,7 +1500,7 @@ void AbilityRecord::Inactivate()
 void AbilityRecord::Terminate(const Closure &task)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("ability: %{public}s.", GetURI().c_str());
+    HILOG_INFO("ability: %{public}s.", GetURI().c_str());
     CHECK_POINTER(lifecycleDeal_);
     if (!IsDebug()) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
@@ -1539,7 +1539,7 @@ void AbilityRecord::ShareData(const int32_t &uniqueId)
 
 void AbilityRecord::ConnectAbility()
 {
-    HILOG_DEBUG("Connect ability.");
+    HILOG_INFO("Connect ability.");
     CHECK_POINTER(lifecycleDeal_);
     if (isConnected) {
         HILOG_WARN("connect state error.");
@@ -1551,7 +1551,7 @@ void AbilityRecord::ConnectAbility()
 void AbilityRecord::DisconnectAbility()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("ability:%{public}s.", abilityInfo_.name.c_str());
+    HILOG_INFO("ability:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->DisconnectAbility(GetWant());
     isConnected = false;
@@ -1559,7 +1559,7 @@ void AbilityRecord::DisconnectAbility()
 
 void AbilityRecord::CommandAbility()
 {
-    HILOG_DEBUG("startId_:%{public}d.", startId_);
+    HILOG_INFO("startId_:%{public}d.", startId_);
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->CommandAbility(GetWant(), false, startId_);
 }
@@ -1572,7 +1572,7 @@ void AbilityRecord::CommandAbilityWindow(const sptr<SessionInfo> &sessionInfo, W
 
 void AbilityRecord::SaveAbilityState()
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     CHECK_POINTER(lifecycleDeal_);
     lifecycleDeal_->SaveAbilityState();
 }
@@ -1844,7 +1844,7 @@ void AbilityRecord::AddCallerRecord(const sptr<IRemoteObject> &callerToken, int 
     lifeCycleStateInfo_.caller.deviceId = abilityRecord->GetAbilityInfo().deviceId;
     lifeCycleStateInfo_.caller.bundleName = abilityRecord->GetAbilityInfo().bundleName;
     lifeCycleStateInfo_.caller.abilityName = abilityRecord->GetAbilityInfo().name;
-    HILOG_DEBUG("caller %{public}s, %{public}s",
+    HILOG_INFO("caller %{public}s, %{public}s",
         abilityRecord->GetAbilityInfo().bundleName.c_str(),
         abilityRecord->GetAbilityInfo().name.c_str());
 }
@@ -2177,14 +2177,14 @@ void AbilityRecord::RemoveAbilityDeathRecipient() const
 
     auto schedulerObject = scheduler_->AsObject();
     if (schedulerObject != nullptr) {
-        HILOG_DEBUG("RemoveDeathRecipient");
+        HILOG_INFO("RemoveDeathRecipient");
         schedulerObject->RemoveDeathRecipient(schedulerDeathRecipient_);
     }
 }
 
 void AbilityRecord::OnSchedulerDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("called.");
+    HILOG_WARN("On scheduler died.");
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto mission = GetMission();
         if (mission) {
@@ -2244,7 +2244,7 @@ void AbilityRecord::OnProcessDied()
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     CHECK_POINTER(handler);
 
-    HILOG_DEBUG("Ability on scheduler died: '%{public}s'", abilityInfo_.name.c_str());
+    HILOG_INFO("Ability on scheduler died: '%{public}s'", abilityInfo_.name.c_str());
     auto task = [ability = shared_from_this()]() {
         DelayedSingleton<AbilityManagerService>::GetInstance()->OnAbilityDied(ability);
     };
@@ -2417,7 +2417,7 @@ void AbilityRecord::SetRestarting(const bool isRestart)
     HILOG_DEBUG("SetRestarting: %{public}d", isRestarting_);
     if ((isLauncherRoot_ && IsLauncherAbility()) || isKeepAlive_) {
         restartCount_ = isRestart ? (--restartCount_) : restartMax_;
-        HILOG_DEBUG("root launcher or resident process's restart count: %{public}d", restartCount_);
+        HILOG_INFO("root launcher or resident process's restart count: %{public}d", restartCount_);
     }
 }
 
@@ -3087,7 +3087,7 @@ void AbilityRecord::HandleDlpClosed()
 
 void AbilityRecord::NotifyRemoveShellProcess(int32_t type)
 {
-    HILOG_DEBUG("type is : %{public}d", type);
+    HILOG_INFO("NotifyRemoveShellProcess type is : %{public}d", type);
     if (abilityInfo_.bundleName == SHELL_ASSISTANT_BUNDLENAME) {
         auto collaborator = DelayedSingleton<AbilityManagerService>::GetInstance()->GetCollaborator(type);
         if (collaborator == nullptr) {
@@ -3193,7 +3193,7 @@ void AbilityRecord::InitPersistableUriPermissionConfig()
     char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
     int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
         GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
-    HILOG_DEBUG("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s.",
+    HILOG_INFO("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s.",
         GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isGrantPersistableUriPermissionEnable_ = true;

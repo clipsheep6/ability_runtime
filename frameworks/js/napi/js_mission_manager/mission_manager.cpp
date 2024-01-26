@@ -55,7 +55,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("called");
+        HILOG_INFO("JsMissionManager::Finalizer is called");
         std::unique_ptr<JsMissionManager>(static_cast<JsMissionManager*>(data));
     }
 
@@ -792,7 +792,7 @@ private:
 
 napi_value JsMissionManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("JsMissionManagerInit is called");
     if (env == nullptr || exportObj == nullptr) {
         HILOG_INFO("Invalid input parameters");
         return nullptr;

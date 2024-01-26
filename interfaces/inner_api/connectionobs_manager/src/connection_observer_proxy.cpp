@@ -27,7 +27,7 @@ void ConnectionObserverProxy::OnExtensionConnected(const ConnectionData& connect
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_DEBUG("called");
+    HILOG_INFO("ConnectionObserverProxy OnExtensionConnected.");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
         return;
@@ -51,7 +51,7 @@ void ConnectionObserverProxy::OnExtensionDisconnected(const ConnectionData& conn
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_DEBUG("called.");
+    HILOG_INFO("ConnectionObserverProxy OnExtensionDisconnected.");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
         return;

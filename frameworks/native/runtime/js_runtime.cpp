@@ -161,7 +161,7 @@ JsRuntime::JsRuntime()
 
 JsRuntime::~JsRuntime()
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("JsRuntime destructor.");
     Deinitialize();
     StopDebugMode();
 }
@@ -206,7 +206,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
-    HILOG_DEBUG("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+    HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
     const std::string bundleName = bundleName_;
@@ -593,7 +593,7 @@ bool JsRuntime::Initialize(const Options& options)
         jsEnv_->StartMonitorJSHeapUsage();
     }
     apiTargetVersion_ = options.apiTargetVersion;
-    HILOG_DEBUG("Initialize: %{public}d.", apiTargetVersion_);
+    HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         auto env = GetNapiEnv();
@@ -630,9 +630,9 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Failed to create reference for global.requireNapi");
                 return false;
             }
-            HILOG_DEBUG("PreloadAce start.");
+            HILOG_INFO("PreloadAce start.");
             PreloadAce(options);
-            HILOG_DEBUG("PreloadAce end.");
+            HILOG_INFO("PreloadAce end.");
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
         }
 
@@ -670,7 +670,7 @@ bool JsRuntime::Initialize(const Options& options)
         InitSourceMap(operatorObj);
 
         if (options.isUnique) {
-            HILOG_DEBUG("Not supported TimerModule when form render");
+            HILOG_INFO("Not supported TimerModule when form render");
         } else {
             InitTimerModule();
         }
@@ -700,7 +700,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     pandaOption.SetArkBundleName(bundleName);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
-    HILOG_DEBUG("JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
+    HILOG_INFO("JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
         arkProperties, bundleName.c_str());
     pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
     pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
@@ -932,7 +932,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     const std::string& moduleName, const napi_value* argv, size_t argc)
 {
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    HILOG_INFO("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     napi_env env = GetNapiEnv();
     CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
@@ -1127,7 +1127,7 @@ void JsRuntime::NotifyApplicationState(bool isBackground)
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     nativeEngine->NotifyApplicationState(isBackground);
-    HILOG_DEBUG("NotifyApplicationState, isBackground %{public}d.", isBackground);
+    HILOG_INFO("NotifyApplicationState, isBackground %{public}d.", isBackground);
 }
 
 bool JsRuntime::SuspendVM(uint32_t tid)
@@ -1236,7 +1236,7 @@ bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string&
         HILOG_DEBUG("can't find source map, and switch to stage model.");
         std::string tempPath = std::regex_replace(sourceMapPath, std::regex("ets"), "assets/js");
         if (!extractor->ExtractToBufByName(tempPath, dataPtr, len)) {
-            HILOG_DEBUG("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
+            HILOG_ERROR("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
             return false;
         }
     }

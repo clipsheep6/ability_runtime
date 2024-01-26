@@ -107,7 +107,7 @@ napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(ptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            HILOG_DEBUG("Finalizer for weak_ptr service extension context is called");
+            HILOG_INFO("Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<ServiceExtensionContext> *>(data);
         },
         nullptr, nullptr);
@@ -158,7 +158,7 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
         return;
     }
 
-    HILOG_DEBUG("ConvertNativeValueTo.");
+    HILOG_INFO("JsServiceExtension::Init ConvertNativeValueTo.");
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
         HILOG_ERROR("Failed to get JsServiceExtension object");
@@ -185,7 +185,7 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 void JsServiceExtension::ListenWMS()
 {
 #ifdef SUPPORT_GRAPHICS
-    HILOG_DEBUG("RegisterDisplayListener");
+    HILOG_INFO("RegisterDisplayListener");
     auto abilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (abilityManager == nullptr) {
         HILOG_ERROR("Failed to get SaMgr.");
@@ -215,7 +215,7 @@ void JsServiceExtension::ListenWMS()
 void JsServiceExtension::SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbilityId,
     const std::string& deviceId)
 {
-    HILOG_DEBUG("systemAbilityId: %{public}d add", systemAbilityId);
+    HILOG_INFO("systemAbilityId: %{public}d add", systemAbilityId);
     if (systemAbilityId == WINDOW_MANAGER_SERVICE_ID) {
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(tmpDisplayListener_);
     }
@@ -228,7 +228,7 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
         HILOG_ERROR("Failed to get context");
         return;
     }
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     napi_value contextObj = CreateJsServiceExtensionContext(env, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
@@ -244,7 +244,7 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, workContext, nullptr);
-    HILOG_DEBUG("Bind.");
+    HILOG_INFO("JsServiceExtension::Init Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
 
@@ -254,19 +254,19 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
         },
         nullptr, nullptr);
 
-    HILOG_DEBUG("end.");
+    HILOG_INFO("JsServiceExtension::Init end.");
 }
 
 void JsServiceExtension::OnStart(const AAFwk::Want &want)
 {
     Extension::OnStart(want);
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
 
     auto context = GetContext();
     if (context != nullptr) {
         int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
-        HILOG_DEBUG("displayId %{public}d", displayId);
+        HILOG_INFO("JsServiceExtension::OnStart displayId %{public}d", displayId);
         auto configUtils = std::make_shared<ConfigurationUtils>();
         configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
     }
@@ -282,21 +282,21 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-    HILOG_DEBUG("ok");
+    HILOG_INFO("ok");
 }
 
 void JsServiceExtension::OnStop()
 {
     ServiceExtension::OnStop();
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     CallObjectMethod("onDestroy");
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        HILOG_DEBUG("The service extension connection is not disconnected.");
+        HILOG_INFO("The service extension connection is not disconnected.");
     }
     Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);
-    HILOG_DEBUG("ok");
+    HILOG_INFO("ok");
 }
 
 sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
@@ -399,7 +399,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
 void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     Extension::OnCommand(want, restart, startId);
-    HILOG_DEBUG("restart=%{public}s,startId=%{public}d.",
+    HILOG_INFO("restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false",
         startId);
     // wrap want
@@ -411,7 +411,7 @@ void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int st
     napi_create_int32(env, startId, &napiStartId);
     napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
-    HILOG_DEBUG("ok");
+    HILOG_INFO("ok");
 }
 
 bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
@@ -510,7 +510,7 @@ bool JsServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
 
 napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
-    HILOG_DEBUG("name:%{public}s", name);
+    HILOG_INFO("CallObjectMethod(%{public}s)", name);
 
     if (!jsObj_) {
         HILOG_WARN("Not found ServiceExtension.js");
@@ -532,7 +532,7 @@ napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value con
         HILOG_ERROR("Failed to get '%{public}s' from ServiceExtension object", name);
         return nullptr;
     }
-    HILOG_DEBUG("CallFunction(%{public}s) ok", name);
+    HILOG_INFO("CallFunction(%{public}s) ok", name);
     napi_value result = nullptr;
     napi_call_function(env, obj, method, argc, argv, &result);
     return result;
@@ -590,7 +590,7 @@ napi_value JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
     if (remoteNative == nullptr) {
         HILOG_ERROR("remoteNative nullptr.");
     }
-    HILOG_DEBUG("ok");
+    HILOG_INFO("ok");
     return remoteNative;
 }
 
@@ -676,7 +676,7 @@ bool JsServiceExtension::CallPromise(napi_value result, AppExecFwk::AbilityTrans
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     ServiceExtension::OnConfigurationUpdated(configuration);
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto context = GetContext();
     if (context == nullptr) {
         HILOG_ERROR("Context is invalid.");
@@ -718,7 +718,7 @@ void JsServiceExtension::ConfigurationUpdated()
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     Extension::Dump(params, info);
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     // create js array object of params
@@ -745,7 +745,7 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
             return;
         }
     }
-    HILOG_DEBUG("success");
+    HILOG_INFO("JsServiceExtension::CallFunction onConnect, success");
     napi_value dumpInfo = nullptr;
     napi_call_function(env, obj, method, ARGC_ONE, argv, &dumpInfo);
     if (dumpInfo == nullptr) {

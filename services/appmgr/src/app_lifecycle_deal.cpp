@@ -28,13 +28,13 @@ AppLifeCycleDeal::AppLifeCycleDeal()
 
 AppLifeCycleDeal::~AppLifeCycleDeal()
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("AppLifeCycleDeal deconstructor");
 }
 
 void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    HILOG_INFO("LoadLifecycle: Launch application");
     auto appThread = GetApplicationClient();
     if (appThread) {
         appThread->ScheduleLaunchApplication(launchData, config);
@@ -69,7 +69,7 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
     if (appThread && ability) {
         auto abilityInfo = ability->GetAbilityInfo();
         if (abilityInfo == nullptr) {
-            HILOG_WARN("abilityInfo null.");
+            HILOG_WARN("LoadLifecycle: abilityInfo null.");
             return;
         }
         if (abilityInfo->type == AbilityType::PAGE) {
@@ -78,7 +78,7 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
                 "; AppLifeCycleDeal::LaunchAbility; the LoadAbility lifecycle.";
             FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
         }
-        HILOG_DEBUG("Launch ability.");
+        HILOG_INFO("LoadLifecycle: Launch ability.");
         appThread->ScheduleLaunchAbility(*abilityInfo, ability->GetToken(),
             ability->GetWant());
     } else {

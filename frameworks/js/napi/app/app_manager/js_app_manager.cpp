@@ -54,7 +54,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("called");
+        HILOG_INFO("JsAbilityContext::Finalizer is called");
         std::unique_ptr<JsAppManager>(static_cast<JsAppManager*>(data));
     }
 

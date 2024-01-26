@@ -83,7 +83,7 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
     const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo, const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    HILOG_INFO("Send load ability to AppMgrService.");
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     /* because the errcode type of AppMgr Client API will be changed to int,
      * so must to covert the return result  */
@@ -202,7 +202,7 @@ AppAbilityState AppScheduler::GetAbilityState() const
 void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AppExecFwk::AbilityState state)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("state:%{public}d", static_cast<int32_t>(state));
+    HILOG_INFO("On ability request done, state:%{public}d", static_cast<int32_t>(state));
     auto callback = callback_.lock();
     CHECK_POINTER(callback);
     appAbilityState_ = ConvertToAppAbilityState(static_cast<int32_t>(state));

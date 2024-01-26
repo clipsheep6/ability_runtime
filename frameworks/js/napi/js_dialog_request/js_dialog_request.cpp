@@ -33,7 +33,7 @@ constexpr int32_t RESULT_CANCEL = 1;
 
 napi_value ResultCodeInit(napi_env env)
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("%{public}s is called", __FUNCTION__);
     if (env == nullptr) {
         HILOG_ERROR("Invalid input parameters.");
         return nullptr;
@@ -148,7 +148,7 @@ private:
 
 napi_value JsDialogRequestInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("JsDialogRequestInit is called");
     if (env == nullptr || exportObj == nullptr) {
         HILOG_INFO("Invalid input parameters");
         return nullptr;

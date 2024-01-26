@@ -44,7 +44,7 @@ JsModuleReader::JsModuleReader(const std::string& bundleName, const std::string&
 
 bool JsModuleReader::operator()(const std::string& inputPath, uint8_t **buff, size_t *buffSize) const
 {
-    HILOG_DEBUG("JsModuleReader operator start: %{private}s", inputPath.c_str());
+    HILOG_INFO("JsModuleReader operator start: %{private}s", inputPath.c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (inputPath.empty() || buff == nullptr || buffSize == nullptr) {
         HILOG_ERROR("Invalid param");
@@ -115,7 +115,7 @@ std::string JsModuleReader::GetCommonAppHspPath(const std::string& inputPath) co
         realHapPath = std::string(ABS_CODE_PATH) + inputPath + suffix;
     }
 
-    HILOG_DEBUG("realHapPath: %{private}s", realHapPath.c_str());
+    HILOG_INFO("realHapPath: %{private}s", realHapPath.c_str());
     if (realHapPath.empty() ||
         realHapPath.length() < suffix.length() ||
         realHapPath.compare(realHapPath.length() - suffix.length(), suffix.length(), suffix) != 0) {

@@ -41,7 +41,7 @@ sptr<IAbilityScheduler> LifecycleDeal::GetScheduler()
 
 void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     HILOG_DEBUG("caller %{public}s, %{public}s",
@@ -54,7 +54,7 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
@@ -63,7 +63,7 @@ void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND;
@@ -72,7 +72,7 @@ void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &state
 
 void LifecycleDeal::ConnectAbility(const Want &want)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleConnectAbility(want);
@@ -80,7 +80,7 @@ void LifecycleDeal::ConnectAbility(const Want &want)
 
 void LifecycleDeal::DisconnectAbility(const Want &want)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleDisconnectAbility(want);
@@ -88,7 +88,7 @@ void LifecycleDeal::DisconnectAbility(const Want &want)
 
 void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
@@ -97,7 +97,7 @@ void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo, s
 
 void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 {
-    HILOG_DEBUG("startId:%{public}d", startId);
+    HILOG_INFO("startId:%{public}d", startId);
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
@@ -105,7 +105,7 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 
 void LifecycleDeal::CommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbilityWindow(want, sessionInfo, winCmd);
@@ -113,7 +113,7 @@ void LifecycleDeal::CommandAbilityWindow(const Want &want, const sptr<SessionInf
 
 void LifecycleDeal::SaveAbilityState()
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleSaveAbilityState();
@@ -121,7 +121,7 @@ void LifecycleDeal::SaveAbilityState()
 
 void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleRestoreAbilityState(inState);
@@ -130,7 +130,7 @@ void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     HILOG_DEBUG("caller %{public}s, %{public}s",
@@ -143,7 +143,7 @@ void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInf
 void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     HILOG_DEBUG("caller %{public}s, %{public}s",
@@ -155,14 +155,14 @@ void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInf
 
 void LifecycleDeal::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     CHECK_POINTER(abilityScheduler_);
     abilityScheduler_->ContinueAbility(deviceId, versionCode);
 }
 
 void LifecycleDeal::NotifyContinuationResult(int32_t result)
 {
-    HILOG_DEBUG("call");
+    HILOG_INFO("call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->NotifyContinuationResult(result);
@@ -170,7 +170,7 @@ void LifecycleDeal::NotifyContinuationResult(int32_t result)
 
 void LifecycleDeal::ShareData(const int32_t &uniqueId)
 {
-    HILOG_DEBUG("uniqueId is %{public}d.", uniqueId);
+    HILOG_INFO("uniqueId is %{public}d.", uniqueId);
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleShareData(uniqueId);

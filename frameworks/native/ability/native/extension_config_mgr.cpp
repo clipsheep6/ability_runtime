@@ -83,7 +83,7 @@ void ExtensionConfigMgr::UpdateRuntimeModuleChecker(const std::unique_ptr<Abilit
         HILOG_ERROR("UpdateRuntimeModuleChecker faild, runtime is null");
         return;
     }
-    HILOG_DEBUG("extensionType_ = %{public}d", extensionType_);
+    HILOG_INFO("UpdateRuntimeModuleChecker extensionType_ = %{public}d", extensionType_);
     auto moduleChecker = std::make_shared<AppModuleChecker>(extensionType_, std::move(extensionBlocklist_));
     runtime->SetModuleLoadChecker(moduleChecker);
 }

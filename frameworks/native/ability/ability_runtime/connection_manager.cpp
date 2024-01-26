@@ -70,7 +70,7 @@ ErrCode ConnectionManager::ConnectAbilityInner(const sptr<IRemoteObject>& connec
         callbacks.push_back(connectCallback);
         abilityConnection = connectionIter->first.abilityConnection;
         abilityConnection->AddConnectCallback(connectCallback);
-        HILOG_DEBUG("find abilityConnection exist, callbackSize:%{public}zu.", callbacks.size());
+        HILOG_INFO("find abilityConnection exist, callbackSize:%{public}zu.", callbacks.size());
         if (abilityConnection->GetConnectionState() == CONNECTION_STATE_CONNECTED) {
             connectCallback->OnAbilityConnectDone(connectReceiver, abilityConnection->GetRemoteObject(),
                 abilityConnection->GetResultCode());
@@ -107,7 +107,7 @@ bool ConnectionManager::MatchConnection(
 ErrCode ConnectionManager::CreateConnection(const sptr<IRemoteObject>& connectCaller,
     const AAFwk::Want& want, int accountId, const sptr<AbilityConnectCallback>& connectCallback)
 {
-    HILOG_DEBUG("called");
+    HILOG_INFO("Can not find connection, CreateConnection");
     sptr<AbilityConnection> abilityConnection = new AbilityConnection();
     if (abilityConnection == nullptr) {
         HILOG_ERROR("create connection failed.");
@@ -166,7 +166,7 @@ ErrCode ConnectionManager::DisconnectAbility(const sptr<IRemoteObject>& connectC
 
         sptr<AbilityConnection> abilityConnection = item->first.abilityConnection;
 
-        HILOG_DEBUG("find abilityConnection exist, abilityConnectionsSize:%{public}zu.",
+        HILOG_INFO("find abilityConnection exist, abilityConnectionsSize:%{public}zu.",
             abilityConnections_.size());
         if (item->second.empty()) {
             abilityConnections_.erase(item);

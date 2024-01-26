@@ -45,7 +45,7 @@ PendingWantManager::~PendingWantManager()
 sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const bool isSystemApp,
     const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_INFO("PendingWantManager::GetWantSender begin.");
     if (wantSenderInfo.type != static_cast<int32_t>(OperationType::SEND_COMMON_EVENT)) {
         if (callingUid != uid &&
             !isSystemApp &&
@@ -120,7 +120,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
 
 void PendingWantManager::MakeWantSenderCanceledLocked(PendingWantRecord &record)
 {
-    HILOG_DEBUG("begin");
+    HILOG_INFO("begin");
 
     record.SetCanceled();
     for (auto &callback : record.GetCancelCallbacks()) {
@@ -191,7 +191,7 @@ int32_t PendingWantManager::SendWantSender(sptr<IWantSender> target, const Sende
 
 void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWantSender> &sender)
 {
-    HILOG_DEBUG("begin");
+    HILOG_INFO("begin");
 
     if (sender == nullptr) {
         HILOG_ERROR("sender is nullptr.");
@@ -216,7 +216,7 @@ void PendingWantManager::CancelWantSender(const bool isSystemApp, const sptr<IWa
 
 void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool cleanAbility)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_INFO("begin.");
 
     MakeWantSenderCanceledLocked(record);
     if (cleanAbility) {
@@ -315,7 +315,7 @@ int32_t PendingWantManager::PendingWantPublishCommonEvent(
 
 int32_t PendingWantManager::PendingRecordIdCreate()
 {
-    HILOG_DEBUG("begin");
+    HILOG_INFO("begin");
 
     static std::atomic_int id(0);
     return ++id;
@@ -323,7 +323,7 @@ int32_t PendingWantManager::PendingRecordIdCreate()
 
 sptr<PendingWantRecord> PendingWantManager::GetPendingWantRecordByCode(int32_t code)
 {
-    HILOG_DEBUG("begin. wantRecords_ size = %{public}zu", wantRecords_.size());
+    HILOG_INFO("begin. wantRecords_ size = %{public}zu", wantRecords_.size());
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
     auto iter = std::find_if(wantRecords_.begin(), wantRecords_.end(), [&code](const auto &pair) {
@@ -510,7 +510,7 @@ int32_t PendingWantManager::GetPendingRequestWant(const sptr<IWantSender> &targe
         return ERR_INVALID_VALUE;
     }
     want.reset(new (std::nothrow) Want(record->GetKey()->GetRequestWant()));
-    HILOG_DEBUG("want is ok.");
+    HILOG_ERROR("%{public}s:want is ok.", __func__);
     return NO_ERROR;
 }
 

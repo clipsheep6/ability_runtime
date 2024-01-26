@@ -253,7 +253,7 @@ int UIAbilityLifecycleManager::AbilityTransactionDone(const sptr<IRemoteObject> 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
-    HILOG_DEBUG("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
+    HILOG_INFO("AbilityTransactionDone, state: %{public}s.", abilityState.c_str());
 
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto abilityRecord = GetAbilityRecordByToken(token);
@@ -336,12 +336,12 @@ int UIAbilityLifecycleManager::DispatchForeground(const std::shared_ptr<AbilityR
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("ForegroundLifecycle: end.");
+    HILOG_INFO("ForegroundLifecycle: end.");
     handler->RemoveEvent(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
     g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::FOREGROUND);
     auto self(weak_from_this());
     if (success) {
-        HILOG_DEBUG("foreground succeeded.");
+        HILOG_INFO("foreground succeeded.");
         auto task = [self, abilityRecord]() {
             auto selfObj = self.lock();
             if (!selfObj) {
@@ -384,7 +384,7 @@ int UIAbilityLifecycleManager::DispatchBackground(const std::shared_ptr<AbilityR
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("end.");
+    HILOG_INFO("BackgroundLifecycle: end.");
     // remove background timeout task.
     handler->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
     g_deleteLifecycleEventTask(abilityRecord->GetToken(), FreezeUtil::TimeoutState::BACKGROUND);
@@ -1788,7 +1788,7 @@ void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info, int32_t t
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    HILOG_DEBUG("Call.");
+    HILOG_INFO("Call.");
     if (info.state == AppState::TERMINATED || info.state == AppState::END) {
         for (const auto& abilityRecord : terminateAbilityList_) {
             if (abilityRecord == nullptr) {
