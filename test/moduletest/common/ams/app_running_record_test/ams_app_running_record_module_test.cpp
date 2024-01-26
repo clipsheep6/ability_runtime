@@ -111,7 +111,7 @@ protected:
         std::string processName = GetTestAppName(index);
         BundleInfo bundleInfo;
         HapModuleInfo hapModuleInfo;
-        EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+        EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
 
         auto appRecordFromServ = service_->appRunningManager_->CheckAppRunningRecordIsExist(
             appInfo->name, processName, appInfo->uid, bundleInfo);
@@ -195,7 +195,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, ApplicationStart_001, TestSize.Level1)
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(0);
@@ -259,7 +259,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, MultiApplicationStart_002, TestSize.Leve
         RecordQueryResult result;
         BundleInfo bundleInfo;
         HapModuleInfo hapModuleInfo;
-        EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+        EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
         auto record = service_->CreateAppRunningRecord(
             GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
         record->SetUid(0);
@@ -305,7 +305,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, ScheduleTrimMemory_003, TestSize.Level1)
     appInfo->name = GetTestAppName(index);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     EXPECT_TRUE(record != nullptr) << "create apprunningrecord fail!";
@@ -355,7 +355,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, LowMemoryWarning_004, TestSize.Level1)
     appInfo->name = GetTestAppName(index);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     EXPECT_TRUE(record != nullptr) << "create apprunningrecord fail!";
@@ -407,7 +407,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, ApplicationStartAndQuit_005, TestSize.Le
         appInfo->name = GetTestAppName(index);
         BundleInfo bundleInfo;
         HapModuleInfo hapModuleInfo;
-        EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+        EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
         auto record = service_->CreateAppRunningRecord(
             GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
         EXPECT_TRUE(record != nullptr) << "create apprunningrecord fail!";
@@ -477,7 +477,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, ApplicationStatusChange_006, TestSize.Le
     appInfo->name = GetTestAppName(index);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     EXPECT_TRUE(record != nullptr) << "create apprunningrecord fail!";
@@ -538,7 +538,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, StartSpecifiedAbility_001, TestSize.Leve
     std::string processName = GetTestAppName(index);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     EXPECT_TRUE(record != nullptr) << "create apprunningrecord fail!";
@@ -585,7 +585,7 @@ HWTEST_F(AmsAppRunningRecordModuleTest, StartSpecifiedAbility_002, TestSize.Leve
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     hapModuleInfo.moduleName = "moduleName1";
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     EXPECT_TRUE(record != nullptr) << "create apprunningrecord fail!";

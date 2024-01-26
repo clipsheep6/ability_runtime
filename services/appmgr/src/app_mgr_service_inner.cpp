@@ -252,7 +252,7 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
     int32_t appIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
+    if (!GetBundleAndHapInfo(abilityInfo, *appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
 
@@ -308,7 +308,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     int32_t appIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
-    if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
+    if (!GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         HILOG_ERROR("GetBundleAndHapInfo failed");
         return;
     }
@@ -349,7 +349,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             appRecord->SetKeepAliveAppState(false, false);
             HILOG_INFO("The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
         }
-        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
+        SendAppStartupTypeEvent(*appRecord, abilityInfo->name, AppStartType::COLD);
         auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
         if (callRecord != nullptr) {
             auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
@@ -365,7 +365,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
     } else {
         HILOG_INFO("have apprecord");
-        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::MULTI_INSTANCE);
+        SendAppStartupTypeEvent(*appRecord, abilityInfo->name, AppStartType::MULTI_INSTANCE);
         int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
         if (requestProcCode != 0 && appRecord->GetRequestProcCode() == 0) {
             appRecord->SetRequestProcCode(requestProcCode);
@@ -379,102 +379,99 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     appRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
 }
 
+namespace {
+void AddLoadFlow(sptr<IRemoteObject> token)
+{
+    AbilityRuntime::FreezeUtil::LifecycleFlow flow = {token, AbilityRuntime::FreezeUtil::TimeoutState::LOAD};
+    auto entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
+        "; AppMgrServiceInner::LoadAbility; the load lifecycle.";
+    AbilityRuntime::FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
+}
+void EndOfLoadAbility()
+{
+    PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
+    PerfProfile::GetInstance().Dump();
+    PerfProfile::GetInstance().Reset();
+}
+std::string BuildSpecifiedFlag(const std::string &deviceType, const AppExecFwk::AbilityInfo &abilityInfo,
+    std::shared_ptr<AAFwk::Want> want)
+{
+    std::string specifiedProcessFlag;
+    bool isPcDevice = (deviceType == "pc" || deviceType == "2in1");
+    bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
+    bool isSpecifiedProcess = abilityInfo.isolationProcess && isPcDevice && isUIAbility;
+    if (isSpecifiedProcess && want) {
+        specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
+        HILOG_INFO("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
+    }
+    return specifiedProcessFlag;
+}
+}
+
+void AppMgrServiceInner::PerformStartProcess(AppRunningRecord &appRecord, const AbilityInfo &abilityInfo,
+    std::shared_ptr<Want> want, const std::string &processName, const ApplicationInfo &appInfo, bool appExist)
+{
+    SendAppStartupTypeEvent(appRecord, abilityInfo.name, AppStartType::COLD);
+    uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, abilityInfo);
+    int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
+    StartProcess(abilityInfo.applicationName, processName, startFlags, appRecord.shared_from_this(),
+        appInfo.uid, appInfo.bundleName, bundleIndex, appExist);
+    std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
+    bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
+    (void)StartPerfProcess(appRecord.shared_from_this(), perfCmd, "", isSandboxApp);
+}
+
 void AppMgrServiceInner::LoadAbility(const LoadAbilityParam &loadAbilityParam)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto abilityInfo = loadAbilityParam.abilityInfo;
     auto appInfo = loadAbilityParam.appInfo;
     auto token = loadAbilityParam.token;
-    auto preToken = loadAbilityParam.preToken;
     auto want = loadAbilityParam.want;
-    HILOG_INFO("load ability task name:%{public}s.", abilityInfo->name.c_str());
     if (!CheckLoadAbilityConditions(token, abilityInfo, appInfo)) {
-        HILOG_ERROR("CheckLoadAbilityConditions failed");
         return;
     }
+    HILOG_INFO("load ability for name:%{public}s.", abilityInfo->name.c_str());
     if (abilityInfo->type == AbilityType::PAGE) {
-        AbilityRuntime::FreezeUtil::LifecycleFlow flow = {token, AbilityRuntime::FreezeUtil::TimeoutState::LOAD};
-        auto entry = std::to_string(AbilityRuntime::TimeUtil::SystemTimeMillisecond()) +
-            "; AppMgrServiceInner::LoadAbility; the load lifecycle.";
-        AbilityRuntime::FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
-    }
-
-    if (!appRunningManager_) {
-        HILOG_ERROR("appRunningManager_ is nullptr");
-        return;
+        AddLoadFlow(token);
     }
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     int32_t appIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
-    if (!GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
+    if (!GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         HILOG_ERROR("GetBundleAndHapInfo failed");
         return;
     }
 
     std::string processName;
     MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, processName);
-    HILOG_DEBUG("processName = %{public}s", processName.c_str());
-
-    std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
-    std::string specifiedProcessFlag = "";
-    bool isPcDevice = (deviceType_ == "pc" || deviceType_ == "2in1");
-    bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
-    bool isSpecifiedProcess = abilityInfo->isolationProcess && isPcDevice && isUIAbility;
-    if (isSpecifiedProcess) {
-        specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
-        HILOG_INFO("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
-    }
-    appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
+    std::string specifiedProcessFlag = BuildSpecifiedFlag(deviceType_, *abilityInfo, want);
+    auto appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
     if (!appRecord) {
-        HILOG_DEBUG("appRecord null");
         bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
         if (!appExistFlag) {
             NotifyAppRunningStatusEvent(
                 bundleInfo.name, appInfo->uid, AbilityRuntime::RunningStatus::APP_RUNNING_START);
         }
-        appRecord = CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
-            processName, bundleInfo, hapModuleInfo, want);
+        appRecord = CreateAppRunningRecord(loadAbilityParam, processName, bundleInfo, hapModuleInfo);
         if (!appRecord) {
             HILOG_ERROR("CreateAppRunningRecord failed, appRecord is nullptr");
             return;
         }
-        if (isSpecifiedProcess && !specifiedProcessFlag.empty()) {
-            appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
-        }
+        appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
         if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
             appRecord->SetKeepAliveAppState(false, false);
             HILOG_INFO("The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
         }
-        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
-        auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
-        if (callRecord != nullptr) {
-            auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
-            HILOG_DEBUG("req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
-                appInfo->name.c_str(), appRecord->GetCallerPid(), callRecord->GetBundleName().c_str());
-        }
-        uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
-        int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
-        StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
-            appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
-        std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
-        bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
-        (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
+        PerformStartProcess(*appRecord, *abilityInfo, want, processName, *appInfo, appExistFlag);
     } else {
-        HILOG_INFO("have apprecord");
-        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::MULTI_INSTANCE);
-        int32_t requestProcCode = (want == nullptr) ? 0 : want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
-        if (requestProcCode != 0 && appRecord->GetRequestProcCode() == 0) {
-            appRecord->SetRequestProcCode(requestProcCode);
-            DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessReused(appRecord);
-        }
-        StartAbility(loadAbilityParam, appRecord, hapModuleInfo);
+        HILOG_INFO("have app record");
+        StartAbility(loadAbilityParam, *appRecord, hapModuleInfo);
     }
-    PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
-    PerfProfile::GetInstance().Dump();
-    PerfProfile::GetInstance().Reset();
+    EndOfLoadAbility();
     appRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
 }
 
@@ -491,6 +488,11 @@ bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &t
     }
     if (abilityInfo->applicationName != appInfo->name) {
         HILOG_ERROR("abilityInfo and appInfo have different appName, don't load for it");
+        return false;
+    }
+
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
         return false;
     }
 
@@ -611,7 +613,7 @@ bool AppMgrServiceInner::CheckIsolationMode(const HapModuleInfo &hapModuleInfo) 
 }
 
 bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
-    const std::shared_ptr<ApplicationInfo> &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo,
+    const ApplicationInfo &appInfo, BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo,
     int32_t appIndex) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -621,14 +623,14 @@ bool AppMgrServiceInner::GetBundleAndHapInfo(const AbilityInfo &abilityInfo,
         return false;
     }
 
-    auto userId = GetUserIdByUid(appInfo->uid);
+    auto userId = GetUserIdByUid(appInfo.uid);
     HILOG_DEBUG("UserId:%{public}d.", userId);
     bool bundleMgrResult;
     if (appIndex == 0) {
-        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(appInfo->bundleName,
+        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(appInfo.bundleName,
             BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId));
     } else {
-        bundleMgrResult = (IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(appInfo->bundleName,
+        bundleMgrResult = (IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(appInfo.bundleName,
             appIndex, userId, bundleInfo)) == 0);
     }
 
@@ -1573,9 +1575,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
 }
 
 std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(const LoadAbilityParam &loadAbilityParam,
-        const std::string &processName,
-        const BundleInfo &bundleInfo,
-        const HapModuleInfo &hapModuleInfo)
+    const std::string &processName, const BundleInfo &bundleInfo, const HapModuleInfo &hapModuleInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRunningManager_) {
@@ -1936,57 +1936,56 @@ void AppMgrServiceInner::StartAbility(const sptr<IRemoteObject> &token, const sp
 }
 
 void AppMgrServiceInner::StartAbility(const LoadAbilityParam &loadAbilityParam,
-        const std::shared_ptr<AppRunningRecord> &appRecord, const HapModuleInfo &hapModuleInfo)
+    AppRunningRecord &appRecord, const HapModuleInfo &hapModuleInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    if (!appRecord) {
-        HILOG_ERROR("appRecord is null");
+    auto abilityInfo = loadAbilityParam.abilityInfo;
+    if (abilityInfo == nullptr) {
+        HILOG_ERROR("abilityInfo null");
         return;
     }
-
-    if (loadAbilityParam.want) {
-        loadAbilityParam.want->SetParam(DLP_PARAMS_SECURITY_FLAG, appRecord->GetSecurityFlag());
-
-        auto isDebugApp = loadAbilityParam.want->GetBoolParam(DEBUG_APP, false);
-        if (isDebugApp && !appRecord->IsDebugApp()) {
-            ProcessAppDebug(appRecord, isDebugApp);
+    SendAppStartupTypeEvent(appRecord, abilityInfo->name, AppStartType::MULTI_INSTANCE);
+    auto want = loadAbilityParam.want;
+    if (want != nullptr) {
+        int32_t requestProcCode = want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
+        if (requestProcCode != 0 && appRecord.GetRequestProcCode() == 0) {
+            appRecord.SetRequestProcCode(requestProcCode);
+            DelayedSingleton<AppStateObserverManager>::GetInstance()->OnProcessReused(
+                appRecord.shared_from_this());
+        }
+        want->SetParam(DLP_PARAMS_SECURITY_FLAG, appRecord.GetSecurityFlag());
+        auto isDebugApp = want->GetBoolParam(DEBUG_APP, false);
+        if (isDebugApp && !appRecord.IsDebugApp()) {
+            ProcessAppDebug(appRecord.shared_from_this(), isDebugApp);
         }
     }
 
-    auto token = loadAbilityParam.token;
-    auto ability = appRecord->GetAbilityRunningRecordByToken(token);
-    if (loadAbilityParam.abilityInfo->launchMode == LaunchMode::SINGLETON && ability != nullptr) {
-        HILOG_WARN("same ability info in singleton launch mode, will not add ability");
+    auto ability = appRecord.GetAbilityRunningRecordByToken(loadAbilityParam.token);
+    if (ability != nullptr) {
+        HILOG_WARN("Ability not null: %{public}s", abilityInfo->name.c_str());
+        if (abilityInfo->launchMode == LaunchMode::SINGLETON) {
+            HILOG_WARN("same ability info in singleton launch mode, will not add ability");
+            return;
+        }
+        if (loadAbilityParam.preToken) {
+            ability->SetPreToken(loadAbilityParam.preToken);
+        }
         return;
     }
 
-    if (ability && loadAbilityParam.preToken) {
-        HILOG_ERROR("Ability is already started");
-        ability->SetPreToken(loadAbilityParam.preToken);
-        return;
-    }
-
-    auto appInfo = std::make_shared<ApplicationInfo>(loadAbilityParam.abilityInfo->applicationInfo);
-    appRecord->AddModule(loadAbilityParam, hapModuleInfo);
-    auto moduleRecord = appRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
-    if (!moduleRecord) {
-        HILOG_ERROR("add moduleRecord failed");
-        return;
-    }
-
-    ability = moduleRecord->GetAbilityRunningRecordByToken(token);
+    auto pairResult = appRecord.AddModule(loadAbilityParam, hapModuleInfo);
+    ability = pairResult.second;
     if (!ability) {
         HILOG_ERROR("add ability failed");
         return;
     }
 
     ability->SetPreToken(loadAbilityParam.preToken);
-    ApplicationState appState = appRecord->GetState();
-    if (appState == ApplicationState::APP_STATE_CREATE) {
+    if (appRecord.GetState() == ApplicationState::APP_STATE_CREATE) {
         HILOG_ERROR("in create state, don't launch ability");
         return;
     }
-    appRecord->LaunchAbility(ability);
+    appRecord.LaunchAbility(ability);
 }
 
 std::shared_ptr<AppRunningRecord> AppMgrServiceInner::GetAppRunningRecordByAbilityToken(
@@ -2524,15 +2523,11 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     return true;
 }
 
-void AppMgrServiceInner::SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType)
+void AppMgrServiceInner::SendAppStartupTypeEvent(AppRunningRecord &appRecord,
+    const std::string &abilityName, AppStartType startType)
 {
-    if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr");
-        return;
-    }
     AAFwk::EventInfo eventInfo;
-    auto applicationInfo = appRecord->GetApplicationInfo();
+    auto applicationInfo = appRecord.GetApplicationInfo();
     if (!applicationInfo) {
         HILOG_ERROR("applicationInfo is nullptr, can not get app information");
     } else {
@@ -2540,15 +2535,12 @@ void AppMgrServiceInner::SendAppStartupTypeEvent(const std::shared_ptr<AppRunnin
         eventInfo.versionName = applicationInfo->versionName;
         eventInfo.versionCode = applicationInfo->versionCode;
     }
-    if (!abilityInfo) {
-        HILOG_ERROR("abilityInfo is nullptr, can not get ability information");
-    } else {
-        eventInfo.abilityName = abilityInfo->name;
-    }
-    if (appRecord->GetPriorityObject() == nullptr) {
+
+    eventInfo.abilityName = abilityName;
+    if (appRecord.GetPriorityObject() == nullptr) {
         HILOG_ERROR("appRecord's priorityObject is null");
     } else {
-        eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
+        eventInfo.pid = appRecord.GetPriorityObject()->GetPid();
     }
     eventInfo.startType = static_cast<int32_t>(startType);
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_STARTUP_TYPE, HiSysEventType::BEHAVIOR, eventInfo);
@@ -3349,7 +3341,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
 
     int32_t appIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, appIndex)) {
+    if (!GetBundleAndHapInfo(abilityInfo, *appInfo, bundleInfo, hapModuleInfo, appIndex)) {
         return;
     }
 
@@ -4782,7 +4774,7 @@ int32_t AppMgrServiceInner::StartNativeProcessForDebugger(const AAFwk::Want &wan
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     auto appInfo = std::make_shared<ApplicationInfo>(abilityInfo.applicationInfo);
-    if (!GetBundleAndHapInfo(abilityInfo, appInfo, bundleInfo, hapModuleInfo, 0)) {
+    if (!GetBundleAndHapInfo(abilityInfo, *appInfo, bundleInfo, hapModuleInfo, 0)) {
         HILOG_ERROR("GetBundleAndHapInfo failed");
         return ERR_INVALID_OPERATION;
     }

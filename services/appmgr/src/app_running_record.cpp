@@ -710,12 +710,13 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
     return;
 }
 
-void AppRunningRecord::AddModule(const LoadAbilityParam &abilityParam, const HapModuleInfo &hapModuleInfo)
+ModuleAbilityPair AppRunningRecord::AddModule(const LoadAbilityParam &abilityParam,
+    const HapModuleInfo &hapModuleInfo)
 {
     auto appInfo = abilityParam.appInfo;
     if (!appInfo) {
         HILOG_ERROR("appInfo is null");
-        return;
+        return {};
     }
 
     std::shared_ptr<ModuleRunningRecord> moduleRecord;
@@ -747,8 +748,8 @@ void AppRunningRecord::AddModule(const LoadAbilityParam &abilityParam, const Hap
         initModuleRecord(moduleRecord);
     }
 
-    moduleRecord->AddAbility(abilityParam);
-    return;
+    auto ability = moduleRecord->AddAbility(abilityParam);
+    return {moduleRecord, ability};
 }
 
 std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleName(

@@ -505,10 +505,10 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleAndHapInfo_001, TestSize.Level0)
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, applicationInfo_, bundleInfo, hapModuleInfo, 1);
+    appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, *applicationInfo_, bundleInfo, hapModuleInfo, 1);
 
     appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, applicationInfo_, bundleInfo, hapModuleInfo, 1);
+    appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, *applicationInfo_, bundleInfo, hapModuleInfo, 1);
     HILOG_INFO("GetBundleAndHapInfo_001 end");
 }
 
@@ -3848,7 +3848,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
     hapModuleInfo.process = "processName2";
     EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
     applicationInfo_->process = "";
-    
+
     HILOG_INFO("IsMainProcess_001 end");
 }
 

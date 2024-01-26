@@ -987,7 +987,7 @@ private:
      * @return
      */
     void StartAbility(const LoadAbilityParam &loadAbilityParam,
-        const std::shared_ptr<AppRunningRecord> &appRecord, const HapModuleInfo &hapModuleInfo);
+        AppRunningRecord &appRecord, const HapModuleInfo &hapModuleInfo);
 
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
         const std::string& debugCmd, bool isSandboxApp) const;
@@ -1114,7 +1114,7 @@ private:
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
 
-    bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+    bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo,
         BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex = 0) const;
     AppProcessData WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
         const ApplicationState state);
@@ -1201,8 +1201,10 @@ private:
 
     bool SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
-    void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
+    void SendAppStartupTypeEvent(AppRunningRecord &appRecord,
+        const std::string &abilityName, AppStartType startType);
+    void PerformStartProcess(AppRunningRecord &appRecord, const AbilityInfo &abilityInfo,
+        std::shared_ptr<Want> want, const std::string &processName, const ApplicationInfo &appInfo, bool appExist);
 
     void SendProcessExitEvent(pid_t pid);
 

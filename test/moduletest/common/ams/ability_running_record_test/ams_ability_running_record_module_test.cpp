@@ -300,7 +300,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_001, Test
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, -1);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
         auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);
@@ -345,7 +345,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_002, Test
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, -1);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
         auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);
@@ -380,7 +380,7 @@ HWTEST_F(AmsAbilityRunningRecordModuleTest, UpdateAbilityRunningRecord_003, Test
         sptr<IRemoteObject> token = new MockAbilityToken();
         HapModuleInfo hapModuleInfo;
         hapModuleInfo.moduleName = "Module";
-        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr, -1);
+        appRunningRecord->AddModule(appInfo, caseAbilityInfo, token, hapModuleInfo, nullptr);
         auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName,
             hapModuleInfo.moduleName);
         auto caseAbilityRunningRecord = moduleRecord->AddAbility(token, caseAbilityInfo, nullptr);

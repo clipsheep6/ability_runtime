@@ -112,7 +112,7 @@ protected:
         std::string processName = GetTestAppName(index);
         BundleInfo bundleInfo;
         HapModuleInfo hapModuleInfo;
-        EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+        EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
 
         auto appRecordFromServ = service_->appRunningManager_->CheckAppRunningRecordIsExist(
             appInfo->name, processName, appInfo->uid, bundleInfo);
@@ -196,7 +196,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_001, TestSize.Level
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
@@ -255,7 +255,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_002, TestSize.Level
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
@@ -316,7 +316,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_003, TestSize.Level
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
@@ -356,7 +356,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_003, TestSize.Level
     std::string processName2 = GetTestAppName(index);
     BundleInfo bundleInfo2;
     HapModuleInfo hapModuleInfo2;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo2, appInfo2, bundleInfo2, hapModuleInfo2));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo2, *appInfo2, bundleInfo2, hapModuleInfo2));
     sptr<MockAbilityToken> mockToken = new (std::nothrow) MockAbilityToken();
     auto record2 = service_->CreateAppRunningRecord(
         mockToken, nullptr, appInfo2, abilityInfo2, processName2, bundleInfo2, hapModuleInfo2, nullptr);
@@ -395,7 +395,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_004, TestSize.Level
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
@@ -452,7 +452,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_005, TestSize.Level
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
@@ -513,7 +513,7 @@ HWTEST_F(AppRunningProcessesInfoModuleTest, ApplicationStart_006, TestSize.Level
     RecordQueryResult result;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, processName, bundleInfo, hapModuleInfo, nullptr);
     record->SetUid(uid);
