@@ -2144,17 +2144,6 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
     }
     return true;
 }
-
-void Ability::EraseUIExtension(int32_t sessionId)
-{
-    HILOG_DEBUG("call");
-    auto abilityContextImpl = GetAbilityContext();
-    if (abilityContextImpl == nullptr) {
-        HILOG_ERROR("abilityContext is nullptr");
-        return;
-    }
-    abilityContextImpl->EraseUIExtension(sessionId);
-}
 #endif
 }  // namespace AppExecFwk
 }  // namespace OHOS
