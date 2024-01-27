@@ -1,0 +1,68 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+config("runtime_ndk_config") {
+  defines = [ "AMS_LOG_TAG = \"Runtime\"" ]
+  defines += [ "AMS_LOG_DOMAIN = 0xD001309" ]
+
+  include_dirs = [ "include" ]
+}
+
+ohos_ndk_headers("runtime_header") {
+  dest_dir = "$ndk_headers_out_dir/ability_runtime/"
+  sources = [ "./include/native_rumtime.h" ]
+}
+
+ohos_ndk_library("libruntime_ndk") {
+  ndk_description_file = "./libruntime.ndk.json"
+  min_compact_version = "12"
+  output_name = "runtime_ndk"
+}
+
+ohos_shared_library("runtime_ndk") {
+  include_dirs = [
+    "${ability_runtime_native_path}/runtime",
+    "include",
+  ]
+
+  sources = [
+    "${ability_runtime_path}/interfaces/ndk/ability_runtime/src/native_rumtime.cpp",
+    "${ability_runtime_path}/interfaces/ndk/ability_runtime/src/native_runtime_impl.cpp"
+  ]
+
+  configs = [ ":runtime_ndk_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
+  ]
+
+  external_deps = [
+    "ability_base:extractortool",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr:samgr_proxy",
+  ]
+
+  innerapi_tags = [ "ndk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

@@ -1,0 +1,55 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//foundation/ability/ability_runtime/ability_runtime.gni")
+
+module_output_path = "ability_runtime/native_runtime"
+
+ohos_unittest("native_runtime_test") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "${ability_runtime_path}/services/common/include",
+    "${ability_runtime_path}/interfaces/ndk/ability_runtime/include",
+  ]
+
+  sources = [
+    "native_runtime_test.cpp",
+  ]
+
+
+  deps = [
+    "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
+    "${ability_runtime_path}/interfaces/ndk/ability_runtime:runtime_ndk",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:extractortool",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "ets_runtime:libark_jsruntime",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+    "samgr:samgr_proxy",
+  ]
+}
+
+group("unittest") {
+  testonly = true
+  deps = [ ":native_runtime_test" ]
+}
