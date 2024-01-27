@@ -44,6 +44,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "connection_state_manager.h"
+#include "display_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
 #include "errors.h"
@@ -1305,7 +1306,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
             return componentRequest.requestResult;
         }
         abilityRequest.Voluation(want, requestCode, callerToken);
-        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+        int32_t displayId = startOptions.GetDisplayID();
+        if (displayId == 0) {
+            displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        }
+        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         if (AppUtils::GetInstance().JudgePCDevice()) {
             if (startOptions.windowLeftUsed_) {
@@ -1415,7 +1420,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 #endif
 
-    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    int32_t displayId = startOptions.GetDisplayID();
+    if (displayId == 0) {
+        displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+    }
+    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
     if (AppUtils::GetInstance().JudgePCDevice()) {
         if (startOptions.windowLeftUsed_) {
