@@ -189,11 +189,6 @@ public:
         return 0;
     }
 
-    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override
-    {
-        return;
-    }
-
     int ClearUpApplicationData(const std::string& bundleName, const int32_t userId = DEFAULT_INVAL_VALUE) override
     {
         return 0;

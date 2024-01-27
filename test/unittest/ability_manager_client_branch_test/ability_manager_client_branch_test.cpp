@@ -1443,19 +1443,6 @@ HWTEST_F(AbilityManagerClientBranchTest, ShareDataDone_0100, TestSize.Level1)
 }
 
 /**
- * @tc.name: AbilityManagerClient_GetAbilityTokenByCalleeObj_0100
- * @tc.desc: GetAbilityTokenByCalleeObj
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityTokenByCalleeObj_0100, TestSize.Level1)
-{
-    EXPECT_TRUE(client_ != nullptr);
-    sptr<IRemoteObject> callStub = nullptr;
-    sptr<IRemoteObject> token = nullptr;
-    client_->GetAbilityTokenByCalleeObj(callStub, token);
-}
-
-/**
  * @tc.name: AbilityManagerClient_RegisterOnListener_0100
  * @tc.desc: RegisterOnListener
  * @tc.type: FUNC

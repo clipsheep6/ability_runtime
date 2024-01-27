@@ -8409,17 +8409,6 @@ void AbilityManagerService::CallRequestDone(const sptr<IRemoteObject> &token, co
     currentMissionListManager_->CallRequestDone(abilityRecord, callStub);
 }
 
-void AbilityManagerService::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
-{
-    std::lock_guard<ffrt::mutex> autoLock(abilityTokenLock_);
-    auto it = callStubTokenMap_.find(callStub);
-    if (it == callStubTokenMap_.end()) {
-        token = nullptr;
-        return;
-    }
-    token = callStubTokenMap_[callStub];
-}
-
 int32_t AbilityManagerService::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
 {
     std::lock_guard autoLock(abilityTokenLock_);

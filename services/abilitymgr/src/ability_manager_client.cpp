@@ -905,13 +905,6 @@ void AbilityManagerClient::CallRequestDone(sptr<IRemoteObject> token, sptr<IRemo
     abms->CallRequestDone(token, callStub);
 }
 
-void AbilityManagerClient::GetAbilityTokenByCalleeObj(sptr<IRemoteObject> callStub, sptr<IRemoteObject> &token)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    abms->GetAbilityTokenByCalleeObj(callStub, token);
-}
-
 int32_t AbilityManagerClient::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
 {
     auto abms = GetAbilityManager();

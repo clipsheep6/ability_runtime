@@ -3117,27 +3117,6 @@ int AbilityManagerProxy::ReleaseCall(
     return reply.ReadInt32();
 }
 
-void AbilityManagerProxy::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return;
-    }
-    if (!data.WriteRemoteObject(callStub)) {
-        HILOG_ERROR("WriteRemoteObject fail, write callStub fail.");
-        return;
-    }
-
-    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN, data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
-        return;
-    }
-    token = sptr<IRemoteObject>(reply.ReadRemoteObject());
-}
-
 int32_t AbilityManagerProxy::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
 {
     MessageParcel data;
@@ -3151,7 +3130,7 @@ int32_t AbilityManagerProxy::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> c
         return -1;
     }
 
-    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_RECORD_ID, data, reply, option);
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return -1;

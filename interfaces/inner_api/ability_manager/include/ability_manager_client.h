@@ -781,14 +781,6 @@ public:
     void CallRequestDone(sptr<IRemoteObject> token, sptr<IRemoteObject> callStub);
 
     /**
-     * Get ability token by connect.
-     *
-     * @param token The token of ability.
-     * @param callStub The callee object.
-     */
-    void GetAbilityTokenByCalleeObj(sptr<IRemoteObject> callStub, sptr<IRemoteObject> &token);
-
-    /**
      * Get ability record id by connect.
      *
      * @param callStub The callee object.

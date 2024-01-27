@@ -448,7 +448,6 @@ enum class AbilityManagerInterfaceCode {
     OPEN_FILE = 4055,
 
     GET_ABILITY_TOKEN = 5001,
-    GET_ABILITY_RECORD_ID = 5002,
 
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,

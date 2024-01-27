@@ -256,8 +256,6 @@ void AbilityManagerStub::SecondStepInit()
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SHARE_DATA_DONE)] =
         &AbilityManagerStub::ShareDataDoneInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN)] =
-        &AbilityManagerStub::GetAbilityTokenByCalleeObjInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ABILITY_RECORD_ID)] =
         &AbilityManagerStub::GetAbilityRecordIdByCalleeObjInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_EXIT_APP)] =
         &AbilityManagerStub::ForceExitAppInner;
@@ -2267,19 +2265,6 @@ int AbilityManagerStub::ShareDataDoneInner(MessageParcel &data, MessageParcel &r
         HILOG_ERROR("reply write failed.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::GetAbilityTokenByCalleeObjInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callStub = data.ReadRemoteObject();
-    if (!callStub) {
-        HILOG_ERROR("GetAbilityToken read call stub failed.");
-        return ERR_NULL_OBJECT;
-    }
-    sptr<IRemoteObject> result;
-    GetAbilityTokenByCalleeObj(callStub, result);
-    reply.WriteRemoteObject(result);
     return NO_ERROR;
 }
 
