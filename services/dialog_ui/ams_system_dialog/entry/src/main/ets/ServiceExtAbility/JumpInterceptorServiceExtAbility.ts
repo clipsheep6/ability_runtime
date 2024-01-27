@@ -12,44 +12,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import common from '@ohos.app.ability.common';
 import display from '@ohos.display';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
-
+import { GlobalThis } from '../utils/GlobalThis';
 const TAG = 'JumpInterceptorDialog_Service';
 
 let winNum = 1;
-let win;
+let win: window.Window;
 
 export default class JumpInterceptorServiceExtAbility extends extension {
-  onCreate(want) {
+  onCreate(want: want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
-    globalThis.jumpInterceptorExtensionContext = this.context;
+    GlobalThis.getInstance().setContext('jumpInterceptorExtensionContext', this.context);
   }
 
-  async onRequest(want, startId) {
-    globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
-    globalThis.position = JSON.parse(want.parameters.position);
-    globalThis.interceptor_callerBundleName = want.parameters.interceptor_callerBundleName;
-    globalThis.interceptor_callerModuleName = want.parameters.interceptor_callerModuleName;
-    globalThis.interceptor_callerLabelId = want.parameters.interceptor_callerLabelId;
-    globalThis.interceptor_targetModuleName = want.parameters.interceptor_targetModuleName;
-    globalThis.interceptor_targetLabelId = want.parameters.interceptor_targetLabelId;
+  async onRequest(want: want, startId: number) {
+    GlobalThis.getInstance().setWant('abilityWant', want);
+    if (want.parameters != undefined) {
+      GlobalThis.getInstance().setRecord('params', JSON.parse(want.parameters.params as string));
+      GlobalThis.getInstance().setRecord('position', JSON.parse(want.parameters.position as string));
+      GlobalThis.getInstance().setProperty('interceptor_callerBundleName', want.parameters.interceptor_callerBundleName as string);
+      GlobalThis.getInstance().setProperty('interceptor_callerModuleName', want.parameters.interceptor_callerModuleName as string);
+      GlobalThis.getInstance().setProperty('interceptor_callerLabelId', want.parameters.interceptor_callerLabelId as number);
+      GlobalThis.getInstance().setProperty('interceptor_targetModuleName', want.parameters.interceptor_targetModuleName as string);
+      GlobalThis.getInstance().setProperty('interceptor_targetLabelId', want.parameters.interceptor_targetLabelId as number);
+    }
+
     await this.getHapResource();
     display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = {
-        left: globalThis.position.offsetX,
-        top: globalThis.position.offsetY,
-        width: globalThis.position.width,
-        height: globalThis.position.height
+      let navigationBarRect : window.Rect = {
+        left: GlobalThis.getInstance().getRecord('position')?.offsetX as number,
+        top: GlobalThis.getInstance().getRecord('position')?.offsetY as number,
+        width: GlobalThis.getInstance().getRecord('position')?.width as number,
+        height: GlobalThis.getInstance().getRecord('position')?.height as number
       };
       if (winNum > 1) {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (GlobalThis.getInstance().getRecord('params')?.deviceType === 'phone' || GlobalThis.getInstance().getRecord('params')?.deviceType === 'default') {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
@@ -60,24 +64,26 @@ export default class JumpInterceptorServiceExtAbility extends extension {
 
   async getHapResource() {
     console.debug(TAG, 'start getHapResource');
-    globalThis.callerAppName = await this.loadAppName(
-      globalThis.interceptor_callerBundleName,
-      globalThis.interceptor_callerModuleName,
-      globalThis.interceptor_callerLabelId
+    let callerAppName: string = await this.loadAppName(
+      GlobalThis.getInstance().getProperty('interceptor_callerBundleName') as string,
+      GlobalThis.getInstance().getProperty('interceptor_callerModuleName') as string,
+      GlobalThis.getInstance().getProperty('interceptor_callerLabelId') as number
     );
-    globalThis.targetAppName = await this.loadAppName(
-      globalThis.params.bundleName,
-      globalThis.interceptor_targetModuleName,
-      globalThis.interceptor_targetLabelId
+    GlobalThis.getInstance().setProperty('callerAppName', callerAppName);
+    let targetAppName: string = await this.loadAppName(
+      GlobalThis.getInstance().getRecord('params')?.bundleName as string,
+      GlobalThis.getInstance().getProperty('interceptor_targetModuleName') as string,
+      GlobalThis.getInstance().getProperty('interceptor_targetLabelId') as number
     );
+    GlobalThis.getInstance().setProperty('targetAppName', targetAppName);
     console.debug(TAG, 'getHapResource load finished');
   }
 
   async loadAppName(bundleName: string, moduleName: string, labelId: number) {
-    let moduleContext = globalThis.jumpInterceptorExtensionContext.createModuleContext(bundleName, moduleName);
+    let moduleContext = GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext')?.createModuleContext(bundleName, moduleName);
     let appName: string = '';
     try {
-      appName = await moduleContext.resourceManager.getString(labelId);
+      appName = await moduleContext?.resourceManager.getString(labelId) as string;
     } catch (error) {
       console.error(TAG, `getMediaBase64 error:${JSON.stringify(error)}`);
     }
@@ -91,16 +97,19 @@ export default class JumpInterceptorServiceExtAbility extends extension {
     }
   }
 
-  private async createWindow(name: string, windowType: number, rect) {
+  private async createWindow(name: string, windowType: window.WindowType, rect: window.Rect) {
     console.info(TAG, 'create window');
     try {
-      win = await window.create(globalThis.jumpInterceptorExtensionContext, name, windowType);
-      await win.hideNonSystemFloatingWindows(true);
-      await win.moveTo(rect.left, rect.top);
-      await win.resetSize(rect.width, rect.height);
-      await win.loadContent('pages/jumpInterceptorDialog');
-      await win.setBackgroundColor('#00000000');
-      await win.show();
+      if (GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext') != undefined) {
+        win = await window.create(GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext') as common.BaseContext, name, windowType);
+        // ? red
+        await win.hideNonSystemFloatingWindows(true);
+        await win.moveTo(rect.left, rect.top);
+        await win.resetSize(rect.width, rect.height);
+        await win.loadContent('pages/jumpInterceptorDialog');
+        await win.setBackgroundColor('#00000000');
+        await win.show();
+      }
     } catch {
       console.error(TAG, 'window create failed!');
     }

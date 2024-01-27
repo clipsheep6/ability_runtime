@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BusinessError } from '@ohos.base';
+import { GlobalThis } from '../utils/GlobalThis';
+import want from '@ohos.app.ability.Want';
 
 interface TipBtn {
   color:string
@@ -26,44 +29,50 @@ struct JumpInterceptorDialog {
 
   aboutToAppear() {
     console.log(this.TAG, "dialog page appears");
-    this.deviceType = globalThis.params.deviceType
+    this.deviceType = GlobalThis.getInstance().getRecord('params')?.deviceType as string
     if (this.deviceType == "pc") {
       this.btn.color = "#F2F2F2";
     }
   }
 
   onCloseApp() {
-    globalThis.jumpInterceptorExtensionContext.terminateSelf();
+    GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext')?.terminateSelf();
   }
 
   onJumpApp() {
-    globalThis.abilityWant.bundleName =  globalThis.params.bundleName;
-    globalThis.abilityWant.abilityName = globalThis.params.abilityName;
-    globalThis.abilityWant.moduleName = globalThis.params.moduleName;
-    globalThis.jumpInterceptorExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
+    let abilityWant = GlobalThis.getInstance().getWant('abilityWant')
+    if (abilityWant != undefined) {
+      abilityWant.bundleName =  GlobalThis.getInstance().getRecord('params')?.bundleName as string;
+      abilityWant.abilityName = GlobalThis.getInstance().getRecord('params')?.abilityName as string;
+      abilityWant.moduleName = GlobalThis.getInstance().getRecord('params')?.moduleName as string;
+    }
+    GlobalThis.getInstance().setWant('abilityWant', abilityWant);
+
+    GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext')?.startAbilityAsCaller(GlobalThis.getInstance().getWant('abilityWant') as want, (error : BusinessError) => {
       if (error) {
         console.error(this.TAG + "startAbility finish, error: " + JSON.stringify(error));
         return;
       }
-      console.log(this.TAG + "startAbility finish, data: " + JSON.stringify(data));
-      globalThis.jumpInterceptorExtensionContext.terminateSelf();
+      // ? data AsyncCallback<void>
+      // console.log(this.TAG + "startAbility finish, data: " + JSON.stringify(data));
+      GlobalThis.getInstance().getContext('jumpInterceptorExtensionContext')?.terminateSelf();
     });
   }
 
   build() {
     Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
-        Text($r('app.string.message_title_jump_interceptor', globalThis.callerAppName, globalThis.targetAppName))
+        Text($r('app.string.message_title_jump_interceptor', GlobalThis.getInstance().getProperty('callerAppName'), GlobalThis.getInstance().getProperty('targetAppName')))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
           .height("29%")
           .textOverflow({overflow: TextOverflow.Ellipsis})
           .maxLines(2)
-        .textAlign(TextAlign.Center)
+          .textAlign(TextAlign.Center)
       }
       Flex({ justifyContent: FlexAlign.Center }) {
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
-          Text($r('app.string.message_cancel_jump'))
+          Text()
             .fontSize("21fp")
             .fontColor("#0A59F7")
             .fontWeight(FontWeight.Regular)
@@ -77,7 +86,7 @@ struct JumpInterceptorDialog {
           this.onCloseApp();
         })
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
-          Text($r('app.string.message_confirm_jump'))
+          Text()
             .fontSize("21fp")
             .fontColor("#0A59F7")
             .fontWeight(FontWeight.Regular)

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import { GlobalThis } from '../utils/GlobalThis';
 interface TipBtn {
   color:string
 }
@@ -26,7 +27,7 @@ struct TipsDialog {
 
   aboutToAppear() {
     console.log(this.TAG, "dialog page appears");
-    this.deviceType = globalThis.params.deviceType
+    this.deviceType = GlobalThis.getInstance().getRecord('params')?.deviceType as string
     if (this.deviceType == "pc") {
       this.btn.color = "#F2F2F2";
     }
@@ -34,7 +35,7 @@ struct TipsDialog {
 
   onCloseApp() {
     console.info(this.TAG, 'click close app');
-    globalThis.tipsExtensionContext.terminateSelf();
+    GlobalThis.getInstance().getContext('tipsExtensionContext')?.terminateSelf();
   }
 
   build() {
@@ -45,7 +46,7 @@ struct TipsDialog {
           .fontWeight(FontWeight.Medium)
           .height("29%")
           .textOverflow({overflow: TextOverflow.Ellipsis})
-        .textAlign(TextAlign.Center)
+          .textAlign(TextAlign.Center)
       }
       Flex({ justifyContent: FlexAlign.Center }) {
         Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
