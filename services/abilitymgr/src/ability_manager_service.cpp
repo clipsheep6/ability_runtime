@@ -44,6 +44,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "connection_state_manager.h"
+#include "display_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
 #include "errors.h"
@@ -87,7 +88,6 @@
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
-#include "display_manager.h"
 #include "input_manager.h"
 #endif
 
