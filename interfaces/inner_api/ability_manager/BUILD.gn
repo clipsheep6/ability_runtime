@@ -31,6 +31,7 @@ config("ability_manager_public_config") {
     "${ability_base_kits_path}/want/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
+    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
@@ -180,6 +181,7 @@ ohos_shared_library("mission_info") {
 
   external_deps = [
     "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "ipc:ipc_core",
   ]
@@ -212,7 +214,10 @@ ohos_shared_library("ability_start_setting") {
 
   public_configs = [ ":ability_manager_public_config" ]
 
-  external_deps = [ "c_utils:utils" ]
+  external_deps = [
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+  ]
 
   cflags_cc = []
   innerapi_tags = [ "platformsdk" ]
@@ -237,6 +242,7 @@ ohos_shared_library("ability_connect_callback_stub") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
+    "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
