@@ -419,8 +419,6 @@ void AbilityManagerService::InitPushTask()
         HILOG_ERROR("taskHandler_ is nullptr.");
         return;
     }
-    auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
-    taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
 
     auto initStartupFlagTask = [aams = shared_from_this()]() { aams->InitStartupFlag(); };
     taskHandler_->SubmitTask(initStartupFlagTask, "InitStartupFlag");
@@ -1963,6 +1961,12 @@ void AbilityManagerService::OnAddSystemAbility(int32_t systemAbilityId, const st
         }
         case BUNDLE_MGR_SERVICE_SYS_ABILITY_ID: {
             SubscribeBundleEventCallback();
+            if (taskHandler_ == nullptr) {
+                HILOG_ERROR("taskHandler_ is nullptr.");
+                return;
+            }
+            auto startResidentAppsTask = [aams = shared_from_this()]() { aams->StartResidentApps(); };
+            taskHandler_->SubmitTask(startResidentAppsTask, "StartResidentApps");
             break;
         }
         default:
