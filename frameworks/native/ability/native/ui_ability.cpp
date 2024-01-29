@@ -1031,17 +1031,6 @@ void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
     }
     abilityContextImpl->SetWeakSessionToken(sessionToken);
 }
-
-void UIAbility::EraseUIExtension(int32_t sessionId)
-{
-    HILOG_DEBUG("call");
-    auto abilityContextImpl = GetAbilityContext();
-    if (abilityContextImpl == nullptr) {
-        HILOG_ERROR("abilityContext is nullptr");
-        return;
-    }
-    abilityContextImpl->EraseUIExtension(sessionId);
-}
 #endif
 } // namespace AbilityRuntime
 } // namespace OHOS
