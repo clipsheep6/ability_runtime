@@ -690,6 +690,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
+        return ERR_OK;
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {
         HILOG_ERROR("resolve failed, error: %{public}d.", RESOLVE_CALL_ABILITY_INNER_ERR);
         return RESOLVE_CALL_ABILITY_INNER_ERR;
