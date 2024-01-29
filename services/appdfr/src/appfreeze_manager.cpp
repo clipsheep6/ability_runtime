@@ -202,14 +202,15 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
 int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo,
     const std::string& binderInfo)
 {
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
+    int ret = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
         OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid,
         EVENT_PID, appInfo.pid, EVENT_PACKAGE_NAME, appInfo.bundleName,
         EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
         faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo);
 
-    HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
-        faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str());
+    HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, "
+        "hisysevent write ret = %{public}d.",
+        faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str(), ret);
     return 0;
 }
 
