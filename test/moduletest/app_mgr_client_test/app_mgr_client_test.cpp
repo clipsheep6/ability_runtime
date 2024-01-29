@@ -20,6 +20,7 @@
 #include "hilog_wrapper.h"
 #include "mock_configuration_observer.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -63,6 +64,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, Tes
 {
     HILOG_INFO("AppMgrClient_GetProcessRunningInfosByUserId_0100 start");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 

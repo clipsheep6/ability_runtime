@@ -23,6 +23,7 @@ ohos_unittest("app_scheduler_test") {
 
   include_dirs = [
     "${ability_runtime_services_path}/abilitymgr/include",
+    "${ability_runtime_test_path}/mock/mock_sa_call",
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/system_ability_mock",
     "${ability_runtime_test_path}/unittest/app_debug_listener_proxy_test",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",
@@ -54,6 +55,8 @@ ohos_unittest("app_scheduler_test") {
     "ability_base:want",
     "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",

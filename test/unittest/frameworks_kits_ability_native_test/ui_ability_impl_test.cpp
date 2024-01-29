@@ -24,7 +24,9 @@
 #include "context_deal.h"
 #include "hilog_wrapper.h"
 #include "locale_config.h"
+#include "mock_ability_impl.h"
 #include "mock_ability_token.h"
+#include "mock_page_ability.h"
 #include "mock_ui_ability.h"
 #include "mock_ui_ability_impl.h"
 #include "ohos_application.h"
@@ -341,7 +343,7 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_Stop_001, TestSize.Level1)
 HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_001 start";
-    std::shared_ptr<MockUIAbilityimpl> mockUIAbilityimpl = std::make_shared<MockUIAbilityimpl>();
+    std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "uiAbility";
@@ -353,8 +355,8 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_001, TestSize.Level1)
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-        std::shared_ptr<UIAbility> uiability = nullptr;
-        MockUIAbility *pMocKUIAbility = new (std::nothrow) MockUIAbility();
+        std::shared_ptr<Ability> uiability = nullptr;
+        MockPageAbility *pMocKUIAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKUIAbility, nullptr);
         if (pMocKUIAbility != nullptr) {
             uiability.reset(pMocKUIAbility);
@@ -364,11 +366,11 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_001, TestSize.Level1)
             contextDeal->SetAbilityInfo(abilityInfo);
             pMocKUIAbility->AttachBaseContext(contextDeal);
             application->AttachBaseContext(contextDeal);
-            mockUIAbilityimpl->Init(application, record, uiability, handler, token);
+            mockAbilityimpl->Init(application, record, uiability, handler, token);
             Want want;
-            mockUIAbilityimpl->ImplForeground(want);
-            EXPECT_EQ(MockUIAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
-            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockUIAbilityimpl->GetCurrentState());
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_001 end";
@@ -385,7 +387,7 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_001, TestSize.Level1)
 HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_002 start";
-    std::shared_ptr<MockUIAbilityimpl> mockUIAbilityimpl = std::make_shared<MockUIAbilityimpl>();
+    std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "uiAbility";
@@ -397,8 +399,8 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_002, TestSize.Level1)
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-        std::shared_ptr<UIAbility> uiability = nullptr;
-        MockUIAbility *pMocKUIAbility = new (std::nothrow) MockUIAbility();
+        std::shared_ptr<Ability> uiability = nullptr;
+        MockPageAbility *pMocKUIAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKUIAbility, nullptr);
         if (pMocKUIAbility != nullptr) {
             uiability.reset(pMocKUIAbility);
@@ -408,13 +410,11 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_002, TestSize.Level1)
             contextDeal->SetAbilityInfo(abilityInfo);
             pMocKUIAbility->AttachBaseContext(contextDeal);
             application->AttachBaseContext(contextDeal);
-            mockUIAbilityimpl->Init(application, record, uiability, handler, token);
+            mockAbilityimpl->Init(application, record, uiability, handler, token);
             Want want;
-            mockUIAbilityimpl->ImplForeground(want);
-            mockUIAbilityimpl->ImplForeground(want);
-            mockUIAbilityimpl->ImplForeground(want);
-            EXPECT_EQ(MockUIAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
-            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockUIAbilityimpl->GetCurrentState());
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_002 end";
@@ -562,7 +562,7 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_001, TestSi
 HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_Background_002 start";
-    std::shared_ptr<MockUIAbilityimpl> mockUIAbilityimpl = std::make_shared<MockUIAbilityimpl>();
+    std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "uiAbility";
@@ -574,8 +574,8 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_002, TestSi
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-        std::shared_ptr<UIAbility> uiability = nullptr;
-        MockUIAbility *pMocKUIAbility = new (std::nothrow) MockUIAbility();
+        std::shared_ptr<Ability> uiability = nullptr;
+        MockPageAbility *pMocKUIAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKUIAbility, nullptr);
         if (pMocKUIAbility != nullptr) {
             uiability.reset(pMocKUIAbility);
@@ -585,13 +585,13 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_002, TestSi
             contextDeal->SetAbilityInfo(abilityInfo);
             pMocKUIAbility->AttachBaseContext(contextDeal);
             application->AttachBaseContext(contextDeal);
-            mockUIAbilityimpl->Init(application, record, uiability, handler, token);
+            mockAbilityimpl->Init(application, record, uiability, handler, token);
             Want want;
-            mockUIAbilityimpl->ImplForeground(want);
-            mockUIAbilityimpl->ImplBackground();
-            mockUIAbilityimpl->ImplForeground(want);
-            EXPECT_EQ(MockUIAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
-            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockUIAbilityimpl->GetCurrentState());
+            mockAbilityimpl->ImplForeground(want);
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_Background_002 end";
@@ -608,7 +608,7 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_002, TestSi
 HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_Background_002 start";
-    std::shared_ptr<MockUIAbilityimpl> mockUIAbilityimpl = std::make_shared<MockUIAbilityimpl>();
+    std::shared_ptr<MockAbilityimpl> mockAbilityimpl = std::make_shared<MockAbilityimpl>();
     std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = "uiAbility";
@@ -620,8 +620,8 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_003, TestSi
         std::shared_ptr<AbilityLocalRecord> record = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
         std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
         std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
-        std::shared_ptr<UIAbility> uiability = nullptr;
-        MockUIAbility *pMocKUIAbility = new (std::nothrow) MockUIAbility();
+        std::shared_ptr<Ability> uiability = nullptr;
+        MockPageAbility *pMocKUIAbility = new (std::nothrow) MockPageAbility();
         EXPECT_NE(pMocKUIAbility, nullptr);
         if (pMocKUIAbility != nullptr) {
             uiability.reset(pMocKUIAbility);
@@ -631,12 +631,12 @@ HWTEST_F(UIAbilityImplTest, AbilityRuntime_New_Foreground_Background_003, TestSi
             contextDeal->SetAbilityInfo(abilityInfo);
             pMocKUIAbility->AttachBaseContext(contextDeal);
             application->AttachBaseContext(contextDeal);
-            mockUIAbilityimpl->Init(application, record, uiability, handler, token);
+            mockAbilityimpl->Init(application, record, uiability, handler, token);
             Want want;
-            mockUIAbilityimpl->ImplBackground();
-            mockUIAbilityimpl->ImplForeground(want);
-            EXPECT_EQ(MockUIAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
-            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockUIAbilityimpl->GetCurrentState());
+            mockAbilityimpl->ImplBackground();
+            mockAbilityimpl->ImplForeground(want);
+            EXPECT_EQ(MockPageAbility::Event::ON_FOREGROUND, pMocKUIAbility->state_);
+            EXPECT_EQ(AAFwk::ABILITY_STATE_FOREGROUND_NEW, mockAbilityimpl->GetCurrentState());
         }
     }
     GTEST_LOG_(INFO) << "AbilityRuntime_New_Foreground_Background_003 end";

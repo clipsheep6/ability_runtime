@@ -31,6 +31,7 @@
 #include "mock_iapp_state_callback.h"
 #include "mock_native_token.h"
 #include "mock_render_scheduler.h"
+#include "mock_sa_call.h"
 #include "parameters.h"
 #include "window_manager.h"
 
@@ -837,6 +838,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
 {
     HILOG_INFO("KillApplicationByUserId_001 start");
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
