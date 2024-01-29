@@ -3001,6 +3001,7 @@ int32_t AbilityManagerStub::BatchSetApplicationAutoStartupByEDMInner(MessageParc
 {
     int32_t num = data.ReadInt32();
     if (num > MAX_AUTO_STARTUP_COUNT) {
+        HILOG_ERROR("infoList is too large.");
         return ERR_INVALID_VALUE;
     }
     std::vector<AutoStartupInfo> infoList;
@@ -3022,6 +3023,7 @@ int32_t AbilityManagerStub::BatchCancelApplicationAutoStartupByEDMInner(MessageP
 {
     int32_t num = data.ReadInt32();
     if (num > MAX_AUTO_STARTUP_COUNT) {
+        HILOG_ERROR("infoList is too large.");
         return ERR_INVALID_VALUE;
     }
     std::vector<AutoStartupInfo> infoList;

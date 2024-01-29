@@ -782,6 +782,7 @@ int32_t AbilityAutoStartupService::SetApplicationAutoStartupByEDM(
 {
     int32_t errorCode = CheckPermissionForEDM();
     if (errorCode != ERR_OK) {
+        HILOG_ERROR("Permission denied.");
         return errorCode;
     }
     int32_t tempErrorCode = ERR_OK;
@@ -809,6 +810,7 @@ int32_t AbilityAutoStartupService::CancelApplicationAutoStartupByEDM(
 {
     int32_t errorCode = CheckPermissionForEDM();
     if (errorCode != ERR_OK) {
+        HILOG_ERROR("Permission denied.");
         return errorCode;
     }
     int32_t tempErrorCode = ERR_OK;

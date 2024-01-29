@@ -4846,6 +4846,7 @@ int32_t AbilityManagerProxy::SetApplicationAutoStartupByEDM(const std::vector<Au
 {
     int32_t num = infoList.size();
     if (num > MAX_AUTO_STARTUP_COUNT) {
+        HILOG_ERROR("infoList is too large.");
         return ERR_INVALID_VALUE;
     }
 
@@ -4885,6 +4886,7 @@ int32_t AbilityManagerProxy::CancelApplicationAutoStartupByEDM(const std::vector
 {
     int32_t num = infoList.size();
     if (num > MAX_AUTO_STARTUP_COUNT) {
+        HILOG_ERROR("infoList is too large.");
         return ERR_INVALID_VALUE;
     }
 

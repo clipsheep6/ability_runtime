@@ -291,14 +291,9 @@ int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vect
     for (const auto &item : allEntries) {
         bool isAutoStartup, isEdmForce;
         ConvertAutoStartupStatusFromValue(item.value, isAutoStartup, isEdmForce);
-        if (isQueryEdmList) {
-            if (isAutoStartup && isEdmForce) {
-                infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
-            }
-        } else {
-            if (isAutoStartup) {
-                infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
-            }
+        if ((isQueryEdmList && isAutoStartup && isEdmForce) ||
+            ((!isQueryEdmList && isAutoStartup))) {
+            infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
         }
     }
     HILOG_DEBUG("InfoList.size: %{public}zu.", infoList.size());
