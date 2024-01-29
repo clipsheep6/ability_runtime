@@ -9476,7 +9476,7 @@ bool AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityR
         dialogAppInfos.front().labelId = abilityRequest.abilityInfo.labelId;
     }
     return dialogSessionRecord_->GenerateDialogSessionRecord(abilityRequest, userId,
-        dialogSessionId, dialogAppInfos, OHOS::system::GetDeviceType());
+        dialogSessionId, dialogAppInfos, isSelector);
 }
 
 int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken,
