@@ -1649,19 +1649,14 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
     }
 
     if (result == OHOS::ERR_OK) {
-        if (abilityName.size() == 0 || bundleName.size() == 0) {
+        if (!abilityName.empty() && bundleName.empty()) {
+            // explicitly start ability must have both ability and bundle names
+
             // 'aa start [-d <device-id>] -a <ability-name> -b <bundle-name> [-D]'
             // 'aa stop-service [-d <device-id>] -a <ability-name> -b <bundle-name>'
             HILOG_INFO("'aa %{public}s' without enough options.", cmd_.c_str());
 
-            if (abilityName.size() == 0) {
-                resultReceiver_.append(HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
-            }
-
-            if (bundleName.size() == 0) {
-                resultReceiver_.append(HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n");
-            }
-
+            resultReceiver_.append(HELP_MSG_NO_BUNDLE_NAME_OPTION + "\n");
             result = OHOS::ERR_INVALID_VALUE;
         } else {
             ElementName element(deviceId, bundleName, abilityName, moduleName);
