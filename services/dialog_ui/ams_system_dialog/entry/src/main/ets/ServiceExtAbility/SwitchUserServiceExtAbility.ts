@@ -69,7 +69,7 @@ export default class SwitchUserServiceExtensionAbility extends extension {
     console.info(TAG, 'create window rect is ' + JSON.stringify(rect));
     try {
       win = await window.create(this.context, name, windowType);
-      if (deviceTypeInfo != 'default') {
+      if (deviceTypeInfo !== 'default') {
         await win.hideNonSystemFloatingWindows(true);
       }
       await win.moveWindowTo(rect.left, rect.top);

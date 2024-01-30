@@ -97,7 +97,7 @@ export default class JumpInterceptorServiceExtAbility extends extension {
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.jumpInterceptorExtensionContext, name, windowType);
-      if (deviceTypeInfo != 'default') {
+      if (deviceTypeInfo !== 'default') {
         await win.hideNonSystemFloatingWindows(true);
       }
       await win.moveTo(rect.left, rect.top);
