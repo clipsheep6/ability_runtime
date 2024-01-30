@@ -1004,27 +1004,11 @@ public:
      */
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
 
-    /**
-     * Set component interception.
-     *
-     * @param componentInterception, component interception.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SetComponentInterception(
-        const sptr<AppExecFwk::IComponentInterception> &componentInterception) override;
-
-    virtual int32_t SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
-        int32_t requestCode, int32_t resultCode, int32_t userId) override;
-
     bool IsAbilityControllerStart(const Want &want, const std::string &bundleName);
 
     bool IsAbilityControllerForeground(const std::string &bundleName);
 
     bool IsAbilityControllerStartById(int32_t missionId);
-
-    bool IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest, AbilityRequest &request);
-
-    void NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode);
 
     /**
      * Send not response process ID to ability manager service.
@@ -1802,23 +1786,13 @@ private:
 
     void InitStartupFlag();
 
-    void UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request);
-
-    ComponentRequest initComponentRequest(const sptr<IRemoteObject> &callerToken = nullptr,
-        const int requestCode = -1, const int componentStatus = 0);
-
     inline bool IsCrossUserCall(int32_t userId)
     {
         return (userId != INVALID_USER_ID && userId != U0_USER_ID && userId != GetUserId());
     }
 
-    bool CheckProxyComponent(const Want &want, const int result);
-
     int32_t RequestDialogServiceInner(const Want &want, const sptr<IRemoteObject> &callerToken,
         int requestCode, int32_t userId);
-
-    bool IsReleaseCallInterception(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element,
-        int &result);
 
     bool CheckCallingTokenId(const std::string &bundleName);
 
@@ -1919,7 +1893,6 @@ private:
     ffrt::mutex managersMutex_;
     ffrt::mutex bgtaskObserverMutex_;
     ffrt::mutex abilityTokenLock_;
-    sptr<AppExecFwk::IComponentInterception> componentInterception_ = nullptr;
 
     std::multimap<std::string, std::string> timeoutMap_;
 

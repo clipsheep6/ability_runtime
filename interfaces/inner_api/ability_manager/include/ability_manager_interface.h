@@ -34,7 +34,6 @@
 #include "iability_controller.h"
 #include "iability_manager_collaborator.h"
 #include "iacquire_share_data_callback_interface.h"
-#include "icomponent_interception.h"
 #include "insight_intent_execute_param.h"
 #include "insight_intent_execute_result.h"
 #include "iprepare_terminate_callback_interface.h"
@@ -853,23 +852,6 @@ public:
      */
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) = 0;
-
-    /**
-     * Set component interception.
-     *
-     * @param componentInterception, component interception.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SetComponentInterception(const sptr<AppExecFwk::IComponentInterception> &componentInterception)
-    {
-        return 0;
-    }
-
-    virtual int32_t SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
-        int32_t requestCode, int32_t resultCode, int32_t userId)
-    {
-        return 0;
-    }
 
     /**
      * Is user a stability test.

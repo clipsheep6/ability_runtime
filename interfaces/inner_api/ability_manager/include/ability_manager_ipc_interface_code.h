@@ -189,10 +189,6 @@ enum class AbilityManagerInterfaceCode {
     // stop extension ability (58)
     STOP_EXTENSION_ABILITY = 58,
 
-    SET_COMPONENT_INTERCEPTION = 59,
-
-    SEND_ABILITY_RESULT_BY_TOKEN = 60,
-
     // ipc id for set rootSceneSession (61)
     SET_ROOT_SCENE_SESSION = 61,
 

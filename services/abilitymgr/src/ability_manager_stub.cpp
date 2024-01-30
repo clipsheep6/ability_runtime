@@ -347,10 +347,6 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::HandleRequestDialogService;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED)] =
         &AbilityManagerStub::HandleReportDrawnCompleted;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_COMPONENT_INTERCEPTION)] =
-        &AbilityManagerStub::SetComponentInterceptionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_ABILITY_RESULT_BY_TOKEN)] =
-        &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD)] =
         &AbilityManagerStub::IsValidMissionIdsInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::VERIFY_PERMISSION)] =
@@ -1890,39 +1886,6 @@ int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessagePa
         HILOG_ERROR("setAbilityControllerInner failed.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SetComponentInterceptionInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AppExecFwk::IComponentInterception> componentInterception =
-        iface_cast<AppExecFwk::IComponentInterception>(data.ReadRemoteObject());
-    if (componentInterception == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: SetComponentInterceptionInner readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    int32_t result = SetComponentInterception(componentInterception);
-    HILOG_INFO("AbilityManagerStub: SetComponentInterceptionInner result = %{public}d", result);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("SetComponentInterceptionInner failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SendResultToAbilityByTokenInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
-    int32_t requestCode = data.ReadInt32();
-    int32_t resultCode = data.ReadInt32();
-    int32_t userId = data.ReadInt32();
-    int32_t result = SendResultToAbilityByToken(*want, abilityToken, requestCode, resultCode, userId);
-    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
