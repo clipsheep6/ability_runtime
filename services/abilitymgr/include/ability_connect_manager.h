@@ -32,6 +32,7 @@
 #include "connection_record.h"
 #include "element_name.h"
 #include "ui_extension_ability_connect_info.h"
+#include "ui_extension_utils.h"
 #include "extension_record_manager.h"
 #include "want.h"
 #include "iremote_object.h"
@@ -336,17 +337,6 @@ private:
      */
     void TerminateDone(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
-    /**
-     * dispatch service ability life cycle .
-     *
-     * @param abilityRecord.
-     * @param state.
-     */
-    int DispatchInactive(const std::shared_ptr<AbilityRecord> &abilityRecord, int state);
-    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
-
     void HandleStartTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int resultCode);
     void HandleStopTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleTerminateDisconnectTask(const ConnectListType& connectlist);
@@ -360,28 +350,11 @@ private:
     void HandleCommandDestroy(const sptr<SessionInfo> &sessionInfo);
 
     /**
-     * IsAbilityConnected.
-     *
-     * @param abilityRecord, the ptr of the connected ability.
-     * @param connectRecordList, connect record list.
-     * @return true: ability is connected, false: ability is not connected
-     */
-    bool IsAbilityConnected(const std::shared_ptr<AbilityRecord> &abilityRecord,
-        const std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList);
-
-    /**
      * RemoveConnectionRecordFromMap.
      *
      * @param connect, the ptr of the connect record.
      */
     void RemoveConnectionRecordFromMap(const std::shared_ptr<ConnectionRecord> &connect);
-
-    /**
-     * RemoveServiceAbility.
-     *
-     * @param service, the ptr of the ability record.
-     */
-    void RemoveServiceAbility(const std::shared_ptr<AbilityRecord> &service);
 
     /**
      * GetOrCreateServiceRecord.
@@ -393,17 +366,6 @@ private:
      */
     void GetOrCreateServiceRecord(const AbilityRequest &abilityRequest, const bool isCreatedByConnect,
         std::shared_ptr<AbilityRecord> &targetAbilityRecord, bool &isLoadedAbility);
-
-    /**
-     * GetConnectRecordListFromMap.
-     *
-     * @param connect, callback object.
-     * @param isCreatedByConnect, whether is created by connect ability mode.
-     * @param connectRecordList, the target connectRecordList.
-     * @param isCallbackConnected, whether the callback has been connected.
-     */
-    void GetConnectRecordListFromMap(
-        const sptr<IAbilityConnection> &connect, std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList);
 
     /**
      * AddConnectDeathRecipient.
@@ -453,7 +415,6 @@ private:
 
     void CompleteForeground(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void CompleteBackground(const std::shared_ptr<AbilityRecord> &abilityRecord);
-    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId);
 
     void PostRestartResidentTask(const AbilityRequest &abilityRequest);
 
@@ -500,27 +461,372 @@ private:
      */
     void HandleExtensionDisconnectTask(const std::shared_ptr<ConnectionRecord> &connectRecord);
 
+    /**
+     * dispatch service ability life cycle .
+     *
+     * @param abilityRecord.
+     * @param state.
+     */
+    int DispatchInactive(const std::shared_ptr<AbilityRecord> &abilityRecord, int state)
+    {
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+        CHECK_POINTER_AND_RETURN(eventHandler_, ERR_INVALID_VALUE);
+        if (!abilityRecord->IsAbilityState(AbilityState::INACTIVATING)) {
+            HILOG_ERROR("Ability transition life state error. expect %{public}d, actual %{public}d callback %{public}d",
+                        AbilityState::INACTIVATING,
+                        abilityRecord->GetAbilityState(),
+                        state);
+            return ERR_INVALID_VALUE;
+        }
+        eventHandler_->RemoveEvent(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+
+        // complete inactive
+        abilityRecord->SetAbilityState(AbilityState::INACTIVE);
+        if (abilityRecord->IsCreateByConnect()) {
+            ConnectAbility(abilityRecord);
+        } else {
+            CommandAbility(abilityRecord);
+            if (abilityRecord->GetConnectRecordList().size() > 0) {
+                // It means someone called connectAbility when service was loading
+                ConnectAbility(abilityRecord);
+            }
+        }
+
+        return ERR_OK;
+    }
+    int DispatchForeground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+    {
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+        CHECK_POINTER_AND_RETURN(taskHandler_, ERR_INVALID_VALUE);
+        // remove foreground timeout task.
+        taskHandler_->CancelTask("foreground_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+
+        auto self(shared_from_this());
+        auto task = [self, abilityRecord]() { self->CompleteForeground(abilityRecord); };
+        taskHandler_->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
+
+        return ERR_OK;
+    }
+    int DispatchBackground(const std::shared_ptr<AbilityRecord> &abilityRecord)
+    {
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+        CHECK_POINTER_AND_RETURN(taskHandler_, ERR_INVALID_VALUE);
+        // remove background timeout task.
+        taskHandler_->CancelTask("background_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+
+        auto self(shared_from_this());
+        auto task = [self, abilityRecord]() { self->CompleteBackground(abilityRecord); };
+        taskHandler_->SubmitTask(task, TaskQoS::USER_INTERACTIVE);
+
+        return ERR_OK;
+    }
+    int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord)
+    {
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+        // remove terminate timeout task
+        if (taskHandler_ != nullptr) {
+            taskHandler_->CancelTask("terminate_" + std::to_string(abilityRecord->GetAbilityRecordId()));
+        }
+        // complete terminate
+        TerminateDone(abilityRecord);
+        return ERR_OK;
+    }
+    /**
+     * RemoveServiceAbility.
+     *
+     * @param service, the ptr of the ability record.
+     */
+    void RemoveServiceAbility(const std::shared_ptr<AbilityRecord> &service)
+    {
+        CHECK_POINTER(abilityRecord);
+        HILOG_DEBUG("Remove service(%{public}s) from terminating map.", abilityRecord->GetURI().c_str());
+        terminatingExtensionMap_.erase(abilityRecord->GetURI());
+    }
+
+    /**
+     * IsAbilityConnected.
+     *
+     * @param abilityRecord, the ptr of the connected ability.
+     * @param connectRecordList, connect record list.
+     * @return true: ability is connected, false: ability is not connected
+     */
+    bool IsAbilityConnected(const std::shared_ptr<AbilityRecord> &abilityRecord,
+                            const std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList)
+    {
+        auto isMatch = [abilityRecord](auto connectRecord) -> bool {
+            if (abilityRecord == nullptr || connectRecord == nullptr) {
+                return false;
+            }
+            if (abilityRecord != connectRecord->GetAbilityRecord()) {
+                return false;
+            }
+            return true;
+        };
+        return std::any_of(connectRecordList.begin(), connectRecordList.end(), isMatch);
+    }
+
+    /**
+     * GetConnectRecordListFromMap.
+     *
+     * @param connect, callback object.
+     * @param isCreatedByConnect, whether is created by connect ability mode.
+     * @param connectRecordList, the target connectRecordList.
+     * @param isCallbackConnected, whether the callback has been connected.
+     */
+    void GetConnectRecordListFromMap(
+            const sptr<IAbilityConnection> &connect, std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList)
+    {
+        auto connectMapIter = connectMap_.find(connect->AsObject());
+        if (connectMapIter != connectMap_.end()) {
+            connectRecordList = connectMapIter->second;
+        }
+    }
+
+    void PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
+    {
+        if (ability == nullptr) {
+            HILOG_ERROR("ability is nullptr");
+            return;
+        }
+
+        AppExecFwk::RunningProcessInfo processInfo = {};
+        DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(ability->GetToken(), processInfo);
+        if (processInfo.pid_ == 0) {
+            HILOG_ERROR("error: the ability[%{public}s], app may fork fail or not running.",
+                        ability->GetAbilityInfo().name.data());
+            return;
+        }
+        int typeId = AppExecFwk::AppfreezeManager::TypeAttribute::NORMAL_TIMEOUT;
+        std::string msgContent = "ability:" + ability->GetAbilityInfo().name + " ";
+        switch (msgId) {
+            case AbilityManagerService::LOAD_TIMEOUT_MSG:
+                msgContent += "load timeout";
+                typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+                break;
+            case AbilityManagerService::ACTIVE_TIMEOUT_MSG:
+                msgContent += "active timeout";
+                break;
+            case AbilityManagerService::INACTIVE_TIMEOUT_MSG:
+                msgContent += "inactive timeout";
+                break;
+            case AbilityManagerService::FOREGROUND_TIMEOUT_MSG:
+                msgContent += "foreground timeout";
+                typeId = AppExecFwk::AppfreezeManager::TypeAttribute::CRITICAL_TIMEOUT;
+                break;
+            case AbilityManagerService::BACKGROUND_TIMEOUT_MSG:
+                msgContent += "background timeout";
+                break;
+            case AbilityManagerService::TERMINATE_TIMEOUT_MSG:
+                msgContent += "terminate timeout";
+                break;
+            default:
+                return;
+        }
+
+        HILOG_WARN("LIFECYCLE_TIMEOUT: uid: %{public}d, pid: %{public}d, bundleName: %{public}s, abilityName: %{public}s,"
+                   "msg: %{public}s", processInfo.uid_, processInfo.pid_, ability->GetAbilityInfo().bundleName.c_str(),
+                   ability->GetAbilityInfo().name.c_str(), msgContent.c_str());
+        AppExecFwk::AppfreezeManager::ParamInfo info = {
+                .typeId = typeId,
+                .pid = processInfo.pid_,
+                .eventName = AppExecFwk::AppFreezeType::LIFECYCLE_TIMEOUT,
+                .bundleName = ability->GetAbilityInfo().bundleName,
+                .msg = msgContent
+        };
+        AppExecFwk::AppfreezeManager::GetInstance()->LifecycleTimeoutHandle(info);
+    }
+
 private:
-    void TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord);
-    int DisconnectRecordNormal(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord) const;
-    void DisconnectRecordForce(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord);
-    std::shared_ptr<AbilityRecord> GetServiceRecordByElementNameInner(const std::string &element);
-    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(const sptr<IRemoteObject> &token);
-    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(int32_t abilityRecordId);
-    std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token);
-    int TerminateAbilityInner(const sptr<IRemoteObject> &token);
-    bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
-    bool IsSceneBoard(std::shared_ptr<AbilityRecord> serviceExtension) const;
-    void KillProcessesByUserId() const;
-    inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    int TerminateAbilityInner(const sptr<IRemoteObject> &token)
+    {
+        auto abilityRecord = GetExtensionFromServiceMapInner(token);
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+        std::string element = abilityRecord->GetURI();
+        HILOG_DEBUG("Terminate ability, ability is %{public}s.", element.c_str());
+        if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsConnectListEmpty()) {
+            HILOG_INFO("There exist connection, don't terminate.");
+            return ERR_OK;
+        }
+        MoveToTerminatingMap(abilityRecord);
+        return TerminateAbilityLocked(token);
+    }
+    void TerminateRecord(std::shared_ptr<AbilityRecord> abilityRecord)
+    {
+        auto timeoutTask = [abilityRecord, connectManager = shared_from_this()]() {
+            HILOG_WARN("Disconnect ability terminate timeout.");
+            connectManager->HandleStopTimeoutTask(abilityRecord);
+        };
+
+        MoveToTerminatingMap(abilityRecord);
+        abilityRecord->Terminate(timeoutTask);
+    }
+    void DisconnectRecordForce(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord)
+    {
+        auto abilityRecord = connectRecord->GetAbilityRecord();
+        if (abilityRecord == nullptr) {
+            HILOG_ERROR("Disconnect force abilityRecord null");
+            return;
+        }
+        abilityRecord->RemoveConnectRecordFromList(connectRecord);
+        connectRecord->CompleteDisconnect(ERR_OK, true);
+        list.emplace_back(connectRecord);
+        if (abilityRecord->IsConnectListEmpty() && abilityRecord->GetStartId() == 0) {
+            HILOG_WARN("Force terminate ability record state: %{public}d.", abilityRecord->GetAbilityState());
+            TerminateRecord(abilityRecord);
+        }
+    }
+    int DisconnectRecordNormal(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord) const
+    {
+        auto result = connectRecord->DisconnectAbility();
+        if (result != ERR_OK) {
+            HILOG_ERROR("Disconnect ability fail , ret = %{public}d.", result);
+            return result;
+        }
+
+        if (connectRecord->GetConnectState() == ConnectionState::DISCONNECTED) {
+            HILOG_WARN("This record: %{public}d complete disconnect directly.", connectRecord->GetRecordId());
+            connectRecord->CompleteDisconnect(ERR_OK, false);
+            list.emplace_back(connectRecord);
+        }
+        return ERR_OK;
+    }
     int32_t GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest, bool isCreatedByConnect,
-        const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded);
+        const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded)
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+        AppExecFwk::ElementName element(abilityRequest.abilityInfo.deviceId, abilityRequest.abilityInfo.bundleName,
+                                        abilityRequest.abilityInfo.name, abilityRequest.abilityInfo.moduleName);
+        CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
+        if (uiExtensionAbilityRecordMgr_->IsBelongToManager(abilityRequest.abilityInfo)) {
+            int32_t ret = uiExtensionAbilityRecordMgr_->GetOrCreateExtensionRecord(
+                    abilityRequest, hostBundleName, extensionRecord, isLoaded);
+            if (ret != ERR_OK) {
+                return ret;
+            }
+            extensionRecord->SetCreateByConnectMode(isCreatedByConnect);
+            std::string extensionRecordKey = element.GetURI() + std::to_string(extensionRecord->GetUIExtensionAbilityId());
+            extensionRecord->SetURI(extensionRecordKey);
+            HILOG_DEBUG("Service map add, hostBundleName:%{public}s, key: %{public}s", hostBundleName.c_str(),
+                        extensionRecordKey.c_str());
+            serviceMap_.emplace(extensionRecordKey, extensionRecord);
+            if (IsAbilityNeedKeepAlive(extensionRecord)) {
+                extensionRecord->SetKeepAlive();
+                extensionRecord->SetRestartTime(abilityRequest.restartTime);
+                extensionRecord->SetRestartCount(abilityRequest.restartCount);
+            }
+            return ERR_OK;
+        }
+        return ERR_INVALID_VALUE;
+    }
     int32_t GetOrCreateTargetServiceRecord(
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
-        std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+        std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility)
+    {
+        if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && connectInfo != nullptr) {
+            int32_t ret = GetOrCreateExtensionRecord(
+                    abilityRequest, true, connectInfo->hostBundleName, targetService, isLoadedAbility);
+            if (ret != ERR_OK || targetService == nullptr) {
+                HILOG_ERROR("Failed to get or create extension record.");
+                return ERR_NULL_OBJECT;
+            }
+            connectInfo->uiExtensionAbilityId = targetService->GetUIExtensionAbilityId();
+            HILOG_DEBUG("UIExtensionAbility id %{public}d.", connectInfo->uiExtensionAbilityId);
+        } else {
+            GetOrCreateServiceRecord(abilityRequest, true, targetService, isLoadedAbility);
+        }
+        CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+        return ERR_OK;
+    }
+    std::shared_ptr<AbilityRecord> GetServiceRecordByElementNameInner(const std::string &element)
+    {
+        auto mapIter = serviceMap_.find(element);
+        if (mapIter != serviceMap_.end()) {
+            return mapIter->second;
+        }
+        return nullptr;
+    }
+    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(const sptr<IRemoteObject> &token)
+    {
+        auto IsMatch = [token](auto service) {
+            if (!service.second) {
+                return false;
+            }
+            sptr<IRemoteObject> srcToken = service.second->GetToken();
+            return srcToken == token;
+        };
+        auto serviceRecord = std::find_if(serviceMap_.begin(), serviceMap_.end(), IsMatch);
+        if (serviceRecord != serviceMap_.end()) {
+            return serviceRecord->second;
+        }
+        return nullptr;
+    }
+    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(int32_t abilityRecordId)
+    {
+        for (const auto &[key, value] : serviceMap_) {
+            if (value && value->GetAbilityRecordId() == abilityRecordId) {
+                return value;
+            }
+        }
+        return nullptr;
+    }
+    std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token)
+    {
+        auto IsMatch = [token](auto& extension) {
+            if (extension.second == nullptr) {
+                return false;
+            }
+            auto&& terminatingToken = extension.second->GetToken();
+            if (terminatingToken != nullptr) {
+                return terminatingToken->AsObject() == token;
+            }
+            return false;
+        };
+
+        auto terminatingExtensionRecord =
+                std::find_if(terminatingExtensionMap_.begin(), terminatingExtensionMap_.end(), IsMatch);
+        if (terminatingExtensionRecord != terminatingExtensionMap_.end()) {
+            return terminatingExtensionRecord->second;
+        }
+        return nullptr;
+    }
+    bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const
+    {
+        if (serviceExtension == nullptr) {
+            HILOG_ERROR("param is nullptr");
+            return false;
+        }
+        return serviceExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
+               serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME;
+    }
+    bool IsSceneBoard(std::shared_ptr<AbilityRecord> serviceExtension) const
+    {
+        if (serviceExtension == nullptr) {
+            HILOG_ERROR("param is nullptr");
+            return false;
+        }
+        return serviceExtension->GetAbilityInfo().name == AbilityConfig::SCENEBOARD_ABILITY_NAME &&
+               serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::SCENEBOARD_BUNDLE_NAME;
+    }
+    /**
+     * ability is ui extension ability
+     */
+    inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
+    {
+        CHECK_POINTER_AND_RETURN(abilityRecord, false);
+        return UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType);
+    }
+    void KillProcessesByUserId() const
+    {
+        auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+        if (appScheduler == nullptr) {
+            HILOG_ERROR("appScheduler is nullptr");
+            return;
+        }
+        IN_PROCESS_CALL_WITHOUT_RET(appScheduler->KillProcessesByUserId(userId_));
+    }
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
