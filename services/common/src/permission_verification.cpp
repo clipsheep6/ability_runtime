@@ -244,7 +244,8 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
 
 int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const
 {
-    if (!SupportSystemAbilityPermission::IsSupportSaCallPermission()) {
+    if (IPCSkeleton::GetCallingUid() != BROKER_UID &&
+        SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         HILOG_DEBUG("Add switch for suites");
         return ERR_OK;
     }
