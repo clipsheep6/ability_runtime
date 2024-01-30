@@ -3594,6 +3594,10 @@ int AppMgrServiceInner::VerifyProcessPermission() const
         return ERR_OK;
     }
 
+    if (VerifyAPL()) {
+        return ERR_OK;
+    }
+
     auto isCallingPerm = AAFwk::PermissionVerification::GetInstance()->VerifyCallingPermission(
         AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES);
     return isCallingPerm ? ERR_OK : ERR_PERMISSION_DENIED;
@@ -3605,6 +3609,10 @@ int AppMgrServiceInner::VerifyProcessPermission(const std::string &bundleName) c
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
     if (isSaCall || isShellCall) {
+        return ERR_OK;
+    }
+
+    if (VerifyAPL()) {
         return ERR_OK;
     }
 
