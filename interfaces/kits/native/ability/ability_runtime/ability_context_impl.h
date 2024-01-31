@@ -256,6 +256,8 @@ public:
      * @param want Create modal UIExtension with want object.
      */
     ErrCode CreateModalUIExtensionWithApp(const Want &want) override;
+    void EraseUIExtension(int32_t sessionId) override;
+    bool IsUIExtensionExist(const AAFwk::Want &want);
 #endif
 
 private:
@@ -271,6 +273,8 @@ private:
     int32_t missionId_ = -1;
     std::mutex sessionTokenMutex_;
     wptr<IRemoteObject> sessionToken_;
+    std::mutex uiExtensionMutex_;
+    std::map<int32_t, Want> uiExtensionMap_;
 
     static void RequestDialogResultJSThreadWorker(uv_work_t* work, int status);
     void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
