@@ -675,12 +675,6 @@ public:
     virtual int SetAbilityController(const sptr<AppExecFwk::IAbilityController> &abilityController,
         bool imAStabilityTest) override;
 
-    virtual int SetComponentInterception(
-        const sptr<AppExecFwk::IComponentInterception> &componentInterception) override;
-
-    virtual int32_t SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
-        int32_t requestCode, int32_t resultCode, int32_t userId) override;
-
     /**
      * Is user a stability test.
      *

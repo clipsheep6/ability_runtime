@@ -808,10 +808,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
-        ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-            return componentRequest.requestResult;
-        }
         abilityRequest.Voluation(want, requestCode, callerToken);
         if (!isStartAsCaller) {
             HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
@@ -825,10 +821,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     std::string callerBundleName = abilityRecord ? abilityRecord->GetAbilityInfo().bundleName : "";
     std::string callerAbilityName = abilityRecord ? abilityRecord->GetAbilityInfo().name : "";
@@ -985,9 +977,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return connectManager->StartAbility(abilityRequest);
     }
 
-    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         HILOG_ERROR("IsAbilityControllerStart failed: %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
@@ -1083,10 +1072,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
-        ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode);
-        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-            return componentRequest.requestResult;
-        }
         abilityRequest.Voluation(
             want, requestCode, callerToken, std::make_shared<AbilityStartSetting>(abilityStartSetting));
         abilityRequest.callType = AbilityCallType::START_SETTINGS_TYPE;
@@ -1104,10 +1089,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
@@ -1170,9 +1151,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_WRONG_INTERFACE_CALL;
     }
 #endif
-    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         eventInfo.errCode = ERR_WOULD_BLOCK;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -1304,10 +1282,6 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     AbilityRequest abilityRequest;
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
-        ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode);
-        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-            return componentRequest.requestResult;
-        }
         abilityRequest.Voluation(want, requestCode, callerToken);
         if (startOptions.GetDisplayID() == 0) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
@@ -1355,10 +1329,6 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 #endif
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-    if (result != ERR_OK && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error.");
         eventInfo.errCode = result;
@@ -1410,9 +1380,6 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         }
     }
 
-    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         eventInfo.errCode = ERR_WOULD_BLOCK;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -1569,10 +1536,6 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
 
     AbilityRequest abilityRequest;
     result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
-    ComponentRequest componentRequest = initComponentRequest(callerToken, requestCode, result);
-    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error when RequestDialogService.");
         return result;
@@ -1628,9 +1591,6 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         return connectManager->StartAbility(abilityRequest);
     }
 
-    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         HILOG_ERROR("IsAbilityControllerStart failed : %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
@@ -2733,7 +2693,6 @@ int AbilityManagerService::TerminateAbilityWithFlag(const sptr<IRemoteObject> &t
     auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
     auto missionListManager = GetListManagerByUserId(ownerUserId);
     if (missionListManager) {
-        NotifyHandleAbilityStateChange(token, TERMINATE_ABILITY_CODE);
         return missionListManager->TerminateAbility(abilityRecord, resultCode, resultWant, flag);
     }
     HILOG_WARN("missionListManager is Null. ownerUserId=%{public}d", ownerUserId);
@@ -3113,10 +3072,6 @@ int AbilityManagerService::ConnectAbilityCommon(
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
 
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
-        ComponentRequest componentRequest = initComponentRequest(callerToken);
-        if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
-            return componentRequest.requestResult;
-        }
         abilityWant.RemoveParam("abilityConnectionObj");
 
         bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
@@ -3210,10 +3165,6 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
 
         abilityWant.SetParam("abilityConnectionObj", connect->AsObject());
-        ComponentRequest componentRequest = initComponentRequest(callerToken);
-        if (!IsComponentInterceptionStart(abilityWant, componentRequest, abilityRequest)) {
-            return componentRequest.requestResult;
-        }
         abilityWant.RemoveParam("abilityConnectionObj");
 
         bool queryResult = IN_PROCESS_CALL(bms->QueryExtensionAbilityInfoByUri(uri, validUserId, extensionInfo));
@@ -3300,10 +3251,6 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     CHECK_POINTER_AND_RETURN_LOG(connect->AsObject(), ERR_INVALID_VALUE, "abilityConnectionObj is nullptr");
     requestWant.SetParam("abilityConnectionObj", connect->AsObject());
     HILOG_DEBUG("requestWant SetParam success");
-    ComponentRequest componentRequest = initComponentRequest(callerToken);
-    if (!IsComponentInterceptionStart(requestWant, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
 
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
@@ -5105,10 +5052,6 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
             return;
         }
         AbilityRequest abilityRequest;
-        ComponentRequest componentRequest = initComponentRequest();
-        if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-            return;
-        }
         usleep(REPOLL_TIME_MICRO_SECONDS);
     }
 
@@ -6150,10 +6093,6 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     abilityRequest.want = want;
     abilityRequest.connect = connect;
     result = GenerateAbilityRequest(want, -1, abilityRequest, callerToken, GetUserId());
-    ComponentRequest componentRequest = initComponentRequest(callerToken, -1, result);
-    if (CheckProxyComponent(want, result) && !IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request error.");
         return result;
@@ -6187,9 +6126,6 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return ERR_INVALID_VALUE;
     }
     ReportEventToSuspendManager(abilityRequest.abilityInfo);
-    if (!IsComponentInterceptionStart(want, componentRequest, abilityRequest)) {
-        return componentRequest.requestResult;
-    }
 
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
@@ -6235,11 +6171,6 @@ int AbilityManagerService::ReleaseCall(
     if (CheckIsRemote(element.GetDeviceID())) {
         HILOG_INFO("release remote ability");
         return ReleaseRemoteAbility(connect->AsObject(), element);
-    }
-
-    int result = ERR_OK;
-    if (IsReleaseCallInterception(connect, element, result)) {
-        return result;
     }
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -7195,7 +7126,6 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
             HILOG_ERROR("Invalid session id.");
             return ERR_INVALID_VALUE;
         }
-        NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
         auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
         auto want = abilityRecord->GetWant();
@@ -7210,14 +7140,12 @@ int AbilityManagerService::DelegatorDoAbilityForeground(const sptr<IRemoteObject
         HILOG_ERROR("Invalid mission id.");
         return ERR_INVALID_VALUE;
     }
-    NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_FOREGROUND_CODE);
     return DelegatorMoveMissionToFront(missionId);
 }
 
 int AbilityManagerService::DelegatorDoAbilityBackground(const sptr<IRemoteObject> &token)
 {
     HILOG_DEBUG("enter");
-    NotifyHandleAbilityStateChange(token, ABILITY_MOVE_TO_BACKGROUND_CODE);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         return ERR_OK;
     }
@@ -8494,118 +8422,6 @@ bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord>
     }
 
     return true;
-}
-
-int AbilityManagerService::SetComponentInterception(
-    const sptr<AppExecFwk::IComponentInterception> &componentInterception)
-{
-    HILOG_DEBUG("%{public}s", __func__);
-    std::lock_guard<ffrt::mutex> guard(globalLock_);
-    componentInterception_ = componentInterception;
-    HILOG_DEBUG("%{public}s, end", __func__);
-    return ERR_OK;
-}
-
-bool AbilityManagerService::IsComponentInterceptionStart(const Want &want, ComponentRequest &componentRequest,
-    AbilityRequest &request)
-{
-    if (componentInterception_ != nullptr) {
-        Want newWant = want;
-        int32_t type = static_cast<int32_t>(request.abilityInfo.type);
-        newWant.SetParam("abilityType", type);
-        int32_t launchMode = static_cast<int32_t>(request.abilityInfo.launchMode);
-        newWant.SetParam("launchMode", launchMode);
-        int32_t callType = static_cast<int32_t>(request.callType);
-        newWant.SetParam("callType", callType);
-        if (callType == AbilityCallType::CALL_REQUEST_TYPE) {
-            newWant.SetParam("abilityConnectionObj", request.connect->AsObject());
-        }
-        int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
-        newWant.SetParam("accessTokenId", tokenId);
-
-        HILOG_DEBUG("%{public}s", __func__);
-        sptr<Want> extraParam = new (std::nothrow) Want();
-        bool isStart = componentInterception_->AllowComponentStart(newWant, componentRequest.callerToken,
-            componentRequest.requestCode, componentRequest.componentStatus, extraParam);
-        componentRequest.requestResult = extraParam->GetIntParam("requestResult", 0);
-        UpdateAbilityRequestInfo(extraParam, request);
-        if (!isStart) {
-            HILOG_INFO("not finishing start component because interception, requestResult: %{public}d",
-                componentRequest.requestResult);
-            return false;
-        }
-    }
-    return true;
-}
-
-bool AbilityManagerService::CheckProxyComponent(const Want &want, const int result)
-{
-    // do proxy component while the deviceId is not empty
-    return ((!want.GetElement().GetDeviceID().empty()) || (result != ERR_OK));
-}
-
-bool AbilityManagerService::IsReleaseCallInterception(const sptr<IAbilityConnection> &connect,
-    const AppExecFwk::ElementName &element, int &result)
-{
-    if  (componentInterception_ == nullptr) {
-        return false;
-    }
-    HILOG_DEBUG("%{public}s", __func__);
-    sptr<Want> extraParam = new (std::nothrow) Want();
-    bool isInterception = componentInterception_->ReleaseCallInterception(connect->AsObject(), element, extraParam);
-    result = extraParam->GetIntParam("requestResult", 0);
-    return isInterception;
-}
-
-void AbilityManagerService::NotifyHandleAbilityStateChange(const sptr<IRemoteObject> &abilityToken, int opCode)
-{
-    if (componentInterception_ != nullptr) {
-        componentInterception_->NotifyHandleAbilityStateChange(abilityToken, opCode);
-    }
-}
-
-ComponentRequest AbilityManagerService::initComponentRequest(const sptr<IRemoteObject> &callerToken,
-    const int requestCode, const int componentStatus)
-{
-    ComponentRequest componentRequest;
-    componentRequest.callerToken = callerToken;
-    componentRequest.requestCode = requestCode;
-    componentRequest.componentStatus = componentStatus;
-    return componentRequest;
-}
-
-void AbilityManagerService::UpdateAbilityRequestInfo(const sptr<Want> &want, AbilityRequest &request)
-{
-    if (want == nullptr) {
-        return;
-    }
-    sptr<IRemoteObject> tempCallBack = want->GetRemoteObject(Want::PARAM_RESV_ABILITY_INFO_CALLBACK);
-    if (tempCallBack == nullptr) {
-        return;
-    }
-    int32_t procCode = want->GetIntParam(Want::PARAM_RESV_REQUEST_PROC_CODE, 0);
-    if (procCode != 0) {
-        request.want.SetParam(Want::PARAM_RESV_REQUEST_PROC_CODE, procCode);
-    }
-    int32_t tokenCode = want->GetIntParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, 0);
-    if (tokenCode != 0) {
-        request.want.SetParam(Want::PARAM_RESV_REQUEST_TOKEN_CODE, tokenCode);
-    }
-    request.abilityInfoCallback = tempCallBack;
-}
-
-int32_t AbilityManagerService::SendResultToAbilityByToken(const Want &want, const sptr<IRemoteObject> &abilityToken,
-    int32_t requestCode, int32_t resultCode, int32_t userId)
-{
-    HILOG_DEBUG("%{public}s, requestCode: %{public}d, resultCode: %{public}d", __func__, requestCode, resultCode);
-    std::shared_ptr<AbilityRecord> abilityRecord = Token::GetAbilityRecordByToken(abilityToken);
-    if (abilityRecord == nullptr) {
-        HILOG_ERROR("%{public}s, abilityRecord is null", __func__);
-        return ERR_INVALID_VALUE;
-    }
-    abilityRecord->SetResult(std::make_shared<AbilityResult>(requestCode, resultCode, want));
-    abilityRecord->SendResult(0, 0);
-    return ERR_OK;
 }
 
 std::shared_ptr<AbilityRecord> AbilityManagerService::GetFocusAbility()

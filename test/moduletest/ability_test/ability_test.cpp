@@ -1142,42 +1142,6 @@ HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_CallRequestDone_0100, Funct
 }
 
 /**
- * @tc.number: AaFwk_IAbilityManager_SetComponentInterception_0100
- * @tc.name: SetComponentInterception
- * @tc.desc: test SetComponentInterception function
- */
-HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_SetComponentInterception_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SetComponentInterception_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
-    EXPECT_NE(abms, nullptr);
-    EXPECT_EQ(0, abms->SetComponentInterception(nullptr));
-    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SetComponentInterception_0100";
-}
-
-/**
- * @tc.number: AaFwk_IAbilityManager_SendResultToAbilityByToken_0100
- * @tc.name: SendResultToAbilityByToken
- * @tc.desc: test SendResultToAbilityByToken function
- */
-HWTEST_F(AbilityTerminateTest, AaFwk_IAbilityManager_SendResultToAbilityByToken_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SendResultToAbilityByToken_0100";
-    sptr<IRemoteObject> remoteObject_ =
-        OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
-    sptr<AAFwk::IAbilityManager> abms = iface_cast<AAFwk::IAbilityManager>(remoteObject_);
-    EXPECT_NE(abms, nullptr);
-    Want want;
-    int32_t requestCode = 1;
-    int32_t resultCode = 1;
-    int32_t userId = 1;
-    EXPECT_EQ(0, abms->SendResultToAbilityByToken(want, nullptr, requestCode, resultCode, userId));
-    GTEST_LOG_(INFO) << "AaFwk_IAbilityManager_SendResultToAbilityByToken_0100";
-}
-
-/**
  * @tc.number: AaFwk_IAbilityManager_AddFreeInstallObserver_0100
  * @tc.name: AddFreeInstallObserver
  * @tc.desc: test AddFreeInstallObserver function
