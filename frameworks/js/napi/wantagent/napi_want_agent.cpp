@@ -118,6 +118,13 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
         delete work;
         return;
     }
+    if (dataWorkerData->resultData == "canceled") {
+        HILOG_INFO("wantAgent is canceled");
+        delete dataWorkerData;
+        dataWorkerData = nullptr;
+        delete work;
+        return;
+    }
     napi_value args[ARGC_TWO] = {0};
     napi_value objValueFirst = nullptr;
     napi_create_object(dataWorkerData->env, &objValueFirst);
