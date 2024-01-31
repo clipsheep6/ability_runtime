@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,9 +51,6 @@ int UriPermissionManagerStub::OnRemoteRequest(
         }
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
-        }
-        case UriPermMgrCmd::ON_GRANT_URI_PERMISSION_FOR_2_IN_1 : {
-            return HandleGrantUriPermissionFor2In1(data, reply);
         }
         case UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1 : {
             return HandleBatchGrantUriPermissionFor2In1(data, reply);
@@ -159,21 +156,6 @@ int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, Mes
     auto tokenId = data.ReadInt32();
     bool result = VerifyUriPermission(*uri, flag, tokenId);
     reply.WriteBool(result);
-    return ERR_OK;
-}
-
-int UriPermissionManagerStub::HandleGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (uri == nullptr) {
-        HILOG_ERROR("To read uri failed.");
-        return ERR_DEAD_OBJECT;
-    }
-    auto flag = data.ReadInt32();
-    auto targetBundleName = data.ReadString();
-    auto appIndex = data.ReadInt32();
-    int result = GrantUriPermissionFor2In1(*uri, flag, targetBundleName, appIndex);
-    reply.WriteInt32(result);
     return ERR_OK;
 }
 
