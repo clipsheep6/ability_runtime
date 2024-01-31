@@ -66,7 +66,7 @@ const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] -a <ability-name> -b <bundle-name> [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] "
+    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] "
     "  [--ps <key> <string-value>] "
     "  [--pi <key> <integer-value>] "
     "  [--pb <key> <boolean-value>] "
