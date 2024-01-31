@@ -46,7 +46,9 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
-    AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI
+    AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOEDITOR,
+    AppExecFwk::ExtensionAbilityType::PHOTOEDITOR
 };
 const int EDM_SA_UID = 3057;
 

@@ -36,6 +36,7 @@ constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
 constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
 constexpr static char AUTO_FILL_EXTENSION[] = "AutoFillExtensionAbility";
+constexpr static char PHOTO_EDITOR_EXTENSION[] = "PhotoEditorExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
