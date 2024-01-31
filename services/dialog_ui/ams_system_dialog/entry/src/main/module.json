@@ -51,6 +51,15 @@
         "label":"$string:SwitchUserServiceExtAbility_label",
         "visible": false,
         "type": "service"
+      },
+      {
+        "name": "PhotoEditExtensionAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/PhotoEditExtensionAbility.ets",
+        "description": "PhotoEditExtensionAbility",
+        "icon": "$media:icon",
+        "label": "$string:EntryAbility_label",
+        "type": "sysPicker/photoEditor",
+        "visible": false
       }
     ],
     "metadata": [
