@@ -823,7 +823,7 @@ public:
         bool checkSystemCaller = true);
 
     int RequestModalUIExtensionInner(const Want &want);
-    
+
     int StartAbilityForOptionWrap(
         const Want &want,
         const StartOptions &startOptions,
@@ -1306,42 +1306,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList) override;
-
-    /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t SetAutoStartup(const AutoStartupInfo &info) override;
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info) override;
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup) override;
 
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.

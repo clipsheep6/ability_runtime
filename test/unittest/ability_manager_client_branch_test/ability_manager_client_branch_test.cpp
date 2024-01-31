@@ -1742,67 +1742,6 @@ HWTEST_F(AbilityManagerClientBranchTest, QueryAllAutoStartupApplications_0100, T
 }
 
 /**
- * @tc.name: AbilityManagerClient_RegisterAutoStartupCallback_0100
- * @tc.desc: RegisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, RegisterAutoStartupCallback_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callback = nullptr;
-    auto result = client_->RegisterAutoStartupCallback(callback);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerClient_UnregisterAutoStartupCallback_0100
- * @tc.desc: UnregisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, UnregisterAutoStartupCallback_0100, TestSize.Level1)
-{
-    sptr<IRemoteObject> callback = nullptr;
-    auto result = client_->UnregisterAutoStartupCallback(callback);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerClient_SetAutoStartup_0100
- * @tc.desc: SetAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, SetAutoStartup_0100, TestSize.Level1)
-{
-    AutoStartupInfo info;
-    auto result = client_->SetAutoStartup(info);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerClient_CancelAutoStartup_0100
- * @tc.desc: CancelAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, CancelAutoStartup_0100, TestSize.Level1)
-{
-    AutoStartupInfo info;
-    auto result = client_->CancelAutoStartup(info);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerClient_IsAutoStartup_0100
- * @tc.desc: IsAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, IsAutoStartup_0100, TestSize.Level1)
-{
-    AutoStartupInfo info;
-    bool isAutoStartup = true;
-    auto result = client_->IsAutoStartup(info, isAutoStartup);
-    EXPECT_EQ(result, ERR_OK);
-}
-
-/**
  * @tc.name: AbilityManagerClient_RegisterIAbilityManagerCollaborator_0100
  * @tc.desc: RegisterIAbilityManagerCollaborator
  * @tc.type: FUNC

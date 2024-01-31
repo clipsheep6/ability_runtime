@@ -92,11 +92,6 @@ public:
     napi_value OnGetRunningProcessInformation(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetColorMode(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
-    napi_value OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info);
-    napi_value OnUnregisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info);
-    napi_value OnSetAutoStartup(napi_env env, NapiCallbackInfo &info);
-    napi_value OnCancelAutoStartup(napi_env env, NapiCallbackInfo &info);
-    napi_value OnIsAutoStartup(napi_env env, NapiCallbackInfo &info);
     napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
