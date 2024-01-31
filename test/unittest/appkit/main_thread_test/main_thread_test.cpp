@@ -115,11 +115,6 @@ class MockAppMgrStub : public AppMgrStub {
     void ApplicationTerminated(const int32_t recordId) override
     {}
 
-    int CheckPermission(const int32_t recordId, const std::string &permission) override
-    {
-        return 0;
-    }
-
     void AbilityCleaned(const sptr<IRemoteObject> &token) override
     {}
 

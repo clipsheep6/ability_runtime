@@ -66,15 +66,6 @@ public:
     virtual void ApplicationTerminated(const int32_t recordId) override;
 
     /**
-     * CheckPermission, call CheckPermission() through proxy object, check the permission.
-     *
-     * @param recordId, a unique record that identifies this Application from others.
-     * @param permission, check the permissions.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int32_t CheckPermission(const int32_t recordId, const std::string &permission) override;
-
-    /**
      * AbilityCleaned,call through AbilityCleaned() proxy project, clean Ability record.
      *
      * @param token, a unique record that identifies AbilityCleaned from others.

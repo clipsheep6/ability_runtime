@@ -840,8 +840,6 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false);
 
-    int CheckPermission(const std::string &bundleName, const std::string &permission);
-
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
 
