@@ -71,10 +71,13 @@ ConnectServerManager& ConnectServerManager::Get()
 void ConnectServerManager::StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract)
 {
     HILOG_DEBUG("ConnectServerManager::StartConnectServer Start connect server");
-    handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
+    
     if (handlerConnectServerSo_ == nullptr) {
-        HILOG_ERROR("ConnectServerManager::StartConnectServer failed to open register library");
-        return;
+        handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
+        if (handlerConnectServerSo_ == nullptr) {
+            HILOG_ERROR("ConnectServerManager::StartConnectServer failed to open register library");
+            return;
+        }
     }
     bundleName_ = bundleName;
     if (isLocalAbstract) {
@@ -118,8 +121,11 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
 {
     HILOG_DEBUG("ConnectServerManager::AddInstance Add instance to connect server");
     if (handlerConnectServerSo_ == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance handlerConnectServerSo_ is nullptr");
-        return false;
+        handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
+        if (handlerConnectServerSo_ == nullptr) {
+            HILOG_ERROR("ConnectServerManager::AddInstance handlerConnectServerSo_ is nullptr");
+            return false;
+        }
     }
 
     auto waitForConnection = reinterpret_cast<WaitForConnection>(dlsym(handlerConnectServerSo_, "WaitForConnection"));
