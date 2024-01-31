@@ -301,6 +301,8 @@ public:
 
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
+    void UpdateAppContextResMgr(const Configuration &config);
+
 private:
     std::list<std::shared_ptr<AbilityLifecycleCallbacks>> abilityLifecycleCallbacks_;
     std::list<std::shared_ptr<ElementsCallback>> elementsCallbacks_;
