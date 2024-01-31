@@ -41,6 +41,7 @@ class AbilityManagerClient {
 public:
     virtual ~AbilityManagerClient();
     static std::shared_ptr<AbilityManagerClient> GetInstance();
+    void RemoveDeathRecipient();
 
     /**
      * AttachAbilityThread, ability call this interface after loaded.
