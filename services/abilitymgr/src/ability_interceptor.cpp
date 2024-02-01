@@ -454,6 +454,9 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
+        if (callerInfo.packageName == "") {
+            callerInfo.packageName = targetAppInfo.name;
+        }
     }
 
     std::string callerBundleName;
