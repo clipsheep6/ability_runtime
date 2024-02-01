@@ -72,7 +72,7 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
         HILOG_ERROR("AbilityStage::AddAbility failed, abilityRecord is nullptr");
         return;
     }
-
+    std::lock_guard<std::mutex> lock(recordMutex_);
     abilityRecords_[token] = abilityRecord;
 }
 
@@ -82,11 +82,13 @@ void AbilityStage::RemoveAbility(const sptr<IRemoteObject> &token)
         HILOG_ERROR("AbilityStage::RemoveAbility failed, token is nullptr");
         return;
     }
+    std::lock_guard<std::mutex> lock(recordMutex_);
     abilityRecords_.erase(token);
 }
 
-bool AbilityStage::ContainsAbility() const
+bool AbilityStage::ContainsAbility()
 {
+    std::lock_guard<std::mutex> lock(recordMutex_);
     return !abilityRecords_.empty();
 }
 

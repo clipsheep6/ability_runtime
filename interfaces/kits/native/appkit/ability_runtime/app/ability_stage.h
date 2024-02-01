@@ -24,6 +24,7 @@
 #include "configuration.h"
 #include "hap_module_info.h"
 #include "want.h"
+#include <mutex>
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -51,12 +52,13 @@ public:
     void AddAbility(const sptr<IRemoteObject> &token,
         const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord);
     void RemoveAbility(const sptr<IRemoteObject> &token);
-    bool ContainsAbility() const;
+    bool ContainsAbility();
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
     virtual void OnMemoryLevel(int level);
 
 private:
     std::shared_ptr<Context> context_;
+    std::mutex recordMutex_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<AppExecFwk::AbilityLocalRecord>> abilityRecords_;
 };
 }  // namespace AbilityRuntime
