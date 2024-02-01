@@ -23,7 +23,6 @@ import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import { AbilityInfoUtils } from '../utils/AbilityInfoUtils';
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import { LocalStorageKeyConstants } from '../utils/Constants'
-import { AbilityMetaQuerier } from '../data/AbilityMetaQuerier';
 
 const TAG = 'PhotoEditExtensionAbility.TargetComponent';
 
@@ -70,15 +69,6 @@ export struct TargetComponent {
 
     getIconAndLabel() {
         if (this.targetInfo && this.targetInfo.filterAbilityInfo) {
-            let iconAndLabelContent = AbilityMetaQuerier.getIconAndLabelByIds({
-                iconId: this.targetInfo.filterAbilityInfo.iconId,
-                labelId: this.targetInfo.filterAbilityInfo.labelId
-            });
-            if (iconAndLabelContent) {
-                this.targetIcon = iconAndLabelContent.icon;
-                this.targetLabel = iconAndLabelContent.label;
-                return;
-            }
             try {
                 AbilityInfoUtils.getAbilityLabelAndIcon(this.storage?.get<UIExtensionAbility>(LocalStorageKeyConstants.EXTENSION_ABILITY)?.context,
                     {

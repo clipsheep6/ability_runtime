@@ -25,7 +25,6 @@ import uriPermissionManager from '@ohos.application.uriPermissionManager';
 import Want from '@ohos.app.ability.Want';
 import { DeviceInfoUtil } from '../utils/DeviceUtil';
 import { TipsDialogComponent } from '../view/TipsDialogComponent';
-import { AbilityMetaQuerier } from '../data/AbilityMetaQuerier';
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
 import { AbilityInfoUtils } from '../utils/AbilityInfoUtils';
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
@@ -94,15 +93,6 @@ struct PhonePage {
     refreshTarget() {
         this.targetInfoArraylevel2 = TargetManager.getAvailableTargets(storage.get(LocalStorageKeyConstants.CALLER_WANT)??{
         });
-        AbilityMetaQuerier.preloadIconAndLabel(storage?.get<UIExtensionAbility>(LocalStorageKeyConstants.EXTENSION_ABILITY),
-            this.targetInfoArraylevel2.map(targetInfo => {
-                return new AbilityInfoParam(targetInfo.filterAbilityInfo?.bundleName || '',
-                    targetInfo.filterAbilityInfo?.moduleName || '',
-                    targetInfo.filterAbilityInfo?.name || '',
-                    targetInfo.filterAbilityInfo?.iconId || 0,
-                    targetInfo.filterAbilityInfo?.labelId || 0);
-            }), () => {
-            });
         this.getTargetsToDisplay();
     }
 
