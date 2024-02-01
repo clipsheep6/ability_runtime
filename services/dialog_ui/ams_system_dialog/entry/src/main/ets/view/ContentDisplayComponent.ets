@@ -23,10 +23,10 @@ const TAG = 'PhotoEditExtensionAbility.ContentDisplayComponent';
 @Preview
 export struct ContentDisplayComponent {
     @StorageProp('currentColorMode') @Watch('onColorModeChange') currentMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
-    @Prop @Watch('onTargetInfoChanged') targetInfoArray: Array<TargetInfo> = [];
+    @Link @Watch('onTargetInfoChanged') targetInfoArray: Array<TargetInfo>;
     @StorageProp('currentLanguage') currentLang: string = '';
     @State targetInfoArraySplit: Array<Array<TargetInfo>> = [];
-    @Prop @Watch('onTargetInfoChanged') panelHeight: number = 0;
+    @Prop @Watch('onTargetInfoChanged') panelHeight: number;
     @Consume realHeight: Dimension | PanelHeight;
     @State isOverHeight: boolean = false;
     @State scrollerHeight: number = 0;
