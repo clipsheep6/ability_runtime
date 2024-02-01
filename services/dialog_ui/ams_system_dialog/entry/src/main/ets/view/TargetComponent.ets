@@ -20,7 +20,7 @@ import {
     UIExtensionInfo
 } from '../data/Model'
 import ConfigurationConstant from '@ohos.app.ability.ConfigurationConstant';
-import { AbilityInfoUtils } from '../Utils/AbilityInfoUtils';
+import { AbilityInfoUtils } from '../utils/AbilityInfoUtils';
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import { LocalStorageKeyConstants } from '../utils/Constants'
 import { AbilityMetaQuerier } from '../data/AbilityMetaQuerier';
