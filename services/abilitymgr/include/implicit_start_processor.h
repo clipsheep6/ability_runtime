@@ -96,6 +96,12 @@ private:
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
     bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
+    int StartAbilityTask(AbilityRequest &request, int32_t userId, std::string identity,
+        const std::string &bundle, const std::string &abilityName);
+    int ImplicitStartForPhoneOrDefault(std::vector<DialogAppInfo> &dialogAppInfos,
+        AbilityRequest &request, int32_t userId, std::string identity);
+    int ImplicitStartForOtherWithEmptyDialog(std::vector<DialogAppInfo> &dialogAppInfos,
+        AbilityRequest &request, int32_t userId, std::string identity);
 
 private:
     const static std::vector<std::string> blackList;

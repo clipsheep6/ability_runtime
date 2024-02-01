@@ -90,6 +90,15 @@ namespace {
         return ERR_PERMISSION_DENIED;                                                               \
     }
 
+#ifdef CHECK_POINTER_AND_RETURN
+#undef CHECK_POINTER_AND_RETURN
+#endif
+#define CHECK_POINTER_AND_RETURN(object, value) \
+    if (object == nullptr) {                    \
+        HILOG_ERROR("pointer is nullptr.");     \
+        return value;                           \
+    }
+
 // NANOSECONDS mean 10^9 nano second
 constexpr int64_t NANOSECONDS = 1000000000;
 // MICROSECONDS mean 10^6 milli second
@@ -176,6 +185,7 @@ constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 #endif
 
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
+constexpr int64_t timeout = 11000;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -600,7 +610,7 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_ATTACH, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_ATTACH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -793,7 +803,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
 
     ApplicationTerminatedSendProcessEvent(appRecord);
 
@@ -920,7 +930,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
         eventInfo.time = exitTime;
         eventInfo.exitResult = EXIT_SUCESS;
         eventInfo.pid = pid;
-        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        AAFwk::EventReport::SendProcessEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
         HILOG_INFO("time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
@@ -931,7 +941,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
         eventInfo.time = exitTime;
         eventInfo.exitResult = EXIT_FAILED;
         eventInfo.pid = pid;
-        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        AAFwk::EventReport::SendProcessEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
         HILOG_INFO("time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
@@ -1347,7 +1357,7 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
     return ret;
 }
 
@@ -2314,7 +2324,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     if (!appRecord->GetBundleName().empty()) {
         eventInfo.bundleName = appRecord->GetBundleName();
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendProcessEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
@@ -4454,10 +4464,7 @@ void AppMgrServiceInner::TimeoutNotifyApp(int32_t pid, int32_t uid,
 
 int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
-    if (remoteClientManager_ == nullptr) {
-        HILOG_ERROR("The remoteClientManager_ is nullptr.");
-        return ERR_NO_INIT;
-    }
+    CHECK_POINTER_AND_RETURN(remoteClientManager_, ERR_NO_INIT);
     std::string callerBundleName;
     if (auto bundleMgrHelper = remoteClientManager_->GetBundleManagerHelper(); bundleMgrHelper != nullptr) {
         int32_t callingUid = IPCSkeleton::GetCallingUid();
@@ -4471,10 +4478,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
 #endif
         int32_t pid = faultData.pid;
         auto record = GetAppRunningRecordByPid(pid);
-        if (record == nullptr) {
-            HILOG_ERROR("no such AppRunningRecord");
-            return ERR_INVALID_VALUE;
-        }
+        CHECK_POINTER_AND_RETURN(record, ERR_INVALID_VALUE);
 
         FaultData transformedFaultData = ConvertDataTypes(faultData);
         int32_t uid = record->GetUid();
@@ -4489,7 +4493,6 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
             transformedFaultData.timeoutMarkers = "notifyFault:" + transformedFaultData.errorObject.name +
                 std::to_string(pid) + "-" + std::to_string(SystemTimeMillisecond());
         }
-        const int64_t timeout = 11000;
         if (faultData.faultType == FaultDataType::APP_FREEZE) {
             if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugApp()) {
                 return ERR_OK;
@@ -4502,11 +4505,10 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         HILOG_WARN("FaultDataBySA is: name: %{public}s, faultType: %{public}s, uid: %{public}d,"
             "pid: %{public}d, bundleName: %{public}s", faultData.errorObject.name.c_str(),
             FaultTypeToString(faultData.faultType).c_str(), uid, pid, bundleName.c_str());
-    } else {
-        HILOG_DEBUG("this is not called by SA.");
-        return AAFwk::CHECK_PERMISSION_FAILED;
+        return ERR_OK;
     }
-    return ERR_OK;
+    HILOG_DEBUG("this is not called by SA.");
+    return AAFwk::CHECK_PERMISSION_FAILED;
 }
 
 FaultData AppMgrServiceInner::ConvertDataTypes(const AppFaultDataBySA &faultData)
@@ -5325,7 +5327,7 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
     } else {
         HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 bool AppMgrServiceInner::IsFinalAppProcessByBundleName(const std::string &bundleName)
