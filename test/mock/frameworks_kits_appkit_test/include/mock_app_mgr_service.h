@@ -106,7 +106,6 @@ public:
         Terminated_ = true;
         EXPECT_TRUE(Terminated_);
     }
-    MOCK_METHOD2(CheckPermission, int32_t(const int32_t recordId, const std::string& permission));
 
     virtual void AbilityCleaned(const sptr<IRemoteObject>& token)
     {

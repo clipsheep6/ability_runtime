@@ -33,6 +33,7 @@
 #include "application_info.h"
 #include "bundlemgr/bundle_mgr_interface.h"
 #include "call_container.h"
+#include "exit_reason.h"
 #include "ipc_skeleton.h"
 #include "lifecycle_deal.h"
 #include "lifecycle_state_info.h"
@@ -842,7 +843,7 @@ public:
     AppState GetAppState() const;
 
     void SetLaunchReason(const LaunchReason &reason);
-    void SetLastExitReason(const LastExitReason &reason);
+    void SetLastExitReason(const ExitReason &exitReason);
     void ContinueAbility(const std::string &deviceId, uint32_t versionCode);
     void NotifyContinuationResult(int32_t result);
     std::shared_ptr<MissionList> GetOwnedMissionList() const;
@@ -993,6 +994,7 @@ private:
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
     bool CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission, int32_t userId);
+    LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
 
     void NotifyMissionBindPid();
 

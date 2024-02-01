@@ -20,6 +20,7 @@
 #undef private
 #include "hilog_wrapper.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -62,6 +63,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
 {
     HILOG_INFO("AppMgrServiceDump_GetProcessRunningInfosByUserId_0100 start");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -82,6 +84,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
 {
     HILOG_INFO("AppMgrServiceDump_GetProcessRunningInfosByUserId_0200 start");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
 

@@ -1134,14 +1134,6 @@ private:
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord);
 
-    /**
-     * Check appRunning status listener permission.
-     *
-     * @param listener Running status listener.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t CheckPermission(const sptr<IRemoteObject> &listener);
-
     int32_t StartChildProcessPreCheck(const pid_t callingPid);
 
     int32_t StartChildProcessImpl(const std::shared_ptr<ChildProcessRecord> childProcessRecord,

@@ -31,51 +31,45 @@ const std::string UNREGISTER_EVENT_TASK = "unregister event task";
 const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
 }
-#define RETURN_BY_ISEDM(object)                 \
-    if (object) {                               \
-        return ERR_EDM_APP_CONTROLLED;          \
-    }                                           \
-    return ERR_APP_CONTROLLED;
 
-ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {
     HILOG_DEBUG("Call");
     AppExecFwk::DisposedRule disposedRule;
-    if (CheckControl(want, userId, disposedRule)) {
+    if (CheckControl(param.want, param.userId, disposedRule)) {
         HILOG_INFO("The target ability is intercpted.");
 #ifdef SUPPORT_GRAPHICS
-        if (!isForeground || disposedRule.want == nullptr
+        if (!param.isForeground || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
             HILOG_ERROR("Can not start disposed want");
-            RETURN_BY_ISEDM(disposedRule.isEdm);
+            return AbilityUtil::EdmErrorType(disposedRule.isEdm);
         }
-        if (disposedRule.want->GetBundle() == want.GetBundle()) {
+        if (disposedRule.want->GetBundle() == param.want.GetBundle()) {
             HILOG_ERROR("Can not start disposed want with same bundleName");
-            RETURN_BY_ISEDM(disposedRule.isEdm);
+            return AbilityUtil::EdmErrorType(disposedRule.isEdm);
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
             int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule.want,
-                requestCode, userId));
+                param.requestCode, param.userId));
             if (ret != ERR_OK) {
                 HILOG_ERROR("DisposedRuleInterceptor start ability failed.");
                 return ret;
             }
         }
         if (disposedRule.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
-            int ret = CreateModalUIExtension(*disposedRule.want, callerToken);
+            int ret = CreateModalUIExtension(*disposedRule.want, param.callerToken);
             if (ret != ERR_OK) {
                 HILOG_ERROR("failed to start disposed UIExtension");
                 return ret;
             }
         }
 #endif
-        RETURN_BY_ISEDM(disposedRule.isEdm);
+        return AbilityUtil::EdmErrorType(disposedRule.isEdm);
     }
     if (disposedRule.disposedType != AppExecFwk::DisposedType::NON_BLOCK) {
         return ERR_OK;
     }
-    return StartNonBlockRule(want, disposedRule);
+    return StartNonBlockRule(param.want, disposedRule);
 }
 
 bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,

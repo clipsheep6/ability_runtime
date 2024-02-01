@@ -22,6 +22,17 @@
 
 namespace OHOS {
 namespace AAFwk {
+struct AbilityInterceptorParam {
+    AbilityInterceptorParam(const Want &want, int requestCode, int32_t userId, bool isForeground,
+        const sptr<IRemoteObject> &callerToken) : want(want), requestCode(requestCode), userId(userId),
+        isForeground(isForeground), callerToken(callerToken){};
+    const Want &want;
+    int32_t requestCode;
+    int32_t userId;
+    bool isForeground = false;
+    const sptr<IRemoteObject> &callerToken;
+};
+
 /**
  * @class IAbilityInterceptor
  * IAbilityInterceptor is used to intercept a different type of start request.
@@ -33,8 +44,11 @@ public:
     /**
      * Excute interception processing.
      */
-    virtual ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-        const sptr<IRemoteObject> &callerToken) = 0;
+    virtual ErrCode DoProcess(AbilityInterceptorParam param) = 0;
+
+    /**
+     * Set handler for async task executing.
+     */
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) {};
 };
 } // namespace AAFwk

@@ -2226,7 +2226,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceExitApp_001, TestSize
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t pid = 0;
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto res = proxy_->ForceExitApp(pid, exitReason);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_EXIT_APP), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
@@ -2245,9 +2245,29 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, T
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto res = proxy_->RecordAppExitReason(exitReason);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordProcessExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordProcessExitReason
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RecordProcessExitReason
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordProcessExitReason_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    int32_t pid = 1;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    auto res = proxy_->RecordProcessExitReason(pid, exitReason);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 
@@ -2578,95 +2598,6 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
     std::vector<AutoStartupInfo> infoList;
     auto res = proxy_->QueryAllAutoStartupApplications(infoList);
     EXPECT_EQ(res, ERR_OK);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_RegisterAutoStartupCallback_0100
- * @tc.desc: Test the state of RegisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, RegisterAutoStartupCallback_0100, TestSize.Level1)
-{
-    OHOS::sptr<IRemoteObject> callback = nullptr;
-    EXPECT_EQ(callback, nullptr);
-    auto res = proxy_->RegisterAutoStartupCallback(callback);
-    EXPECT_EQ(res, INNER_ERR);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_RegisterAutoStartupCallback_0200
- * @tc.desc: Test the state of RegisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, RegisterAutoStartupCallback_0200, TestSize.Level1)
-{
-    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    EXPECT_NE(callback, nullptr);
-    auto res = proxy_->RegisterAutoStartupCallback(callback);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_UnregisterAutoStartupCallback_0100
- * @tc.desc: Test the state of UnregisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, UnregisterAutoStartupCallback_0100, TestSize.Level1)
-{
-    OHOS::sptr<IRemoteObject> callback = nullptr;
-    EXPECT_EQ(callback, nullptr);
-    auto res = proxy_->UnregisterAutoStartupCallback(callback);
-    EXPECT_EQ(res, INNER_ERR);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_UnregisterAutoStartupCallback_0200
- * @tc.desc: Test the state of UnregisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, UnregisterAutoStartupCallback_0200, TestSize.Level1)
-{
-    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    EXPECT_NE(callback, nullptr);
-    auto res = proxy_->UnregisterAutoStartupCallback(callback);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_SetAutoStartup_0100
- * @tc.desc: Test the state of SetAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, SetAutoStartup_0100, TestSize.Level1)
-{
-    AutoStartupInfo info;
-    auto res = proxy_->SetAutoStartup(info);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_CancelAutoStartup_0100
- * @tc.desc: Test the state of CancelAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, CancelAutoStartup_0100, TestSize.Level1)
-{
-    AutoStartupInfo info;
-    auto res = proxy_->CancelAutoStartup(info);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerProxyTest_IsAutoStartup_0100
- * @tc.desc: Test the state of IsAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerProxyTest, IsAutoStartup_0100, TestSize.Level1)
-{
-    AutoStartupInfo info;
-    bool isAutoStartup;
-    auto res = proxy_->IsAutoStartup(info, isAutoStartup);
-    EXPECT_EQ(res, NO_ERROR);
 }
 } // namespace AAFwk
 } // namespace OHOS

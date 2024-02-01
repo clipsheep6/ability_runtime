@@ -27,8 +27,7 @@ class ControlInterceptor : public IAbilityInterceptor {
 public:
     ControlInterceptor() = default;
     ~ControlInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-        const sptr<IRemoteObject> &callerToken) override;
+    ErrCode DoProcess(AbilityInterceptorParam param) override;
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         return;

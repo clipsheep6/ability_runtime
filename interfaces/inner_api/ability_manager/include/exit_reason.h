@@ -13,25 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_CROWD_TEST_INTERCEPTOR_H
-#define OHOS_ABILITY_RUNTIME_CROWD_TEST_INTERCEPTOR_H
+#ifndef OHOS_ABILITY_RUNTIME_EXIT_REASON_H
+#define OHOS_ABILITY_RUNTIME_EXIT_REASON_H
 
-#include "ability_interceptor_interface.h"
+#include <string>
+
+#include "ability_state.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace AAFwk {
-class CrowdTestInterceptor : public IAbilityInterceptor {
-public:
-    CrowdTestInterceptor() = default;
-    ~CrowdTestInterceptor() = default;
-    ErrCode DoProcess(AbilityInterceptorParam param) override;
-    virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
-    {
-        return;
-    };
-private:
-    bool CheckCrowdtest(const Want &want, int32_t userId);
+struct ExitReason : public Parcelable {
+    ExitReason() = default;
+    ExitReason(const Reason reason, const std::string &exitMsg);
+
+    Reason reason = Reason::REASON_UNKNOWN;
+    std::string exitMsg = "";
+
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static ExitReason *Unmarshalling(Parcel &parcel);
 };
-} // namespace AAFwk
-} // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_CROWD_TEST_INTERCEPTOR_H
+}  // namespace AAFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_EXIT_REASON_H

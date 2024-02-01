@@ -21,6 +21,7 @@
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
 #include "errors.h"
+#include "exit_reason.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
@@ -239,7 +240,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
-        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+        auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
@@ -690,6 +691,7 @@ int UIAbilityLifecycleManager::CallAbilityLocked(const AbilityRequest &abilityRe
             DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(uiAbilityRecord->GetToken());
             return NotifySCBPendingActivation(sessionInfo, abilityRequest);
         }
+        return ERR_OK;
     } else if (ret == ResolveResultType::NG_INNER_ERROR) {
         HILOG_ERROR("resolve failed, error: %{public}d.", RESOLVE_CALL_ABILITY_INNER_ERR);
         return RESOLVE_CALL_ABILITY_INNER_ERR;
@@ -970,6 +972,16 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
         abilityRecord->SaveResultToCallers(-1, &want);
     }
     EraseAbilityRecord(abilityRecord);
+    if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
+        if (abilityRecord->GetScheduler() == nullptr) {
+            auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+            CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+            handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        }
+        return abilityRecord->TerminateAbility();
+    }
+
+    terminateAbilityList_.push_back(abilityRecord);
     abilityRecord->SendResultToCallers();
 
     if (abilityRecord->IsDebug() && isClearSession) {
@@ -979,7 +991,6 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
 
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
-        terminateAbilityList_.push_back(abilityRecord);
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
         MoveToBackground(abilityRecord);
         return ERR_OK;
@@ -987,7 +998,6 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
 
     // ability on background, schedule to terminate.
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
-        terminateAbilityList_.push_back(abilityRecord);
         auto self(shared_from_this());
         auto task = [abilityRecord, self]() {
             HILOG_WARN("close ability by scb timeout");
@@ -1611,14 +1621,18 @@ int32_t UIAbilityLifecycleManager::GetSessionIdByAbilityToken(const sptr<IRemote
 }
 
 void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleName,
-    std::vector<std::string> &abilityList)
+    std::vector<std::string> &abilityList, int32_t pid)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto currentAccountId = DelayedSingleton<AbilityManagerService>::GetInstance()->GetUserId();
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    for (const auto& [first, second] : sessionAbilityMap_) {
-        if (second->GetOwnerMissionUserId() == currentAccountId) {
-            const auto &abilityInfo = second->GetAbilityInfo();
+    for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+        CHECK_POINTER_CONTINUE(abilityRecord);
+        if (!CheckPid(abilityRecord, pid)) {
+            continue;
+        }
+        if (abilityRecord->GetOwnerMissionUserId() == currentAccountId) {
+            const auto &abilityInfo = abilityRecord->GetAbilityInfo();
             if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
                 HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
                 abilityList.push_back(abilityInfo.name);
@@ -1654,36 +1668,13 @@ void UIAbilityLifecycleManager::SetLastExitReason(std::shared_ptr<AbilityRecord>
         return;
     }
 
-    Reason exitReason;
+    ExitReason exitReason;
     bool isSetReason;
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAppExitReason(
         abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name, isSetReason, exitReason);
 
     if (isSetReason) {
-        abilityRecord->SetLastExitReason(CovertAppExitReasonToLastReason(exitReason));
-    }
-}
-
-LastExitReason UIAbilityLifecycleManager::CovertAppExitReasonToLastReason(const Reason exitReason) const
-{
-    switch (exitReason) {
-        case REASON_NORMAL:
-            return LASTEXITREASON_NORMAL;
-        case REASON_CPP_CRASH:
-            return LASTEXITREASON_CPP_CRASH;
-        case REASON_JS_ERROR:
-            return LASTEXITREASON_JS_ERROR;
-        case REASON_APP_FREEZE:
-            return LASTEXITREASON_APP_FREEZE;
-        case REASON_PERFORMANCE_CONTROL:
-            return LASTEXITREASON_PERFORMANCE_CONTROL;
-        case REASON_RESOURCE_CONTROL:
-            return LASTEXITREASON_RESOURCE_CONTROL;
-        case REASON_UPGRADE:
-            return LASTEXITREASON_UPGRADE;
-        case REASON_UNKNOWN:
-        default:
-            return LASTEXITREASON_UNKNOWN;
+        abilityRecord->SetLastExitReason(exitReason);
     }
 }
 
@@ -1761,7 +1752,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordsById(
 }
 
 void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleName,
-    std::vector<std::string> &abilityList, int32_t targetUserId) const
+    std::vector<std::string> &abilityList, int32_t targetUserId, int32_t pid) const
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -1769,6 +1760,9 @@ void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleNa
     for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
         if (abilityRecord == nullptr) {
             HILOG_WARN("second is nullptr.");
+            continue;
+        }
+        if (!CheckPid(abilityRecord, pid)) {
             continue;
         }
         const auto &abilityInfo = abilityRecord->GetAbilityInfo();
@@ -1782,6 +1776,12 @@ void UIAbilityLifecycleManager::GetActiveAbilityList(const std::string &bundleNa
         sort(abilityList.begin(), abilityList.end());
         abilityList.erase(unique(abilityList.begin(), abilityList.end()), abilityList.end());
     }
+}
+
+bool UIAbilityLifecycleManager::CheckPid(const std::shared_ptr<AbilityRecord> abilityRecord, const int32_t pid) const
+{
+    CHECK_POINTER_RETURN_BOOL(abilityRecord);
+    return pid == NO_PID || abilityRecord->GetPid() == pid;
 }
 
 void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info, int32_t targetUserId)

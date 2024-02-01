@@ -280,6 +280,14 @@ inline int StartAppgallery(const int requestCode, const int32_t userId, const st
     want.SetAction(action);
     return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
 }
+
+inline ErrCode EdmErrorType(bool isEdm)
+{
+    if (isEdm) {
+        return ERR_EDM_APP_CONTROLLED;
+    }
+    return ERR_APP_CONTROLLED;
+}
 }  // namespace AbilityUtil
 }  // namespace AAFwk
 }  // namespace OHOS

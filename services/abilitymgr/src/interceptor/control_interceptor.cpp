@@ -31,44 +31,38 @@ const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
 const std::string IS_FROM_PARENTCONTROL = "ohos.ability.isFromParentControl";
 }
-#define RETURN_BY_ISEDM(object)                 \
-    if (object) {                               \
-        return ERR_EDM_APP_CONTROLLED;          \
-    }                                           \
-    return ERR_APP_CONTROLLED;
 
-ErrCode ControlInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
 {
     AppExecFwk::AppRunningControlRuleResult controlRule;
-    if (CheckControl(want, userId, controlRule)) {
+    if (CheckControl(param.want, param.userId, controlRule)) {
         HILOG_INFO("The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
 #ifdef SUPPORT_GRAPHICS
-        if (!isForeground || controlRule.controlWant == nullptr) {
+        if (!param.isForeground || controlRule.controlWant == nullptr) {
             HILOG_ERROR("Can not start control want");
-            RETURN_BY_ISEDM(controlRule.isEdm);
+            return AbilityUtil::EdmErrorType(controlRule.isEdm);
         }
         if (controlRule.controlWant->GetBoolParam(IS_FROM_PARENTCONTROL, false)) {
             auto controlWant = controlRule.controlWant;
             auto controlParam = controlWant->GetParams();
-            sptr<AAFwk::IWantParams> interceptParam = WantParamWrapper::Box(want.GetParams());
+            sptr<AAFwk::IWantParams> interceptParam = WantParamWrapper::Box(param.want.GetParams());
             if (interceptParam != nullptr) {
                 controlParam.SetParam(INTERCEPT_PARAMETERS, interceptParam);
             }
             controlWant->SetParams(controlParam);
-            controlWant->SetParam(INTERCEPT_BUNDLE_NAME, want.GetElement().GetBundleName());
-            controlWant->SetParam(INTERCEPT_ABILITY_NAME, want.GetElement().GetAbilityName());
-            controlWant->SetParam(INTERCEPT_MODULE_NAME, want.GetElement().GetModuleName());
+            controlWant->SetParam(INTERCEPT_BUNDLE_NAME, param.want.GetElement().GetBundleName());
+            controlWant->SetParam(INTERCEPT_ABILITY_NAME, param.want.GetElement().GetAbilityName());
+            controlWant->SetParam(INTERCEPT_MODULE_NAME, param.want.GetElement().GetModuleName());
             controlRule.controlWant = controlWant;
         }
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*controlRule.controlWant,
-            requestCode, userId));
+            param.requestCode, param.userId));
         if (ret != ERR_OK) {
             HILOG_ERROR("Control implicit start appgallery failed.");
             return ret;
         }
 #endif
-        RETURN_BY_ISEDM(controlRule.isEdm);
+        return AbilityUtil::EdmErrorType(controlRule.isEdm);
     }
     return ERR_OK;
 }

@@ -33,6 +33,7 @@
 #include "ability_background_connection.h"
 #include "ability_debug_deal.h"
 #include "ability_info.h"
+#include "ability_manager_constants.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
@@ -43,6 +44,7 @@
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "connection_state_manager.h"
+#include "display_manager.h"
 #include "distributed_client.h"
 #include "dlp_utils.h"
 #include "errors.h"
@@ -91,7 +93,6 @@
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
-#include "display_manager.h"
 #include "input_manager.h"
 #endif
 
@@ -239,6 +240,7 @@ const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.st
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
+const std::string IS_CALL_BY_SCB = "isCallBySCB";
 const std::string PROCESS_SUFFIX = "embeddable";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
@@ -396,6 +398,8 @@ bool AbilityManagerService::Init()
     InitPushTask();
 
     SubscribeScreenUnlockedEvent();
+    appExitReasonHelper_ = std::make_shared<AppExitReasonHelper>(uiAbilityLifecycleManager_, missionListManagers_,
+        managersMutex_);
     HILOG_INFO("Init success.");
     return true;
 }
@@ -704,8 +708,10 @@ int AbilityManagerService::StartAbilityPublicPrechainCheck(StartAbilityParams &p
 
 int AbilityManagerService::StartAbilityPrechainInterceptor(StartAbilityParams &params)
 {
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(params.want, params.requestCode,
+        GetUserId(), true, nullptr);
     auto interceptorResult = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(params.want, params.requestCode, GetUserId(), true);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (interceptorResult != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return interceptorResult;
@@ -788,8 +794,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
+        true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -937,8 +945,10 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     }
 
     Want newWant = abilityRequest.want;
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
+        true, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
     newWant.RemoveParam("queryWantFromErms");
     if (result != ERR_OK && isReplaceWantExist == false) {
@@ -987,6 +997,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityInfo);
         abilityRequest.userId = oriValidUserId;
+        abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1041,8 +1052,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_CALLER;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
+        true, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -1126,8 +1139,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_WRONG_INTERFACE_CALL;
     }
 
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, requestCode,
+        GetUserId(), true, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1160,6 +1175,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         UpdateCallerInfo(abilityRequest.want, callerToken);
         abilityRequest.userId = oriValidUserId;
+        abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1248,8 +1264,10 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         return ERR_INVALID_CALLER;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
+        true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -1283,7 +1301,12 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, requestCode, callerToken);
-        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+        if (startOptions.GetDisplayID() == 0) {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
+                static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId()));
+        } else {
+            abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+        }
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         if (AppUtils::GetInstance().JudgePCDevice()) {
             if (startOptions.windowLeftUsed_) {
@@ -1385,8 +1408,12 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         return ERR_AAFWK_INVALID_WINDOW_MODE;
     }
 #endif
-
-    abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    if (startOptions.GetDisplayID() == 0) {
+        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
+            static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId()));
+    } else {
+        abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
+    }
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
     if (AppUtils::GetInstance().JudgePCDevice()) {
         if (startOptions.windowLeftUsed_) {
@@ -1410,8 +1437,10 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     }
 
     Want newWant = abilityRequest.want;
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
+        true, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(newWant, requestCode, GetUserId(), true, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
     newWant.RemoveParam("queryWantFromErms");
     if (result != ERR_OK && isReplaceWantExist == false) {
@@ -1431,6 +1460,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         abilityRequest.userId = oriValidUserId;
+        abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1510,8 +1540,10 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         }
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, requestCode, GetUserId(),
+        true, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1563,8 +1595,10 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         return ERR_WRONG_INTERFACE_CALL;
     }
 
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, requestCode,
+        GetUserId(), true, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, requestCode, GetUserId(), true, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -1588,6 +1622,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityInfo);
         abilityRequest.userId = oriValidUserId;
+        abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);
@@ -1627,19 +1662,12 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
 
     auto requestCode = sessionInfo->requestCode;
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
-
-    std::string bundleName;
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_ERROR("Get Bundle Name failed.");
-        return ERR_INVALID_VALUE;
-    }
-    if (bundleName == BUNDLE_NAME_SCENEBOARD) {
+    if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         HILOG_DEBUG("interceptorExecuter_ called.");
+        AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(sessionInfo->want, requestCode,
+            currentUserId, true, nullptr);
         auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(sessionInfo->want, requestCode, currentUserId, true);
+        interceptorExecuter_->DoProcess(interceptorParam);
         if (result != ERR_OK) {
             HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
             eventInfo.errCode = result;
@@ -1663,10 +1691,12 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         HILOG_ERROR("Only support for page type ability.");
         return ERR_INVALID_VALUE;
     }
-    if (bundleName == BUNDLE_NAME_SCENEBOARD) {
+
+    if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         HILOG_DEBUG("afterCheckExecuter_ called.");
-        result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE : afterCheckExecuter_->DoProcess(
-            abilityRequest.want, requestCode, GetUserId(), true, sessionInfo->callerToken);
+        AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, requestCode,
+            GetUserId(), true, sessionInfo->callerToken);
+        result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE : afterCheckExecuter_->DoProcess(afterCheckParam);
         if (result != ERR_OK) {
             HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
             return result;
@@ -1747,8 +1777,6 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
         return;
     }
 
-    RecordAppExitReasonAtUpgrade(bundleInfo);
-
     if (userId != U0_USER_ID) {
         HILOG_ERROR("Application upgrade for non U0 users.");
         return;
@@ -1767,40 +1795,33 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
     }
 }
 
-int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
+int32_t AbilityManagerService::RecordAppExitReason(const ExitReason &exitReason)
 {
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !currentMissionListManager_) {
-        HILOG_ERROR("currentMissionListManager_ is null.");
-        return ERR_NULL_OBJECT;
-    }
-
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
-
-    std::string bundleName;
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_ERROR("Get Bundle Name failed.");
-        return ERR_INVALID_VALUE;
-    }
-
-    std::vector<std::string> abilityList;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityList);
-    } else {
-        currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
-    }
-
-    return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
-        bundleName, abilityList, exitReason);
+    HILOG_INFO("RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
+        exitReason.exitMsg.c_str());
+    
+    CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+    return appExitReasonHelper_->RecordAppExitReason(exitReason);
 }
 
-int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason)
+int32_t AbilityManagerService::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
 {
-    if (exitReason < REASON_UNKNOWN || exitReason > REASON_UPGRADE) {
-        HILOG_ERROR("Force exit reason invalid.");
-        return ERR_INVALID_VALUE;
+    HILOG_INFO("RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+        pid, exitReason.reason, exitReason.exitMsg.c_str());
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
+        return ERR_PERMISSION_DENIED;
     }
+
+    CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+    return appExitReasonHelper_->RecordProcessExitReason(pid, exitReason);
+}
+
+int32_t AbilityManagerService::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
+{
+    HILOG_INFO("ForceExitApp pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+        pid, exitReason.reason, exitReason.exitMsg.c_str());
 
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
         !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
@@ -1816,34 +1837,10 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
         return ERR_INVALID_VALUE;
     }
 
-    int32_t targetUserId = uid / BASE_USER_RANGE;
-    std::vector<std::string> abilityLists;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityLists, targetUserId);
-    } else if (targetUserId == U0_USER_ID) {
-        std::lock_guard lock(managersMutex_);
-        for (auto item: missionListManagers_) {
-            if (item.second) {
-                std::vector<std::string> abilityList;
-                item.second->GetActiveAbilityList(bundleName, abilityList);
-                if (!abilityList.empty()) {
-                    abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
-                }
-            }
-        }
-    } else {
-        auto listManager = GetListManagerByUserId(targetUserId);
-        if (listManager) {
-            listManager->GetActiveAbilityList(bundleName, abilityLists);
-        }
-    }
+    CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+    appExitReasonHelper_->RecordProcessExitReason(NO_PID, exitReason, bundleName, uid);
 
-    int32_t result = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
-        bundleName, abilityLists, exitReason);
-
-    DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
-
-    return result;
+    return DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
 }
 
 int32_t AbilityManagerService::GetConfiguration(AppExecFwk::Configuration& config)
@@ -2176,8 +2173,9 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
         return ERR_INVALID_CALLER;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -2230,8 +2228,10 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
         return result;
     }
 
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
+        false, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -2360,8 +2360,10 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         return ERR_INVALID_CALLER;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(extensionSessionInfo->want, 0, GetUserId(),
+        false, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(extensionSessionInfo->want, 0, GetUserId(), false);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -2429,8 +2431,10 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         return result;
     }
 
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
+        false, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -3031,8 +3035,9 @@ int AbilityManagerService::ConnectAbilityCommon(
         return result;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -3140,8 +3145,9 @@ int AbilityManagerService::ConnectUIExtensionAbility(const Want &want, const spt
         return result;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         eventInfo.errCode = result;
@@ -3298,8 +3304,10 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
         return TARGET_ABILITY_NOT_SERVICE;
     }
 
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
+        false, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
         HILOG_ERROR("afterCheckExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -5010,6 +5018,9 @@ void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
             if (switchUser) {
                 DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId);
                 currentMissionListManager_ = iterator->second;
+                if (appExitReasonHelper_) {
+                    appExitReasonHelper_->SetCurrentMissionListManager(currentMissionListManager_);
+                }
             }
         }
     }
@@ -5020,6 +5031,9 @@ void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
         missionListManagers_.emplace(userId, manager);
         if (switchUser) {
             currentMissionListManager_ = manager;
+            if (appExitReasonHelper_) {
+                appExitReasonHelper_->SetCurrentMissionListManager(currentMissionListManager_);
+            }
         }
     }
 }
@@ -6066,8 +6080,9 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return CHECK_PERMISSION_FAILED;
     }
 
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(want, 0, GetUserId(), false, nullptr);
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        interceptorExecuter_->DoProcess(want, 0, GetUserId(), false);
+        interceptorExecuter_->DoProcess(interceptorParam);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return result;
@@ -6111,10 +6126,13 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
     HILOG_DEBUG("abilityInfo.applicationInfo.singleton is %{public}s",
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
     UpdateCallerInfo(abilityRequest.want, callerToken);
+    AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
+        false, callerToken);
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
-        afterCheckExecuter_->DoProcess(abilityRequest.want, 0, GetUserId(), false, callerToken);
+        afterCheckExecuter_->DoProcess(afterCheckParam);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         ReportEventToSuspendManager(abilityRequest.abilityInfo);
+        abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
         return uiAbilityLifecycleManager_->ResolveLocked(abilityRequest, oriValidUserId);
     }
 
@@ -6536,10 +6554,6 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
     if (callingTokenId != tokenID) {
         HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
         return;
-    }
-
-    if (reason == AppExecFwk::StateReason::APP_FREEZE) {
-        RecordAppExitReason(REASON_APP_FREEZE);
     }
 
     AAFwk::Want curWant;
@@ -8615,26 +8629,6 @@ int32_t AbilityManagerService::NotifySaveAsResult(const Want &want, int resultCo
     return ERR_OK;
 }
 
-void AbilityManagerService::RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo)
-{
-    if (bundleInfo.abilityInfos.empty()) {
-        HILOG_ERROR("abilityInfos is empty.");
-        return;
-    }
-
-    std::vector<std::string> abilityList;
-    for (auto abilityInfo : bundleInfo.abilityInfos) {
-        if (!abilityInfo.name.empty()) {
-            abilityList.push_back(abilityInfo.name);
-        }
-    }
-
-    if (!abilityList.empty()) {
-        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
-            bundleInfo.name, abilityList, REASON_UPGRADE);
-    }
-}
-
 void AbilityManagerService::SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession)
 {
     if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
@@ -8821,51 +8815,6 @@ int32_t AbilityManagerService::QueryAllAutoStartupApplications(std::vector<AutoS
         return ERR_NO_INIT;
     }
     return abilityAutoStartupService_->QueryAllAutoStartupApplications(infoList);
-}
-
-int32_t AbilityManagerService::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->RegisterAutoStartupCallback(callback);
-}
-
-int32_t AbilityManagerService::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->UnregisterAutoStartupCallback(callback);
-}
-
-int32_t AbilityManagerService::SetAutoStartup(const AutoStartupInfo &info)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->SetAutoStartup(info);
-}
-
-int32_t AbilityManagerService::CancelAutoStartup(const AutoStartupInfo &info)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->CancelAutoStartup(info);
-}
-
-int32_t AbilityManagerService::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->IsAutoStartup(info, isAutoStartup);
 }
 
 int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)
@@ -9284,7 +9233,7 @@ bool AbilityManagerService::GenerateDialogSessionRecord(AbilityRequest &abilityR
         dialogAppInfos.front().labelId = abilityRequest.abilityInfo.labelId;
     }
     return dialogSessionRecord_->GenerateDialogSessionRecord(abilityRequest, userId,
-        dialogSessionId, dialogAppInfos, OHOS::system::GetDeviceType());
+        dialogSessionId, dialogAppInfos, isSelector);
 }
 
 int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken,

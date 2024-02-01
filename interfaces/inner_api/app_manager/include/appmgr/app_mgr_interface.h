@@ -82,15 +82,6 @@ public:
     virtual void ApplicationTerminated(const int32_t recordId) = 0;
 
     /**
-     * CheckPermission, call CheckPermission() through proxy object, check the permission.
-     *
-     * @param recordId, a unique record that identifies this Application from others.
-     * @param permission, check the permissions.
-     * @return ERR_OK, return back success, others fail.
-     */
-    virtual int CheckPermission(const int32_t recordId, const std::string &permission) = 0;
-
-    /**
      * AbilityCleaned,call through AbilityCleaned() proxy project, clean Ability record.
      *
      * @param token, a unique record that identifies AbilityCleaned from others.
@@ -537,62 +528,6 @@ public:
      * @return Returns true is final application process, others return false.
      */
     virtual bool IsFinalAppProcess()  = 0;
-
-    // please add new message item to the bottom in order to prevent some unexpected BUG
-    enum class Message {
-        APP_ATTACH_APPLICATION = 0,
-        APP_APPLICATION_FOREGROUNDED,
-        APP_APPLICATION_BACKGROUNDED,
-        APP_APPLICATION_TERMINATED,
-        APP_CHECK_PERMISSION,
-        APP_ABILITY_CLEANED,
-        APP_GET_MGR_INSTANCE,
-        APP_CLEAR_UP_APPLICATION_DATA,
-        APP_GET_ALL_RUNNING_PROCESSES,
-        APP_GET_RUNNING_PROCESSES_BY_USER_ID,
-        APP_ADD_ABILITY_STAGE_INFO_DONE,
-        STARTUP_RESIDENT_PROCESS,
-        REGISTER_APPLICATION_STATE_OBSERVER,
-        UNREGISTER_APPLICATION_STATE_OBSERVER,
-        GET_FOREGROUND_APPLICATIONS,
-        START_USER_TEST_PROCESS,
-        FINISH_USER_TEST,
-        SCHEDULE_ACCEPT_WANT_DONE,
-        BLOCK_APP_SERVICE,
-        APP_GET_ABILITY_RECORDS_BY_PROCESS_ID,
-        START_RENDER_PROCESS,
-        ATTACH_RENDER_PROCESS,
-        GET_RENDER_PROCESS_TERMINATION_STATUS,
-        GET_CONFIGURATION,
-        UPDATE_CONFIGURATION,
-        REGISTER_CONFIGURATION_OBSERVER,
-        UNREGISTER_CONFIGURATION_OBSERVER,
-        APP_NOTIFY_MEMORY_LEVEL,
-        GET_APP_RUNNING_STATE,
-        NOTIFY_LOAD_REPAIR_PATCH,
-        NOTIFY_HOT_RELOAD_PAGE,
-        SET_CONTINUOUSTASK_PROCESS,
-        NOTIFY_UNLOAD_REPAIR_PATCH,
-        PRE_START_NWEBSPAWN_PROCESS,
-        APP_GET_PROCESS_RUNNING_INFORMATION,
-        IS_SHARED_BUNDLE_RUNNING,
-        DUMP_HEAP_MEMORY_PROCESS,
-        START_NATIVE_PROCESS_FOR_DEBUGGER,
-        NOTIFY_APP_FAULT,
-        NOTIFY_APP_FAULT_BY_SA,
-        JUDGE_SANDBOX_BY_PID,
-        GET_BUNDLE_NAME_BY_PID,
-        APP_GET_ALL_RENDER_PROCESSES,
-        GET_PROCESS_MEMORY_BY_PID,
-        GET_PIDS_BY_BUNDLENAME,
-        CHANGE_APP_GC_STATE,
-        NOTIFY_PAGE_SHOW,
-        NOTIFY_PAGE_HIDE,
-        // Register an application to start listening.
-        REGISTER_APP_RUNNING_STATUS_LISTENER,
-        // Unregister the app to start listening.
-        UNREGISTER_APP_RUNNING_STATUS_LISTENER,
-    };
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

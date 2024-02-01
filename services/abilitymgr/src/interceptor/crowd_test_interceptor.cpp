@@ -24,14 +24,14 @@ namespace AAFwk {
 namespace {
 const std::string ACTION_MARKET_CROWDTEST = "ohos.want.action.marketCrowdTest";
 }
-ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode CrowdTestInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    if (CheckCrowdtest(want, userId)) {
+    if (CheckCrowdtest(param.want, param.userId)) {
         HILOG_ERROR("Crowdtest expired.");
 #ifdef SUPPORT_GRAPHICS
-        if (isForeground) {
-            int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST));
+        if (param.isForeground) {
+            int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(param.requestCode, param.userId,
+                ACTION_MARKET_CROWDTEST));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Crowdtest implicit start appgallery failed.");
                 return ret;

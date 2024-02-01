@@ -34,14 +34,13 @@ const std::string JUMP_DIALOG_CALLER_LABEL_ID = "interceptor_callerLabelId";
 const std::string JUMP_DIALOG_TARGET_MODULE_NAME = "interceptor_targetModuleName";
 const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 }
-ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    if (!isForeground) {
+    if (!param.isForeground) {
         HILOG_INFO("This startup is not foreground, keep going.");
         return ERR_OK;
     }
-    bool isStartIncludeAtomicService = AbilityUtil::IsStartIncludeAtomicService(want, userId);
+    bool isStartIncludeAtomicService = AbilityUtil::IsStartIncludeAtomicService(param.want, param.userId);
     if (isStartIncludeAtomicService) {
         HILOG_INFO("This startup contain atomic service, keep going.");
         return ERR_OK;
@@ -53,24 +52,24 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
         return ERR_OK;
     }
     AppExecFwk::AbilityInfo targetAbilityInfo;
-    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(want,
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, userId, targetAbilityInfo));
+    IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->QueryAbilityInfo(param.want,
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION, param.userId, targetAbilityInfo));
     if (targetAbilityInfo.type != AppExecFwk::AbilityType::PAGE) {
         HILOG_INFO("Target is not page Ability, keep going, abilityType:%{public}d.", targetAbilityInfo.type);
         return ERR_OK;
     }
     AppExecFwk::AppJumpControlRule controlRule;
-    if (CheckControl(bundleMgrHelper, want, userId, controlRule)) {
+    if (CheckControl(bundleMgrHelper, param.want, param.userId, controlRule)) {
 #ifdef SUPPORT_GRAPHICS
         HILOG_INFO("app jump need to be intercepted, caller:%{public}s, target:%{public}s",
             controlRule.callerPkg.c_str(), controlRule.targetPkg.c_str());
         auto sysDialogScheduler = DelayedSingleton<SystemDialogScheduler>::GetInstance();
-        Want targetWant = want;
+        Want targetWant = param.want;
         Want dialogWant = sysDialogScheduler->GetJumpInterceptorDialogWant(targetWant);
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
-        LoadAppLabelInfo(bundleMgrHelper, dialogWant, controlRule, userId);
+        LoadAppLabelInfo(bundleMgrHelper, dialogWant, controlRule, param.userId);
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(dialogWant,
-            requestCode, userId));
+            param.requestCode, param.userId));
         if (ret != ERR_OK) {
             HILOG_INFO("appInterceptor Dialog StartAbility error, ret:%{public}d", ret);
             return ret;

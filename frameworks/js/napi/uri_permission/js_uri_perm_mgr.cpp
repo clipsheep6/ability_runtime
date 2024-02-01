@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,6 @@
 #include "ability_business_error.h"
 #include "ability_manager_errors.h"
 #include "ability_runtime_error_util.h"
-#include "app_utils.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
@@ -94,14 +93,8 @@ private:
         NapiAsyncTask::CompleteCallback complete =
         [uriStr, flag, targetBundleName](napi_env env, NapiAsyncTask& task, int32_t status) {
             Uri uri(uriStr);
-            int errCode;
-            if (AAFwk::AppUtils::GetInstance().JudgePCDevice()) {
-                errCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermissionFor2In1(
-                    uri, flag, targetBundleName);
-            } else {
-                errCode = AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(
-                    uri, flag, targetBundleName, 0);
-            }
+            auto errCode =
+                AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetBundleName, 0);
             if (errCode == ERR_OK) {
                 task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else if (errCode ==  AAFwk::CHECK_PERMISSION_FAILED) {

@@ -28,24 +28,23 @@ namespace AAFwk {
 namespace {
 const std::string ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE = "persist.sys.abilityms.support.ecologicalrulemgrservice";
 }
-ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    if (want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME) ==
-        want.GetElement().GetBundleName()) {
+    if (param.want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME) ==
+        param.want.GetElement().GetBundleName()) {
         HILOG_DEBUG("The same bundle, do not intercept.");
         return ERR_OK;
     }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
-    GetEcologicalCallerInfo(want, callerInfo, userId);
+    GetEcologicalCallerInfo(param.want, callerInfo, param.userId);
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
     if (supportErms == "false") {
         HILOG_ERROR("Abilityms not support Erms between applications.");
         return ERR_OK;
     }
 
-    int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
+    int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(param.want,
         callerInfo, rule));
     if (ret != ERR_OK) {
         HILOG_DEBUG("check ecological rule failed, keep going.");
@@ -57,9 +56,9 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
-    if (isForeground && rule.replaceWant) {
-        (const_cast<Want &>(want)) = *rule.replaceWant;
-        (const_cast<Want &>(want)).SetParam("queryWantFromErms", true);
+    if (param.isForeground && rule.replaceWant) {
+        (const_cast<Want &>(param.want)) = *rule.replaceWant;
+        (const_cast<Want &>(param.want)).SetParam("queryWantFromErms", true);
     }
 #endif
     return ERR_ECOLOGICAL_CONTROL_STATUS;

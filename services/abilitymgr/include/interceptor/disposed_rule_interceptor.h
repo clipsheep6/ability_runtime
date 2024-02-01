@@ -32,8 +32,7 @@ class DisposedRuleInterceptor : public IAbilityInterceptor,
 public:
     DisposedRuleInterceptor() = default;
     ~DisposedRuleInterceptor() = default;
-    ErrCode DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-        const sptr<IRemoteObject> &callerToken) override;
+    ErrCode DoProcess(AbilityInterceptorParam param) override;
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         taskHandler_ = taskHandler;

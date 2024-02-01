@@ -82,6 +82,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/auto_startup_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/caller_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/dialog_session_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/exit_reason.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_running_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/insight_intent_execute_callback_proxy.cpp",
@@ -200,6 +201,7 @@ ohos_shared_library("ability_manager_c") {
   libs = []
   ldflags = [ "-Wl,--exclude-libs=ALL" ]
   deps = [ ":ability_manager" ]
+  external_deps = [ "c_utils:utils" ]
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"

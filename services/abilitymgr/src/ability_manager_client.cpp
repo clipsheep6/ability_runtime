@@ -538,6 +538,31 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
+void AbilityManagerClient::RemoveDeathRecipient()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (proxy_ == nullptr) {
+        HILOG_INFO("AbilityMgrProxy do not exist");
+        return;
+    }
+    if (deathRecipient_ == nullptr) {
+        HILOG_INFO("AbilityMgrDeathRecipient do not exist");
+        return;
+    }
+    auto serviceRemote = proxy_->AsObject();
+    if (serviceRemote != nullptr && serviceRemote->RemoveDeathRecipient(deathRecipient_)) {
+        proxy_ = nullptr;
+        deathRecipient_ = nullptr;
+        HILOG_INFO("Remove DeathRecipient success");
+    }
+}
+
+__attribute__((destructor)) void DeathRecipientDestructor()
+{
+    HILOG_INFO("Remove DeathRecipient");
+    AbilityManagerClient::GetInstance()->RemoveDeathRecipient();
+}
+
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
 {
     HILOG_INFO("call");
@@ -1428,7 +1453,7 @@ ErrCode AbilityManagerClient::ShareDataDone(
     return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
 }
 
-ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, Reason exitReason)
+ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
     HILOG_DEBUG("begin.");
     auto abms = GetAbilityManager();
@@ -1436,12 +1461,22 @@ ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, Reason exitReason)
     return abms->ForceExitApp(pid, exitReason);
 }
 
-ErrCode AbilityManagerClient::RecordAppExitReason(Reason exitReason)
+ErrCode AbilityManagerClient::RecordAppExitReason(const ExitReason &exitReason)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_DEBUG("RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
+        exitReason.exitMsg.c_str());
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RecordAppExitReason(exitReason);
+}
+
+ErrCode AbilityManagerClient::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
+{
+    HILOG_DEBUG("RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+        pid, exitReason.reason, exitReason.exitMsg.c_str());
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RecordProcessExitReason(pid, exitReason);
 }
 
 void AbilityManagerClient::SetRootSceneSession(sptr<IRemoteObject> rootSceneSession)
@@ -1539,46 +1574,6 @@ ErrCode AbilityManagerClient::QueryAllAutoStartupApplications(std::vector<AutoSt
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->QueryAllAutoStartupApplications(infoList);
-}
-
-ErrCode AbilityManagerClient::RegisterAutoStartupCallback(sptr<IRemoteObject> callback)
-{
-    HILOG_DEBUG("Called.");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->RegisterAutoStartupCallback(callback);
-}
-
-ErrCode AbilityManagerClient::UnregisterAutoStartupCallback(sptr<IRemoteObject> callback)
-{
-    HILOG_DEBUG("Called.");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->UnregisterAutoStartupCallback(callback);
-}
-
-ErrCode AbilityManagerClient::SetAutoStartup(const AutoStartupInfo &info)
-{
-    HILOG_DEBUG("Called.");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->SetAutoStartup(info);
-}
-
-ErrCode AbilityManagerClient::CancelAutoStartup(const AutoStartupInfo &info)
-{
-    HILOG_DEBUG("Called.");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->CancelAutoStartup(info);
-}
-
-ErrCode AbilityManagerClient::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
-{
-    HILOG_DEBUG("Called.");
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->IsAutoStartup(info, isAutoStartup);
 }
 
 ErrCode AbilityManagerClient::PrepareTerminateAbilityBySCB(sptr<SessionInfo> sessionInfo,

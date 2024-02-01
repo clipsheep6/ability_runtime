@@ -144,58 +144,6 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_004, TestSize.Level1)
  * Feature: AMS
  * Function: IPC
  * SubFunction: appmgr interface
- * FunctionPoints: interface
- * CaseDescription: test interface of CheckPermission
- */
-HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_005, TestSize.Level1)
-{
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_005 start");
-    sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
-    sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
-
-    EXPECT_CALL(*mockAppMgr, CheckPermission(_, _)).Times(1).WillOnce(Return(OHOS::NO_ERROR));
-    auto recordId = AppRecordId::Create();
-    int ret = appMgrClient->CheckPermission(recordId, "write");
-    EXPECT_EQ(OHOS::NO_ERROR, ret);
-
-    EXPECT_CALL(*mockAppMgr, CheckPermission(_, _)).Times(1).WillOnce(Return(OHOS::NO_ERROR));
-    ret = appMgrClient->CheckPermission(recordId, "read");
-    EXPECT_EQ(OHOS::NO_ERROR, ret);
-
-    EXPECT_CALL(*mockAppMgr, CheckPermission(_, _)).Times(1).WillOnce(Return(OHOS::ERR_INVALID_STATE));
-    ret = appMgrClient->CheckPermission(recordId, "location");
-    EXPECT_EQ(OHOS::ERR_INVALID_STATE, ret);
-
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_005 end");
-}
-
-/*
- * Feature: AMS
- * Function: IPC
- * SubFunction: appmgr interface
- * FunctionPoints: interface
- * CaseDescription: test IPC can transact data
- */
-HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_006, TestSize.Level1)
-{
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_006 start");
-    sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
-    sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
-
-    EXPECT_CALL(*mockAppMgr, CheckPermission(_, _))
-        .Times(1)
-        .WillOnce(Invoke(mockAppMgr.GetRefPtr(), &MockAppMgrService::CheckPermissionImpl));
-    auto recordId = AppRecordId::Create();
-    int ret = appMgrClient->CheckPermission(recordId, "write");
-    EXPECT_EQ(0, ret);
-    EXPECT_EQ("write", mockAppMgr->GetData());
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_006 end");
-}
-
-/*
- * Feature: AMS
- * Function: IPC
- * SubFunction: appmgr interface
  * FunctionPoints: KillApplication interface
  * CaseDescription: test IPC can transact data
  */

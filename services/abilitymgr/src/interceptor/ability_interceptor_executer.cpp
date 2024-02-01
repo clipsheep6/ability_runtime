@@ -26,14 +26,13 @@ void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<IAbilityIn
     }
 }
 
-ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode AbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t result = ERR_OK;
     auto item = interceptorList_.begin();
     while (item != interceptorList_.end()) {
-        result = (*item)->DoProcess(want, requestCode, userId, isForeground, callerToken);
+        result = (*item)->DoProcess(param);
         if (result != ERR_OK) {
             break;
         } else {

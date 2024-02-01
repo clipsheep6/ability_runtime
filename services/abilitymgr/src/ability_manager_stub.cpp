@@ -261,6 +261,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::ForceExitAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
         &AbilityManagerStub::RecordAppExitReasonInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON)] =
+        &AbilityManagerStub::RecordProcessExitReasonInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER)] =
         &AbilityManagerStub::RegisterSessionHandlerInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -379,16 +381,6 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::CancelApplicationAutoStartupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_ALL_AUTO_STARTUP_APPLICATION)] =
         &AbilityManagerStub::QueryAllAutoStartupApplicationsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_CALLBACK)] =
-        &AbilityManagerStub::RegisterAutoStartupCallbackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_CALLBACK)] =
-        &AbilityManagerStub::UnregisterAutoStartupCallbackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_AUTO_STARTUP)] =
-        &AbilityManagerStub::SetAutoStartupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_AUTO_STARTUP)] =
-        &AbilityManagerStub::CancelAutoStartupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_AUTO_STARTUP)] =
-        &AbilityManagerStub::IsAutoStartupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
         &AbilityManagerStub::GetConnectionDataInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP_BY_EDM)] =
@@ -2512,8 +2504,12 @@ int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel
 int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t pid = data.ReadInt32();
-    Reason reason = static_cast<Reason>(data.ReadInt32());
-    int32_t result = ForceExitApp(pid, reason);
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = ForceExitApp(pid, *exitReason);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;
@@ -2523,8 +2519,28 @@ int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel
 
 int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply)
 {
-    Reason reason = static_cast<Reason>(data.ReadInt32());
-    int32_t result = RecordAppExitReason(reason);
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RecordAppExitReason(*exitReason);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RecordProcessExitReason(pid, *exitReason);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;
@@ -2693,68 +2709,6 @@ int32_t AbilityManagerStub::QueryAllAutoStartupApplicationsInner(MessageParcel &
             return ERR_INVALID_VALUE;
         }
     }
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::RegisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    if (callback == nullptr) {
-        HILOG_ERROR("Callback is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = RegisterAutoStartupCallback(callback);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::UnregisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    if (callback == nullptr) {
-        HILOG_ERROR("Callback is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = UnregisterAutoStartupCallback(callback);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::SetAutoStartupInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    if (info == nullptr) {
-        HILOG_ERROR("Info is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = SetAutoStartup(*info);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::CancelAutoStartupInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    if (info == nullptr) {
-        HILOG_ERROR("Info is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = CancelAutoStartup(*info);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::IsAutoStartupInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    if (info == nullptr) {
-        HILOG_ERROR("Info is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    bool isAutoStartup = false;
-    int32_t result = IsAutoStartup(*info, isAutoStartup);
-    reply.WriteInt32(result);
-    reply.WriteBool(isAutoStartup);
     return NO_ERROR;
 }
 

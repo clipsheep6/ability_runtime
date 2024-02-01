@@ -20,9 +20,13 @@
 #undef private
 #undef protected
 
-#include "ability_interceptor.h"
-#include "ability_interceptor_executer.h"
 #include "bundlemgr/mock_bundle_manager.h"
+#include "interceptor/ability_interceptor_executer.h"
+#include "interceptor/ability_jump_interceptor.h"
+#include "interceptor/control_interceptor.h"
+#include "interceptor/crowd_test_interceptor.h"
+#include "interceptor/disposed_rule_interceptor.h"
+#include "interceptor/ecological_rule_interceptor.h"
 
 using namespace testing;
 using namespace testing::ext;

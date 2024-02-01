@@ -77,9 +77,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     pid_t pid = static_cast<pid_t>(GetU32Data(data));
     appMgrService->AddAppDeathRecipient(pid);
     appMgrService->QueryServiceState();
-    int32_t recordId = static_cast<int32_t>(GetU32Data(data));
-    std::string permission(data, size);
-    appMgrService->CheckPermission(recordId, permission);
     sptr<IRemoteObject> app = nullptr;
     appMgrService->AttachApplication(app);
     std::vector<BundleInfo> bundleInfos;
@@ -100,6 +97,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appMgrService->AttachRenderProcess(scheduler);
     bool isContinuousTask = *data % ENABLE;
     appMgrService->SetContinuousTaskProcess(static_cast<int32_t>(pid), isContinuousTask);
+    int32_t recordId = static_cast<int32_t>(GetU32Data(data));
     appMgrService->ApplicationForegrounded(recordId);
     appMgrService->AddAbilityStageDone(recordId);
     int fd = static_cast<int>(GetU32Data(data));
