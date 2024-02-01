@@ -3391,7 +3391,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_001, TestSize.Level1)
     std::string name = "test_name";
     int32_t uid = 0;
     auto ret  = appMgrServiceInner->GetBundleNameByPid(pid, name, uid);
-    EXPECT_EQ(ret, ERR_INVALID_OPERATION);
+    EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
 
     HILOG_INFO("GetBundleNameByPid_001 end");
 }
@@ -3414,7 +3414,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_002, TestSize.Level1)
     std::string name = "test_name";
     int32_t uid = 0;
     auto ret  = appMgrServiceInner->GetBundleNameByPid(pid, name, uid);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
 
     HILOG_INFO("GetBundleNameByPid_002 end");
 }
