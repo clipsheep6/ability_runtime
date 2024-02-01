@@ -459,17 +459,6 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for auery all auto startup application
     QUERY_ALL_AUTO_STARTUP_APPLICATION = 6105,
 
-    // ipc id for register auto startup callback
-    REGISTER_AUTO_STARTUP_CALLBACK = 6106,
-    // ipc id for unregister auto startup callback
-    UNREGISTER_AUTO_STARTUP_CALLBACK = 6107,
-    // ipc id for set auto startup
-    SET_AUTO_STARTUP = 6108,
-    // ipc id for cancel auto startup
-    CANCEL_AUTO_STARTUP = 6109,
-    // ipc id for is auto startup
-    IS_AUTO_STARTUP = 6110,
-
     // ipc id for on auto starup on
     ON_AUTO_STARTUP_ON = 6111,
     // ipc id for on auto starup off

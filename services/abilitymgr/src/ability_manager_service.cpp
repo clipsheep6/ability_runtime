@@ -8820,51 +8820,6 @@ int32_t AbilityManagerService::QueryAllAutoStartupApplications(std::vector<AutoS
     return abilityAutoStartupService_->QueryAllAutoStartupApplications(infoList);
 }
 
-int32_t AbilityManagerService::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->RegisterAutoStartupCallback(callback);
-}
-
-int32_t AbilityManagerService::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->UnregisterAutoStartupCallback(callback);
-}
-
-int32_t AbilityManagerService::SetAutoStartup(const AutoStartupInfo &info)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->SetAutoStartup(info);
-}
-
-int32_t AbilityManagerService::CancelAutoStartup(const AutoStartupInfo &info)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->CancelAutoStartup(info);
-}
-
-int32_t AbilityManagerService::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
-{
-    if (abilityAutoStartupService_ == nullptr) {
-        HILOG_ERROR("abilityAutoStartupService_ is nullptr.");
-        return ERR_NO_INIT;
-    }
-    return abilityAutoStartupService_->IsAutoStartup(info, isAutoStartup);
-}
-
 int AbilityManagerService::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isTerminate)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

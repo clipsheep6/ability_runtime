@@ -1209,57 +1209,6 @@ public:
     }
 
     /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t SetAutoStartup(const AutoStartupInfo &info)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
-    {
-        return 0;
-    }
-
-    /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
      *
      * @param sessionInfo the session info of the ability to start.
