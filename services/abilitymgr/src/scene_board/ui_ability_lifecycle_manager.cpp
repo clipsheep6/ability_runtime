@@ -153,7 +153,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
-        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+        auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetWant().GetElement().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
@@ -802,8 +802,17 @@ int UIAbilityLifecycleManager::CloseUIAbility(const std::shared_ptr<AbilityRecor
         abilityRecord->SaveResultToCallers(-1, &want);
     }
 
-    terminateAbilityList_.push_back(abilityRecord);
     EraseAbilityRecord(abilityRecord);
+    if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
+        if (abilityRecord->GetScheduler() == nullptr) {
+            auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+            CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+            handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        }
+        return abilityRecord->TerminateAbility();
+    }
+
+    terminateAbilityList_.push_back(abilityRecord);
     abilityRecord->SendResultToCallers();
 
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
