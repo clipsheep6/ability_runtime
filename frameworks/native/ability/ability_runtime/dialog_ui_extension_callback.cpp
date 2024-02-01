@@ -17,6 +17,9 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+DialogUIExtensionCallback::DialogUIExtensionCallback(const std::weak_ptr<AppExecFwk::IAbilityCallback> &abilityCallback)
+    : abilityCallback_(abilityCallback)
+{}
 void DialogUIExtensionCallback::OnRelease()
 {
     HILOG_DEBUG("Called");
@@ -26,6 +29,7 @@ void DialogUIExtensionCallback::OnRelease()
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
+    EraseUIExtension();
 }
 
 void DialogUIExtensionCallback::OnError()
@@ -37,6 +41,7 @@ void DialogUIExtensionCallback::OnError()
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
+    EraseUIExtension();
 }
 
 void DialogUIExtensionCallback::SetSessionId(int32_t sessionId)
@@ -47,6 +52,16 @@ void DialogUIExtensionCallback::SetSessionId(int32_t sessionId)
 void DialogUIExtensionCallback::SetUIContent(Ace::UIContent *uiContent)
 {
     uiContent_ = uiContent;
+}
+
+void DialogUIExtensionCallback::EraseUIExtension()
+{
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("abilityCallback is nullptr");
+        return;
+    }
+    abilityCallback->EraseUIExtension(sessionId_);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
