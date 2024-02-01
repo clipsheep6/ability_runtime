@@ -34,6 +34,7 @@
 #include "ability_debug_deal.h"
 #include "ability_info.h"
 #include "ability_interceptor.h"
+#include "ability_manager_constants.h"
 #include "ability_manager_errors.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
@@ -393,6 +394,8 @@ bool AbilityManagerService::Init()
     InitPushTask();
 
     SubscribeScreenUnlockedEvent();
+    appExitReasonHelper_ = std::make_shared<AppExitReasonHelper>(uiAbilityLifecycleManager_, missionListManagers_,
+        managersMutex_);
     HILOG_INFO("Init success.");
     return true;
 }
@@ -1749,8 +1752,6 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
         return;
     }
 
-    RecordAppExitReasonAtUpgrade(bundleInfo);
-
     if (userId != U0_USER_ID) {
         HILOG_ERROR("Application upgrade for non U0 users.");
         return;
@@ -1769,40 +1770,33 @@ void AbilityManagerService::AppUpgradeCompleted(const std::string &bundleName, i
     }
 }
 
-int32_t AbilityManagerService::RecordAppExitReason(Reason exitReason)
+int32_t AbilityManagerService::RecordAppExitReason(const ExitReason &exitReason)
 {
-    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() && !currentMissionListManager_) {
-        HILOG_ERROR("currentMissionListManager_ is null.");
-        return ERR_NULL_OBJECT;
-    }
-
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
-
-    std::string bundleName;
-    int32_t callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_ERROR("Get Bundle Name failed.");
-        return ERR_INVALID_VALUE;
-    }
-
-    std::vector<std::string> abilityList;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityList);
-    } else {
-        currentMissionListManager_->GetActiveAbilityList(bundleName, abilityList);
-    }
-
-    return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
-        bundleName, abilityList, exitReason);
+    HILOG_INFO("RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
+        exitReason.exitMsg.c_str());
+    
+    CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+    return appExitReasonHelper_->RecordAppExitReason(exitReason);
 }
 
-int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason)
+int32_t AbilityManagerService::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
 {
-    if (exitReason < REASON_UNKNOWN || exitReason > REASON_UPGRADE) {
-        HILOG_ERROR("Force exit reason invalid.");
-        return ERR_INVALID_VALUE;
+    HILOG_INFO("RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+        pid, exitReason.reason, exitReason.exitMsg.c_str());
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call");
+        return ERR_PERMISSION_DENIED;
     }
+
+    CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+    return appExitReasonHelper_->RecordProcessExitReason(pid, exitReason);
+}
+
+int32_t AbilityManagerService::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
+{
+    HILOG_INFO("ForceExitApp pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+        pid, exitReason.reason, exitReason.exitMsg.c_str());
 
     if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
         !AAFwk::PermissionVerification::GetInstance()->IsShellCall()) {
@@ -1818,34 +1812,10 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
         return ERR_INVALID_VALUE;
     }
 
-    int32_t targetUserId = uid / BASE_USER_RANGE;
-    std::vector<std::string> abilityLists;
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityLists, targetUserId);
-    } else if (targetUserId == U0_USER_ID) {
-        std::lock_guard lock(managersMutex_);
-        for (auto item: missionListManagers_) {
-            if (item.second) {
-                std::vector<std::string> abilityList;
-                item.second->GetActiveAbilityList(bundleName, abilityList);
-                if (!abilityList.empty()) {
-                    abilityLists.insert(abilityLists.end(), abilityList.begin(), abilityList.end());
-                }
-            }
-        }
-    } else {
-        auto listManager = GetListManagerByUserId(targetUserId);
-        if (listManager) {
-            listManager->GetActiveAbilityList(bundleName, abilityLists);
-        }
-    }
+    CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+    appExitReasonHelper_->RecordProcessExitReason(NO_PID, exitReason, bundleName, uid);
 
-    int32_t result = DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
-        bundleName, abilityLists, exitReason);
-
-    DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
-
-    return result;
+    return DelayedSingleton<AppScheduler>::GetInstance()->KillApplication(bundleName);
 }
 
 int32_t AbilityManagerService::GetConfiguration(AppExecFwk::Configuration& config)
@@ -5012,6 +4982,9 @@ void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
             if (switchUser) {
                 DelayedSingleton<MissionInfoMgr>::GetInstance()->Init(userId);
                 currentMissionListManager_ = iterator->second;
+                if (appExitReasonHelper_) {
+                    appExitReasonHelper_->SetCurrentMissionListManager(currentMissionListManager_);
+                }
             }
         }
     }
@@ -5022,6 +4995,9 @@ void AbilityManagerService::InitMissionListManager(int userId, bool switchUser)
         missionListManagers_.emplace(userId, manager);
         if (switchUser) {
             currentMissionListManager_ = manager;
+            if (appExitReasonHelper_) {
+                appExitReasonHelper_->SetCurrentMissionListManager(currentMissionListManager_);
+            }
         }
     }
 }
@@ -6539,10 +6515,6 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
     if (callingTokenId != tokenID) {
         HILOG_ERROR("AppRecovery ScheduleRecoverAbility not self, not enabled");
         return;
-    }
-
-    if (reason == AppExecFwk::StateReason::APP_FREEZE) {
-        RecordAppExitReason(REASON_APP_FREEZE);
     }
 
     AAFwk::Want curWant;
@@ -8616,26 +8588,6 @@ int32_t AbilityManagerService::NotifySaveAsResult(const Want &want, int resultCo
         }
     }
     return ERR_OK;
-}
-
-void AbilityManagerService::RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo)
-{
-    if (bundleInfo.abilityInfos.empty()) {
-        HILOG_ERROR("abilityInfos is empty.");
-        return;
-    }
-
-    std::vector<std::string> abilityList;
-    for (auto abilityInfo : bundleInfo.abilityInfos) {
-        if (!abilityInfo.name.empty()) {
-            abilityList.push_back(abilityInfo.name);
-        }
-    }
-
-    if (!abilityList.empty()) {
-        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
-            bundleInfo.name, abilityList, REASON_UPGRADE);
-    }
 }
 
 void AbilityManagerService::SetRootSceneSession(const sptr<IRemoteObject> &rootSceneSession)

@@ -29,6 +29,7 @@
 #include "ability_state_data.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
+#include "exit_reason.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
@@ -1078,7 +1079,7 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ForceExitApp(const int32_t pid, Reason exitReason)
+    virtual int32_t ForceExitApp(const int32_t pid, const ExitReason &exitReason)
     {
         return 0;
     }
@@ -1088,7 +1089,18 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RecordAppExitReason(Reason exitReason)
+    virtual int32_t RecordAppExitReason(const ExitReason &exitReason)
+    {
+        return 0;
+    }
+    
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
     {
         return 0;
     }

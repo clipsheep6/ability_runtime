@@ -1453,7 +1453,7 @@ ErrCode AbilityManagerClient::ShareDataDone(
     return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
 }
 
-ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, Reason exitReason)
+ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
     HILOG_DEBUG("begin.");
     auto abms = GetAbilityManager();
@@ -1461,12 +1461,22 @@ ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, Reason exitReason)
     return abms->ForceExitApp(pid, exitReason);
 }
 
-ErrCode AbilityManagerClient::RecordAppExitReason(Reason exitReason)
+ErrCode AbilityManagerClient::RecordAppExitReason(const ExitReason &exitReason)
 {
-    HILOG_DEBUG("begin.");
+    HILOG_DEBUG("RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
+        exitReason.exitMsg.c_str());
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RecordAppExitReason(exitReason);
+}
+
+ErrCode AbilityManagerClient::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
+{
+    HILOG_DEBUG("RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+        pid, exitReason.reason, exitReason.exitMsg.c_str());
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RecordProcessExitReason(pid, exitReason);
 }
 
 void AbilityManagerClient::SetRootSceneSession(sptr<IRemoteObject> rootSceneSession)

@@ -1217,14 +1217,22 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ForceExitApp(const int32_t pid, Reason exitReason);
+    ErrCode ForceExitApp(const int32_t pid, const ExitReason &exitReason);
 
     /**
      * Record app exit reason.
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RecordAppExitReason(Reason exitReason);
+    ErrCode RecordAppExitReason(const ExitReason &exitReason);
+
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason);
 
     /**
      * Set rootSceneSession by SCB.

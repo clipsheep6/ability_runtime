@@ -31,6 +31,7 @@ abilityms_files = [
   "src/ability_scheduler_proxy.cpp",
   "src/ability_token_stub.cpp",
   "src/app_scheduler.cpp",
+  "src/app_exit_reason_helper.cpp",
   "src/connection_record.cpp",
   "src/data_ability_caller_recipient.cpp",
   "src/data_ability_manager.cpp",

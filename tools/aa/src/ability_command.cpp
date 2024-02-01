@@ -2076,7 +2076,8 @@ ErrCode AbilityManagerShellCommand::RunAsForceExitAppCommand()
         result = OHOS::ERR_INVALID_VALUE;
     }
 
-    result = AbilityManagerClient::GetInstance()->ForceExitApp(std::stoi(pid), CovertExitReason(reason));
+    ExitReason exitReason = { CovertExitReason(reason), "Force exit app by aa." };
+    result = AbilityManagerClient::GetInstance()->ForceExitApp(std::stoi(pid), exitReason);
     if (result == OHOS::ERR_OK) {
         resultReceiver_ = STRING_BLOCK_AMS_SERVICE_OK + "\n";
     } else {

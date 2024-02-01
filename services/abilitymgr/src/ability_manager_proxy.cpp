@@ -3832,7 +3832,7 @@ int32_t AbilityManagerProxy::ShareDataDone(
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, Reason exitReason)
+int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
     HILOG_DEBUG("start.");
     MessageParcel data;
@@ -3843,16 +3843,8 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, Reason exitReason)
         HILOG_ERROR("write interface token failed.");
         return INNER_ERR;
     }
-
-    if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("pid write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteInt32(static_cast<int32_t>(exitReason))) {
-        HILOG_ERROR("Reason write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::FORCE_EXIT_APP, data, reply, option);
     if (error != NO_ERROR) {
@@ -3864,24 +3856,44 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, Reason exitReason)
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::RecordAppExitReason(Reason exitReason)
+int32_t AbilityManagerProxy::RecordAppExitReason(const ExitReason &exitReason)
 {
     HILOG_DEBUG("start.");
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("write interface token failed.");
         return INNER_ERR;
     }
-
-    if (!data.WriteInt32(static_cast<int32_t>(exitReason))) {
-        HILOG_ERROR("Reason write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
+        return error;
+    }
+
+    HILOG_DEBUG("end.");
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
+{
+    HILOG_DEBUG("start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
+
+    int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
         return error;

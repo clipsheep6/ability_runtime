@@ -447,6 +447,7 @@ enum class AbilityManagerInterfaceCode {
 
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,
+    RECORD_PROCESS_EXIT_REASON = 6003,
 
     // ipc id for register auto startup system callback
     REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6101,

@@ -261,6 +261,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::ForceExitAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
         &AbilityManagerStub::RecordAppExitReasonInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON)] =
+        &AbilityManagerStub::RecordProcessExitReasonInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER)] =
         &AbilityManagerStub::RegisterSessionHandlerInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -2512,8 +2514,12 @@ int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel
 int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t pid = data.ReadInt32();
-    Reason reason = static_cast<Reason>(data.ReadInt32());
-    int32_t result = ForceExitApp(pid, reason);
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = ForceExitApp(pid, *exitReason);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;
@@ -2523,8 +2529,28 @@ int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel
 
 int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply)
 {
-    Reason reason = static_cast<Reason>(data.ReadInt32());
-    int32_t result = RecordAppExitReason(reason);
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RecordAppExitReason(*exitReason);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RecordProcessExitReason(pid, *exitReason);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;

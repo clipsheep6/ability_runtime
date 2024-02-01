@@ -2496,9 +2496,33 @@ void AbilityRecord::SetLaunchReason(const LaunchReason &reason)
     lifeCycleStateInfo_.launchParam.launchReason = reason;
 }
 
-void AbilityRecord::SetLastExitReason(const LastExitReason &reason)
+void AbilityRecord::SetLastExitReason(const ExitReason &exitReason)
 {
-    lifeCycleStateInfo_.launchParam.lastExitReason = reason;
+    lifeCycleStateInfo_.launchParam.lastExitReason = CovertAppExitReasonToLastReason(exitReason.reason);
+    lifeCycleStateInfo_.launchParam.lastExitMessage = exitReason.exitMsg;
+}
+
+LastExitReason AbilityRecord::CovertAppExitReasonToLastReason(const Reason exitReason)
+{
+    switch (exitReason) {
+        case REASON_NORMAL:
+            return LASTEXITREASON_NORMAL;
+        case REASON_CPP_CRASH:
+            return LASTEXITREASON_CPP_CRASH;
+        case REASON_JS_ERROR:
+            return LASTEXITREASON_JS_ERROR;
+        case REASON_APP_FREEZE:
+            return LASTEXITREASON_APP_FREEZE;
+        case REASON_PERFORMANCE_CONTROL:
+            return LASTEXITREASON_PERFORMANCE_CONTROL;
+        case REASON_RESOURCE_CONTROL:
+            return LASTEXITREASON_RESOURCE_CONTROL;
+        case REASON_UPGRADE:
+            return LASTEXITREASON_UPGRADE;
+        case REASON_UNKNOWN:
+        default:
+            return LASTEXITREASON_UNKNOWN;
+    }
 }
 
 void AbilityRecord::NotifyContinuationResult(int32_t result)

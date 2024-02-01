@@ -462,7 +462,8 @@ int32_t MissionList::GetMissionCount() const
     return static_cast<int32_t>(missions_.size());
 }
 
-void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList)
+void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+    int32_t pid)
 {
     for (auto mission : missions_) {
         if (!mission) {
@@ -471,6 +472,10 @@ void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vecto
 
         auto abilityRecord = mission->GetAbilityRecord();
         if (!abilityRecord) {
+            continue;
+        }
+        
+        if (pid != NO_PID && abilityRecord->GetPid() != pid) {
             continue;
         }
 

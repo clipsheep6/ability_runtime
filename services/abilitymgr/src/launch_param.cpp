@@ -15,6 +15,9 @@
 
 #include "launch_param.h"
 
+#include "hilog_wrapper.h"
+#include "string_ex.h"
+
 namespace OHOS {
 namespace AAFwk {
 bool LaunchParam::ReadFromParcel(Parcel &parcel)
@@ -29,6 +32,8 @@ bool LaunchParam::ReadFromParcel(Parcel &parcel)
         return false;
     }
     lastExitReason = static_cast<LastExitReason>(reason);
+
+    lastExitMessage = Str16ToStr8(parcel.ReadString16());
     return true;
 }
 
@@ -54,6 +59,10 @@ bool LaunchParam::Marshalling(Parcel &parcel) const
     }
     // write lastExitReason
     if (!parcel.WriteInt32(static_cast<int32_t>(lastExitReason))) {
+        return false;
+    }
+    if (!parcel.WriteString16(Str8ToStr16(lastExitMessage))) {
+        HILOG_ERROR("Write parcel lastExitMessage failed.");
         return false;
     }
     return true;

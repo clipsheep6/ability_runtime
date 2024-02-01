@@ -2226,7 +2226,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_ForceExitApp_001, TestSize
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int32_t pid = 0;
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto res = proxy_->ForceExitApp(pid, exitReason);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::FORCE_EXIT_APP), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
@@ -2245,9 +2245,29 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordAppExitReason_001, T
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto res = proxy_->RecordAppExitReason(exitReason);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordProcessExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordProcessExitReason
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of RecordProcessExitReason
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RecordProcessExitReason_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    int32_t pid = 1;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    auto res = proxy_->RecordProcessExitReason(pid, exitReason);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
 

@@ -340,7 +340,8 @@ public:
 
     int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
+    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+        int32_t pid = NO_PID);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
   
@@ -509,7 +510,6 @@ private:
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetAbilityFromTerminateListInner(const sptr<IRemoteObject> &token);
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord);
-    LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
     bool IsAppLastAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);

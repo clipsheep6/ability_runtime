@@ -35,6 +35,7 @@
 #include "ability_manager_stub.h"
 #include "ams_configuration_parameter.h"
 #include "app_debug_listener_interface.h"
+#include "app_exit_reason_helper.h"
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
 #include "auto_startup_info.h"
@@ -1161,7 +1162,7 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RecordAppExitReason(Reason exitReason) override;
+    virtual int32_t RecordAppExitReason(const ExitReason &exitReason) override;
 
     /**
      * Force app exit and record exit reason.
@@ -1169,7 +1170,15 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ForceExitApp(const int32_t pid, Reason exitReason) override;
+    virtual int32_t ForceExitApp(const int32_t pid, const ExitReason &exitReason) override;
+
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason) override;
 
     int32_t GetConfiguration(AppExecFwk::Configuration& config);
 
@@ -1796,8 +1805,6 @@ private:
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 
-    void RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo);
-
     bool CheckPrepareTerminateEnable();
 
     bool CheckCollaboratorType(int32_t type);
@@ -1949,6 +1956,7 @@ private:
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
 
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
+    std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include "cpp/mutex.h"
 
+#include "ability_manager_constants.h"
 #include "ability_record.h"
 #include "isession_handler_interface.h"
 #include "session/host/include/zidl/session_interface.h"
@@ -236,7 +237,8 @@ public:
      */
     int32_t GetSessionIdByAbilityToken(const sptr<IRemoteObject> &token);
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
+    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+        int32_t pid = NO_PID);
 
     bool PrepareTerminateAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void SetSessionHandler(const sptr<ISessionHandler> &handler);
@@ -250,7 +252,7 @@ public:
     std::shared_ptr<AbilityRecord> GetAbilityRecordsById(int32_t sessionId) const;
 
     void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
-        int32_t targetUserId) const;
+        int32_t targetUserId, int32_t pid = NO_PID) const;
 
     void OnAppStateChanged(const AppInfo &info, int32_t targetUserId);
 
@@ -355,7 +357,6 @@ private:
     void EraseSpecifiedAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const;
-    LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason) const;
     void SetRevicerInfo(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const;
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<AbilityRecord> &abilityRecord);
@@ -368,6 +369,7 @@ private:
         std::shared_ptr<AbilityRecord> uiAbilityRecord) const;
     void CheckSpecified(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> uiAbilityRecord);
     void SendKeyEvent(AbilityRequest &abilityRequest) const;
+    bool CheckPid(const std::shared_ptr<AbilityRecord> abilityRecord, const int32_t pid) const;
 
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;

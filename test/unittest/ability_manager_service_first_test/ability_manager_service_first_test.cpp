@@ -1099,9 +1099,26 @@ HWTEST_F(AbilityManagerServiceFirstTest, RecordAppExitReason_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceFirstTest RecordAppExitReason_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_EQ(abilityMs_->RecordAppExitReason(REASON_JS_ERROR), ERR_NULL_OBJECT);
+        ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+        EXPECT_EQ(abilityMs_->RecordAppExitReason(exitReason), ERR_NULL_OBJECT);
     }
     HILOG_INFO("AbilityManagerServiceFirstTest RecordAppExitReason_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordProcessExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordProcessExitReason
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, RecordProcessExitReason_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest RecordProcessExitReason_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    int32_t pid = 1;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    EXPECT_EQ(abilityMs_->RecordProcessExitReason(pid, exitReason), ERR_PERMISSION_DENIED);
+    HILOG_INFO("AbilityManagerServiceFirstTest RecordProcessExitReason_001 end");
 }
 
 /*
@@ -1115,7 +1132,8 @@ HWTEST_F(AbilityManagerServiceFirstTest, ForceExitApp_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceFirstTest ForceExitApp_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     int32_t pid = 0;
-    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_PERMISSION_DENIED);
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    EXPECT_EQ(abilityMs_->ForceExitApp(pid, exitReason), ERR_PERMISSION_DENIED);
     HILOG_INFO("AbilityManagerServiceFirstTest ForceExitApp_001 end");
 }
 
