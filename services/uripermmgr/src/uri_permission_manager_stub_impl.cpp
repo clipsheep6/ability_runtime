@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 
 #include "ability_manager_errors.h"
 #include "accesstoken_kit.h"
+#include "app_utils.h"
 #include "event_report.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
@@ -124,6 +125,16 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     const std::string targetBundleName, int32_t appIndex)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
+    if (AppUtils::GetInstance().JudgePCDevice()) {
+        return CheckGrantUriPermissionFor2In1(uriVec, flag, targetBundleName, appIndex);
+    }
+    return GrantUriPermissionInner(uriVec, flag, targetBundleName, appIndex);
+}
+
+int UriPermissionManagerStubImpl::GrantUriPermissionInner(
+    const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName, int32_t appIndex)
+{
+    HILOG_DEBUG("Called.");
     auto checkResult = CheckRule(flag);
     if (checkResult != ERR_OK) {
         return checkResult;
@@ -140,7 +151,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     }
     // reserve origin process
     if (uriVec.size() == 1) {
-        auto singleRet =  GrantSingleUriPermission(uriVec[0], flag, targetBundleName, autoremove, appIndex);
+        auto singleRet = GrantSingleUriPermission(uriVec[0], flag, targetBundleName, autoremove, appIndex);
         if (singleRet == ERR_OK) {
             SendEvent(uriVec[0], targetBundleName, targetTokenId);
         }
@@ -215,21 +226,10 @@ int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
     return ERR_OK;
 }
 
-int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1(
-    const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex)
-{
-    HILOG_DEBUG("Called.");
-    if (!PermissionVerification::GetInstance()->IsSystemAppCall()) {
-        HILOG_ERROR("Not system application call.");
-        return ERR_NOT_SYSTEM_APP;
-    }
-    std::vector<Uri> uriVec = { uri };
-    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, true);
-}
-
 int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
 {
+    HILOG_DEBUG("Called.");
     if (!IsFoundationCall()) {
         HILOG_ERROR("Not foundation call.");
         return INNER_ERR;
@@ -796,6 +796,19 @@ void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &
     }
 }
 
+int UriPermissionManagerStubImpl::CheckGrantUriPermissionFor2In1(
+    const std::vector<Uri> &uriVec, unsigned int flag, const std::string &targetBundleName, int32_t appIndex)
+{
+    HILOG_DEBUG("Called.");
+    bool isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
+    // IsSACall function used for visibility checks.
+    if (!isSystemAppCall && !PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not system application or SA call.");
+        return INNER_ERR;
+    }
+    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
+}
+
 int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
 {
@@ -832,7 +845,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
     HILOG_DEBUG("The tokenId is %{public}u", tokenId);
     HandleUriPermission(tokenId, flag, docsVec, isSystemAppCall);
     if (!otherVec.empty()) {
-        return GrantUriPermission(otherVec, flag, targetBundleName, appIndex);
+        return GrantUriPermissionInner(otherVec, flag, targetBundleName, appIndex);
     }
     return ERR_OK;
 }
@@ -863,11 +876,11 @@ void UriPermissionManagerStubImpl::HandleUriPermission(
         }
         if (!policyVec.empty()) {
             setPolicy(tokenId, policyVec, policyFlag);
-        }
-        // The current processing starts from API 11 and maintains 5 versions.
-        if (((policyFlag & IS_POLICY_ALLOWED_TO_BE_PRESISTED) != 0) && isSystemAppCall) {
-            std::vector<uint32_t> persistResult;
-            persistPermission(policyVec, persistResult);
+            // The current processing starts from API 11 and maintains 5 versions.
+            if (((policyFlag & IS_POLICY_ALLOWED_TO_BE_PRESISTED) != 0) && isSystemAppCall) {
+                std::vector<uint32_t> persistResult;
+                persistPermission(policyVec, persistResult);
+            }
         }
     }
 }
