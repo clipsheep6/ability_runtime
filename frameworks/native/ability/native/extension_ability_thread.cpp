@@ -101,6 +101,8 @@ std::string ExtensionAbilityThread::CreateAbilityName(
             abilityName = ACTION_EXTENSION;
         } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD) {
             abilityName = AUTO_FILL_EXTENSION;
+        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::PHOTO_EDITOR) {
+            abilityName = PHOTO_EDITOR_EXTENSION;
         } else {
             abilityName = UI_EXTENSION;
         }
