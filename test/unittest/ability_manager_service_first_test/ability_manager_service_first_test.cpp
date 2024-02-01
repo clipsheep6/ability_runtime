@@ -26,7 +26,6 @@
 #include "recovery_param.h"
 #undef private
 #undef protected
-
 #include "ability_manager_errors.h"
 #include "connection_observer_errors.h"
 #include "mock_ability_connect_callback.h"
@@ -36,6 +35,7 @@
 #include "session/host/include/session.h"
 #include "mock_ability_manager_collaborator.h"
 #include "mock_prepare_terminate_callback.h"
+#include "mock_sa_call.h"
 #include "scene_board_judgement.h"
 
 using namespace testing;
@@ -591,6 +591,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level
 {
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), -1);
     EXPECT_EQ(abilityMs_->GetMissionIdByToken(MockToken(AbilityType::PAGE)), -1);
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 end");
