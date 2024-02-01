@@ -44,7 +44,7 @@ AbilityAutoStartupService::~AbilityAutoStartupService() {}
 int32_t AbilityAutoStartupService::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
 {
     HILOG_DEBUG("Called.");
-    int32_t code = CheckPermissionForSystem();
+    int32_t code = CheckAllowAutoStartup();
     if (code != ERR_OK) {
         return code;
     }
@@ -74,7 +74,7 @@ int32_t AbilityAutoStartupService::RegisterAutoStartupSystemCallback(const sptr<
 int32_t AbilityAutoStartupService::UnregisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
 {
     HILOG_DEBUG("Called.");
-    int32_t code = CheckPermissionForSystem();
+    int32_t code = CheckAllowAutoStartup();
     if (code != ERR_OK) {
         return code;
     }
@@ -102,7 +102,7 @@ int32_t AbilityAutoStartupService::SetApplicationAutoStartup(const AutoStartupIn
 {
     HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSystem();
+    int32_t code = CheckAllowAutoStartup();
     if (code != ERR_OK) {
         return code;
     }
@@ -163,7 +163,7 @@ int32_t AbilityAutoStartupService::CancelApplicationAutoStartup(const AutoStartu
 {
     HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSystem();
+    int32_t code = CheckAllowAutoStartup();
     if (code != ERR_OK) {
         return code;
     }
@@ -214,7 +214,7 @@ int32_t AbilityAutoStartupService::QueryAllAutoStartupApplications(std::vector<A
 {
     HILOG_DEBUG("Called.");
     int32_t code = CheckPermissionForEDM();
-    code = code == ERR_OK ? code : CheckPermissionForSystem();
+    code = code == ERR_OK ? code : CheckAllowAutoStartup();
     if (code != ERR_OK) {
         HILOG_ERROR("Permission verification failed.");
         return code;
@@ -238,9 +238,9 @@ int32_t AbilityAutoStartupService::QueryAllAutoStartupApplicationsWithoutPermiss
 int32_t AbilityAutoStartupService::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
 {
     HILOG_DEBUG("Called.");
-    if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    int32_t code = CheckAutoStartupEnable();
+    if (code != ERR_OK) {
+        return code;
     }
 
     std::string bundleName = GetSelfApplicationBundleName();
@@ -266,9 +266,9 @@ int32_t AbilityAutoStartupService::RegisterAutoStartupCallback(const sptr<IRemot
 int32_t AbilityAutoStartupService::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
 {
     HILOG_DEBUG("Called.");
-    if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    int32_t code = CheckAutoStartupEnable();
+    if (code != ERR_OK) {
+        return code;
     }
 
     std::string bundleName = GetSelfApplicationBundleName();
@@ -297,7 +297,7 @@ int32_t AbilityAutoStartupService::SetAutoStartup(const AutoStartupInfo &info)
 {
     HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSelf(info.bundleName);
+    int32_t code = CheckAllowAutoStartupBySelf(info.bundleName);
     if (code != ERR_OK) {
         return code;
     }
@@ -360,7 +360,7 @@ int32_t AbilityAutoStartupService::CancelAutoStartup(const AutoStartupInfo &info
 {
     HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSelf(info.bundleName);
+    int32_t code = CheckAllowAutoStartupBySelf(info.bundleName);
     if (code != ERR_OK) {
         return code;
     }
@@ -412,7 +412,7 @@ int32_t AbilityAutoStartupService::IsAutoStartup(const AutoStartupInfo &info, bo
 {
     HILOG_DEBUG("Called, bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
         info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
-    int32_t code = CheckPermissionForSelf(info.bundleName);
+    int32_t code = CheckAllowAutoStartupBySelf(info.bundleName);
     if (code != ERR_OK) {
         return code;
     }
@@ -694,7 +694,7 @@ std::shared_ptr<AppExecFwk::BundleMgrClient> AbilityAutoStartupService::GetBundl
     return bundleMgrClient_;
 }
 
-int32_t AbilityAutoStartupService::CheckPermissionForSystem()
+int32_t AbilityAutoStartupService::CheckAutoStartupEnable()
 {
     if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
         HILOG_ERROR("Product configuration item is disable.");
@@ -705,21 +705,29 @@ int32_t AbilityAutoStartupService::CheckPermissionForSystem()
         HILOG_ERROR("The caller is not system-app, can not use system-api.");
         return ERR_NOT_SYSTEM_APP;
     }
+    return ERR_OK;
+}
+
+int32_t AbilityAutoStartupService::CheckAllowAutoStartup()
+{
+    int32_t code = CheckAutoStartupEnable();
+    if (code != ERR_OK) {
+        return code;
+    }
 
     if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
         PermissionConstants::PERMISSION_MANAGE_APP_BOOT)) {
         HILOG_ERROR("Not have PERMISSION_MANAGE_APP_BOOT approval.");
         return CHECK_PERMISSION_FAILED;
     }
-
     return ERR_OK;
 }
 
-int32_t AbilityAutoStartupService::CheckPermissionForSelf(const std::string &bundleName)
+int32_t AbilityAutoStartupService::CheckAllowAutoStartupBySelf(const std::string &bundleName)
 {
-    if (!system::GetBoolParameter(PRODUCT_APPBOOT_SETTING_ENABLED, false)) {
-        HILOG_ERROR("Product configuration item is disable.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    int32_t code = CheckAutoStartupEnable();
+    if (code != ERR_OK) {
+        return code;
     }
 
     if (!CheckSelfApplication(bundleName)) {

@@ -625,33 +625,48 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetBundleMgrClient_001, TestSize.Level1)
 
 /*
  * Feature: AbilityAutoStartupService
- * Function: CheckPermissionForSystem
+ * Function: CheckAutoStartupEnable
  * SubFunction: NA
- * FunctionPoints: AbilityAutoStartupService CheckPermissionForSystem
+ * FunctionPoints: AbilityAutoStartupService CheckAutoStartupEnable
  */
-HWTEST_F(AbilityAutoStartupServiceTest, CheckPermissionForSystem_001, TestSize.Level1)
+HWTEST_F(AbilityAutoStartupServiceTest, CheckAutoStartupEnable_001, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckPermissionForSystem_001 start";
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckAutoStartupEnable_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
-    auto result = abilityAutoStartupService->CheckPermissionForSystem();
+    auto result = abilityAutoStartupService->CheckAutoStartupEnable();
     EXPECT_EQ(result, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
-    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckPermissionForSystem_001 end";
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckAutoStartupEnable_001 end";
 }
 
 /*
  * Feature: AbilityAutoStartupService
- * Function: CheckPermissionForSelf
+ * Function: CheckAllowAutoStartup
  * SubFunction: NA
- * FunctionPoints: AbilityAutoStartupService CheckPermissionForSelf
+ * FunctionPoints: AbilityAutoStartupService CheckAllowAutoStartup
  */
-HWTEST_F(AbilityAutoStartupServiceTest, CheckPermissionForSelf_001, TestSize.Level1)
+HWTEST_F(AbilityAutoStartupServiceTest, CheckAllowAutoStartup_001, TestSize.Level1)
 {
-    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckPermissionForSelf_001 start";
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckAllowAutoStartup_001 start";
+    auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
+    auto result = abilityAutoStartupService->CheckAllowAutoStartup();
+    EXPECT_EQ(result, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckAllowAutoStartup_001 end";
+}
+
+/*
+ * Feature: AbilityAutoStartupService
+ * Function: CheckAllowAutoStartupBySelf
+ * SubFunction: NA
+ * FunctionPoints: AbilityAutoStartupService CheckAllowAutoStartupBySelf
+ */
+HWTEST_F(AbilityAutoStartupServiceTest, CheckAllowAutoStartupBySelf_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckAllowAutoStartupBySelf_001 start";
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     std::string bundleName = AUTO_STARTUP_SERVICE_EMPTY;
-    auto result = abilityAutoStartupService->CheckPermissionForSelf(bundleName);
+    auto result = abilityAutoStartupService->CheckAllowAutoStartupBySelf(bundleName);
     EXPECT_EQ(result, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
-    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckPermissionForSelf_001 end";
+    GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckAllowAutoStartupBySelf_001 end";
 }
 
 /*
