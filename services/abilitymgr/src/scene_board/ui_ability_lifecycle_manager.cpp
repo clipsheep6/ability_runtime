@@ -239,7 +239,7 @@ void UIAbilityLifecycleManager::OnAbilityRequestDone(const sptr<IRemoteObject> &
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     AppAbilityState abilityState = DelayedSingleton<AppScheduler>::GetInstance()->ConvertToAppAbilityState(state);
     if (abilityState == AppAbilityState::ABILITY_STATE_FOREGROUND) {
-        auto&& abilityRecord = Token::GetAbilityRecordByToken(token);
+        auto abilityRecord = GetAbilityRecordByToken(token);
         CHECK_POINTER(abilityRecord);
         std::string element = abilityRecord->GetElementName().GetURI();
         HILOG_DEBUG("Ability is %{public}s, start to foreground.", element.c_str());
@@ -971,6 +971,16 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
         abilityRecord->SaveResultToCallers(-1, &want);
     }
     EraseAbilityRecord(abilityRecord);
+    if (abilityRecord->GetAbilityState() == AbilityState::INITIAL) {
+        if (abilityRecord->GetScheduler() == nullptr) {
+            auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetEventHandler();
+            CHECK_POINTER_AND_RETURN_LOG(handler, ERR_INVALID_VALUE, "Fail to get AbilityEventHandler.");
+            handler->RemoveEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecord->GetAbilityRecordId());
+        }
+        return abilityRecord->TerminateAbility();
+    }
+
+    terminateAbilityList_.push_back(abilityRecord);
     abilityRecord->SendResultToCallers();
 
     if (abilityRecord->IsDebug() && isClearSession) {
@@ -980,7 +990,6 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
 
     if (abilityRecord->IsAbilityState(FOREGROUND) || abilityRecord->IsAbilityState(FOREGROUNDING)) {
         HILOG_DEBUG("current ability is active");
-        terminateAbilityList_.push_back(abilityRecord);
         abilityRecord->SetPendingState(AbilityState::BACKGROUND);
         MoveToBackground(abilityRecord);
         return ERR_OK;
@@ -988,7 +997,6 @@ int UIAbilityLifecycleManager::CloseUIAbilityInner(std::shared_ptr<AbilityRecord
 
     // ability on background, schedule to terminate.
     if (abilityRecord->GetAbilityState() == AbilityState::BACKGROUND) {
-        terminateAbilityList_.push_back(abilityRecord);
         auto self(shared_from_this());
         auto task = [abilityRecord, self]() {
             HILOG_WARN("close ability by scb timeout");
