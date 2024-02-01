@@ -57,7 +57,7 @@
         "srcEntrance": "./ets/ServiceExtAbility/PhotoEditExtensionAbility.ets",
         "description": "PhotoEditExtensionAbility",
         "icon": "$media:icon",
-        "label": "$string:EntryAbility_label",
+        "label": "$string:PhotoEditExtAbility_label",
         "type": "sysPicker/photoEditor",
         "visible": false
       }

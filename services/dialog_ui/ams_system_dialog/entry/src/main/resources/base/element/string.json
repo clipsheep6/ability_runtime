@@ -13,6 +13,10 @@
       "value": "SelectorDialog"
     },
     {
+      "name": "PhotoEditExtAbility_label",
+      "value": "SelectorDialog"
+    },
+    {
       "name": "TipsServiceExtAbility_desc",
       "value": "TipsDialog"
     },
