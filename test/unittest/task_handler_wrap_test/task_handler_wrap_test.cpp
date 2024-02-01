@@ -21,7 +21,7 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AAFwk {
-
+constexpr int32_t LONG_TIME_TASK_TIME = 2 * 500000 + 100000;
 class TaskHandlerWrapTest : public testing::Test {
 public:
     static void SetUpTestCase(void);
@@ -104,6 +104,23 @@ HWTEST_F(TaskHandlerWrapTest, QueueTest_0040, TestSize.Level0)
     EXPECT_TRUE(taskHandle);
     auto result = taskHandle.Cancel();
     EXPECT_TRUE(result);
+}
+
+/**
+ * @tc.name: QueueTest_0040
+ * @tc.desc: SubmitTask time task test
+ * @tc.type: FUNC
+ */
+HWTEST_F(TaskHandlerWrapTest, QueueTest_0050, TestSize.Level0)
+{
+    int input = 0;
+    auto taskHandle = queueHandler_->SubmitTask([&input]() {
+            usleep(LONG_TIME_TASK_TIME);
+            input = 1;
+        }, 100);
+    EXPECT_TRUE(taskHandle);
+    taskHandle.Sync();
+    EXPECT_TRUE(input == 1);
 }
 
 /**
