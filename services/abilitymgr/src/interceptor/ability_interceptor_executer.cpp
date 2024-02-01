@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-#include "ability_interceptor_executer.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
-void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<AbilityInterceptor> &interceptor)
+void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<IAbilityInterceptor> &interceptor)
 {
     if (interceptor != nullptr) {
         interceptorList_.push_back(interceptor);

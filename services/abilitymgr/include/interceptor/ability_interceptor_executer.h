@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_EXECUTER_H
 
 #include <vector>
-#include "ability_interceptor.h"
+#include "ability_interceptor_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -32,7 +32,7 @@ public:
      *
      * @param interceptor, interceptor handle the interception processing.
      */
-    void AddInterceptor(const std::shared_ptr<AbilityInterceptor> &interceptor);
+    void AddInterceptor(const std::shared_ptr<IAbilityInterceptor> &interceptor);
 
     /**
      * Excute the DoProcess of the interceptors.
@@ -42,7 +42,7 @@ public:
 
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler);
 private:
-    std::vector<std::shared_ptr<AbilityInterceptor>> interceptorList_;
+    std::vector<std::shared_ptr<IAbilityInterceptor>> interceptorList_;
 };
 } // namespace AAFwk
 } // namespace OHOS
