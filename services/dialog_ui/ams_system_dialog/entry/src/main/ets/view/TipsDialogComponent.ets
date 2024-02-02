@@ -26,7 +26,7 @@ export struct TipsDialogComponent {
     build() {
         Column() {
             Row() {
-                Text('No available image editing targets')
+                Text('No available applications targets')
                     .fontSize($r('sys.float.ohos_id_text_size_body1'))
                     .fontWeight(FontWeight.Regular)
                     .fontColor($r('sys.color.ohos_id_color_text_primary'))
