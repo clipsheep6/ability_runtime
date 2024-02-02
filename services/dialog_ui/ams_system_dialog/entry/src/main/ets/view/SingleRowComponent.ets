@@ -17,7 +17,7 @@
 import { TargetInfo } from '../data/Model';
 import { TargetComponent } from './TargetComponent';
 
-const TAG = 'PhotoEditExtensionAbility.SingleRowComponent';
+const TAG = 'SelectorExtensionAbility.SingleRowComponent';
 
 @Preview
 @Component

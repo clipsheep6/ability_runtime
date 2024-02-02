@@ -53,12 +53,12 @@
         "type": "service"
       },
       {
-        "name": "PhotoEditExtensionAbility",
-        "srcEntrance": "./ets/ServiceExtAbility/PhotoEditExtensionAbility.ets",
-        "description": "PhotoEditExtensionAbility",
+        "name": "SelectorExtensionAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/SelectorExtensionAbility.ets",
+        "description": "SelectorExtensionAbility",
         "icon": "$media:icon",
-        "label": "$string:PhotoEditExtAbility_label",
-        "type": "sysPicker/photoEditor",
+        "label": "$string:SelectorExtAbility_label",
+        "type": "sys/commonUI",
         "visible": false
       }
     ],

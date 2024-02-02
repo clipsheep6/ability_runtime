@@ -59,7 +59,7 @@ export struct TitleComponent {
                         this.level2Page = false;
                     })
 
-                    Text('All image editing targets')
+                    Text('All open methods')
                         .fontColor($r('sys.color.ohos_id_color_text_primary'))
                         .fontSize($r('sys.float.ohos_id_text_size_headline8'))
                         .fontWeight(FontWeight.Medium)

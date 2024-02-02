@@ -20,7 +20,7 @@ import Want from '@ohos.app.ability.Want';
 import { TargetAction, TargetInfo, TargetType, UIExtensionInfo } from './Model';
 import bundleManager from '@ohos.bundle.bundleManager';
 
-const TAG = 'PhotoEditExtensionAbility.TargetManager';
+const TAG = 'SelectorExtensionAbility.TargetManager';
 
 export namespace TargetManager {
     interface TargetActionBuilderParam {

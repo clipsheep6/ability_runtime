@@ -32,7 +32,7 @@ import { LocalStorageKeyConstants, TargetsUpperLimitOneLine } from '../utils/Con
 
 const storage = LocalStorage.GetShared();
 
-const TAG = 'PhotoEditExtensionAbility.PhonePage';
+const TAG = 'SelectorExtensionAbility.PhonePage';
 
 const FOUR_COLUMN_WIDTH: number = 600;
 

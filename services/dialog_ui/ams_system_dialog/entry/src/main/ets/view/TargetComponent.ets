@@ -24,7 +24,7 @@ import { AbilityInfoUtils } from '../utils/AbilityInfoUtils';
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import { LocalStorageKeyConstants } from '../utils/Constants'
 
-const TAG = 'PhotoEditExtensionAbility.TargetComponent';
+const TAG = 'SelectorExtensionAbility.TargetComponent';
 
 @Entry
 @Component

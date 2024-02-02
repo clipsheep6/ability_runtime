@@ -16,11 +16,11 @@ import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility'
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession'
 import Want from '@ohos.app.ability.Want'
 
-const TAG = 'PhotoEditExtensionAbility';
+const TAG = 'SelectorExtensionAbility';
 
-export default class PhotoEditExtensionAbility extends UIExtensionAbility {
+export default class SelectorExtensionAbility extends UIExtensionAbility {
     onCreate() {
-        console.info(TAG, 'PhotoEditExtensionAbility onCreate');
+        console.info(TAG, 'SelectorExtensionAbility onCreate');
     }
 
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
@@ -39,18 +39,18 @@ export default class PhotoEditExtensionAbility extends UIExtensionAbility {
     }
 
     onSessionDestroy(session: UIExtensionContentSession) {
-        console.info(TAG, 'PhotoEditExtensionAbility onSessionDestroy');
+        console.info(TAG, 'SelectorExtensionAbility onSessionDestroy');
     }
 
     onForeground() {
-        console.info(TAG, 'PhotoEditExtensionAbility onForeground');
+        console.info(TAG, 'SelectorExtensionAbility onForeground');
     }
 
     onBackground() {
-        console.info(TAG, 'PhotoEditExtensionAbility onBackground');
+        console.info(TAG, 'SelectorExtensionAbility onBackground');
     }
 
     onDestroy() {
-        console.info(TAG, 'PhotoEditExtensionAbility onDestroy');
+        console.info(TAG, 'SelectorExtensionAbility onDestroy');
     }
 }

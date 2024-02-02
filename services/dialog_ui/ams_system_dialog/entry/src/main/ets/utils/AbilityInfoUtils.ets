@@ -15,7 +15,7 @@
 import { BusinessError } from '@ohos.base';
 import common from '@ohos.app.ability.common';
 
-const TAG = 'PhotoEditExtensionAbility.AbilityInfoUtils';
+const TAG = 'SelectorExtensionAbility.AbilityInfoUtils';
 
 export namespace AbilityInfoUtils {
     interface AbilityInfoParam {

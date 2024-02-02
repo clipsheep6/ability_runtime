@@ -17,13 +17,13 @@ import { TargetInfo } from '../data/Model';
 import { SingleRowComponent } from './SingleRowComponent';
 import { TitleComponent } from './TitileComponent';
 
-const TAG = 'PhotoEditExtensionAbility.ContentDisplayComponent';
+const TAG = 'SelectorExtensionAbility.ContentDisplayComponent';
 
 @Component
 @Preview
 export struct ContentDisplayComponent {
     @StorageProp('currentColorMode') @Watch('onColorModeChange') currentMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
-    @Link @Watch('onTargetInfoChanged') targetInfoArray: Array<TargetInfo>;
+    @Prop @Watch('onTargetInfoChanged') targetInfoArray: Array<TargetInfo>;
     @StorageProp('currentLanguage') currentLang: string = '';
     @State targetInfoArraySplit: Array<Array<TargetInfo>> = [];
     @Prop @Watch('onTargetInfoChanged') panelHeight: number;
