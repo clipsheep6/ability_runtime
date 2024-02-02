@@ -16,6 +16,7 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
+import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = 'SwitchUserDialog_Service';
 const LEFT_COEFFICIENT = 0.1;
@@ -64,10 +65,13 @@ export default class SwitchUserServiceExtensionAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) :Promise<void> {
+    let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window rect is ' + JSON.stringify(rect));
     try {
       win = await window.create(this.context, name, windowType);
-      await win.hideNonSystemFloatingWindows(true);
+      if (deviceTypeInfo != 'default') {
+        await win.hideNonSystemFloatingWindows(true);
+      }
       await win.moveWindowTo(rect.left, rect.top);
       await win.resize(rect.width, rect.height);
       await win.loadContent('pages/switchUserDialog');

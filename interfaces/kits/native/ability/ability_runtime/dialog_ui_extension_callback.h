@@ -16,7 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_DIALOG_UI_EXTENSION_CALLBACK_H
 #define OHOS_ABILITY_RUNTIME_DIALOG_UI_EXTENSION_CALLBACK_H
 
-#include "ability_context.h"
 #include "ui_content.h"
 #include "want.h"
 
@@ -24,17 +23,15 @@ namespace OHOS {
 namespace AbilityRuntime {
 class DialogUIExtensionCallback {
 public:
-    DialogUIExtensionCallback(const std::weak_ptr<AppExecFwk::IAbilityCallback> &abilityCallback);
+    DialogUIExtensionCallback() = default;
     ~DialogUIExtensionCallback() = default;
     void OnRelease();
     void OnError();
     void SetSessionId(int32_t sessionId);
     void SetUIContent(Ace::UIContent *uiContent);
 private:
-    void EraseUIExtension();
     int32_t sessionId_ = 0;
     Ace::UIContent *uiContent_ = nullptr;
-    std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
 };
 } // AbilityRuntime
 } // OHOS

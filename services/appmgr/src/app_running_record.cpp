@@ -1410,6 +1410,18 @@ void AppRunningRecord::SetProcessAndExtensionType(const std::shared_ptr<AbilityI
     }
     extensionType_ = abilityInfo->extensionAbilityType;
     if (extensionType_ == ExtensionAbilityType::UNSPECIFIED) {
+        //record Service Ability in FA model as Service Extension
+        if (abilityInfo->type == AbilityType::SERVICE) {
+            processType_ = ProcessType::EXTENSION;
+            extensionType_ = ExtensionAbilityType::SERVICE;
+            return;
+        }
+        //record Data Ability in FA model as Datashare Extension
+        if (abilityInfo->type == AbilityType::DATA) {
+            processType_ = ProcessType::EXTENSION;
+            extensionType_ = ExtensionAbilityType::DATASHARE;
+            return;
+        }
         processType_ = ProcessType::NORMAL;
         return;
     }

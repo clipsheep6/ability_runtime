@@ -17,6 +17,7 @@ import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
 import PositionUtils from '../utils/PositionUtils';
+import deviceInfo from '@ohos.deviceInfo';
 
 const TAG = 'TipsDialog_Service';
 
@@ -77,6 +78,7 @@ export default class TipsServiceExtensionAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) {
+    let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.tipsExtensionContext, name, windowType);
@@ -89,7 +91,9 @@ export default class TipsServiceExtensionAbility extends extension {
           }
         });
       }
-      await win.hideNonSystemFloatingWindows(true);
+      if (deviceTypeInfo != 'default') {
+        await win.hideNonSystemFloatingWindows(true);
+      }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
       await win.loadContent('pages/tipsDialog');

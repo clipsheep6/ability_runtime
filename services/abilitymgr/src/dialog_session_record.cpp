@@ -22,6 +22,7 @@
 #include "ability_util.h"
 #include "hilog_wrapper.h"
 #include "int_wrapper.h"
+#include "parameters.h"
 #include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
@@ -117,7 +118,7 @@ bool DialogSessionRecord::QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInf
 }
 
 bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, const std::string &deviceType)
+    std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
 {
     auto dialogSessionInfo = sptr<DialogSessionInfo>::MakeSptr();
     CHECK_POINTER_AND_RETURN(dialogSessionInfo, ERR_INVALID_VALUE);
@@ -136,7 +137,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
             return false;
         }
     }
-    dialogSessionInfo->parameters.SetParam("deviceType", AAFwk::String::Box(deviceType));
+    dialogSessionInfo->parameters.SetParam("deviceType", AAFwk::String::Box(OHOS::system::GetDeviceType()));
     dialogSessionInfo->parameters.SetParam("userId", AAFwk::Integer::Box(userId));
     for (auto &dialogAppInfo : dialogAppInfos) {
         DialogAbilityInfo targetDialogAbilityInfo;
@@ -153,7 +154,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
     }
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
-    if (dialogAppInfos.size() > 1 || dialogAppInfos.size() == 0) {
+    if (isSelector) {
         dialogSessionInfo->parameters.SetParam("action", AAFwk::String::Box(abilityRequest.want.GetAction()));
         dialogSessionInfo->parameters.SetParam("wantType", AAFwk::String::Box(abilityRequest.want.GetType()));
         dialogSessionInfo->parameters.SetParam("uri", AAFwk::String::Box(abilityRequest.want.GetUriString()));

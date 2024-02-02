@@ -18,6 +18,7 @@
 #include "app_running_record.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -311,7 +312,9 @@ bool ModuleRunningRecord::IsAbilitiesBackgrounded()
             continue;
         }
         const auto &abilityInfo = ability->GetAbilityInfo();
-        if (abilityInfo != nullptr && abilityInfo->type != AbilityType::PAGE) {
+        // uiextensionability also has foreground and background states.
+        if (abilityInfo != nullptr && abilityInfo->type != AbilityType::PAGE &&
+            !AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
             continue;
         }
 
