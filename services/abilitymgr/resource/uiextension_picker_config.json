@@ -7,10 +7,6 @@
         {
             "type": "photoPicker",
             "typePicker": "sysPicker/photoPicker"
-        },
-        {
-            "type": "photoEditor",
-            "typePicker": "sysPicker/photoEditor"
         }
     ]
 }
