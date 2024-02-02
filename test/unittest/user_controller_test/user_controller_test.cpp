@@ -19,6 +19,7 @@
 #include "ability_manager_service.h"
 #include "user_controller.h"
 #undef private
+#include "scene_board_judgement.h"
 #include "user_callback_stub.h"
 using namespace testing;
 using namespace testing::ext;
@@ -159,7 +160,10 @@ HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
 {
     UserController userController;
     auto result = userController.LogoutUser(-1);
-    EXPECT_EQ(result, INVALID_USERID_VALUE);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, INVALID_USERID_VALUE);
+    }
+    EXPECT_TRUE(userController.GetCurrentUserId() == 0);
 }
 
 /**
@@ -171,7 +175,11 @@ HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, LogoutUserTest_0200, TestSize.Level0)
 {
     UserController userController;
-    EXPECT_TRUE(userController.LogoutUser(666) == INVALID_USERID_VALUE);
+    auto result = userController.LogoutUser(666);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, INVALID_USERID_VALUE);
+    }
+    EXPECT_TRUE(userController.GetCurrentUserId() == 0);
 }
 
 /**

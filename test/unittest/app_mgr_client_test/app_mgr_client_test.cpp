@@ -25,6 +25,7 @@
 #include "mock_ability_debug_response_stub.h"
 #include "mock_app_debug_listener_stub.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 #undef protected
 #undef private
 
@@ -133,6 +134,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UpdateExtensionState_001, TestSize.Level
 HWTEST_F(AppMgrClientTest, AppMgrClient_GetAllRunningProcesses_001, TestSize.Level0)
 {
     HILOG_INFO("GetAllRunningProcesses_001 start");
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
 
