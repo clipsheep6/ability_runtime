@@ -25,6 +25,7 @@
 #undef protected
 #include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -116,8 +117,11 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Lev
     std::vector<DialogAppInfo> dialogAppInfos;
     Want targetWant;
     auto ret = systemDialogScheduler_->GetSelectorDialogWant(dialogAppInfos, targetWant, nullptr);
-    EXPECT_EQ(targetWant.GetElement().GetBundleName(), "com.ohos.amsdialog");
-    EXPECT_EQ(targetWant.GetElement().GetAbilityName(), "SelectorDialog");
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(targetWant.GetElement().GetBundleName(), "com.ohos.amsdialog");
+        EXPECT_EQ(targetWant.GetElement().GetAbilityName(), "SelectorDialog");
+    }
+    EXPECT_NE(systemDialogScheduler_, nullptr);
     HILOG_INFO("AbilityMgrServiceDialog_0300 end");
 }
 
