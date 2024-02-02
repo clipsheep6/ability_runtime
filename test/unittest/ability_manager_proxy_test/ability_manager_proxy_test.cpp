@@ -1504,7 +1504,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartUser_001, TestSize.Le
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int userId = 1;
-    auto res = proxy_->StartUser(userId);
+    auto res = proxy_->StartUser(userId, nullptr);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_USER), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);
 }
@@ -1523,7 +1523,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StopUser_001, TestSize.Lev
         .Times(1)
         .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
     int userId = 1;
-    sptr<IStopUserCallback> callback = nullptr;
+    sptr<IUserCallback> callback = nullptr;
     auto res = proxy_->StopUser(userId, callback);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::STOP_USER), mock_->code_);
     EXPECT_EQ(res, NO_ERROR);

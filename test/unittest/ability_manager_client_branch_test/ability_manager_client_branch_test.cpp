@@ -831,7 +831,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUser_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StartUser_0100 start";
     int userId = 1;
-    auto result = client_->StartUser(userId);
+    auto result = client_->StartUser(userId, nullptr);
 
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "StartUser_0100 end";
@@ -846,7 +846,7 @@ HWTEST_F(AbilityManagerClientBranchTest, StopUser_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StopUser_0100 start";
     int userId = 1;
-    sptr<IStopUserCallback> callback = nullptr;
+    sptr<IUserCallback> callback = nullptr;
     auto result = client_->StopUser(userId, callback);
 
     EXPECT_EQ(result, ERR_OK);

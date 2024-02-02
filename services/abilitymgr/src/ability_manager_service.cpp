@@ -5013,7 +5013,7 @@ int32_t AbilityManagerService::GetUserId() const
     return U0_USER_ID;
 }
 
-void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot)
+void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
     auto bms = GetBundleManager();
@@ -5032,6 +5032,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
         ++attemptNums;
         if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
+            callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
             return;
         }
         AbilityRequest abilityRequest;
@@ -5040,8 +5041,10 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     if (abilityInfo.name.empty() && extensionAbilityInfo.name.empty()) {
         HILOG_ERROR("Query highest priority ability failed");
+        callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
         return;
     }
+    callback->OnStartUserDone(userId, ERR_OK);
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
     if (!abilityInfo.name.empty()) {
@@ -6177,25 +6180,31 @@ int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityI
     return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
 }
 
-int AbilityManagerService::StartUser(int userId)
+int AbilityManagerService::StartUser(int userId, sptr<IUserCallback> callback)
 {
     HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
-        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
+        HILOG_ERROR("Permission verification failed, not account process");
+        if (callback != nullptr) {
+            callback->OnStartUserDone(userId, CHECK_PERMISSION_FAILED);
+        }
         return CHECK_PERMISSION_FAILED;
     }
 
     if (userController_) {
-        return userController_->StartUser(userId, true);
+        userController_->StartUser(userId, callback, true);
     }
     return 0;
 }
 
-int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+int AbilityManagerService::StopUser(int userId, const sptr<IUserCallback> &callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
-        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
+        HILOG_ERROR("Permission verification failed, not account process");
+        if (callback != nullptr) {
+            callback->OnStopUserDone(userId, CHECK_PERMISSION_FAILED);
+        }
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -6714,7 +6723,7 @@ void AbilityManagerService::UserStarted(int32_t userId)
     InitPendWantManager(userId, false);
 }
 
-void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
+void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId, sptr<IUserCallback> callback)
 {
     HILOG_INFO("%{public}s, oldUserId:%{public}d, newUserId:%{public}d", __func__, oldUserId, userId);
     SwitchManagers(userId);
@@ -6724,7 +6733,7 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
         StartUserApps();
     }
     bool isBoot = oldUserId == U0_USER_ID ? true : false;
-    StartHighestPriorityAbility(userId, isBoot);
+    StartHighestPriorityAbility(userId, isBoot, callback);
     PauseOldConnectManager(oldUserId);
 }
 

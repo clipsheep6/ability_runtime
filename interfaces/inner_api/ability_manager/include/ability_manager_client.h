@@ -845,7 +845,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUser(int accountId);
+    ErrCode StartUser(int accountId, sptr<IUserCallback> callback);
 
     /**
      * @brief stop user.
@@ -854,7 +854,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StopUser(int accountId, sptr<IStopUserCallback> callback);
+    ErrCode StopUser(int accountId, sptr<IUserCallback> callback);
 
     /**
      * @brief logout user.

@@ -47,7 +47,7 @@
 #include "sender_info.h"
 #include "snapshot.h"
 #include "start_options.h"
-#include "stop_user_callback.h"
+#include "user_callback.h"
 #include "system_memory_attr.h"
 #include "ui_extension_ability_connect_info.h"
 #include "ui_extension_window_command.h"
@@ -741,9 +741,9 @@ public:
      */
     virtual int ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) = 0;
 
-    virtual int StartUser(int userId) = 0;
+    virtual int StartUser(int userId, sptr<IUserCallback> callback) = 0;
 
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
+    virtual int StopUser(int userId, const sptr<IUserCallback> &callback) = 0;
 
     virtual int LogoutUser(int32_t userId)
     {

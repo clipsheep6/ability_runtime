@@ -22,6 +22,7 @@
 #include "mock_session_manager_service.h"
 #include "os_account_manager_wrapper.h"
 #include "scene_board_judgement.h"
+#include "user_callback.h"
 #include "task_data_persistence_mgr.h"
 
 namespace OHOS {
@@ -84,21 +85,24 @@ void UserController::ClearAbilityUserItems(int32_t userId)
     }
 }
 
-int32_t UserController::StartUser(int32_t userId, bool isForeground)
+void UserController::StartUser(int32_t userId, sptr<IUserCallback> callback, bool isForeground)
 {
     if (userId < 0 || userId == USER_ID_NO_HEAD) {
         HILOG_ERROR("StartUser userId is invalid:%{public}d", userId);
-        return -1;
+        callback->OnStartUserDone(userId, INVALID_USERID_VALUE);
+        return;
     }
 
     if (IsCurrentUser(userId)) {
         HILOG_WARN("StartUser user is already current:%{public}d", userId);
-        return 0;
+        callback->OnStartUserDone(userId, ERR_OK);
+        return;
     }
 
     if (!IsExistOsAccount(userId)) {
         HILOG_ERROR("StartUser not exist such account:%{public}d", userId);
-        return -1;
+        callback->OnStartUserDone(userId, INVALID_USERID_VALUE);
+        return;
     }
 
     if (isForeground && GetCurrentUserId() != USER_ID_NO_HEAD && !Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -112,7 +116,8 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
     auto state = userItem->GetState();
     if (state == STATE_STOPPING || state == STATE_SHUTDOWN) {
         HILOG_ERROR("StartUser user is stop now, userId:%{public}d", userId);
-        return -1;
+        callback->OnStartUserDone(userId, ERR_DEAD_OBJECT);
+        return;
     }
 
     if (isForeground) {
@@ -139,10 +144,8 @@ int32_t UserController::StartUser(int32_t userId, bool isForeground)
 
     UserBootDone(userItem);
     if (isForeground) {
-        MoveUserToForeground(oldUserId, userId);
+        MoveUserToForeground(oldUserId, userId, callback);
     }
-
-    return 0;
 }
 
 int32_t UserController::StopUser(int32_t userId)
@@ -283,13 +286,13 @@ void UserController::SetCurrentUserId(int32_t userId)
     DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
 }
 
-void UserController::MoveUserToForeground(int32_t oldUserId, int32_t newUserId)
+void UserController::MoveUserToForeground(int32_t oldUserId, int32_t newUserId, sptr<IUserCallback> callback)
 {
     auto manager = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!manager) {
         return;
     }
-    manager->SwitchToUser(oldUserId, newUserId);
+    manager->SwitchToUser(oldUserId, newUserId, callback);
     BroadcastUserBackground(oldUserId);
     BroadcastUserForeground(newUserId);
 }

@@ -853,7 +853,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartUser_001, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerServiceThirdTest StartUser_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->StartUser(USER_ID_U100), CHECK_PERMISSION_FAILED);
+    EXPECT_EQ(abilityMs_->StartUser(USER_ID_U100, nullptr), CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceThirdTest StartUser_001 end");
 }
 
