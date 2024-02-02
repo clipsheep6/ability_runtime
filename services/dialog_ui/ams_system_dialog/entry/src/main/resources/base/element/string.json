@@ -13,6 +13,10 @@
       "value": "SelectorDialog"
     },
     {
+      "name": "SelectorExtAbility_label",
+      "value": "SelectorDialog"
+    },
+    {
       "name": "TipsServiceExtAbility_desc",
       "value": "TipsDialog"
     },

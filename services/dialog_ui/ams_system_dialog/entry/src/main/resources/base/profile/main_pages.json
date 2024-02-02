@@ -4,6 +4,7 @@
     "pages/selectorPcDialog",
     "pages/switchUserDialog",
     "pages/tipsDialog",
-    "pages/jumpInterceptorDialog"
+    "pages/jumpInterceptorDialog",
+    "pages/PhonePage"
   ]
 }
