@@ -14,9 +14,11 @@
  */
 
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
+import want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
 import display from '@ohos.display';
 import deviceInfo from '@ohos.deviceInfo';
+import { GlobalThis } from '../utils/GlobalThis';
 
 const TAG = 'SwitchUserDialog_Service';
 const LEFT_COEFFICIENT = 0.1;
@@ -26,29 +28,28 @@ const HEIGHT = 64;
 const marginBotton = 20;
 
 let winNum = 1;
-let win;
+let win: window.Window;
 
 export default class SwitchUserServiceExtensionAbility extends extension {
-  onCreate(want) {
+  onCreate(want: want): void {
     console.info(TAG, 'onCreate, want: ' + JSON.stringify(want));
   }
 
-  onRequest(want, startId) {
+  onRequest(want: want, startId: number): void {
     console.info(TAG, 'onRequest, want: ' + JSON.stringify(want));
-    globalThis.abilityWant = want;
+    GlobalThis.getInstance().setObject('abilityWant', want);
 
-    display.getDefaultDisplay().then(dis => {
-      let navigationBarRect = this.getDialogSize(dis);
-      if (winNum > 1) {
-        win.destroy();
-        winNum--;
-      }
-      this.createWindow('SwitchUserDialog' + startId, window.WindowType.TYPE_SCREENSHOT, navigationBarRect);
-      winNum++;
-    });
+    let dis = display.getDefaultDisplaySync();
+    let navigationBarRect = this.getDialogSize(dis) as window.Rect;
+    if (winNum > 1) {
+      win.destroyWindow();
+      winNum--;
+    }
+    this.createWindow('SwitchUserDialog' + startId, window.WindowType.TYPE_SCREENSHOT, navigationBarRect);
+    winNum++;
   }
 
-  onDestroy() {
+  onDestroy(): void {
     console.info(TAG, 'onDestroy.');
   }
 
@@ -61,10 +62,10 @@ export default class SwitchUserServiceExtensionAbility extends extension {
       top: height - HEIGHT * densityPixels - marginBotton,
       width: width * WIDTH_COEFFICIENT,
       height: HEIGHT * densityPixels
-    };
+    } as window.Rect;
   }
 
-  private async createWindow(name: string, windowType: number, rect) :Promise<void> {
+  private async createWindow(name: string, windowType: window.WindowType, rect: window.Rect): Promise<void> {
     let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window rect is ' + JSON.stringify(rect));
     try {
@@ -74,7 +75,7 @@ export default class SwitchUserServiceExtensionAbility extends extension {
       }
       await win.moveWindowTo(rect.left, rect.top);
       await win.resize(rect.width, rect.height);
-      await win.loadContent('pages/switchUserDialog');
+      await win.setUIContent('pages/switchUserDialog');
       await win.setWindowBackgroundColor('#00000000');
       await win.showWindow();
     } catch (err) {
