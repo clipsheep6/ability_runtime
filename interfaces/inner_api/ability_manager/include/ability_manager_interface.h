@@ -936,12 +936,15 @@ public:
     virtual int32_t GetMissionIdByToken(const sptr<IRemoteObject> &token) = 0;
 
     /**
-     * Get ability token by connect.
+     * Get ability record id by connect.
      *
-     * @param token The token of ability.
      * @param callStub The callee object.
+     * @return The record id of ability.
      */
-    virtual void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) = 0;
+    virtual int32_t GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
+    {
+        return -1;
+    }
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**

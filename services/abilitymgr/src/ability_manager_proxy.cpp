@@ -3123,25 +3123,25 @@ int AbilityManagerProxy::ReleaseCall(
     return reply.ReadInt32();
 }
 
-void AbilityManagerProxy::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token)
+int32_t AbilityManagerProxy::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        return;
+        return -1;
     }
     if (!data.WriteRemoteObject(callStub)) {
         HILOG_ERROR("WriteRemoteObject fail, write callStub fail.");
-        return;
+        return -1;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
-        return;
+        return -1;
     }
-    token = sptr<IRemoteObject>(reply.ReadRemoteObject());
+    return reply.ReadInt32();
 }
 
 int AbilityManagerProxy::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)

@@ -250,7 +250,7 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_002, TestSize.Level
     appInfo->uid = uid;
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
     EXPECT_TRUE(service_ != nullptr);
     auto record = service_->CreateAppRunningRecord(
         GetMockToken(), nullptr, appInfo, abilityInfo, GetTestProcessName(), bundleInfo, hapModuleInfo, nullptr);
@@ -355,7 +355,7 @@ HWTEST_F(AppRunningProcessesInfoTest, UpdateAppRunningRecord_003, TestSize.Level
     appInfo2->uid = uid;
     BundleInfo bundleInfo2;
     HapModuleInfo hapModuleInfo2;
-    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo2, appInfo2, bundleInfo2, hapModuleInfo2));
+    EXPECT_TRUE(service_->GetBundleAndHapInfo(*abilityInfo2, *appInfo2, bundleInfo2, hapModuleInfo2));
     EXPECT_TRUE(service_ != nullptr);
     auto mock_token = new (std::nothrow) MockAbilityToken();
     auto record2 = service_->CreateAppRunningRecord(

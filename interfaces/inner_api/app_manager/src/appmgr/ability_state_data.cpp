@@ -39,17 +39,8 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
     if (!parcel.WriteInt32(uid)) {
         return false;
     }
-    if (token == nullptr) {
-        if (!parcel.WriteBool(false)) {
-            return false;
-        }
-    } else {
-        if (!parcel.WriteBool(true)) {
-            return false;
-        }
-        if (!parcel.WriteRemoteObject(token)) {
-            return false;
-        }
+    if (!parcel.WriteInt32(abilityRecordId)) {
+        return false;
     }
     if (!parcel.WriteInt32(abilityType)) {
         return false;
@@ -80,9 +71,7 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
 
     uid = parcel.ReadInt32();
 
-    if (parcel.ReadBool()) {
-        token = (static_cast<MessageParcel*>(&parcel))->ReadRemoteObject();
-    }
+    abilityRecordId = parcel.ReadInt32();
 
     abilityType = parcel.ReadInt32();
 

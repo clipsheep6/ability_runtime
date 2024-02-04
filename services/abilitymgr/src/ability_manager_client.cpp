@@ -932,11 +932,14 @@ void AbilityManagerClient::CallRequestDone(sptr<IRemoteObject> token, sptr<IRemo
     abms->CallRequestDone(token, callStub);
 }
 
-void AbilityManagerClient::GetAbilityTokenByCalleeObj(sptr<IRemoteObject> callStub, sptr<IRemoteObject> &token)
+int32_t AbilityManagerClient::GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub)
 {
     auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    abms->GetAbilityTokenByCalleeObj(callStub, token);
+    if (abms == nullptr) {
+        HILOG_ERROR("proxy null");
+        return -1;
+    }
+    return abms->GetAbilityRecordIdByCalleeObj(callStub);
 }
 
 ErrCode AbilityManagerClient::ReleaseCall(

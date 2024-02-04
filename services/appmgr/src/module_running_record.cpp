@@ -91,6 +91,30 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr
     return abilityRecord;
 }
 
+std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const LoadAbilityParam &abilityParam)
+{
+    if (!abilityParam.token || !abilityParam.abilityInfo) {
+        HILOG_ERROR("Param abilityInfo or token is null");
+        return nullptr;
+    }
+    if (GetAbilityRunningRecordByToken(abilityParam.token)) {
+        HILOG_ERROR("AbilityRecord already exists and no need to add");
+        return nullptr;
+    }
+    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityParam.abilityInfo,
+        abilityParam.token, abilityParam.abilityRecordId);
+    abilityRecord->SetWant(abilityParam.want);
+    if (appInfo_) {
+        abilityRecord->SetIsSingleUser(appInfo_->singleton);
+    }
+    if (abilityParam.want) {
+        abilityRecord->SetOwnerUserId(abilityParam.want->GetIntParam(ABILITY_OWNER_USERID, -1));
+    }
+    std::lock_guard lock(abilitiesMutex_);
+    abilities_.emplace(abilityParam.token, abilityRecord);
+    return abilityRecord;
+}
+
 bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
 {
     if (!token) {

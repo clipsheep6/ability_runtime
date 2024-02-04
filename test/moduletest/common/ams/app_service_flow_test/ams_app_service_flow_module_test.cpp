@@ -130,7 +130,7 @@ TestApplicationPreRunningRecord AmsAppServiceFlowModuleTest::TestCreateApplicati
 
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
-    EXPECT_FALSE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
+    EXPECT_FALSE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, *appInfo, bundleInfo, hapModuleInfo));
 
     auto appRecord = serviceInner_->appRunningManager_->CheckAppRunningRecordIsExist(
         appInfo->name, appName, appInfo->uid, bundleInfo);

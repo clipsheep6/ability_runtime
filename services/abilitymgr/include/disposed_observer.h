@@ -37,7 +37,7 @@ private:
 private:
     ffrt::mutex observerLock_;
     AppExecFwk::DisposedRule disposedRule_;
-    sptr<IRemoteObject> token_ = nullptr;
+    int32_t abilityRecordId_ = -1;
     std::shared_ptr<DisposedRuleInterceptor> interceptor_ = nullptr;
 };
 } // namespace AAFwk

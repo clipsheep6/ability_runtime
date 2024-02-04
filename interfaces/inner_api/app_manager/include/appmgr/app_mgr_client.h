@@ -62,6 +62,8 @@ public:
     virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want);
 
+    virtual AppMgrResultCode LoadAbility(const LoadAbilityParam &loadAbilityParam);
+
     /**
      * Terminate ability.
      *

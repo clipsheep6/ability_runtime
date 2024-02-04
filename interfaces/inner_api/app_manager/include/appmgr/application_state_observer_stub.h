@@ -153,7 +153,6 @@ private:
     using ApplicationStateObserverFunc = int32_t (ApplicationStateObserverStub::*)(MessageParcel &data,
         MessageParcel &reply);
     std::map<uint32_t, ApplicationStateObserverFunc> memberFuncMap_;
-    static std::mutex callbackMutex_;
 
     DISALLOW_COPY_AND_MOVE(ApplicationStateObserverStub);
 };

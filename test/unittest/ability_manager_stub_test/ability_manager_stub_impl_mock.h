@@ -278,10 +278,7 @@ public:
     {
         return 0;
     }
-    void GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &callStub, sptr<IRemoteObject> &token) override
-    {
-        return;
-    }
+
     int GetMissionInfos(const std::string& deviceId, int32_t numMax,
         std::vector<MissionInfo>& missionInfos) override
     {

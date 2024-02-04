@@ -23,6 +23,7 @@
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "load_ability_param.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -79,16 +80,24 @@ bool AppScheduler::Init(const std::weak_ptr<AppStateCallback> &callback)
     return true;
 }
 
-int AppScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-    const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo, const Want &want)
+int AppScheduler::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+    const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo, const Want &want,
+    int32_t abilityRecordId, int32_t preRecordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
     CHECK_POINTER_AND_RETURN(appMgrClient_, INNER_ERR);
     /* because the errcode type of AppMgr Client API will be changed to int,
      * so must to covert the return result  */
     int ret = static_cast<int>(IN_PROCESS_CALL(
-        appMgrClient_->LoadAbility(token, preToken, abilityInfo, applicationInfo, want)));
+        appMgrClient_->LoadAbility(AppExecFwk::LoadAbilityParam{
+            .abilityRecordId = abilityRecordId,
+            .token = token,
+            .preRecordId = preRecordId,
+            .preToken = preToken,
+            .abilityInfo = std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo),
+            .appInfo = std::make_shared<AppExecFwk::ApplicationInfo>(applicationInfo),
+            .want = std::make_shared<Want>(want),
+    })));
     if (ret != ERR_OK) {
         HILOG_ERROR("AppScheduler fail to LoadAbility. ret %d", ret);
         return INNER_ERR;

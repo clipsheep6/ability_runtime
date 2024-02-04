@@ -29,6 +29,8 @@ namespace AppExecFwk {
 class AbilityRunningRecord {
 public:
     AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token);
+    AbilityRunningRecord(std::shared_ptr<AbilityInfo> info, sptr<IRemoteObject> token,
+        int32_t abilityRecordId);
     virtual ~AbilityRunningRecord();
 
     /**
@@ -74,6 +76,18 @@ public:
      * @return Returns the ability token.
      */
     const sptr<IRemoteObject> &GetToken() const;
+    int32_t GetAbilityRecordId() const
+    {
+        return abilityRecordId_;
+    }
+    void SetPreRecordId(int32_t preRecordId)
+    {
+        preRecordId_ = preRecordId;
+    }
+    int32_t GetPreRecordId() const
+    {
+        return preRecordId_;
+    }
 
     /**
      * @brief Setting id for ability record.
@@ -201,7 +215,9 @@ private:
     bool isFocused_ = false;
     std::shared_ptr<AbilityInfo> info_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
+    int32_t abilityRecordId_ = -1;
     sptr<IRemoteObject> token_;
+    int32_t preRecordId_ = -1;
     sptr<IRemoteObject> preToken_;
     int32_t ownerUserId_ = -1;
     bool isSingleUser_ = false;

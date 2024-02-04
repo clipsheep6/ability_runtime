@@ -127,9 +127,9 @@ public:
      * @param want ability want
      * @return true on success ,false on failure.
      */
-    int LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
+    int LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
         const AppExecFwk::AbilityInfo &abilityInfo, const AppExecFwk::ApplicationInfo &applicationInfo,
-        const Want &want);
+        const Want &want, int32_t abilityRecordId = -1, int32_t preRecordId = -1);
 
     /**
      * terminate ability with token.
@@ -362,14 +362,14 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RegisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
-    
+
     /**
      * @brief Unregister app debug listener.
      * @param listener App debug listener.
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebugListener> &listener);
-    
+
     /**
      * @brief Attach app debug.
      * @param bundleName The application bundle name.

@@ -710,6 +710,48 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
     return;
 }
 
+ModuleAbilityPair AppRunningRecord::AddModule(const LoadAbilityParam &abilityParam,
+    const HapModuleInfo &hapModuleInfo)
+{
+    auto appInfo = abilityParam.appInfo;
+    if (!appInfo) {
+        HILOG_ERROR("appInfo is null");
+        return {};
+    }
+
+    std::shared_ptr<ModuleRunningRecord> moduleRecord;
+
+    auto initModuleRecord = [=](std::shared_ptr<ModuleRunningRecord> moduleRecord) {
+        moduleRecord->Init(hapModuleInfo);
+        moduleRecord->SetAppMgrServiceInner(appMgrServiceInner_);
+        moduleRecord->SetApplicationClient(appLifeCycleDeal_);
+    };
+
+    std::lock_guard hapModulesLock(hapModulesLock_);
+    const auto iter = hapModules_.find(appInfo->bundleName);
+    if (iter != hapModules_.end()) {
+        moduleRecord = GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
+        if (!moduleRecord) {
+            moduleRecord = std::make_shared<ModuleRunningRecord>(appInfo, eventHandler_);
+            iter->second.push_back(moduleRecord);
+            initModuleRecord(moduleRecord);
+        }
+    } else {
+        moduleRecord = std::make_shared<ModuleRunningRecord>(appInfo, eventHandler_);
+        std::vector<std::shared_ptr<ModuleRunningRecord>> moduleList;
+        moduleList.push_back(moduleRecord);
+        hapModules_.emplace(appInfo->bundleName, moduleList);
+        {
+            std::lock_guard appInfosLock(appInfosLock_);
+            appInfos_.emplace(appInfo->bundleName, appInfo);
+        }
+        initModuleRecord(moduleRecord);
+    }
+
+    auto ability = moduleRecord->AddAbility(abilityParam);
+    return {moduleRecord, ability};
+}
+
 std::shared_ptr<ModuleRunningRecord> AppRunningRecord::GetModuleRecordByModuleName(
     const std::string bundleName, const std::string &moduleName)
 {
@@ -743,7 +785,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.pid = GetPriorityObject()->GetPid();
     abilityStateData.abilityState = state;
     abilityStateData.uid = ability->GetAbilityInfo()->applicationInfo.uid;
-    abilityStateData.token = ability->GetToken();
+    abilityStateData.abilityRecordId = ability->GetAbilityRecordId();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
     if (ability->GetWant() != nullptr) {

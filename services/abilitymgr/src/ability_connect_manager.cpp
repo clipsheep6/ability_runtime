@@ -1159,9 +1159,16 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
             }
         }
     }
+    int32_t preRecordId = -1;
+    if (perToken) {
+        auto preRecord = perToken->GetAbilityRecord();
+        if (preRecord) {
+            preRecordId = preRecord->GetRecordId();
+        }
+    }
     DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token, perToken, abilityRecord->GetAbilityInfo(), abilityRecord->GetApplicationInfo(),
-        abilityRecord->GetWant());
+        abilityRecord->GetWant(), abilityRecord->GetRecordId(), preRecordId);
 }
 
 void AbilityConnectManager::PostRestartResidentTask(const AbilityRequest &abilityRequest)

@@ -93,6 +93,14 @@ public:
         const std::shared_ptr<AAFwk::Want> &want);
 
     /**
+     * LoadAbility, call LoadAbility() through proxy project, load the ability that needed to be started.
+     *
+     * @param loadAbilityParam, the parameters to start the ability.
+     * @return
+     */
+    void LoadAbility(const LoadAbilityParam &loadAbilityParam);
+
+    /**
      * TerminateAbility, terminate the token ability.
      *
      * @param token, he unique identification to terminate the ability.
@@ -362,6 +370,12 @@ public:
         const BundleInfo &bundleInfo,
         const HapModuleInfo &hapModuleInfo,
         const std::shared_ptr<AAFwk::Want> &want);
+
+    std::shared_ptr<AppRunningRecord> CreateAppRunningRecord(
+        const LoadAbilityParam &loadAbilityParam,
+        const std::string &processName,
+        const BundleInfo &bundleInfo,
+        const HapModuleInfo &hapModuleInfo);
 
     /**
      * OnStop, Application management service stopped.
@@ -691,7 +705,7 @@ public:
      */
     void HandleWindowVisibilityChanged(
             const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-    
+
     /**
      * Set the current userId, only used by abilityMgr.
      *
@@ -889,7 +903,7 @@ public:
      * @return child process record.
      */
     virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
-    
+
     /**
      * Attach child process scheduler to app manager service.
      *
@@ -964,6 +978,16 @@ private:
     void StartAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AppRunningRecord> &appRecord,
         const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want);
+
+    /**
+     * StartAbility, load the ability that needed to be started(Start on the basis of the original process).
+     *  Start on a new boot process
+     * @param loadAbilityParam, the param to start the ability.
+     *
+     * @return
+     */
+    void StartAbility(const LoadAbilityParam &loadAbilityParam,
+        AppRunningRecord &appRecord, const HapModuleInfo &hapModuleInfo);
 
     int32_t StartPerfProcess(const std::shared_ptr<AppRunningRecord> &appRecord, const std::string& perfCmd,
         const std::string& debugCmd, bool isSandboxApp) const;
@@ -1090,7 +1114,7 @@ private:
 
     void ClipStringContent(const std::regex &re, const std::string &source, std::string &afterCutStr);
 
-    bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
+    bool GetBundleAndHapInfo(const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo,
         BundleInfo &bundleInfo, HapModuleInfo &hapModuleInfo, int32_t appIndex = 0) const;
     AppProcessData WrapAppProcessData(const std::shared_ptr<AppRunningRecord> &appRecord,
         const ApplicationState state);
@@ -1128,7 +1152,7 @@ private:
     int VerifyProcessPermission() const;
 
     int VerifyProcessPermission(const std::string &bundleName) const;
-    
+
     bool CheckCallerIsAppGallery();
 
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -1169,8 +1193,10 @@ private:
 
     bool SendProcessStartEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
-    void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
-        const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
+    void SendAppStartupTypeEvent(AppRunningRecord &appRecord,
+        const std::string &abilityName, AppStartType startType);
+    void PerformStartProcess(AppRunningRecord &appRecord, const AbilityInfo &abilityInfo,
+        std::shared_ptr<Want> want, const std::string &processName, const ApplicationInfo &appInfo, bool appExist);
 
     void SendProcessExitEvent(pid_t pid);
 

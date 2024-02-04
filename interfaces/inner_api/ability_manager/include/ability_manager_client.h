@@ -264,7 +264,7 @@ public:
         sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
-    
+
      /**
      * Create UIExtension with want, send want to ability manager service.
      *
@@ -783,12 +783,12 @@ public:
     void CallRequestDone(sptr<IRemoteObject> token, sptr<IRemoteObject> callStub);
 
     /**
-     * Get ability token by connect.
+     * Get ability record id by connect.
      *
-     * @param token The token of ability.
      * @param callStub The callee object.
+     * @return The record id of ability.
      */
-    void GetAbilityTokenByCalleeObj(sptr<IRemoteObject> callStub, sptr<IRemoteObject> &token);
+    int32_t GetAbilityRecordIdByCalleeObj(sptr<IRemoteObject> callStub);
 
     /**
      * Release the call between Ability, disconnect session with common ability.

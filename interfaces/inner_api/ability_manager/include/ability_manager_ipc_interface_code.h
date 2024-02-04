@@ -228,7 +228,7 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for logout user (74)
     LOGOUT_USER = 74,
-	
+
     // Get forgeround UI abilities(75)
     GET_FOREGROUND_UI_ABILITIES = 75,
 
