@@ -1018,5 +1018,22 @@ bool AppMgrService::IsFinalAppProcess()
     }
     return appMgrServiceInner_->IsFinalAppProcessByBundleName("");
 }
+
+int32_t AppMgrService::RequestTerminateProcess()
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RequestTerminateProcess();
+}
+
+int32_t AppMgrService::RequestTerminateApplication()
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RequestTerminateApplication();
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

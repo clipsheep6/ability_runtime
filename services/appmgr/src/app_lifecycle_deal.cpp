@@ -313,5 +313,16 @@ int32_t AppLifeCycleDeal::DetachAppDebug()
     appThread->DetachAppDebug();
     return ERR_OK;
 }
+
+int32_t AppLifeCycleDeal::RequestTerminateProcess() const
+{
+    HILOG_ERROR("AppLifeCycleDeal::RequestTerminateProcess");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr) {
+        HILOG_ERROR("appThread is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appThread->ScheduleRequestTerminateProcess();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

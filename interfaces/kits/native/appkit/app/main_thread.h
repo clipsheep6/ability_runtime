@@ -285,6 +285,14 @@ public:
     void AttachAppDebug() override;
     void DetachAppDebug() override;
     bool NotifyDeviceDisConnect();
+
+    /**
+     * Request normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ScheduleRequestTerminateProcess() override;
+
 private:
     /**
      *

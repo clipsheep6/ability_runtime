@@ -1616,5 +1616,51 @@ bool AppMgrProxy::IsFinalAppProcess()
 
     return reply.ReadBool();
 }
+
+int32_t AppMgrProxy::RequestTerminateProcess()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    auto error = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_PROCESS), data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrProxy::RequestTerminateApplication()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    auto error = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_APPLICATION), data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

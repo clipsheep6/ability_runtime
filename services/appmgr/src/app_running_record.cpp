@@ -1930,5 +1930,15 @@ std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChil
     std::lock_guard lock(childProcessRecordMapLock_);
     return childProcessRecordMap_;
 }
+
+int32_t AppRunningRecord::RequestTerminateProcess() const
+{
+    if (appLifeCycleDeal_ == nullptr) {
+        HILOG_ERROR("appLifeCycleDeal_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_ERROR("AppRunningRecord::RequestTerminateProcess");
+    return appLifeCycleDeal_->RequestTerminateProcess();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

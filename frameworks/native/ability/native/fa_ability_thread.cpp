@@ -1530,5 +1530,27 @@ void FAAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
     }
     currentAbility_->UpdateSessionToken(sessionToken);
 }
+
+void FAAbilityThread::RequestTerminateSelf()
+{
+    if (isUIAbility_) {
+        if (currentAbility_ == nullptr) {
+            HILOG_ERROR("Current ability is nullptr");
+            return;
+        }
+        auto context = currentAbility_->GetAbilityContext();
+        if (context == nullptr) {
+            HILOG_ERROR("Current ability context is nullptr");
+            return;
+        }
+        context->TerminateSelf();
+        return;
+    }
+
+    // The current extension does not have a unified calling interface, like TerminateSelf.
+    // So using this method to retrieve the end
+    AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
+
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

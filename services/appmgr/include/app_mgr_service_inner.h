@@ -919,6 +919,20 @@ public:
      */
     void ClearProcessByToken(sptr<IRemoteObject> token);
 
+    /**
+     * Normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() const;
+    
+    /**
+     * Normal scheduling to exit the application.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateApplication() const;
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);

@@ -59,6 +59,7 @@ private:
     int32_t HandleScheduleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply);
 
     using AppSchedulerFunc = int32_t (AppSchedulerHost::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppSchedulerFunc> memberFuncMap_;

@@ -703,5 +703,20 @@ void UIAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
     }
     currentAbility_->UpdateSessionToken(sessionToken);
 }
+
+void UIAbilityThread::RequestTerminateSelf()
+{
+    if (currentAbility_ == nullptr) {
+        HILOG_ERROR("current ability is nullptr");
+        return;
+    }
+    auto context = currentAbility_->GetAbilityContext();
+    if (context == nullptr) {
+        HILOG_ERROR("current ability context is nullptr");
+        return;
+    }
+
+    context->TerminateSelf();
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

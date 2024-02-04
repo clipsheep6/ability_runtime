@@ -313,6 +313,16 @@ public:
     void KillProcessBySelf();
 
     /**
+     * Normal scheduling to exit the process.
+     */
+    void RequestTerminateProcess();
+    
+    /**
+     * Normal scheduling to exit the application.
+     */
+    void RequestTerminateApplication();
+
+    /**
      * @brief Get running informationfor cuirrent process
      *
      * @return error code

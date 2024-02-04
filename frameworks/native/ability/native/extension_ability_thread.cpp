@@ -630,5 +630,12 @@ void ExtensionAbilityThread::DumpOtherInfo(std::vector<std::string> &info)
     runner->DumpRunnerInfo(dumpInfo);
     info.push_back(dumpInfo);
 }
+
+void ExtensionAbilityThread::RequestTerminateSelf()
+{
+    // The current extension does not have a unified calling interface, like TerminateSelf.
+    // So using this method to retrieve the end
+    AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

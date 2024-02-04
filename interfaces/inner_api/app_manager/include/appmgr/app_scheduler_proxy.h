@@ -181,6 +181,13 @@ public:
     void AttachAppDebug() override;
     void DetachAppDebug() override;
 
+    /**
+     * Request normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ScheduleRequestTerminateProcess() override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     void ScheduleMemoryCommon(const int32_t level, const uint32_t operation);

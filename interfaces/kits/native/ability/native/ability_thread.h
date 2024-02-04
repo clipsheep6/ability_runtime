@@ -356,6 +356,11 @@ public:
      */
     void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
 
+    /**
+     * Requesting the component to end itself.
+     */
+    virtual void RequestTerminateSelf() {}
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * @brief Block ability.

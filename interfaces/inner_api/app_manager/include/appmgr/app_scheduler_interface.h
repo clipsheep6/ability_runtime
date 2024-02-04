@@ -221,6 +221,13 @@ public:
      */
     virtual void DetachAppDebug() = 0;
 
+    /**
+     * Request normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ScheduleRequestTerminateProcess() = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -246,6 +253,7 @@ public:
         SCHEDULE_ATTACH_APP_DEBUG,
         SCHEDULE_DETACH_APP_DEBUG,
         SCHEDULE_NEW_PROCESS_REQUEST,
+        SCHEDULE_REQUEST_TERMINATE_PROCESS,
     };
 };
 }  // namespace AppExecFwk

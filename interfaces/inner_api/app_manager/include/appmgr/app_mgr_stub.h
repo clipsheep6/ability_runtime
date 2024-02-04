@@ -121,6 +121,8 @@ private:
     int32_t HandleExitChildProcessSafely(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleClearUpApplicationDataBySelf(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRequestTerminateApplication(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

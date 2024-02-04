@@ -152,6 +152,11 @@ public:
      */
     void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
 
+    /**
+     * Requesting the component to end itself.
+     */
+    void RequestTerminateSelf() override;
+
 private:
     void DumpAbilityInfoInner(const std::vector<std::string> &params, std::vector<std::string> &info);
     void DumpOtherInfo(std::vector<std::string> &info);

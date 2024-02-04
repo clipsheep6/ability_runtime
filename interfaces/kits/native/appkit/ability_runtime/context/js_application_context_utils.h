@@ -60,6 +60,8 @@ public:
     static napi_value SetAutoStartup(napi_env env, napi_callback_info info);
     static napi_value CancelAutoStartup(napi_env env, napi_callback_info info);
     static napi_value IsAutoStartup(napi_env env, napi_callback_info info);
+    static napi_value RequestTerminateProcess(napi_env env, napi_callback_info info);
+    static napi_value RequestTerminateApplication(napi_env env, napi_callback_info info);
 
     napi_value OnRegisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
     napi_value OnUnregisterAbilityLifecycleCallback(napi_env env, NapiCallbackInfo& info);
@@ -93,6 +95,8 @@ public:
     napi_value OnSetColorMode(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
     napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
+    napi_value OnRequestTerminateProcess(napi_env env, NapiCallbackInfo &info);
+    napi_value OnRequestTerminateApplication(napi_env env, NapiCallbackInfo &info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);

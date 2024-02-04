@@ -173,6 +173,14 @@ class ApplicationContext {
     return this.__context_impl__.clearUpApplicationData(callback);
   }
 
+  requestTerminateProcess(callback) {
+    return this.__context_impl__.requestTerminateProcess(callback);
+  }
+
+  requestTerminateApplication(callback) {
+    return this.__context_impl__.requestTerminateProcess(callback);
+  }
+
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

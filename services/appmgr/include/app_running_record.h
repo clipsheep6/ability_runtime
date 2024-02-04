@@ -692,6 +692,13 @@ public:
     void RemoveChildProcessRecord(const std::shared_ptr<ChildProcessRecord> record);
     std::shared_ptr<ChildProcessRecord> GetChildProcessRecordByPid(const pid_t pid);
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
+
+    /**
+     * Normal scheduling to exit the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() const;
+
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.

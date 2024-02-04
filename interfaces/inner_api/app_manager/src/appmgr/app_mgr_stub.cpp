@@ -159,6 +159,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsFinalAppProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF)] =
         &AppMgrStub::HandleClearUpApplicationDataBySelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_PROCESS)] =
+        &AppMgrStub::HandleRequestTerminateProcess;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_APPLICATION)] =
+        &AppMgrStub::HandleRequestTerminateApplication;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -213,6 +217,16 @@ int32_t AppMgrStub::HandleApplicationTerminated(MessageParcel &data, MessageParc
 {
     HITRACE_METER(HITRACE_TAG_APP);
     ApplicationTerminated(data.ReadInt32());
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleCheckPermission(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t recordId = data.ReadInt32();
+    std::string permission = data.ReadString();
+    int32_t result = CheckPermission(recordId, permission);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

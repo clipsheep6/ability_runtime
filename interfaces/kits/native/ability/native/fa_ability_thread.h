@@ -344,6 +344,11 @@ public:
      */
     void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
 
+    /**
+     * Requesting the component to end itself.
+     */
+    void RequestTerminateSelf() override;
+
 private:
     /**
      * @brief Dump Ability Runner info.

@@ -130,6 +130,11 @@ public:
      */
     void DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info) override;
 
+    /**
+     * Requesting the component to end itself.
+     */
+    void RequestTerminateSelf() override;
+
 private:
     /**
      * @brief Dump Ability Info Inner

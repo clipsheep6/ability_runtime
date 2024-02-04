@@ -171,6 +171,20 @@ public:
     virtual AppMgrResultCode KillApplicationSelf();
 
     /**
+     * Normal scheduling to exit the process.
+     * 
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode RequestTerminateProcess();
+    
+    /**
+     * Normal scheduling to exit the application.
+     * 
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode RequestTerminateApplication();
+
+    /**
      * ClearUpApplicationData, call ClearUpApplicationData() through proxy project,
      * clear the application data.
      *

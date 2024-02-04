@@ -91,6 +91,8 @@ public:
     std::string GetBaseDir() const override;
     Global::Resource::DeviceType GetDeviceType() const override;
     void KillProcessBySelf();
+    void RequestTerminateProcess();
+    void RequestTerminateApplication();
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
 
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);

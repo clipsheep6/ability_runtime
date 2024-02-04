@@ -72,6 +72,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleAttachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG)] =
         &AppSchedulerHost::HandleDetachAppDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_REQUEST_TERMINATE_PROCESS)] =
+        &AppSchedulerHost::HandleScheduleRequestTerminateProcess;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -353,6 +355,16 @@ int32_t AppSchedulerHost::HandleDetachAppDebug(MessageParcel &data, MessageParce
 {
     HITRACE_METER(HITRACE_TAG_APP);
     DetachAppDebug();
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t result = ScheduleRequestTerminateProcess();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk
