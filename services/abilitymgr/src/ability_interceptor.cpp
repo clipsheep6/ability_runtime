@@ -415,7 +415,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     HILOG_DEBUG("check ecological rule success");
     if (rule.isAllow) {
-        HILOG_ERROR("ecological rule is allow, keep going.");
+        HILOG_DEBUG("ecological rule is allow, keep going.");
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -459,7 +459,7 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
-        HILOG_ERROR("Get callerBundleName failed.");
+        HILOG_ERROR("Get callerBundleName failed,uid: %{public}d.", callerInfo.uid);
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;

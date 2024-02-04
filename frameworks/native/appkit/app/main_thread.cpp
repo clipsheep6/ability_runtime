@@ -243,7 +243,7 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         }
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        HILOG_INFO("lib path = %{private}s", libPath.c_str());
+        HILOG_DEBUG("lib path = %{private}s", libPath.c_str());
         appLibPaths["default"].emplace_back(libPath);
     }
 
