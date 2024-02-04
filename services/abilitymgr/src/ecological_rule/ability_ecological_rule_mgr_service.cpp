@@ -30,6 +30,7 @@ constexpr int32_t CYCLE_LIMIT = 1000;
 const int32_t ECOLOGICALRULEMANAGERSERVICE_ID = 6105;
 
 std::mutex AbilityEcologicalRuleMgrServiceClient::instanceLock_;
+std::mutex AbilityEcologicalRuleMgrServiceClient::proxyLock_;
 sptr<AbilityEcologicalRuleMgrServiceClient> AbilityEcologicalRuleMgrServiceClient::instance_;
 sptr<IAbilityEcologicalRuleMgrService> AbilityEcologicalRuleMgrServiceClient::ecologicalRuleMgrServiceProxy_;
 sptr<IRemoteObject::DeathRecipient> AbilityEcologicalRuleMgrServiceClient::deathRecipient_;
@@ -43,6 +44,7 @@ inline int64_t GetCurrentTimeMicro()
 
 AbilityEcologicalRuleMgrServiceClient::~AbilityEcologicalRuleMgrServiceClient()
 {
+    std::lock_guard<std::mutex> autoLock(instanceLock_);
     if (ecologicalRuleMgrServiceProxy_ != nullptr) {
         auto remoteObj = ecologicalRuleMgrServiceProxy_->AsObject();
         if (remoteObj != nullptr) {
@@ -84,6 +86,7 @@ sptr<IAbilityEcologicalRuleMgrService> AbilityEcologicalRuleMgrServiceClient::Co
 
 bool AbilityEcologicalRuleMgrServiceClient::CheckConnectService()
 {
+    std::lock_guard<std::mutex> autoLock(instanceLock_);
     if (ecologicalRuleMgrServiceProxy_ == nullptr) {
         HILOG_WARN("redo ConnectService");
         ecologicalRuleMgrServiceProxy_ = ConnectService();
@@ -97,6 +100,7 @@ bool AbilityEcologicalRuleMgrServiceClient::CheckConnectService()
 
 void AbilityEcologicalRuleMgrServiceClient::OnRemoteSaDied(const wptr<IRemoteObject> &object)
 {
+    std::lock_guard<std::mutex> autoLock(instanceLock_);
     ecologicalRuleMgrServiceProxy_ = ConnectService();
 }
 
