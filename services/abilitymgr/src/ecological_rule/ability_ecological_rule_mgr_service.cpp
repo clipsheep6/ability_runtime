@@ -100,6 +100,7 @@ bool AbilityEcologicalRuleMgrServiceClient::CheckConnectService()
 
 void AbilityEcologicalRuleMgrServiceClient::OnRemoteSaDied(const wptr<IRemoteObject> &object)
 {
+    std::lock_guard<std::mutex> autoLock(proxyLock_);
     ecologicalRuleMgrServiceProxy_ = ConnectService();
 }
 
