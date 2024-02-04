@@ -236,6 +236,9 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         appLibPaths["default"].emplace_back(patchLibPath);
     }
 
+    HILOG_INFO("wtt push service_hsp");
+    appLibPaths["default"].emplace_back("/data/storage/el1/bundle/service_hsp");
+
     std::string nativeLibraryPath = bundleInfo.applicationInfo.nativeLibraryPath;
     if (!nativeLibraryPath.empty()) {
         if (nativeLibraryPath.back() == '/') {
