@@ -372,7 +372,7 @@ void ConnectionStateManager::HandleCallerDied(int32_t callerPid)
 {
     auto connectionStateItem = RemoveDiedCaller(callerPid);
     if (!connectionStateItem) {
-        HILOG_WARN("no connectionStateItem, may already handled.");
+        HILOG_DEBUG("no connectionStateItem, may already handled.");
         return;
     }
 
