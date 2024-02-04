@@ -58,6 +58,7 @@ ohos_unittest("app_running_manager_test") {
     "ipc:ipc_core",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
+    "os_account:os_account_innerkits",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]

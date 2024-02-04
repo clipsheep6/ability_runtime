@@ -50,6 +50,7 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #endif
+#include "os_account_manager.h"
 #include "os_account_manager_wrapper.h"
 #include "parameter.h"
 #include "parameters.h"
@@ -2158,6 +2159,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
 
     startMsg.mountPermissionFlags = AppSpawn::AppspawnMountPermission::GenPermissionCode(permissions);
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
+    OHOS::AccountSA::OsAccountInfo osAccountInfo;
+    ret = OHOS::AccountSA::OsAccountManager::QueryOsAccountById(userId, osAccountInfo);
+    if (ret != ERR_OK || osAccountInfo.GetShortName().empty()) {
+        startMsg.userName = "currentUser";
+    } else {
+        startMsg.userName = osAccountInfo.GetShortName();
+    }
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
