@@ -291,7 +291,7 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
             resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
         }
         resourceManager->UpdateResConfig(*resConfig);
-        HILOG_DEBUG("Current colorMode: %{public}d, hasPointerDevice: %{publis}d.", resConfig->GetColorMode(),
+        HILOG_DEBUG("Current colorMode: %{public}d, hasPointerDevice: %{public}d.", resConfig->GetColorMode(),
             resConfig->GetInputDevice());
     }
 
