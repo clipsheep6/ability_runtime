@@ -31,7 +31,7 @@ gen_obj("js_mock_abc") {
   input = get_label_info(":gen_abc_js_mock", "target_out_dir") +
           "/jsMockSystemPlugin.abc"
 
-  if (is_mac || is_mingw) {
+  if (is_mac || is_mingw || is_linux) {
     output = target_out_dir + "/js_mock_abc.c"
   } else {
     output = target_out_dir + "/js_mock_abc.o"
@@ -46,7 +46,7 @@ config("ability_simulator_public_config") {
 }
 
 ohos_shared_library("ability_simulator_inner") {
-  if (is_mingw || is_mac) {
+  if (is_mingw || is_mac || is_linux) {
     if (is_mingw) {
       defines = [
         "WINDOWS_PLATFORM",
@@ -61,6 +61,7 @@ ohos_shared_library("ability_simulator_inner") {
       "${ability_runtime_native_path}/runtime",
       "${ability_runtime_innerkits_path}/ability_manager/include",
       "${ability_runtime_innerkits_path}/runtime/include",
+      "//base/global/resource_management/interfaces/inner_api/include",
       "${windowmanager_path}/previewer/include",
       "${windowmanager_path}/previewer/mock",
       "${windowmanager_path}/previewer/mock/transaction",
@@ -128,8 +129,10 @@ ohos_shared_library("ability_simulator_inner") {
 
     if (is_mingw) {
       external_deps += [ "resource_management:win_resmgr" ]
-    } else {
+    } else if (is_mac) {
       external_deps += [ "resource_management:mac_resmgr" ]
+    } else {
+      external_deps += [ "resource_management:linux_resmgr" ]
     }
   }
 
@@ -140,7 +143,7 @@ ohos_shared_library("ability_simulator_inner") {
 }
 
 group("ability_simulator") {
-  if (is_mingw || is_mac) {
+  if (is_mingw || is_mac || is_linux) {
     public_deps = [ ":ability_simulator_inner" ]
   }
 }

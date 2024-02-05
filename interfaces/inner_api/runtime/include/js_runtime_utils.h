@@ -132,6 +132,7 @@ inline napi_value CreateJsValue(napi_env env, const T& value)
             napi_get_undefined(env, &result);
         return result;
     }
+    return result;
 }
 
 inline bool ConvertFromJsNumber(napi_env env, napi_value jsValue, int32_t& value)
@@ -295,13 +296,13 @@ std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_v
     NapiAsyncTask::ExecuteCallback&& execute, NapiAsyncTask::CompleteCallback&& complete, napi_value* result);
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    NapiAsyncTask::ExecuteCallback&& execute, nullptr_t, napi_value* result);
+    NapiAsyncTask::ExecuteCallback&& execute, std::nullptr_t, napi_value* result);
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, NapiAsyncTask::CompleteCallback&& complete, napi_value* result);
+    std::nullptr_t, NapiAsyncTask::CompleteCallback&& complete, napi_value* result);
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, nullptr_t, napi_value* result);
+    std::nullptr_t, std::nullptr_t, napi_value* result);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_RUNTIME_UTILS_H
