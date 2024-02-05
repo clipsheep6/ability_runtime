@@ -54,11 +54,11 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
         return ERR_INVALID_VALUE;
     }
 
-    auto bms = AbilityUtil::GetBundleManagerHelper();
-    CHECK_POINTER_AND_RETURN(bms, ERR_NULL_OBJECT);
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, ERR_NULL_OBJECT);
     std::string bundleName;
     int32_t callerUid = IPCSkeleton::GetCallingUid();
-    if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+    if (IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
         HILOG_ERROR("Get Bundle Name failed.");
         return GET_BUNDLE_INFO_FAILED;
     }
