@@ -2457,7 +2457,8 @@ void AbilityConnectManager::HandleProcessFrozen(const std::vector<int32_t> &pidL
     auto weakthis = weak_from_this();
     for (auto [key, abilityRecord] : serviceMap_) {
         if (abilityRecord && abilityRecord->GetUid() == uid &&
-            abilityRecord->GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE &&
+            (abilityRecord->GetAbilityInfo().type == AppExecFwk::AbilityType::SERVICE ||
+             abilityRecord->GetAbilityInfo().extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) &&
             pidSet.count(abilityRecord->GetPid()) > 0 &&
             FROZEN_WHITE_LIST.count(abilityRecord->GetAbilityInfo().bundleName) == 0 &&
             abilityRecord->IsConnectListEmpty() &&
