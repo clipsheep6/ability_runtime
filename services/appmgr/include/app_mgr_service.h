@@ -193,16 +193,6 @@ public:
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
-    // the function about system
-    /**
-     * CheckPermission, call CheckPermission() through proxy object, check the permission.
-     *
-     * @param recordId, a unique record that identifies this Application from others.
-     * @param permission, check the permissions.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t CheckPermission(const int32_t recordId, const std::string &permission) override;
-
     // the function about service running info
     /**
      * QueryServiceState, Query application service status.
@@ -476,16 +466,6 @@ private:
     bool IsReady() const;
 
     /**
-     * AddAppDeathRecipient, Add monitoring death application record.
-     *
-     * @param pid, the application pid.
-     * @param appDeathRecipient, Application death recipient list.
-     *
-     * @return
-     */
-    void AddAppDeathRecipient(const pid_t pid) const;
-
-    /**
      * SetInnerService, Setting application service Inner instance.
      *
      * @return
@@ -531,7 +511,7 @@ private:
     void Dump(const std::vector<std::u16string>& args, std::string& result) const;
     void ShowHelp(std::string& result) const;
 
-    bool JudgeSelfCalledByRecordId(int32_t recordId);
+    bool JudgeAppSelfCalled(int32_t recordId);
 
     /**
      * @brief Notify AbilityManagerService the page show.

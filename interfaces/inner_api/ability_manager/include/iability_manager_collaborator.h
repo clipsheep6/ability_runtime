@@ -172,6 +172,11 @@ public:
         return -1;
     }
 
+    virtual void NotifyMissionBindPid(int32_t missionId, int32_t pid)
+    {
+        return;
+    }
+
     enum {
         NOTIFY_START_ABILITY = 1,
         NOTIFY_MISSION_CREATED,
@@ -189,6 +194,7 @@ public:
         CHECK_CALL_ABILITY_PERMISSION,
         UPDATE_CONFIGURATION,
         OPEN_FILE,
+        NOTIFY_MISSION_BIND_PID,
     };
 };
 }  // namespace AAFwk

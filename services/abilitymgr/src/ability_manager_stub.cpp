@@ -149,10 +149,6 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::RegisterIAbilityManagerCollaboratorInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR)] =
         &AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_MISSION_TO_BACKGROUND)] =
-        &AbilityManagerStub::MoveMissionToBackgroundInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::TERMINATE_MISSION)] =
-        &AbilityManagerStub::TerminateMissionInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER)] =
         &AbilityManagerStub::RegisterAppDebugListenerInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER)] =
@@ -265,6 +261,8 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::ForceExitAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON)] =
         &AbilityManagerStub::RecordAppExitReasonInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON)] =
+        &AbilityManagerStub::RecordProcessExitReasonInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER)] =
         &AbilityManagerStub::RegisterSessionHandlerInner;
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -351,10 +349,6 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::HandleRequestDialogService;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED)] =
         &AbilityManagerStub::HandleReportDrawnCompleted;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_COMPONENT_INTERCEPTION)] =
-        &AbilityManagerStub::SetComponentInterceptionInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_ABILITY_RESULT_BY_TOKEN)] =
-        &AbilityManagerStub::SendResultToAbilityByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD)] =
         &AbilityManagerStub::IsValidMissionIdsInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::VERIFY_PERMISSION)] =
@@ -387,16 +381,6 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::CancelApplicationAutoStartupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::QUERY_ALL_AUTO_STARTUP_APPLICATION)] =
         &AbilityManagerStub::QueryAllAutoStartupApplicationsInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_CALLBACK)] =
-        &AbilityManagerStub::RegisterAutoStartupCallbackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_CALLBACK)] =
-        &AbilityManagerStub::UnregisterAutoStartupCallbackInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_AUTO_STARTUP)] =
-        &AbilityManagerStub::SetAutoStartupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_AUTO_STARTUP)] =
-        &AbilityManagerStub::CancelAutoStartupInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_AUTO_STARTUP)] =
-        &AbilityManagerStub::IsAutoStartupInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_CONNECTION_DATA)] =
         &AbilityManagerStub::GetConnectionDataInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP_BY_EDM)] =
@@ -1674,7 +1658,14 @@ int AbilityManagerStub::ReleaseCallInner(MessageParcel &data, MessageParcel &rep
 int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t userId = data.ReadInt32();
-    int result = StartUser(userId);
+    sptr<IUserCallback> callback = nullptr;
+    if (data.ReadBool()) {
+        callback = iface_cast<IUserCallback>(data.ReadRemoteObject());
+    } else {
+        HILOG_ERROR("callback is invalid value.");
+        return ERR_INVALID_VALUE;
+    }
+    int result = StartUser(userId, callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("StartUser failed.");
         return ERR_INVALID_VALUE;
@@ -1685,9 +1676,9 @@ int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply
 int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t userId = data.ReadInt32();
-    sptr<IStopUserCallback> callback = nullptr;
+    sptr<IUserCallback> callback = nullptr;
     if (data.ReadBool()) {
-        callback = iface_cast<IStopUserCallback>(data.ReadRemoteObject());
+        callback = iface_cast<IUserCallback>(data.ReadRemoteObject());
     }
     int result = StopUser(userId, callback);
     if (!reply.WriteInt32(result)) {
@@ -1894,39 +1885,6 @@ int AbilityManagerStub::SetAbilityControllerInner(MessageParcel &data, MessagePa
         HILOG_ERROR("setAbilityControllerInner failed.");
         return ERR_INVALID_VALUE;
     }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SetComponentInterceptionInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AppExecFwk::IComponentInterception> componentInterception =
-        iface_cast<AppExecFwk::IComponentInterception>(data.ReadRemoteObject());
-    if (componentInterception == nullptr) {
-        HILOG_ERROR("AbilityManagerStub: SetComponentInterceptionInner readParcelable failed!");
-        return ERR_NULL_OBJECT;
-    }
-    int32_t result = SetComponentInterception(componentInterception);
-    HILOG_INFO("AbilityManagerStub: SetComponentInterceptionInner result = %{public}d", result);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("SetComponentInterceptionInner failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SendResultToAbilityByTokenInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
-    if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
-        return ERR_INVALID_VALUE;
-    }
-    sptr<IRemoteObject> abilityToken = data.ReadRemoteObject();
-    int32_t requestCode = data.ReadInt32();
-    int32_t resultCode = data.ReadInt32();
-    int32_t userId = data.ReadInt32();
-    int32_t result = SendResultToAbilityByToken(*want, abilityToken, requestCode, resultCode, userId);
-    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
@@ -2553,8 +2511,12 @@ int AbilityManagerStub::VerifyPermissionInner(MessageParcel &data, MessageParcel
 int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t pid = data.ReadInt32();
-    Reason reason = static_cast<Reason>(data.ReadInt32());
-    int32_t result = ForceExitApp(pid, reason);
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = ForceExitApp(pid, *exitReason);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;
@@ -2564,8 +2526,28 @@ int32_t AbilityManagerStub::ForceExitAppInner(MessageParcel &data, MessageParcel
 
 int32_t AbilityManagerStub::RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply)
 {
-    Reason reason = static_cast<Reason>(data.ReadInt32());
-    int32_t result = RecordAppExitReason(reason);
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RecordAppExitReason(*exitReason);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t pid = data.ReadInt32();
+    std::unique_ptr<ExitReason> exitReason(data.ReadParcelable<ExitReason>());
+    if (!exitReason) {
+        HILOG_ERROR("exitReason is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RecordProcessExitReason(pid, *exitReason);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed.");
         return ERR_INVALID_VALUE;
@@ -2654,22 +2636,6 @@ int32_t AbilityManagerStub::UnregisterIAbilityManagerCollaboratorInner(MessagePa
     return NO_ERROR;
 }
 
-int32_t AbilityManagerStub::MoveMissionToBackgroundInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t missionId = data.ReadInt32();
-    int32_t ret = MoveMissionToBackground(missionId);
-    reply.WriteInt32(ret);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::TerminateMissionInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t missionId = data.ReadInt32();
-    int32_t ret = TerminateMission(missionId);
-    reply.WriteInt32(ret);
-    return NO_ERROR;
-}
-
 int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Call.");
@@ -2750,68 +2716,6 @@ int32_t AbilityManagerStub::QueryAllAutoStartupApplicationsInner(MessageParcel &
             return ERR_INVALID_VALUE;
         }
     }
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::RegisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    if (callback == nullptr) {
-        HILOG_ERROR("Callback is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = RegisterAutoStartupCallback(callback);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::UnregisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    if (callback == nullptr) {
-        HILOG_ERROR("Callback is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = UnregisterAutoStartupCallback(callback);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::SetAutoStartupInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    if (info == nullptr) {
-        HILOG_ERROR("Info is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = SetAutoStartup(*info);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::CancelAutoStartupInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    if (info == nullptr) {
-        HILOG_ERROR("Info is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    int32_t result = CancelAutoStartup(*info);
-    reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int32_t AbilityManagerStub::IsAutoStartupInner(MessageParcel &data, MessageParcel &reply)
-{
-    sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
-    if (info == nullptr) {
-        HILOG_ERROR("Info is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-    bool isAutoStartup = false;
-    int32_t result = IsAutoStartup(*info, isAutoStartup);
-    reply.WriteInt32(result);
-    reply.WriteBool(isAutoStartup);
     return NO_ERROR;
 }
 

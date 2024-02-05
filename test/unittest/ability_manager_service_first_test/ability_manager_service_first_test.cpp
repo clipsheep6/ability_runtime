@@ -26,7 +26,6 @@
 #include "recovery_param.h"
 #undef private
 #undef protected
-
 #include "ability_manager_errors.h"
 #include "connection_observer_errors.h"
 #include "mock_ability_connect_callback.h"
@@ -36,6 +35,7 @@
 #include "session/host/include/session.h"
 #include "mock_ability_manager_collaborator.h"
 #include "mock_prepare_terminate_callback.h"
+#include "mock_sa_call.h"
 #include "scene_board_judgement.h"
 
 using namespace testing;
@@ -591,6 +591,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level
 {
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), -1);
     EXPECT_EQ(abilityMs_->GetMissionIdByToken(MockToken(AbilityType::PAGE)), -1);
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 end");
@@ -1098,9 +1099,26 @@ HWTEST_F(AbilityManagerServiceFirstTest, RecordAppExitReason_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceFirstTest RecordAppExitReason_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        EXPECT_EQ(abilityMs_->RecordAppExitReason(REASON_JS_ERROR), ERR_NULL_OBJECT);
+        ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+        EXPECT_EQ(abilityMs_->RecordAppExitReason(exitReason), ERR_NULL_OBJECT);
     }
     HILOG_INFO("AbilityManagerServiceFirstTest RecordAppExitReason_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RecordProcessExitReason
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService RecordProcessExitReason
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, RecordProcessExitReason_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest RecordProcessExitReason_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    int32_t pid = 1;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    EXPECT_EQ(abilityMs_->RecordProcessExitReason(pid, exitReason), ERR_PERMISSION_DENIED);
+    HILOG_INFO("AbilityManagerServiceFirstTest RecordProcessExitReason_001 end");
 }
 
 /*
@@ -1114,7 +1132,8 @@ HWTEST_F(AbilityManagerServiceFirstTest, ForceExitApp_001, TestSize.Level1)
     HILOG_INFO("AbilityManagerServiceFirstTest ForceExitApp_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     int32_t pid = 0;
-    EXPECT_EQ(abilityMs_->ForceExitApp(pid, REASON_JS_ERROR), ERR_PERMISSION_DENIED);
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    EXPECT_EQ(abilityMs_->ForceExitApp(pid, exitReason), ERR_PERMISSION_DENIED);
     HILOG_INFO("AbilityManagerServiceFirstTest ForceExitApp_001 end");
 }
 
@@ -1662,153 +1681,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, QueryAllAutoStartupApplications_0200, T
     EXPECT_NE(abilityMs_->abilityAutoStartupService_, nullptr);
     std::vector<AutoStartupInfo> infoList;
     auto result = abilityMs_->QueryAllAutoStartupApplications(infoList);
-    EXPECT_NE(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_RegisterAutoStartupCallback_0100
- * @tc.desc: Test the state of RegisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, RegisterAutoStartupCallback_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = nullptr;
-    sptr<IRemoteObject> callback = nullptr;
-    auto result = abilityMs_->RegisterAutoStartupCallback(callback);
-    EXPECT_EQ(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_RegisterAutoStartupCallback_0200
- * @tc.desc: Test the state of RegisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, RegisterAutoStartupCallback_0200, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-    EXPECT_NE(abilityMs_->abilityAutoStartupService_, nullptr);
-    sptr<IRemoteObject> callback = nullptr;
-    auto result = abilityMs_->RegisterAutoStartupCallback(callback);
-    EXPECT_NE(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_UnregisterAutoStartupCallback_0100
- * @tc.desc: Test the state of UnregisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, UnregisterAutoStartupCallback_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = nullptr;
-    sptr<IRemoteObject> callback = nullptr;
-    auto result = abilityMs_->UnregisterAutoStartupCallback(callback);
-    EXPECT_EQ(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_UnregisterAutoStartupCallback_0200
- * @tc.desc: Test the state of UnregisterAutoStartupCallback
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, UnregisterAutoStartupCallback_0200, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-    EXPECT_NE(abilityMs_->abilityAutoStartupService_, nullptr);
-    sptr<IRemoteObject> callback = nullptr;
-    auto result = abilityMs_->UnregisterAutoStartupCallback(callback);
-    EXPECT_NE(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_SetAutoStartup_0100
- * @tc.desc: Test the state of SetAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, SetAutoStartup_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = nullptr;
-    AutoStartupInfo info;
-    auto result = abilityMs_->SetAutoStartup(info);
-    EXPECT_EQ(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_SetAutoStartup_0200
- * @tc.desc: Test the state of SetAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, SetAutoStartup_0200, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-    EXPECT_NE(abilityMs_->abilityAutoStartupService_, nullptr);
-    AutoStartupInfo info;
-    auto result = abilityMs_->SetAutoStartup(info);
-    EXPECT_NE(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_CancelAutoStartup_0100
- * @tc.desc: Test the state of CancelAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, CancelAutoStartup_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = nullptr;
-    AutoStartupInfo info;
-    auto result = abilityMs_->CancelAutoStartup(info);
-    EXPECT_EQ(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_CancelAutoStartup_0200
- * @tc.desc: Test the state of CancelAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, CancelAutoStartup_0200, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-    EXPECT_NE(abilityMs_->abilityAutoStartupService_, nullptr);
-    AutoStartupInfo info;
-    auto result = abilityMs_->CancelAutoStartup(info);
-    EXPECT_NE(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_IsAutoStartup_0100
- * @tc.desc: Test the state of IsAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, IsAutoStartup_0100, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = nullptr;
-    AutoStartupInfo info;
-    bool isAutoStartup = true;
-    auto result = abilityMs_->IsAutoStartup(info, isAutoStartup);
-    EXPECT_EQ(result, ERR_NO_INIT);
-}
-
-/**
- * @tc.name: AbilityManagerServiceFirstTest_IsAutoStartup_0200
- * @tc.desc: Test the state of IsAutoStartup
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerServiceFirstTest, IsAutoStartup_0200, TestSize.Level1)
-{
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->abilityAutoStartupService_ = std::make_shared<AbilityRuntime::AbilityAutoStartupService>();
-    EXPECT_NE(abilityMs_->abilityAutoStartupService_, nullptr);
-    AutoStartupInfo info;
-    bool isAutoStartup = true;
-    auto result = abilityMs_->IsAutoStartup(info, isAutoStartup);
     EXPECT_NE(result, ERR_NO_INIT);
 }
 } // namespace AAFwk

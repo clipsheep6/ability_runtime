@@ -150,6 +150,8 @@ public:
      * @return int The file descriptor.
      */
     virtual int OpenFile(const Uri& uri, uint32_t flag) override;
+
+    virtual void NotifyMissionBindPid(int32_t missionId, int32_t pid) override;
 private:
     static inline BrokerDelegator<AbilityManagerCollaboratorProxy> delegator_;
     int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

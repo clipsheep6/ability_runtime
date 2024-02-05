@@ -291,7 +291,7 @@ void UIAbility::OnConfigurationUpdatedNotify(const AppExecFwk::Configuration &co
             resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
         }
         resourceManager->UpdateResConfig(*resConfig);
-        HILOG_DEBUG("Current colorMode: %{public}d, hasPointerDevice: %{publis}d.", resConfig->GetColorMode(),
+        HILOG_DEBUG("Current colorMode: %{public}d, hasPointerDevice: %{public}d.", resConfig->GetColorMode(),
             resConfig->GetInputDevice());
     }
 
@@ -1030,6 +1030,17 @@ void UIAbility::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
         return;
     }
     abilityContextImpl->SetWeakSessionToken(sessionToken);
+}
+
+void UIAbility::EraseUIExtension(int32_t sessionId)
+{
+    HILOG_DEBUG("call");
+    auto abilityContextImpl = GetAbilityContext();
+    if (abilityContextImpl == nullptr) {
+        HILOG_ERROR("abilityContext is nullptr");
+        return;
+    }
+    abilityContextImpl->EraseUIExtension(sessionId);
 }
 #endif
 } // namespace AbilityRuntime

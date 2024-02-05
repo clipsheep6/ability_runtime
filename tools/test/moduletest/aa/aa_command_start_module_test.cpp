@@ -180,3 +180,119 @@ HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0400, Function | 
     AbilityManagerShellCommand cmd(argc, argv);
     EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
 }
+
+/**
+ * @tc.number: Aa_Command_Start_ModuleTest_0500
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> --pi <key> <integer-value>" command.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJUN4
+ */
+HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0500, Function | MediumTest | Level1)
+{
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"--pi",
+        (char*)"kinteger",
+        (char*)"900",
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.number: Aa_Command_Start_ModuleTest_0600
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> --pb <key> <bool-value>" command.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJUN4
+ */
+HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0600, Function | MediumTest | Level1)
+{
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"--pb",
+        (char*)"kbool",
+        (char*)"true",
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.number: Aa_Command_Start_ModuleTest_0700
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> --ps <key> <value>" command.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJUN4
+ */
+HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0700, Function | MediumTest | Level1)
+{
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"--ps",
+        (char*)"kstring",
+        (char*)"string-value",
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}
+
+/**
+ * @tc.number: Aa_Command_Start_ModuleTest_0800
+ * @tc.name: ExecCommand
+ * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> \
+ * --psn <key> <integer-value>" command.
+ * @tc.type: FUNC
+ * @tc.require: AR000GJUN4
+ */
+HWTEST_F(AaCommandStartModuleTest, Aa_Command_Start_ModuleTest_0800, Function | MediumTest | Level1)
+{
+    char* argv[] = {
+        (char*)TOOL_NAME.c_str(),
+        (char*)cmd_.c_str(),
+        (char*)"-d",
+        (char*)STRING_DEVICE.c_str(),
+        (char*)"-a",
+        (char*)STRING_ABILITY_NAME.c_str(),
+        (char*)"-b",
+        (char*)STRING_BUNDLE_NAME.c_str(),
+        (char*)"--psn",
+        (char*)"knullstring",
+        (char*)"",
+    };
+    int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+    AbilityManagerShellCommand cmd(argc, argv);
+    EXPECT_EQ(cmd.ExecCommand(), STRING_START_ABILITY_OK + "\n");
+}

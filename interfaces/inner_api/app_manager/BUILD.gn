@@ -87,8 +87,6 @@ ohos_shared_library("app_manager") {
     "src/appmgr/child_process_info.cpp",
     "src/appmgr/child_scheduler_proxy.cpp",
     "src/appmgr/child_scheduler_stub.cpp",
-    "src/appmgr/component_interception_proxy.cpp",
-    "src/appmgr/component_interception_stub.cpp",
     "src/appmgr/configuration_observer_proxy.cpp",
     "src/appmgr/configuration_observer_stub.cpp",
     "src/appmgr/fault_data.cpp",

@@ -119,6 +119,7 @@ private:
         std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp);
     void ReplyFailedInner(InsightIntentInnerErr innerErr = InsightIntentInnerErr::INSIGHT_INTENT_INTERNAL_ERROR);
     void ReplySucceededInner(std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp);
+    bool ExecuteIntentCheckError();
 
     bool HandleResultReturnedFromJsFunc(napi_value resultJs);
 

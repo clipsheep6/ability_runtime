@@ -19,6 +19,7 @@
 #include "ability_manager_client.h"
 #include "ability_state.h"
 #include "app_recovery.h"
+#include "exit_reason.h"
 #include "ffrt.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
@@ -112,7 +113,8 @@ int AppfreezeInner::AppfreezeHandle(const FaultData& faultData, bool onlyMainThr
 
 bool AppfreezeInner::IsExitApp(const std::string& name)
 {
-    if (name == AppFreezeType::THREAD_BLOCK_6S || name == AppFreezeType::APP_INPUT_BLOCK) {
+    if (name == AppFreezeType::THREAD_BLOCK_6S || name == AppFreezeType::APP_INPUT_BLOCK ||
+        name == AppFreezeType::LIFECYCLE_TIMEOUT) {
         return true;
     }
     return false;
@@ -156,7 +158,8 @@ int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
         if (isExit) {
             faultData.forceExit = true;
             faultData.waitSaveState = AppRecovery::GetInstance().IsEnabled();
-            AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_APP_FREEZE);
+            AAFwk::ExitReason exitReason = { REASON_APP_FREEZE, faultData.errorObject.name };
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
         }
         NotifyANR(faultData);
         if (isExit) {

@@ -506,6 +506,7 @@ private:
     void DisconnectRecordForce(ConnectListType &list, std::shared_ptr<ConnectionRecord> connectRecord);
     std::shared_ptr<AbilityRecord> GetServiceRecordByElementNameInner(const std::string &element);
     std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(const sptr<IRemoteObject> &token);
+    std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(int32_t abilityRecordId);
     std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token);
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;

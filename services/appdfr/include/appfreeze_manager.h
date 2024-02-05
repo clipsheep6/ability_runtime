@@ -64,6 +64,7 @@ public:
     int AppfreezeHandleWithStack(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo);
     int LifecycleTimeoutHandle(const ParamInfo& info, std::unique_ptr<FreezeUtil::LifecycleFlow> flow = nullptr);
     bool IsHandleAppfreeze(const std::string& bundleName);
+    bool IsProcessDebug(int32_t pid, std::string processName);
 
 private:
     AppfreezeManager& operator=(const AppfreezeManager&) = delete;
@@ -76,7 +77,6 @@ private:
     std::string CatcherStacktrace(int pid) const;
     int AcquireStack(const FaultData& faultData, const AppInfo& appInfo);
     int NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo, const std::string& binderInfo);
-    bool IsProcessDebug(int32_t pid, std::string processName);
 
     static const inline std::string LOGGER_DEBUG_PROC_PATH = "/proc/transaction_proc";
     std::string name_;

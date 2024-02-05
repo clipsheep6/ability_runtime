@@ -71,6 +71,14 @@ public:
     {
         return;
     }
+    void AllowCrossThreadExecution() override
+    {
+        return;
+    }
+    void GetHeapPrepare() override
+    {
+        return;
+    }
     void NotifyApplicationState(bool isBackground) override
     {
         return;

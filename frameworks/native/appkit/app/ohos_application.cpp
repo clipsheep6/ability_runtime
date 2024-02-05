@@ -29,6 +29,7 @@
 #include "application_cleaner.h"
 #include "application_impl.h"
 #include "bundle_mgr_helper.h"
+#include "configuration_utils.h"
 #include "context_impl.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -459,6 +460,9 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
     }
 
+    // Update resConfig of resource manager, which belongs to application context.
+    UpdateAppContextResMgr(config);
+
     // Notify all abilities
     HILOG_INFO(
         "recordCount: [%{public}d]", static_cast<int>(abilityRecordMgr_->GetRecordCount()));
@@ -706,7 +710,7 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
 
 void OHOSApplication::DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo)
 {
-    HILOG_INFO("language: %{public}s.", abilityInfo.srcLanguage.c_str());
+    HILOG_DEBUG("language: %{public}s.", abilityInfo.srcLanguage.c_str());
     if (runtime_) {
         runtime_->DoCleanWorkAfterStageCleaned();
     }
@@ -803,7 +807,7 @@ bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 void OHOSApplication::CleanAppTempData(bool isLastProcess)
 {
     if (!isLastProcess) {
-        HILOG_ERROR("There are other survival processes in the current application.");
+        HILOG_ERROR("failed");
         return;
     }
     if (abilityRuntimeContext_ == nullptr) {
@@ -830,6 +834,18 @@ void OHOSApplication::CleanUselessTempData()
         cleaner->SetRuntimeContext(abilityRuntimeContext_);
         cleaner->ClearTempData();
     }
+}
+
+void OHOSApplication::UpdateAppContextResMgr(const Configuration &config)
+{
+    auto context = GetAppContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Application context is nullptr.");
+        return;
+    }
+
+    auto configUtils = std::make_shared<AbilityRuntime::ConfigurationUtils>();
+    configUtils->UpdateGlobalConfig(config, context->GetResourceManager());
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

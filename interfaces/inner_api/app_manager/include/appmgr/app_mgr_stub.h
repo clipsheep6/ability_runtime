@@ -60,7 +60,6 @@ private:
     int32_t HandleApplicationForegrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationBackgrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationTerminated(MessageParcel &data, MessageParcel &reply);
-    int32_t HandleCheckPermission(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAbilityCleaned(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAmsMgr(MessageParcel &data, MessageParcel &reply);
     int32_t HandleClearUpApplicationData(MessageParcel &data, MessageParcel &reply);

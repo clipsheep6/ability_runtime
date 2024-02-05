@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef FUZZTEST_OHOS_ABILITY_RUNTIME_ABILITYSTUBTERMINATEMISSION_FUZZER_H
-#define FUZZTEST_OHOS_ABILITY_RUNTIME_ABILITYSTUBTERMINATEMISSION_FUZZER_H
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_CONSTANTS
+#define OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_CONSTANTS
 
-#define FUZZ_PROJECT_NAME "abilitystubterminatemission_fuzzer"
+#include <string>
 
-#endif // FUZZTEST_OHOS_ABILITY_RUNTIME_ABILITYSTUBTERMINATEMISSION_FUZZER_H
+namespace OHOS {
+namespace AAFwk {
+constexpr const int32_t NO_PID = -1;
+}  // namespace AAFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_ABILITY_MANAGER_CONSTANTS

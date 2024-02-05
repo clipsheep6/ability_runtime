@@ -175,7 +175,7 @@ void StartAbilityByCallComplete(napi_env env, NapiAsyncTask& task, std::weak_ptr
 
 void JsAbilityContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_INFO("JsAbilityContext::Finalizer is called");
+    HILOG_DEBUG("called");
     std::unique_ptr<JsAbilityContext>(static_cast<JsAbilityContext*>(data));
 }
 
@@ -321,7 +321,7 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
     InheritWindowMode(want);
     decltype(info.argc) unwrapArgc = ARGC_ONE;
-    HILOG_INFO("StartAbility, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbility start options is used.");
@@ -938,6 +938,7 @@ napi_value JsAbilityContext::OnTerminateSelfWithResult(napi_env env, NapiCallbac
 
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, resultCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_INFO("TerminateSelfWithResult async");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -1144,6 +1145,7 @@ napi_value JsAbilityContext::OnTerminateSelf(napi_env env, NapiCallbackInfo& inf
 
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_INFO("TerminateSelf async");
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
@@ -1290,7 +1292,7 @@ napi_value JsAbilityContext::WrapRequestDialogResult(napi_env env,
 
 void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 {
-    HILOG_INFO("InheritWindowMode");
+    HILOG_DEBUG("called");
 #ifdef SUPPORT_GRAPHICS
     // only split mode need inherit
     auto context = context_.lock();
@@ -1312,7 +1314,7 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
 void JsAbilityContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_INFO("ConfigurationUpdated");
+    HILOG_DEBUG("called");
     if (jsContext == nullptr || config == nullptr) {
         HILOG_INFO("jsContext is nullptr.");
         return;
@@ -1558,7 +1560,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    HILOG_DEBUG("resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");
         return;

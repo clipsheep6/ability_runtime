@@ -112,10 +112,10 @@ void ServiceExtensionContext::ClearFailedCallConnection(const std::shared_ptr<Ca
 ErrCode ServiceExtensionContext::ConnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {
-    HILOG_INFO("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    HILOG_DEBUG("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
-    HILOG_INFO("ServiceExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
+    HILOG_DEBUG("ServiceExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
     return ret;
 }
 
@@ -182,13 +182,13 @@ ErrCode ServiceExtensionContext::ConnectAbilityWithAccount(
 ErrCode ServiceExtensionContext::DisconnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {
-    HILOG_INFO("%{public}s begin.", __func__);
+    HILOG_DEBUG("begin.");
     ErrCode ret =
         ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
         HILOG_ERROR("%{public}s end DisconnectAbility error, ret=%{public}d", __func__, ret);
     }
-    HILOG_INFO("%{public}s end DisconnectAbility", __func__);
+    HILOG_INFO("end");
     return ret;
 }
 
@@ -208,7 +208,7 @@ ErrCode ServiceExtensionContext::RequestModalUIExtension(const Want &want)
     HILOG_INFO("%{public}s begin.", __func__);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
     if (err != ERR_OK) {
-        HILOG_ERROR("ServiceExtensionContext::TerminateAbility is failed %{public}d", err);
+        HILOG_ERROR("ServiceExtensionContext::RequestModalUIExtension is failed %{public}d", err);
     }
     HILOG_INFO("%{public}s end.", __func__);
     return err;

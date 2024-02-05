@@ -161,7 +161,7 @@ JsRuntime::JsRuntime()
 
 JsRuntime::~JsRuntime()
 {
-    HILOG_INFO("JsRuntime destructor.");
+    HILOG_DEBUG("called");
     Deinitialize();
     StopDebugMode();
 }
@@ -206,7 +206,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
-    HILOG_INFO("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+    HILOG_DEBUG("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
     const std::string bundleName = bundleName_;
@@ -217,7 +217,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
         inputProcessName = processName;
     }
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
-        [bundleName, needBreakPoint, instanceId, weak](int socketFd, std::string option) {
+        [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
         HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
             socketFd, option.c_str());
         if (weak == nullptr) {
@@ -225,14 +225,20 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
             return;
         }
         if (option.find(DEBUGGER) == std::string::npos) {
-            ConnectServerManager::Get().StopConnectServer(false);
+            if (isDebugApp) {
+                ConnectServerManager::Get().StopConnectServer(false);
+            }
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
-            weak->StopDebugger(option);
+            if (isDebugApp) {
+                weak->StopDebugger(option);
+            }
             weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
         }
     });
-    ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
+    if (isDebugApp) {
+        ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
+    }
     ConnectServerManager::Get().AddInstance(instanceId_);
     jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, needBreakPoint);
 }
@@ -335,7 +341,7 @@ void JsRuntime::StartProfiler(
         inputProcessName = processName;
     }
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
-        [bundleName, needBreakPoint, instanceId, weak](int socketFd, std::string option) {
+        [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
         HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
             socketFd, option.c_str());
         if (weak == nullptr) {
@@ -343,16 +349,21 @@ void JsRuntime::StartProfiler(
             return;
         }
         if (option.find(DEBUGGER) == std::string::npos) {
-            ConnectServerManager::Get().StopConnectServer(false);
+            if (isDebugApp) {
+                ConnectServerManager::Get().StopConnectServer(false);
+            }
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
-            weak->StopDebugger(option);
+            if (isDebugApp) {
+                weak->StopDebugger(option);
+            }
             weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
         }
     });
-    ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
+    if (isDebugApp) {
+        ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
+    }
     ConnectServerManager::Get().AddInstance(instanceId_);
-
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
@@ -593,7 +604,7 @@ bool JsRuntime::Initialize(const Options& options)
         jsEnv_->StartMonitorJSHeapUsage();
     }
     apiTargetVersion_ = options.apiTargetVersion;
-    HILOG_INFO("Initialize: %{public}d.", apiTargetVersion_);
+    HILOG_DEBUG("Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         auto env = GetNapiEnv();
@@ -630,9 +641,9 @@ bool JsRuntime::Initialize(const Options& options)
                 HILOG_ERROR("Failed to create reference for global.requireNapi");
                 return false;
             }
-            HILOG_INFO("PreloadAce start.");
+            HILOG_DEBUG("PreloadAce start.");
             PreloadAce(options);
-            HILOG_INFO("PreloadAce end.");
+            HILOG_DEBUG("PreloadAce end.");
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
         }
 
@@ -670,7 +681,7 @@ bool JsRuntime::Initialize(const Options& options)
         InitSourceMap(operatorObj);
 
         if (options.isUnique) {
-            HILOG_INFO("Not supported TimerModule when form render");
+            HILOG_DEBUG("Not supported TimerModule when form render");
         } else {
             InitTimerModule();
         }
@@ -700,7 +711,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     pandaOption.SetArkBundleName(bundleName);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
-    HILOG_INFO("JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
+    HILOG_DEBUG("JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
         arkProperties, bundleName.c_str());
     pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
     pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
@@ -932,7 +943,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     const std::string& moduleName, const napi_value* argv, size_t argc)
 {
-    HILOG_INFO("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     napi_env env = GetNapiEnv();
     CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
@@ -1073,7 +1084,7 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
 {
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
-    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate);
+    nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
 void JsRuntime::DestroyHeapProfiler()
@@ -1087,6 +1098,19 @@ void JsRuntime::ForceFullGC()
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
     panda::JSNApi::TriggerGC(vm, panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
+}
+
+void JsRuntime::AllowCrossThreadExecution()
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    panda::JSNApi::AllowCrossThreadExecution(vm);
+}
+
+void JsRuntime::GetHeapPrepare()
+{
+    CHECK_POINTER(jsEnv_);
+    jsEnv_->GetHeapPrepare();
 }
 
 bool JsRuntime::BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames)
@@ -1114,7 +1138,7 @@ void JsRuntime::NotifyApplicationState(bool isBackground)
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     nativeEngine->NotifyApplicationState(isBackground);
-    HILOG_INFO("NotifyApplicationState, isBackground %{public}d.", isBackground);
+    HILOG_DEBUG("NotifyApplicationState, isBackground %{public}d.", isBackground);
 }
 
 bool JsRuntime::SuspendVM(uint32_t tid)
@@ -1223,7 +1247,7 @@ bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string&
         HILOG_DEBUG("can't find source map, and switch to stage model.");
         std::string tempPath = std::regex_replace(sourceMapPath, std::regex("ets"), "assets/js");
         if (!extractor->ExtractToBufByName(tempPath, dataPtr, len)) {
-            HILOG_ERROR("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
+            HILOG_DEBUG("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
             return false;
         }
     }
@@ -1392,7 +1416,6 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     in.seekg(0, std::ios::end);
     int64_t size = in.tellg();
     if (size <= 0) {
-        HILOG_ERROR("the file is an empty file");
         in.close();
         return systemKitsMap;
     }
@@ -1401,12 +1424,10 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     jsonBuf = nlohmann::json::parse(in, nullptr, false);
     in.close();
     if (jsonBuf.is_discarded()) {
-        HILOG_ERROR("bad profile file");
         return systemKitsMap;
     }
 
     if (!jsonBuf.contains(SYSTEM_KITS)) {
-        HILOG_ERROR("json config doesn't contain systemkits.");
         return systemKitsMap;
     }
     for (auto &item : jsonBuf.at(SYSTEM_KITS).items()) {

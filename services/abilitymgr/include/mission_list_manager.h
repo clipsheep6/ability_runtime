@@ -340,14 +340,13 @@ public:
 
     int DoAbilityForeground(std::shared_ptr<AbilityRecord> &abilityRecord, uint32_t flag);
 
-    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList);
+    void GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+        int32_t pid = NO_PID);
 
     void CallRequestDone(const std::shared_ptr<AbilityRecord> &abilityRecord, const sptr<IRemoteObject> &callStub);
   
     int SetMissionContinueState(const sptr<IRemoteObject> &token, const int32_t missionId,
         const AAFwk::ContinueState &state);
-
-    int32_t MoveMissionToBackground(int32_t missionId);
 
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
 #ifdef SUPPORT_GRAPHICS
@@ -373,8 +372,6 @@ public:
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) const;
 
     void PostMissionLabelUpdateTask(int missionId) const;
-
-    int32_t TerminateMission(int32_t missionId);
 
 private:
     Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -483,7 +480,7 @@ private:
     void NotifyMissionCreated(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     bool IsExcludeFromMissions(const std::shared_ptr<Mission> &mission);
     void BuildInnerMissionInfo(InnerMissionInfo &info, const std::string &missionName,
-        const std::string &missionAffinity, const AbilityRequest &abilityRequest) const;
+        const AbilityRequest &abilityRequest) const;
     void NotifyStartSpecifiedAbility(AbilityRequest &request, const AAFwk::Want &want);
     void NotifyRestartSpecifiedAbility(AbilityRequest &request, const sptr<IRemoteObject> &token);
     void ProcessPreload(const std::shared_ptr<AbilityRecord> &record) const;
@@ -513,15 +510,12 @@ private:
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetAbilityFromTerminateListInner(const sptr<IRemoteObject> &token);
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord);
-    LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
     bool IsAppLastAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     int PrepareClearMissionLocked(int missionId, const std::shared_ptr<Mission> &mission);
 
     bool CheckPrepareTerminateEnable(const std::shared_ptr<Mission> &mission);
 
-    void NotifyCollaboratorMissionCreated(const AbilityRequest &abilityRequest,
-        const std::shared_ptr<Mission> &targetMission, InnerMissionInfo &info);
     bool GetContentAndTypeId(uint32_t msgId, std::string &msgContent, int &typeId) const;
 
     void SendKeyEvent(const AbilityRequest &abilityRequest);

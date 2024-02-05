@@ -498,17 +498,6 @@ public:
      */
     void OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess = false, bool isChildProcess = false);
 
-    /**
-     * AddAppDeathRecipient, Add monitoring death application record.
-     *
-     * @param pid, the application pid.
-     * @param appDeathRecipient, Application death recipient list.
-     *
-     * @return
-     */
-
-    virtual void AddAppDeathRecipient(const pid_t pid, const sptr<AppDeathRecipient> &appDeathRecipient) const;
-
     void HandleTimeOut(const AAFwk::EventWrap &event);
 
     void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
@@ -1141,14 +1130,6 @@ private:
 
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord);
-
-    /**
-     * Check appRunning status listener permission.
-     *
-     * @param listener Running status listener.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t CheckPermission(const sptr<IRemoteObject> &listener);
 
     int32_t StartChildProcessPreCheck(const pid_t callingPid);
 

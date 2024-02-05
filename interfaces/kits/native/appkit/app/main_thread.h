@@ -521,6 +521,7 @@ private:
      */
     void UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime);
 
+    static void HandleDumpHeapPrepare();
     static void HandleDumpHeap(bool isPrivate);
     static void DestroyHeapProfiler();
     static void ForceFullGC();

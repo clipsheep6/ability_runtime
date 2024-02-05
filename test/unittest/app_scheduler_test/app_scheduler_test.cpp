@@ -27,6 +27,7 @@
 #include "app_process_data.h"
 #include "app_state_call_back_mock.h"
 #include "element_name.h"
+#include "mock_sa_call.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -1181,6 +1182,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAppDebugListener_001, TestSize.L
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_RegisterAppDebugListener_002, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto listener = new AppDebugListenerStubMock();
     int res = DelayedSingleton<AppScheduler>::GetInstance()->RegisterAppDebugListener(listener);
     EXPECT_EQ(res, ERR_OK);
@@ -1205,6 +1207,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_UnregisterAppDebugListener_001, TestSize
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_UnregisterAppDebugListener_002, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto listener = new AppDebugListenerStubMock();
     int res = DelayedSingleton<AppScheduler>::GetInstance()->UnregisterAppDebugListener(listener);
     EXPECT_EQ(res, ERR_OK);

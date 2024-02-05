@@ -73,7 +73,6 @@
             "napi",
             "netmanager_base",
             "os_account",
-            "previewer",
             "relational_store",
             "resource_management",
             "resource_schedule_service",

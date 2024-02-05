@@ -441,34 +441,6 @@ HWTEST_F(AmsRecentAppListTest, Clear_002, TestSize.Level1)
 
 /*
  * Feature: Ams
- * Function: RecentAppList
- * SubFunction: Add
- * FunctionPoints: Add RecentAppList.
- * EnvConditions: RecentAppList has application.
- * CaseDescription: Verity ams can Add RecentAppList when RecentAppList is empty.
- */
-HWTEST_F(AmsRecentAppListTest, RecentAppList_001, TestSize.Level1)
-{
-    EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    pid_t pid = INDEX_NUM_1;
-    auto abilityInfo = GetAbilityInfoByIndex(INDEX_NUM_1);
-    auto appInfo = GetApplicationByIndex(INDEX_NUM_1);
-    sptr<IRemoteObject> token = new (std::nothrow) MockAbilityToken();
-    MockAppSpawnClient* mockClientPtr = new (std::nothrow) MockAppSpawnClient();
-    EXPECT_TRUE(mockClientPtr);
-
-    EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
-    serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
-
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
-    EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    auto appRecord = GetAppRunningRecordByIndex(INDEX_NUM_1);
-    serviceInner_->AddAppDeathRecipient(pid, nullptr);
-    EXPECT_EQ(nullptr, appRecord->appDeathRecipient_);
-}
-
-/*
- * Feature: Ams
  * Function: PushAppFront
  * SubFunction: PushAppFront
  * FunctionPoints: PushAppFront.

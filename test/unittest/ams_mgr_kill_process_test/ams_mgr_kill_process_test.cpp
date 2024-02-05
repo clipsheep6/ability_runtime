@@ -22,6 +22,7 @@
 #include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 #include "system_ability_definition.h"
 #include "sys_mgr_client.h"
 
@@ -94,6 +95,7 @@ HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
 {
     HILOG_INFO("AmsMgrKillProcessTest_KillProcess_0100");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = GetAppMgrServiceInner();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -113,6 +115,7 @@ HWTEST_F(AmsMgrKillProcessTest, KillProcess_0200, TestSize.Level0)
 {
     HILOG_INFO("AmsMgrKillProcessTest_KillProcess_0200");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto proxy = GetAppMgrProxy();
     EXPECT_NE(proxy, nullptr);
 

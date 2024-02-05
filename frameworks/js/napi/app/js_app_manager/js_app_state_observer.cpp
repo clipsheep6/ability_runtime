@@ -64,7 +64,7 @@ void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData
 
 void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("OnAbilityStateChanged begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has cancelled storage");
         return;
@@ -87,7 +87,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
 
 void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("HandleOnAbilityStateChanged begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -98,7 +98,7 @@ void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abi
 
 void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("OnExtensionStateChanged begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has destoryed");
         return;
@@ -121,7 +121,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 
 void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("HandleOnExtensionStateChanged begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -132,7 +132,7 @@ void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &a
 
 void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessCreated begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has cancelled storage");
         return;
@@ -155,7 +155,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessCreated begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -166,7 +166,7 @@ void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessStateChanged begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has destoryed");
         return;
@@ -189,7 +189,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessStateChanged begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -200,7 +200,7 @@ void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processD
 
 void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("OnProcessDied begin");
+    HILOG_DEBUG("called");
     if (!valid_) {
         HILOG_ERROR("the app manager may has destoryed");
         return;
@@ -223,7 +223,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
-    HILOG_INFO("HandleOnProcessDied begin");
+    HILOG_DEBUG("called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -235,7 +235,7 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 void JSAppStateObserver::CallJsFunction(
     napi_value value, const char *methodName, napi_value* argv, size_t argc)
 {
-    HILOG_INFO("CallJsFunction begin, method:%{public}s", methodName);
+    HILOG_DEBUG("called, method:%{public}s", methodName);
     if (value == nullptr) {
         HILOG_ERROR("Failed to get object");
         return;
@@ -249,7 +249,7 @@ void JSAppStateObserver::CallJsFunction(
     }
     napi_value callResult = nullptr;
     napi_call_function(env_, value, method, argc, argv, &callResult);
-    HILOG_INFO("CallJsFunction end");
+    HILOG_DEBUG("end");
 }
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject)

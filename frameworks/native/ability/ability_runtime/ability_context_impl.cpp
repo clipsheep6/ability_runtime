@@ -125,7 +125,7 @@ bool AbilityContextImpl::PrintDrawnCompleted()
 
 void AbilityContextImpl::SwitchArea(int mode)
 {
-    HILOG_INFO("mode:%{public}d.", mode);
+    HILOG_DEBUG("mode:%{public}d.", mode);
     if (stageContext_ != nullptr) {
         stageContext_->SwitchArea(mode);
     }
@@ -308,7 +308,7 @@ ErrCode AbilityContextImpl::StopServiceExtensionAbility(const AAFwk::Want& want,
 
 ErrCode AbilityContextImpl::TerminateAbilityWithResult(const AAFwk::Want& want, int resultCode)
 {
-    HILOG_DEBUG("TerminateAbilityWithResult");
+    HILOG_INFO("TerminateAbilityWithResult");
     isTerminating_ = true;
 
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -510,7 +510,7 @@ ErrCode AbilityContextImpl::MoveAbilityToBackground()
 
 ErrCode AbilityContextImpl::TerminateSelf()
 {
-    HILOG_DEBUG("TerminateSelf");
+    HILOG_INFO("TerminateSelf");
     isTerminating_ = true;
     auto sessionToken = GetSessionToken();
     if (sessionToken == nullptr) {
@@ -600,7 +600,7 @@ void AbilityContextImpl::ClearFailedCallConnection(const std::shared_ptr<CallerC
 
 void AbilityContextImpl::RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback)
 {
-    HILOG_INFO("call");
+    HILOG_DEBUG("call");
     abilityCallback_ = abilityCallback;
 }
 
@@ -805,6 +805,30 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     return ERR_OK;
 }
 
+bool AbilityContextImpl::IsUIExtensionExist(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard lock(uiExtensionMutex_);
+    for (const auto& iter : uiExtensionMap_) {
+        if (iter.second.GetElement().GetBundleName() == want.GetElement().GetBundleName() &&
+            iter.second.GetElement().GetModuleName() == want.GetElement().GetModuleName() &&
+            iter.second.GetElement().GetAbilityName() == want.GetElement().GetAbilityName()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void AbilityContextImpl::EraseUIExtension(int32_t sessionId)
+{
+    HILOG_DEBUG("call");
+    std::lock_guard lock(uiExtensionMutex_);
+    auto iter = uiExtensionMap_.find(sessionId);
+    if (iter != uiExtensionMap_.end()) {
+        uiExtensionMap_.erase(sessionId);
+    }
+}
+
 ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &want)
 {
     HILOG_DEBUG("call");
@@ -813,7 +837,16 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
         HILOG_ERROR("uiContent is nullptr");
         return ERR_INVALID_VALUE;
     }
-    auto disposedCallback = std::make_shared<DialogUIExtensionCallback>();
+    if (IsUIExtensionExist(want)) {
+        HILOG_DEBUG("UIExtension is exist, not create again");
+        return ERR_OK;
+    }
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("abilityCallback is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto disposedCallback = std::make_shared<DialogUIExtensionCallback>(abilityCallback);
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
     callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
@@ -825,6 +858,10 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
     }
     disposedCallback->SetUIContent(uiContent);
     disposedCallback->SetSessionId(sessionId);
+    {
+        std::lock_guard lock(uiExtensionMutex_);
+        uiExtensionMap_.emplace(sessionId, want);
+    }
     return ERR_OK;
 }
 #endif

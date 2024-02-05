@@ -67,7 +67,6 @@ ohos_shared_library("ability_simulator_inner") {
       "${windowmanager_path}/previewer/mock/ui",
       "${windowmanager_path}/interfaces/innerkits/wm",
       "${windowmanager_path}/interfaces/kits/napi/window_runtime/window_stage_napi",
-      "${previewer_path}/jsapp/rich/external",
       "include/bundle_parser",
       "//third_party/json/include",
     ]
@@ -118,7 +117,6 @@ ohos_shared_library("ability_simulator_inner") {
       "ets_utils:timer",
       "hilog:libhilog",
       "napi:ace_napi",
-      "previewer:ide_extension",
     ]
 
     if (ability_runtime_graphics) {

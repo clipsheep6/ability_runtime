@@ -80,6 +80,7 @@ public:
      * @return UIContent object of ACE.
      */
     virtual Ace::UIContent* GetUIContent() = 0;
+    virtual void EraseUIExtension(int32_t sessionId) = 0;
 #endif
 };
 }  // namespace AppExecFwk

@@ -118,7 +118,7 @@ AbilityConnectionStub::~AbilityConnectionStub()
 int AbilityConnectionStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("AbilityConnectionStub::OnRemoteRequest code: %{public}u", code);
+    HILOG_DEBUG("code: %{public}u", code);
     std::u16string descriptor = AbilityConnectionStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -131,7 +131,7 @@ int AbilityConnectionStub::OnRemoteRequest(
         HILOG_ERROR("callback stub receive element is nullptr");
         return ERR_INVALID_VALUE;
     }
-    HILOG_INFO("AbilityConnectionStub Call callback");
+    HILOG_DEBUG("Call callback");
     switch (code) {
         case IAbilityConnection::ON_ABILITY_CONNECT_DONE: {
             auto remoteObject = data.ReadRemoteObject();
@@ -140,7 +140,7 @@ int AbilityConnectionStub::OnRemoteRequest(
                 return ERR_INVALID_VALUE;
             }
             auto resultCode = data.ReadInt32();
-            HILOG_INFO("AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
+            HILOG_DEBUG("AbilityConnectionStub ON_ABILITY_CONNECT_DONE");
             OnAbilityConnectDone(*element, remoteObject, resultCode);
             HILOG_DEBUG("AbilityConnectionStub ON_ABILITY_CONNECT_DONE end");
             return NO_ERROR;
@@ -165,7 +165,7 @@ int AbilityConnectionStub::OnRemoteRequest(
 
 void AbilityConnectCallbackRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    HILOG_ERROR("On remote died.");
+    HILOG_DEBUG("called");
     if (handler_) {
         handler_(remote);
     }

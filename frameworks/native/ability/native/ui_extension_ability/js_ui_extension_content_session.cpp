@@ -653,10 +653,16 @@ napi_value JsUIExtensionContentSession::OnLoadContent(napi_env env, NapiCallback
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         storage = info.argv[INDEX_ONE];
     }
-    if (uiWindow_ == nullptr) {
-        HILOG_ERROR("uiWindow_ is nullptr");
+    if (uiWindow_ == nullptr || sessionInfo_ == nullptr) {
+        HILOG_ERROR("uiWindow_ or sessionInfo_ is nullptr");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
+    }
+
+    if (sessionInfo_->isAsyncModalBinding && isFirstTriggerBindModal_) {
+        HILOG_DEBUG("Trigger binding UIExtension modal window");
+        uiWindow_->TriggerBindModalUIExtension();
+        isFirstTriggerBindModal_ = false;
     }
     sptr<IRemoteObject> parentToken = sessionInfo_->parentToken;
     Rosen::WMError ret = uiWindow_->NapiSetUIContent(contextPath, env, storage, false, parentToken);

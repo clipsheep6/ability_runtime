@@ -31,6 +31,7 @@ const std::string CONFIG_PATH = "/base/etc/proxy_authorization_uri.json";
 
 const std::string PROXY_AUTHORIZATION_URI_NAME = "proxyAuthorizationUri";
 const std::string BUNDLE_NAME = "bundleName";
+const std::string PROCESS_NAME = "processName";
 }
 
 void ProxyAuthorizationUriConfig::LoadConfiguration()
@@ -43,12 +44,12 @@ void ProxyAuthorizationUriConfig::LoadConfiguration()
     }
     std::string configPath = CONFIG_PATH_PREFIX + deviceType + CONFIG_PATH;
     if (ReadFileInfoJson(configPath, jsonBuf)) {
-        LoadBundleNameAllowedList(jsonBuf);
+        LoadAllowedList(jsonBuf);
         return;
     }
     nlohmann::json jsonBufDefault;
     if (ReadFileInfoJson(CONFIG_PATH_DEFAULT, jsonBufDefault)) {
-        LoadBundleNameAllowedList(jsonBufDefault);
+        LoadAllowedList(jsonBufDefault);
     }
 }
 
@@ -57,7 +58,7 @@ bool ProxyAuthorizationUriConfig::IsAuthorizationUriAllowed(uint32_t fromTokenId
     Security::AccessToken::NativeTokenInfo nativeInfo;
     auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(fromTokenId, nativeInfo);
     if (result == Security::AccessToken::AccessTokenKitRet::RET_SUCCESS &&
-        bundleNameAllowedList_.find(nativeInfo.processName) != bundleNameAllowedList_.end()) {
+        processNameAllowedList_.find(nativeInfo.processName) != processNameAllowedList_.end()) {
         return true;
     }
 
@@ -70,7 +71,7 @@ bool ProxyAuthorizationUriConfig::IsAuthorizationUriAllowed(uint32_t fromTokenId
     return false;
 }
 
-void ProxyAuthorizationUriConfig::LoadBundleNameAllowedList(const nlohmann::json &object)
+void ProxyAuthorizationUriConfig::LoadAllowedList(const nlohmann::json &object)
 {
     if (!object.contains(PROXY_AUTHORIZATION_URI_NAME)) {
         HILOG_ERROR("Proxy authorization uri config not existed.");
@@ -79,11 +80,14 @@ void ProxyAuthorizationUriConfig::LoadBundleNameAllowedList(const nlohmann::json
 
     for (auto &item : object.at(PROXY_AUTHORIZATION_URI_NAME).items()) {
         const nlohmann::json& jsonObject = item.value();
-        if (!jsonObject.contains(BUNDLE_NAME) || !jsonObject.at(BUNDLE_NAME).is_string()) {
-            continue;
+        if (jsonObject.contains(BUNDLE_NAME) && jsonObject.at(BUNDLE_NAME).is_string()) {
+            std::string bundleName = jsonObject.at(BUNDLE_NAME).get<std::string>();
+            bundleNameAllowedList_.insert(bundleName);
         }
-        std::string bundleName = jsonObject.at(BUNDLE_NAME).get<std::string>();
-        bundleNameAllowedList_.insert(bundleName);
+        if (jsonObject.contains(PROCESS_NAME) && jsonObject.at(PROCESS_NAME).is_string()) {
+            std::string processName = jsonObject.at(PROCESS_NAME).get<std::string>();
+            processNameAllowedList_.insert(processName);
+        }
     }
 }
 

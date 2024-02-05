@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -216,6 +216,11 @@ public:
     {
         return E_OK;
     }
+
+    virtual int32_t GetLockScreenStatus(uint32_t userId, bool &lockScreenStatus) override
+    {
+        return E_OK;
+    }
     
     virtual int32_t UpdateKeyContext(uint32_t userId) override
     {
@@ -238,6 +243,22 @@ public:
     }
     
     virtual int32_t DeleteShareFile(uint32_t tokenId, const std::vector<std::string> &sharePathList) override
+    {
+        return E_OK;
+    }
+
+    virtual int32_t GetUserStorageStatsByType(int32_t userId, StorageStats &storageStats, std::string type) override
+    {
+        return E_OK;
+    }
+
+    virtual int32_t UpdateMemoryPara(int32_t size, int32_t &oldSize) override
+    {
+        return E_OK;
+    }
+
+    virtual int32_t GetBundleStatsForIncrease(uint32_t userId, const std::vector<std::string> &bundleNames,
+        const std::vector<int64_t> &incrementalBackTimes, std::vector<int64_t> &pkgFileSizes) override
     {
         return E_OK;
     }

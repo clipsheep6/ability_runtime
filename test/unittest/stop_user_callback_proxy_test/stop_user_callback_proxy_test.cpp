@@ -16,7 +16,7 @@
 #include <gtest/gtest.h>
 
 #define private public
-#include "stop_user_callback_proxy.h"
+#include "user_callback_proxy.h"
 #undef private
 #include "stop_user_callback_stub_mock.h"
 #include "ipc_types.h"
@@ -32,7 +32,7 @@ public:
     static void TearDownTestCase(void);
     void SetUp();
     void TearDown();
-    std::shared_ptr<StopUserCallbackProxy> proxy_ {nullptr};
+    std::shared_ptr<UserCallbackProxy> proxy_ {nullptr};
     sptr<StopUserCallbackStubMock> mock_ {nullptr};
 };
 
@@ -45,14 +45,14 @@ void StopUserCallbackProxyTest::TearDown(void)
 void StopUserCallbackProxyTest::SetUp()
 {
     mock_ = new StopUserCallbackStubMock();
-    proxy_ = std::make_shared<StopUserCallbackProxy>(mock_);
+    proxy_ = std::make_shared<UserCallbackProxy>(mock_);
 }
 
 /*
- * Feature: StopUserCallbackProxy
+ * Feature: UserCallbackProxy
  * Function: OnStopUserDone
  * SubFunction: NA
- * FunctionPoints: StopUserCallbackProxy OnStopUserDone
+ * FunctionPoints: UserCallbackProxy OnStopUserDone
  * EnvConditions: NA
  * CaseDescription: Verify OnStopUserDone
  */
@@ -64,14 +64,14 @@ HWTEST_F(StopUserCallbackProxyTest, OnStopUserDone_001, TestSize.Level1)
     int userId = 0;
     int errcode = 0;
     proxy_->OnStopUserDone(userId, errcode);
-    EXPECT_EQ(IStopUserCallback::StopUserCallbackCmd::ON_STOP_USER_DONE, mock_->code_);
+    EXPECT_EQ(IUserCallback::UserCallbackCmd::ON_STOP_USER_DONE, mock_->code_);
 }
 
 /*
- * Feature: StopUserCallbackProxy
+ * Feature: UserCallbackProxy
  * Function: OnStopUserDone
  * SubFunction: NA
- * FunctionPoints: StopUserCallbackProxy OnStopUserDone
+ * FunctionPoints: UserCallbackProxy OnStopUserDone
  * EnvConditions: NA
  * CaseDescription: Verify OnStopUserDone
  */
@@ -83,7 +83,7 @@ HWTEST_F(StopUserCallbackProxyTest, OnStopUserDone_002, TestSize.Level1)
     int userId = 0;
     int errcode = 0;
     proxy_->OnStopUserDone(userId, errcode);
-    EXPECT_EQ(IStopUserCallback::StopUserCallbackCmd::ON_STOP_USER_DONE, mock_->code_);
+    EXPECT_EQ(IUserCallback::UserCallbackCmd::ON_STOP_USER_DONE, mock_->code_);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

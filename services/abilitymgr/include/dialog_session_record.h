@@ -53,7 +53,7 @@ public:
     void ClearAllDialogContexts();
 
     bool GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
-        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, const std::string &deviceType);
+        std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector);
 
     bool QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId);
 

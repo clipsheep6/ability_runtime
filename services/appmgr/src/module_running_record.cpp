@@ -18,6 +18,7 @@
 #include "app_running_record.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "ui_extension_utils.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -31,7 +32,7 @@ ModuleRunningRecord::ModuleRunningRecord(
 
 ModuleRunningRecord::~ModuleRunningRecord()
 {
-    HILOG_INFO("ModuleRunningRecord");
+    HILOG_DEBUG("called");
 }
 
 void ModuleRunningRecord::Init(const HapModuleInfo &info)
@@ -139,7 +140,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
 
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
-    HILOG_INFO("Get ability running record by eventId.");
+    HILOG_DEBUG("called");
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
@@ -177,7 +178,7 @@ void ModuleRunningRecord::OnAbilityStateChanged(
 void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Launch ability.");
+    HILOG_DEBUG("called");
     if (!ability || !ability->GetToken()) {
         HILOG_ERROR("null abilityRecord or abilityToken");
         return;
@@ -185,7 +186,7 @@ void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningReco
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     const auto &iter = abilities_.find(ability->GetToken());
     if (iter != abilities_.end() && appLifeCycleDeal_->GetApplicationClient()) {
-        HILOG_INFO("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
+        HILOG_DEBUG("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
         appLifeCycleDeal_->LaunchAbility(ability);
         ability->SetState(AbilityState::ABILITY_STATE_READY);
     } else {
@@ -207,7 +208,7 @@ void ModuleRunningRecord::LaunchPendingAbilities()
         HILOG_DEBUG("state : %{public}d", ability->GetState());
         if (ability->GetState() == AbilityState::ABILITY_STATE_CREATE && ability->GetToken() &&
             appLifeCycleDeal_->GetApplicationClient()) {
-            HILOG_INFO("name is %{public}s.", ability->GetName().c_str());
+            HILOG_DEBUG("name is %{public}s.", ability->GetName().c_str());
             appLifeCycleDeal_->LaunchAbility(ability);
             ability->SetState(AbilityState::ABILITY_STATE_READY);
         }
@@ -217,7 +218,7 @@ void ModuleRunningRecord::LaunchPendingAbilities()
 void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecord> &appRecord,
     const sptr<IRemoteObject> &token, const bool isForce)
 {
-    HILOG_INFO("Terminate ability.");
+    HILOG_DEBUG("called");
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
         HILOG_ERROR("abilityRecord is nullptr");
@@ -254,7 +255,7 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
         }
     }
 
-    HILOG_INFO("ModuleRunningRecord::TerminateAbility end");
+    HILOG_DEBUG("end");
 }
 
 void ModuleRunningRecord::SendEvent(
@@ -273,7 +274,7 @@ void ModuleRunningRecord::SendEvent(
 
 void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Ability terminated.");
+    HILOG_DEBUG("called");
     if (!token) {
         HILOG_ERROR("token is null");
         return;
@@ -311,7 +312,9 @@ bool ModuleRunningRecord::IsAbilitiesBackgrounded()
             continue;
         }
         const auto &abilityInfo = ability->GetAbilityInfo();
-        if (abilityInfo != nullptr && abilityInfo->type != AbilityType::PAGE) {
+        // uiextensionability also has foreground and background states.
+        if (abilityInfo != nullptr && abilityInfo->type != AbilityType::PAGE &&
+            !AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
             continue;
         }
 

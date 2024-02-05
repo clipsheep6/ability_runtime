@@ -189,10 +189,6 @@ enum class AbilityManagerInterfaceCode {
     // stop extension ability (58)
     STOP_EXTENSION_ABILITY = 58,
 
-    SET_COMPONENT_INTERCEPTION = 59,
-
-    SEND_ABILITY_RESULT_BY_TOKEN = 60,
-
     // ipc id for set rootSceneSession (61)
     SET_ROOT_SCENE_SESSION = 61,
 
@@ -443,8 +439,7 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for collborator
     REGISTER_COLLABORATOR = 4050,
     UNREGISTER_COLLABORATOR = 4051,
-    MOVE_MISSION_TO_BACKGROUND = 4052,
-    TERMINATE_MISSION = 4053,
+
     IS_ABILITY_CONTROLLER_START = 4054,
     OPEN_FILE = 4055,
 
@@ -452,6 +447,7 @@ enum class AbilityManagerInterfaceCode {
 
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,
+    RECORD_PROCESS_EXIT_REASON = 6003,
 
     // ipc id for register auto startup system callback
     REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6101,
@@ -463,17 +459,6 @@ enum class AbilityManagerInterfaceCode {
     CANCEL_APPLICATION_AUTO_STARTUP = 6104,
     // ipc id for auery all auto startup application
     QUERY_ALL_AUTO_STARTUP_APPLICATION = 6105,
-
-    // ipc id for register auto startup callback
-    REGISTER_AUTO_STARTUP_CALLBACK = 6106,
-    // ipc id for unregister auto startup callback
-    UNREGISTER_AUTO_STARTUP_CALLBACK = 6107,
-    // ipc id for set auto startup
-    SET_AUTO_STARTUP = 6108,
-    // ipc id for cancel auto startup
-    CANCEL_AUTO_STARTUP = 6109,
-    // ipc id for is auto startup
-    IS_AUTO_STARTUP = 6110,
 
     // ipc id for on auto starup on
     ON_AUTO_STARTUP_ON = 6111,

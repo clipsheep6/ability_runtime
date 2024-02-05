@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -53,6 +53,7 @@ ohos_shared_library("libupms") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:event_report",
     "${ability_runtime_services_path}/common:perm_verification",
   ]
@@ -97,6 +98,7 @@ ohos_static_library("libupms_static") {
 
   deps = [
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
+    "${ability_runtime_services_path}/common:app_util",
     "${ability_runtime_services_path}/common:perm_verification",
   ]
 

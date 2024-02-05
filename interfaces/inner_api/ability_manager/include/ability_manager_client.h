@@ -42,6 +42,8 @@ public:
     virtual ~AbilityManagerClient();
     static std::shared_ptr<AbilityManagerClient> GetInstance();
 
+    void RemoveDeathRecipient();
+
     /**
      * AttachAbilityThread, ability call this interface after loaded.
      *
@@ -843,7 +845,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StartUser(int accountId);
+    ErrCode StartUser(int accountId, sptr<IUserCallback> callback);
 
     /**
      * @brief stop user.
@@ -852,7 +854,7 @@ public:
      *
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode StopUser(int accountId, sptr<IStopUserCallback> callback);
+    ErrCode StopUser(int accountId, sptr<IUserCallback> callback);
 
     /**
      * @brief logout user.
@@ -912,42 +914,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList);
-
-    /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode RegisterAutoStartupCallback(sptr<IRemoteObject> callback);
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode UnregisterAutoStartupCallback(sptr<IRemoteObject> callback);
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode SetAutoStartup(const AutoStartupInfo &info);
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode CancelAutoStartup(const AutoStartupInfo &info);
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup);
 
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
@@ -1215,14 +1181,22 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ForceExitApp(const int32_t pid, Reason exitReason);
+    ErrCode ForceExitApp(const int32_t pid, const ExitReason &exitReason);
 
     /**
      * Record app exit reason.
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode RecordAppExitReason(Reason exitReason);
+    ErrCode RecordAppExitReason(const ExitReason &exitReason);
+
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason);
 
     /**
      * Set rootSceneSession by SCB.
@@ -1279,20 +1253,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
     */
     ErrCode UnregisterIAbilityManagerCollaborator(int32_t type);
-
-    /**
-     * @brief Notify to move mission to backround.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode MoveMissionToBackground(int32_t missionId);
-
-    /**
-     * @brief Notify to terminate mission. it is not clear.
-     * @param missionId missionId.
-     * @return Returns ERR_OK on success, others on failure.
-    */
-    ErrCode TerminateMission(int32_t missionId);
 
     /**
      * @brief Register session handler.

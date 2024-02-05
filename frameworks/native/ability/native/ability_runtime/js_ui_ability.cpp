@@ -711,7 +711,7 @@ void JsUIAbility::DoOnForeground(const Want &want)
         window->SetSystemPrivacyMode(true);
     }
 
-    HILOG_INFO("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
+    HILOG_DEBUG("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
     AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState::FOREGROUND, METHOD_NAME);
     scene_->GoForeground(UIAbility::sceneFlag_);
     HILOG_DEBUG("End.");
@@ -1191,7 +1191,7 @@ sptr<IRemoteObject> JsUIAbility::CallRequest()
 napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Lifecycle: the begin of %{public}s", name);
+    HILOG_DEBUG("Lifecycle: the begin of %{public}s", name);
     if (jsAbilityObj_ == nullptr) {
         HILOG_ERROR("Not found Ability.js");
         return nullptr;
@@ -1212,13 +1212,20 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
         HILOG_ERROR("Failed to get '%{public}s' from Ability object.", name);
         return nullptr;
     }
+    TryCatch tryCatch(env);
     if (withResult) {
         napi_value result = nullptr;
         napi_call_function(env, obj, methodOnCreate, argc, argv, &result);
+        if (tryCatch.HasCaught()) {
+            reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
+        }
         return handleEscape.Escape(result);
     }
     napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
-    HILOG_INFO("Lifecycle: the end of %{public}s", name);
+    if (tryCatch.HasCaught()) {
+        reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
+    }
+    HILOG_DEBUG("Lifecycle: the end of %{public}s", name);
     return nullptr;
 }
 
@@ -1300,32 +1307,8 @@ void JsUIAbility::Dump(const std::vector<std::string> &params, std::vector<std::
     auto env = jsRuntime_.GetNapiEnv();
     // create js array object of params
     napi_value argv[] = { CreateNativeArray(env, params) };
-
-    if (!jsAbilityObj_) {
-        HILOG_WARN("Not found .js");
-        return;
-    }
-
-    napi_value obj = jsAbilityObj_->GetNapiValue();
-    if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get object.");
-        return;
-    }
-
-    napi_value method = nullptr;
-    napi_get_named_property(env, obj, "dump", &method);
-    napi_value onDumpMethod = nullptr;
-    napi_get_named_property(env, obj, "onDump", &onDumpMethod);
-
-    napi_value dumpInfo = nullptr;
-    if (method != nullptr) {
-        napi_call_function(env, obj, method, 1, argv, &dumpInfo);
-    }
-
-    napi_value onDumpInfo = nullptr;
-    if (onDumpMethod != nullptr) {
-        napi_call_function(env, obj, onDumpMethod, 1, argv, &onDumpInfo);
-    }
+    napi_value dumpInfo = CallObjectMethod("dump", argv, ArraySize(argv), true);
+    napi_value onDumpInfo = CallObjectMethod("onDump", argv, ArraySize(argv), true);
 
     GetDumpInfo(env, dumpInfo, onDumpInfo, info);
     HILOG_DEBUG("Dump info size: %{public}zu.", info.size());

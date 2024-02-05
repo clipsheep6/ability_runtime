@@ -26,9 +26,12 @@ namespace OHOS {
 namespace AAFwk {
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
-const std::string DMS_PROCESS_NAME = "distributedsched";
 namespace {
 const int32_t BROKER_UID = 5557;
+const std::set<std::string> OBSERVER_NATIVE_CALLER = {
+    "memmgrservice",
+    "resource_schedule_service",
+};
 }
 bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const std::string &permissionName) const
 {
@@ -81,17 +84,7 @@ bool PermissionVerification::IsShellCall() const
     return false;
 }
 
-bool PermissionVerification::IsGatewayCall() const
-{
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGER_ABILITY_FROM_GATEWAY)) {
-        HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
-        return true;
-    }
-    HILOG_INFO("%{public}s: Permission verification failed.", __func__);
-    return false;
-}
-
-bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
+bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const
 {
     HILOG_DEBUG("PermissionVerification::CheckSpecifidSystemAbilityAccessToken is called.");
     if (!IsSACall()) {
@@ -101,8 +94,26 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
     auto callerToken = GetCallingTokenID();
     Security::AccessToken::NativeTokenInfo nativeTokenInfo;
     int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
-    if (result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+    if (result != ERR_OK || nativeTokenInfo.processName != processName) {
         HILOG_ERROR("Check process name failed.");
+        return false;
+    }
+    return true;
+}
+
+bool PermissionVerification::CheckObserverCallerPermission() const
+{
+    HILOG_DEBUG("called");
+    if (!IsSACall()) {
+        HILOG_ERROR("caller tokenType is not native");
+        return false;
+    }
+    auto callerToken = GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
+    if (result != ERR_OK ||
+        OBSERVER_NATIVE_CALLER.find(nativeTokenInfo.processName) == OBSERVER_NATIVE_CALLER.end()) {
+        HILOG_ERROR("Check native token failed.");
         return false;
     }
     return true;
@@ -110,10 +121,6 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission() const
 
 bool PermissionVerification::VerifyRunningInfoPerm() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_GET_RUNNING_INFO)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -124,10 +131,6 @@ bool PermissionVerification::VerifyRunningInfoPerm() const
 
 bool PermissionVerification::VerifyControllerPerm() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_ABILITY_CONTROLLER)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -152,10 +155,6 @@ bool PermissionVerification::VerifyDlpPermission(Want &want) const
 
 int PermissionVerification::VerifyAccountPermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_INTERACT_ACROSS_LOCAL_ACCOUNTS)) {
         return ERR_OK;
     }
@@ -165,10 +164,6 @@ int PermissionVerification::VerifyAccountPermission() const
 
 bool PermissionVerification::VerifyMissionPermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_MANAGE_MISSION)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;
@@ -179,10 +174,6 @@ bool PermissionVerification::VerifyMissionPermission() const
 
 int PermissionVerification::VerifyAppStateObserverPermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return ERR_OK;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_RUNNING_STATE_OBSERVER)) {
         HILOG_DEBUG("Permission verification succeeded.");
         return ERR_OK;
@@ -255,10 +246,9 @@ int PermissionVerification::CheckCallServiceAbilityPermission(const Verification
 {
     if (IPCSkeleton::GetCallingUid() != BROKER_UID &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
+        HILOG_DEBUG("Add switch for suites");
         return ERR_OK;
     }
-
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start ServiceAbility from background after API8.");
@@ -404,10 +394,6 @@ bool PermissionVerification::IsSystemAppCall() const
 
 bool PermissionVerification::VerifyPrepareTerminatePermission() const
 {
-    if (SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return true;
-    }
     if (VerifyCallingPermission(PermissionConstants::PERMISSION_PREPARE_TERMINATE)) {
         HILOG_DEBUG("%{public}s: Permission verification succeeded.", __func__);
         return true;

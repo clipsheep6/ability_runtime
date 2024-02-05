@@ -1550,7 +1550,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartUserInner_001, TestSize
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->StartUserInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_NE(res, NO_ERROR);
 }
 
 /*
@@ -2719,135 +2719,6 @@ HWTEST_F(AbilityManagerStubTest, QueryAllAutoStartupApplicationsInner_0100, Test
     Want want;
     data.WriteParcelable(&want);
     auto result = stub_->QueryAllAutoStartupApplicationsInner(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_RegisterAutoStartupCallbackInner_0100
- * @tc.desc: Test the state of RegisterAutoStartupCallbackInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, RegisterAutoStartupCallbackInner_0100, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    sptr<AppExecFwk::MockAbilityToken> token = new (std::nothrow) AppExecFwk::MockAbilityToken();
-    EXPECT_NE(token, nullptr);
-    data.WriteRemoteObject(token);
-    auto result = stub_->RegisterAutoStartupCallbackInner(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_RegisterAutoStartupCallbackInner_0200
- * @tc.desc: Test the state of RegisterAutoStartupCallbackInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, RegisterAutoStartupCallbackInner_0200, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto result = stub_->RegisterAutoStartupCallbackInner(data, reply);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_UnregisterAutoStartupCallbackInner_0100
- * @tc.desc: Test the state of UnregisterAutoStartupCallbackInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, UnregisterAutoStartupCallbackInner_0100, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    sptr<AppExecFwk::MockAbilityToken> token = new (std::nothrow) AppExecFwk::MockAbilityToken();
-    EXPECT_NE(token, nullptr);
-    data.WriteRemoteObject(token);
-    auto result = stub_->UnregisterAutoStartupCallbackInner(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_UnregisterAutoStartupCallbackInner_0200
- * @tc.desc: Test the state of UnregisterAutoStartupCallbackInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, UnregisterAutoStartupCallbackInner_0200, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto result = stub_->UnregisterAutoStartupCallbackInner(data, reply);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_SetAutoStartupInner_0100
- * @tc.desc: Test the state of SetAutoStartupInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, SetAutoStartupInner_0100, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    Want want;
-    data.WriteParcelable(&want);
-    auto result = stub_->SetAutoStartupInner(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_SetAutoStartupInner_0200
- * @tc.desc: Test the state of SetAutoStartupInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, SetAutoStartupInner_0200, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto result = stub_->SetAutoStartupInner(data, reply);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_CancelAutoStartupInner_0100
- * @tc.desc: Test the state of CancelAutoStartupInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, CancelAutoStartupInner_0100, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    Want want;
-    data.WriteParcelable(&want);
-    auto result = stub_->CancelAutoStartupInner(data, reply);
-    EXPECT_EQ(result, NO_ERROR);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_CancelAutoStartupInner_0200
- * @tc.desc: Test the state of CancelAutoStartupInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, CancelAutoStartupInner_0200, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto result = stub_->CancelAutoStartupInner(data, reply);
-    EXPECT_EQ(result, ERR_INVALID_VALUE);
-}
-
-/**
- * @tc.name: AbilityManagerStubTest_IsAutoStartupInner_0100
- * @tc.desc: Test the state of IsAutoStartupInner
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerStubTest, IsAutoStartupInner_0100, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    Want want;
-    data.WriteParcelable(&want);
-    auto result = stub_->IsAutoStartupInner(data, reply);
     EXPECT_EQ(result, NO_ERROR);
 }
 } // namespace AAFwk

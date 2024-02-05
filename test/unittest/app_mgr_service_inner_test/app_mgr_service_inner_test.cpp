@@ -31,6 +31,7 @@
 #include "mock_iapp_state_callback.h"
 #include "mock_native_token.h"
 #include "mock_render_scheduler.h"
+#include "mock_sa_call.h"
 #include "parameters.h"
 #include "window_manager.h"
 
@@ -303,17 +304,17 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
 
     // config didn't change
     result = appMgrServiceInner->UpdateConfiguration(*config);
-    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     Configuration changeConfig;
     if (value == "true") {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
-        EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+        EXPECT_EQ(result, ERR_OK);
         config = appMgrServiceInner->GetConfiguration();
         EXPECT_NE(config, nullptr);
         value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-        EXPECT_EQ(value, "true");
+        EXPECT_EQ(value, "false");
     } else {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
@@ -831,6 +832,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
 {
     HILOG_INFO("KillApplicationByUserId_001 start");
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1844,28 +1846,6 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_004, TestSize.Level0)
 
     appMgrServiceInner->ClearAppRunningData(nullptr, false);
     HILOG_INFO("ClearAppRunningData_004 end");
-}
-
-/**
- * @tc.name: AddAppDeathRecipient_001
- * @tc.desc: add app death recipient.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppMgrServiceInnerTest, AddAppDeathRecipient_001, TestSize.Level0)
-{
-    HILOG_INFO("AddAppDeathRecipient_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
-
-    sptr<AppDeathRecipient> appDeathRecipient;
-    pid_t pid = 999;
-    appMgrServiceInner->AddAppDeathRecipient(pid, appDeathRecipient);
-
-    pid_t pid1 = 123;
-    appMgrServiceInner->AddAppDeathRecipient(pid1, appDeathRecipient);
-
-    HILOG_INFO("AddAppDeathRecipient_001 end");
 }
 
 /**

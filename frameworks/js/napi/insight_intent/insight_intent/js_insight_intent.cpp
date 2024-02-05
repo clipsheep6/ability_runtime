@@ -42,7 +42,7 @@ napi_value ExecuteModeInit(napi_env env)
         CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_ZERO)));
     napi_set_named_property(env, objValue, "UI_ABILITY_BACKGROUND",
         CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_ONE)));
-    napi_set_named_property(env, objValue, "UI_EXTENSIONABILITY",
+    napi_set_named_property(env, objValue, "UI_EXTENSION_ABILITY",
         CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_TWO)));
     napi_set_named_property(env, objValue, "SERVICE_EXTENSION_ABILITY",
         CreateJsValue(env, static_cast<int32_t>(NUMBER_OF_PARAMETERS_THREE)));

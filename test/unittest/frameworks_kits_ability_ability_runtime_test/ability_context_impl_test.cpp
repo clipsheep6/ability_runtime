@@ -66,6 +66,11 @@ public:
     {
         return nullptr;
     }
+
+    void EraseUIExtension(int32_t sessionId)
+    {
+        return;
+    }
 };
 
 class AbilityContextImplTest : public testing::Test {

@@ -44,9 +44,9 @@ struct VerificationInfo {
 
     bool IsShellCall() const;
 
-    bool IsGatewayCall() const;
+    bool CheckSpecificSystemAbilityAccessPermission(const std::string &processName) const;
 
-    bool CheckSpecificSystemAbilityAccessPermission() const;
+    bool CheckObserverCallerPermission() const;
 
     bool VerifyRunningInfoPerm() const;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,8 +57,6 @@ public:
         const std::string targetBundleName, int32_t appIndex = 0) override;
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string targetBundleName, int32_t appIndex = 0) override;
-    int GrantUriPermissionFor2In1(
-        const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex = 0) override;
     int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     void RevokeUriPermission(const TokenId tokenId) override;
@@ -102,6 +100,12 @@ private:
         const std::vector<std::string> &uriVec = {});
 
     int CheckRule(unsigned int flag);
+
+    int GrantUriPermissionInner(
+        const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName, int32_t appIndex);
+
+    int CheckGrantUriPermissionFor2In1(
+        const std::vector<Uri> &uriVec, unsigned int flag, const std::string &targetBundleName, int32_t appIndex);
 
     int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall);

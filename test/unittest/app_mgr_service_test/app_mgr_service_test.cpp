@@ -233,41 +233,6 @@ HWTEST_F(AppMgrServiceTest, AbilityCleaned_002, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
- * Function: AddAppDeathRecipient
- * SubFunction: NA
- * FunctionPoints: AppMgrService AddAppDeathRecipient
- * EnvConditions: NA
- * CaseDescription: Verify AddAppDeathRecipient
- */
-HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_001, TestSize.Level0)
-{
-    auto appMgrService = std::make_shared<AppMgrService>();
-    ASSERT_NE(appMgrService, nullptr);
-    pid_t pid = 1;
-    appMgrService->SetInnerService(nullptr);
-    appMgrService->AddAppDeathRecipient(pid);
-}
-
-/*
- * Feature: AppMgrService
- * Function: AddAppDeathRecipient
- * SubFunction: NA
- * FunctionPoints: AppMgrService AddAppDeathRecipient
- * EnvConditions: NA
- * CaseDescription: Verify AddAppDeathRecipient
- */
-HWTEST_F(AppMgrServiceTest, AddAppDeathRecipient_002, TestSize.Level0)
-{
-    auto appMgrService = std::make_shared<AppMgrService>();
-    ASSERT_NE(appMgrService, nullptr);
-    pid_t pid = 1;
-    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
-    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
-    appMgrService->AddAppDeathRecipient(pid);
-}
-
-/*
- * Feature: AppMgrService
  * Function: StartupResidentProcess
  * SubFunction: NA
  * FunctionPoints: AppMgrService StartupResidentProcess
@@ -1097,7 +1062,7 @@ HWTEST_F(AppMgrServiceTest, NotifyLoadRepairPatch_002, TestSize.Level0)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyLoadRepairPatch(bundleName, callback);
-    EXPECT_NE(res, ERR_INVALID_OPERATION);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
 
 /*
@@ -1136,7 +1101,7 @@ HWTEST_F(AppMgrServiceTest, NotifyHotReloadPage_002, TestSize.Level0)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyHotReloadPage(bundleName, callback);
-    EXPECT_NE(res, ERR_INVALID_OPERATION);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -1215,7 +1180,7 @@ HWTEST_F(AppMgrServiceTest, NotifyUnLoadRepairPatch_002, TestSize.Level0)
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
     OHOS::AppExecFwk::MockNativeToken::SetNativeToken();
     int32_t res = appMgrService->NotifyUnLoadRepairPatch(bundleName, callback);
-    EXPECT_NE(res, ERR_INVALID_OPERATION);
+    EXPECT_EQ(res, ERR_PERMISSION_DENIED);
 }
 
 /*
@@ -1250,7 +1215,7 @@ HWTEST_F(AppMgrServiceTest, GetProcessMemoryByPid_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
     ASSERT_NE(appMgrService, nullptr);
-    
+
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
@@ -1294,7 +1259,7 @@ HWTEST_F(AppMgrServiceTest, GetRunningProcessInformation_002, TestSize.Level0)
 {
     auto appMgrService = std::make_shared<AppMgrService>();
     ASSERT_NE(appMgrService, nullptr);
-    
+
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
@@ -1379,7 +1344,7 @@ HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
     sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
     ASSERT_NE(appMgrService, nullptr);
     appMgrService->SetInnerService(nullptr);
-    
+
     appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);

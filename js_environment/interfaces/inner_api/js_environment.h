@@ -90,6 +90,8 @@ public:
 
     void DestroyHeapProfiler();
 
+    void GetHeapPrepare();
+
     void ReInitJsEnvImpl(std::unique_ptr<JsEnvironmentImpl> impl);
 
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate);

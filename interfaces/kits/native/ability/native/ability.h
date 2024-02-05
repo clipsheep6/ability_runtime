@@ -1145,6 +1145,8 @@ public:
      */
     void UpdateSessionToken(sptr<IRemoteObject> sessionToken);
 
+    void EraseUIExtension(int32_t sessionId) override;
+
 protected:
     class AbilityDisplayListener : public OHOS::Rosen::DisplayManager::IDisplayListener {
     public:

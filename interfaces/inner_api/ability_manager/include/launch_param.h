@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_LAUNCH_PARAM_H
 #define OHOS_ABILITY_RUNTIME_LAUNCH_PARAM_H
 
+#include <string>
+
 #include "parcel.h"
 
 namespace OHOS {
@@ -70,6 +72,7 @@ enum OnContinueResult {
 struct LaunchParam : public Parcelable {
     LaunchReason launchReason = LaunchReason::LAUNCHREASON_UNKNOWN;
     LastExitReason lastExitReason = LastExitReason::LASTEXITREASON_NORMAL;
+    std::string lastExitMessage = "";
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

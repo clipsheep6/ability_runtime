@@ -64,6 +64,12 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     HILOG_INFO("%{public}s:begin.", __func__);
     std::lock_guard<ffrt::mutex> locker(lock_);
     if (canceled_) {
+        HILOG_INFO("wantAgent is canceled!");
+        if (senderInfo.finishedReceiver != nullptr) {
+            Want want;
+            WantParams wantParams = {};
+            senderInfo.finishedReceiver->PerformReceive(want, senderInfo.code, "canceled", wantParams, false, false, 0);
+        }
         return START_CANCELED;
     }
 

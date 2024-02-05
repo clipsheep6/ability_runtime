@@ -30,6 +30,7 @@ constexpr int32_t CHECK_INTERVAL = 100000; // 100ms
 constexpr int32_t MAX_TIMES = 5;           // 5 * 100ms = 500ms
 constexpr const char *APP_EXIT_REASON_STORAGE_DIR = "/data/service/el1/public/database/app_exit_reason";
 const std::string JSON_KEY_REASON = "reason";
+const std::string JSON_KEY_EXIT_MSG = "exit_msg";
 const std::string JSON_KEY_TIME_STAMP = "time_stamp";
 const std::string JSON_KEY_ABILITY_LIST = "ability_list";
 const std::string KEY_RECOVER_INFO_PREFIX = "recover_info";
@@ -84,8 +85,8 @@ bool AppExitReasonDataManager::CheckKvStore()
     return kvStorePtr_ != nullptr;
 }
 
-int32_t AppExitReasonDataManager::SetAppExitReason(
-    const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason)
+int32_t AppExitReasonDataManager::SetAppExitReason(const std::string &bundleName,
+    const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
 {
     if (bundleName.empty()) {
         HILOG_WARN("invalid value");
@@ -102,7 +103,7 @@ int32_t AppExitReasonDataManager::SetAppExitReason(
     }
 
     DistributedKv::Key key(bundleName);
-    DistributedKv::Value value = ConvertAppExitReasonInfoToValue(abilityList, reason);
+    DistributedKv::Value value = ConvertAppExitReasonInfoToValue(abilityList, exitReason);
     DistributedKv::Status status;
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
@@ -146,8 +147,8 @@ int32_t AppExitReasonDataManager::DeleteAppExitReason(const std::string &bundleN
     return ERR_OK;
 }
 
-int32_t AppExitReasonDataManager::GetAppExitReason(
-    const std::string &bundleName, const std::string &abilityName, bool &isSetReason, AAFwk::Reason &reason)
+int32_t AppExitReasonDataManager::GetAppExitReason(const std::string &bundleName, const std::string &abilityName,
+    bool &isSetReason, AAFwk::ExitReason &exitReason)
 {
     if (bundleName.empty()) {
         HILOG_WARN("invalid value!");
@@ -175,16 +176,17 @@ int32_t AppExitReasonDataManager::GetAppExitReason(
     isSetReason = false;
     for (const auto &item : allEntries) {
         if (item.key.ToString() == bundleName) {
-            ConvertAppExitReasonInfoFromValue(item.value, reason, time_stamp, abilityList);
+            ConvertAppExitReasonInfoFromValue(item.value, exitReason, time_stamp, abilityList);
             auto pos = std::find(abilityList.begin(), abilityList.end(), abilityName);
             if (pos != abilityList.end()) {
                 isSetReason = true;
                 abilityList.erase(std::remove(abilityList.begin(), abilityList.end(), abilityName), abilityList.end());
-                UpdateAppExitReason(bundleName, abilityList, reason);
+                UpdateAppExitReason(bundleName, abilityList, exitReason);
             }
-            HILOG_INFO(
-                "current bundle name: %{public}s reason: %{public}d abilityName:%{public}s isSetReason:%{public}d",
-                item.key.ToString().c_str(), reason, abilityName.c_str(), isSetReason);
+            HILOG_INFO("current bundle name: %{public}s reason: %{public}d exitMsg: %{public}s \
+                abilityName:%{public}s isSetReason:%{public}d",
+                item.key.ToString().c_str(), exitReason.reason, exitReason.exitMsg.c_str(), abilityName.c_str(),
+                isSetReason);
             if (abilityList.empty()) {
                 InnerDeleteAppExitReason(bundleName);
             }
@@ -195,8 +197,8 @@ int32_t AppExitReasonDataManager::GetAppExitReason(
     return ERR_OK;
 }
 
-void AppExitReasonDataManager::UpdateAppExitReason(
-    const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason)
+void AppExitReasonDataManager::UpdateAppExitReason(const std::string &bundleName,
+    const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
 {
     if (kvStorePtr_ == nullptr) {
         HILOG_ERROR("kvStore is nullptr.");
@@ -214,7 +216,7 @@ void AppExitReasonDataManager::UpdateAppExitReason(
         return;
     }
 
-    DistributedKv::Value value = ConvertAppExitReasonInfoToValue(abilityList, reason);
+    DistributedKv::Value value = ConvertAppExitReasonInfoToValue(abilityList, exitReason);
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         status = kvStorePtr_->Put(key, value);
@@ -225,12 +227,13 @@ void AppExitReasonDataManager::UpdateAppExitReason(
 }
 
 DistributedKv::Value AppExitReasonDataManager::ConvertAppExitReasonInfoToValue(
-    const std::vector<std::string> &abilityList, const AAFwk::Reason &reason)
+    const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason)
 {
     std::chrono::milliseconds nowMs =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
     nlohmann::json jsonObject = nlohmann::json {
-        { JSON_KEY_REASON, reason },
+        { JSON_KEY_REASON, exitReason.reason },
+        { JSON_KEY_EXIT_MSG, exitReason.exitMsg },
         { JSON_KEY_TIME_STAMP, nowMs.count() },
         { JSON_KEY_ABILITY_LIST, abilityList },
     };
@@ -240,7 +243,7 @@ DistributedKv::Value AppExitReasonDataManager::ConvertAppExitReasonInfoToValue(
 }
 
 void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value,
-    AAFwk::Reason &reason, int64_t &time_stamp, std::vector<std::string> &abilityList)
+    AAFwk::ExitReason &exitReason, int64_t &time_stamp, std::vector<std::string> &abilityList)
 {
     nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
@@ -248,7 +251,10 @@ void AppExitReasonDataManager::ConvertAppExitReasonInfoFromValue(const Distribut
         return;
     }
     if (jsonObject.contains(JSON_KEY_REASON) && jsonObject[JSON_KEY_REASON].is_number_integer()) {
-        reason = jsonObject.at(JSON_KEY_REASON).get<AAFwk::Reason>();
+        exitReason.reason = jsonObject.at(JSON_KEY_REASON).get<AAFwk::Reason>();
+    }
+    if (jsonObject.contains(JSON_KEY_EXIT_MSG) && jsonObject[JSON_KEY_EXIT_MSG].is_string()) {
+        exitReason.exitMsg = jsonObject.at(JSON_KEY_EXIT_MSG).get<std::string>();
     }
     if (jsonObject.contains(JSON_KEY_TIME_STAMP) && jsonObject[JSON_KEY_TIME_STAMP].is_number_integer()) {
         time_stamp = jsonObject.at(JSON_KEY_TIME_STAMP).get<int64_t>();

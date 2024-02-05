@@ -27,7 +27,7 @@ namespace AbilityRuntime {
 void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_INFO("called");
+    HILOG_DEBUG("called");
     if (!jsContext || !config) {
         HILOG_ERROR("jsContext or config is nullptr.");
         return;
@@ -54,7 +54,7 @@ void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<N
 napi_value CreateJsAbilityStageContext(napi_env env,
     std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, NapiAttachCallback attach)
 {
-    HILOG_INFO("called.");
+    HILOG_DEBUG("called.");
     napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;

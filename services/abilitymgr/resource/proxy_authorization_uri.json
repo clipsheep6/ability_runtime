@@ -17,16 +17,16 @@
             "bundleName": "com.ohos.filepicker"
         },
         {
-            "bundleName": "foundation"
+            "processName": "foundation"
         },
         {
-            "bundleName": "wallpaper_service"
+            "processName": "wallpaper_service"
         },
         {
-            "bundleName": "distributeddata"
+            "processName": "distributeddata"
         },
         {
-            "bundleName": "pasteboard_service"
+            "processName": "pasteboard_service"
         }
     ]
 }

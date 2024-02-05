@@ -113,25 +113,6 @@ std::shared_ptr<Mission> MissionList::GetRecentStandardMission(const std::string
     return result;
 }
 
-std::shared_ptr<Mission> MissionList::GetRecentStandardMissionWithAffinity(const std::string &missionAffinity) const
-{
-    if (missionAffinity.empty()) {
-        return nullptr;
-    }
-
-    std::string missionTime = "0";
-    std::shared_ptr<Mission> result = nullptr;
-    for (auto& mission : missions_) {
-        if (mission && mission->IsStandardAbility() && mission->GetMissionAffinity() == missionAffinity &&
-            mission->GetMissionTime() >= missionTime) {
-            result = mission;
-            missionTime = mission->GetMissionTime();
-        }
-    }
-
-    return result;
-}
-
 std::shared_ptr<AbilityRecord> MissionList::GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const
 {
     for (auto mission : missions_) {
@@ -481,7 +462,8 @@ int32_t MissionList::GetMissionCount() const
     return static_cast<int32_t>(missions_.size());
 }
 
-void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList)
+void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+    int32_t pid)
 {
     for (auto mission : missions_) {
         if (!mission) {
@@ -490,6 +472,10 @@ void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vecto
 
         auto abilityRecord = mission->GetAbilityRecord();
         if (!abilityRecord) {
+            continue;
+        }
+        
+        if (pid != NO_PID && abilityRecord->GetPid() != pid) {
             continue;
         }
 

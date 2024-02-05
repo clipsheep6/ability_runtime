@@ -37,6 +37,7 @@
 #include "mock_native_token.h"
 #include "mock_system_ability_manager.h"
 #include "singleton.h"
+#include "mock_sa_call.h"
 
 using namespace testing::ext;
 using OHOS::iface_cast;
@@ -175,6 +176,7 @@ void AppRunningProcessesInfoModuleTest::TearDownTestCase()
 
 void AppRunningProcessesInfoModuleTest::SetUp()
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     mockToken_ = new (std::nothrow) MockAbilityToken();
     mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();

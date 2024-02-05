@@ -80,7 +80,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     const std::string &specifiedProcessFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("appName: %{public}s, processName: %{public}s, uid: %{public}d, specifiedProcessFlag: %{public}s",
+    HILOG_DEBUG("appName: %{public}s, processName: %{public}s, uid: %{public}d, specifiedProcessFlag: %{public}s",
         appName.c_str(), processName.c_str(), uid, specifiedProcessFlag.c_str());
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
@@ -112,10 +112,10 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
             !(appRecord->IsTerminating()) && !(appRecord->IsKilling())) {
             auto appInfoList = appRecord->GetAppInfoList();
-            HILOG_INFO("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
+            HILOG_DEBUG("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
                 appInfoList.size(), appRecord->GetProcessName().c_str(), specifiedProcessFlag.c_str());
             auto isExist = [&appName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
-                HILOG_INFO("appInfo->name: %{public}s", appInfo->name.c_str());
+                HILOG_DEBUG("appInfo->name: %{public}s", appInfo->name.c_str());
                 return appInfo->name == appName && appInfo->uid == uid;
             };
             auto appInfoIter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
@@ -299,7 +299,7 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("On remote died.");
+    HILOG_DEBUG("called");
     if (remote == nullptr) {
         HILOG_ERROR("remote is null");
         return nullptr;
@@ -323,7 +323,13 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
     }
     auto appRecord = iter->second;
     if (appRecord != nullptr) {
+        appRecord->RemoveAppDeathRecipient();
         appRecord->SetApplicationClient(nullptr);
+        HILOG_INFO("processName: %{public}s.", appRecord->GetProcessName().c_str());
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (priorityObject != nullptr) {
+            HILOG_INFO("pid: %{public}d.", priorityObject->GetPid());
+        }
     }
     appRunningRecordMap_.erase(iter);
     return appRecord;
@@ -349,7 +355,7 @@ void AppRunningManager::ClearAppRunningRecordMap()
 
 void AppRunningManager::HandleTerminateTimeOut(int64_t eventId)
 {
-    HILOG_INFO("Handle terminate timeout.");
+    HILOG_DEBUG("called");
     auto abilityRecord = GetAbilityRunningRecord(eventId);
     if (!abilityRecord) {
         HILOG_ERROR("abilityRecord is nullptr.");
@@ -379,7 +385,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetTerminatingAppRunningRec
 
 std::shared_ptr<AbilityRunningRecord> AppRunningManager::GetAbilityRunningRecord(const int64_t eventId)
 {
-    HILOG_INFO("Get ability running record by eventId.");
+    HILOG_DEBUG("called");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (auto &item : appRunningRecordMap_) {
         if (item.second) {
@@ -394,7 +400,7 @@ std::shared_ptr<AbilityRunningRecord> AppRunningManager::GetAbilityRunningRecord
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecord(const int64_t eventId)
 {
-    HILOG_INFO("Get app running record by eventId.");
+    HILOG_DEBUG("called");
     std::lock_guard<ffrt::mutex> guard(lock_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
@@ -404,7 +410,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecord(const i
 
 void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
-    HILOG_INFO("Handle ability attach timeOut.");
+    HILOG_DEBUG("called");
     if (token == nullptr) {
         HILOG_ERROR("token is nullptr.");
         return;
@@ -495,13 +501,13 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         return;
     }
 
+    auto isLastAbility =
+        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         appRecord->TerminateAbility(token, true);
     } else {
         appRecord->TerminateAbility(token, false);
     }
-    auto isLastAbility =
-        clearMissionFlag ? appRecord->IsLastPageAbilityRecord(token) : appRecord->IsLastAbilityRecord(token);
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
     if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
@@ -590,7 +596,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
-            HILOG_INFO("bundleName:%{public}s", appData.bundleName.c_str());
+            HILOG_DEBUG("bundleName:%{public}s", appData.bundleName.c_str());
         }
     }
 }
@@ -636,7 +642,7 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    HILOG_INFO("current app size %{public}zu", appRunningRecordMap_.size());
+    HILOG_DEBUG("current app size %{public}zu", appRunningRecordMap_.size());
     int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -645,7 +651,7 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
             continue;
         }
         if (appRecord && !isCollaboratorReserveType(appRecord)) {
-            HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
+            HILOG_DEBUG("Notification app [%{public}s]", appRecord->GetName().c_str());
             result = appRecord->UpdateConfiguration(config);
         }
     }
@@ -667,7 +673,7 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        HILOG_INFO("Notification app [%{public}s]", appRecord->GetName().c_str());
+        HILOG_DEBUG("Notification app [%{public}s]", appRecord->GetName().c_str());
         appRecord->ScheduleMemoryLevel(level);
     }
     return ERR_OK;
@@ -784,7 +790,12 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool loadSucceed = false;
-    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_ERROR("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -810,7 +821,12 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool reloadPageSucceed = false;
-    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_ERROR("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -837,7 +853,12 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool unLoadSucceed = false;
-    sptr<QuickFixCallbackWithRecord> callbackByRecord = new (std::nothrow) QuickFixCallbackWithRecord(callback);
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_ERROR("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
@@ -921,6 +942,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("App running record is nullptr.");
             return;
         }
+        HILOG_INFO("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
         pids.emplace(info->pid_);
     }

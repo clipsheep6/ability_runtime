@@ -159,7 +159,7 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
     std::string moduleName;
 
     if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
-        HILOG_INFO("Parse inner module name.");
+        HILOG_DEBUG("Parse inner module name.");
         if (!ConvertFromJsValue(env, info.argv[0], moduleName)) {
             HILOG_ERROR("Parse moduleName failed");
             AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);

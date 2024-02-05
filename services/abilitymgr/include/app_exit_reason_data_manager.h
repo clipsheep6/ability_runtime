@@ -22,6 +22,7 @@
 
 #include "ability_util.h"
 #include "distributed_kv_data_manager.h"
+#include "exit_reason.h"
 #include "singleton.h"
 
 namespace OHOS {
@@ -32,11 +33,11 @@ public:
 
     virtual ~AppExitReasonDataManager();
 
-    int32_t SetAppExitReason(
-        const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
+    int32_t SetAppExitReason(const std::string &bundleName, const std::vector<std::string> &abilityList,
+        const AAFwk::ExitReason &exitReason);
 
-    int32_t GetAppExitReason(
-        const std::string &bundleName, const std::string &abilityName, bool &isSetReason, AAFwk::Reason &reason);
+    int32_t GetAppExitReason(const std::string &bundleName, const std::string &abilityName, bool &isSetReason,
+        AAFwk::ExitReason &exitReason);
 
     int32_t DeleteAppExitReason(const std::string &bundleName);
 
@@ -56,11 +57,11 @@ private:
     DistributedKv::Status GetKvStore();
     bool CheckKvStore();
     DistributedKv::Value ConvertAppExitReasonInfoToValue(
-        const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
-    void ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value, AAFwk::Reason &reason,
+        const std::vector<std::string> &abilityList, const AAFwk::ExitReason &exitReason);
+    void ConvertAppExitReasonInfoFromValue(const DistributedKv::Value &value, AAFwk::ExitReason &exitReason,
         int64_t &time_stamp, std::vector<std::string> &abilityList);
-    void UpdateAppExitReason(
-        const std::string &bundleName, const std::vector<std::string> &abilityList, const AAFwk::Reason &reason);
+    void UpdateAppExitReason(const std::string &bundleName, const std::vector<std::string> &abilityList,
+        const AAFwk::ExitReason &exitReason);
     void InnerDeleteAppExitReason(const std::string &bundleName);
 
     void UpdateAbilityRecoverInfo(const std::string &bundleName,
