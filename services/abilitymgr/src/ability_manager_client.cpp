@@ -557,12 +557,6 @@ void AbilityManagerClient::RemoveDeathRecipient()
     }
 }
 
-__attribute__((destructor)) void DeathRecipientDestructor()
-{
-    HILOG_INFO("Remove DeathRecipient");
-    AbilityManagerClient::GetInstance()->RemoveDeathRecipient();
-}
-
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
 {
     HILOG_INFO("call");
