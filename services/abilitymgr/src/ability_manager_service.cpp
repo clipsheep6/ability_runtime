@@ -775,7 +775,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
-    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+    std::string dialogSessionId = want.GetStringParam("dialogSessionId");
+    isSendDialogResult = false;
+    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
+        isSendDialogResult = true;
+        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
+    }
+    if (callerToken != nullptr && !VerificationAllToken(callerToken) && !isSendDialogResult) {
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
         if (!isSpecificSA) {
@@ -854,12 +860,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
 
-    std::string dialogSessionId = want.GetStringParam("dialogSessionId");
-    isSendDialogResult = false;
-    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
-        isSendDialogResult = true;
-        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
-    }
     if (!isStartAsCaller) {
         HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
