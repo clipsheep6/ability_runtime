@@ -100,7 +100,7 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0300, Func
 HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 start";
-    void* handle = dlopen("/system/lib64/platformsdk/libability_manager.z.so", RTLD_NOW);
+    void* handle = dlopen("/system/lib/platformsdk/libability_manager.z.so", RTLD_NOW);
     if (handle == nullptr) {
         GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so" << dlerror();
     }
