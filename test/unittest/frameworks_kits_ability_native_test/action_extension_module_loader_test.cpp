@@ -20,6 +20,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace testing::ext;
+using NAPISTARTABILITY = void (*)(const std::string &permission, int pid, int uid);
 
 class ActionExtensionModuleLoaderTest : public testing::Test {
 public:
@@ -103,6 +104,10 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Func
     void* handle = dlopen("/system/lib/platformsdk/libability_manager.z.so", RTLD_NOW);
     if (handle == nullptr) {
         GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so" << dlerror();
+    }
+    auto func = reinterpret_cast<NAPISTARTABILITY>(dlsym(handle, "VerifyPermission"));
+    if (func == nullptr) {
+        GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so VerifyPermission" << dlerror();
     }
     EXPECT_TRUE(handle != nullptr);
     dlclose(handle);
