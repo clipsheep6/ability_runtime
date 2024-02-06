@@ -16,6 +16,7 @@
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 #include "action_extension_module_loader.h"
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -101,6 +102,10 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Func
 {
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 start";
     void* handle = dlopen("/system/lib64/platformsdk/libability_manager.z.so", RTLD_NOW);
+    if (handle == nullptr) {
+        HILOG_ERROR("Fail to dlopen /system/lib64/platformsdk/libability_manager.z.so, [%{public}s]",
+        dlerror());
+    }
     EXPECT_TRUE(handle != nullptr);
     dlclose(handle);
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 end";
