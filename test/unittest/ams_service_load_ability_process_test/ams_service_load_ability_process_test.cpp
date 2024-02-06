@@ -1182,7 +1182,7 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartProcess001, TestSize.Level1)
         GetTestAppName(),
         false, record,
         abilityInfo->applicationInfo.uid,
-        abilityInfo->applicationInfo.bundleName, 0);
+        bundleInfo, abilityInfo->applicationInfo.bundleName, 0);
     const auto& recordMap = service_->appRunningManager_->GetAppRunningRecordMap();
     EXPECT_EQ(recordMap.size(), (uint32_t)1);
 
@@ -1233,7 +1233,7 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartProcess002, TestSize.Level1)
         GetTestAppName(),
         false, record,
         abilityInfo->applicationInfo.uid,
-        abilityInfo->applicationInfo.bundleName, 0);
+        bundleInfo, abilityInfo->applicationInfo.bundleName, 0);
     const auto& recordMap = service_->appRunningManager_->GetAppRunningRecordMap();
     EXPECT_EQ(recordMap.size(), (uint32_t)0);
 
@@ -1277,7 +1277,7 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartProcess003, TestSize.Level1)
         GetTestAppName(),
         false, nullptr,
         abilityInfo->applicationInfo.uid,
-        abilityInfo->applicationInfo.bundleName, 0);
+        bundleInfo, abilityInfo->applicationInfo.bundleName, 0);
     const auto& recordMap = service_->appRunningManager_->GetAppRunningRecordMap();
     EXPECT_EQ(recordMap.size(), (uint32_t)1);
 
@@ -1330,7 +1330,7 @@ HWTEST_F(AmsServiceLoadAbilityProcessTest, StartProcess004, TestSize.Level1)
         GetTestAppName(),
         false, record,
         abilityInfo->applicationInfo.uid,
-        abilityInfo->applicationInfo.bundleName, 0);
+        bundleInfo, abilityInfo->applicationInfo.bundleName, 0);
     auto record1 = service_->GetAppRunningRecordByAppRecordId(record->GetRecordId());
     EXPECT_EQ(record1, nullptr);
     HILOG_INFO("AmsServiceLoadAbilityProcessTest StartProcess004 end");

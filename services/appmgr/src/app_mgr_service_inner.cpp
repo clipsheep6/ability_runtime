@@ -202,7 +202,7 @@ bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissio
     }
 
     auto token = bundleInfo.applicationInfo.accessTokenId;
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permissionName);
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permissionName, false);
     if (result != Security::AccessToken::PERMISSION_GRANTED) {
         HILOG_ERROR("StartProcess permission %{public}s not granted", permissionName.c_str());
         return false;
@@ -360,7 +360,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
-            appInfo->uid, appInfo->bundleName, bundleIndex, appExistFlag);
+            appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag);
         std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
         bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
         (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
@@ -2037,7 +2037,7 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
     auto token = bundleInfo.applicationInfo.accessTokenId;
     {
         HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
-        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET, false);
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
@@ -2051,13 +2051,14 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
     #endif
         }
 
-        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_MANAGE_VPN);
+        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_MANAGE_VPN, false);
         if (result == Security::AccessToken::PERMISSION_GRANTED) {
             gids.push_back(BLUETOOTH_GROUPID);
         }
 
         if (hasAccessBundleDirReq) {
-            int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_ACCESS_BUNDLE_DIR);
+            int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token,
+                PERMISSION_ACCESS_BUNDLE_DIR, false);
             if (result != Security::AccessToken::PERMISSION_GRANTED) {
                 HILOG_ERROR("StartProcess PERMISSION_ACCESS_BUNDLE_DIR NOT GRANTED");
                 hasAccessBundleDirReq = false;
@@ -2067,7 +2068,7 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
 
     std::set<std::string> mountPermissionList = AppSpawn::AppspawnMountPermission::GetMountPermissionList();
     for (std::string permission : mountPermissionList) {
-        if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission) ==
+        if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission, false) ==
             Security::AccessToken::PERMISSION_GRANTED) {
             permissions.insert(permission);
         }
@@ -2075,8 +2076,8 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
 }
 
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
-                                      const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
-                                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
+    std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
+    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartProcess: %{public}s", bundleName.c_str());
@@ -2099,24 +2100,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     auto userId = GetUserIdByUid(uid);
-    BundleInfo bundleInfo;
-    bool bundleMgrResult;
-    if (bundleIndex == 0) {
-        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetBundleInfo");
-        bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(bundleName,
-            BundleFlag::GET_BUNDLE_WITH_REQUESTED_PERMISSION, bundleInfo, userId));
-    } else {
-        HITRACE_METER_NAME(HITRACE_TAG_APP, "BMS->GetSandboxBundleInfo");
-        bundleMgrResult = (IN_PROCESS_CALL(bundleMgrHelper->GetSandboxBundleInfo(bundleName,
-            bundleIndex, userId, bundleInfo)) == 0);
-    }
-
-    if (!bundleMgrResult) {
-        HILOG_ERROR("GetBundleInfo is fail");
-        appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
-        return;
-    }
-
     HspList hspList;
     ErrCode ret = bundleMgrHelper->GetBaseSharedBundleInfos(bundleName, hspList,
         AppExecFwk::GetDependentBundleInfoFlag::GET_ALL_DEPENDENT_BUNDLE_INFO);
@@ -2171,7 +2154,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     HILOG_DEBUG("apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
-    bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
+    bool bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
     if (!bundleMgrResult) {
         HILOG_ERROR("GetBundleGids is fail.");
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
@@ -2761,7 +2744,7 @@ void AppMgrServiceInner::StartEmptyResidentProcess(
 
     appRecord->SetKeepAliveAppState(true, isEmptyKeepAliveApp);
 
-    StartProcess(appInfo->name, processName, 0, appRecord, appInfo->uid, appInfo->bundleName, 0, appExistFlag);
+    StartProcess(appInfo->name, processName, 0, appRecord, appInfo->uid, info, appInfo->bundleName, 0, appExistFlag);
 
     // If it is empty, the startup failed
     if (!appRecord) {
@@ -3060,7 +3043,7 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     if (info.applicationInfo.debug) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
     }
-    StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName,
+    StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, info, appInfo->bundleName,
         bundleIndex, appExistFlag);
 
     // If it is empty, the startup failed
@@ -3200,7 +3183,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
         uint32_t startFlags = BuildStartFlags(want, abilityInfo);
         int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-        StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, appInfo->bundleName,
+        StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, bundleInfo, appInfo->bundleName,
             bundleIndex, appExistFlag);
 
         appRecord->SetSpecifiedAbilityFlagAndWant(true, want, hapModuleInfo.moduleName);
