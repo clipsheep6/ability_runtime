@@ -59,7 +59,8 @@
         "icon": "$media:icon",
         "label": "$string:SelectorExtAbility_label",
         "type": "sys/commonUI",
-        "visible": false
+        "visible": false,
+        "exported": true
       }
     ],
     "metadata": [
