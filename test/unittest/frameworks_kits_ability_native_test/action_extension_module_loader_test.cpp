@@ -96,5 +96,13 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0300, Func
     }
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0300 end";
 }
+
+HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 start";
+    void* handle = dlopen("/system/lib64/platformsdk/libability_manager.z.so", RTLD_LAZY);
+    dlclose(handle);
+    GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 end";
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
