@@ -76,7 +76,9 @@ std::shared_ptr<AbilityManagerClient> AbilityManagerClient::GetInstance()
 }
 
 AbilityManagerClient::AbilityManagerClient()
-{}
+{
+    HILOG_INFO("call AbilityManagerClient");
+}
 
 AbilityManagerClient::~AbilityManagerClient()
 {
