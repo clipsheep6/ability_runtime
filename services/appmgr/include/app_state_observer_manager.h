@@ -98,7 +98,6 @@ private:
 private:
     std::shared_ptr<AAFwk::TaskHandlerWrap> handler_;
     int32_t dummyCode_ = 0;
-    ffrt::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
     std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
     ffrt::mutex appForegroundObserverLock_;
