@@ -1137,6 +1137,7 @@ public:
      */
     int32_t IsValidMissionIds(const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results);
 
+    EXTERN_C_START
     /**
      * Query whether the application of the specified PID and UID has been granted a certain permission
      * @param permission
@@ -1145,6 +1146,7 @@ public:
      * @return Returns ERR_OK if the current process has the permission, others on failure.
      */
     ErrCode VerifyPermission(const std::string &permission, int pid, int uid);
+    EXTERN_C_END
 
     /**
      * Acquire the shared data.
