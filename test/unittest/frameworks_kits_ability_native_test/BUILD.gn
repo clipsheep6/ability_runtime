@@ -2352,6 +2352,7 @@ ohos_unittest("action_extension_module_loader_test") {
   configs = [ ":module_private_config" ]
 
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:action_extension",
