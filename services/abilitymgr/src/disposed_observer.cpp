@@ -18,6 +18,7 @@
 #include "ability_interceptor.h"
 #include "ability_record.h"
 #include "hilog_wrapper.h"
+#include "modal_system_ui_extension.h"
 #include "want.h"
 namespace OHOS {
 namespace AAFwk {
@@ -47,17 +48,27 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
         }
     }
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
-        auto abilityRecord = Token::GetAbilityRecordByToken(token_);
-        if (!abilityRecord) {
-            interceptor_->UnregisterObserver(pageStateData.bundleName);
-            HILOG_ERROR("abilityRecord is nullptr");
-            return;
-        }
-        int ret = abilityRecord->CreateModalUIExtension(*disposedRule_.want);
-        if (ret != ERR_OK) {
-            interceptor_->UnregisterObserver(pageStateData.bundleName);
-            HILOG_ERROR("failed to start disposed UIExtension");
-            return;
+        if (!token_) {
+            auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+            bool ret = systemUIExtension->CreateModalUIExtension(*disposedRule_.want);
+            if (!ret) {
+                interceptor_->UnregisterObserver(pageStateData.bundleName);
+                HILOG_ERROR("failed to start system UIExtension");
+                return;
+            }
+        } else {
+            auto abilityRecord = Token::GetAbilityRecordByToken(token_);
+            if (!abilityRecord) {
+                interceptor_->UnregisterObserver(pageStateData.bundleName);
+                HILOG_ERROR("abilityRecord is nullptr");
+                return;
+            }
+            int ret = abilityRecord->CreateModalUIExtension(*disposedRule_.want);
+            if (ret != ERR_OK) {
+                interceptor_->UnregisterObserver(pageStateData.bundleName);
+                HILOG_ERROR("failed to start disposed UIExtension");
+                return;
+            }
         }
     }
     interceptor_->UnregisterObserver(pageStateData.bundleName);
