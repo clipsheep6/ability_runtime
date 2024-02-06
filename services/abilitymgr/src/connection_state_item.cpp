@@ -55,6 +55,11 @@ public:
         extensionModuleName_ = target->GetAbilityInfo().moduleName;
         extensionName_ = target->GetAbilityInfo().name;
         extensionType_ = target->GetAbilityInfo().extensionAbilityType;
+        if (target->GetAbilityInfo().type == AppExecFwk::AbilityType::SERVICE) {
+            extensionType_ = AppExecFwk::ExtensionAbilityType::SERVICE;
+        } else if (target->GetAbilityInfo().type == AppExecFwk::AbilityType::DATA) {
+            extensionType_ = AppExecFwk::ExtensionAbilityType::DATASHARE;
+        }
     }
 
     virtual ~ConnectedExtension() = default;
