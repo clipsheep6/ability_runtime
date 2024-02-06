@@ -82,6 +82,7 @@ private:
         TokenId targetTokenId, int autoremove);
     int DeletTempUriPermission(const std::string &uri, uint32_t flag, uint32_t targetTokenId);
     int DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId);
+    int DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t fromTokenId, uint32_t targetTokenId);
 
     void GetUriPermissionBatchFlag(const std::vector<Uri> &uriVec,
         unsigned int flag, uint32_t targetTokenId,
