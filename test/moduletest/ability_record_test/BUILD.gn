@@ -33,7 +33,6 @@ ohos_moduletest("AbilityRecordModuleTest") {
 
   configs = [
     "${ability_runtime_test_path}/moduletest:aafwk_module_test_config",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
