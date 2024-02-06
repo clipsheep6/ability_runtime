@@ -2104,7 +2104,6 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
     EventInfo focusInfo;
     focusInfo.bundleName = record->GetAbilityInfo().bundleName;
-    focusInfo.abilityName = record->GetAbilityInfo().name;
 
     // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
     EventInfo callerInfo;
@@ -2113,7 +2112,8 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
         focusInfo.bundleName.c_str(), callerInfo.bundleName.c_str());
 
     // Compare
-    if (focusInfo.bundleName == callerInfo.bundleName) {
+    if (record->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE &&
+        focusInfo.bundleName == callerInfo.bundleName) {
         HILOG_DEBUG("CreateModalUIExtension is called!");
         return record->CreateModalUIExtension(want);
     }
