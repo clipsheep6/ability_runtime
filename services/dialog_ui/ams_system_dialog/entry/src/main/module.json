@@ -51,6 +51,15 @@
         "label":"$string:SwitchUserServiceExtAbility_label",
         "visible": false,
         "type": "service"
+      },
+      {
+        "name": "CommonSelectPickerAbility",
+        "srcEntrance": "./ets/ServiceExtAbility/SelectorExtensionAbility.ets",
+        "description": "SelectorExtensionAbility",
+        "icon": "$media:icon",
+        "label": "$string:SelectorExtAbility_label",
+        "type": "sys/commonUI",
+        "visible": false
       }
     ],
     "metadata": [
