@@ -221,6 +221,7 @@ const int32_t BROKER_RESERVE_UID = 5005;
 const int32_t DMS_UID = 5522;
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
+constexpr int32_t BOOTEVENT_BOOT_ANIMATION_READY_SIZE = 6;
 const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
@@ -233,6 +234,7 @@ const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
 const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
+const std::string BOOTEVENT_BOOT_ANIMATION_READY = "bootevent.bootanimation.ready";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
@@ -5062,8 +5064,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 #ifdef SUPPORT_GRAPHICS
     abilityWant.SetParam(NEED_STARTINGWINDOW, false);
     // wait BOOT_ANIMATION_STARTED to start LAUNCHER
-    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
-        AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+    WaitBootAnimationStart();
 #endif
 
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
@@ -5748,8 +5749,7 @@ void AbilityManagerService::StartResidentApps()
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {
 #ifdef SUPPORT_GRAPHICS
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
-            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+        WaitBootAnimationStart();
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
     }
@@ -9331,6 +9331,23 @@ bool AbilityManagerService::CheckCallerIsDmsProcess()
         return false;
     }
     return true;
+}
+
+void AbilityManagerService::WaitBootAnimationStart()
+{
+    char value[BOOTEVENT_BOOT_ANIMATION_READY_SIZE] = "";
+    int32_t ret = GetParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "", value,
+        BOOTEVENT_BOOT_ANIMATION_READY_SIZE);
+    if (ret > 0 && !std::strcmp(value, "false")) {
+        // Get new param success and new param is not ready, wait the new param.
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "true",
+            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+    } else if (ret <= 0 || !std::strcmp(value, "")) {
+        // Get new param failed or new param is not set, wait the old param.
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+    }
+    // other, the animation is ready, not wait.
 }
 }  // namespace AAFwk
 }  // namespace OHOS
