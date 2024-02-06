@@ -172,6 +172,9 @@ const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
+const std::unordered_set<std::string> COMMON_PICKER_TYPE = {
+    "share", "action"
+};
 std::atomic<bool> g_isDmsAlive = false;
 
 bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleManager)
@@ -2233,6 +2236,18 @@ void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extens
 {
     CHECK_POINTER_IS_NULLPTR(extensionSessionInfo);
     std::string targetType = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TARGET_TYPE_KEY);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
+        extensionSessionInfo->want.GetElement().GetAbilityName().empty() &&
+        COMMON_PICKER_TYPE.find(targetType) != COMMON_PICKER_TYPE.end()) {
+        std::string abilityName = "CommonSelectPickerAbility";
+        std::string bundleName = "com.ohos.amsdialog";
+        extensionSessionInfo->want.SetElementName(bundleName, abilityName);
+        WantParams &parameters = const_cast<WantParams &>(extensionSessionInfo->want.GetParams());
+        parameters.SetParam(UIEXTENSION_TYPE_KEY, AAFwk::String::Box("sys/commonUI"));
+        extensionSessionInfo->want.SetParams(parameters);
+        return;
+    }
     if (extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
         extensionSessionInfo->want.GetElement().GetAbilityName().empty() && !targetType.empty()) {
         std::string abilityName;
