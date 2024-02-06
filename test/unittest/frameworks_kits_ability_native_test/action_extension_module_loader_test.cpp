@@ -100,7 +100,8 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0300, Func
 HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Function | MediumTest | Level1)
 {
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 start";
-    void* handle = dlopen("/system/lib64/platformsdk/libability_manager.z.so", RTLD_LAZY);
+    void* handle = dlopen("/system/lib64/platformsdk/libability_manager.z.so", RTLD_NOW | RTLD_GLOBAL);
+    EXPECT_TRUE(handle != nullptr);
     dlclose(handle);
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 end";
 }
