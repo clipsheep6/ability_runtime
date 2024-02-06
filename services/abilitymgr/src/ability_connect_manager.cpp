@@ -1601,7 +1601,7 @@ bool AbilityConnectManager::IsAbilityConnected(const std::shared_ptr<AbilityReco
     return std::any_of(connectRecordList.begin(), connectRecordList.end(), isMatch);
 }
 
-void AbilityConnectManager::RemoveConnectionRecordFromMap(const std::shared_ptr<ConnectionRecord> &connection)
+void AbilityConnectManager::RemoveConnectionRecordFromMap(std::shared_ptr<ConnectionRecord> connection)
 {
     for (auto &connectCallback : connectMap_) {
         auto &connectList = connectCallback.second;
