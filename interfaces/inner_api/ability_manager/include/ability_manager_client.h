@@ -30,6 +30,9 @@
 #include "ui_extension_window_command.h"
 #include "want.h"
 
+#define EXTERN_C_START extern "C" {
+#define EXTERN_C_END }
+
 namespace OHOS {
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
