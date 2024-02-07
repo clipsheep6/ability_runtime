@@ -507,7 +507,6 @@ void AppStateObserverManager::HandleStateChangedNotifyObserver(
     if ((abilityStateData.abilityState == static_cast<int32_t>(AbilityState::ABILITY_STATE_FOREGROUND) ||
             abilityStateData.abilityState == static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND)) &&
         isAbility && !isFromWindowFocusChanged) {
-        std::lock_guard<ffrt::mutex> lockForeground(abilityforegroundObserverLock_);
         auto abilityforegroundObserverSetCopy = GetAbilityforegroundObserverSetCopy();
         for (auto &it : abilityforegroundObserverSetCopy) {
             if (it != nullptr) {
