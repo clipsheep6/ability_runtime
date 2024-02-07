@@ -76,10 +76,14 @@ std::shared_ptr<AbilityManagerClient> AbilityManagerClient::GetInstance()
 }
 
 AbilityManagerClient::AbilityManagerClient()
-{}
+{
+    HILOG_INFO("call AbilityManagerClient");
+}
 
 AbilityManagerClient::~AbilityManagerClient()
-{}
+{
+    HILOG_INFO("call ~AbilityManagerClient");
+}
 
 ErrCode AbilityManagerClient::AttachAbilityThread(
     sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token)
@@ -540,7 +544,7 @@ ErrCode AbilityManagerClient::Connect()
 
 void AbilityManagerClient::RemoveDeathRecipient()
 {
-    HILOG_INFO("RemoveDeathRecipient");
+    HILOG_INFO("call RemoveDeathRecipient");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         HILOG_INFO("AbilityMgrProxy do not exist");
@@ -556,6 +560,12 @@ void AbilityManagerClient::RemoveDeathRecipient()
         deathRecipient_ = nullptr;
         HILOG_INFO("Remove DeathRecipient success");
     }
+}
+
+__attribute__((destructor)) void DeathRecipientDestructor()
+{
+    HILOG_INFO("call DeathRecipientDestructor");
+    AbilityManagerClient::GetInstance()->RemoveDeathRecipient();
 }
 
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)

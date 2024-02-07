@@ -20,6 +20,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace testing::ext;
+using RecordAppExitReason = int (*)(int reason);
 
 class ActionExtensionModuleLoaderTest : public testing::Test {
 public:
@@ -95,6 +96,24 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0300, Func
         EXPECT_STREQ(iter->second.c_str(), "ActionExtensionAbility");
     }
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0300 end";
+}
+
+HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 start";
+    void* handle = dlopen("/system/lib/platformsdk/libability_manager.z.so", RTLD_NOW);
+    if (handle == nullptr) {
+        GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so" << dlerror();
+    }
+    RecordAppExitReason recordAppExitReason = (RecordAppExitReason)dlsym(handle, "RecordAppExitReason");
+    if (recordAppExitReason == nullptr) {
+        GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so RecordAppExitReason" << dlerror();
+    }
+    EXPECT_TRUE(handle != nullptr);
+    const int cppCrashExitReason = 2;
+    recordAppExitReason(cppCrashExitReason);
+    dlclose(handle);
+    GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 end";
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
