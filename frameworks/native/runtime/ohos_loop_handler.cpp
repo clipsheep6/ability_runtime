@@ -49,7 +49,12 @@ void OHOSLoopHandler::OnTriggered()
     }
 
     int64_t timeStamp = static_cast<int64_t>(uv_now(uvLoop_)) + timeout;
-    if (timeStamp == lastTimeStamp_) {
+    if (timeStamp == lastTimeStamp_
+#ifdef RUNTIME_EMULATOR
+        // fix uv task not triggered for eventhandler timer accuracy problem
+        && (timeout > 1)
+#endif
+    ) {
         return;
     }
 
