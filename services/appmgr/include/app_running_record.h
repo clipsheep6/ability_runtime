@@ -692,6 +692,20 @@ public:
     void RemoveChildProcessRecord(const std::shared_ptr<ChildProcessRecord> record);
     std::shared_ptr<ChildProcessRecord> GetChildProcessRecordByPid(const pid_t pid);
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
+
+    /**
+     * @brief Obtains the app record assign tokenId.
+     *
+     * @return Returns app record AssignTokenId.
+     */
+    int32_t GetAssignTokenId() const;
+
+    /**
+     * @brief Setting the assign tokenId.
+     *
+     * @param AssignTokenId, the assign tokenId.
+     */
+    void SetAssignTokenId(int32_t tokenId);
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -823,6 +837,7 @@ private:
     int32_t callerPid_ = -1;
     int32_t callerUid_ = -1;
     int32_t callerTokenId_ = -1;
+    int32_t assignTokenId_ = 0;
     ProcessType processType_ = ProcessType::NORMAL;
     ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 
