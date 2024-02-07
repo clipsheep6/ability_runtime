@@ -79,7 +79,10 @@ AbilityManagerClient::AbilityManagerClient()
 {}
 
 AbilityManagerClient::~AbilityManagerClient()
-{}
+{
+    HILOG_INFO("Remove DeathRecipient");
+    RemoveDeathRecipient();
+}
 
 ErrCode AbilityManagerClient::AttachAbilityThread(
     sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token)
