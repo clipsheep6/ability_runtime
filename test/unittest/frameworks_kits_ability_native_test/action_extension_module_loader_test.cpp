@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 using namespace testing::ext;
-using NAPISTARTABILITY = void (*)(const std::string &permission, int pid, int uid);
+using RecordAppExitReason = int (*)(int reason);
 
 class ActionExtensionModuleLoaderTest : public testing::Test {
 public:
@@ -105,11 +105,13 @@ HWTEST_F(ActionExtensionModuleLoaderTest, ActionExtensionModuleLoader_0400, Func
     if (handle == nullptr) {
         GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so" << dlerror();
     }
-    auto func = reinterpret_cast<NAPISTARTABILITY>(dlsym(handle, "VerifyPermission"));
-    if (func == nullptr) {
-        GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so VerifyPermission" << dlerror();
+    RecordAppExitReason recordAppExitReason = (RecordAppExitReason)dlsym(handle, "RecordAppExitReason");
+    if (recordAppExitReason == nullptr) {
+        GTEST_LOG_(INFO) << "Fail to dlopen /system/lib/platformsdk/libability_manager.z.so RecordAppExitReason" << dlerror();
     }
     EXPECT_TRUE(handle != nullptr);
+    const int cppCrashExitReason = 2;
+    recordAppExitReason(cppCrashExitReason);
     dlclose(handle);
     GTEST_LOG_(INFO) << "ActionExtensionModuleLoader_0400 end";
 }
