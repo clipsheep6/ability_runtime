@@ -37,6 +37,10 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+using AppStateObserverMap = std::map<sptr<IApplicationStateObserver>, std::vector<std::string>>;
+using AppForegroundStateObserverSet = std::set<sptr<IAppForegroundStateObserver>>;
+using AbilityforegroundObserverSet = std::set<sptr<IAbilityForegroundStateObserver>>;
+
 enum class ObserverType {
     APPLICATION_STATE_OBSERVER,
     APP_FOREGROUND_STATE_OBSERVER,
@@ -83,6 +87,9 @@ private:
     bool IsAbilityForegroundObserverExist(const sptr<IRemoteBroker> &observer);
     void AddObserverDeathRecipient(const sptr<IRemoteBroker> &observer, const ObserverType &type);
     void RemoveObserverDeathRecipient(const sptr<IRemoteBroker> &observer);
+    AppStateObserverMap GetAppStateObserverMapCopy();
+    AppForegroundStateObserverSet GetAppForegroundStateObserverSetCopy();
+    AbilityforegroundObserverSet GetAbilityforegroundObserverSetCopy();
     ProcessData WrapProcessData(const std::shared_ptr<AppRunningRecord> &appRecord);
     ProcessData WrapRenderProcessData(const std::shared_ptr<RenderRecord> &renderRecord);
     void OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type);
@@ -100,11 +107,11 @@ private:
     int32_t dummyCode_ = 0;
     ffrt::mutex observerLock_;
     std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> recipientMap_;
-    std::map<sptr<IApplicationStateObserver>, std::vector<std::string>> appStateObserverMap_;
+    AppStateObserverMap appStateObserverMap_;
     ffrt::mutex appForegroundObserverLock_;
-    std::set<sptr<IAppForegroundStateObserver>> appForegroundStateObserverSet_;
+    AppForegroundStateObserverSet appForegroundStateObserverSet_;
     ffrt::mutex abilityforegroundObserverLock_;
-    std::set<sptr<IAbilityForegroundStateObserver>> abilityforegroundObserverSet_;
+    AbilityforegroundObserverSet abilityforegroundObserverSet_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
