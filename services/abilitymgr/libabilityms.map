@@ -72,7 +72,7 @@
       *SenderInfo*;
       *AbilityManagerProxy*;
       *ExtensionRunningInfo*;
-      *StopUserCallbackStub*;
+      *UserCallbackStub*;
       *UserItem*;
       *WantReceiverStub*;
       *CallRecord*;

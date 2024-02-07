@@ -28,6 +28,7 @@ ohos_unittest("AppMgrClientTest") {
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_services_path}/appmgr/test/unittest/mocks",
     "${ability_runtime_test_path}/mock/common/include",
+    "${ability_runtime_test_path}/mock/mock_sa_call",
     "${ability_runtime_test_path}/unittest/ability_debug_response_stub_test",
     "${ability_runtime_test_path}/unittest/app_debug_listener_stub_test",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy/include",

@@ -2342,7 +2342,20 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 void AbilityRecord::SetWant(const Want &want)
 {
     std::lock_guard guard(wantLock_);
+    auto debugApp = want_.GetBoolParam(DEBUG_APP, false);
+    auto nativeDebug = want_.GetBoolParam(NATIVE_DEBUG, false);
+    auto perfCmd = want_.GetStringParam(PERF_CMD);
+
     want_ = want;
+    if (debugApp) {
+        want_.SetParam(DEBUG_APP, true);
+    }
+    if (nativeDebug) {
+        want_.SetParam(NATIVE_DEBUG, true);
+    }
+    if (!perfCmd.empty()) {
+        want_.SetParam(PERF_CMD, perfCmd);
+    }
 }
 
 Want AbilityRecord::GetWant() const

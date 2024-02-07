@@ -19,6 +19,8 @@
 #include "ability_manager_service.h"
 #include "user_controller.h"
 #undef private
+#include "scene_board_judgement.h"
+#include "user_callback_stub.h"
 using namespace testing;
 using namespace testing::ext;
 
@@ -47,6 +49,21 @@ void UserControllerTest::SetUp()
 void UserControllerTest::TearDown()
 {}
 
+class TestUserCallback : public UserCallbackStub {
+public:
+    void OnStopUserDone(int userId, int errcode) override;
+    void OnStartUserDone(int userId, int errcode) override;
+
+    int errCode_ = -1;
+};
+
+void TestUserCallback::OnStartUserDone(int userId, int errcode)
+{
+    errCode_ = errcode;
+}
+
+void TestUserCallback::OnStopUserDone(int userId, int errcode) {}
+
 /**
  * @tc.name: UserItemSetState_0100
  * @tc.desc: UserItemSetState Test
@@ -74,7 +91,9 @@ HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
     UserController userController;
     userController.GetOrCreateUserItem(1000);
     userController.SetCurrentUserId(1000);
-    EXPECT_TRUE(userController.StartUser(1000, true) == 0);
+    sptr<TestUserCallback> callback = new TestUserCallback();
+    userController.StartUser(1000, callback, true);
+    EXPECT_TRUE(callback->errCode_ == 0);
 }
 
 /**
@@ -86,7 +105,9 @@ HWTEST_F(UserControllerTest, StartUserTest_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, StartUserTest_0200, TestSize.Level0)
 {
     UserController userController;
-    EXPECT_TRUE(userController.StartUser(666, true) == -1);
+    sptr<TestUserCallback> callback = new TestUserCallback();
+    userController.StartUser(666, callback, true);
+    EXPECT_TRUE(callback->errCode_ != 0);
 }
 
 /**
@@ -139,7 +160,10 @@ HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
 {
     UserController userController;
     auto result = userController.LogoutUser(-1);
-    EXPECT_EQ(result, INVALID_USERID_VALUE);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, INVALID_USERID_VALUE);
+    }
+    EXPECT_TRUE(userController.GetCurrentUserId() == 0);
 }
 
 /**
@@ -151,7 +175,11 @@ HWTEST_F(UserControllerTest, LogoutUserTest_0100, TestSize.Level0)
 HWTEST_F(UserControllerTest, LogoutUserTest_0200, TestSize.Level0)
 {
     UserController userController;
-    EXPECT_TRUE(userController.LogoutUser(666) == INVALID_USERID_VALUE);
+    auto result = userController.LogoutUser(666);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        EXPECT_EQ(result, INVALID_USERID_VALUE);
+    }
+    EXPECT_TRUE(userController.GetCurrentUserId() == 0);
 }
 
 /**

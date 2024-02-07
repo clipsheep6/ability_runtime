@@ -66,8 +66,8 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     auto abilityms = std::make_shared<AbilityManagerService>();
     AppExecFwk::AbilityInfo abilityInfo;
     abilityms->JudgeAbilityVisibleControl(abilityInfo);
-    abilityms->StartUser(intParam);
-    sptr<IStopUserCallback> callback;
+    sptr<IUserCallback> callback;
+    abilityms->StartUser(intParam, callback);
     abilityms->StopUser(intParam, callback);
     abilityms->OnAcceptWantResponse(*want, stringParam);
     abilityms->OnStartSpecifiedAbilityTimeoutResponse(*want);

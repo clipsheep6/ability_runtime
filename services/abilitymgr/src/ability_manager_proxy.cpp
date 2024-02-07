@@ -2550,13 +2550,9 @@ int AbilityManagerProxy::MoveMissionsToBackground(const std::vector<int32_t>& mi
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUser(int userId)
+int AbilityManagerProxy::StartUser(int userId, sptr<IUserCallback> callback)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -2564,7 +2560,19 @@ int AbilityManagerProxy::StartUser(int userId)
         HILOG_ERROR("StartUser:WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
-    error = SendRequest(AbilityManagerInterfaceCode::START_USER, data, reply, option);
+    if (!callback) {
+        data.WriteBool(false);
+    } else {
+        data.WriteBool(true);
+        if (!data.WriteRemoteObject(callback->AsObject())) {
+            HILOG_ERROR("write IUserCallback fail.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = SendRequest(AbilityManagerInterfaceCode::START_USER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("StartUser:SendRequest error: %d", error);
         return error;
@@ -2596,13 +2604,9 @@ int AbilityManagerProxy::SetMissionContinueState(const sptr<IRemoteObject> &toke
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+int AbilityManagerProxy::StopUser(int userId, const sptr<IUserCallback> &callback)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -2616,11 +2620,13 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &cal
     } else {
         data.WriteBool(true);
         if (!data.WriteRemoteObject(callback->AsObject())) {
-            HILOG_ERROR("StopUser:write IStopUserCallback fail.");
+            HILOG_ERROR("write IUserCallback fail.");
             return ERR_INVALID_VALUE;
         }
     }
-    error = SendRequest(AbilityManagerInterfaceCode::STOP_USER, data, reply, option);
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = SendRequest(AbilityManagerInterfaceCode::STOP_USER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("StopUser:SendRequest error: %d", error);
         return error;

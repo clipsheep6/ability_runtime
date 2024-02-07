@@ -1658,7 +1658,14 @@ int AbilityManagerStub::ReleaseCallInner(MessageParcel &data, MessageParcel &rep
 int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t userId = data.ReadInt32();
-    int result = StartUser(userId);
+    sptr<IUserCallback> callback = nullptr;
+    if (data.ReadBool()) {
+        callback = iface_cast<IUserCallback>(data.ReadRemoteObject());
+    } else {
+        HILOG_ERROR("callback is invalid value.");
+        return ERR_INVALID_VALUE;
+    }
+    int result = StartUser(userId, callback);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("StartUser failed.");
         return ERR_INVALID_VALUE;
@@ -1669,9 +1676,9 @@ int AbilityManagerStub::StartUserInner(MessageParcel &data, MessageParcel &reply
 int AbilityManagerStub::StopUserInner(MessageParcel &data, MessageParcel &reply)
 {
     int32_t userId = data.ReadInt32();
-    sptr<IStopUserCallback> callback = nullptr;
+    sptr<IUserCallback> callback = nullptr;
     if (data.ReadBool()) {
-        callback = iface_cast<IStopUserCallback>(data.ReadRemoteObject());
+        callback = iface_cast<IUserCallback>(data.ReadRemoteObject());
     }
     int result = StopUser(userId, callback);
     if (!reply.WriteInt32(result)) {

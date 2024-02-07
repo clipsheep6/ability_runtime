@@ -188,12 +188,12 @@ public:
         return 0;
     }
 
-    int StartUser(int userId) override
+    int StartUser(int userId, sptr<IUserCallback> callback) override
     {
         return 0;
     }
 
-    int StopUser(int userId, const sptr<IStopUserCallback>& callback) override
+    int StopUser(int userId, const sptr<IUserCallback>& callback) override
     {
         return 0;
     }

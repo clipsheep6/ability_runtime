@@ -394,7 +394,7 @@ ErrCode AbilityManagerClient::ConnectAbility(const Want &want, sptr<IAbilityConn
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+    HILOG_DEBUG("name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
@@ -540,6 +540,7 @@ ErrCode AbilityManagerClient::Connect()
 
 void AbilityManagerClient::RemoveDeathRecipient()
 {
+    HILOG_INFO("RemoveDeathRecipient");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         HILOG_INFO("AbilityMgrProxy do not exist");
@@ -555,12 +556,6 @@ void AbilityManagerClient::RemoveDeathRecipient()
         deathRecipient_ = nullptr;
         HILOG_INFO("Remove DeathRecipient success");
     }
-}
-
-__attribute__((destructor)) void DeathRecipientDestructor()
-{
-    HILOG_INFO("Remove DeathRecipient");
-    AbilityManagerClient::GetInstance()->RemoveDeathRecipient();
 }
 
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
@@ -1012,13 +1007,13 @@ ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string &devId)
     return abms->StopSyncRemoteMissions(devId);
 }
 
-ErrCode AbilityManagerClient::StartUser(int accountId)
+ErrCode AbilityManagerClient::StartUser(int accountId, sptr<IUserCallback> callback)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->StartUser(accountId);
+    return abms->StartUser(accountId, callback);
 }
-ErrCode AbilityManagerClient::StopUser(int accountId, sptr<IStopUserCallback> callback)
+ErrCode AbilityManagerClient::StopUser(int accountId, sptr<IUserCallback> callback)
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);

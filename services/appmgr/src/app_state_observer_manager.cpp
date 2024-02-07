@@ -394,8 +394,8 @@ void AppStateObserverManager::HandleOnAppStarted(const std::shared_ptr<AppRunnin
     AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_CREATE);
     HILOG_DEBUG("HandleOnAppStarted, bundle:%{public}s, uid:%{public}d, state:%{public}d",
         data.bundleName.c_str(), data.uid, data.state);
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), data.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -414,8 +414,8 @@ void AppStateObserverManager::HandleOnAppStopped(const std::shared_ptr<AppRunnin
     AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_TERMINATED);
     HILOG_DEBUG("HandleOnAppStopped, bundle:%{public}s, uid:%{public}d, state:%{public}d",
         data.bundleName.c_str(), data.uid, data.state);
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), data.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -436,8 +436,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
             AppStateData data = WrapAppStateData(appRecord, state);
             appRecord->GetSplitModeAndFloatingMode(data.isSplitScreenMode, data.isFloatingWindowMode);
             dummyCode_ = __LINE__;
-            std::lock_guard<ffrt::mutex> lockForeground(appForegroundObserverLock_);
-            for (auto it : appForegroundStateObserverSet_) {
+            auto appForegroundStateObserverSetCopy = GetAppForegroundStateObserverSetCopy();
+            for (auto it : appForegroundStateObserverSetCopy) {
                 if (it != nullptr) {
                     it->OnAppStateChanged(data);
                 }
@@ -450,8 +450,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
             HILOG_DEBUG("HandleAppStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d, notify:%{public}d",
                 data.bundleName.c_str(), data.uid, data.state, needNotifyApp);
             dummyCode_ = __LINE__;
-            std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-            for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+            auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+            for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
                 std::vector<std::string>::iterator iter =
                     std::find(it->second.begin(), it->second.end(), data.bundleName);
                 bool valid = (it->second.empty() || iter != it->second.end()) && it->first != nullptr;
@@ -470,8 +470,8 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
         HILOG_DEBUG("OnApplicationStateChanged, name:%{public}s, uid:%{public}d, state:%{public}d",
             data.bundleName.c_str(), data.uid, data.state);
         dummyCode_ = __LINE__;
-        std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-        for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+        auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+        for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
             std::vector<std::string>::iterator iter = std::find(it->second.begin(),
                 it->second.end(), data.bundleName);
             if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -484,7 +484,6 @@ void AppStateObserverManager::HandleAppStateChanged(const std::shared_ptr<AppRun
 void AppStateObserverManager::HandleStateChangedNotifyObserver(
     const AbilityStateData abilityStateData, bool isAbility, bool isFromWindowFocusChanged)
 {
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
     HILOG_DEBUG("Handle state change, module:%{public}s, bundle:%{public}s, ability:%{public}s, state:%{public}d,"
         "pid:%{public}d ,uid:%{public}d, abilityType:%{public}d, isAbility:%{public}d, callerBundleName:%{public}s,"
         "callerAbilityName:%{public}s",
@@ -492,7 +491,8 @@ void AppStateObserverManager::HandleStateChangedNotifyObserver(
         abilityStateData.abilityName.c_str(), abilityStateData.abilityState,
         abilityStateData.pid, abilityStateData.uid, abilityStateData.abilityType, isAbility,
         abilityStateData.callerBundleName.c_str(), abilityStateData.callerAbilityName.c_str());
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), abilityStateData.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -508,7 +508,8 @@ void AppStateObserverManager::HandleStateChangedNotifyObserver(
             abilityStateData.abilityState == static_cast<int32_t>(AbilityState::ABILITY_STATE_BACKGROUND)) &&
         isAbility && !isFromWindowFocusChanged) {
         std::lock_guard<ffrt::mutex> lockForeground(abilityforegroundObserverLock_);
-        for (auto &it : abilityforegroundObserverSet_) {
+        auto abilityforegroundObserverSetCopy = GetAbilityforegroundObserverSetCopy();
+        for (auto &it : abilityforegroundObserverSetCopy) {
             if (it != nullptr) {
                 it->OnAbilityStateChanged(abilityStateData);
             }
@@ -540,8 +541,8 @@ void AppStateObserverManager::HandleOnProcessResued(const std::shared_ptr<AppRun
     HILOG_DEBUG("Process Resued, bundle:%{public}s, pid:%{public}d, uid:%{public}d",
         data.bundleName.c_str(), data.pid, data.uid);
 
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), data.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -565,8 +566,8 @@ void AppStateObserverManager::HandleOnRenderProcessCreated(const std::shared_ptr
 
 void AppStateObserverManager::HandleOnProcessCreated(const ProcessData &data)
 {
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), data.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -584,8 +585,8 @@ void AppStateObserverManager::HandleOnProcessStateChanged(const std::shared_ptr<
     ProcessData data = WrapProcessData(appRecord);
     HILOG_DEBUG("bundle:%{public}s pid:%{public}d uid:%{public}d state:%{public}d isContinuousTask:%{public}d",
         data.bundleName.c_str(), data.pid, data.uid, data.state, data.isContinuousTask);
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), data.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -620,8 +621,8 @@ void AppStateObserverManager::HandleOnRenderProcessDied(const std::shared_ptr<Re
 
 void AppStateObserverManager::HandleOnProcessDied(const ProcessData &data)
 {
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), data.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -765,6 +766,24 @@ void AppStateObserverManager::RemoveObserverDeathRecipient(const sptr<IRemoteBro
     }
 }
 
+AppStateObserverMap AppStateObserverManager::GetAppStateObserverMapCopy()
+{
+    std::lock_guard<ffrt::mutex> lock(observerLock_);
+    return appStateObserverMap_;
+}
+
+AppForegroundStateObserverSet AppStateObserverManager::GetAppForegroundStateObserverSetCopy()
+{
+    std::lock_guard<ffrt::mutex> lock(appForegroundObserverLock_);
+    return appForegroundStateObserverSet_;
+}
+
+AbilityforegroundObserverSet AppStateObserverManager::GetAbilityforegroundObserverSetCopy()
+{
+    std::lock_guard<ffrt::mutex> lock(abilityforegroundObserverLock_);
+    return abilityforegroundObserverSet_;
+}
+
 void AppStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote, const ObserverType &type)
 {
     HILOG_INFO("OnObserverDied");
@@ -869,8 +888,8 @@ void AppStateObserverManager::OnPageHide(const PageStateData pageStateData)
 
 void AppStateObserverManager::HandleOnPageShow(const PageStateData pageStateData)
 {
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), pageStateData.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {
@@ -881,8 +900,8 @@ void AppStateObserverManager::HandleOnPageShow(const PageStateData pageStateData
 
 void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData)
 {
-    std::lock_guard<ffrt::mutex> lockNotify(observerLock_);
-    for (auto it = appStateObserverMap_.begin(); it != appStateObserverMap_.end(); ++it) {
+    auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
+    for (auto it = appStateObserverMapCopy.begin(); it != appStateObserverMapCopy.end(); ++it) {
         std::vector<std::string>::iterator iter = std::find(it->second.begin(),
             it->second.end(), pageStateData.bundleName);
         if ((it->second.empty() || iter != it->second.end()) && it->first != nullptr) {

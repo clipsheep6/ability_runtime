@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,18 +18,18 @@
 
 #include <string>
 #include "iremote_proxy.h"
-#include "stop_user_callback.h"
+#include "user_callback.h"
 
 namespace OHOS {
 namespace AAFwk {
 /**
- * interface for StopUserCallbackProxy.
+ * interface for UserCallbackProxy.
  */
-class StopUserCallbackProxy : public IRemoteProxy<IStopUserCallback> {
+class UserCallbackProxy : public IRemoteProxy<IUserCallback> {
 public:
-    explicit StopUserCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IStopUserCallback>(impl)
+    explicit UserCallbackProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IUserCallback>(impl)
     {}
-    ~StopUserCallbackProxy() = default;
+    ~UserCallbackProxy() = default;
 
     /**
      * @brief OnStopUserDone.
@@ -38,11 +38,19 @@ public:
      * @param errcode errcode.
      */
     virtual void OnStopUserDone(int userId, int errcode) override;
+
+    /**
+     * @brief OnStartUserDone.
+     *
+     * @param userId userId.
+     * @param errcode errcode.
+     */
+    virtual void OnStartUserDone(int userId, int errcode) override;
 private:
-    void SendRequestCommon(int userId, int errcode, IStopUserCallback::StopUserCallbackCmd cmd);
+    void SendRequestCommon(int userId, int errcode, IUserCallback::UserCallbackCmd cmd);
 
 private:
-    static inline BrokerDelegator<StopUserCallbackProxy> delegator_;
+    static inline BrokerDelegator<UserCallbackProxy> delegator_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

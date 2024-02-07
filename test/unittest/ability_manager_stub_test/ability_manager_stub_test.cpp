@@ -1550,7 +1550,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartUserInner_001, TestSize
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->StartUserInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_NE(res, NO_ERROR);
 }
 
 /*

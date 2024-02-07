@@ -176,6 +176,9 @@ const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
+const std::unordered_set<std::string> COMMON_PICKER_TYPE = {
+    "share", "action"
+};
 std::atomic<bool> g_isDmsAlive = false;
 
 bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleManager)
@@ -225,6 +228,7 @@ const int32_t BROKER_RESERVE_UID = 5005;
 const int32_t DMS_UID = 5522;
 const int32_t PREPARE_TERMINATE_TIMEOUT_MULTIPLE = 10;
 const int32_t BOOTEVENT_COMPLETED_DELAY_TIME = 1000;
+constexpr int32_t BOOTEVENT_BOOT_ANIMATION_READY_SIZE = 6;
 const std::string BUNDLE_NAME_KEY = "bundleName";
 const std::string DM_PKG_NAME = "ohos.distributedhardware.devicemanager";
 const std::string ACTION_CHOOSE = "ohos.want.action.select";
@@ -237,6 +241,7 @@ const std::string DLP_INDEX = "ohos.dlp.params.index";
 const std::string BOOTEVENT_APPFWK_READY = "bootevent.appfwk.ready";
 const std::string BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 const std::string BOOTEVENT_BOOT_ANIMATION_STARTED = "bootevent.bootanimation.started";
+const std::string BOOTEVENT_BOOT_ANIMATION_READY = "bootevent.bootanimation.ready";
 const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
@@ -784,7 +789,13 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
-    if (callerToken != nullptr && !VerificationAllToken(callerToken)) {
+    std::string dialogSessionId = want.GetStringParam("dialogSessionId");
+    isSendDialogResult = false;
+    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
+        isSendDialogResult = true;
+        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
+    }
+    if (callerToken != nullptr && !VerificationAllToken(callerToken) && !isSendDialogResult) {
         auto isSpecificSA = AAFwk::PermissionVerification::GetInstance()->
             CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME);
         if (!isSpecificSA) {
@@ -864,12 +875,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         return result;
     }
 
-    std::string dialogSessionId = want.GetStringParam("dialogSessionId");
-    isSendDialogResult = false;
-    if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
-        isSendDialogResult = true;
-        dialogSessionRecord_->ClearDialogContext(dialogSessionId);
-    }
     if (!isStartAsCaller) {
         HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
         UpdateCallerInfo(abilityRequest.want, callerToken);
@@ -1799,7 +1804,7 @@ int32_t AbilityManagerService::RecordAppExitReason(const ExitReason &exitReason)
 {
     HILOG_INFO("RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
         exitReason.exitMsg.c_str());
-    
+
     CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
     return appExitReasonHelper_->RecordAppExitReason(exitReason);
 }
@@ -2129,7 +2134,6 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     // Gets the abilityName, bundleName, modulename corresponding to the current focus appliaction
     EventInfo focusInfo;
     focusInfo.bundleName = record->GetAbilityInfo().bundleName;
-    focusInfo.abilityName = record->GetAbilityInfo().name;
 
     // Gets the abilityName, bundleName, modulename corresponding to the caller appliaction
     EventInfo callerInfo;
@@ -2138,7 +2142,8 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
         focusInfo.bundleName.c_str(), callerInfo.bundleName.c_str());
 
     // Compare
-    if (focusInfo.bundleName == callerInfo.bundleName) {
+    if (record->GetAbilityInfo().type == AppExecFwk::AbilityType::PAGE &&
+        focusInfo.bundleName == callerInfo.bundleName) {
         HILOG_DEBUG("CreateModalUIExtension is called!");
         return record->CreateModalUIExtension(want);
     }
@@ -2259,6 +2264,18 @@ void AbilityManagerService::SetPickerElementName(const sptr<SessionInfo> &extens
 {
     CHECK_POINTER_IS_NULLPTR(extensionSessionInfo);
     std::string targetType = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TARGET_TYPE_KEY);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
+        extensionSessionInfo->want.GetElement().GetAbilityName().empty() &&
+        COMMON_PICKER_TYPE.find(targetType) != COMMON_PICKER_TYPE.end()) {
+        std::string abilityName = "CommonSelectPickerAbility";
+        std::string bundleName = "com.ohos.amsdialog";
+        extensionSessionInfo->want.SetElementName(bundleName, abilityName);
+        WantParams &parameters = const_cast<WantParams &>(extensionSessionInfo->want.GetParams());
+        parameters.SetParam(UIEXTENSION_TYPE_KEY, AAFwk::String::Box("sys/commonUI"));
+        extensionSessionInfo->want.SetParams(parameters);
+        return;
+    }
     if (extensionSessionInfo->want.GetElement().GetBundleName().empty() &&
         extensionSessionInfo->want.GetElement().GetAbilityName().empty() && !targetType.empty()) {
         std::string abilityName;
@@ -5049,7 +5066,7 @@ int32_t AbilityManagerService::GetUserId() const
     return U0_USER_ID;
 }
 
-void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot)
+void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
     auto bms = GetBundleManager();
@@ -5068,6 +5085,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
         ++attemptNums;
         if (!isBoot && attemptNums > SWITCH_ACCOUNT_TRY) {
             HILOG_ERROR("Query highest priority ability failed.");
+            callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
             return;
         }
         AbilityRequest abilityRequest;
@@ -5076,8 +5094,10 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 
     if (abilityInfo.name.empty() && extensionAbilityInfo.name.empty()) {
         HILOG_ERROR("Query highest priority ability failed");
+        callback->OnStartUserDone(userId, ERR_QUERY_HIGHEST_PRIORITY_ABILITY);
         return;
     }
+    callback->OnStartUserDone(userId, ERR_OK);
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
     if (!abilityInfo.name.empty()) {
@@ -5095,8 +5115,7 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
 #ifdef SUPPORT_GRAPHICS
     abilityWant.SetParam(NEED_STARTINGWINDOW, false);
     // wait BOOT_ANIMATION_STARTED to start LAUNCHER
-    WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
-        AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+    WaitBootAnimationStart();
 #endif
 
     /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
@@ -5781,8 +5800,7 @@ void AbilityManagerService::StartResidentApps()
     DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
     if (!bundleInfos.empty()) {
 #ifdef SUPPORT_GRAPHICS
-        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
-            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+        WaitBootAnimationStart();
 #endif
         DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcess(bundleInfos);
     }
@@ -6208,7 +6226,7 @@ int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityI
         return ERR_OK;
     }
     if (AccessTokenKit::VerifyAccessToken(callerTokenId,
-        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == AppExecFwk::Constants::PERMISSION_GRANTED) {
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false) == AppExecFwk::Constants::PERMISSION_GRANTED) {
         return ERR_OK;
     }
     HILOG_ERROR("callerToken: %{private}u, targetToken: %{private}u, caller doesn's have permission",
@@ -6216,25 +6234,31 @@ int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityI
     return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
 }
 
-int AbilityManagerService::StartUser(int userId)
+int AbilityManagerService::StartUser(int userId, sptr<IUserCallback> callback)
 {
     HILOG_DEBUG("%{public}s, userId:%{public}d", __func__, userId);
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
-        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
+        HILOG_ERROR("Permission verification failed, not account process");
+        if (callback != nullptr) {
+            callback->OnStartUserDone(userId, CHECK_PERMISSION_FAILED);
+        }
         return CHECK_PERMISSION_FAILED;
     }
 
     if (userController_) {
-        return userController_->StartUser(userId, true);
+        userController_->StartUser(userId, callback, true);
     }
     return 0;
 }
 
-int AbilityManagerService::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+int AbilityManagerService::StopUser(int userId, const sptr<IUserCallback> &callback)
 {
     HILOG_DEBUG("%{public}s", __func__);
     if (IPCSkeleton::GetCallingUid() != ACCOUNT_MGR_SERVICE_UID) {
-        HILOG_ERROR("%{public}s: Permission verification failed, not account process", __func__);
+        HILOG_ERROR("Permission verification failed, not account process");
+        if (callback != nullptr) {
+            callback->OnStopUserDone(userId, CHECK_PERMISSION_FAILED);
+        }
         return CHECK_PERMISSION_FAILED;
     }
 
@@ -6753,7 +6777,7 @@ void AbilityManagerService::UserStarted(int32_t userId)
     InitPendWantManager(userId, false);
 }
 
-void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
+void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId, sptr<IUserCallback> callback)
 {
     HILOG_INFO("%{public}s, oldUserId:%{public}d, newUserId:%{public}d", __func__, oldUserId, userId);
     SwitchManagers(userId);
@@ -6763,7 +6787,7 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
         StartUserApps();
     }
     bool isBoot = oldUserId == U0_USER_ID ? true : false;
-    StartHighestPriorityAbility(userId, isBoot);
+    StartHighestPriorityAbility(userId, isBoot, callback);
     PauseOldConnectManager(oldUserId);
 }
 
@@ -7381,14 +7405,14 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
         (abilityInfo.type == AppExecFwk::AbilityType::DATA)) {
         // just need check the read permission and write permission of extension ability or data ability
         if (!abilityInfo.readPermission.empty()) {
-            int checkReadPermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.readPermission);
+            int checkReadPermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.readPermission, false);
             if (checkReadPermission == ERR_OK) {
                 return AppExecFwk::Constants::PERMISSION_GRANTED;
             }
             HILOG_WARN("verify access token fail, read permission: %{public}s", abilityInfo.readPermission.c_str());
         }
         if (!abilityInfo.writePermission.empty()) {
-            int checkWritePermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission);
+            int checkWritePermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission, false);
             if (checkWritePermission == ERR_OK) {
                 return AppExecFwk::Constants::PERMISSION_GRANTED;
             }
@@ -7404,12 +7428,12 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
 
     // verify permission if 'permission' is not empty
     if (abilityInfo.permissions.empty() || AccessTokenKit::VerifyAccessToken(tokenId,
-        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY) == ERR_OK) {
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false) == ERR_OK) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
     for (auto permission : abilityInfo.permissions) {
-        if (AccessTokenKit::VerifyAccessToken(tokenId, permission)
+        if (AccessTokenKit::VerifyAccessToken(tokenId, permission, false)
             != AppExecFwk::Constants::PERMISSION_GRANTED) {
             HILOG_ERROR("verify access token fail, permission: %{public}s", permission.c_str());
             return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
@@ -8551,7 +8575,7 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
         return CHECK_PERMISSION_FAILED;
     }
 
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission, false);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("VerifyPermission %{public}d: PERMISSION_DENIED", appInfo.accessTokenId);
         return CHECK_PERMISSION_FAILED;
@@ -9361,6 +9385,23 @@ bool AbilityManagerService::CheckCallerIsDmsProcess()
         return false;
     }
     return true;
+}
+
+void AbilityManagerService::WaitBootAnimationStart()
+{
+    char value[BOOTEVENT_BOOT_ANIMATION_READY_SIZE] = "";
+    int32_t ret = GetParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "", value,
+        BOOTEVENT_BOOT_ANIMATION_READY_SIZE);
+    if (ret > 0 && !std::strcmp(value, "false")) {
+        // Get new param success and new param is not ready, wait the new param.
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_READY.c_str(), "true",
+            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+    } else if (ret <= 0 || !std::strcmp(value, "")) {
+        // Get new param failed or new param is not set, wait the old param.
+        WaitParameter(BOOTEVENT_BOOT_ANIMATION_STARTED.c_str(), "true",
+            AmsConfigurationParameter::GetInstance().GetBootAnimationTimeoutTime());
+    }
+    // other, the animation is ready, not wait.
 }
 }  // namespace AAFwk
 }  // namespace OHOS

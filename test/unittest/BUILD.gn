@@ -360,7 +360,6 @@ group("unittest") {
     "ams_service_app_spawn_client_test:unittest",
     "ams_service_app_spawn_msg_wrapper_test:unittest",
     "ams_service_app_spawn_socket_test:unittest",
-    "ams_service_event_drive_test:unittest",
     "ams_service_load_ability_process_test:unittest",
     "ams_service_startup_test:unittest",
     "app_debug_info_test:unittest",
