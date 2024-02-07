@@ -1431,7 +1431,7 @@ int32_t AbilityManagerClient::IsValidMissionIds(
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->IsValidMissionIds(missionIds, results);
 }
-EXTERN_C_START
+
 ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, int pid, int uid)
 {
     HILOG_INFO("call");
@@ -1439,7 +1439,7 @@ ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, in
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->VerifyPermission(permission, pid, uid);
 }
-EXTERN_C_END
+
 ErrCode AbilityManagerClient::AcquireShareData(
     int32_t missionId, sptr<IAcquireShareDataCallback> shareData)
 {
