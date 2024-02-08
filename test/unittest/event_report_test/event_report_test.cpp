@@ -41,10 +41,71 @@ void EventReportTest::TearDown()
 {}
 
 /**
+ * @tc.name: SendProcessEvent_0100
+ * @tc.desc: Check SendProcessEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI67H0J
+ */
+HWTEST_F(EventReportTest, SendProcessEvent_0100, TestSize.Level0)
+{
+    EventName eventName = static_cast<EventName>(-1);
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "INVALIDEVENTNAME");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendProcessEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendProcessEvent_0200
+ * @tc.desc: Check SendProcessEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI6HXXS
+ */
+HWTEST_F(EventReportTest, SendProcessEvent_0200, TestSize.Level0)
+{
+    EventName eventName = EventName::PROCESS_START;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "PROCESS_START");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendProcessEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendProcessEvent_0300
+ * @tc.desc: Check SendProcessEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI6HXXS
+ */
+HWTEST_F(EventReportTest, SendProcessEvent_0300, TestSize.Level0)
+{
+    EventName eventName = EventName::PROCESS_START;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "PROCESS_START");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    eventInfo.extensionType = 0;
+    EventReport::SendProcessEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendProcessEvent_0400
+ * @tc.desc: Check SendProcessEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI6HXXS
+ */
+HWTEST_F(EventReportTest, SendProcessEvent_0400, TestSize.Level0)
+{
+    EventName eventName = EventName::PROCESS_EXIT;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "PROCESS_EXIT");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendProcessEvent(eventName, type, eventInfo);
+}
+
+/**
  * @tc.name: SendAppEvent_0100
  * @tc.desc: Check SendAppEvent Test
  * @tc.type: FUNC
- * @tc.require: issueI67H0J
+ * @tc.require: issueI8OX4F
  */
 HWTEST_F(EventReportTest, SendAppEvent_0100, TestSize.Level0)
 {
@@ -59,12 +120,12 @@ HWTEST_F(EventReportTest, SendAppEvent_0100, TestSize.Level0)
  * @tc.name: SendAppEvent_0200
  * @tc.desc: Check SendAppEvent Test
  * @tc.type: FUNC
- * @tc.require: issueI6HXXS
+ * @tc.require: issueI8OX4F
  */
 HWTEST_F(EventReportTest, SendAppEvent_0200, TestSize.Level0)
 {
-    EventName eventName = EventName::PROCESS_START;
-    EXPECT_EQ(EventReport::ConvertEventName(eventName), "PROCESS_START");
+    EventName eventName = EventName::APP_STARTUP_TYPE;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_STARTUP_TYPE");
     HiSysEventType type = HiSysEventType::BEHAVIOR;
     EventInfo eventInfo;
     EventReport::SendAppEvent(eventName, type, eventInfo);
@@ -74,15 +135,14 @@ HWTEST_F(EventReportTest, SendAppEvent_0200, TestSize.Level0)
  * @tc.name: SendAppEvent_0300
  * @tc.desc: Check SendAppEvent Test
  * @tc.type: FUNC
- * @tc.require: issueI6HXXS
+ * @tc.require: issueI8OX4F
  */
 HWTEST_F(EventReportTest, SendAppEvent_0300, TestSize.Level0)
 {
-    EventName eventName = EventName::PROCESS_START;
-    EXPECT_EQ(EventReport::ConvertEventName(eventName), "PROCESS_START");
+    EventName eventName = EventName::APP_FOREGROUND;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_FOREGROUND");
     HiSysEventType type = HiSysEventType::BEHAVIOR;
     EventInfo eventInfo;
-    eventInfo.extensionType = 0;
     EventReport::SendAppEvent(eventName, type, eventInfo);
 }
 
@@ -90,30 +150,75 @@ HWTEST_F(EventReportTest, SendAppEvent_0300, TestSize.Level0)
  * @tc.name: SendAppEvent_0400
  * @tc.desc: Check SendAppEvent Test
  * @tc.type: FUNC
- * @tc.require: issueI6HXXS
+ * @tc.require: issueI8OX4F
  */
 HWTEST_F(EventReportTest, SendAppEvent_0400, TestSize.Level0)
 {
-    EventName eventName = EventName::PROCESS_EXIT;
-    EXPECT_EQ(EventReport::ConvertEventName(eventName), "PROCESS_EXIT");
+    EventName eventName = EventName::APP_BACKGROUND;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_BACKGROUND");
     HiSysEventType type = HiSysEventType::BEHAVIOR;
     EventInfo eventInfo;
     EventReport::SendAppEvent(eventName, type, eventInfo);
 }
 
 /**
- * @tc.name: SendAppEvent_0500
- * @tc.desc: Check SendAppEvent Test
+ * @tc.name: SendAppSecondEvent_0100
+ * @tc.desc: Check SendAppSecondEvent Test
  * @tc.type: FUNC
- * @tc.require: issueI67H0J
+ * @tc.require: issueI8OX4F
  */
-HWTEST_F(EventReportTest, SendAppEvent_0500, TestSize.Level0)
+HWTEST_F(EventReportTest, SendAppSecondEvent_0100, TestSize.Level0)
+{
+    EventName eventName = static_cast<EventName>(-1);
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "INVALIDEVENTNAME");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendAppSecondEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendAppSecondEvent_0200
+ * @tc.desc: Check SendAppSecondEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI8OX4F
+ */
+HWTEST_F(EventReportTest, SendAppSecondEvent_0200, TestSize.Level0)
+{
+    EventName eventName = EventName::DRAWN_COMPLETED;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "DRAWN_COMPLETED");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendAppSecondEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendAppSecondEvent_0300
+ * @tc.desc: Check SendAppSecondEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI8OX4F
+ */
+HWTEST_F(EventReportTest, SendAppSecondEvent_0300, TestSize.Level0)
+{
+    EventName eventName = EventName::APP_LAUNCH;
+    EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_LAUNCH");
+    HiSysEventType type = HiSysEventType::BEHAVIOR;
+    EventInfo eventInfo;
+    EventReport::SendAppSecondEvent(eventName, type, eventInfo);
+}
+
+/**
+ * @tc.name: SendAppSecondEvent_0400
+ * @tc.desc: Check SendAppSecondEvent Test
+ * @tc.type: FUNC
+ * @tc.require: issueI8OX4F
+ */
+HWTEST_F(EventReportTest, SendAppSecondEvent_0400, TestSize.Level0)
 {
     EventName eventName = EventName::APP_ATTACH;
     EXPECT_EQ(EventReport::ConvertEventName(eventName), "APP_ATTACH");
     HiSysEventType type = HiSysEventType::BEHAVIOR;
     EventInfo eventInfo;
-    EventReport::SendAppEvent(eventName, type, eventInfo);
+    EventReport::SendAppSecondEvent(eventName, type, eventInfo);
 }
 
 /**

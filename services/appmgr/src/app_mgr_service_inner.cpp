@@ -600,7 +600,7 @@ void AppMgrServiceInner::AttachApplication(const pid_t pid, const sptr<IAppSched
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_ATTACH, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_ATTACH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -793,7 +793,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
 
     ApplicationTerminatedSendProcessEvent(appRecord);
 
@@ -920,7 +920,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
         eventInfo.time = exitTime;
         eventInfo.exitResult = EXIT_SUCESS;
         eventInfo.pid = pid;
-        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        AAFwk::EventReport::SendProcessEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
         HILOG_INFO("time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
@@ -931,7 +931,7 @@ void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, in
         eventInfo.time = exitTime;
         eventInfo.exitResult = EXIT_FAILED;
         eventInfo.pid = pid;
-        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        AAFwk::EventReport::SendProcessEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
         HILOG_INFO("time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
@@ -1347,7 +1347,7 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
     }
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
     return ret;
 }
 
@@ -2297,7 +2297,7 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     if (!appRecord->GetBundleName().empty()) {
         eventInfo.bundleName = appRecord->GetBundleName();
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendProcessEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
     HILOG_DEBUG("%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
@@ -5308,7 +5308,7 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
     } else {
         HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppSecondEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }
 
 bool AppMgrServiceInner::IsFinalAppProcessByBundleName(const std::string &bundleName)
