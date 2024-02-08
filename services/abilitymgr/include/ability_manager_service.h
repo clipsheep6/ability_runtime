@@ -1849,7 +1849,7 @@ private:
     const static std::map<std::string, AbilityManagerService::DumpKey> dumpMap;
     const static std::map<std::string, AbilityManagerService::DumpsysKey> dumpsysMap;
     const static std::map<int32_t, AppExecFwk::SupportWindowMode> windowModeMap;
-
+    const static std::unordered_map<std::string, AppExecFwk::ExtensionAbilityType> extsionTypeMap;
     std::unordered_map<int, std::shared_ptr<MissionListManager>> missionListManagers_;
     std::shared_ptr<MissionListManager> currentMissionListManager_;
 
