@@ -421,9 +421,9 @@ void AbilityConnectManager::GetOrCreateServiceRecord(const AbilityRequest &abili
 }
 
 void AbilityConnectManager::GetConnectRecordListFromMap(
-    const sptr<IAbilityConnection> &connect, std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList)
+    sptr<IRemoteObject> connect, std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList)
 {
-    auto connectMapIter = connectMap_.find(connect->AsObject());
+    auto connectMapIter = connectMap_.find(connect);
     if (connectMapIter != connectMap_.end()) {
         connectRecordList = connectMapIter->second;
     }
@@ -456,6 +456,9 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("callee:%{public}s.", abilityRequest.want.GetElement().GetURI().c_str());
     std::lock_guard guard(Lock_);
+    CHECK_POINTER_AND_RETURN_LOG(connect, ERR_INVALID_VALUE, "connect is invalid.");
+    auto obj = connect->AsObject();
+    CHECK_POINTER_AND_RETURN_LOG(obj, ERR_INVALID_VALUE, "obj is invalid.");
 
     // 1. get target service ability record, and check whether it has been loaded.
     std::shared_ptr<AbilityRecord> targetService;
@@ -466,10 +469,9 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     }
     // 2. get target connectRecordList, and check whether this callback has been connected.
     ConnectListType connectRecordList;
-    GetConnectRecordListFromMap(connect, connectRecordList);
-    bool isCallbackConnected = !connectRecordList.empty();
+    GetConnectRecordListFromMap(obj, connectRecordList);
     // 3. If this service ability and callback has been connected, There is no need to connect repeatedly
-    if (isLoadedAbility && (isCallbackConnected) && IsAbilityConnected(targetService, connectRecordList)) {
+    if (isLoadedAbility && IsAbilityConnected(targetService, connectRecordList)) {
         HILOG_INFO("Service and callback was connected.");
         return ERR_OK;
     }
@@ -482,19 +484,16 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     targetService->AddConnectRecordToList(connectRecord);
     targetService->SetSessionInfo(sessionInfo);
     connectRecordList.push_back(connectRecord);
-    if (isCallbackConnected) {
-        RemoveConnectDeathRecipient(connect);
-        connectMap_.erase(connectMap_.find(connect->AsObject()));
+    if (connectRecordList.empty()) {
+        if (!AddConnectDeathRecipient(obj)) {
+            return ERR_NULL_OBJECT;
+        }
+    } else {
+        connectMap_.erase(connectMap_.find(obj));
     }
-    AddConnectDeathRecipient(connect);
-    connectMap_.emplace(connect->AsObject(), connectRecordList);
+    connectMap_.emplace(obj, connectRecordList);
     targetService->SetLaunchReason(LaunchReason::LAUNCHREASON_CONNECT_EXTENSION);
-
-    if (UIExtensionUtils::IsWindowExtension(targetService->GetAbilityInfo().extensionAbilityType)
-        && abilityRequest.sessionInfo) {
-        windowExtensionMap_.emplace(connect->AsObject(),
-            WindowExtMapValType(targetService->GetApplicationInfo().accessTokenId, abilityRequest.sessionInfo));
-    }
+    AddWindowExtensionType(abilityRequest, targetService, obj);
 
     if (!isLoadedAbility) {
         LoadAbility(targetService);
@@ -509,6 +508,17 @@ int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityReq
     auto preToken = iface_cast<Token>(connectRecord->GetToken());
     DelayedSingleton<AppScheduler>::GetInstance()->AbilityBehaviorAnalysis(token, preToken, 0, 1, 1);
     return ret;
+}
+
+void AbilityConnectManager::AddWindowExtensionType(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> targetService, sptr<IRemoteObject> connect)
+{
+    CHECK_POINTER_LOG(targetService, "targetService is invalid.");
+    if (UIExtensionUtils::IsWindowExtension(targetService->GetAbilityInfo().extensionAbilityType)
+        && abilityRequest.sessionInfo) {
+        windowExtensionMap_.emplace(connect,
+            WindowExtMapValType(targetService->GetApplicationInfo().accessTokenId, abilityRequest.sessionInfo));
+    }
 }
 
 void AbilityConnectManager::HandleActiveAbility(std::shared_ptr<AbilityRecord> &targetService,
@@ -530,13 +540,13 @@ void AbilityConnectManager::HandleActiveAbility(std::shared_ptr<AbilityRecord> &
     }
 }
 
-int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect)
+int AbilityConnectManager::DisconnectAbilityLocked(sptr<IRemoteObject> connect)
 {
     std::lock_guard guard(Lock_);
     return DisconnectAbilityLocked(connect, false);
 }
 
-int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect, bool force)
+int AbilityConnectManager::DisconnectAbilityLocked(sptr<IRemoteObject> connect, bool force)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("call");
@@ -562,7 +572,7 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
                 RemoveExtensionDelayDisconnectTask(connectRecord);
             }
             if (connectRecord->GetCallerTokenId() != IPCSkeleton::GetCallingTokenID() &&
-                static_cast<uint32_t>(IPCSkeleton::GetSelfTokenID() != IPCSkeleton::GetCallingTokenID())) {
+                IPCSkeleton::GetSelfTokenID() != IPCSkeleton::GetCallingTokenID()) {
                 HILOG_WARN("The caller is inconsistent with the caller stored in the connectRecord.");
                 continue;
             }
@@ -1589,6 +1599,10 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
 bool AbilityConnectManager::IsAbilityConnected(const std::shared_ptr<AbilityRecord> &abilityRecord,
     const std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList)
 {
+    if (connectRecordList.empty()) {
+        HILOG_WARN("connectRecordList size is 0.");
+        return false;
+    }
     auto isMatch = [abilityRecord](auto connectRecord) -> bool {
         if (abilityRecord == nullptr || connectRecord == nullptr) {
             return false;
@@ -1611,8 +1625,7 @@ void AbilityConnectManager::RemoveConnectionRecordFromMap(std::shared_ptr<Connec
             connectList.remove(connection);
             if (connectList.empty()) {
                 HILOG_DEBUG("connlist");
-                sptr<IAbilityConnection> connect = iface_cast<IAbilityConnection>(connectCallback.first);
-                RemoveConnectDeathRecipient(connect);
+                RemoveConnectDeathRecipient(connectCallback.first);
                 connectMap_.erase(connectCallback.first);
             }
             return;
@@ -1627,45 +1640,45 @@ void AbilityConnectManager::RemoveServiceAbility(const std::shared_ptr<AbilityRe
     terminatingExtensionMap_.erase(abilityRecord->GetURI());
 }
 
-void AbilityConnectManager::AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
+bool AbilityConnectManager::AddConnectDeathRecipient(sptr<IRemoteObject> connect)
 {
-    CHECK_POINTER(connect);
-    auto connectObject = connect->AsObject();
-    CHECK_POINTER(connectObject);
+    CHECK_POINTER_AND_RETURN_LOG(connect, false, "connect is nullptr.");
+    if (!connect->IsProxyObject()) {
+        HILOG_INFO("connect is stub.");
+        return true;
+    }
     {
         std::lock_guard guard(recipientMapMutex_);
-        auto it = recipientMap_.find(connectObject);
+        auto it = recipientMap_.find(connect);
         if (it != recipientMap_.end()) {
-            HILOG_ERROR("This death recipient has been added.");
-            return;
+            HILOG_INFO("This death recipient has been added.");
+            return true;
         }
     }
 
-    std::weak_ptr<AbilityConnectManager> thisWeakPtr(shared_from_this());
     sptr<IRemoteObject::DeathRecipient> deathRecipient =
-        new AbilityConnectCallbackRecipient([thisWeakPtr](const wptr<IRemoteObject> &remote) {
+        new AbilityConnectCallbackRecipient([thisWeakPtr = weak_from_this()](const wptr<IRemoteObject> &remote) {
             auto abilityConnectManager = thisWeakPtr.lock();
             if (abilityConnectManager) {
                 abilityConnectManager->OnCallBackDied(remote);
             }
         });
-    if (!connectObject->AddDeathRecipient(deathRecipient)) {
+    if (!connect->AddDeathRecipient(deathRecipient)) {
         HILOG_ERROR("AddDeathRecipient failed.");
-        return;
+        return false;
     }
     std::lock_guard guard(recipientMapMutex_);
-    recipientMap_.emplace(connectObject, deathRecipient);
+    recipientMap_.emplace(connect, deathRecipient);
+    return true;
 }
 
-void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &connect)
+void AbilityConnectManager::RemoveConnectDeathRecipient(sptr<IRemoteObject> connect)
 {
     CHECK_POINTER(connect);
-    auto connectObject = connect->AsObject();
-    CHECK_POINTER(connectObject);
     sptr<IRemoteObject::DeathRecipient> deathRecipient;
     {
         std::lock_guard guard(recipientMapMutex_);
-        auto it = recipientMap_.find(connectObject);
+        auto it = recipientMap_.find(connect);
         if (it == recipientMap_.end()) {
             return;
         }
@@ -1673,7 +1686,7 @@ void AbilityConnectManager::RemoveConnectDeathRecipient(const sptr<IAbilityConne
         recipientMap_.erase(it);
     }
 
-    connectObject->RemoveDeathRecipient(deathRecipient);
+    connect->RemoveDeathRecipient(deathRecipient);
 }
 
 void AbilityConnectManager::OnCallBackDied(const wptr<IRemoteObject> &remote)
@@ -1705,8 +1718,7 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
         HILOG_INFO("Died object can't find from conn map.");
         return;
     }
-    sptr<IAbilityConnection> object = iface_cast<IAbilityConnection>(connect);
-    DisconnectAbilityLocked(object, true);
+    IN_PROCESS_CALL(DisconnectAbilityLocked(connect, true));
 }
 
 void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)

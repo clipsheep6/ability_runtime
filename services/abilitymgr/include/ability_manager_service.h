@@ -1517,7 +1517,7 @@ private:
         const sptr<SessionInfo> &sessionInfo = nullptr,
         bool isQueryExtensionOnly = false,
         sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
-    int DisconnectLocalAbility(const sptr<IAbilityConnection> &connect);
+    int DisconnectLocalAbility(sptr<IRemoteObject> connect);
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);

@@ -3201,7 +3201,7 @@ int AbilityManagerService::DisconnectAbility(sptr<IAbilityConnection> connect)
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
 
-    if (ERR_OK != DisconnectLocalAbility(connect) &&
+    if (ERR_OK != DisconnectLocalAbility(connect->AsObject()) &&
         ERR_OK != DisconnectRemoteAbility(connect->AsObject())) {
         eventInfo.errCode = INNER_ERR;
         EventReport::SendExtensionEvent(EventName::DISCONNECT_SERVICE_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -3329,7 +3329,7 @@ int AbilityManagerService::ConnectRemoteAbility(Want &want, const sptr<IRemoteOb
     return dmsClient.ConnectRemoteAbility(want, connect);
 }
 
-int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection> &connect)
+int AbilityManagerService::DisconnectLocalAbility(sptr<IRemoteObject> connect)
 {
     HILOG_DEBUG("called.");
     CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);

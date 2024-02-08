@@ -105,7 +105,7 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect);
+    int DisconnectAbilityLocked(sptr<IRemoteObject> connect);
 
     /**
      * AttachAbilityThreadLocked, ability call this interface after loaded.
@@ -299,7 +299,7 @@ private:
      * dies and the connection has not completed yet.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int DisconnectAbilityLocked(const sptr<IAbilityConnection> &connect, bool force);
+    int DisconnectAbilityLocked(sptr<IRemoteObject> connect, bool force);
 
     /**
      * LoadAbility.
@@ -403,21 +403,21 @@ private:
      * @param isCallbackConnected, whether the callback has been connected.
      */
     void GetConnectRecordListFromMap(
-        const sptr<IAbilityConnection> &connect, std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList);
+        sptr<IRemoteObject> connect, std::list<std::shared_ptr<ConnectionRecord>> &connectRecordList);
 
     /**
      * AddConnectDeathRecipient.
      *
      * @param connect, callback object.
      */
-    void AddConnectDeathRecipient(const sptr<IAbilityConnection> &connect);
+    bool AddConnectDeathRecipient(sptr<IRemoteObject> connect);
 
     /**
      * RemoteConnectDeathRecipient.
      *
      * @param connect, callback object.
      */
-    void RemoveConnectDeathRecipient(const sptr<IAbilityConnection> &connect);
+    void RemoveConnectDeathRecipient(sptr<IRemoteObject> connect);
 
     /**
      * RemoteConnectDeathRecipient.
@@ -521,6 +521,8 @@ private:
     int32_t GetOrCreateTargetServiceRecord(
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
         std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+    void AddWindowExtensionType(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> targetService,
+        sptr<IRemoteObject> connect);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
