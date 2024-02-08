@@ -1288,25 +1288,6 @@ void AbilityRecord::SetAbilityStateInner(AbilityState state)
             }
             return;
         }
-        switch (state) {
-            case AbilityState::FOREGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToForeground(missionId_);
-                break;
-            }
-            case AbilityState::BACKGROUNDING: {
-                ret = collaborator->NotifyMoveMissionToBackground(missionId_);
-                break;
-            }
-            case AbilityState::TERMINATING: {
-                ret = collaborator->NotifyTerminateMission(missionId_);
-                break;
-            }
-            default:
-                break;
-        }
-        if (ret != ERR_OK) {
-            HILOG_ERROR("notify broker move mission to background failed, err: %{public}d", ret);
-        }
     }
 
     DelayedSingleton<MissionInfoMgr>::GetInstance()->SetMissionAbilityState(missionId_, currentState_);
@@ -2022,28 +2003,18 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     dumpInfo = "        ability type [" + typeStr + "]";
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> preAbility = GetPreAbilityRecord();
-    if (preAbility == nullptr) {
-        dumpInfo = "        previous ability app name [NULL]";
-        dumpInfo.append("\n");
-        dumpInfo += "        previous ability file name [NULL]";
-    } else {
-        dumpInfo =
-            "        previous ability app name [" + preAbility->GetAbilityInfo().applicationName + "]";
-        dumpInfo.append("\n");
-        dumpInfo += "        previous ability file name [" + preAbility->GetAbilityInfo().name + "]";
-    }
+    dumpInfo = "        previous ability app name [" +
+        (preAbility == nullptr ? "NULL" : (preAbility->GetAbilityInfo().applicationName)) + "]";
+    dumpInfo.append("\n");
+    dumpInfo += "        previous ability file name [" +
+        (preAbility == nullptr ? "NULL" : (preAbility->GetAbilityInfo().name)) + "]";
     info.push_back(dumpInfo);
     std::shared_ptr<AbilityRecord> nextAbility = GetNextAbilityRecord();
-    if (nextAbility == nullptr) {
-        dumpInfo = "        next ability app name [NULL]";
-        dumpInfo.append("\n");
-        dumpInfo += "        next ability file name [NULL]";
-    } else {
-        dumpInfo =
-            "        next ability app name [" + nextAbility->GetAbilityInfo().applicationName + "]";
-        dumpInfo.append("\n");
-        dumpInfo += "        next ability main name [" + nextAbility->GetAbilityInfo().name + "]";
-    }
+    dumpInfo = "        next ability app name [" +
+        (nextAbility == nullptr ? "NULL" : (nextAbility->GetAbilityInfo().applicationName)) + "]";
+    dumpInfo.append("\n");
+    dumpInfo += "        next ability file name [" +
+        (nextAbility == nullptr ? "NULL" : (nextAbility->GetAbilityInfo().name)) + "]";
     info.push_back(dumpInfo);
     dumpInfo = "        state #" + AbilityRecord::ConvertAbilityState(GetAbilityState()) + "  start time [" +
                std::to_string(startTime_) + "]";
@@ -2876,11 +2847,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         uriVec.emplace_back(uriStr);
     }
     HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
-    if (uriVec.size() == 0) {
-        return;
-    }
-    if (uriVec.size() > MAX_URI_COUNT) {
-        HILOG_ERROR("size of uriVec is more than %{public}i", MAX_URI_COUNT);
+    if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("size of uriVec is %{public}zu", uriVec.size());
         return;
     }
 

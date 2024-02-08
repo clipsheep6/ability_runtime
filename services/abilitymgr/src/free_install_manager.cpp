@@ -254,6 +254,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
         return;
     }
 
+    auto freeInstallObserverManager = DelayedSingleton<FreeInstallObserverManager>::GetInstance();
     bool isFromRemote = want.GetBoolParam(FROM_REMOTE_KEY, false);
     HILOG_INFO("isFromRemote = %{public}d", isFromRemote);
     for (auto it = freeInstallList_.begin(); it != freeInstallList_.end();) {
@@ -283,16 +284,14 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
                     (*it).requestCode, (*it).userId);
                 IPCSkeleton::SetCallingIdentity(identity);
                 HILOG_INFO("The result of StartAbility is %{public}d.", result);
-                DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
-                    bundleName, abilityName, startTime, result);
+                freeInstallObserverManager->OnInstallFinished(bundleName, abilityName, startTime, result);
             } else {
                 (*it).promise->set_value(resultCode);
             }
         } else {
             HILOG_INFO("FreeInstall failed.");
             if (isAsync) {
-                DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
-                    bundleName, abilityName, startTime, resultCode);
+                freeInstallObserverManager->OnInstallFinished(bundleName, abilityName, startTime, resultCode);
             } else {
                 (*it).promise->set_value(resultCode);
             }
