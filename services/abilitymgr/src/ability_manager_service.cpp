@@ -4053,12 +4053,13 @@ int AbilityManagerService::MoveMissionsToBackground(const std::vector<int32_t>& 
 int32_t AbilityManagerService::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
     HILOG_INFO("request GetMissionIdByToken.");
-    if (!token) {
-        HILOG_ERROR("token is invalid.");
-        return -1;
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    if (!abilityRecord) {
+        HILOG_ERROR("abilityRecord is null.");
+        return ERR_INVALID_VALUE;
     }
-    if (!CheckCallerIsDmsProcess()) {
-        HILOG_ERROR("Check processName failed");
+    if (!JudgeSelfCalled(abilityRecord) && !CheckCallerIsDmsProcess()) {
+        HILOG_ERROR("Permission deny.");
         return ERR_INVALID_VALUE;
     }
     return GetMissionIdByAbilityTokenInner(token);
@@ -9343,6 +9344,7 @@ bool AbilityManagerService::CheckCallerIsDmsProcess()
     int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
         result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+        HILOG_ERROR("caller is not dms");
         return false;
     }
     return true;
