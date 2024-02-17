@@ -16,9 +16,11 @@
 #include "js_error_manager.h"
 
 #include <cstdint>
+#include <unistd.h>
 
 #include "ability_business_error.h"
 #include "application_data_manager.h"
+#include "event_runner.h"
 #include "hilog_wrapper.h"
 #include "js_error_observer.h"
 #include "js_error_utils.h"
@@ -29,13 +31,21 @@
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
+struct JsLoopObserver {
+    std::shared_ptr<AppExecFwk::EventRunner> mainRunner;
+    std::shared_ptr<NativeReference> observerObject;
+    napi_env env;
+};
+static std::shared_ptr<JsLoopObserver> loopObserver_;
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
 constexpr int32_t INDEX_TWO = 2;
+constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char* ON_OFF_TYPE = "error";
 constexpr const char* ON_OFF_TYPE_SYNC = "errorEvent";
+constexpr const char* ON_OFF_TYPE_SYNC_LOOP = "loopObserver";
 
 class JsErrorManager final {
 public:
@@ -65,6 +75,14 @@ private:
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOnNew(env, argc, argv);
+        }
+        if (type == ON_OFF_TYPE_SYNC_LOOP) {
+            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
+                HILOG_ERROR("LoopObserver can only be set from main thread.");
+                ThrowInvaildCallerError(env);
+                return CreateJsUndefined(env);
+            }
+            return OnSetLoopWatch(env, argc, argv);
         }
         return OnOnOld(env, argc, argv);
     }
@@ -138,6 +156,14 @@ private:
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOffNew(env, argc, argv);
+        }
+        if (type == ON_OFF_TYPE_SYNC_LOOP) {
+            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
+                HILOG_ERROR("LoopObserver can only be set from main thread.");
+                ThrowInvaildCallerError(env);
+                return CreateJsUndefined(env);
+            }
+            return OnRemoveLoopWatch(env, argc, argv);
         }
         return OnOffOld(env, argc, argv);
     }
@@ -217,6 +243,99 @@ private:
             observer_ = nullptr;
         }
         return CreateJsUndefined(env);
+    }
+
+    static void CallJsFunction(napi_env env, napi_value obj, const char* methodName,
+        napi_value const* argv, size_t argc)
+    {
+        HILOG_INFO("CallJsFunction begin methodName: %{public}s", methodName);
+        if (obj == nullptr) {
+            HILOG_ERROR("Failed to get object");
+            return;
+        }
+
+        napi_value method = nullptr;
+        napi_get_named_property(env, obj, methodName, &method);
+        if (method == nullptr) {
+            HILOG_ERROR("Failed to get method");
+            return;
+        }
+        napi_value callResult = nullptr;
+        napi_call_function(env, obj, method, argc, argv, &callResult);
+    }
+
+    static void CallbackTimeout(int64_t number)
+    {
+        std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
+            ([number](napi_env env, NapiAsyncTask &task, int32_t status) {
+                if (loopObserver_ == nullptr) {
+                    HILOG_ERROR("CallbackTimeout: loopObserver_ is null.");
+                    return;
+                }
+                if (loopObserver_->env == nullptr) {
+                    HILOG_ERROR("CallbackTimeout: env is null.");
+                    return;
+                }
+                if (loopObserver_->observerObject == nullptr) {
+                    HILOG_ERROR("CallbackTimeout: observerObject is null.");
+                    return;
+                }
+                napi_value jsValue[] = { CreateJsValue(loopObserver_->env, number) };
+                CallJsFunction(loopObserver_->env, loopObserver_->observerObject->GetNapiValue(), "onLoopTimeOut",
+                    jsValue, ARGC_ONE);
+            });
+        napi_ref callback = nullptr;
+        std::unique_ptr<NapiAsyncTask::ExecuteCallback> execute = nullptr;
+        if (loopObserver_ && loopObserver_->env) {
+            NapiAsyncTask::Schedule("JsErrorObserver::CallbackTimeout",
+                loopObserver_->env, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
+        }
+    }
+
+    napi_value OnSetLoopWatch(napi_env env, size_t argc, napi_value* argv)
+    {
+        if (argc != ARGC_THREE) {
+            HILOG_ERROR("OnSetLoopWatch: Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        if (!CheckTypeForNapiValue(env, argv[INDEX_ONE], napi_number)) {
+            HILOG_ERROR("OnSetLoopWatch: Invalid param");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (!CheckTypeForNapiValue(env, argv[INDEX_TWO], napi_object)) {
+            HILOG_ERROR("OnSetLoopWatch: Invalid param");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        int64_t number;
+        if (!ConvertFromJsNumber(env, argv[INDEX_ONE], number)) {
+            HILOG_ERROR("OnSetLoopWatch: Parse timeout failed");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        if (loopObserver_ == nullptr) {
+            loopObserver_ = std::make_shared<JsLoopObserver>();
+        }
+        loopObserver_->mainRunner = AppExecFwk::EventRunner::GetMainEventRunner();
+        napi_ref ref = nullptr;
+        napi_create_reference(env, argv[INDEX_TWO], 1, &ref);
+        loopObserver_->observerObject = std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
+        loopObserver_->env = env;
+        loopObserver_->mainRunner->SetTimeout(number);
+        loopObserver_->mainRunner->SetTimeoutCallback(CallbackTimeout);
+        return nullptr;
+    }
+
+    napi_value OnRemoveLoopWatch(napi_env env, size_t argc, napi_value* argv)
+    {
+        if (loopObserver_) {
+            loopObserver_.reset();
+            loopObserver_ = nullptr;
+        }
+        return nullptr;
     }
 
     std::string ParseParamType(napi_env env, const size_t argc, napi_value* argv)
