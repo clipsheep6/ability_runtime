@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,8 @@ constexpr char INSIGHT_INTENT_EXECUTE_PARAM_MODE[] = "ohos.insightIntent.execute
 constexpr char INSIGHT_INTENT_EXECUTE_PARAM_ID[] = "ohos.insightIntent.executeParam.id";
 constexpr char INSIGHT_INTENT_SRC_ENTRY[] = "ohos.insightIntent.srcEntry";
 
+constexpr int32_t INVALID_DISPLAY_ID = -1;
+
 class InsightIntentExecuteParam : public Parcelable {
 public:
     InsightIntentExecuteParam() = default;
@@ -61,6 +63,7 @@ public:
     std::shared_ptr<WantParams> insightIntentParam_;
     int32_t executeMode_ = -1;
     uint64_t insightIntentId_ = 0;
+    int32_t displayId_ = INVALID_DISPLAY_ID;
 };
 } // namespace AppExecFwk
 } // namespace OHOS

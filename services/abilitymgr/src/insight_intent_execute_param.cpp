@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@ bool InsightIntentExecuteParam::ReadFromParcel(Parcel &parcel)
     insightIntentParam_ = wantParams;
     executeMode_ = parcel.ReadInt32();
     insightIntentId_ = parcel.ReadUint64();
+    displayId_ = parcel.ReadInt32();
     return true;
 }
 
@@ -58,6 +59,7 @@ bool InsightIntentExecuteParam::Marshalling(Parcel &parcel) const
     parcel.WriteParcelable(insightIntentParam_.get());
     parcel.WriteInt32(executeMode_);
     parcel.WriteUint64(insightIntentId_);
+    parcel.WriteInt32(displayId_);
     return true;
 }
 
