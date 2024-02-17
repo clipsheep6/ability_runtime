@@ -1733,18 +1733,18 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
     EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 1);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 1, false);
 
     appMgrServiceInner->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     appMgrServiceInner->SetAppSpawnClient(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     HILOG_INFO("StartProcess_001 end");
 }
@@ -3850,7 +3850,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
     hapModuleInfo.process = "processName2";
     EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
     applicationInfo_->process = "";
-    
+
     HILOG_INFO("IsMainProcess_001 end");
 }
 
