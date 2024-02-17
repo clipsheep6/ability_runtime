@@ -36,7 +36,8 @@ public:
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
      * @param targetBundleName The user of uri.
      */
-    int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName, int32_t appIndex = 0);
+    int GrantUriPermission(const Uri &uri, unsigned int flag, const std::string targetBundleName, int32_t appIndex = 0,
+        uint32_t initiatorTokenId = 0);
 
     /**
      * @brief Authorize the uri permission of to targetBundleName.
@@ -46,10 +47,10 @@ public:
      * @param targetBundleName The user of uri.
      */
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0);
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0);
 
     /**
-     * @brief Authorize the uri permission to targetBundleName for 2in1, only supports foundation process calls.
+     * @brief Authorize the uri permission to targetBundleName for 2in1, only supports AbilityManagerService calls.
      *
      * @param uriVec The file urilist.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.

@@ -114,25 +114,25 @@ bool UriPermissionManagerStubImpl::IsAuthorizationUriAllowed(uint32_t fromTokenI
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d.", appIndex);
     std::vector<Uri> uriVec = { uri };
-    return GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
+    return GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
     if (AppUtils::GetInstance().JudgePCDevice()) {
-        return CheckGrantUriPermissionFor2In1(uriVec, flag, targetBundleName, appIndex);
+        return CheckGrantUriPermissionFor2In1(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
     }
-    return GrantUriPermissionInner(uriVec, flag, targetBundleName, appIndex);
+    return GrantUriPermissionInner(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
 }
 
-int UriPermissionManagerStubImpl::GrantUriPermissionInner(
-    const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName, int32_t appIndex)
+int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("Called.");
     auto checkResult = CheckRule(flag);
@@ -143,15 +143,19 @@ int UriPermissionManagerStubImpl::GrantUriPermissionInner(
     auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
     Security::AccessToken::NativeTokenInfo nativeInfo;
     Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
-    // autoremove will be set to 1 if the process name is foundation.
-    HILOG_DEBUG("callerprocessName : %{public}s", nativeInfo.processName.c_str());
-    int autoremove = 0;
+    // autoRemove will be set to 1 if the process name is foundation.
+    HILOG_DEBUG("callerProcessName : %{public}s", nativeInfo.processName.c_str());
+    uint32_t autoRemove = 0;
+    uint32_t appTokenId = 0;
     if (nativeInfo.processName == "foundation") {
-        autoremove = 1;
+        autoRemove = 1;
+        appTokenId = initiatorTokenId;
+    } else {
+        appTokenId = IPCSkeleton::GetCallingTokenID();
     }
     // reserve origin process
     if (uriVec.size() == 1) {
-        auto singleRet = GrantSingleUriPermission(uriVec[0], flag, targetBundleName, autoremove, appIndex);
+        auto singleRet = GrantSingleUriPermission(uriVec[0], flag, targetBundleName, autoRemove, appIndex, appTokenId);
         if (singleRet == ERR_OK) {
             SendEvent(uriVec[0], targetBundleName, targetTokenId);
         }
@@ -166,8 +170,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionInner(
     }
     int ret = INNER_ERR;
     for (const auto &item : uriVecMap) {
-        auto tempRet = GrantBatchUriPermissionImpl(item.second, item.first, fromTokenIdVecMap[item.first],
-            targetTokenId, autoremove);
+        auto tempRet = GrantBatchUriPermissionImpl(item.second, item.first, appTokenId, targetTokenId, autoRemove);
         if (tempRet == ERR_OK) {
             ret = ERR_OK;
             SendEvent(uriVec[0], targetBundleName, targetTokenId, item.second);
@@ -279,11 +282,11 @@ int UriPermissionManagerStubImpl::GetUriPermissionFlag(const Uri &uri, unsigned 
 }
 
 int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, unsigned int flag,
-    TokenId fromTokenId, TokenId targetTokenId, int autoremove)
+    TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uri);
-    GrantInfo info = { flag, fromTokenId, targetTokenId, autoremove };
+    GrantInfo info = { flag, fromTokenId, targetTokenId, autoRemove };
     if (search == uriMap_.end()) {
         HILOG_INFO("Insert an uri r/w permission.");
         std::list<GrantInfo> infoList = { info };
@@ -294,7 +297,7 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
     for (auto& item : infoList) {
         if (item.fromTokenId == fromTokenId && item.targetTokenId == targetTokenId) {
             HILOG_DEBUG("Item: flag = %{public}i, fromTokenId = %{public}i, targetTokenId = %{public}i,\
-                autoremove = %{public}i", item.flag, item.fromTokenId, item.targetTokenId, item.autoremove);
+                autoRemove = %{public}i", item.flag, item.fromTokenId, item.targetTokenId, item.autoRemove);
             if ((flag & (item.flag | Want::FLAG_AUTH_READ_URI_PERMISSION)) == 0) {
                 HILOG_INFO("Update uri r/w permission.");
                 item.flag = flag;
@@ -308,7 +311,7 @@ int UriPermissionManagerStubImpl::AddTempUriPermission(const std::string &uri, u
     return ERR_OK;
 }
 
-int UriPermissionManagerStubImpl::DeletTempUriPermission(const std::string &uri, uint32_t flag,
+int UriPermissionManagerStubImpl::DeleteTempUriPermission(const std::string &uri, uint32_t flag,
     uint32_t targetTokenId)
 {
     if ((flag & Want::FLAG_AUTH_WRITE_URI_PERMISSION) != 0) {
@@ -344,10 +347,10 @@ int UriPermissionManagerStubImpl::DeletTempUriPermission(const std::string &uri,
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-    TokenId fromTokenId, TokenId targetTokenId, int autoremove)
+    TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove)
 {
     HILOG_INFO("uri = %{private}s, flag = %{public}i, fromTokenId = %{public}i, targetTokenId = %{public}i,\
-        autoremove = %{public}i", uri.ToString().c_str(), flag, fromTokenId, targetTokenId, autoremove);
+        autoRemove = %{public}i", uri.ToString().c_str(), flag, fromTokenId, targetTokenId, autoRemove);
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectManager failed");
@@ -374,16 +377,16 @@ int UriPermissionManagerStubImpl::GrantUriPermissionImpl(const Uri &uri, unsigne
         auto addInfoRet = uriPermissionRdb_->AddGrantInfo(uriStr, flag, fromTokenId, targetTokenId);
         if (addInfoRet == ERR_OK) {
             // delete temporary uri permission
-            return DeletTempUriPermission(uriStr, flag, targetTokenId);
+            return DeleteTempUriPermission(uriStr, flag, targetTokenId);
         }
         return addInfoRet;
     }
     // grant temporary uri permission
-    return AddTempUriPermission(uriStr, flag, fromTokenId, targetTokenId, autoremove);
+    return AddTempUriPermission(uriStr, flag, fromTokenId, targetTokenId, autoRemove);
 }
 
 int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsigned int flag,
-    const std::string &targetBundleName, int autoremove, int32_t appIndex)
+    const std::string &targetBundleName, uint32_t autoRemove, int32_t appIndex, uint32_t initiatorTokenId)
 {
     Uri uri_inner = uri;
     auto&& scheme = uri_inner.GetScheme();
@@ -399,7 +402,7 @@ int UriPermissionManagerStubImpl::GrantSingleUriPermission(const Uri &uri, unsig
     if (ret != ERR_OK || tmpFlag == 0) {
         return ret;
     }
-    return GrantUriPermissionImpl(uri, tmpFlag, fromTokenId, targetTokenId, autoremove);
+    return GrantUriPermissionImpl(uri, tmpFlag, initiatorTokenId, targetTokenId, autoRemove);
 }
 
 void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<Uri> &uriVec,
@@ -435,7 +438,7 @@ void UriPermissionManagerStubImpl::GetUriPermissionBatchFlag(const std::vector<U
 }
 
 int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec,
-    unsigned int flag, std::vector<uint32_t> &fromTokenIdVec, TokenId targetTokenId, int autoremove)
+    unsigned int flag, TokenId initiatorTokenId, TokenId targetTokenId, uint32_t autoRemove)
 {
     HILOG_DEBUG("CALL: targetTokenId is %{public}d, flag is %{public}i, uriVec size is %{public}zu",
         targetTokenId, flag, uriVec.size());
@@ -466,17 +469,16 @@ int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<
             continue;
         }
         auto uriStr = uriVec[i];
-        auto fromTokenId = fromTokenIdVec[i];
         if (persistableFlag == 0) {
-            auto addTempInfoRet = AddTempUriPermission(uriStr, flag, fromTokenId, targetTokenId, autoremove);
+            auto addTempInfoRet = AddTempUriPermission(uriStr, flag, initiatorTokenId, targetTokenId, autoRemove);
             successCount += (addTempInfoRet == ERR_OK ? 1 : 0);
             continue;
         }
         // grant persistable uri permission
-        auto addInfoRet = uriPermissionRdb_->AddGrantInfo(uriStr, flag, fromTokenId, targetTokenId);
+        auto addInfoRet = uriPermissionRdb_->AddGrantInfo(uriStr, flag, initiatorTokenId, targetTokenId);
         if (addInfoRet == ERR_OK) {
             successCount++;
-            DeletTempUriPermission(uriStr, flag, targetTokenId);
+            DeleteTempUriPermission(uriStr, flag, targetTokenId);
         }
     }
     HILOG_DEBUG("total %{public}i uri permissions added.", successCount);
@@ -499,7 +501,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end(); it++) {
-                if (it->targetTokenId == tokenId && it->autoremove) {
+                if (it->targetTokenId == tokenId && it->autoRemove) {
                     HILOG_INFO("Erase an info form list.");
                     list.erase(it);
                     uriList.emplace_back(iter->first);
@@ -535,7 +537,7 @@ int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
     std::map<unsigned int, std::vector<std::string>> uriLists;
     {
         std::lock_guard<std::mutex> guard(mutex_);
-        // delte temporary uri permission
+        // delete temporary uri permission
         for (auto iter = uriMap_.begin(); iter != uriMap_.end();) {
             auto& list = iter->second;
             for (auto it = list.begin(); it != list.end();) {
@@ -588,53 +590,25 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
-    auto uriTokenId = GetTokenIdByBundleName(authority, 0);
     auto tokenId = GetTokenIdByBundleName(bundleName, 0);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    auto permission = IsAuthorizationUriAllowed(callerTokenId);
-    bool authorityFlag = authority == "media" || authority == "docs";
-
-    if (!authorityFlag && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {
-        HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
-        return CHECK_PERMISSION_FAILED;
+    HILOG_DEBUG("callerTokenId is %{public}u, targetTokenId is %{public}u", callerTokenId, tokenId);
+    if (tokenId == callerTokenId) {
+        return DeleteTempUriPermissionAndShareFile(uriStr, 0, tokenId);
     }
-
-    if (authorityFlag && !permission && tokenId != callerTokenId) {
-        HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    if (authorityFlag && isGrantPersistableUriPermissionEnable_) {
-        // delete persistable grant info
-        ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
-        if (storageManager_ == nullptr) {
-            HILOG_ERROR("ConnectStorageManager failed");
-            return INNER_ERR;
-        }
-        if (uriPermissionRdb_ == nullptr) {
-            HILOG_ERROR("rdb manager is nullptr");
-            return INNER_ERR;
-        }
-        auto ret = uriPermissionRdb_->RemoveGrantInfo(uriStr, tokenId, storageManager_);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("remove persistable uri permission failed.");
-            return INNER_ERR;
-        }
-    }
-    // delete temporary grant info
-    return DeletTempUriPermissionAndShareFile(uriStr, tokenId);
+    return DeleteTempUriPermissionAndShareFile(uriStr, callerTokenId, tokenId);
 }
 
-int UriPermissionManagerStubImpl::DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId)
+int UriPermissionManagerStubImpl::DeleteTempUriPermissionAndShareFile(const std::string &uri, uint32_t fromTokenId,
+    uint32_t targetTokenId)
 {
     ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
     if (storageManager_ == nullptr) {
         HILOG_ERROR("ConnectStorageManager failed");
         return INNER_ERR;
     }
-    std::vector<std::string> uriList;
-    std::lock_guard<std::mutex> guard(mutex_);
 
+    std::lock_guard<std::mutex> guard(mutex_);
     auto search = uriMap_.find(uri);
     if (search == uriMap_.end()) {
         HILOG_INFO("URI does not exist on uri map.");
@@ -642,16 +616,17 @@ int UriPermissionManagerStubImpl::DeletTempUriPermissionAndShareFile(const std::
     }
     auto& list = search->second;
     for (auto it = list.begin(); it != list.end(); it++) {
-        if (it->targetTokenId == targetTokenId) {
-            HILOG_INFO("Erase an info form list.");
+        if ((it->fromTokenId == fromTokenId || fromTokenId == 0) && it->targetTokenId == targetTokenId) {
+            HILOG_INFO("Notify storageMGR to delete shareFile.");
+            std::vector<std::string> uriList;
             uriList.emplace_back(search->first);
-            if (storageManager_->DeleteShareFile(targetTokenId, uriList) == ERR_OK) {
-                list.erase(it);
-                break;
-            } else {
+            auto procedureRet = storageManager_->DeleteShareFile(targetTokenId, uriList);
+            if (procedureRet != ERR_OK) {
                 HILOG_ERROR("DeleteShareFile failed");
-                return INNER_ERR;
+                return procedureRet;
             }
+            list.erase(it);
+            break;
         }
     }
     if (list.size() == 0) {
@@ -796,8 +771,8 @@ void UriPermissionManagerStubImpl::SendEvent(const Uri &uri, const std::string &
     }
 }
 
-int UriPermissionManagerStubImpl::CheckGrantUriPermissionFor2In1(
-    const std::vector<Uri> &uriVec, unsigned int flag, const std::string &targetBundleName, int32_t appIndex)
+int UriPermissionManagerStubImpl::CheckGrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string &targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("Called.");
     bool isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
@@ -806,11 +781,11 @@ int UriPermissionManagerStubImpl::CheckGrantUriPermissionFor2In1(
         HILOG_ERROR("Not system application or SA call.");
         return INNER_ERR;
     }
-    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, isSystemAppCall);
+    return GrantUriPermissionFor2In1Inner(uriVec, flag, targetBundleName, appIndex, isSystemAppCall, initiatorTokenId);
 }
 
 int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
+    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("Called, uriVec size is %{public}zu", uriVec.size());
     auto checkResult = CheckRule(flag);
@@ -845,7 +820,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
     HILOG_DEBUG("The tokenId is %{public}u", tokenId);
     HandleUriPermission(tokenId, flag, docsVec, isSystemAppCall);
     if (!otherVec.empty()) {
-        return GrantUriPermissionInner(otherVec, flag, targetBundleName, appIndex);
+        return GrantUriPermissionInner(otherVec, flag, targetBundleName, appIndex, initiatorTokenId);
     }
     return ERR_OK;
 }
