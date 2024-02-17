@@ -168,7 +168,8 @@ private:
     void PostPreload(const Options& options);
     void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
-
+    void Register(const std::string &bundleName);
+    
     std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
 };
 } // namespace AbilityRuntime
