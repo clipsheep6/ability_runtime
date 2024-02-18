@@ -1639,8 +1639,9 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
                 continue;
             }
             Uri uri(uriStr);
+            uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_));
+                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_, initiatorTokenId));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
             }
@@ -2944,10 +2945,10 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         }
         uriVecMap[flag].emplace_back(uri);
     }
+    uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
     for (const auto &item : uriVecMap) {
-        auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
-                targetBundleName, appIndex_));
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
+            targetBundleName, appIndex_, initiatorTokenId));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -2969,8 +2970,9 @@ bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUr
     }
 
     for (auto&& uri : uriVec) {
-        auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg, appIndex_));
+        uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg,
+            appIndex_, initiatorTokenId));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -3054,8 +3056,9 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             HILOG_ERROR("uri is not distributed path");
             continue;
         }
-        auto ret = IN_PROCESS_CALL(
-            UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(), targetBundleName));
+        uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
+            targetBundleName, appIndex_, initiatorTokenId));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }
