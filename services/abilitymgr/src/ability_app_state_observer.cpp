@@ -24,10 +24,15 @@ AbilityAppStateObserver::AbilityAppStateObserver(std::shared_ptr<AbilityRecord> 
 void AbilityAppStateObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
 {
     auto abilityRecord = abilityRecord_.lock();
-    if (abilityRecord && abilityRecord->GetAbilityInfo().bundleName == processData.bundleName) {
-        abilityRecord->OnProcessDied();
+    if (abilityRecord) {
+        const auto &abilityInfo = abilityRecord->GetAbilityInfo();
+        if (abilityInfo.bundleName == processData.bundleName &&
+            processData.processType == AppExecFwk::ProcessType::NORMAL &&
+            abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+            abilityRecord->OnProcessDied();
+        }
     } else {
-        HILOG_WARN("AbilityRecord null or bundleName not matched");
+        HILOG_WARN("AbilityRecord null");
     }
 }
 } // namespace AAFwk
