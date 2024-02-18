@@ -588,41 +588,48 @@ int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, co
         HILOG_WARN("only support file uri.");
         return ERR_CODE_INVALID_URI_TYPE;
     }
-    auto uriTokenId = GetTokenIdByBundleName(authority, 0);
     auto tokenId = GetTokenIdByBundleName(bundleName, 0);
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    auto permission = IsAuthorizationUriAllowed(callerTokenId);
-    bool authorityFlag = authority == "media" || authority == "docs";
-
-    if (!authorityFlag && (uriTokenId != callerTokenId) && (tokenId != callerTokenId)) {
-        HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
-        return CHECK_PERMISSION_FAILED;
+    HILOG_DEBUG("callerTokenId is %{public}u, targetTokenId is %{public}u", callerTokenId, tokenId);
+    if (tokenId == callerTokenId) {
+        return DeletTempUriPermissionAndShareFile(uriStr, tokenId);
     }
+    return DeletTempUriPermissionAndShareFile(uriStr, callerTokenId, tokenId);
+}
 
-    if (authorityFlag && !permission && tokenId != callerTokenId) {
-        HILOG_WARN("UriPermissionManagerStubImpl::RevokeUriPermission: No permission for revoke uri.");
-        return CHECK_PERMISSION_FAILED;
+int UriPermissionManagerStubImpl::DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t fromTokenId,
+    uint32_t targetTokenId)
+{
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
+        HILOG_ERROR("ConnectStorageManager failed");
+        return INNER_ERR;
     }
+    std::vector<std::string> uriList;
+    std::lock_guard<std::mutex> guard(mutex_);
 
-    if (authorityFlag && isGrantPersistableUriPermissionEnable_) {
-        // delete persistable grant info
-        ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
-        if (storageManager_ == nullptr) {
-            HILOG_ERROR("ConnectStorageManager failed");
+    auto search = uriMap_.find(uri);
+    if (search == uriMap_.end()) {
+        HILOG_INFO("URI does not exist on uri map.");
+        return ERR_OK;
+    }
+    auto& list = search->second;
+    for (auto it = list.begin(); it != list.end(); it++) {
+        if (it->fromTokenId == fromTokenId && it->targetTokenId == targetTokenId) {
+            HILOG_INFO("Erase a record from list.");
+            uriList.emplace_back(search->first);
+            if (storageManager_->DeleteShareFile(targetTokenId, uriList) == ERR_OK) {
+                list.erase(it);
+                break;
+            }
+            HILOG_ERROR("DeleteShareFile failed");
             return INNER_ERR;
         }
-        if (uriPermissionRdb_ == nullptr) {
-            HILOG_ERROR("rdb manager is nullptr");
-            return INNER_ERR;
-        }
-        auto ret = uriPermissionRdb_->RemoveGrantInfo(uriStr, tokenId, storageManager_);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("remove persistable uri permission failed.");
-            return INNER_ERR;
-        }
     }
-    // delete temporary grant info
-    return DeletTempUriPermissionAndShareFile(uriStr, tokenId);
+    if (list.size() == 0) {
+        uriMap_.erase(search);
+    }
+    return ERR_OK;
 }
 
 int UriPermissionManagerStubImpl::DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId)
@@ -643,15 +650,14 @@ int UriPermissionManagerStubImpl::DeletTempUriPermissionAndShareFile(const std::
     auto& list = search->second;
     for (auto it = list.begin(); it != list.end(); it++) {
         if (it->targetTokenId == targetTokenId) {
-            HILOG_INFO("Erase an info form list.");
+            HILOG_INFO("Erase a record from list.");
             uriList.emplace_back(search->first);
             if (storageManager_->DeleteShareFile(targetTokenId, uriList) == ERR_OK) {
                 list.erase(it);
                 break;
-            } else {
-                HILOG_ERROR("DeleteShareFile failed");
-                return INNER_ERR;
             }
+            HILOG_ERROR("DeleteShareFile failed");
+            return INNER_ERR;
         }
     }
     if (list.size() == 0) {
