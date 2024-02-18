@@ -17,16 +17,11 @@ let ExtensionAbility = requireNapi('app.ability.ExtensionAbility');
 
 class UIExtensionAbility extends ExtensionAbility {
   onCreate(want) {
-    console.log('onCreate, want:' + want.abilityName);
+    console.log('onCreate');
   }
 
   onRequest(want, startId) {
     console.log('onRequest, want:' + want.abilityName + ', startId:' + startId);
-  }
-
-  onLoadContent() {
-    console.log('onLoadContent');
-    return '';
   }
 
   onDestroy() {
