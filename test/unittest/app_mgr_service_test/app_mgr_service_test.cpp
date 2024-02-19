@@ -23,6 +23,7 @@
 #include "hilog_wrapper.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -1341,6 +1342,7 @@ HWTEST_F(AppMgrServiceTest, ChangeAppGcState_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceTest, IsApplicationRunning_001, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
     ASSERT_NE(appMgrService, nullptr);
     appMgrService->SetInnerService(nullptr);
