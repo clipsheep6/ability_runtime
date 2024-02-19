@@ -73,6 +73,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::KillProcessInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP)] =
         &AbilityManagerStub::UninstallAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP)] =
+        &AbilityManagerStub::UpgradeAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY)] =
         &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER)] =
@@ -658,6 +660,19 @@ int AbilityManagerStub::UninstallAppInner(MessageParcel &data, MessageParcel &re
     int result = UninstallApp(bundleName, uid);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("remove stack error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::UpgradeAppInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = Str16ToStr8(data.ReadString16());
+    int32_t uid = data.ReadInt32();
+    std::string exitMsg = Str16ToStr8(data.ReadString16());
+    int result = UpgradeApp(bundleName, uid, exitMsg);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("UpgradeAppInner error");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

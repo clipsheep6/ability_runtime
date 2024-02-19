@@ -211,6 +211,11 @@ public:
         return 0;
     }
 
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+    {
+        return 0;
+    }
+
     int32_t GetMissionIdByToken(const sptr<IRemoteObject>& token) override
     {
         return 0;

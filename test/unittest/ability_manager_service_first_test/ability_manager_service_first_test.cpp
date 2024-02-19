@@ -1139,6 +1139,23 @@ HWTEST_F(AbilityManagerServiceFirstTest, ForceExitApp_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: UpgradeApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpgradeApp
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, UpgradeApp_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest UpgradeApp_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    std::string bundleName = "";
+    int32_t uid = 1;
+    std::string exitMsg = "App upgrade.";
+    EXPECT_EQ(abilityMs_->UpgradeApp(bundleName, uid, exitMsg), ERR_NULL_OBJECT);
+    HILOG_INFO("AbilityManagerServiceFirstTest UpgradeApp_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ScheduleCommandAbilityDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ScheduleCommandAbilityDone

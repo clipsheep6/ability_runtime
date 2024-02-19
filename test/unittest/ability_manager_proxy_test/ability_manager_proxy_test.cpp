@@ -1054,6 +1054,27 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UninstallApp_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: UpgradeApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpgradeApp
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of UpgradeApp
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UpgradeApp_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    std::string bundleName = "";
+    int32_t uid = 1;
+    std::string exitMsg = "App upgrade.";
+    auto res = proxy_->UpgradeApp(bundleName, uid, exitMsg);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: GetWantSender
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetWantSender

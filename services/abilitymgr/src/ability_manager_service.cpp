@@ -5384,11 +5384,30 @@ int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName,
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
     HILOG_DEBUG("Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
+    return UninstallAppInner(bundleName, uid, false, "");
+}
+
+int32_t AbilityManagerService::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+{
+    HILOG_DEBUG("UpgradeApp app, bundleName: %{public}s, uid=%{public}d, exitMsg: %{public}s,", bundleName.c_str(),
+        uid, exitMsg.c_str());
+    return UninstallAppInner(bundleName, uid, true, exitMsg);
+}
+
+int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, const int32_t uid, const bool isUpgrade,
+    const std::string &exitMsg)
+{
     pid_t callingPid = IPCSkeleton::GetCallingPid();
     pid_t pid = getpid();
     if (callingPid != pid) {
         HILOG_ERROR("%{public}s: Not bundleMgr call.", __func__);
         return CHECK_PERMISSION_FAILED;
+    }
+
+    if (isUpgrade) {
+        CHECK_POINTER_AND_RETURN(appExitReasonHelper_, ERR_NULL_OBJECT);
+        AAFwk::ExitReason exitReason = { REASON_UPGRADE, exitMsg };
+        appExitReasonHelper_->RecordProcessExitReason(NO_PID, exitReason, bundleName, uid);
     }
 
     int32_t targetUserId = uid / BASE_USER_RANGE;
@@ -5415,7 +5434,9 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
     if (ret != ERR_OK) {
         return UNINSTALL_APP_FAILED;
     }
-    DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
+    if (!isUpgrade) {
+        DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->DeleteAppExitReason(bundleName);
+    }
     return ERR_OK;
 }
 
