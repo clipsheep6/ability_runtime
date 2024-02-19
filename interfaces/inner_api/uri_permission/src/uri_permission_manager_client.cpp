@@ -35,18 +35,18 @@ UriPermissionManagerClient& UriPermissionManagerClient::GetInstance()
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("targetBundleName :%{public}s", targetBundleName.c_str());
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, appIndex);
+        return uriPermMgr->GrantUriPermission(uri, flag, targetBundleName, appIndex, initiatorTokenId);
     }
     return INNER_ERR;
 }
 
 int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("targetBundleName: %{public}s, uriVec size: %{public}zu", targetBundleName.c_str(), uriVec.size());
     if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
@@ -55,7 +55,7 @@ int UriPermissionManagerClient::GrantUriPermission(const std::vector<Uri> &uriVe
     }
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
-        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
+        return uriPermMgr->GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
     }
     return INNER_ERR;
 }

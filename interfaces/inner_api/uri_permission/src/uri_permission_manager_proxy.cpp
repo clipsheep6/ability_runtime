@@ -28,7 +28,7 @@ UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &
     : IRemoteProxy<IUriPermissionManager>(impl) {}
 
 int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
@@ -52,6 +52,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
         HILOG_ERROR("Write appIndex failed.");
         return INNER_ERR;
     }
+    if (!data.WriteUint32(initiatorTokenId)) {
+        HILOG_ERROR("Write initiatorTokenId failed.");
+        return INNER_ERR;
+    }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_GRANT_URI_PERMISSION, data, reply, option);
@@ -63,7 +67,7 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
 }
 
 int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string targetBundleName, int32_t appIndex)
+    const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
@@ -91,6 +95,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
     }
     if (!data.WriteInt32(appIndex)) {
         HILOG_ERROR("Write appIndex failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteUint32(initiatorTokenId)) {
+        HILOG_ERROR("Write initiatorTokenId failed.");
         return INNER_ERR;
     }
     MessageParcel reply;

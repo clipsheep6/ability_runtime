@@ -37,7 +37,7 @@ struct GrantInfo {
     unsigned int flag;
     const uint32_t fromTokenId;
     const uint32_t targetTokenId;
-    int autoremove;
+    uint32_t autoRemove;
 };
 
 struct PolicyInfo final {
@@ -54,9 +54,9 @@ public:
     void Init();
 
     int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0) override;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
     int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0) override;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) override;
     int GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     void RevokeUriPermission(const TokenId tokenId) override;
@@ -75,13 +75,13 @@ private:
     std::shared_ptr<AppExecFwk::BundleMgrHelper> ConnectManagerHelper();
     int32_t GetCurrentAccountId() const;
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
-        TokenId fromTokenId, TokenId targetTokenId, int autoremove);
+        TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove);
     int GetUriPermissionFlag(const Uri &uri, unsigned int flag, uint32_t fromTokenId,
         uint32_t targetTokenId, unsigned int &newFlag);
     int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
-        TokenId targetTokenId, int autoremove);
-    int DeletTempUriPermission(const std::string &uri, uint32_t flag, uint32_t targetTokenId);
-    int DeletTempUriPermissionAndShareFile(const std::string &uri, uint32_t targetTokenId);
+        TokenId targetTokenId, uint32_t autoRemove);
+    int DeleteTempUriPermission(const std::string &uri, uint32_t flag, uint32_t targetTokenId);
+    int DeleteTempUriPermissionAndShareFile(const std::string &uri, uint32_t fromTokenId, uint32_t targetTokenId);
 
     void GetUriPermissionBatchFlag(const std::vector<Uri> &uriVec,
         unsigned int flag, uint32_t targetTokenId,
@@ -89,10 +89,10 @@ private:
         std::unordered_map<uint32_t, std::vector<uint32_t>> &fromTokenIdVecMap);
 
     int GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec, unsigned int flag,
-        std::vector<uint32_t> &fromTokenIdVec, TokenId targetTokenId, int autoremove);
+        TokenId initiatorTokenId, TokenId targetTokenId, uint32_t autoRemove);
 
     int GrantSingleUriPermission(const Uri &uri, unsigned int flag,
-        const std::string &targetBundleName, int autoremove, int32_t appIndex);
+        const std::string &targetBundleName, uint32_t autoRemove, int32_t appIndex, uint32_t initiatorTokenId);
 
     void InitPersistableUriPermissionConfig();
 
@@ -101,14 +101,14 @@ private:
 
     int CheckRule(unsigned int flag);
 
-    int GrantUriPermissionInner(
-        const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName, int32_t appIndex);
+    int GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
+        int32_t appIndex, uint32_t initiatorTokenId);
 
-    int CheckGrantUriPermissionFor2In1(
-        const std::vector<Uri> &uriVec, unsigned int flag, const std::string &targetBundleName, int32_t appIndex);
+    int CheckGrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+        const std::string &targetBundleName, int32_t appIndex, uint32_t initiatorTokenId);
 
     int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall);
+        const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId = 0);
 
     void HandleUriPermission(
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
