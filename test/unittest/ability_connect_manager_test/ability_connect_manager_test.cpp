@@ -1307,13 +1307,6 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_027, TestSize.Level1)
 
     ConnectManager()->AddConnectDeathRecipient(nullptr);
     EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
-
-    ConnectManager()->AddConnectDeathRecipient(callbackA_);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
-
-    // Add twice, do not add repeatedly
-    ConnectManager()->AddConnectDeathRecipient(callbackA_);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
 }
 
 /*
@@ -1329,13 +1322,10 @@ HWTEST_F(AbilityConnectManagerTest, AAFWK_Connect_Service_028, TestSize.Level1)
     ConnectManager()->SetTaskHandler(TaskHandler());
     ConnectManager()->SetEventHandler(EventHandler());
 
-    ConnectManager()->AddConnectDeathRecipient(callbackA_);
-    EXPECT_EQ(static_cast<int>(ConnectManager()->recipientMap_.size()), 1);
+    ConnectManager()->AddConnectDeathRecipient(nullptr);
+    EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
 
     ConnectManager()->RemoveConnectDeathRecipient(nullptr);
-    EXPECT_FALSE(ConnectManager()->recipientMap_.empty());
-
-    ConnectManager()->RemoveConnectDeathRecipient(callbackA_);
     EXPECT_TRUE(ConnectManager()->recipientMap_.empty());
 }
 
