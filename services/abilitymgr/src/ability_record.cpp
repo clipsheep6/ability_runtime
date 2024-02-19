@@ -1642,8 +1642,9 @@ void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, 
                 continue;
             }
             Uri uri(uriStr);
+            uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
             auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri,
-                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_));
+                Want::FLAG_AUTH_WRITE_URI_PERMISSION, abilityInfo_.bundleName, appIndex_, initiatorTokenId));
             if (ret != ERR_OK) {
                 HILOG_WARN("GrantUriPermission failed");
             }
@@ -2342,7 +2343,20 @@ void AbilityRecord::SendEvent(uint32_t msg, uint32_t timeOut, int32_t param)
 void AbilityRecord::SetWant(const Want &want)
 {
     std::lock_guard guard(wantLock_);
+    auto debugApp = want_.GetBoolParam(DEBUG_APP, false);
+    auto nativeDebug = want_.GetBoolParam(NATIVE_DEBUG, false);
+    auto perfCmd = want_.GetStringParam(PERF_CMD);
+
     want_ = want;
+    if (debugApp) {
+        want_.SetParam(DEBUG_APP, true);
+    }
+    if (nativeDebug) {
+        want_.SetParam(NATIVE_DEBUG, true);
+    }
+    if (!perfCmd.empty()) {
+        want_.SetParam(PERF_CMD, perfCmd);
+    }
 }
 
 Want AbilityRecord::GetWant() const
@@ -2496,9 +2510,33 @@ void AbilityRecord::SetLaunchReason(const LaunchReason &reason)
     lifeCycleStateInfo_.launchParam.launchReason = reason;
 }
 
-void AbilityRecord::SetLastExitReason(const LastExitReason &reason)
+void AbilityRecord::SetLastExitReason(const ExitReason &exitReason)
 {
-    lifeCycleStateInfo_.launchParam.lastExitReason = reason;
+    lifeCycleStateInfo_.launchParam.lastExitReason = CovertAppExitReasonToLastReason(exitReason.reason);
+    lifeCycleStateInfo_.launchParam.lastExitMessage = exitReason.exitMsg;
+}
+
+LastExitReason AbilityRecord::CovertAppExitReasonToLastReason(const Reason exitReason)
+{
+    switch (exitReason) {
+        case REASON_NORMAL:
+            return LASTEXITREASON_NORMAL;
+        case REASON_CPP_CRASH:
+            return LASTEXITREASON_CPP_CRASH;
+        case REASON_JS_ERROR:
+            return LASTEXITREASON_JS_ERROR;
+        case REASON_APP_FREEZE:
+            return LASTEXITREASON_APP_FREEZE;
+        case REASON_PERFORMANCE_CONTROL:
+            return LASTEXITREASON_PERFORMANCE_CONTROL;
+        case REASON_RESOURCE_CONTROL:
+            return LASTEXITREASON_RESOURCE_CONTROL;
+        case REASON_UPGRADE:
+            return LASTEXITREASON_UPGRADE;
+        case REASON_UNKNOWN:
+        default:
+            return LASTEXITREASON_UNKNOWN;
+    }
 }
 
 void AbilityRecord::NotifyContinuationResult(int32_t result)
@@ -2935,9 +2973,8 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         uriVecMap[flag].emplace_back(uri);
     }
     for (const auto &item : uriVecMap) {
-        auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
-                targetBundleName, appIndex_));
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
+            targetBundleName, appIndex_, callerTokenId));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -2958,9 +2995,10 @@ bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUr
         }
     }
 
+    uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
     for (auto&& uri : uriVec) {
-        auto ret = IN_PROCESS_CALL(
-            AAFwk::UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg, appIndex_));
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, flag, targetPkg,
+            appIndex_, initiatorTokenId));
         if (ret == ERR_OK) {
             isGrantedUriPermission_ = true;
         }
@@ -3044,8 +3082,9 @@ void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleNa
             HILOG_ERROR("uri is not distributed path");
             continue;
         }
-        auto ret = IN_PROCESS_CALL(
-            UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(), targetBundleName));
+        uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
+        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
+            targetBundleName, appIndex_, initiatorTokenId));
         if (ret == 0) {
             isGrantedUriPermission_ = true;
         }

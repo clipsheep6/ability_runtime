@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "stop_user_callback_proxy.h"
+#include "user_callback_proxy.h"
 
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
@@ -21,20 +21,25 @@
 
 namespace OHOS {
 namespace AAFwk {
-void StopUserCallbackProxy::OnStopUserDone(int userId, int errcode)
+void UserCallbackProxy::OnStopUserDone(int userId, int errcode)
 {
-    SendRequestCommon(userId, errcode, IStopUserCallback::StopUserCallbackCmd::ON_STOP_USER_DONE);
+    SendRequestCommon(userId, errcode, IUserCallback::UserCallbackCmd::ON_STOP_USER_DONE);
 }
 
-void StopUserCallbackProxy::SendRequestCommon(int userId, int errcode, IStopUserCallback::StopUserCallbackCmd cmd)
+void UserCallbackProxy::OnStartUserDone(int userId, int errcode)
+{
+    SendRequestCommon(userId, errcode, IUserCallback::UserCallbackCmd::ON_START_USER_DONE);
+}
+
+void UserCallbackProxy::SendRequestCommon(int userId, int errcode, IUserCallback::UserCallbackCmd cmd)
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_INFO("StopUserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d",
+    HILOG_INFO("UserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d",
         cmd, userId, errcode);
-    if (!data.WriteInterfaceToken(IStopUserCallback::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(IUserCallback::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
         return;
     }
@@ -57,7 +62,7 @@ void StopUserCallbackProxy::SendRequestCommon(int userId, int errcode, IStopUser
 
     int error = remote->SendRequest(cmd, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("OnStopUserDone fail, error: %{public}d", error);
+        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
         return;
     }
 }

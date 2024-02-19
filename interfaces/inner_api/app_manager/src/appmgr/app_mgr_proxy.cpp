@@ -99,24 +99,6 @@ void AppMgrProxy::ApplicationTerminated(const int32_t recordId)
     }
 }
 
-int32_t AppMgrProxy::CheckPermission(const int32_t recordId, const std::string &permission)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option(MessageOption::TF_SYNC);
-    if (!WriteInterfaceToken(data)) {
-        return ERR_PERMISSION_DENIED;
-    }
-    data.WriteInt32(recordId);
-    data.WriteString(permission);
-    int32_t ret = SendRequest(AppMgrInterfaceCode::APP_CHECK_PERMISSION, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
-        return ERR_PERMISSION_DENIED;
-    }
-    return reply.ReadInt32();
-}
-
 void AppMgrProxy::AbilityCleaned(const sptr<IRemoteObject> &token)
 {
     MessageParcel data;

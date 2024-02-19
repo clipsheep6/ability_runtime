@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "ability_manager_client.h"
+#include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -83,7 +84,7 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_ForceExitApp_0100, TestS
 {
     HILOG_INFO("AbilityManagerClient_ForceExitApp_0100 start");
     int32_t pid = 0;
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto result = AbilityManagerClient::GetInstance()->ForceExitApp(pid, exitReason);
     EXPECT_EQ(result, ERR_OK);
     HILOG_INFO("AbilityManagerClient_ForceExitApp_0100 end");
@@ -97,10 +98,24 @@ HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_ForceExitApp_0100, TestS
 HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordAppExitReason_0100, TestSize.Level1)
 {
     HILOG_INFO("AbilityManagerClient_RecordAppExitReason_0100 start");
-    Reason exitReason = REASON_JS_ERROR;
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
-    EXPECT_EQ(result, ERR_OK);
+    EXPECT_EQ(result, GET_BUNDLE_INFO_FAILED);
     HILOG_INFO("AbilityManagerClient_RecordAppExitReason_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RecordProcessExitReason_0100
+ * @tc.desc: RecordAppExitReason
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientTest, AbilityManagerClient_RecordProcessExitReason_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerClient_RecordProcessExitReason_0100 start");
+    ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
+    auto result = AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+    EXPECT_EQ(result, GET_BUNDLE_INFO_FAILED);
+    HILOG_INFO("AbilityManagerClient_RecordProcessExitReason_0100 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

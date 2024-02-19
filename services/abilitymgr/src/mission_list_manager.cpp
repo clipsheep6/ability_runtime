@@ -3420,8 +3420,9 @@ bool MissionListManager::CheckLimit()
                 return true;
             }
             if (IsAppLastAbility(earliestMission->GetAbilityRecord())) {
-                OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->RecordAppExitReason(
-                    REASON_RESOURCE_CONTROL);
+                ExitReason exitReason = { REASON_RESOURCE_CONTROL,
+                    "Already reach ability max limit, terminate earliest ability." };
+                OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->RecordAppExitReason(exitReason);
             }
             HILOG_INFO("already reach limit instance. limit: %{public}d, and terminate earliestAbility success.",
                 MAX_INSTANCE_COUNT);
@@ -3847,13 +3848,14 @@ int MissionListManager::DoAbilityForeground(std::shared_ptr<AbilityRecord> &abil
     return ERR_OK;
 }
 
-void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList)
+void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std::vector<std::string> &abilityList,
+    int32_t pid)
 {
     std::lock_guard guard(managerLock_);
     for (auto missionList : currentMissionLists_) {
         if (missionList != nullptr) {
             std::vector<std::string> currentActiveAbilities;
-            missionList->GetActiveAbilityList(bundleName, currentActiveAbilities);
+            missionList->GetActiveAbilityList(bundleName, currentActiveAbilities, pid);
             if (!currentActiveAbilities.empty()) {
                 abilityList.insert(abilityList.end(), currentActiveAbilities.begin(), currentActiveAbilities.end());
             }
@@ -3862,7 +3864,7 @@ void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std
 
     if (defaultStandardList_ != nullptr) {
         std::vector<std::string> defaultActiveStandardList;
-        defaultStandardList_->GetActiveAbilityList(bundleName, defaultActiveStandardList);
+        defaultStandardList_->GetActiveAbilityList(bundleName, defaultActiveStandardList, pid);
         if (!defaultActiveStandardList.empty()) {
             abilityList.insert(abilityList.end(), defaultActiveStandardList.begin(), defaultActiveStandardList.end());
         }
@@ -3870,7 +3872,7 @@ void MissionListManager::GetActiveAbilityList(const std::string &bundleName, std
 
     if (defaultSingleList_ != nullptr) {
         std::vector<std::string> defaultActiveSingleList;
-        defaultSingleList_->GetActiveAbilityList(bundleName, defaultActiveSingleList);
+        defaultSingleList_->GetActiveAbilityList(bundleName, defaultActiveSingleList, pid);
         if (!defaultActiveSingleList.empty()) {
             abilityList.insert(abilityList.end(), defaultActiveSingleList.begin(), defaultActiveSingleList.end());
         }
@@ -3894,36 +3896,13 @@ void MissionListManager::SetLastExitReason(std::shared_ptr<AbilityRecord> &abili
         return;
     }
 
-    Reason exitReason;
+    ExitReason exitReason;
     bool isSetReason;
     DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->GetAppExitReason(
         abilityRecord->GetAbilityInfo().bundleName, abilityRecord->GetAbilityInfo().name, isSetReason, exitReason);
 
     if (isSetReason) {
-        abilityRecord->SetLastExitReason(CovertAppExitReasonToLastReason(exitReason));
-    }
-}
-
-LastExitReason MissionListManager::CovertAppExitReasonToLastReason(const Reason exitReason)
-{
-    switch (exitReason) {
-        case REASON_NORMAL:
-            return LASTEXITREASON_NORMAL;
-        case REASON_CPP_CRASH:
-            return LASTEXITREASON_CPP_CRASH;
-        case REASON_JS_ERROR:
-            return LASTEXITREASON_JS_ERROR;
-        case REASON_APP_FREEZE:
-            return LASTEXITREASON_APP_FREEZE;
-        case REASON_PERFORMANCE_CONTROL:
-            return LASTEXITREASON_PERFORMANCE_CONTROL;
-        case REASON_RESOURCE_CONTROL:
-            return LASTEXITREASON_RESOURCE_CONTROL;
-        case REASON_UPGRADE:
-            return LASTEXITREASON_UPGRADE;
-        case REASON_UNKNOWN:
-        default:
-            return LASTEXITREASON_UNKNOWN;
+        abilityRecord->SetLastExitReason(exitReason);
     }
 }
 

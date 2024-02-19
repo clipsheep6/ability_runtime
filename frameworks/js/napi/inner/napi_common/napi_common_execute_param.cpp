@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -83,6 +83,18 @@ bool UnwrapExecuteParam(napi_env env, napi_value param, InsightIntentExecutePara
         return false;
     }
     executeParam.executeMode_ = executeMode;
+
+    int32_t displayId = INVALID_DISPLAY_ID;
+    if (executeMode == ExecuteMode::UI_ABILITY_FOREGROUND &&
+        UnwrapInt32ByPropertyName(env, param, "displayId", displayId)) {
+        if (displayId < 0) {
+            HILOG_ERROR("Wrong argument displayId.");
+            return false;
+        }
+        HILOG_INFO("Get displayId %{public}d.", displayId);
+        executeParam.displayId_ = displayId;
+    }
+
     return true;
 }
 }  // namespace AbilityRuntime

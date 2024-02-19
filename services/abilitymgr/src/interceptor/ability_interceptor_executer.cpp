@@ -13,27 +13,26 @@
  * limitations under the License.
  */
 
-#include "ability_interceptor_executer.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
-void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<AbilityInterceptor> &interceptor)
+void AbilityInterceptorExecuter::AddInterceptor(const std::shared_ptr<IAbilityInterceptor> &interceptor)
 {
     if (interceptor != nullptr) {
         interceptorList_.push_back(interceptor);
     }
 }
 
-ErrCode AbilityInterceptorExecuter::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,
-    const sptr<IRemoteObject> &callerToken)
+ErrCode AbilityInterceptorExecuter::DoProcess(AbilityInterceptorParam param)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int32_t result = ERR_OK;
     auto item = interceptorList_.begin();
     while (item != interceptorList_.end()) {
-        result = (*item)->DoProcess(want, requestCode, userId, isForeground, callerToken);
+        result = (*item)->DoProcess(param);
         if (result != ERR_OK) {
             break;
         } else {

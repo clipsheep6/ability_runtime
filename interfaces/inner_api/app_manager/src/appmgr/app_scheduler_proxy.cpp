@@ -241,7 +241,7 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
 
 void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
-    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return;
@@ -256,12 +256,12 @@ void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const Application
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
 }
 
 void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
-    HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage start");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleAbilityStage start");
     MessageParcel data;
     constexpr int32_t max = 10000;
     constexpr int32_t large = 60;
@@ -295,7 +295,7 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage end");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleAbilityStage end");
 }
 
 void AppSchedulerProxy::ScheduleProfileChanged(const Profile &profile)

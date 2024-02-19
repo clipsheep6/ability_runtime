@@ -367,6 +367,16 @@ enum {
      * Result(2097221) for developer mode.
      */
     ERR_NOT_DEVELOPER_MODE,
+
+    /**
+     * Result(2097222) for get active ability list empty when record exit reason.
+     */
+    ERR_GET_ACTIVE_ABILITY_LIST_EMPTY,
+
+    /**
+     * Result(2097223) for query highest priority ability.
+     */
+    ERR_QUERY_HIGHEST_PRIORITY_ABILITY,
 };
 
 enum {

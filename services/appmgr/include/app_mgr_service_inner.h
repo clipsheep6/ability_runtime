@@ -691,7 +691,7 @@ public:
      */
     void HandleWindowVisibilityChanged(
             const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-    
+
     /**
      * Set the current userId, only used by abilityMgr.
      *
@@ -889,7 +889,7 @@ public:
      * @return child process record.
      */
     virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
-    
+
     /**
      * Attach child process scheduler to app manager service.
      *
@@ -984,7 +984,7 @@ private:
      * @return
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
-                      const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
+                      std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
 
     /**
@@ -1128,19 +1128,11 @@ private:
     int VerifyProcessPermission() const;
 
     int VerifyProcessPermission(const std::string &bundleName) const;
-    
+
     bool CheckCallerIsAppGallery();
 
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord);
-
-    /**
-     * Check appRunning status listener permission.
-     *
-     * @param listener Running status listener.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t CheckPermission(const sptr<IRemoteObject> &listener);
 
     int32_t StartChildProcessPreCheck(const pid_t callingPid);
 

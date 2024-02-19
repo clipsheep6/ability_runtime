@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,38 +13,39 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_STUB_H
-#define OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_STUB_H
+#ifndef OHOS_ABILITY_RUNTIME_USER_CALLBACK_STUB_H
+#define OHOS_ABILITY_RUNTIME_USER_CALLBACK_STUB_H
 
 #include <iremote_object.h>
 #include <iremote_stub.h>
 #include <vector>
 
-#include "stop_user_callback.h"
+#include "user_callback.h"
 #include "nocopyable.h"
 
 namespace OHOS {
 namespace AAFwk {
 /**
- * @class StopUserCallbackStub
- * StopUserCallbackStub.
+ * @class UserCallbackStub
+ * UserCallbackStub.
  */
-class StopUserCallbackStub : public IRemoteStub<IStopUserCallback> {
+class UserCallbackStub : public IRemoteStub<IUserCallback> {
 public:
-    StopUserCallbackStub();
-    virtual ~StopUserCallbackStub() = default;
+    UserCallbackStub();
+    virtual ~UserCallbackStub() = default;
 
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    DISALLOW_COPY_AND_MOVE(StopUserCallbackStub);
+    DISALLOW_COPY_AND_MOVE(UserCallbackStub);
 
     int OnStopUserDoneInner(MessageParcel &data, MessageParcel &reply);
+    int OnStartUserDoneInner(MessageParcel &data, MessageParcel &reply);
 
-    using StopUserCallbackFunc = int (StopUserCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
-    std::vector<StopUserCallbackFunc> vecMemberFunc_;
+    using UserCallbackFunc = int (UserCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
+    std::vector<UserCallbackFunc> vecMemberFunc_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_STUB_H
+#endif  // OHOS_ABILITY_RUNTIME_USER_CALLBACK_STUB_H

@@ -235,6 +235,7 @@ private:
 
     int32_t ForceExitAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RecordAppExitReasonInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RecordProcessExitReasonInner(MessageParcel &data, MessageParcel &reply);
 
     int SetRootSceneSessionInner(MessageParcel &data, MessageParcel &reply);
     int CallUIAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
@@ -251,11 +252,6 @@ private:
     int32_t SetApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);
     int32_t CancelApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);
     int32_t QueryAllAutoStartupApplicationsInner(MessageParcel &data, MessageParcel &reply);
-    int32_t RegisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UnregisterAutoStartupCallbackInner(MessageParcel &data, MessageParcel &reply);
-    int32_t SetAutoStartupInner(MessageParcel &data, MessageParcel &reply);
-    int32_t CancelAutoStartupInner(MessageParcel &data, MessageParcel &reply);
-    int32_t IsAutoStartupInner(MessageParcel &data, MessageParcel &reply);
 
     int PrepareTerminateAbilityBySCBInner(MessageParcel &data, MessageParcel &reply);
     int RegisterSessionHandlerInner(MessageParcel &data, MessageParcel &reply);

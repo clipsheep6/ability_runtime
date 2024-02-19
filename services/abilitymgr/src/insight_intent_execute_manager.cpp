@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -232,6 +232,10 @@ int32_t InsightIntentExecuteManager::GenerateWant(
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME, param->insightIntentName_);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, param->executeMode_);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_ID, std::to_string(param->insightIntentId_));
+    if (param->displayId_ != INVALID_DISPLAY_ID) {
+        want.SetParam(Want::PARAM_RESV_DISPLAY_ID, param->displayId_);
+        HILOG_DEBUG("Generate want with displayId: %{public}d", param->displayId_);
+    }
     return ERR_OK;
 }
 

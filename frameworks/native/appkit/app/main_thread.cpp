@@ -42,6 +42,7 @@
 #include "common_event_manager.h"
 #include "context_deal.h"
 #include "context_impl.h"
+#include "exit_reason.h"
 #include "extension_ability_info.h"
 #include "extension_module_loader.h"
 #include "extension_plugin_info.h"
@@ -242,7 +243,7 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         }
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        HILOG_INFO("lib path = %{private}s", libPath.c_str());
+        HILOG_DEBUG("lib path = %{private}s", libPath.c_str());
         appLibPaths["default"].emplace_back(libPath);
     }
 
@@ -1389,7 +1390,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             // if app's callback has been registered, let app decide whether exit or not.
             HILOG_ERROR("\n%{public}s is about to exit due to RuntimeError\nError type:%{public}s\n%{public}s",
                 bundleName.c_str(), errorObj.name.c_str(), summary.c_str());
-            AbilityManagerClient::GetInstance()->RecordAppExitReason(REASON_JS_ERROR);
+            AAFwk::ExitReason exitReason = { REASON_JS_ERROR, errorObj.name };
+            AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
             appThread->ScheduleProcessSecurityExit();
         };
         (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);

@@ -14,7 +14,7 @@
  */
 
 #include <gtest/gtest.h>
-#include "stop_user_callback_stub.h"
+#include "user_callback_stub.h"
 #include "message_parcel.h"
 
 using namespace testing::ext;
@@ -22,13 +22,14 @@ using namespace OHOS::AAFwk;
 using namespace OHOS;
 using namespace testing;
 
-class MockStopUserCallbackStub : public StopUserCallbackStub {
+class MockStopUserCallbackStub : public UserCallbackStub {
 public:
     MockStopUserCallbackStub() = default;
     virtual ~MockStopUserCallbackStub()
     {}
     void OnStopUserDone(int userId, int errcode) override
     {}
+    void OnStartUserDone(int userId, int errcode) override {}
 };
 
 class StopUserCallbackStubTest : public testing::Test {
@@ -56,7 +57,7 @@ void StopUserCallbackStubTest::TearDown()
 HWTEST_F(StopUserCallbackStubTest, StopUserCallbackStubTest_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StopUserCallbackStubTest_001 start";
-    std::shared_ptr<StopUserCallbackStub> backStub = std::make_shared<MockStopUserCallbackStub>();
+    std::shared_ptr<UserCallbackStub> backStub = std::make_shared<MockStopUserCallbackStub>();
     uint32_t code = 1;
     MessageParcel data;
     MessageParcel reply;
@@ -77,12 +78,12 @@ HWTEST_F(StopUserCallbackStubTest, StopUserCallbackStubTest_001, TestSize.Level1
 HWTEST_F(StopUserCallbackStubTest, StopUserCallbackStubTest_002, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StopUserCallbackStubTest_002 start";
-    std::shared_ptr<StopUserCallbackStub> backStub = std::make_shared<MockStopUserCallbackStub>();
+    std::shared_ptr<UserCallbackStub> backStub = std::make_shared<MockStopUserCallbackStub>();
     uint32_t code = 2;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-    std::u16string metaDescriptor_ = u"ohos.aafwk.StopUserCallback";
+    std::u16string metaDescriptor_ = u"ohos.aafwk.UserCallback";
     data.WriteInterfaceToken(metaDescriptor_);
     auto result = backStub->OnRemoteRequest(code, data, reply, option);
 
@@ -98,12 +99,12 @@ HWTEST_F(StopUserCallbackStubTest, StopUserCallbackStubTest_002, TestSize.Level1
 HWTEST_F(StopUserCallbackStubTest, StopUserCallbackStubTest_003, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "StopUserCallbackStubTest_003 start";
-    std::shared_ptr<StopUserCallbackStub> backStub = std::make_shared<MockStopUserCallbackStub>();
+    std::shared_ptr<UserCallbackStub> backStub = std::make_shared<MockStopUserCallbackStub>();
     uint32_t code = 0;
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-    std::u16string metaDescriptor_ = u"ohos.aafwk.StopUserCallback";
+    std::u16string metaDescriptor_ = u"ohos.aafwk.UserCallback";
     data.WriteInterfaceToken(metaDescriptor_);
     auto result = backStub->OnRemoteRequest(code, data, reply, option);
 

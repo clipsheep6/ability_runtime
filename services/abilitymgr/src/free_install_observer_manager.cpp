@@ -19,6 +19,7 @@
 #include "ability_event_handler.h"
 #include "ability_manager_service.h"
 #include "ability_manager_errors.h"
+#include "ability_util.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {

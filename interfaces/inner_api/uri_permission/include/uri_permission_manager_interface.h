@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,7 +35,7 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0) = 0;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName.
@@ -46,22 +46,10 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0) = 0;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
 
     /**
-     * @brief Authorize the uri permission to targetBundleName for 2in1.
-     *
-     * @param uri The file uri.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param targetBundleName The user of uri.
-     * @param appIndex The index of application in sandbox.
-     * @return Returns true if the authorization is successful, otherwise returns false.
-     */
-    virtual int GrantUriPermissionFor2In1(
-        const Uri &uri, unsigned int flag, const std::string &targetBundleName, int32_t appIndex = 0) = 0;
-
-    /**
-     * @brief Authorize the uri permission to targetBundleName for 2in1.
+     * @brief Authorize the uri permission to targetBundleName for 2in1, only supports foundation process calls.
      *
      * @param uriVec The file urilist.
      * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
@@ -138,9 +126,6 @@ public:
 
         // ipc id for BatchGrantUriPermission
         ON_BATCH_GRANT_URI_PERMISSION,
-
-        // ipc id for GrantUriPermissionFor2In1
-        ON_GRANT_URI_PERMISSION_FOR_2_IN_1,
 
         // ipc id for BatchGrantUriPermissionFor2In1
         ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1,

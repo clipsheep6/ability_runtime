@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,26 +13,37 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_H
-#define OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_H
+#ifndef OHOS_ABILITY_RUNTIME_USER_CALLBACK_H
+#define OHOS_ABILITY_RUNTIME_USER_CALLBACK_H
 
 #include "iremote_broker.h"
 
 namespace OHOS {
 namespace AAFwk {
 /**
- * @class IStopUserCallback
- * stop user callback.
+ * @class IUserCallback
+ * user callback.
  */
-class IStopUserCallback : public OHOS::IRemoteBroker {
+class IUserCallback : public OHOS::IRemoteBroker {
 public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.StopUserCallback");
+    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.aafwk.UserCallback");
 
     virtual void OnStopUserDone(int userId, int errcode) = 0;
 
-    enum StopUserCallbackCmd {
+    /**
+     * @brief OnStartUserDone.
+     *
+     * @param userId userId.
+     * @param errcode errcode.
+     */
+    virtual void OnStartUserDone(int userId, int errcode) = 0;
+
+    enum UserCallbackCmd {
         // ipc id for OnStopUserDone
         ON_STOP_USER_DONE = 0,
+
+        // ipc id for OnStartUserDone
+        ON_START_USER_DONE = 1,
 
         // maximum of enum
         CMD_MAX
@@ -40,4 +51,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_STOP_USER_CALLBACK_H
+#endif  // OHOS_ABILITY_RUNTIME_USER_CALLBACK_H

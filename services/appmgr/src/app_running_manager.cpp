@@ -28,6 +28,9 @@
 #include "quick_fix_callback_with_record.h"
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
+#ifdef EFFICIENCY_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -670,11 +673,37 @@ bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunni
 
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 {
+    std::unordered_set<int32_t> frozenPids;
+#ifdef EFFICIENCY_MANAGER_ENABLE
+    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
+    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
+    if (appSuspendState.empty()) {
+        HILOG_WARN("Get app state empty");
+    }
+    for (auto &[uid, pids] : appSuspendState) {
+        for (auto &[pid, isFrozen] : pids) {
+            if (isFrozen) {
+                frozenPids.insert(pid);
+            }
+        }
+    }
+#endif
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        HILOG_DEBUG("Notification app [%{public}s]", appRecord->GetName().c_str());
-        appRecord->ScheduleMemoryLevel(level);
+        if (!appRecord) {
+            HILOG_ERROR("appRecord null");
+            continue;
+        }
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (!priorityObject) {
+            HILOG_WARN("priorityObject null");
+            continue;
+        }
+        auto pid = priorityObject->GetPid();
+        if (frozenPids.count(pid) == 0) {
+            appRecord->ScheduleMemoryLevel(level);
+        }
     }
     return ERR_OK;
 }

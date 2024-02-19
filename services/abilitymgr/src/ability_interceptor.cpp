@@ -415,7 +415,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     HILOG_DEBUG("check ecological rule success");
     if (rule.isAllow) {
-        HILOG_ERROR("ecological rule is allow, keep going.");
+        HILOG_DEBUG("ecological rule is allow, keep going.");
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -454,15 +454,12 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
-        if (callerInfo.packageName == "") {
-            callerInfo.packageName = targetAppInfo.name;
-        }
     }
 
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
-        HILOG_ERROR("Get callerBundleName failed.");
+        HILOG_ERROR("Get callerBundleName failed,uid: %{public}d.", callerInfo.uid);
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
@@ -599,7 +596,7 @@ bool AbilityJumpInterceptor::CheckIfExemptByBundleName(std::shared_ptr<AppExecFw
         HILOG_INFO("Bundle:%{public}s is system app.", bundleName.c_str());
         return true;
     }
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission, false);
     if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
         HILOG_DEBUG("VerifyPermission %{public}d: PERMISSION_DENIED.", appInfo.accessTokenId);
         return false;

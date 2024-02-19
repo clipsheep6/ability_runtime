@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #define private public
-#include "ability_interceptor.h"
+#include "interceptor/ability_interceptor_interface.h"
 #include "implicit_start_processor.h"
 #include "system_dialog_scheduler.h"
 #undef private

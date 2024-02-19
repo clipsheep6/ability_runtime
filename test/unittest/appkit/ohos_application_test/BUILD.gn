@@ -79,6 +79,7 @@ ohos_unittest("ohos_application_test") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
+    "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]
 }

@@ -217,12 +217,12 @@ public:
         return 0;
     }
 
-    int StartUser(int accountId)
+    int StartUser(int accountId, sptr<IUserCallback> callback)
     {
         return 0;
     }
 
-    int StopUser(int accountId, const sptr<IStopUserCallback>& callback)
+    int StopUser(int accountId, const sptr<IUserCallback>& callback)
     {
         return 0;
     }

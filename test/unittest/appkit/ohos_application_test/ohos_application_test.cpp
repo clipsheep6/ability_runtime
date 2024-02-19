@@ -24,12 +24,14 @@
 #include "context_deal.h"
 #include "context_impl.h"
 #include "fa_ability_thread.h"
+#include "hilog_wrapper.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
 #include "mock_i_remote_object.h"
 #include "mock_runtime.h"
 #include "ohos_application.h"
 #include "pac_map.h"
+#include "resource_manager.h"
 #include "runtime.h"
 #include "ui_ability.h"
 #undef private
@@ -716,6 +718,43 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_OnConfigurationUpda
     ohosApplication_->OnConfigurationUpdated(config);
     EXPECT_TRUE(ohosApplication_->elementsCallbacks_.empty());
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_OnConfigurationUpdated_0500 end.";
+}
+
+/*
+* @tc.number: OnConfigurationUpdated_0600
+* @tc.name: OnConfigurationUpdated
+* @tc.desc: Function test abilityRuntimeContext_ not empty
+*/
+HWTEST_F(OHOSApplicationTest, OnConfigurationUpdated_0600, TestSize.Level1)
+{
+    std::string bundleName = "test.bundleName";
+    std::string moduleName = "test.moduleName";
+    std::string hapPath = "/data/app/testHap";
+    std::vector<std::string> overlayPaths;
+    std::unique_ptr<Global::Resource::ResConfig> resConfigBefore(Global::Resource::CreateResConfig());
+    ASSERT_NE(resConfigBefore, nullptr);
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager(Global::Resource::CreateResourceManager(
+        bundleName, moduleName, hapPath, overlayPaths, *resConfigBefore));
+    ASSERT_NE(resourceManager, nullptr);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    contextImpl->SetResourceManager(resourceManager);
+
+    auto appContext = std::make_shared<AbilityRuntime::ApplicationContext>();
+    appContext->AttachContextImpl(contextImpl);
+    ohosApplication_->SetApplicationContext(appContext);
+    ohosApplication_->abilityRecordMgr_ = std::make_shared<AbilityRecordMgr>();
+    ohosApplication_->configuration_ = std::make_shared<Configuration>();
+
+    Configuration config;
+    config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "zh");
+    ohosApplication_->OnConfigurationUpdated(config);
+    std::unique_ptr<Global::Resource::ResConfig> resConfigAfter(Global::Resource::CreateResConfig());
+    ASSERT_NE(resConfigAfter, nullptr);
+    resourceManager->GetResConfig(*resConfigAfter);
+    const icu::Locale *localeInfo = resConfigAfter->GetLocaleInfo();
+    ASSERT_NE(localeInfo, nullptr);
+    HILOG_INFO("Update config language %{public}s succeed.", localeInfo->getLanguage());
+    EXPECT_EQ(strcmp(localeInfo->getLanguage(), "zh"), 0);
 }
 
 /*

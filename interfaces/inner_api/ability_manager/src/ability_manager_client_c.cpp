@@ -17,14 +17,19 @@
 
 #include "ability_manager_client.h"
 #include "ability_state.h"
+#include "exit_reason.h"
 
-int RecordAppExitReason(int exitReason)
+int RecordAppExitReason(int exitReason, const char *exitMsg)
 {
     if (exitReason < static_cast<int>(OHOS::AAFwk::Reason::REASON_MIN) ||
         exitReason > static_cast<int>(OHOS::AAFwk::Reason::REASON_MAX)) {
         return -1;
     }
 
+    OHOS::AAFwk::Reason reason = static_cast<OHOS::AAFwk::Reason>(exitReason);
+    std::string exitMsgStr(exitMsg);
+    OHOS::AAFwk::ExitReason exitReasonData = { reason, exitMsgStr };
+
     auto instance = OHOS::AAFwk::AbilityManagerClient::GetInstance();
-    return instance->RecordAppExitReason(static_cast<OHOS::AAFwk::Reason>(exitReason));
+    return instance->RecordAppExitReason(exitReasonData);
 }

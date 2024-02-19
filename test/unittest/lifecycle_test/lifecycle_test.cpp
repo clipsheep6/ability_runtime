@@ -23,6 +23,7 @@
 #include "lifecycle_test_base.h"
 #undef private
 #undef protected
+#include "sa_mgr_client.h"
 
 using namespace testing;
 using namespace testing::ext;

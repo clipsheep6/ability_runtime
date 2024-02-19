@@ -2550,13 +2550,9 @@ int AbilityManagerProxy::MoveMissionsToBackground(const std::vector<int32_t>& mi
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StartUser(int userId)
+int AbilityManagerProxy::StartUser(int userId, sptr<IUserCallback> callback)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -2564,7 +2560,19 @@ int AbilityManagerProxy::StartUser(int userId)
         HILOG_ERROR("StartUser:WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
-    error = SendRequest(AbilityManagerInterfaceCode::START_USER, data, reply, option);
+    if (!callback) {
+        data.WriteBool(false);
+    } else {
+        data.WriteBool(true);
+        if (!data.WriteRemoteObject(callback->AsObject())) {
+            HILOG_ERROR("write IUserCallback fail.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = SendRequest(AbilityManagerInterfaceCode::START_USER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("StartUser:SendRequest error: %d", error);
         return error;
@@ -2596,13 +2604,9 @@ int AbilityManagerProxy::SetMissionContinueState(const sptr<IRemoteObject> &toke
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &callback)
+int AbilityManagerProxy::StopUser(int userId, const sptr<IUserCallback> &callback)
 {
-    int error;
     MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -2616,11 +2620,13 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IStopUserCallback> &cal
     } else {
         data.WriteBool(true);
         if (!data.WriteRemoteObject(callback->AsObject())) {
-            HILOG_ERROR("StopUser:write IStopUserCallback fail.");
+            HILOG_ERROR("write IUserCallback fail.");
             return ERR_INVALID_VALUE;
         }
     }
-    error = SendRequest(AbilityManagerInterfaceCode::STOP_USER, data, reply, option);
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    auto error = SendRequest(AbilityManagerInterfaceCode::STOP_USER, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("StopUser:SendRequest error: %d", error);
         return error;
@@ -3832,7 +3838,7 @@ int32_t AbilityManagerProxy::ShareDataDone(
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, Reason exitReason)
+int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
     HILOG_DEBUG("start.");
     MessageParcel data;
@@ -3843,16 +3849,8 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, Reason exitReason)
         HILOG_ERROR("write interface token failed.");
         return INNER_ERR;
     }
-
-    if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("pid write failed.");
-        return INNER_ERR;
-    }
-
-    if (!data.WriteInt32(static_cast<int32_t>(exitReason))) {
-        HILOG_ERROR("Reason write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::FORCE_EXIT_APP, data, reply, option);
     if (error != NO_ERROR) {
@@ -3864,24 +3862,44 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, Reason exitReason)
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::RecordAppExitReason(Reason exitReason)
+int32_t AbilityManagerProxy::RecordAppExitReason(const ExitReason &exitReason)
 {
     HILOG_DEBUG("start.");
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
+    MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("write interface token failed.");
         return INNER_ERR;
     }
-
-    if (!data.WriteInt32(static_cast<int32_t>(exitReason))) {
-        HILOG_ERROR("Reason write failed.");
-        return INNER_ERR;
-    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
+        return error;
+    }
+
+    HILOG_DEBUG("end.");
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
+{
+    HILOG_DEBUG("start.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("write interface token failed.");
+        return INNER_ERR;
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
+
+    int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
         return error;
@@ -4197,127 +4215,6 @@ int32_t AbilityManagerProxy::QueryAllAutoStartupApplications(std::vector<AutoSta
         infoList.emplace_back(*info);
     }
     return ERR_OK;
-}
-
-int32_t AbilityManagerProxy::RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(callback)) {
-        HILOG_ERROR("Callback write failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_CALLBACK, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
-        return ret;
-    }
-    return reply.ReadInt32();
-}
-
-int32_t AbilityManagerProxy::UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteRemoteObject(callback)) {
-        HILOG_ERROR("Callback write failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_CALLBACK, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
-        return ret;
-    }
-    return reply.ReadInt32();
-}
-
-int32_t AbilityManagerProxy::SetAutoStartup(const AutoStartupInfo &info)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::SET_AUTO_STARTUP, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
-        return ret;
-    }
-    return reply.ReadInt32();
-}
-
-int32_t AbilityManagerProxy::CancelAutoStartup(const AutoStartupInfo &info)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::CANCEL_AUTO_STARTUP, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
-        return ret;
-    }
-    return reply.ReadInt32();
-}
-
-int32_t AbilityManagerProxy::IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-
-    if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
-        return INNER_ERR;
-    }
-
-    auto ret = SendRequest(AbilityManagerInterfaceCode::IS_AUTO_STARTUP, data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
-        return ret;
-    }
-    int32_t result = reply.ReadInt32();
-    if (result != NO_ERROR) {
-        HILOG_ERROR("Error: %{public}d.", ret);
-        return result;
-    }
-    isAutoStartup = reply.ReadBool();
-    return NO_ERROR;
 }
 
 int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &sessionInfo, bool &isPrepareTerminate)

@@ -596,6 +596,7 @@ napi_value SimulatorImpl::CreateJsLaunchParam(napi_env env)
     napi_create_object(env, &objValue);
     napi_set_named_property(env, objValue, "launchReason", CreateJsValue(env, AAFwk::LAUNCHREASON_UNKNOWN));
     napi_set_named_property(env, objValue, "lastExitReason", CreateJsValue(env, AAFwk::LASTEXITREASON_UNKNOWN));
+    napi_set_named_property(env, objValue, "lastExitMessage", CreateJsValue(env, std::string("")));
     return objValue;
 }
 

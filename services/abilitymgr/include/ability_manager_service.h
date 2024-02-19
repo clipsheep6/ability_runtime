@@ -30,11 +30,11 @@
 #include "ability_connect_manager.h"
 #include "ability_debug_deal.h"
 #include "ability_event_handler.h"
-#include "ability_interceptor_executer.h"
 #include "ability_manager_event_subscriber.h"
 #include "ability_manager_stub.h"
 #include "ams_configuration_parameter.h"
 #include "app_debug_listener_interface.h"
+#include "app_exit_reason_helper.h"
 #include "app_mgr_interface.h"
 #include "app_scheduler.h"
 #include "auto_startup_info.h"
@@ -48,6 +48,7 @@
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
 #include "iacquire_share_data_callback_interface.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"
 #include "parameter.h"
@@ -840,8 +841,6 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false);
 
-    int CheckPermission(const std::string &bundleName, const std::string &permission);
-
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
 
@@ -885,9 +884,9 @@ public:
      */
     sptr<IRemoteObject> GetAbilityTokenByMissionId(int32_t missionId);
 
-    virtual int StartUser(int userId) override;
+    virtual int StartUser(int userId, sptr<IUserCallback> callback) override;
 
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) override;
+    virtual int StopUser(int userId, const sptr<IUserCallback> &callback) override;
 
     virtual int LogoutUser(int32_t userId) override;
 
@@ -1163,7 +1162,7 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RecordAppExitReason(Reason exitReason) override;
+    virtual int32_t RecordAppExitReason(const ExitReason &exitReason) override;
 
     /**
      * Force app exit and record exit reason.
@@ -1171,7 +1170,15 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ForceExitApp(const int32_t pid, Reason exitReason) override;
+    virtual int32_t ForceExitApp(const int32_t pid, const ExitReason &exitReason) override;
+
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason) override;
 
     int32_t GetConfiguration(AppExecFwk::Configuration& config);
 
@@ -1276,42 +1283,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList) override;
-
-    /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback) override;
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t SetAutoStartup(const AutoStartupInfo &info) override;
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info) override;
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup) override;
 
     /**
      * PrepareTerminateAbilityBySCB, prepare to terminate ability by scb.
@@ -1513,7 +1484,7 @@ private:
      * start highest priority ability.
      *
      */
-    void StartHighestPriorityAbility(int32_t userId, bool isBoot);
+    void StartHighestPriorityAbility(int32_t userId, bool isBoot, sptr<IUserCallback> callback);
     /**
      * connet bms.
      *
@@ -1622,7 +1593,7 @@ private:
     void StopFreezingScreen();
     void UserStarted(int32_t userId);
     void SwitchToUser(int32_t userId);
-    void SwitchToUser(int32_t oldUserId, int32_t userId);
+    void SwitchToUser(int32_t oldUserId, int32_t userId, sptr<IUserCallback> callback);
     void SwitchManagers(int32_t userId, bool switchUser = true);
     void StartUserApps();
     void PauseOldUser(int32_t userId);
@@ -1798,8 +1769,6 @@ private:
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 
-    void RecordAppExitReasonAtUpgrade(const AppExecFwk::BundleInfo &bundleInfo);
-
     bool CheckPrepareTerminateEnable();
 
     bool CheckCollaboratorType(int32_t type);
@@ -1858,6 +1827,8 @@ private:
 
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     bool CheckCallerIsDmsProcess();
+
+    void WaitBootAnimationStart();
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -1951,6 +1922,7 @@ private:
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
 
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
+    std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

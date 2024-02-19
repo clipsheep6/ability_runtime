@@ -47,6 +47,7 @@ private:
     static bool CheckConnectService();
 
     static mutex instanceLock_;
+    static mutex proxyLock_;
     static sptr<AbilityEcologicalRuleMgrServiceClient> instance_;
     static sptr<IAbilityEcologicalRuleMgrService> ecologicalRuleMgrServiceProxy_;
     static sptr<IRemoteObject::DeathRecipient> deathRecipient_;

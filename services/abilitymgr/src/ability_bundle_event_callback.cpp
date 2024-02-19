@@ -16,6 +16,7 @@
 #include "ability_bundle_event_callback.h"
 
 #include "ability_manager_service.h"
+#include "in_process_call_wrapper.h"
 #include "uri_permission_manager_client.h"
 
 namespace OHOS {

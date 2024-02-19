@@ -193,16 +193,6 @@ public:
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
 
-    // the function about system
-    /**
-     * CheckPermission, call CheckPermission() through proxy object, check the permission.
-     *
-     * @param recordId, a unique record that identifies this Application from others.
-     * @param permission, check the permissions.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t CheckPermission(const int32_t recordId, const std::string &permission) override;
-
     // the function about service running info
     /**
      * QueryServiceState, Query application service status.

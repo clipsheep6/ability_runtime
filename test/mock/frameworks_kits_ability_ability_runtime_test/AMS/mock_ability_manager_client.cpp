@@ -306,17 +306,17 @@ ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string& devId)
     return abms->StopSyncRemoteMissions(devId);
 }
 
-ErrCode AbilityManagerClient::StartUser(int accountId)
+ErrCode AbilityManagerClient::StartUser(int accountId, sptr<IUserCallback> callback)
 {
     if (g_remoteObject == nullptr) {
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
 
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    return abms->StartUser(accountId);
+    return abms->StartUser(accountId, callback);
 }
 
-ErrCode AbilityManagerClient::StopUser(int accountId, sptr<IStopUserCallback> callback)
+ErrCode AbilityManagerClient::StopUser(int accountId, sptr<IUserCallback> callback)
 {
     if (g_remoteObject == nullptr) {
         return ABILITY_SERVICE_NOT_CONNECTED;

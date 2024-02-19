@@ -129,6 +129,11 @@ ohos_shared_library("libappms") {
     ]
   }
 
+  if (efficiency_manager) {
+    defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
+    external_deps += [ "efficiency_manager:suspend_manager_client" ]
+  }
+
   if (background_task_mgr_continuous_task_enable) {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }

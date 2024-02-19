@@ -29,6 +29,7 @@
 #include "ability_state_data.h"
 #include "app_debug_listener_interface.h"
 #include "auto_startup_info.h"
+#include "exit_reason.h"
 #include "extension_running_info.h"
 #include "free_install_observer_interface.h"
 #include "iability_controller.h"
@@ -46,7 +47,7 @@
 #include "sender_info.h"
 #include "snapshot.h"
 #include "start_options.h"
-#include "stop_user_callback.h"
+#include "user_callback.h"
 #include "system_memory_attr.h"
 #include "ui_extension_ability_connect_info.h"
 #include "ui_extension_window_command.h"
@@ -740,9 +741,9 @@ public:
      */
     virtual int ReleaseCall(const sptr<IAbilityConnection> &connect, const AppExecFwk::ElementName &element) = 0;
 
-    virtual int StartUser(int userId) = 0;
+    virtual int StartUser(int userId, sptr<IUserCallback> callback) = 0;
 
-    virtual int StopUser(int userId, const sptr<IStopUserCallback> &callback) = 0;
+    virtual int StopUser(int userId, const sptr<IUserCallback> &callback) = 0;
 
     virtual int LogoutUser(int32_t userId)
     {
@@ -1078,7 +1079,7 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t ForceExitApp(const int32_t pid, Reason exitReason)
+    virtual int32_t ForceExitApp(const int32_t pid, const ExitReason &exitReason)
     {
         return 0;
     }
@@ -1088,7 +1089,18 @@ public:
      * @param exitReason The reason of app exit.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RecordAppExitReason(Reason exitReason)
+    virtual int32_t RecordAppExitReason(const ExitReason &exitReason)
+    {
+        return 0;
+    }
+    
+    /**
+     * Record the process exit reason before the process being killed.
+     * @param pid The process id.
+     * @param exitReason The reason of process exit.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
     {
         return 0;
     }
@@ -1204,57 +1216,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t SetAutoStartup(const AutoStartupInfo &info)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t CancelAutoStartup(const AutoStartupInfo &info)
-    {
-        return 0;
-    }
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup)
     {
         return 0;
     }

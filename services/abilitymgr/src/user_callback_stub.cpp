@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "stop_user_callback_stub.h"
+#include "user_callback_stub.h"
 
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
@@ -21,13 +21,14 @@
 
 namespace OHOS {
 namespace AAFwk {
-StopUserCallbackStub::StopUserCallbackStub()
+UserCallbackStub::UserCallbackStub()
 {
-    vecMemberFunc_.resize(StopUserCallbackCmd::CMD_MAX);
-    vecMemberFunc_[StopUserCallbackCmd::ON_STOP_USER_DONE] = &StopUserCallbackStub::OnStopUserDoneInner;
+    vecMemberFunc_.resize(UserCallbackCmd::CMD_MAX);
+    vecMemberFunc_[UserCallbackCmd::ON_STOP_USER_DONE] = &UserCallbackStub::OnStopUserDoneInner;
+    vecMemberFunc_[UserCallbackCmd::ON_START_USER_DONE] = &UserCallbackStub::OnStartUserDoneInner;
 }
 
-int StopUserCallbackStub::OnStopUserDoneInner(MessageParcel &data, MessageParcel &reply)
+int UserCallbackStub::OnStopUserDoneInner(MessageParcel &data, MessageParcel &reply)
 {
     auto accountId = data.ReadInt32();
     auto errCode = data.ReadInt32();
@@ -35,17 +36,25 @@ int StopUserCallbackStub::OnStopUserDoneInner(MessageParcel &data, MessageParcel
     return NO_ERROR;
 }
 
-int StopUserCallbackStub::OnRemoteRequest(
+int UserCallbackStub::OnStartUserDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto accountId = data.ReadInt32();
+    auto errCode = data.ReadInt32();
+    OnStartUserDone(accountId, errCode);
+    return NO_ERROR;
+}
+
+int UserCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    std::u16string descriptor = StopUserCallbackStub::GetDescriptor();
+    std::u16string descriptor = UserCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
         HILOG_INFO("Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
-    if (code < StopUserCallbackCmd::CMD_MAX && code >= 0) {
+    if (code < UserCallbackCmd::CMD_MAX && code >= 0) {
         auto memberFunc = vecMemberFunc_[code];
         return (this->*memberFunc)(data, reply);
     }

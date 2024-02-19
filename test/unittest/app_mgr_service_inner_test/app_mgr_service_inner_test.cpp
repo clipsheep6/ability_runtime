@@ -31,6 +31,7 @@
 #include "mock_iapp_state_callback.h"
 #include "mock_native_token.h"
 #include "mock_render_scheduler.h"
+#include "mock_sa_call.h"
 #include "parameters.h"
 #include "window_manager.h"
 
@@ -303,17 +304,17 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
 
     // config didn't change
     result = appMgrServiceInner->UpdateConfiguration(*config);
-    EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     Configuration changeConfig;
     if (value == "true") {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "false");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
-        EXPECT_EQ(result, ERR_PERMISSION_DENIED);
+        EXPECT_EQ(result, ERR_OK);
         config = appMgrServiceInner->GetConfiguration();
         EXPECT_NE(config, nullptr);
         value = config->GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-        EXPECT_EQ(value, "true");
+        EXPECT_EQ(value, "false");
     } else {
         changeConfig.AddItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE, "true");
         result = appMgrServiceInner->UpdateConfiguration(changeConfig);
@@ -837,6 +838,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
 {
     HILOG_INFO("KillApplicationByUserId_001 start");
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1731,18 +1733,18 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
     EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 1);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 1, false);
 
     appMgrServiceInner->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     appMgrServiceInner->SetAppSpawnClient(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     HILOG_INFO("StartProcess_001 end");
 }
@@ -3848,7 +3850,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
     hapModuleInfo.process = "processName2";
     EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
     applicationInfo_->process = "";
-    
+
     HILOG_INFO("IsMainProcess_001 end");
 }
 

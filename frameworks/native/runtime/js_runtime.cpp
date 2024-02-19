@@ -217,7 +217,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
         inputProcessName = processName;
     }
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
-        [bundleName, needBreakPoint, instanceId, weak](int socketFd, std::string option) {
+        [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
         HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
             socketFd, option.c_str());
         if (weak == nullptr) {
@@ -225,14 +225,20 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
             return;
         }
         if (option.find(DEBUGGER) == std::string::npos) {
-            ConnectServerManager::Get().StopConnectServer(false);
+            if (isDebugApp) {
+                ConnectServerManager::Get().StopConnectServer(false);
+            }
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
-            weak->StopDebugger(option);
+            if (isDebugApp) {
+                weak->StopDebugger(option);
+            }
             weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
         }
     });
-    ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
+    if (isDebugApp) {
+        ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
+    }
     ConnectServerManager::Get().AddInstance(instanceId_);
     jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, needBreakPoint);
 }
@@ -335,7 +341,7 @@ void JsRuntime::StartProfiler(
         inputProcessName = processName;
     }
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
-        [bundleName, needBreakPoint, instanceId, weak](int socketFd, std::string option) {
+        [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
         HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
             socketFd, option.c_str());
         if (weak == nullptr) {
@@ -343,16 +349,21 @@ void JsRuntime::StartProfiler(
             return;
         }
         if (option.find(DEBUGGER) == std::string::npos) {
-            ConnectServerManager::Get().StopConnectServer(false);
+            if (isDebugApp) {
+                ConnectServerManager::Get().StopConnectServer(false);
+            }
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
-            weak->StopDebugger(option);
+            if (isDebugApp) {
+                weak->StopDebugger(option);
+            }
             weak->StartDebugger(option, ARK_DEBUGGER_LIB_PATH, socketFd, needBreakPoint, instanceId);
         }
     });
-    ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
+    if (isDebugApp) {
+        ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
+    }
     ConnectServerManager::Get().AddInstance(instanceId_);
-
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");

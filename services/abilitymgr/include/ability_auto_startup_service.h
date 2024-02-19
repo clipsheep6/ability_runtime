@@ -76,42 +76,6 @@ public:
     int32_t QueryAllAutoStartupApplicationsWithoutPermission(std::vector<AutoStartupInfo> &infoList);
 
     /**
-     * @brief Register auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t RegisterAutoStartupCallback(const sptr<IRemoteObject> &callback);
-
-    /**
-     * @brief Unregister auto start up callback.
-     * @param callback The point of JsAbilityAutoStartupCallBack.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t UnregisterAutoStartupCallback(const sptr<IRemoteObject> &callback);
-
-    /**
-     * @brief Set current application auto start up state.
-     * @param info The auto startup info,include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t SetAutoStartup(const AutoStartupInfo &info);
-
-    /**
-     * @brief Cancel current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t CancelAutoStartup(const AutoStartupInfo &info);
-
-    /**
-     * @brief Check current application auto start up state.
-     * @param info The auto startup info, include bundle name, module name, ability name.
-     * @param isAutoStartup Output parameters, return auto start up state.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    int32_t IsAutoStartup(const AutoStartupInfo &info, bool &isAutoStartup);
-
-    /**
      * @brief Delete current bundleName auto start up data.
      * @param bundleName The current bundleName.
      * @return Returns ERR_OK on success, others on failure.
@@ -166,8 +130,6 @@ public:
 private:
     int32_t InnerSetApplicationAutoStartup(const AutoStartupInfo &info);
     int32_t InnerCancelApplicationAutoStartup(const AutoStartupInfo &info);
-    int32_t InnerSetAutoStartup(const AutoStartupInfo &info);
-    int32_t InnerCancelAutoStartup(const AutoStartupInfo &info);
     void ExecuteCallbacks(bool isCallOn, const AutoStartupInfo &info);
     void SetDeathRecipient(
         const sptr<IRemoteObject> &callback, const sptr<IRemoteObject::DeathRecipient> &deathRecipient);
