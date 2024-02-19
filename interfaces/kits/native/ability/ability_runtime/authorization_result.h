@@ -29,6 +29,8 @@ public:
     virtual void GrantResultsCallback(const std::vector<std::string> &permissions,
         const std::vector<int> &grantResults) override;
 
+    virtual void WindowShownCallback(Security::AccessToken::AccessTokenID tokenID,
+        const std::vector<std::string> &permissions, const std::vector<bool> &dialogFlags) override;
 private:
     PermissionRequestTask task_;
 };
