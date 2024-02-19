@@ -23,7 +23,7 @@ static napi_module _module = {
     .nm_version = 0,
     .nm_filename = nullptr,
     .nm_register_func = OHOS::AbilityRuntime::JsInsightIntentInit,
-    .nm_modname = "app.ability.insightintent",
+    .nm_modname = "app.ability.insightIntent",
 };
 
 /*
