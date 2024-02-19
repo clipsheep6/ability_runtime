@@ -15,11 +15,12 @@
 
 #include "disposed_observer.h"
 
-#include "ability_interceptor.h"
 #include "ability_record.h"
 #include "hilog_wrapper.h"
+#include "interceptor/disposed_rule_interceptor.h"
 #include "modal_system_ui_extension.h"
 #include "want.h"
+
 namespace OHOS {
 namespace AAFwk {
 DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,

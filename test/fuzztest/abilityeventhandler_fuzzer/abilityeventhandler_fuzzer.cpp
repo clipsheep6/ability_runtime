@@ -20,7 +20,7 @@
 
 #define private public
 #include "ability_event_handler.h"
-#include "ability_interceptor_executer.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "ability_running_info.h"
 #include "ability_scheduler_proxy.h"
 #include "ams_configuration_parameter.h"
