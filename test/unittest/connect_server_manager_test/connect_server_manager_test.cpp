@@ -131,7 +131,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
     connectServerManager.instanceMap_.clear();
-    auto res = connectServerManager.instanceMap_.try_emplace(ONE, instanceName);
+    auto res = connectServerManager.instanceMap_.try_emplace(ONE, instanceName, false);
     EXPECT_TRUE(res.second);
     connectServerManager.RemoveInstance(ONE);
     EXPECT_TRUE(connectServerManager.handlerConnectServerSo_);

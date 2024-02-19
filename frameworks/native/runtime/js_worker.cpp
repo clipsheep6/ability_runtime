@@ -40,7 +40,6 @@
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
-
 #ifdef SUPPORT_GRAPHICS
 using OHOS::Ace::ContainerScope;
 #endif
@@ -93,12 +92,15 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     if (g_debugMode) {
         auto instanceId = gettid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
-        bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceName);
+        bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceName, true);
         auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
             nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
         };
         panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
+        ConnectServerManager::Get().StoreDebuggerInfo(
+            instanceId, reinterpret_cast<void*>(vm), debugOption, workerPostTask, g_debugApp);
+
         panda::JSNApi::NotifyDebugMode(instanceId, vm, debugOption, instanceId, workerPostTask, g_debugApp);
     }
 }

@@ -341,6 +341,18 @@ void JsEnvironment::StopMonitorJSHeapUsage()
     engine_->StopMonitorJSHeapUsage();
 }
 
+DebuggerPostTask JsEnvironment::GetDebuggerPostTask()
+{
+    auto debuggerPostTask = [weak = weak_from_this()](std::function<void()>&& task) {
+        auto jsEnv = weak.lock();
+        if (jsEnv == nullptr) {
+            JSENV_LOG_E("JsEnv is invalid.");
+            return;
+        }
+        jsEnv->PostTask(task, "JsEnvironment:GetDebuggerPostTask");
+    };
+    return debuggerPostTask;
+}
 
 void JsEnvironment::NotifyDebugMode(
     int tid, const char* libraryPath, uint32_t instanceId, bool debug, bool debugMode)

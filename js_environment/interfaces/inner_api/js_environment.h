@@ -27,6 +27,7 @@
 namespace OHOS {
 namespace JsEnv {
 class JsEnvironmentImpl;
+using DebuggerPostTask = std::function<void(std::function<void()>&&)>;
 using RequestAotCallback =
     std::function<int32_t(const std::string& bundleName, const std::string& moduleName, int32_t triggerMode)>;
 class JsEnvironment final : public std::enable_shared_from_this<JsEnvironment> {
@@ -84,6 +85,8 @@ public:
     void DeInitLoop();
 
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
+    
+    DebuggerPostTask GetDebuggerPostTask();
 
     void StartProfiler(const char* libraryPath,
         uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, int tid, bool isDebugApp);
