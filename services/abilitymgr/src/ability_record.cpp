@@ -1361,6 +1361,9 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (schedulerObject == nullptr || !schedulerObject->AddDeathRecipient(schedulerDeathRecipient_)) {
             HILOG_ERROR("AddDeathRecipient failed.");
         }
+        if (IsSceneBoard()) {
+            HILOG_INFO("Sceneboard DeathRecipient Added");
+        }
         pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
         // add collaborator mission bind pid
         NotifyMissionBindPid();
@@ -3352,6 +3355,12 @@ bool AbilityRecord::BackgroundAbilityWindowDelayed()
 void AbilityRecord::DoBackgroundAbilityWindowDelayed(bool needBackground)
 {
     backgroundAbilityWindowDelayed_.store(needBackground);
+}
+
+bool AbilityRecord::IsSceneBoard() const
+{
+    return GetAbilityInfo().name == AbilityConfig::SCENEBOARD_ABILITY_NAME &&
+        GetAbilityInfo().bundleName == AbilityConfig::SCENEBOARD_BUNDLE_NAME;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
