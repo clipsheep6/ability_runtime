@@ -89,7 +89,8 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
     auto flag = data.ReadInt32();
     auto targetBundleName = data.ReadString();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(*uri, flag, targetBundleName, appIndex);
+    auto initiatorTokenId = data.ReadUint32();
+    int result = GrantUriPermission(*uri, flag, targetBundleName, appIndex, initiatorTokenId);
     reply.WriteInt32(result);
     return ERR_OK;
 }
@@ -113,7 +114,8 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data,
     auto flag = data.ReadInt32();
     auto targetBundleName = data.ReadString();
     auto appIndex = data.ReadInt32();
-    int result = GrantUriPermission(uriVec, flag, targetBundleName, appIndex);
+    auto initiatorTokenId = data.ReadUint32();
+    int result = GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
     reply.WriteInt32(result);
     return ERR_OK;
 }
