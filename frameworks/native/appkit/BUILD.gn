@@ -191,6 +191,7 @@ ohos_shared_library("appkit_native") {
     external_deps += [
       "ace_engine:ace_forward_compatibility",
       "graphic_2d:librender_service_client",
+      "graphic_surface:surface",
       "i18n:intl_util",
       "window_manager:libwm",
     ]
