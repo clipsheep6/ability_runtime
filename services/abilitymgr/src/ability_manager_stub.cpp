@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -389,6 +389,10 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::CancelApplicationAutoStartupByEDMInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
         &AbilityManagerStub::GetForegroundUIAbilitiesInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG)] =
+        &AbilityManagerStub::RequestAssertFaultDialogInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_USER_ACTION_RESULT)] =
+        &AbilityManagerStub::NotifyUserActionResultInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -2907,6 +2911,31 @@ int32_t AbilityManagerStub::OpenFileInner(MessageParcel &data, MessageParcel &re
     int fd = OpenFile(*uri, flag);
     reply.WriteFileDescriptor(fd);
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Request to display assert fault dialog.");
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    auto result = RequestAssertFaultDialog(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::NotifyUserActionResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Notify user action result to assert fault process.");
+    int64_t assertSessionId = data.ReadInt64();
+    int32_t status = data.ReadInt32();
+    auto result = NotifyUserActionResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
+    if (result != ERR_OK) {
+        HILOG_ERROR("Notify user action result failed in SA, error is %{public}d.", result);
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 
 int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply)

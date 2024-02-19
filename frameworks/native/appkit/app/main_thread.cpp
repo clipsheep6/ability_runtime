@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,7 @@
 #include "appfreeze_inner.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
+#include "assert_fault_task_thread.h"
 #include "bundle_mgr_proxy.h"
 #include "hitrace_meter.h"
 #include "child_main_thread.h"
@@ -134,6 +135,7 @@ constexpr char EVENT_KEY_HAPPEN_TIME[] = "HAPPEN_TIME";
 constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
+constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
@@ -145,6 +147,8 @@ const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
+
+static bool isTestApp = false;
 
 std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp)
 {
@@ -652,6 +656,12 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
             HILOG_ERROR("appThread is nullptr");
             return;
         }
+
+        const string bundle = "com.acts.helloworld";
+        isTestApp =
+            data.GetApplicationInfo().name == bundle ? true : data.GetApplicationInfo().name == bundle ? true : false;
+        HILOG_INFO("isTestApp is %{public}s", isTestApp ? "true" : "false");
+        appThread->HandleInitAssertFaultTask(data.GetDebugApp(), data.GetApplicationInfo().debug);
         appThread->HandleLaunchApplication(data, config);
     };
     if (!mainHandler_->PostTask(task, "MainThread:LaunchApplication")) {
@@ -874,6 +884,7 @@ void MainThread::HandleTerminateApplicationLocal()
     }
     HILOG_DEBUG("runner is stopped");
     SetRunnerStarted(false);
+    HandleCancelAssertFaultTask();
 }
 
 /**
@@ -2987,6 +2998,61 @@ bool MainThread::NotifyDeviceDisConnect()
     bool isLastProcess = appMgr_->IsFinalAppProcess();
     ScheduleTerminateApplication(isLastProcess);
     return true;
+}
+
+void MainThread::AssertFaultPauseMainThreadDetection()
+{
+    if (watchdog_ == nullptr) {
+        HILOG_ERROR("watchdog is nullptr.");
+        return;
+    }
+    watchdog_->Stop();
+    watchdog_.reset();
+}
+
+void MainThread::AssertFaultResumeMainThreadDetection()
+{
+    if (watchdog_ != nullptr) {
+        HILOG_ERROR("watchdog is not nullptr.");
+        return;
+    }
+    watchdog_ = std::make_shared<Watchdog>();
+    watchdog_->Init(mainHandler_);
+}
+
+void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
+{
+    if (!isTestApp) {
+        if (!isDebugApp) {
+            HILOG_ERROR("Non-debug version application.");
+            return;
+        }
+        auto deviceType = OHOS::system::GetDeviceType();
+        if (deviceType != "2in1") {
+            HILOG_ERROR("Unsupported device type, %{public}s.", deviceType.c_str());
+            return;
+        }
+        if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+            HILOG_ERROR("Developer Mode is false.");
+            return;
+        }
+    }
+    auto assertThread = AbilityRuntime::AssertFaultTaskThread::GetInstance();
+    if (assertThread == nullptr) {
+        HILOG_ERROR("Get assert thread instance is nullptr.");
+        return;
+    }
+    assertThread->InitAssertFaultTask(this, isDebugModule);
+}
+
+void MainThread::HandleCancelAssertFaultTask()
+{
+    auto assertThread = AbilityRuntime::AssertFaultTaskThread::GetInstance();
+    if (assertThread == nullptr) {
+        HILOG_ERROR("Get assert thread instance is nullptr.");
+        return;
+    }
+    assertThread->Stop();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

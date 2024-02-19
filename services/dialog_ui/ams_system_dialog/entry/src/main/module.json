@@ -53,6 +53,14 @@
         "type": "service"
       },
       {
+        "name": "AssertFaultDialog",
+        "icon": "$media:icon",
+        "description": "$string:AssertFaultShareExtAbility_desc",
+        "type": "share",
+        "visible": true,
+        "srcEntry": "./ets/ShareExtAbility/AssertFaultShareExtAbility.ts"
+      },
+      {
         "name": "CommonSelectPickerAbility",
         "srcEntrance": "./ets/ServiceExtAbility/SelectorExtensionAbility.ets",
         "description": "SelectorExtensionAbility",

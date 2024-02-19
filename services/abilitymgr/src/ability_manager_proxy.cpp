@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -4484,6 +4484,60 @@ int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
         return ret;
     }
     return reply.ReadFileDescriptor();
+}
+
+int32_t AbilityManagerProxy::RequestAssertFaultDialog(const sptr<IRemoteObject> &callback)
+{
+    HILOG_DEBUG("Request to display assert fault dialog.");
+    if (callback == nullptr) {
+        HILOG_ERROR("Params callback is nullptr.");
+        return INNER_ERR;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteRemoteObject(callback)) {
+        HILOG_ERROR("Write callback failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with %{public}d", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+{
+    HILOG_DEBUG("Notify user action result to assert fault callback.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt64(assertFaultSessionId)) {
+        HILOG_ERROR("Write assertFaultSessionId failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(static_cast<int32_t>(userStatus))) {
+        HILOG_ERROR("Write userStatus failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    return SendRequest(AbilityManagerInterfaceCode::NOTIFY_USER_ACTION_RESULT, data, reply, option);
 }
 
 void AbilityManagerProxy::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)

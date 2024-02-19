@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,11 +25,13 @@ ohos_unittest("ability_manager_client_branch_test") {
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_test_path}/unittest/app_debug_listener_stub_test",
+    "${ability_runtime_test_path}/interfaces/kits/native/appkit/app",
   ]
 
   sources = [
     "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/src/appmgr/mock_app_scheduler.cpp",
     "ability_manager_client_branch_test.cpp",
+    "foundation/ability/ability_runtime/frameworks/native/appkit/app/assert_fault_task_thread.cpp",
   ]
 
   configs = [

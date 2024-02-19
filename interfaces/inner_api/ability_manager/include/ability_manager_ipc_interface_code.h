@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -474,6 +474,11 @@ enum class AbilityManagerInterfaceCode {
     SET_APPLICATION_AUTO_STARTUP_BY_EDM = 6113,
     // ipc id for cancel application auto startup by EDM
     CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6114,
+
+    // ipc id for request to display assert fault dialog
+    REQUEST_ASSERT_FAULT_DIALOG = 6115,
+    // ipc id for notify the operation status of the user
+    NOTIFY_USER_ACTION_RESULT = 6116,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

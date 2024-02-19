@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1669,6 +1669,22 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
         return true;
     }
     return abms->OpenFile(uri, flag);
+}
+
+int32_t AbilityManagerClient::RequestAssertFaultDialog(const sptr<IRemoteObject> &callback)
+{
+    HILOG_DEBUG("Request to display assert fault dialog.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RequestAssertFaultDialog(callback);
+}
+
+int32_t AbilityManagerClient::NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+{
+    HILOG_DEBUG("Notify user action result to assert fault callback.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->NotifyUserActionResult(assertFaultSessionId, userStatus);
 }
 
 void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)

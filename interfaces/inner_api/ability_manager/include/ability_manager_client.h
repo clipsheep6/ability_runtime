@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1339,6 +1339,21 @@ public:
      */
     void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId);
 
+    /**
+     * @brief Request to display assert fault dialog.
+     * @param callback Listen for user operation callbacks.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestAssertFaultDialog(const sptr<IRemoteObject> &callback);
+
+    /**
+     * @brief Notify the operation status of the user.
+     * @param assertFaultSessionId Indicates the request ID of AssertFault.
+     * @param userStatus Operation status of the user.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus);
+
 private:
     AbilityManagerClient();
     DISALLOW_COPY_AND_MOVE(AbilityManagerClient);
@@ -1346,7 +1361,7 @@ private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         AbilityMgrDeathRecipient() = default;
-        ~AbilityMgrDeathRecipient() = default;
+        ~AbilityMgrDeathRecipient() = default;W
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
     private:
         DISALLOW_COPY_AND_MOVE(AbilityMgrDeathRecipient);

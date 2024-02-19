@@ -1402,6 +1402,21 @@ public:
      */
     virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) override;
 
+    /**
+     * @brief Request to display assert fault dialog.
+     * @param callback Listen for user operation callbacks.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestAssertFaultDialog(const sptr<IRemoteObject> &callback) override;
+
+    /**
+     * @brief Notify the operation status of the user.
+     * @param assertFaultSessionId Indicates the request ID of AssertFault.
+     * @param userStatus Operation status of the user.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1829,6 +1844,9 @@ private:
     bool CheckCallerIsDmsProcess();
 
     void WaitBootAnimationStart();
+    void AddAssertFaultCallback(sptr<IRemoteObject> &remote);
+    void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote);
+    void CallAssertFaultCallback(int64_t assertFaultSessionId, AAFwk::UserStatus status);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
@@ -1922,7 +1940,8 @@ private:
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
 
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
-    std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
+    ffrt::mutex assertFaultSessionMutex_;
+    std::unordered_map<int64_t, std::pair<sptr<IRemoteObject>, sptr<DeathRecipient>>> assertFaultSessionDailogs_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
