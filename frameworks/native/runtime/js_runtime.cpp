@@ -77,13 +77,6 @@ constexpr int32_t API8 = 8;
 const std::string SANDBOX_ARK_CACHE_PATH = "/data/storage/ark-cache/";
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 const std::string DEBUGGER = "@Debugger";
-#ifdef APP_USE_ARM
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
-#elif defined(APP_USE_X86_64)
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
-#else
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
-#endif
 
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
@@ -228,6 +221,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
             if (isDebugApp) {
                 ConnectServerManager::Get().StopConnectServer(false);
             }
+            ConnectServerManager::Get().SendDebuggerInfo(needBreakPoint, isDebugApp);
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
             if (isDebugApp) {
@@ -239,7 +233,13 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
-    ConnectServerManager::Get().AddInstance(instanceId_);
+    
+    ConnectServerManager::Get().StoreInstanceMessage(instanceId_);
+    EcmaVM* vm = GetEcmaVm();
+    auto debuggerPostTask = jsEnv_->GetDebuggerPostTask();
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
+    ConnectServerManager::Get().StoreDebuggerInfo(
+        instanceId_, reinterpret_cast<void*>(vm), debugOption, debuggerPostTask, isDebugApp);
     jsEnv_->NotifyDebugMode(gettid(), ARK_DEBUGGER_LIB_PATH, instanceId_, isDebugApp, needBreakPoint);
 }
 
@@ -352,6 +352,7 @@ void JsRuntime::StartProfiler(
             if (isDebugApp) {
                 ConnectServerManager::Get().StopConnectServer(false);
             }
+            ConnectServerManager::Get().SendDebuggerInfo(needBreakPoint, isDebugApp);
             ConnectServerManager::Get().StartConnectServer(bundleName, socketFd, false);
         } else {
             if (isDebugApp) {
@@ -363,7 +364,7 @@ void JsRuntime::StartProfiler(
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     }
-    ConnectServerManager::Get().AddInstance(instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(instanceId_);
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
@@ -371,7 +372,11 @@ void JsRuntime::StartProfiler(
         profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_CPU;
         interval = JsperfProfilerCommandParse(perfCmd, DEFAULT_INTER_VAL);
     }
-
+    EcmaVM* vm = GetEcmaVm();
+    auto debuggerPostTask = jsEnv_->GetDebuggerPostTask();
+    panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
+    ConnectServerManager::Get().StoreDebuggerInfo(
+        instanceId_, reinterpret_cast<void*>(vm), debugOption, debuggerPostTask, isDebugApp);
     HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
     jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
 }
