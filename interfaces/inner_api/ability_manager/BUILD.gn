@@ -31,6 +31,7 @@ config("ability_manager_public_config") {
     "${ability_base_kits_path}/want/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${bundlefwk_inner_api_path}/appexecfwk_base/include",
+    "${bundlefwk_inner_api_path}/appexecfwk_core/include",
     "${bundlefwk_inner_api_path}/appexecfwk_core/include/bundlemgr",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr",
