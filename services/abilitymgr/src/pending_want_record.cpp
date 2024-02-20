@@ -90,17 +90,18 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
     int res = NO_ERROR;
     switch (key_->GetType()) {
         case static_cast<int32_t>(OperationType::START_ABILITY):
-            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
+            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_, callerTokenId_);
             break;
         case static_cast<int32_t>(OperationType::START_ABILITIES): {
             std::vector<WantsInfo> allWantsInfos = key_->GetAllWantsInfos();
             allWantsInfos.back().want = want;
-            res = pendingWantManager->PendingWantStartAbilitys(allWantsInfos, callerToken_, -1, callerUid_);
+            res = pendingWantManager->PendingWantStartAbilitys(
+                allWantsInfos, callerToken_, -1, callerUid_, callerTokenId_);
             break;
         }
         case static_cast<int32_t>(OperationType::START_SERVICE):
         case static_cast<int32_t>(OperationType::START_FOREGROUND_SERVICE):
-            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_);
+            res = pendingWantManager->PendingWantStartAbility(want, callerToken_, -1, callerUid_, callerTokenId_);
             break;
         case static_cast<int32_t>(OperationType::SEND_COMMON_EVENT):
             res = pendingWantManager->PendingWantPublishCommonEvent(want, senderInfo, callerUid_, callerTokenId_);

@@ -147,12 +147,12 @@ public:
     int32_t GetWantSenderInfo(const sptr<IWantSender> &target, std::shared_ptr<WantSenderInfo> &info);
 
     void CancelWantSenderLocked(PendingWantRecord &record, bool cleanAbility);
-    int32_t PendingWantStartAbility(
-        const Want &want, const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid);
+    int32_t PendingWantStartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+        int32_t requestCode, const int32_t callerUid, int32_t callerTokenId);
     int32_t PendingWantStartAbilitys(const std::vector<WantsInfo> wnatsInfo, const sptr<IRemoteObject> &callerToken,
-        int32_t requestCode, const int32_t callerUid);
-    int32_t DeviceIdDetermine(
-        const Want &want, const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid);
+        int32_t requestCode, const int32_t callerUid, int32_t callerTokenId);
+    int32_t DeviceIdDetermine(const Want &want, const sptr<IRemoteObject> &callerToken, int32_t requestCode,
+        const int32_t callerUid, int32_t callerTokenId);
     int32_t PendingWantPublishCommonEvent(const Want &want, const SenderInfo &senderInfo, int32_t callerUid,
         int32_t callerTokenId);
     void ClearPendingWantRecord(const std::string &bundleName, int32_t uid);
