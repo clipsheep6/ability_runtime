@@ -30,6 +30,8 @@ ohos_unittest("system_time_test") {
     "${ability_runtime_path}/tools/aa:tools_aa_source_set",
     "//third_party/googletest:gtest_main",
   ]
+
+  external_deps = [ "hilog:libhilog" ]
 }
 
 group("unittest") {
