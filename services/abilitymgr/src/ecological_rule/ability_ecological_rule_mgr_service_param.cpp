@@ -109,6 +109,11 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
         return nullptr;
     }
 
+    if (!in.ReadInt32(info->callerModelType)) {
+        HILOG_ERROR("read targetAppType failed");
+        delete info;
+        return nullptr;
+    }
     return info;
 }
 
@@ -138,6 +143,11 @@ bool AbilityCallerInfo::Marshalling(Parcel &parcel) const
         HILOG_ERROR("write targetAppType failed");
         return false;
     }
+
+    if (!parcel.WriteInt32(callerModelType)) {
+        HILOG_ERROR("write callerModelType failed");
+        return false;
+    }
     return true;
 }
 
@@ -145,7 +155,7 @@ std::string AbilityCallerInfo::ToString() const
 {
     std::string str = "CallerInfo{packageName:" + packageName + ",uid:" + std::to_string(uid) +
         ",pid:" + std::to_string(pid) + ",callerAppType:" + std::to_string(callerAppType) +
-        ",targetAppType:" + std::to_string(targetAppType) + "}";
+        ",targetAppType:" + std::to_string(targetAppType) + ",callerModelType:" + std::to_string(callerModelType) + "}";
     return str;
 }
 } // namespace EcologicalRuleMgrService
