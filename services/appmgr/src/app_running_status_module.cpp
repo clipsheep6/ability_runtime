@@ -116,15 +116,16 @@ int32_t AppRunningStatusModule::RemoveListenerAndDeathRecipient(const wptr<IRemo
         HILOG_ERROR("Listener is not exist.");
         return ERR_INVALID_OPERATION;
     }
-
+    auto storedListener = itemFind->first;
+    auto deathRecipient = itemFind->second;
     listeners_.erase(itemFind);
 
-    if (itemFind->first == nullptr || itemFind->first->AsObject() == nullptr) {
+    if (storedListener == nullptr || storedListener->AsObject() == nullptr) {
         HILOG_ERROR("Invalid listener.");
         return ERR_INVALID_OPERATION;
     }
 
-    itemFind->first->AsObject()->RemoveDeathRecipient(itemFind->second);
+    storedListener->AsObject()->RemoveDeathRecipient(deathRecipient);
     return ERR_OK;
 }
 } // namespace AbilityRuntime
