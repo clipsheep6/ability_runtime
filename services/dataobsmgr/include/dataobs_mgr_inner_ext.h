@@ -74,6 +74,7 @@ private:
         bool RemoveObserver(sptr<IRemoteObject> dataObserver);
 
     private:
+        std::mutex NodeMutex_;
         std::string name_;
         EntryList entrys_;
         std::map<std::string, std::shared_ptr<Node>> childrens_;
@@ -83,7 +84,7 @@ private:
     void RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver, bool isForce = false);
 
     static constexpr uint32_t OBS_NUM_MAX = 50;
-
+    std::mutex ExtObsRecipMutex_;
     ffrt::mutex nodeMutex_;
     std::shared_ptr<Node> root_;
     std::map<sptr<IRemoteObject>, std::shared_ptr<DeathRecipientRef>> obsRecipientRefs;

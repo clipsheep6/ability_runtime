@@ -122,6 +122,7 @@ void DataObsMgrInnerPref::AddObsDeathRecipient(sptr<IDataAbilityObserver> dataOb
         return;
     }
 
+    std::lock_guard<std::mutex> lock(PreObsRecipMutex_);
     auto it = obsRecipient_.find(dataObserver->AsObject());
     if (it != obsRecipient_.end()) {
         HILOG_WARN("this death recipient has been added.");
@@ -148,6 +149,7 @@ void DataObsMgrInnerPref::RemoveObsDeathRecipient(sptr<IRemoteObject> dataObserv
         return;
     }
 
+    std::lock_guard<std::mutex> lock(PreObsRecipMutex_);
     auto it = obsRecipient_.find(dataObserver);
     if (it != obsRecipient_.end()) {
         it->first->RemoveDeathRecipient(it->second);

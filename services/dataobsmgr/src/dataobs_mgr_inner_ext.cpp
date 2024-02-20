@@ -111,6 +111,7 @@ Status DataObsMgrInnerExt::HandleNotifyChange(const ChangeInfo &changeInfo)
 std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddObsDeathRecipient(
     const sptr<IRemoteObject> &dataObserver)
 {
+    std::lock_guard<std::mutex> lock(ExtObsRecipMutex_);
     auto it = obsRecipientRefs.find(dataObserver);
     if (it != obsRecipientRefs.end()) {
         if (std::numeric_limits<uint32_t>::max() - 1 < it->second->ref) {
@@ -135,6 +136,7 @@ std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddOb
 
 void DataObsMgrInnerExt::RemoveObsDeathRecipient(const sptr<IRemoteObject> &dataObserver, bool isForce)
 {
+    std::lock_guard<std::mutex> lock(ExtObsRecipMutex_);
     auto it = obsRecipientRefs.find(dataObserver);
     if (it == obsRecipientRefs.end()) {
         return;
@@ -180,6 +182,7 @@ void DataObsMgrInnerExt::Node::GetObs(const std::vector<std::string> &path, uint
         }
     }
 
+    std::lock_guard<std::mutex> lock(NodeMutex_);
     auto it = childrens_.find(path[index]);
     if (it == childrens_.end()) {
         return;
@@ -199,6 +202,8 @@ bool DataObsMgrInnerExt::Node::AddObserver(const std::vector<std::string> &path,
         entrys_.emplace_back(entry);
         return true;
     }
+
+    std::lock_guard<std::mutex> lock(NodeMutex_);
     auto it = childrens_.try_emplace(path[index], std::make_shared<Node>(path[index])).first;
     return it->second->AddObserver(path, ++index, entry);
 }
@@ -206,6 +211,7 @@ bool DataObsMgrInnerExt::Node::AddObserver(const std::vector<std::string> &path,
 bool DataObsMgrInnerExt::Node::RemoveObserver(const std::vector<std::string> &path, uint32_t index,
     sptr<IDataAbilityObserver> dataObserver)
 {
+    std::lock_guard<std::mutex> lock(NodeMutex_);
     if (index == path.size()) {
         entrys_.remove_if([dataObserver](const Entry &entry) {
             if (entry.observer->AsObject() != dataObserver->AsObject()) {
@@ -225,6 +231,7 @@ bool DataObsMgrInnerExt::Node::RemoveObserver(const std::vector<std::string> &pa
 
 bool DataObsMgrInnerExt::Node::RemoveObserver(sptr<IRemoteObject> dataObserver)
 {
+    std::lock_guard<std::mutex> lock(NodeMutex_);
     for (auto child = childrens_.begin(); child != childrens_.end();) {
         if (child->second->RemoveObserver(dataObserver)) {
             child = childrens_.erase(child);
