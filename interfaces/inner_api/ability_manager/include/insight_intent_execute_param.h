@@ -55,6 +55,7 @@ public:
     static bool IsInsightIntentExecute(const AAFwk::Want &want);
     static bool GenerateFromWant(const AAFwk::Want &want, InsightIntentExecuteParam &executeParam);
     static bool RemoveInsightIntent(AAFwk::Want &want);
+    static void UpdateInsightIntentCallerInfo(const WantParams &wantParams, WantParams &insightIntentParam);
 
     std::string bundleName_;
     std::string moduleName_;
