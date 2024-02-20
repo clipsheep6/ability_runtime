@@ -304,10 +304,15 @@ unsigned int PermissionVerification::GetCallingTokenID() const
     return callerToken;
 }
 
-bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible) const
+bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible,
+    const uint32_t specifyTokenId) const
 {
     if (visible) {
         HILOG_DEBUG("TargetAbility visible is true, PASS.");
+        return true;
+    }
+    if (specifyTokenId > 0 && accessTokenId == specifyTokenId) {
+        HILOG_DEBUG("AccessTokenId is the same as specifyTokenId, targetAbility is in same APP, PASS.");
         return true;
     }
     if (IsCallFromSameAccessToken(accessTokenId)) {
@@ -367,7 +372,8 @@ int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &
         HILOG_DEBUG("Support SA call");
         return ERR_OK;
     }
-    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
+    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
+        verificationInfo.specifyTokenId)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
     if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {

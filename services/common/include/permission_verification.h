@@ -31,6 +31,7 @@ struct VerificationInfo {
     uint32_t accessTokenId = 0;
     int32_t apiTargetVersion = 0;
     bool withContinuousTask = false;
+    uint32_t specifyTokenId = 0;
 };
 
     PermissionVerification() = default;
@@ -99,7 +100,8 @@ private:
 
     unsigned int GetCallingTokenID() const;
 
-    bool JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible) const;
+    bool JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible,
+        const uint32_t specifyTokenId = 0) const;
 
     bool JudgeStartAbilityFromBackground(const bool isBackgroundCall, bool withContinuousTask = false) const;
 

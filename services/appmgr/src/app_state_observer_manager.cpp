@@ -392,6 +392,7 @@ void AppStateObserverManager::HandleOnAppStarted(const std::shared_ptr<AppRunnin
     }
 
     AppStateData data = WrapAppStateData(appRecord, ApplicationState::APP_STATE_CREATE);
+    data.isAssignAccessTokenId = appRecord->GetAssignTokenId() > 0 ? true : false;
     HILOG_DEBUG("HandleOnAppStarted, bundle:%{public}s, uid:%{public}d, state:%{public}d",
         data.bundleName.c_str(), data.uid, data.state);
     auto appStateObserverMapCopy = GetAppStateObserverMapCopy();
