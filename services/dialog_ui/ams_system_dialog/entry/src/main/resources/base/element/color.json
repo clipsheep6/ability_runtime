@@ -15,6 +15,10 @@
     {
       "name": "button_color",
       "value": "#007DFF"
+    },
+    {
+      "name": "text_color",
+      "value": "#182431"
     }
   ]
 }

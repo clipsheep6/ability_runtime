@@ -89,8 +89,16 @@
         "value": "retry"
     },
     {
+        "name": "title_assertFault",
+        "value": "AssertDialog title"
+    },
+    {
         "name": "message_title_assertFault",
-        "value": "AssertFault"
+        "value": "AssertDialog message title"
+    },
+    {
+      "name": "message_detail_assertFault",
+      "value": "AssertDialog message detail"
     }
   ]
 }

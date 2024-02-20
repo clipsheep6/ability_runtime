@@ -109,8 +109,16 @@
         "value": "重试"
     },
     {
+        "name": "title_assertFault",
+        "value": "AssertDialog标题"
+    },
+    {
         "name": "message_title_assertFault",
-        "value": "AssertFault"
+        "value": "AssertDialog信息标题"
+    },
+    {
+      "name": "message_detail_assertFault",
+      "value": "AssertDialog信息明细"
     }
   ]
 }
