@@ -29,7 +29,6 @@ void DialogUIExtensionCallback::OnRelease()
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
-    EraseUIExtension();
 }
 
 void DialogUIExtensionCallback::OnError()
@@ -41,7 +40,17 @@ void DialogUIExtensionCallback::OnError()
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
-    EraseUIExtension();
+}
+
+void DialogUIExtensionCallback::OnDestroy()
+{
+    HILOG_DEBUG("Called");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("abilityCallback is nullptr");
+        return;
+    }
+    abilityCallback->EraseUIExtension(sessionId_);
 }
 
 void DialogUIExtensionCallback::SetSessionId(int32_t sessionId)
@@ -52,16 +61,6 @@ void DialogUIExtensionCallback::SetSessionId(int32_t sessionId)
 void DialogUIExtensionCallback::SetUIContent(Ace::UIContent *uiContent)
 {
     uiContent_ = uiContent;
-}
-
-void DialogUIExtensionCallback::EraseUIExtension()
-{
-    auto abilityCallback = abilityCallback_.lock();
-    if (abilityCallback == nullptr) {
-        HILOG_ERROR("abilityCallback is nullptr");
-        return;
-    }
-    abilityCallback->EraseUIExtension(sessionId_);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
