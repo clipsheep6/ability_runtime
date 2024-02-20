@@ -79,6 +79,8 @@ public:
 
     std::string GetResourceDir() override;
 
+    std::string GetNativeLibraryPath() override;
+
     /**
      * @brief Get all temporary directories.
      *
@@ -366,6 +368,7 @@ private:
     static const std::string CONTEXT_HAPS;
     static const std::string CONTEXT_ELS[];
     static const std::string CONTEXT_RESOURCE_END;
+    static const std::string CONTEXT_NATIVE_LIBRARY_PATH_PREV;
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,

@@ -149,6 +149,7 @@ napi_value JsApplicationContextUtils::OnSwitchArea(napi_env env, NapiCallbackInf
     BindNativeProperty(env, object, "cacheDir", GetCacheDir);
     BindNativeProperty(env, object, "tempDir", GetTempDir);
     BindNativeProperty(env, object, "resourceDir", GetResourceDir);
+    BindNativeProperty(env, object, "nativeLibraryPath", GetNativeLibraryPath);
     BindNativeProperty(env, object, "filesDir", GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
@@ -336,6 +337,24 @@ napi_value JsApplicationContextUtils::OnGetResourceDir(napi_env env, NapiCallbac
         return CreateJsUndefined(env);
     }
     std::string path = applicationContext->GetResourceDir();
+    return CreateJsValue(env, path);
+}
+
+napi_value JsApplicationContextUtils::GetNativeLibraryPath(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(
+        env, info, JsApplicationContextUtils, OnGetNativeLibraryPath, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnGetNativeLibraryPath(napi_env env, NapiCallbackInfo& info)
+{
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = applicationContext->GetNativeLibraryPath();
     return CreateJsValue(env, path);
 }
 
@@ -1249,6 +1268,7 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeProperty(env, object, "cacheDir", JsApplicationContextUtils::GetCacheDir);
     BindNativeProperty(env, object, "tempDir", JsApplicationContextUtils::GetTempDir);
     BindNativeProperty(env, object, "resourceDir", JsApplicationContextUtils::GetResourceDir);
+    BindNativeProperty(env, object, "nativeLibraryPath", JsApplicationContextUtils::GetNativeLibraryPath);
     BindNativeProperty(env, object, "filesDir", JsApplicationContextUtils::GetFilesDir);
     BindNativeProperty(env, object, "distributedFilesDir", JsApplicationContextUtils::GetDistributedFilesDir);
     BindNativeProperty(env, object, "databaseDir", JsApplicationContextUtils::GetDatabaseDir);

@@ -122,6 +122,10 @@ class Context {
     return this.__context_impl__.resourceDir;
   }
 
+  get nativeLibraryPath() {
+    return this.__context_impl__.nativeLibraryPath;
+  }
+
   get filesDir() {
     return this.__context_impl__.filesDir;
   }

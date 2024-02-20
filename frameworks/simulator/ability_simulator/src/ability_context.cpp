@@ -111,6 +111,11 @@ std::string AbilityContext::GetResourceDir()
     return stageContext_ ? stageContext_->GetResourceDir() : "";
 }
 
+std::string AbilityContext::GetNativeLibraryPath()
+{
+    return stageContext_ ? stageContext_->GetNativeLibraryPath() : "";
+}
+
 std::string AbilityContext::GetFilesDir()
 {
     return stageContext_ ? stageContext_->GetFilesDir() : "";

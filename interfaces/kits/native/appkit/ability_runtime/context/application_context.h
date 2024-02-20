@@ -70,6 +70,7 @@ public:
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
     std::string GetResourceDir() override;
+    std::string GetNativeLibraryPath() override;
     void GetAllTempDir(std::vector<std::string> &tempPaths);
     std::string GetFilesDir() override;
     bool IsUpdatingConfigurations() override;

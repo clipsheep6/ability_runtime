@@ -69,6 +69,7 @@ const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
 const std::string ContextImpl::CONTEXT_RESOURCE_END = "/resources/resfile";
+const std::string ContextImpl::CONTEXT_NATIVE_LIBRARY_PATH_PREV = "/proc/3697/root/data/storage/el1/bundle/";
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
@@ -305,6 +306,28 @@ std::string ContextImpl::GetResourceDir()
         return dir;
     }
     return "";
+}
+
+std::string ContextImpl::GetNativeLibraryPath()
+{
+    auto appInfo = GetApplicationInfo();
+    if (appInfo == nullptr || appInfo->nativeLibraryPath.empty()) {
+        return "";
+    }
+    std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfoPtr = GetHapModuleInfo();
+    if (hapModuleInfoPtr == nullptr) {
+        return "";
+    }
+    if (!hapModuleInfoPtr->isLibIsolated) {
+        return CONTEXT_DATA_STORAGE + CONTEXT_ELS[0] + CONTEXT_BUNDLE + appInfo->nativeLibraryPath;
+    }
+    if (hapModuleInfoPtr->moduleName.empty()) {
+        return "";
+    }
+
+    std::string ret = CONTEXT_DATA_STORAGE + CONTEXT_ELS[0] + CONTEXT_BUNDLE + hapModuleInfoPtr->moduleName +
+        CONTEXT_FILE_SEPARATOR + appInfo->nativeLibraryPath;
+    return ret;
 }
 
 std::string ContextImpl::GetFilesDir()

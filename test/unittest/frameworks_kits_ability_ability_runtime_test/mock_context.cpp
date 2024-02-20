@@ -66,6 +66,11 @@ std::string MockContext::GetResourceDir()
     return "/resfile";
 }
 
+std::string MockContext::GetNativeLibraryPath()
+{
+    return "/nativeLibraryPath";
+}
+
 std::string MockContext::GetFilesDir()
 {
     return "/files";

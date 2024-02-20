@@ -34,6 +34,7 @@ constexpr const char *CONTEXT_HAPS("haps");
 constexpr const char *CONTEXT_ASSET("asset");
 constexpr const char *CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
 constexpr const char *CONTEXT_RESOURCE_BASE("/data/storage/el1/bundle");
+constexpr const char *CONTEXT_NATIVE_LIBRARY_PATH_PREV("/proc/3697/root/data/storage/el1/bundle/");
 constexpr const char *CONTEXT_RESOURCE_END("/resources/resfile");
 constexpr int DIR_DEFAULT_PERM = 0770;
 }
@@ -136,6 +137,29 @@ std::string AbilityStageContext::GetResourceDir()
         return dir;
     }
     return "";
+}
+
+std::string AbilityStageContext::GetNativeLibraryPath()
+{
+    auto appInfo = GetApplicationInfo();
+    if (appInfo == nullptr || appInfo->nativeLibraryPath.empty()) {
+        return "";
+    }
+    std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfoPtr = GetHapModuleInfo();
+    if (hapModuleInfoPtr == nullptr) {
+        return "";
+    }
+    if (!hapModuleInfoPtr->isLibIsolated) {
+        return std::string(CONTEXT_RESOURCE_BASE) + CONTEXT_FILE_SEPARATOR + appInfo->nativeLibraryPath;
+    }
+    if (hapModuleInfoPtr->moduleName.empty()) {
+        return "";
+    }
+
+    std::string ret = std::string(CONTEXT_RESOURCE_BASE) + CONTEXT_FILE_SEPARATOR + hapModuleInfoPtr->moduleName +
+        CONTEXT_FILE_SEPARATOR + appInfo->nativeLibraryPath;
+
+    return ret;
 }
 
 std::string AbilityStageContext::GetFilesDir()

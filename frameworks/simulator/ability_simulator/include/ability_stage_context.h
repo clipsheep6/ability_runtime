@@ -42,6 +42,7 @@ public:
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
     std::string GetResourceDir() override;
+    std::string GetNativeLibraryPath() override;
     std::string GetFilesDir() override;
     std::string GetDatabaseDir() override;
     std::string GetPreferencesDir() override;
