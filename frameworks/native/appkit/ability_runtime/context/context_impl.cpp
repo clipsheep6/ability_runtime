@@ -831,11 +831,11 @@ void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::Res
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::GetResourceManager() const
 {
-    if (parentContext_ != nullptr) {
-        return parentContext_->GetResourceManager();
+    if (resourceManager_) {
+        return resourceManager_;
     }
 
-    return resourceManager_;
+    return parentContext_ != nullptr ? parentContext_->GetResourceManager() : nullptr;
 }
 
 std::shared_ptr<AppExecFwk::ApplicationInfo> ContextImpl::GetApplicationInfo() const
