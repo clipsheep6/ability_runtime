@@ -649,6 +649,9 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     }
     std::string element = abilityRecord->GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
+    if (abilityRecord->IsSceneBoard()) {
+        HILOG_INFO("Attach Ability: %{public}s", element.c_str());
+    }
     abilityRecord->SetScheduler(scheduler);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);

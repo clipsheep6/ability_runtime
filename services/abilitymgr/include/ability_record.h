@@ -946,6 +946,8 @@ public:
     void DoBackgroundAbilityWindowDelayed(bool needBackground);
     bool BackgroundAbilityWindowDelayed();
 
+    bool IsSceneBoard() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
