@@ -60,7 +60,8 @@ using SetConnectCallback = void (*)(const std::function<void(bool)>);
 using RemoveMessage = void (*)(int32_t);
 using WaitForConnection = bool (*)();
 
-std::mutex debuggerMutex_;
+std::mutex g_debuggerMutex;
+std::mutex g_loadsoMutex;
 std::mutex ConnectServerManager::instanceMutex_;
 std::unordered_map<int, std::pair<void*, const DebuggerPostTask>> g_debuggerInfo;
 
@@ -78,6 +79,7 @@ ConnectServerManager& ConnectServerManager::Get()
 
 void ConnectServerManager::LoadConnectServerDebuggerSo()
 {
+    std::lock_guard<std::mutex> lock(g_loadsoMutex);
     if (handlerConnectServerSo_ == nullptr) {
         handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
         if (handlerConnectServerSo_ == nullptr) {
@@ -147,7 +149,7 @@ bool ConnectServerManager::StoreInstanceMessage(int32_t instanceId, const std::s
 void ConnectServerManager::StoreDebuggerInfo(int tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
     const DebuggerPostTask& debuggerPostTask, bool isDebugApp)
 {
-    std::lock_guard<std::mutex> lock(debuggerMutex_);
+    std::lock_guard<std::mutex> lock(g_debuggerMutex);
     if (g_debuggerInfo.find(tid) == g_debuggerInfo.end()) {
         g_debuggerInfo.emplace(tid, std::make_pair(vm, debuggerPostTask));
     }
@@ -170,7 +172,7 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
         auto isWorker = instance.second.second;
 
         panda::EcmaVM* vm = reinterpret_cast<panda::EcmaVM*>(g_debuggerInfo[instanceId].first);
-        std::lock_guard<std::mutex> lock(debuggerMutex_);
+        std::lock_guard<std::mutex> lock(g_debuggerMutex);
         const auto &debuggerPoskTask = g_debuggerInfo[instanceId].second;
         if (!debuggerPoskTask) {
             continue;
@@ -190,7 +192,7 @@ void ConnectServerManager::SetConnectedCallback()
     LoadConnectServerDebuggerSo();
 
     auto setConnectCallBack = reinterpret_cast<SetConnectCallback>(
-        dlsym(handlerConnectServerSo_, "SetConnectCallBack"));
+        dlsym(handlerConnectServerSo_, "SetConnectCallback"));
     if (setConnectCallBack == nullptr) {
         HILOG_ERROR("ConnectServerManager::SetConnectedCallback failed to find symbol 'SetConnectCallBack'");
         return;
