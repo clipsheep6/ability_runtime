@@ -401,6 +401,13 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
+    if (callerToken != nullptr) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
+            HILOG_DEBUG("callerModelType is FA.");
+            callerInfo.callerModelType = ErmsCallerInfo::MODEL_FA;
+        }
+    }
     GetEcologicalCallerInfo(want, callerInfo, userId);
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
     if (supportErms == "false") {
