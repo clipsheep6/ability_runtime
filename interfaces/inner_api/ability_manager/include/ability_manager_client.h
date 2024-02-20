@@ -1361,7 +1361,7 @@ private:
     class AbilityMgrDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         AbilityMgrDeathRecipient() = default;
-        ~AbilityMgrDeathRecipient() = default;W
+        ~AbilityMgrDeathRecipient() = default;
         void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
     private:
         DISALLOW_COPY_AND_MOVE(AbilityMgrDeathRecipient);
