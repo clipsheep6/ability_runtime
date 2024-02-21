@@ -226,7 +226,7 @@ HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Le
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
 
     sptr<IRemoteObject> token = nullptr;
     auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
@@ -257,12 +257,12 @@ HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Lev
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
 
     Want uiAbilityWant;
     AppExecFwk::ElementName uiAbilityElement("0", TARGET_BUNDLE_NAME, TARGET_UIABILITY_NAME, TARGET_MODULE_NAME);
     uiAbilityWant.SetElement(uiAbilityElement);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant), RESOLVE_ABILITY_ERR);
+    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant), ERR_OK);
 
     // start uiability and uiextension user repeatly.
     for (uint32_t i = 0; i < TEST_TIMES; i++) {
