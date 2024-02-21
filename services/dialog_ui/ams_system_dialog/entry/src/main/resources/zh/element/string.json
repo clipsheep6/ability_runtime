@@ -118,7 +118,7 @@
     },
     {
       "name": "message_detail_assertFault",
-      "value": "AssertDialog信息明细"
+      "value": "AssertDialog信息明细\n......\n......\n......"
     }
   ]
 }

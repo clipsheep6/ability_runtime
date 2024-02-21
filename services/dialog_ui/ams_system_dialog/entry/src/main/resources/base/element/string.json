@@ -98,7 +98,7 @@
     },
     {
       "name": "message_detail_assertFault",
-      "value": "AssertDialog message detail"
+      "value": "AssertDialog message detail\n......\n......\n......"
     }
   ]
 }
