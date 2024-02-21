@@ -6200,8 +6200,14 @@ int AbilityManagerService::JudgeAbilityVisibleControl(const AppExecFwk::AbilityI
         callerTokenId == static_cast<uint32_t>(IPCSkeleton::GetSelfTokenID())) {  // foundation call is allowed
         return ERR_OK;
     }
-    if (AccessTokenKit::VerifyAccessToken(callerTokenId,
-        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false) == AppExecFwk::Constants::PERMISSION_GRANTED) {
+#ifdef ROSEN_EMULATOR
+    auto permissionResult = AccessTokenKit::VerifyAccessToken(callerTokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY);
+#else
+    auto permissionResult = AccessTokenKit::VerifyAccessToken(callerTokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false);
+#endif
+    if (permissionResult == AppExecFwk::Constants::PERMISSION_GRANTED) {
         return ERR_OK;
     }
     HILOG_ERROR("callerToken: %{private}u, targetToken: %{private}u, caller doesn's have permission",
@@ -7373,14 +7379,22 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
         (abilityInfo.type == AppExecFwk::AbilityType::DATA)) {
         // just need check the read permission and write permission of extension ability or data ability
         if (!abilityInfo.readPermission.empty()) {
+#ifdef ROSEN_EMULATOR
+            int checkReadPermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.readPermission);
+#else
             int checkReadPermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.readPermission, false);
+#endif
             if (checkReadPermission == ERR_OK) {
                 return AppExecFwk::Constants::PERMISSION_GRANTED;
             }
             HILOG_WARN("verify access token fail, read permission: %{public}s", abilityInfo.readPermission.c_str());
         }
         if (!abilityInfo.writePermission.empty()) {
+#ifdef ROSEN_EMULATOR
+            int checkWritePermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission);
+#else
             int checkWritePermission = AccessTokenKit::VerifyAccessToken(tokenId, abilityInfo.writePermission, false);
+#endif
             if (checkWritePermission == ERR_OK) {
                 return AppExecFwk::Constants::PERMISSION_GRANTED;
             }
@@ -7395,14 +7409,25 @@ int AbilityManagerService::CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abi
     }
 
     // verify permission if 'permission' is not empty
-    if (abilityInfo.permissions.empty() || AccessTokenKit::VerifyAccessToken(tokenId,
-        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false) == ERR_OK) {
+    int32_t permissionResult = -1;
+#ifdef ROSEN_EMULATOR
+    permissionResult = AccessTokenKit::VerifyAccessToken(tokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY);
+#else
+    permissionResult = AccessTokenKit::VerifyAccessToken(tokenId,
+        PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, false);
+#endif
+    if (abilityInfo.permissions.empty() || permissionResult == ERR_OK) {
         return AppExecFwk::Constants::PERMISSION_GRANTED;
     }
 
     for (auto permission : abilityInfo.permissions) {
-        if (AccessTokenKit::VerifyAccessToken(tokenId, permission, false)
-            != AppExecFwk::Constants::PERMISSION_GRANTED) {
+#ifdef ROSEN_EMULATOR
+        permissionResult = AccessTokenKit::VerifyAccessToken(tokenId, permission);
+#else
+        permissionResult = AccessTokenKit::VerifyAccessToken(tokenId, permission, false);
+#endif
+        if (permissionResult != AppExecFwk::Constants::PERMISSION_GRANTED) {
             HILOG_ERROR("verify access token fail, permission: %{public}s", permission.c_str());
             return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
         }
@@ -8543,7 +8568,11 @@ int AbilityManagerService::VerifyPermission(const std::string &permission, int p
         return CHECK_PERMISSION_FAILED;
     }
 
+#ifdef ROSEN_EMULATOR
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
+#else
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission, false);
+#endif
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("VerifyPermission %{public}d: PERMISSION_DENIED", appInfo.accessTokenId);
         return CHECK_PERMISSION_FAILED;

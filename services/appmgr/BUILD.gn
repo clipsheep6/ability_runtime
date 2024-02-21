@@ -75,6 +75,10 @@ ohos_shared_library("libappms") {
     defines += [ "ABILITY_FAULT_AND_EXIT_TEST" ]
   }
 
+  if (is_emulator) {
+    defines += [ "ROSEN_EMULATOR" ]
+  }
+
   configs = [ ":appmgr_config" ]
   cflags = []
   if (target_cpu == "arm") {
