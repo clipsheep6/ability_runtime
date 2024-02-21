@@ -51,7 +51,7 @@ DistributedKv::Status AbilityAutoStartupDataManager::GetKvStore()
 {
     DistributedKv::Options options = { .createIfMissing = true,
         .encrypt = false,
-        .autoSync = true,
+        .autoSync = false,
         .syncable = false,
         .securityLevel = DistributedKv::SecurityLevel::S2,
         .area = DistributedKv::EL1,
