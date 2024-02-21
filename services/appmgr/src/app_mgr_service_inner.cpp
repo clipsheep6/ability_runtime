@@ -202,7 +202,11 @@ bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissio
     }
 
     auto token = bundleInfo.applicationInfo.accessTokenId;
+#ifdef ROSEN_EMULATOR
+    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permissionName);
+#else
     int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permissionName, false);
+#endif
     if (result != Security::AccessToken::PERMISSION_GRANTED) {
         HILOG_ERROR("StartProcess permission %{public}s not granted", permissionName.c_str());
         return false;
@@ -2037,7 +2041,11 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
     auto token = bundleInfo.applicationInfo.accessTokenId;
     {
         HITRACE_METER_NAME(HITRACE_TAG_APP, "AccessTokenKit::VerifyAccessToken");
+#ifdef ROSEN_EMULATOR
+        int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET);
+#else
         int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_INTERNET, false);
+#endif
         if (result != Security::AccessToken::PERMISSION_GRANTED) {
             setAllowInternet = 1;
             allowInternet = 0;
@@ -2050,15 +2058,23 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
             gids.push_back(NETSYS_SOCKET_GROUPID);
     #endif
         }
-
+#ifdef ROSEN_EMULATOR
+        result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_MANAGE_VPN);
+#else
         result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, PERMISSION_MANAGE_VPN, false);
+#endif
         if (result == Security::AccessToken::PERMISSION_GRANTED) {
             gids.push_back(BLUETOOTH_GROUPID);
         }
 
         if (hasAccessBundleDirReq) {
+#ifdef ROSEN_EMULATOR
+            int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token,
+                PERMISSION_ACCESS_BUNDLE_DIR);
+#else
             int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token,
                 PERMISSION_ACCESS_BUNDLE_DIR, false);
+#endif
             if (result != Security::AccessToken::PERMISSION_GRANTED) {
                 HILOG_ERROR("StartProcess PERMISSION_ACCESS_BUNDLE_DIR NOT GRANTED");
                 hasAccessBundleDirReq = false;
@@ -2068,8 +2084,12 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
 
     std::set<std::string> mountPermissionList = AppSpawn::AppspawnMountPermission::GetMountPermissionList();
     for (std::string permission : mountPermissionList) {
-        if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission, false) ==
-            Security::AccessToken::PERMISSION_GRANTED) {
+#ifdef ROSEN_EMULATOR
+        int32_t result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission);
+#else
+        int32_t result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission, false);
+#endif
+        if (result == Security::AccessToken::PERMISSION_GRANTED) {
             permissions.insert(permission);
         }
     }

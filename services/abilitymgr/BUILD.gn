@@ -108,6 +108,10 @@ config("abilityms_config") {
     defines += [ "SUPPORT_ASAN" ]
   }
 
+  if (is_emulator) {
+    defines += [ "ROSEN_EMULATOR" ]
+  }
+
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
