@@ -8226,8 +8226,9 @@ int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abil
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallAbilityPermission(verificationInfo);
     if (result != ERR_OK) {
         HILOG_ERROR("Do not have permission to start PageAbility(FA) or Ability(Stage)");
+        return result;
     }
-    return result;
+    return CheckAbilityState(verificationInfo.withContinuousTask, abilityRequest.callerToken);
 }
 
 int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abilityRequest)
@@ -8253,7 +8254,23 @@ int AbilityManagerService::CheckStartByCallPermission(const AbilityRequest &abil
         return RESOLVE_CALL_NO_PERMISSIONS;
     }
     HILOG_DEBUG("The caller has permission to resolve the call proxy of common ability.");
+    return CheckAbilityState(verificationInfo.withContinuousTask, abilityRequest.callerToken);
+}
 
+int AbilityManagerService::CheckAbilityState(bool withContinuousTask, sptr<IRemoteObject> callerToken) const
+{
+    if (withContinuousTask) {
+        return ERR_OK;
+    }
+
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord != nullptr) {
+        auto abilityState = abilityRecord->GetAbilityState();
+        if (abilityState == AbilityState::BACKGROUND || abilityState == AbilityState::BACKGROUNDING) {
+            HILOG_ERROR("caller ability is background or backgrounding.");
+            return CHECK_PERMISSION_FAILED;
+        }
+    }
     return ERR_OK;
 }
 
