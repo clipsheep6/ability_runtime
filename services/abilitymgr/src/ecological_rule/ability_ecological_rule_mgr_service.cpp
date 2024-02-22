@@ -125,12 +125,6 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
 {
     int64_t start = GetCurrentTimeMicro();
     HILOG_DEBUG("callerInfo: %{public}s, want: %{public}s", callerInfo.ToString().c_str(), want.ToString().c_str());
-    if (callerInfo.packageName.find_first_not_of(' ') == std::string::npos) {
-        rule.isAllow = true;
-        HILOG_DEBUG("callerInfo packageName is empty, allow = true");
-        return 0;
-    }
-
     if (!CheckConnectService()) {
         return -1;
     }
