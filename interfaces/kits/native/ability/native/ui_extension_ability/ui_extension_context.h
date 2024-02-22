@@ -109,6 +109,8 @@ public:
 
     virtual int GenerateCurRequestCode();
 
+    virtual ErrCode ReportDrawnCompleted();
+
     void SetWindow(sptr<Rosen::Window> window);
 
     sptr<Rosen::Window> GetWindow();

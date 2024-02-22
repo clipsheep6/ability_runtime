@@ -382,9 +382,9 @@ napi_value JsEmbeddableUIAbilityContext::OnRequestDialogService(napi_env env, Na
 napi_value JsEmbeddableUIAbilityContext::OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info)
 {
     if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
-        HILOG_INFO("Report drawn completed in half screen mode.");
-        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
-        return CreateJsUndefined(env);
+        HILOG_INFO("Report Drawn Completed in half screen mode.");
+        CHECK_POINTER_RETURN(jsUIExtensionContext_);
+        return jsUIExtensionContext_->OnReportDrawnCompleted(env, info);
     }
     CHECK_POINTER_RETURN(jsAbilityContext_);
     return jsAbilityContext_->OnReportDrawnCompleted(env, info);
