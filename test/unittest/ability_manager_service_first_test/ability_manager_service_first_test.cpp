@@ -592,8 +592,9 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), -1);
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(MockToken(AbilityType::PAGE)), -1);
+    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), ERR_INVALID_VALUE);
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_EQ(abilityMs_->GetMissionIdByToken(token), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 end");
 }
 
