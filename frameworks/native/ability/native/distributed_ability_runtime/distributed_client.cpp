@@ -206,7 +206,7 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option = {MessageOption::TF_ASYNC};
     int32_t result = remote->SendRequest(NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
     if (result != ERR_NONE) {
         HILOG_ERROR("SendRequest failed, result = %{public}d", result);
