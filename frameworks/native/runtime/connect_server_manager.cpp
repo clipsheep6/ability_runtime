@@ -23,7 +23,7 @@
 namespace OHOS::AbilityRuntime {
 namespace {
 std::string GetInstanceMapMessage(
-    const std::string& messageType, int32_t instanceId, const std::string& instanceName, bool isWorker)
+    const std::string& messageType, int32_t instanceId, const std::string& instanceName, int tid)
 {
     std::string message;
     message.append("{\"type\":\"");
@@ -33,11 +33,7 @@ std::string GetInstanceMapMessage(
     message.append(",\"name\":\"");
     message.append(instanceName);
     message.append("\",\"tid\":");
-    if (isWorker) {
-        message.append(std::to_string(instanceId));
-    } else {
-        message.append(std::to_string(gettid()));
-    }
+    message.append(std::to_string(tid));
     message.append(",\"apiType\":\"");
     message.append("stageMode\"");
     message.append(",\"language\":\"");
@@ -133,11 +129,11 @@ void ConnectServerManager::StopConnectServer(bool isCloseSo)
 }
 
 
-bool ConnectServerManager::StoreInstanceMessage(int32_t instanceId, const std::string& instanceName, bool isWorker)
+bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, isWorker));
+        auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, tid));
         if (!result.second) {
             HILOG_WARN("ConnectServerManager::StoreInstanceMessage Instance %{public}d already added", instanceId);
             return false;
@@ -169,7 +165,7 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
     for (const auto& instance : instanceMap_) {
         auto instanceId = instance.first;
         auto instanceName = instance.second.first;
-        auto isWorker = instance.second.second;
+        auto tid = instance.second.second;
 
         panda::EcmaVM* vm = reinterpret_cast<panda::EcmaVM*>(g_debuggerInfo[instanceId].first);
         std::lock_guard<std::mutex> lock(g_debuggerMutex);
@@ -177,7 +173,7 @@ void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp
         if (!debuggerPoskTask) {
             continue;
         }
-        ConnectServerManager::Get().SendInstanceMessage(instanceId, instanceName, isWorker);
+        ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
         auto storeDebugInfoTask = [needBreakPoint, isDebugApp, instanceId, vm, debuggerPoskTask, instanceName]() {
             panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
             panda::JSNApi::StoreDebugInfo(gettid(), vm, debugOption, debuggerPoskTask, isDebugApp);
@@ -203,7 +199,7 @@ void ConnectServerManager::SetConnectedCallback()
     });
 }
 
-bool ConnectServerManager::SendInstanceMessage(int32_t instanceId, const std::string& instanceName, bool isWorker)
+bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
 {
     HILOG_INFO("ConnectServerManager::SendInstanceMessage Add instance to connect server");
     LoadConnectServerDebuggerSo();
@@ -224,18 +220,18 @@ bool ConnectServerManager::SendInstanceMessage(int32_t instanceId, const std::st
     setSwitchCallBack([this](bool status) { setStatus_(status); },
         [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
 
-    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, isWorker);
+    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
     storeMessage(instanceId, message);
  
     return true;
 }
 
  
-bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& instanceName, bool isWorker)
+bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::string& instanceName)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, isWorker));
+        auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, tid));
         if (!result.second) {
             HILOG_WARN("ConnectServerManager::AddInstance Instance %{public}d already added", instanceId);
             return false;
@@ -260,7 +256,7 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
         [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
 
     // Get the message including information of new instance, which will be send to IDE.
-    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, isWorker);
+    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
 
     auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
     if (storeMessage == nullptr) {
@@ -289,7 +285,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     }
 
     std::string instanceName;
-    bool isWorker;
+    int tid;
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -300,7 +296,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
         }
 
         instanceName = std::move(it->second.first);
-        isWorker = std::move(it->second.second);
+        tid = std::move(it->second.second);
         instanceMap_.erase(it);
     }
 
@@ -311,7 +307,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     }
 
     // Get the message including information of deleted instance, which will be send to IDE.
-    std::string message = GetInstanceMapMessage("destroyInstance", instanceId, instanceName, isWorker);
+    std::string message = GetInstanceMapMessage("destroyInstance", instanceId, instanceName, tid);
 
     auto removeMessage = reinterpret_cast<RemoveMessage>(dlsym(handlerConnectServerSo_, "RemoveMessage"));
     if (removeMessage == nullptr) {

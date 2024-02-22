@@ -234,7 +234,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
     
-    ConnectServerManager::Get().StoreInstanceMessage(instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
     auto debuggerPostTask = jsEnv_->GetDebuggerPostTask();
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
@@ -364,7 +364,7 @@ void JsRuntime::StartProfiler(
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, 0, true);
     }
-    ConnectServerManager::Get().StoreInstanceMessage(instanceId_);
+    ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
     JsEnv::JsEnvironment::PROFILERTYPE profiler = JsEnv::JsEnvironment::PROFILERTYPE::PROFILERTYPE_HEAP;
     int32_t interval = 0;
     const std::string profilerCommand("profile");
