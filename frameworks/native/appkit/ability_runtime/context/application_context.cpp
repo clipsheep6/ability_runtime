@@ -363,11 +363,6 @@ std::string ApplicationContext::GetResourceDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
 }
 
-std::string ApplicationContext::GetNativeLibraryPath()
-{
-    return (contextImpl_ != nullptr) ? contextImpl_->GetNativeLibraryPath() : "";
-}
-
 std::string ApplicationContext::GetFilesDir()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetFilesDir() : "";

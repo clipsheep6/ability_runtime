@@ -334,24 +334,6 @@ HWTEST_F(ContextImplTest, GetResourceDir_0100, TestSize.Level1)
 }
 
 /**
- * @tc.name: GetNativeLibraryPath_0100
- * @tc.desc: Get resource directory basic test.
- * @tc.type: FUNC
- * @tc.require: issueI61P7Y
- */
-HWTEST_F(ContextImplTest, GetNativeLibraryPath_0100, TestSize.Level1)
-{
-    HILOG_INFO("%{public}s start.", __func__);
-    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
-    EXPECT_NE(contextImpl, nullptr);
-
-    auto nativeLibraryPath = contextImpl->GetNativeLibraryPath();
-    EXPECT_EQ(nativeLibraryPath, "");
-
-    HILOG_INFO("%{public}s end.", __func__);
-}
-
-/**
  * @tc.name: GetFilesDir_0100
  * @tc.desc: Get files directory basic test.
  * @tc.type: FUNC

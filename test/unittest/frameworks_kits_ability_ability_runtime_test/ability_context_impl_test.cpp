@@ -785,18 +785,6 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetResourceDir_0200, Funct
 }
 
 /**
- * @tc.number: Ability_Context_Impl_GetNativeLibraryPath_0100
- * @tc.name: GetNativeLibraryPath
- * @tc.desc: Get resource Dir failed
- */
-HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetNativeLibraryPath_0100, Function | MediumTest | Level1)
-{
-    context_->SetStageContext(mock_);
-    auto ret = context_->GetNativeLibraryPath();
-    EXPECT_EQ(ret, "/nativeLibraryPath");
-}
-
-/**
  * @tc.number: Ability_Context_Impl_GetGroupDir_0100
  * @tc.name: GetGroupDir
  * @tc.desc: Get Group Dir sucess

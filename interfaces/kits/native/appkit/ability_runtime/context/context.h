@@ -123,8 +123,6 @@ public:
 
     virtual std::string GetResourceDir() = 0;
 
-    virtual std::string GetNativeLibraryPath() = 0;
-
     /**
      * @brief Checks whether the configuration of this ability is changing.
      *

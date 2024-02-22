@@ -77,11 +77,6 @@ std::string MockAbilityRuntimeContext::GetResourceDir()
     return {};
 };
 
-std::string MockAbilityRuntimeContext::GetNativeLibraryPath()
-{
-    return {};
-};
-
 std::string MockAbilityRuntimeContext::GetFilesDir()
 {
     return {};

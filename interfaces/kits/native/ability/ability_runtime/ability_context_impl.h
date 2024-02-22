@@ -37,7 +37,6 @@ public:
     std::string GetCacheDir() override;
     std::string GetTempDir() override;
     std::string GetResourceDir() override;
-    std::string GetNativeLibraryPath() override;
     std::string GetFilesDir() override;
     bool IsUpdatingConfigurations() override;
     bool PrintDrawnCompleted() override;

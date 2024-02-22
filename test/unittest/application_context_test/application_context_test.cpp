@@ -393,35 +393,6 @@ HWTEST_F(ApplicationContextTest, GetResourceDir_0200, TestSize.Level1)
 }
 
 /**
- * @tc.number: GetNativeLibraryPath_0100
- * @tc.name: GetNativeLibraryPath
- * @tc.desc: Get Resource Dir failed
- */
-HWTEST_F(ApplicationContextTest, GetNativeLibraryPath_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetNativeLibraryPath_0100 start";
-    std::shared_ptr<ContextImpl> contextImpl = nullptr;
-    context_->AttachContextImpl(contextImpl);
-    auto ret = context_->GetNativeLibraryPath();
-    EXPECT_EQ(ret, "");
-    GTEST_LOG_(INFO) << "GetNativeLibraryPath_0100 end";
-}
-
-/**
- * @tc.number: GetNativeLibraryPath_0200
- * @tc.name: GetNativeLibraryPath
- * @tc.desc: Get Resource Dir failed
- */
-HWTEST_F(ApplicationContextTest, GetNativeLibraryPath_0200, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetNativeLibraryPath_0200 start";
-    context_->AttachContextImpl(mock_);
-    auto ret = context_->GetNativeLibraryPath();
-    EXPECT_EQ(ret, "/nativeLibraryPath");
-    GTEST_LOG_(INFO) << "GetNativeLibraryPath_0200 end";
-}
-
-/**
  * @tc.number: GetGroupDir_0100
  * @tc.name: GetGroupDir
  * @tc.desc: Get Group Dir failed
