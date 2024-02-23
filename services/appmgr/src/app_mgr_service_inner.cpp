@@ -289,7 +289,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("name:%{public}s.", abilityInfo->name.c_str());
+    HILOG_INFO("name:%{public}s.", abilityInfo->name.c_str());
     if (!CheckLoadAbilityConditions(token, abilityInfo, appInfo)) {
         HILOG_ERROR("CheckLoadAbilityConditions failed");
         return;
@@ -2151,7 +2151,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
 
     SetOverlayInfo(bundleName, userId, startMsg);
 
-    HILOG_DEBUG("apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
+    HILOG_INFO("apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
     bool bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
