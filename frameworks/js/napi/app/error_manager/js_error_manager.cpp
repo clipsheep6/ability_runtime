@@ -315,6 +315,11 @@ private:
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
+        if (number <= 0) {
+            HILOG_ERROR("The timeout cannot be less than 0");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
 
         if (loopObserver_ == nullptr) {
             loopObserver_ = std::make_shared<JsLoopObserver>();
