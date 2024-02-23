@@ -27,5 +27,10 @@ void AuthorizationResult::GrantResultsCallback(const std::vector<std::string>& p
         task_(permissions, grantResults);
     }
 }
+void AuthorizationResult::WindowShownCallback(Security::AccessToken::AccessTokenID tokenID,
+    const std::vector<std::string> &permissions, const std::vector<bool> &dialogFlags)
+{
+    HILOG_INFO("%{public}s called.", __func__);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
