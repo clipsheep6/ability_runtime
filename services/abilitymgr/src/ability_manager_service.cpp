@@ -172,6 +172,9 @@ constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
+constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
+constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
+
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 const std::unordered_set<std::string> COMMON_PICKER_TYPE = {
     "share", "action"
@@ -9308,7 +9311,8 @@ int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
     return result;
 }
 
-int32_t AbilityManagerService::RequestAssertFaultDialog(const sptr<IRemoteObject> &callback)
+int32_t AbilityManagerService::RequestAssertFaultDialog(
+    const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("Request to display assert fault dialog begin.");
     sptr<IRemoteObject> remoteCallback = callback;
@@ -9330,6 +9334,8 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(const sptr<IRemoteObject
     }
     int64_t assertFaultSessionId = reinterpret_cast<int64_t>(remoteCallback.GetRefPtr());
     want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
+    want.SetParam(ASSERT_FAULT_TITLE, wantParams.GetStringParam(ASSERT_FAULT_TITLE));
+    want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
         if (connection == nullptr || !connection->CreateModalUIExtension(want)) {

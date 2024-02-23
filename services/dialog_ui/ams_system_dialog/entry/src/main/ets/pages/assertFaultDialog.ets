@@ -16,10 +16,13 @@
 import abilityManager from '@ohos.app.ability.abilityManager';
 import { BusinessError } from '@ohos.base';
 
-@Entry
+let storage = LocalStorage.GetShared();
+@Entry(storage)
 @Component
 struct AssertFaultDialog {
   @LocalStorageLink('sessionId') sessionId: string = '';
+  @LocalStorageLink('textTitle') textTitle: string = '';
+  @LocalStorageLink('textDetail') textDetail: string = '';
   private TAG = "AssertFaultDialog_Page";
 
   aboutToAppear() {
@@ -39,20 +42,21 @@ struct AssertFaultDialog {
               .textOverflow({overflow: TextOverflow.Ellipsis})
           }
           .height('20%')
+          .margin({ top: 5 })
 
           Flex({ direction: FlexDirection.Column }) {
             Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
               Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
-                Image($r('app.media.icon'))
+                Image($r('app.media.errorMark'))
                 .autoResize(true)
-                .height('180px')
-                .width('180px')
+                .height('150px')
+                .width('150px')
               }
                 .margin(10)
-                .width('30%')
+                .width('20%')
 
               Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
-                Text($r('app.string.message_title_assertFault'))
+                Text(this.textTitle)
                   .fontSize(24)
                   .fontFamily('HarmonyHeiTi')
                   .fontWeight(FontWeight.Medium)
@@ -60,7 +64,7 @@ struct AssertFaultDialog {
                   .textOverflow({overflow: TextOverflow.Ellipsis})
                   .height('20%')
 
-                TextArea({text: $r('app.string.message_detail_assertFault')})
+                TextArea({text: this.textDetail})
                   .fontSize(16)
                   .fontFamily('HarmonyHeiTi')
                   .fontWeight(FontWeight.Medium)
@@ -69,7 +73,7 @@ struct AssertFaultDialog {
                   .backgroundColor("#FFFFFF")
                   .height('80%')
             }
-              .width('70%')
+              .width('80%')
             }
             .height('80%')
 
@@ -86,11 +90,15 @@ struct AssertFaultDialog {
                 .fontSize($r('sys.float.ohos_id_text_size_button1'))
                 .onClick(() => {
                   let status = abilityManager.UserStatus.ASSERT_CONTINUE;
-                  abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
-                    console.log(this.TAG, 'NotifyUserActionResult termination status success.');
-                  }).catch((err: BusinessError) => {
-                    console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
-                  })
+                  try{
+                    abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
+                      console.log(this.TAG, 'NotifyUserActionResult termination status success.');
+                    }).catch((err: BusinessError) => {
+                      console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
+                    })
+                  } catch(error) {
+                    console.error(this.TAG, `try NotifyUserActionResult failed, error: ${JSON.stringify(error)}`);
+                  }
                 })
 
               Button($r('app.string.button_retry'))
@@ -105,11 +113,15 @@ struct AssertFaultDialog {
                 .fontSize($r('sys.float.ohos_id_text_size_button1'))
                 .onClick(() => {
                   let status = abilityManager.UserStatus.ASSERT_RETRY;
-                  abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
-                    console.log(this.TAG, 'NotifyUserActionResult termination status success.');
-                  }).catch((err: BusinessError) => {
-                    console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
-                  })
+                  try{
+                    abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
+                      console.log(this.TAG, 'NotifyUserActionResult termination status success.');
+                    }).catch((err: BusinessError) => {
+                      console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
+                    })
+                  } catch (error) {
+                    console.error(this.TAG, `try NotifyUserActionResult failed, error: ${JSON.stringify(error)}`);
+                  }
                 })
 
               Button($r('app.string.button_termination'))
@@ -124,11 +136,15 @@ struct AssertFaultDialog {
                 .fontSize($r('sys.float.ohos_id_text_size_button1'))
                 .onClick(() => {
                   let status = abilityManager.UserStatus.ASSERT_TERMINATE;
-                  abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
-                    console.log(this.TAG, 'NotifyUserActionResult termination status success.');
-                  }).catch((err: BusinessError) => {
-                    console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
-                  })
+                  try {
+                    abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
+                      console.log(this.TAG, 'NotifyUserActionResult termination status success.');
+                    }).catch((err: BusinessError) => {
+                      console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
+                    })
+                  } catch (error) {
+                    console.error(this.TAG, `try NotifyUserActionResult failed, error: ${JSON.stringify(error)}`);
+                  }
                 })
             }
             .height('20%')

@@ -21,6 +21,7 @@
 #include "assert_fault_callback.h"
 #include "hilog_wrapper.h"
 #include "main_thread.h"
+#include "string_wrapper.h"
 
 
 namespace OHOS {
@@ -43,14 +44,19 @@ std::unordered_map<AAFwk::UserStatus , int32_t> assertResultMap = {
     {AAFwk::UserStatus::ASSERT_RETRY, 2},
 };
 constexpr int32_t ASSERT_FAULT_DEFAULT_VALUE = -1; // default value is abort
-const char assertFaultThread[] = "assertFaultTHR";
+constexpr char ASSERT_FAULT_THREAD[] = "assertFaultTHR";
+constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
+constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
+
+constexpr char TEST_ASSERT_TITLE[] = "Debug Assertion Failed!";
+constexpr char TEST_ASSERT_DETAIL[] = "Program:\n/data/app/el2/100/base/com.acts.helloworld/\nFile: test.cpp\nLine: 43\n\nFor information on how your program can cause an assertion failure, see the c++ documentation on asserts.\n\n(Press Retry to debug the application)";
 }
-ffrt::mutex AssertFaultTaskThread::constructorMutex_;
+std::mutex AssertFaultTaskThread::constructorMutex_;
 std::shared_ptr<AssertFaultTaskThread> AssertFaultTaskThread::instance_;
 std::shared_ptr<AssertFaultTaskThread> AssertFaultTaskThread::GetInstance()
 {
     if (instance_ == nullptr) {
-        std::unique_lock<ffrt::mutex> guard(constructorMutex_);
+        std::unique_lock<std::mutex> guard(constructorMutex_);
         if (instance_ == nullptr) {
             instance_ = std::make_shared<AssertFaultTaskThread>();
         }
@@ -94,7 +100,7 @@ int32_t AssertFaultTaskThread::AssertCallbackInner()
 void AssertFaultTaskThread::InitAssertFaultTask(const wptr<AppExecFwk::MainThread> &weak, bool isDebugModule)
 {
 
-    auto runner = AppExecFwk::EventRunner::Create(assertFaultThread);
+    auto runner = AppExecFwk::EventRunner::Create(ASSERT_FAULT_THREAD);
     if (runner == nullptr) {
         HILOG_ERROR("Runner is nullptr.");
         return;
@@ -152,7 +158,10 @@ int32_t AssertFaultTaskThread::HandleAssertCallback()
         }
 
         std::unique_lock<std::mutex> lockAssertResult(assertResultMutex_);
-        auto err = amsClient->RequestAssertFaultDialog(assertFaultCallback->AsObject());
+        AAFwk::WantParams wantParams;
+        wantParams.SetParam(ASSERT_FAULT_TITLE, AAFwk::String::Box(TEST_ASSERT_TITLE));
+        wantParams.SetParam(ASSERT_FAULT_DETAIL, AAFwk::String::Box(TEST_ASSERT_DETAIL));
+        auto err = amsClient->RequestAssertFaultDialog(assertFaultCallback->AsObject(), wantParams);
         if (err != ERR_OK) {
             HILOG_ERROR("Request assert fault dialog failed.");
             break;

@@ -4486,7 +4486,8 @@ int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
     return reply.ReadFileDescriptor();
 }
 
-int32_t AbilityManagerProxy::RequestAssertFaultDialog(const sptr<IRemoteObject> &callback)
+int32_t AbilityManagerProxy::RequestAssertFaultDialog(
+    const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("Request to display assert fault dialog.");
     if (callback == nullptr) {
@@ -4502,6 +4503,11 @@ int32_t AbilityManagerProxy::RequestAssertFaultDialog(const sptr<IRemoteObject> 
 
     if (!data.WriteRemoteObject(callback)) {
         HILOG_ERROR("Write callback failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteParcelable(&wantParams)) {
+        HILOG_ERROR("wantParams write failed.");
         return INNER_ERR;
     }
 
@@ -4536,8 +4542,14 @@ int32_t AbilityManagerProxy::NotifyUserActionResult(int64_t assertFaultSessionId
     }
 
     MessageParcel reply;
-    MessageOption option(MessageOption::TF_ASYNC);
-    return SendRequest(AbilityManagerInterfaceCode::NOTIFY_USER_ACTION_RESULT, data, reply, option);
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::NOTIFY_USER_ACTION_RESULT, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed with %{public}d", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
 }
 
 void AbilityManagerProxy::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)

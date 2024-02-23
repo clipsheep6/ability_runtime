@@ -20,9 +20,9 @@
 #include <memory>
 #include <mutex>
 
+#include "ability_state.h"
 #include "event_handler.h"
 #include "event_runner.h"
-#include "ffrt.h"
 #include "iremote_object.h"
 
 namespace OHOS {
@@ -48,7 +48,7 @@ private:
     int32_t ConvertAssertReuslt(AAFwk::UserStatus status);
 
 private:
-    static ffrt::mutex constructorMutex_;
+    static std::mutex constructorMutex_;
     static std::shared_ptr<AssertFaultTaskThread> instance_;
     wptr<AppExecFwk::MainThread> mainThread_;
     std::mutex assertResultMutex_;

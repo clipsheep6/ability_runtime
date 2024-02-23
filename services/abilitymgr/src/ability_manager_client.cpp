@@ -1671,12 +1671,13 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
     return abms->OpenFile(uri, flag);
 }
 
-int32_t AbilityManagerClient::RequestAssertFaultDialog(const sptr<IRemoteObject> &callback)
+int32_t AbilityManagerClient::RequestAssertFaultDialog(
+    const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("Request to display assert fault dialog.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->RequestAssertFaultDialog(callback);
+    return abms->RequestAssertFaultDialog(callback, wantParams);
 }
 
 int32_t AbilityManagerClient::NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)

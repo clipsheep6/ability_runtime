@@ -1076,9 +1076,11 @@ public:
     /**
      * @brief Request to display assert fault dialog.
      * @param callback Listen for user operation callbacks.
+     * @param wantParams Assert dialog box display information.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RequestAssertFaultDialog(const sptr<IRemoteObject> &callback) override;
+    virtual int32_t RequestAssertFaultDialog(
+        const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams) override;
 
     /**
      * @brief Notify the operation status of the user.

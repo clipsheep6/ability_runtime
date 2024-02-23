@@ -86,6 +86,9 @@
       },
       {
         "name": "ohos.permission.SET_DEFAULT_APPLICATION"
+      },
+      {
+        "name": "ohos.permission.NOTIFY_USER_ACTION_RESULT"
       }
     ]
   }

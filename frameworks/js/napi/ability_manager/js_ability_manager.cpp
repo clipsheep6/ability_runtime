@@ -17,6 +17,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <regex>
 
 #include "ability_business_error.h"
 #include "ability_manager_client.h"
@@ -200,6 +201,16 @@ private:
         return CreateJsUndefined(env);
     }
 
+    bool CheckIsNumString(const std::string &numStr) {
+        const std::regex regexJsperf(R"(^\d*)");
+        std::match_results<std::string::const_iterator> matchResults;
+        if (!std::regex_match(numStr, matchResults, regexJsperf)) {
+            HILOG_DEBUG("the order not match");
+            return false;
+        }
+        return true;
+    }
+
     napi_value OnNotifyUserActionResult(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("Called.");
@@ -209,11 +220,12 @@ private:
             return CreateJsUndefined(env);
         }
         std::string assertSessionStr;
-        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], assertSessionStr)) {
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], assertSessionStr) || !CheckIsNumString(assertSessionStr)) {
             HILOG_ERROR("Convert session id error.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
+
         int64_t assertSessionId = std::stoll(assertSessionStr);
         if (assertSessionId == 0) {
             HILOG_ERROR("Convert session id failed.");

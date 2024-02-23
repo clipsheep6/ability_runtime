@@ -14,8 +14,11 @@
  */
 
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
+import wantConstant from '@ohos.app.ability.wantConstant';
 
 const TAG = 'AssertFaultDialog_UIExtension';
+const TEXT_TITLE = 'assertFaultDialogTitle';
+const TEXT_DETAIL = 'assertFaultDialogDetail';
 
 export default class UiExtAbility extends UIExtensionAbility {
   storage: LocalStorage;
@@ -34,10 +37,12 @@ export default class UiExtAbility extends UIExtensionAbility {
 
   onSessionCreate(want, session) {
     console.info(TAG, `onSessionCreate, want: ${JSON.stringify(want)},`, `session: ${session}`);
-    AppStorage.setOrCreate('sessionId', want.parameters.REQUEST_ASSERT_FAULT_ID);
     this.storage = new LocalStorage(
       {
         'session': session,
+        'sessionId' : want.parameters[wantConstant.Params.ASSERT_FAULT_SESSION_ID],
+        'textTitle' : want.parameters[TEXT_TITLE],
+        'textDetail' : want.parameters[TEXT_DETAIL]
       });
     session.loadContent('pages/assertFaultDialog', this.storage);
   }

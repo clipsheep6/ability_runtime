@@ -35,7 +35,6 @@
 #include "appfreeze_inner.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
-#include "assert_fault_task_thread.h"
 #include "bundle_mgr_proxy.h"
 #include "hitrace_meter.h"
 #include "child_main_thread.h"
@@ -3043,11 +3042,12 @@ void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
         return;
     }
     assertThread->InitAssertFaultTask(this, isDebugModule);
+    assertThread_ = assertThread;
 }
 
 void MainThread::HandleCancelAssertFaultTask()
 {
-    auto assertThread = AbilityRuntime::AssertFaultTaskThread::GetInstance();
+    auto assertThread = assertThread_.lock();
     if (assertThread == nullptr) {
         HILOG_ERROR("Get assert thread instance is nullptr.");
         return;

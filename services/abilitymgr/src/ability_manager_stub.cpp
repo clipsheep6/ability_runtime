@@ -2917,7 +2917,12 @@ int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, M
 {
     HILOG_DEBUG("Request to display assert fault dialog.");
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
-    auto result = RequestAssertFaultDialog(callback);
+    std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
+    if (wantParams == nullptr) {
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed.");
+        return ERR_NULL_OBJECT;
+    }
+    auto result = RequestAssertFaultDialog(callback, *wantParams);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Write result failed.");
         return ERR_INVALID_VALUE;
@@ -2931,8 +2936,8 @@ int32_t AbilityManagerStub::NotifyUserActionResultInner(MessageParcel &data, Mes
     int64_t assertSessionId = data.ReadInt64();
     int32_t status = data.ReadInt32();
     auto result = NotifyUserActionResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
-    if (result != ERR_OK) {
-        HILOG_ERROR("Notify user action result failed in SA, error is %{public}d.", result);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

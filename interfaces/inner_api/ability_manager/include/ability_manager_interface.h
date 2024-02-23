@@ -1334,9 +1334,10 @@ public:
     /**
      * @brief Request to display assert fault dialog.
      * @param callback Listen for user operation callbacks.
+     * @param wantParams Assert dialog box display information.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t RequestAssertFaultDialog(const sptr<IRemoteObject> &callback) {
+    virtual int32_t RequestAssertFaultDialog(const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams) {
         return -1;
     }
 
