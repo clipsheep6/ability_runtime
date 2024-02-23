@@ -144,7 +144,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
             });
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddConnection(shared_from_this());
-    HILOG_DEBUG("result: %{public}d. connectState:%{public}d.", resultCode, state_);
+    HILOG_INFO("result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
