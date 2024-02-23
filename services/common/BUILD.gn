@@ -56,6 +56,10 @@ ohos_shared_library("perm_verification") {
 
   sources = [ "src/permission_verification.cpp" ]
 
+  if (is_emulator) {
+    defines += [ "ROSEN_EMULATOR" ]
+  }
+
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
