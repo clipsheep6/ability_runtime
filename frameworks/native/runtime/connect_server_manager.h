@@ -23,11 +23,11 @@ using DebuggerPostTask = std::function<void(std::function<void()>&&)>;
 using DebuggerInfo = std::unordered_map<int, std::pair<void*, const DebuggerPostTask>>;
 using InstanceMap = std::unordered_map<int32_t, std::string>;
 #ifdef APP_USE_ARM
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/platformsdk/libark_debugger.z.so";
 #elif defined(APP_USE_X86_64)
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/platformsdk/libark_debugger.z.so";
 #else
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/platformsdk/libark_debugger.z.so";
 #endif
 namespace OHOS::AbilityRuntime {
 class ConnectServerManager final {
