@@ -107,7 +107,8 @@
           "//foundation/ability/ability_runtime/js_environment/frameworks/js_environment:js_environment",
           "//foundation/ability/ability_runtime/services/abilitymgr/etc:appfwk_etc",
           "//foundation/ability/ability_runtime/service_router_framework:srms_target",
-          "//foundation/ability/ability_runtime/service_router_framework:jsapi_target"
+          "//foundation/ability/ability_runtime/service_router_framework:jsapi_target",
+          "//foundation/ability/ability_runtime/interfaces/ndk/ability_runtime:runtime_ndk"
         ],
         "inner_api": [
           {

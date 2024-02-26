@@ -146,7 +146,7 @@ int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* messa
 } // namespace
 
 std::atomic<bool> JsRuntime::hasInstance(false);
-
+std::shared_ptr<Runtime::Options> JsRuntime::childOptions_ = nullptr;
 JsRuntime::JsRuntime()
 {
     HILOG_DEBUG("JsRuntime costructor.");
@@ -163,7 +163,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::unique_ptr<JsRuntime> instance;
-
+    SetChildOptions(options);
     if (!options.preload && options.isStageModel) {
         auto preloadedInstance = Runtime::GetPreloaded();
 #ifdef SUPPORT_GRAPHICS
@@ -627,6 +627,7 @@ bool JsRuntime::Initialize(const Options& options)
         napi_get_global(env, &globalObj);
         CHECK_POINTER_AND_RETURN(globalObj, false);
 
+        //TODO
         if (!preloaded_) {
             InitSyscapModule(env, globalObj);
 
@@ -653,12 +654,15 @@ bool JsRuntime::Initialize(const Options& options)
         }
 
         if (!options.preload) {
+
+            // TODO
             isBundle_ = options.isBundle;
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
             ReInitJsEnvImpl(options);
+            // TODO
             LoadAotFile(options);
-
+            // TODO 启动时已经注册过了  还需要吗？
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
             panda::JSNApi::SetHostResolveBufferTracker(
@@ -683,7 +687,7 @@ bool JsRuntime::Initialize(const Options& options)
 
     if (!options.preload) {
         auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular);
-        InitSourceMap(operatorObj);
+        InitSourceMap(operatorObj);// TODO
 
         if (options.isUnique) {
             HILOG_DEBUG("Not supported TimerModule when form render");
@@ -691,8 +695,8 @@ bool JsRuntime::Initialize(const Options& options)
             InitTimerModule();
         }
 
-        InitWorkerModule(options);
-        SetModuleLoadChecker(options.moduleCheckerDelegate);
+        InitWorkerModule(options);  //TODO
+        SetModuleLoadChecker(options.moduleCheckerDelegate); //TODO
         SetRequestAotCallback();
 
         if (!InitLoop()) {
@@ -1454,6 +1458,40 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     }
     HILOG_DEBUG("The size of the map is %{public}zu", systemKitsMap.size());
     return systemKitsMap;
+}
+
+void JsRuntime::SetChildOptions(const Options& options)
+{
+    if (childOptions_ == nullptr) {
+        childOptions_ = std::make_shared<Options>();
+    }
+    childOptions_->lang = options.lang;
+    childOptions_->bundleName = options.bundleName;
+    childOptions_->moduleName = options.moduleName;
+    childOptions_->codePath = options.codePath;
+    childOptions_->bundleCodeDir = options.bundleCodeDir;
+    childOptions_->hapPath = options.hapPath;
+    childOptions_->arkNativeFilePath = options.arkNativeFilePath;
+    childOptions_->hapModulePath = options.hapModulePath;
+    childOptions_->loadAce = options.loadAce;
+    childOptions_->preload = options.preload;
+    childOptions_->isBundle = options.isBundle;
+    childOptions_->isDebugVersion = options.isDebugVersion;
+    childOptions_->isJsFramework = options.isJsFramework;
+    childOptions_->isStageModel = options.isStageModel;
+    childOptions_->isTestFramework = options.isTestFramework;
+    childOptions_->uid = options.uid;
+    childOptions_->isUnique = options.isUnique;
+    childOptions_->moduleCheckerDelegate = options.moduleCheckerDelegate;
+    childOptions_->apiTargetVersion = options.apiTargetVersion;
+    childOptions_->packagePathStr = options.packagePathStr;
+    childOptions_->assetBasePathStr = options.assetBasePathStr;
+}
+
+std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
+{
+    HILOG_DEBUG("zhuhan called");
+    return childOptions_;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

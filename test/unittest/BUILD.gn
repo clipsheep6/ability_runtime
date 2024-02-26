@@ -445,6 +445,7 @@ group("unittest") {
     "mission_listener_stub_test:unittest",
     "mission_listener_test:unittest",
     "napi_base_context_test:unittest",
+    "native_runtime_test:unittest",
     "os_account_manager_wrapper_test:unittest",
     "page_state_data_test:unittest",
     "pending_want_key_test:unittest",
