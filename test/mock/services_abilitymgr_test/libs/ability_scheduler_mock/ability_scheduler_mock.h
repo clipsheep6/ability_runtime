@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_MOCK_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_MOCK_H
+
 #pragma once
 #include <iremote_object.h>
 #include <iremote_stub.h>
@@ -175,3 +178,4 @@ public:
 };
 }  // namespace AAFwk
 }  // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_SCHEDULER_MOCK_H

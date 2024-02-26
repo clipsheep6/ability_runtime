@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
+#define OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
+
 #include "application_state_observer_stub.h"
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
-
-#ifndef OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
-#define OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H
 
 namespace OHOS {
 namespace AbilityRuntime {

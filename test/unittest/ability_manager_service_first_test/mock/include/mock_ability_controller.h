@@ -13,8 +13,10 @@
  * limitations under the License.
  */
 
-#include <gmock/gmock.h>
+#ifndef OHOS_ABILITY_RUNTIME_ABILITY_CONTROLLER_MOCK_H
+#define OHOS_ABILITY_RUNTIME_ABILITY_CONTROLLER_MOCK_H
 
+#include <gmock/gmock.h>
 #include "iability_controller.h"
 
 namespace OHOS {
@@ -33,3 +35,4 @@ public:
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_ABILITY_CONTROLLER_MOCK_H
