@@ -48,9 +48,7 @@ AmsMgrScheduler::AmsMgrScheduler(
     const std::shared_ptr<AppMgrServiceInner> &mgrServiceInner_,
     const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler_)
     : amsMgrServiceInner_(mgrServiceInner_), amsHandler_(handler_)
-{
-    loadAbilityHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("load_ability_task_queue");
-}
+{}
 
 AmsMgrScheduler::~AmsMgrScheduler()
 {
@@ -78,11 +76,8 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     HILOG_DEBUG("SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(), abilityInfo->name.c_str());
     std::function<void()> loadAbilityFunc =
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
-    if (!loadAbilityHandler_) {
-        HILOG_ERROR("GetFfrtHandler failed.");
-        return;
-    }
-    loadAbilityHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
+
+    amsHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_LOAD_ABILITY,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
