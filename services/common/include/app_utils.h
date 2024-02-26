@@ -28,14 +28,36 @@ public:
     bool IsLauncher(const std::string &bundleName) const;
     bool IsLauncherAbility(const std::string &abilityName) const;
     bool JudgePCDevice() const;
-    bool isMultiProcessModel() const;
+    bool IsInheritWindowSplitScreenMode() const;
+    bool IsSupportAncoApp() const;
+    int32_t GetTimeoutUnitTimeRatio() const;
+    bool IsSelectorDialogDefaultPossion() const;
+    bool IsStartSpecifiedProcess() const;
+    bool IsUseMultiRenderProcess() const;
+    bool IsLimitMaximumOfRenderProcess() const;
+    bool IsGrantPersistUriPermission() const;
+    bool IsStartOptionsWithAnimation() const;
+    bool IsMultiProcessModel() const;
+    bool IsStartOptionsWithProcessOption() const;
+    bool EnableMoveUIAbilityToBackgroundApi() const;
 
 private:
     AppUtils();
     ~AppUtils();
     volatile bool isSceneBoard_ = false;
     volatile bool isPcDevice_ = false;
+    volatile bool isInheritWindowSplitScreenMode_ = true;
+    volatile bool isSupportAncoApp_ = false;
+    volatile int32_t timeoutUnitTimeRatio_ = 1;
+    volatile bool isSelectorDialogDefaultPossion_ = true;
+    volatile bool isStartSpecifiedProcess_ = false;
+    volatile bool isUseMultiRenderProcess_ = true;
+    volatile bool isLimitMaximumOfRenderProcess_ = true;
+    volatile bool isGrantPersistUriPermission_ = false;
+    volatile bool isStartOptionsWithAnimation_ = false;
     volatile bool isMultiProcessModel_ = false;
+    volatile bool isStartOptionsWithProcessOption_ = false;
+    volatile bool enableMoveUIAbilityToBackgroundApi_ = true;
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };
 }  // namespace AAFwk
