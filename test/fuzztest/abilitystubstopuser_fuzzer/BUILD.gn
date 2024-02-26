@@ -30,11 +30,7 @@ ohos_fuzztest("AbilityStubStopUserFuzzTest") {
     "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
-  sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
-    "abilitystubstopuser_fuzzer.cpp",
-  ]
+  sources = [ "abilitystubstopuser_fuzzer.cpp" ]
 
   configs = [ "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config" ]
 
