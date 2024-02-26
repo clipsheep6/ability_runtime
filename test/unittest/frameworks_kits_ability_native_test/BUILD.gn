@@ -2526,6 +2526,32 @@ ohos_unittest("auto_fill_extension_test") {
   ]
 }
 
+ohos_unittest("embedded_ui_extension_module_loader_test") {
+  module_out_path = module_output_path
+  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/embedded_ui_extension_ability" ]
+
+  sources = [
+    "${ability_runtime_native_path}/ability/native/embedded_ui_extension_ability/embedded_ui_extension_module_loader.cpp",
+    "embedded_ui_extension_module_loader_test.cpp",
+  ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:embedded_ui_extension",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -2565,6 +2591,7 @@ group("unittest") {
     ":data_ability_result_test",
     ":data_uri_utils_test",
     ":distributed_client_test",
+    ":embedded_ui_extension_module_loader_test",
     ":extension_ability_thread_test",
     ":extension_impl_test",
     ":extension_test",
