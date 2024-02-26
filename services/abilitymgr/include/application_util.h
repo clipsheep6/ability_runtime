@@ -31,8 +31,8 @@ const char* BOOTEVENT_BOOT_COMPLETED = "bootevent.boot.completed";
 
 [[maybe_unused]] static void AppFwkBootEventCallback(const char *key, const char *value, void *context)
 {
+    HILOG_INFO("%{public}s %{public}s is true, valud:%{public}s", __func__, key, value);
     if (strcmp(key, "bootevent.boot.completed") == 0 && strcmp(value, "true") == 0) {
-        HILOG_INFO("%{public}s %{public}s is true", __func__, key);
         Want want;
         want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_BOOT_COMPLETED);
         EventFwk::CommonEventData commonData {want};
