@@ -23,6 +23,7 @@ const TEXT_DETAIL = 'assertFaultDialogDetail';
 export default class UiExtAbility extends UIExtensionAbility {
   storage: LocalStorage;
   message: string;
+
   onCreate() {
     console.info(TAG, 'onCreate');
   }
