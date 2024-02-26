@@ -40,9 +40,9 @@ struct AssertFaultDialog {
               .fontFamily('HarmonyHeiTi')
               .fontWeight(FontWeight.Medium)
               .textOverflow({overflow: TextOverflow.Ellipsis})
+              .margin({ top: 10, left: 10 })
           }
-          .height('20%')
-          .margin({ top: 5 })
+          .height('15%')
 
           Flex({ direction: FlexDirection.Column }) {
             Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
@@ -92,7 +92,7 @@ struct AssertFaultDialog {
                   let status = abilityManager.UserStatus.ASSERT_CONTINUE;
                   try{
                     abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
-                      console.log(this.TAG, 'NotifyUserActionResult termination status success.');
+                      console.log(this.TAG, 'NotifyUserActionResult continue status success.');
                     }).catch((err: BusinessError) => {
                       console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
                     })
@@ -115,7 +115,7 @@ struct AssertFaultDialog {
                   let status = abilityManager.UserStatus.ASSERT_RETRY;
                   try{
                     abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
-                      console.log(this.TAG, 'NotifyUserActionResult termination status success.');
+                      console.log(this.TAG, 'NotifyUserActionResult retry status success.');
                     }).catch((err: BusinessError) => {
                       console.error(this.TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
                     })
@@ -149,7 +149,7 @@ struct AssertFaultDialog {
             }
             .height('20%')
           }
-          .height('80%')
+          .height('85%')
         }
         .height('600px')
         .width('720px')
