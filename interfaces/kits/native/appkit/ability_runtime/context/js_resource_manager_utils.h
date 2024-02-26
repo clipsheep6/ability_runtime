@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 napi_value CreateJsResourceManager(napi_env env,
-    std::shared_ptr<Global::Resource::ResourceManager> resourceManager, std::shared_ptr<Context> context);
+    std::shared_ptr<Global::Resource::ResourceManager> &resourceManager, std::shared_ptr<Context> context);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_JS_RESOURCE_MANAGER_UTILS_H
