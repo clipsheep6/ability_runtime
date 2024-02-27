@@ -125,7 +125,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
-    if (AppUtils::GetInstance().JudgePCDevice()) {
+    if (AppUtils::GetInstance().IsGrantPersistUriPermission()) {
         return CheckGrantUriPermissionFor2In1(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
     }
     return GrantUriPermissionInner(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);

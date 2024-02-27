@@ -1301,8 +1301,7 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
         return;
     }
     auto windowMode = context->GetCurrentWindowMode();
-    auto deviceType = context->GetDeviceType();
-    if (deviceType != Global::Resource::DeviceType::DEVICE_TWOINONE &&
+    if (AppUtils::GetInstance().IsInheritWindowSplitScreenMode() &&
         (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
         windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY)) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);

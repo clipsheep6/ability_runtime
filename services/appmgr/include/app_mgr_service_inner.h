@@ -1257,7 +1257,6 @@ private:
     std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
     std::string supportServiceExtMultiProcess_ {"false"};
-    std::string deviceType_ {"default"};
     int32_t currentUserId_ = 0;
     int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
     sptr<IAbilityDebugResponse> abilityDebugResponse_;

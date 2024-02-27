@@ -20,6 +20,7 @@
 #include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
+#include "app_utils.h"
 #include "errors.h"
 #include "exit_reason.h"
 #include "hilog_wrapper.h"
@@ -276,7 +277,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto abilityInfo = abilityRequest.abilityInfo;
     bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
-    if (abilityInfo.isolationProcess && isPcDevice_ && isUIAbility) {
+    if (abilityInfo.isolationProcess && AppUtils::GetInstance().IsStartSpecifiedProcess() && isUIAbility) {
         HILOG_INFO("StartSpecifiedProcess");
         EnqueueAbilityToFront(abilityRequest);
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(abilityRequest.want, abilityInfo);
@@ -2018,11 +2019,6 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
     CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
     HILOG_INFO("Call PendingSessionActivation by rootSceneSession.");
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
-}
-
-void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
-{
-    isPcDevice_ = (deviceType == "pc" || deviceType == "2in1");
 }
 
 void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
