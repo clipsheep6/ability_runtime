@@ -339,6 +339,9 @@ private:
         if (loopObserver_) {
             loopObserver_.reset();
             loopObserver_ = nullptr;
+            HILOG_INFO("Remove loopObserver success");
+        } else {
+            HILOG_INFO("Unregister loopObserver Called.");
         }
         return nullptr;
     }
