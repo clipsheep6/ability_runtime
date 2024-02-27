@@ -33,6 +33,10 @@ napi_value WantConstantInit(napi_env env, napi_value exports);
 napi_value ActionConstructor(napi_env env, napi_callback_info info);
 void SetNamedProperty(napi_env env, napi_value dstObj, const char *objName, const char *propName);
 void SetNamedProperty(napi_env env, napi_value dstObj, const int32_t objValue, const char *propName);
+void SetActionNamedProperty(napi_env env, napi_value action);
+void SetFlagsNamedProperty(napi_env env, napi_value flags);
+void SetEntityNamedProperty(napi_env env, napi_value entity);
+void SetParamsNamedProperty(napi_env env, napi_value params);
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif /* OHOS_ABILITY_RUNTIME_WANT_CONSTANT_H */

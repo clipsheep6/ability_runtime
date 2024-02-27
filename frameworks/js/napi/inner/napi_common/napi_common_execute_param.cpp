@@ -28,29 +28,25 @@ bool UnwrapExecuteParam(napi_env env, napi_value param, InsightIntentExecutePara
         HILOG_ERROR("Params is invalid.");
         return false;
     }
-
-    std::string bundleName {""};
+    std::string bundleName, moduleName, abilityName, insightIntentName;
     if (!UnwrapStringByPropertyName(env, param, "bundleName", bundleName)) {
         HILOG_ERROR("Wrong argument type bundleName.");
         return false;
     }
     executeParam.bundleName_ = bundleName;
 
-    std::string moduleName {""};
     if (!UnwrapStringByPropertyName(env, param, "moduleName", moduleName)) {
         HILOG_ERROR("Wrong argument type moduleName.");
         return false;
     }
     executeParam.moduleName_ = moduleName;
 
-    std::string abilityName {""};
     if (!UnwrapStringByPropertyName(env, param, "abilityName", abilityName)) {
         HILOG_ERROR("Wrong argument type abilityName.");
         return false;
     }
     executeParam.abilityName_ = abilityName;
 
-    std::string insightIntentName {""};
     if (!UnwrapStringByPropertyName(env, param, "insightIntentName", insightIntentName)) {
         HILOG_ERROR("Wrong argument type insightIntentName.");
         return false;
@@ -64,9 +60,7 @@ bool UnwrapExecuteParam(napi_env env, napi_value param, InsightIntentExecutePara
         return false;
     }
 
-    napi_valuetype valueType = napi_undefined;
-    napi_typeof(env, napiIntentParam, &valueType);
-    if (valueType != napi_object) {
+    if (!IsTypeForNapiValue(env, napiIntentParam, napi_object)) {
         HILOG_ERROR("Wrong argument type intentParam.");
         return false;
     }
@@ -76,7 +70,6 @@ bool UnwrapExecuteParam(napi_env env, napi_value param, InsightIntentExecutePara
         return false;
     }
     executeParam.insightIntentParam_ = wp;
-
     int32_t executeMode = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "executeMode", executeMode)) {
         HILOG_ERROR("Wrong argument type executeMode.");
