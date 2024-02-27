@@ -1533,7 +1533,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_001,
     HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
-    want.SetParam("ScreenMode", 1);
+    want.SetParam("ohos.extra.param.key.startupMode", 1);
     AbilityRequest request;
     auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
     EXPECT_EQ(res, RESOLVE_ABILITY_ERR);

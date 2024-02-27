@@ -2316,6 +2316,21 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     CHECK_POINTER_AND_RETURN(extensionSessionInfo, ERR_INVALID_VALUE);
     SetPickerElementName(extensionSessionInfo, userId);
     SetAutoFillElementName(extensionSessionInfo);
+
+    if (extensionSessionInfo->want.HasParameter(AAFwk::SCREEN_MODE_KEY)) {
+        auto bms = GetBundleManager();
+        CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
+        AppExecFwk::ApplicationInfo appInfo;
+        if (!IN_PROCESS_CALL(bms->GetApplicationInfo(extensionSessionInfo->want.GetBundle(),
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo))) {
+            HILOG_ERROR("VerifyPermission failed to get application info");
+            return CHECK_PERMISSION_FAILED;
+        }
+        if (appInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
+            HILOG_ERROR("Only support atomicService");
+            return ERR_INVALID_CALLER;
+        }
+    }
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
     AppExecFwk::ExtensionAbilityType extensionType = extensionTypeStr.empty() ?
         AppExecFwk::ExtensionAbilityType::UI : AppExecFwk::ConvertToExtensionAbilityType(extensionTypeStr);
