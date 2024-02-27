@@ -829,7 +829,6 @@ int32_t AppMgrProxy::UpdateConfiguration(const Configuration &config)
 
 int32_t AppMgrProxy::GetConfiguration(Configuration &config)
 {
-    HILOG_INFO("AppMgrProxy GetConfiguration");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -1365,7 +1364,6 @@ int32_t AppMgrProxy::NotifyPageHide(const sptr<IRemoteObject> &token, const Page
 int32_t AppMgrProxy::SendRequest(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply,
     MessageOption& option)
 {
-    HILOG_DEBUG("AppMgrProxy::SendRequest start");
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         HILOG_ERROR("Remote() is NULL");
