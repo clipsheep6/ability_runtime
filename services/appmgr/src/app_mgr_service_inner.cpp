@@ -124,6 +124,7 @@ const std::string DEBUG_APP = "debugApp";
 const std::string SERVICE_EXTENSION = ":ServiceExtension";
 const std::string KEEP_ALIVE = ":KeepAlive";
 const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
+const std::string TSAN_FLAG_NAME = "tsanEnabled";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -2022,6 +2023,15 @@ void AppMgrServiceInner::SetOverlayInfo(const std::string &bundleName,
     }
 }
 
+void AppMgrServiceInner::SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg& startMsg)
+{
+    if (bundleInfo.applicationInfo.tsanEnabled) {
+        startMsg.appEnv.emplace(TSAN_FLAG_NAME, std::to_string(1));
+    } else {
+        startMsg.appEnv.emplace(TSAN_FLAG_NAME, std::to_string(0));
+    }
+}
+
 void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
                                                       uint8_t &setAllowInternet, uint8_t &allowInternet,
                                                       std::vector<int32_t> &gids, std::set<std::string> &permissions)
@@ -2149,6 +2159,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     SetOverlayInfo(bundleName, userId, startMsg);
+    SetAppEnvInfo(bundleInfo, startMsg);
 
     HILOG_INFO("apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
