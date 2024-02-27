@@ -237,6 +237,7 @@ const std::string NEED_STARTINGWINDOW = "ohos.ability.NeedStartingWindow";
 const std::string PERMISSIONMGR_BUNDLE_NAME = "com.ohos.permissionmanager";
 const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.GrantAbility";
 const std::string IS_CALL_BY_SCB = "isCallBySCB";
+const std::string SPECIFY_TOKEN_ID = "specifyTokenId";
 const std::string PROCESS_SUFFIX = "embeddable";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
@@ -552,6 +553,36 @@ int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObje
     return ret;
 }
 
+int AbilityManagerService::StartAbilityWithSpecifyTokenId(const Want &want, const sptr<IRemoteObject> &callerToken,
+    uint32_t specifyTokenId, int32_t userId, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (IPCSkeleton::GetCallingUid() != FOUNDATION_UID) {
+        HILOG_ERROR("StartAbility with specialId, the current process is not foundation process.");
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
+    InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    auto flags = want.GetFlags();
+    EventInfo eventInfo = BuildEventInfo(want, userId);
+    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
+    if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
+        HILOG_ERROR("StartAbility with continuation flags is not allowed.");
+        eventInfo.errCode = ERR_INVALID_VALUE;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+        return ERR_INVALID_CONTINUATION_FLAG;
+    }
+
+    HILOG_INFO("Start ability come, ability is %{public}s, userId is %{public}d.",
+        want.GetElement().GetAbilityName().c_str(), userId);
+
+    int32_t ret = StartAbilityWrap(want, callerToken, requestCode, userId, specifyTokenId);
+    if (ret != ERR_OK) {
+        eventInfo.errCode = ret;
+        EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
+    }
+    return ret;
+}
+
 int32_t AbilityManagerService::StartAbilityByInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken,
     uint64_t intentId, int32_t userId)
 {
@@ -741,7 +772,7 @@ bool AbilityManagerService::StartAbilityInChain(StartAbilityParams &params, int 
 }
 
 int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult)
+    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyToken)
 {
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
@@ -755,11 +786,11 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
         return result;
     }
 
-    return StartAbilityInner(want, callerToken, requestCode, userId, isStartAsCaller, isSendDialogResult);
+    return StartAbilityInner(want, callerToken, requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken);
 }
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult)
+    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
@@ -982,6 +1013,12 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
         HILOG_ERROR("IsAbilityControllerStart failed: %{public}s.", abilityInfo.bundleName.c_str());
         return ERR_WOULD_BLOCK;
+    }
+
+    abilityRequest.want.RemoveParam(SPECIFY_TOKEN_ID);
+    if (specifyTokenId > 0) {
+        HILOG_DEBUG("Set specifyTokenId, the specifyTokenId is %{public}d.", specifyTokenId);
+        abilityRequest.want.SetParam(SPECIFY_TOKEN_ID, static_cast<int32_t>(specifyTokenId));
     }
     // sceneboard
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -8160,7 +8197,7 @@ int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityReques
     return result;
 }
 
-int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest)
+int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Call");
@@ -8169,6 +8206,7 @@ int AbilityManagerService::CheckCallAbilityPermission(const AbilityRequest &abil
     verificationInfo.accessTokenId = abilityRequest.appInfo.accessTokenId;
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
     verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
+    verificationInfo.specifyTokenId = specifyTokenId;
     if (IsCallFromBackground(abilityRequest, verificationInfo.isBackgroundCall) != ERR_OK) {
         return ERR_INVALID_VALUE;
     }
