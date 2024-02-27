@@ -154,13 +154,12 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0800, Function | MediumTest | Level1)
     int32_t row = 0;
     int32_t col = 1;
     SourceMapData targetMap;
-    std::string key = "";
-    auto info = modSourceMap->Find(row, col, targetMap, key);
+    auto info = modSourceMap->Find(row, col, targetMap);
     EXPECT_TRUE(info.sources.empty());
 
     row = 1;
     col = 0;
-    info = modSourceMap->Find(row, col, targetMap, key);
+    info = modSourceMap->Find(row, col, targetMap);
     EXPECT_TRUE(info.sources.empty());
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0800 end";
 }
@@ -188,8 +187,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0900, Function | MediumTest | Level1)
     mapInfo.sourcesVal = 0;
     mapInfo.namesVal = 0;
     targetMap.afterPos_.emplace_back(mapInfo);
-    std::string key = "";
-    auto info = modSourceMap->Find(row, col, targetMap, key);
+    auto info = modSourceMap->Find(row, col, targetMap);
     EXPECT_STREQ(info.sources.c_str(), "file");
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0900 end";
 }
@@ -220,8 +218,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1100, Function | MediumTest | Level1)
         }
     }
 
-    std::string key = "";
-    auto info = modSourceMap->Find(row, col, targetMap, key);
+    auto info = modSourceMap->Find(row, col, targetMap);
     EXPECT_EQ(info.row, 1);
     EXPECT_EQ(info.col, 1);
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_1100 end";
@@ -251,8 +248,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_1200, Function | MediumTest | Level1)
         targetMap.afterPos_.emplace_back(mapInfo);
     }
 
-    std::string key = "aaawebpack:///bbb";
-    auto info = modSourceMap->Find(row, col, targetMap, key);
+    auto info = modSourceMap->Find(row, col, targetMap);
     EXPECT_EQ(info.row, 1);
     EXPECT_EQ(info.col, 1);
     EXPECT_STREQ(info.sources.c_str(), "aaabbb");
