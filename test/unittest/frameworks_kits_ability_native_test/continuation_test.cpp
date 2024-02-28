@@ -1640,6 +1640,27 @@ HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_006, TestSiz
 }
 
 /*
+ * @tc.number: continue_manager_OnContinueAndGetContent_007
+ * @tc.name: OnContinueAndGetContent
+ * @tc.desc: call OnContinueAndGetContent with OnContinue Reject
+ */
+HWTEST_F(ContinuationTest, continue_manager_OnContinueAndGetContent_007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_007 start";
+    EXPECT_CALL(*mockAbility_, OnContinue(_))
+        .Times(1)
+        .WillOnce(Return(ContinuationManager::OnContinueResult::REJECT));
+    std::weak_ptr<ContinuationManager> continuationManager = continuationManager_;
+    std::weak_ptr<Ability> abilityTmp = mockAbility_;
+    auto continuationHandler = std::make_shared<ContinuationHandler>(continuationManager, abilityTmp);
+    continuationManager_->Init(mockAbility_, continueToken_, abilityInfo_, continuationHandler);
+    WantParams wantParams;
+    int32_t result = continuationManager_->OnContinueAndGetContent(wantParams);
+    EXPECT_EQ(CONTINUE_ON_CONTINUE_FAILED, result);
+    GTEST_LOG_(INFO) << "continue_manager_OnContinueAndGetContent_007 end";
+}
+
+/*
  * @tc.number: continue_manager_RestoreData_001
  * @tc.name: RestoreData
  * @tc.desc: call RestoreData with DoScheduleRestoreData failed and reversible is true
