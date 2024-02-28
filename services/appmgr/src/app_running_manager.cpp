@@ -35,6 +35,7 @@
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
+    constexpr int32_t QUICKFIX_UID = 5524;
     const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 }
 using EventFwk::CommonEventSupport;
@@ -806,6 +807,9 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Process of [%{public}s] is running, processName: %{public}s.",
                 bundleName.c_str(), appRecord->GetProcessName().c_str());
+            if (IPCSkeleton::GetCallingUid() == QUICKFIX_UID && appRecord->GetPriorityObject() != nullptr) {
+                HILOG_INFO("pid: %{public}d.", appRecord->GetPriorityObject()->GetPid());
+            }
             return true;
         }
     }

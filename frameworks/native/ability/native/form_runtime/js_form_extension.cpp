@@ -219,6 +219,7 @@ void JsFormExtension::OnDestroy(const int64_t formId)
 void JsFormExtension::OnStop()
 {
     HILOG_INFO("call");
+    CallObjectMethod("onStop", nullptr, nullptr, 0);
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());

@@ -1054,6 +1054,27 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UninstallApp_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: UpgradeApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpgradeApp
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of UpgradeApp
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_UpgradeApp_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    std::string bundleName = "";
+    int32_t uid = 1;
+    std::string exitMsg = "App upgrade.";
+    auto res = proxy_->UpgradeApp(bundleName, uid, exitMsg);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: GetWantSender
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService GetWantSender
@@ -2016,6 +2037,27 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbility_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityWithSpecifyTokenId
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityWithSpecifyTokenId
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of startability with specify token id
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityWithSpecifyTokenId_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    uint32_t specifyTokenId = 0;
+    auto res = proxy_->StartAbilityWithSpecifyTokenId(want, callerToken, specifyTokenId);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityAsCaller
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartAbilityAsCaller
@@ -2598,6 +2640,28 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
     std::vector<AutoStartupInfo> infoList;
     auto res = proxy_->QueryAllAutoStartupApplications(infoList);
     EXPECT_EQ(res, ERR_OK);
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_GetUIExtensionRootHostInfo_0100
+ * @tc.desc: GetUIExtensionRootHostInfo
+ * @tc.type: FUNC
+ * @tc.require: issueI92G6Z
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("begin");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    auto token = sptr<MockAbilityToken>::MakeSptr();
+    UIExtensionHostInfo hostInfo;
+    proxy_->GetUIExtensionRootHostInfo(token, hostInfo, USER_ID);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO), mock_->code_);
+
+    HILOG_INFO("end");
 }
 } // namespace AAFwk
 } // namespace OHOS

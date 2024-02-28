@@ -652,6 +652,9 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     }
     std::string element = abilityRecord->GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
+    if (abilityRecord->IsSceneBoard()) {
+        HILOG_INFO("Attach Ability: %{public}s", element.c_str());
+    }
     abilityRecord->SetScheduler(scheduler);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
@@ -816,7 +819,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
             PostExtensionDelayDisconnectTask(connectRecord);
         }
     }
-
+    CompleteStartServiceReq(abilityRecord->GetURI());
     return ERR_OK;
 }
 
@@ -2603,6 +2606,14 @@ void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(uiExtensionAbilityRecordMgr_);
     uiExtensionAbilityRecordMgr_->RemoveExtensionRecord(abilityRecord->GetUIExtensionAbilityId());
+}
+
+int32_t AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo)
+{
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_INVALID_VALUE);
+    return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token, hostInfo);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

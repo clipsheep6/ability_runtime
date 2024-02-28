@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,6 +53,7 @@
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
+#include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
 #include "record_query_result.h"
 #include "refbase.h"
@@ -919,6 +920,12 @@ public:
      */
     void ClearProcessByToken(sptr<IRemoteObject> token);
 
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1186,6 +1193,7 @@ private:
     void KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void SetOverlayInfo(const std::string& bundleName, const int32_t userId, AppSpawnStartMsg& startMsg);
+    void SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg& startMsg);
 
     void TimeoutNotifyApp(int32_t pid, int32_t uid, const std::string& bundleName, const FaultData &faultData);
 

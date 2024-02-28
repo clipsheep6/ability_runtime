@@ -124,6 +124,23 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * StartAbilityWithSpecifyTokenId with want and specialId, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param specialId the caller Id.
+     * @param userId, Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityWithSpecifyTokenId(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint32_t specifyTokenId,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * StartAbility by insight intent, send want to ability manager service.
      *
      * @param want Ability want.
@@ -665,6 +682,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
+    
+    /**
+     * Upgrade app, record exit reason and kill application
+     *
+     * @param bundleName bundle name of upgrading app.
+     * @param uid uid of bundle.
+     * @param exitMsg the exit reason message.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg) override;
+
     /**
      * InitMissionListManager, set the user id of mission list manager.
      *
@@ -806,7 +834,8 @@ public:
         int requestCode,
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
-        bool isSendDialogResult = false);
+        bool isSendDialogResult = false,
+        uint32_t specifyTokenId = 0);
 
     int StartAbilityInner(
         const Want &want,
@@ -814,7 +843,8 @@ public:
         int requestCode,
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
-        bool isSendDialogResult = false);
+        bool isSendDialogResult = false,
+        uint32_t specifyTokenId = 0);
 
     int StartExtensionAbilityInner(
         const Want &want,
@@ -1422,6 +1452,17 @@ public:
     void CallAssertFaultCallback(
         int64_t assertFaultSessionId, AAFwk::UserStatus status = AAFwk::UserStatus::ASSERT_TERMINATE);
 
+    /**
+     * @brief Get host info of root caller.
+     *
+     * @param token The ability token.
+     * @param hostInfo The host info of root caller.
+     * @param userId The user id.
+     * @return int32_t Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1733,7 +1774,7 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start Ability.
      */
-    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest);
+    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId = 0);
 
     /**
      * Check if Caller is allowed to start Ability(Stage) by call.
@@ -1845,6 +1886,9 @@ private:
 
     bool CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo);
 
+    int32_t UninstallAppInner(const std::string &bundleName, const int32_t uid, const bool isUpgrade,
+        const std::string &exitMsg);
+        
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     bool CheckCallerIsDmsProcess();
 

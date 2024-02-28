@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,6 +36,7 @@ constexpr static char USER_AUTH_EXTENSION[] = "UserAuthExtensionAbility";
 constexpr static char ACTION_EXTENSION[] = "ActionExtensionAbility";
 constexpr static char SHARE_EXTENSION[] = "ShareExtensionAbility";
 constexpr static char AUTO_FILL_EXTENSION[] = "AutoFillExtensionAbility";
+constexpr static char EMBEDDED_UI_EXTENSION[] = "EmbeddedUIExtensionAbility";
 #endif
 constexpr static char BASE_SERVICE_EXTENSION[] = "ServiceExtension";
 constexpr static char BASE_DRIVER_EXTENSION[] = "DriverExtension";
@@ -50,6 +51,13 @@ constexpr static char INPUTMETHOD_EXTENSION[] = "InputMethodExtensionAbility";
 constexpr static char APP_ACCOUNT_AUTHORIZATION_EXTENSION[] = "AppAccountAuthorizationExtension";
 constexpr static char VPN_EXTENSION[] = "VpnExtension";
 }
+
+const std::map<AppExecFwk::ExtensionAbilityType, std::string> UI_EXTENSION_NAME_MAP = {
+    { AppExecFwk::ExtensionAbilityType::SHARE, SHARE_EXTENSION },
+    { AppExecFwk::ExtensionAbilityType::ACTION, ACTION_EXTENSION },
+    { AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD, AUTO_FILL_EXTENSION },
+    { AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, EMBEDDED_UI_EXTENSION }
+};
 
 ExtensionAbilityThread::ExtensionAbilityThread() : extensionImpl_(nullptr), currentExtension_(nullptr) {}
 
@@ -94,12 +102,9 @@ std::string ExtensionAbilityThread::CreateAbilityName(
     }
 #endif
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
-        if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::SHARE) {
-            abilityName = SHARE_EXTENSION;
-        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::ACTION) {
-            abilityName = ACTION_EXTENSION;
-        } else if (abilityInfo->extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD) {
-            abilityName = AUTO_FILL_EXTENSION;
+        auto iter = UI_EXTENSION_NAME_MAP.find(abilityInfo->extensionAbilityType);
+        if (iter != UI_EXTENSION_NAME_MAP.end()) {
+            abilityName = iter->second;
         } else {
             abilityName = UI_EXTENSION;
         }

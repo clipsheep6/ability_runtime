@@ -50,6 +50,7 @@
 #include "user_callback.h"
 #include "system_memory_attr.h"
 #include "ui_extension_ability_connect_info.h"
+#include "ui_extension_host_info.h"
 #include "ui_extension_window_command.h"
 #include "uri.h"
 #include "want.h"
@@ -67,6 +68,7 @@ using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
 using InsightIntentExecuteResult = AppExecFwk::InsightIntentExecuteResult;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
+using UIExtensionHostInfo = AbilityRuntime::UIExtensionHostInfo;
 constexpr const char* ABILITY_MANAGER_SERVICE_NAME = "AbilityManagerService";
 const int DEFAULT_INVAL_VALUE = -1;
 const int DELAY_LOCAL_FREE_INSTALL_TIMEOUT = 40000;
@@ -105,6 +107,23 @@ public:
     virtual int StartAbility(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) = 0;
+
+    /**
+     * StartAbilityWithSpecifyTokenId with want and specialId, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param specialId the caller Id.
+     * @param userId, Designation User ID.
+     * @param requestCode, Ability request code.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityWithSpecifyTokenId(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint32_t specifyTokenId,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE) = 0;
 
@@ -628,6 +647,19 @@ public:
      */
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) = 0;
 
+    /**
+     * Upgrade app, record exit reason and kill application
+     *
+     * @param bundleName bundle name of upgrading app.
+     * @param uid uid of bundle.
+     * @param exitMsg the exit reason message.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+    {
+        return 0;
+    }
+
     virtual sptr<IWantSender> GetWantSender(
         const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken) = 0;
 
@@ -1093,7 +1125,7 @@ public:
     {
         return 0;
     }
-    
+
     /**
      * Record the process exit reason before the process being killed.
      * @param pid The process id.
@@ -1349,6 +1381,20 @@ public:
      */
     virtual int32_t NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus) {
         return -1;
+    }
+
+    /**
+     * @brief Get host info of root caller.
+     *
+     * @param token The ability token.
+     * @param hostInfo The host info of root caller.
+     * @param userId The user id.
+     * @return int32_t Returns 0 on success, others on failure.
+     */
+    virtual int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
     }
 };
 }  // namespace AAFwk

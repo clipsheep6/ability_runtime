@@ -32,7 +32,6 @@ bool ProcessData::Marshalling(Parcel &parcel) const
 
 bool ProcessData::ReadFromParcel(Parcel &parcel)
 {
-    HILOG_DEBUG("enter");
     bundleName = parcel.ReadString();
     pid = parcel.ReadInt32();
     uid = parcel.ReadInt32();

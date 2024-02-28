@@ -56,6 +56,7 @@ const std::string INTERCEPT_PARAMETERS = "intercept_parammeters";
 const std::string INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
 const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
+const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
 #define RETURN_BY_ISEDM(object)                 \
     if (object) {                               \
@@ -400,6 +401,13 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
+    if (callerToken != nullptr) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
+            HILOG_DEBUG("callerModelType is FA.");
+            callerInfo.callerModelType = ErmsCallerInfo::MODEL_FA;
+        }
+    }
     GetEcologicalCallerInfo(want, callerInfo, userId);
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
     if (supportErms == "false") {
@@ -473,6 +481,9 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the caller type is app");
         callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
+        if (callerInfo.packageName == "" && callerAppInfo.name == BUNDLE_NAME_SCENEBOARD) {
+            callerInfo.packageName = BUNDLE_NAME_SCENEBOARD;
+        }
     }
 }
 

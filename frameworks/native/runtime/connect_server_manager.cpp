@@ -22,7 +22,8 @@
 
 namespace OHOS::AbilityRuntime {
 namespace {
-std::string GetInstanceMapMessage(const std::string& messageType, int32_t instanceId, const std::string& instanceName)
+std::string GetInstanceMapMessage(
+    const std::string& messageType, int32_t instanceId, const std::string& instanceName, int tid)
 {
     std::string message;
     message.append("{\"type\":\"");
@@ -32,7 +33,7 @@ std::string GetInstanceMapMessage(const std::string& messageType, int32_t instan
     message.append(",\"name\":\"");
     message.append(instanceName);
     message.append("\",\"tid\":");
-    message.append(std::to_string(gettid()));
+    message.append(std::to_string(tid));
     message.append(",\"apiType\":\"");
     message.append("stageMode\"");
     message.append(",\"language\":\"");
@@ -51,10 +52,14 @@ using StoreMessage = void (*)(int32_t, const std::string&);
 using StoreInspectorInfo = void (*)(const std::string&, const std::string&);
 using SetSwitchCallBack = void (*)(const std::function<void(bool)> &setStatus,
     const std::function<void(int32_t)> &createLayoutInfo, int32_t instanceId);
+using SetConnectCallback = void (*)(const std::function<void(bool)>);
 using RemoveMessage = void (*)(int32_t);
 using WaitForConnection = bool (*)();
 
+std::mutex g_debuggerMutex;
+std::mutex g_loadsoMutex;
 std::mutex ConnectServerManager::instanceMutex_;
+std::unordered_map<int, std::pair<void*, const DebuggerPostTask>> g_debuggerInfo;
 
 ConnectServerManager::~ConnectServerManager()
 {
@@ -68,10 +73,9 @@ ConnectServerManager& ConnectServerManager::Get()
     return connectServerManager;
 }
 
-void ConnectServerManager::StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract)
+void ConnectServerManager::LoadConnectServerDebuggerSo()
 {
-    HILOG_DEBUG("ConnectServerManager::StartConnectServer Start connect server");
-    
+    std::lock_guard<std::mutex> lock(g_loadsoMutex);
     if (handlerConnectServerSo_ == nullptr) {
         handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
         if (handlerConnectServerSo_ == nullptr) {
@@ -79,6 +83,13 @@ void ConnectServerManager::StartConnectServer(const std::string& bundleName, int
             return;
         }
     }
+}
+
+void ConnectServerManager::StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract)
+{
+    HILOG_DEBUG("ConnectServerManager::StartConnectServer Start connect server");
+    
+    LoadConnectServerDebuggerSo();
     bundleName_ = bundleName;
     if (isLocalAbstract) {
         auto startServer = reinterpret_cast<StartServer>(dlsym(handlerConnectServerSo_, "StartServer"));
@@ -117,31 +128,123 @@ void ConnectServerManager::StopConnectServer(bool isCloseSo)
     }
 }
 
-bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& instanceName)
+
+bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
 {
-    HILOG_DEBUG("ConnectServerManager::AddInstance Add instance to connect server");
-    if (handlerConnectServerSo_ == nullptr) {
-        handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
-        if (handlerConnectServerSo_ == nullptr) {
-            HILOG_ERROR("ConnectServerManager::AddInstance handlerConnectServerSo_ is nullptr");
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, tid));
+        if (!result.second) {
+            HILOG_WARN("ConnectServerManager::StoreInstanceMessage Instance %{public}d already added", instanceId);
             return false;
         }
     }
+    return true;
+}
 
-    auto waitForConnection = reinterpret_cast<WaitForConnection>(dlsym(handlerConnectServerSo_, "WaitForConnection"));
-    if (waitForConnection == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'WaitForConnection'");
-        return false;
+void ConnectServerManager::StoreDebuggerInfo(int tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
+    const DebuggerPostTask& debuggerPostTask, bool isDebugApp)
+{
+    std::lock_guard<std::mutex> lock(g_debuggerMutex);
+    if (g_debuggerInfo.find(tid) == g_debuggerInfo.end()) {
+        g_debuggerInfo.emplace(tid, std::make_pair(vm, debuggerPostTask));
     }
 
+    if (!isConnected_) {
+        HILOG_WARN("ConnectServerManager::StoreDebuggerInfo not Connected");
+        return;
+    }
+
+    panda::JSNApi::StoreDebugInfo(tid, reinterpret_cast<panda::EcmaVM*>(vm), debugOption, debuggerPostTask, isDebugApp);
+}
+
+void ConnectServerManager::SendDebuggerInfo(bool needBreakPoint, bool isDebugApp)
+{
+    ConnectServerManager::Get().SetConnectedCallback();
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (const auto& instance : instanceMap_) {
+        auto instanceId = instance.first;
+        auto instanceName = instance.second.first;
+        auto tid = instance.second.second;
+
+        panda::EcmaVM* vm = reinterpret_cast<panda::EcmaVM*>(g_debuggerInfo[instanceId].first);
+        std::lock_guard<std::mutex> lock(g_debuggerMutex);
+        const auto &debuggerPoskTask = g_debuggerInfo[instanceId].second;
+        if (!debuggerPoskTask) {
+            continue;
+        }
+        ConnectServerManager::Get().SendInstanceMessage(tid, instanceId, instanceName);
+        auto storeDebugInfoTask = [needBreakPoint, isDebugApp, instanceId, vm, debuggerPoskTask, instanceName]() {
+            panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
+            panda::JSNApi::StoreDebugInfo(gettid(), vm, debugOption, debuggerPoskTask, isDebugApp);
+        };
+
+        debuggerPoskTask(storeDebugInfoTask);
+    }
+}
+
+void ConnectServerManager::SetConnectedCallback()
+{
+    LoadConnectServerDebuggerSo();
+
+    auto setConnectCallBack = reinterpret_cast<SetConnectCallback>(
+        dlsym(handlerConnectServerSo_, "SetConnectCallback"));
+    if (setConnectCallBack == nullptr) {
+        HILOG_ERROR("ConnectServerManager::SetConnectedCallback failed to find symbol 'SetConnectCallBack'");
+        return;
+    }
+
+    setConnectCallBack([](bool isConnected) {
+        ConnectServerManager::Get().isConnected_ = isConnected;
+    });
+}
+
+bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
+{
+    HILOG_INFO("ConnectServerManager::SendInstanceMessage Add instance to connect server");
+    LoadConnectServerDebuggerSo();
+
+    auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
+    dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
+    if (setSwitchCallBack == nullptr) {
+        HILOG_INFO("ConnectServerManager::SendInstanceMessage failed to find symbol 'setSwitchCallBack'");
+        return false;
+    }
+ 
+    auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
+    if (storeMessage == nullptr) {
+        HILOG_ERROR("ConnectServerManager::SendInstanceMessage failed to find symbol 'StoreMessage'");
+        return false;
+    }
+    
+    setSwitchCallBack([this](bool status) { setStatus_(status); },
+        [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
+
+    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
+    storeMessage(instanceId, message);
+ 
+    return true;
+}
+
+ 
+bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::string& instanceName)
+{
     {
         std::lock_guard<std::mutex> lock(mutex_);
-        auto result = instanceMap_.try_emplace(instanceId, instanceName);
+        auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, tid));
         if (!result.second) {
             HILOG_WARN("ConnectServerManager::AddInstance Instance %{public}d already added", instanceId);
             return false;
         }
     }
+
+    if (!isConnected_) {
+        HILOG_WARN("ConnectServerManager::AddInstance not Connected");
+        return false;
+    }
+
+    HILOG_DEBUG("ConnectServerManager::AddInstance Add instance to connect server");
+    LoadConnectServerDebuggerSo();
 
     auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
         dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
@@ -153,7 +256,7 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
         [this](int32_t containerId) { createLayoutInfo_(containerId); }, instanceId);
 
     // Get the message including information of new instance, which will be send to IDE.
-    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName);
+    std::string message = GetInstanceMapMessage("addInstance", instanceId, instanceName, tid);
 
     auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
     if (storeMessage == nullptr) {
@@ -161,10 +264,6 @@ bool ConnectServerManager::AddInstance(int32_t instanceId, const std::string& in
         return false;
     }
     storeMessage(instanceId, message);
-
-    if (waitForConnection()) {
-        return false;
-    }
 
     // WaitForConnection() means the connection state of the connect server
     auto sendMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendMessage"));
@@ -186,6 +285,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     }
 
     std::string instanceName;
+    int tid;
 
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -195,7 +295,8 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
             return;
         }
 
-        instanceName = std::move(it->second);
+        instanceName = std::move(it->second.first);
+        tid = std::move(it->second.second);
         instanceMap_.erase(it);
     }
 
@@ -206,7 +307,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
     }
 
     // Get the message including information of deleted instance, which will be send to IDE.
-    std::string message = GetInstanceMapMessage("destroyInstance", instanceId, instanceName);
+    std::string message = GetInstanceMapMessage("destroyInstance", instanceId, instanceName, tid);
 
     auto removeMessage = reinterpret_cast<RemoveMessage>(dlsym(handlerConnectServerSo_, "RemoveMessage"));
     if (removeMessage == nullptr) {

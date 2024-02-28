@@ -103,6 +103,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/system_ability_token_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_ability_connect_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_host_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
@@ -129,6 +130,7 @@ ohos_shared_library("ability_manager") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",

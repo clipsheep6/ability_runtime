@@ -1695,5 +1695,14 @@ void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo>
     CHECK_POINTER_RETURN(abms);
     abms->UpdateSessionInfoBySCB(sessionInfos, userId);
 }
+
+ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo, int32_t userId)
+{
+    HILOG_DEBUG("Get ui extension host info.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->GetUIExtensionRootHostInfo(token, hostInfo, userId);
+}
 } // namespace AAFwk
 } // namespace OHOS

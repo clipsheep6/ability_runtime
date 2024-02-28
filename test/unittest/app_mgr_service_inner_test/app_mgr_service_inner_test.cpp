@@ -33,6 +33,7 @@
 #include "mock_render_scheduler.h"
 #include "mock_sa_call.h"
 #include "parameters.h"
+#include "render_state_observer_stub.h"
 #include "window_manager.h"
 
 using namespace testing;
@@ -59,6 +60,14 @@ public:
 public:
     std::shared_ptr<AbilityInfo> abilityInfo_;
     std::shared_ptr<ApplicationInfo> applicationInfo_;
+};
+
+class RenderStateObserverMock : public RenderStateObserverStub {
+public:
+    RenderStateObserverMock() = default;
+    virtual ~RenderStateObserverMock() = default;
+    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
+    {}
 };
 
 void AppMgrServiceInnerTest::InitAppInfo(const std::string& deviceName,
@@ -290,6 +299,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
 {
     HILOG_INFO("PointerDeviceUpdateConfig_0100 start");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::shared_ptr<AppExecFwk::Configuration> config;
@@ -3994,6 +4004,59 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterAppForegroundStateObserver_0100, Test
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterAppForegroundStateObserver(observer);
     EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: RegisterStateStateObserver_0100
+ * @tc.desc: Test unregister by nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0100, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+
+/**
+ * @tc.name: RegisterStateStateObserver_0200
+ * @tc.desc: Test unregister without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0200, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0100
+ * @tc.desc: Test unregister by nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0100, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0200
+ * @tc.desc: Test unregister without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0200, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

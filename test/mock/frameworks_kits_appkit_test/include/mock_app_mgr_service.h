@@ -77,6 +77,9 @@ public:
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
+    MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
     
     void AttachApplication(const sptr<IRemoteObject>& app)
     {

@@ -947,6 +947,8 @@ public:
     void DoBackgroundAbilityWindowDelayed(bool needBackground);
     bool BackgroundAbilityWindowDelayed();
 
+    bool IsSceneBoard() const;
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -988,8 +990,8 @@ private:
 
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
 
-    void GrantUriPermissionInner(
-        Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
+    void GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName,
+         uint32_t tokenId, uint32_t specifyTokenId = 0);
     void GrantUriPermissionFor2In1Inner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
@@ -997,6 +999,8 @@ private:
     LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
 
     void NotifyMissionBindPid();
+
+    void DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const;
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;

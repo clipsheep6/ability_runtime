@@ -109,6 +109,16 @@ ErrCode UIExtensionContext::StartAbilityForResult(
     return err;
 }
 
+ErrCode UIExtensionContext::ReportDrawnCompleted()
+{
+    HILOG_DEBUG("begin.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ret=%{public}d", err);
+    }
+    return err;
+}
+
 void UIExtensionContext::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData)
 {
     HILOG_DEBUG("begin.");

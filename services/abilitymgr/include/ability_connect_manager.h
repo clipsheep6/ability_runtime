@@ -260,6 +260,8 @@ public:
 
     void RemoveLauncherDeathRecipient();
 
+    int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;

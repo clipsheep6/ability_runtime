@@ -2721,5 +2721,35 @@ HWTEST_F(AbilityManagerStubTest, QueryAllAutoStartupApplicationsInner_0100, Test
     auto result = stub_->QueryAllAutoStartupApplicationsInner(data, reply);
     EXPECT_EQ(result, NO_ERROR);
 }
+
+/**
+ * @tc.name: GetUIExtensionRootHostInfo_0100
+ * @tc.desc: GetUIExtensionRootHostInfo
+ * @tc.type: FUNC
+ * @tc.require: issueI92G6Z
+ */
+HWTEST_F(AbilityManagerStubTest, GetUIExtensionRootHostInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("begin");
+
+    MessageParcel data;
+    bool writeRet = data.WriteInterfaceToken(AbilityManagerStubImplMock::GetDescriptor());
+    auto token = sptr<AppExecFwk::MockAbilityToken>::MakeSptr();
+    auto userId = USER_ID;
+    writeRet &= data.WriteBool(true);
+    writeRet &= data.WriteRemoteObject(token);
+    writeRet &= data.WriteInt32(userId);
+    EXPECT_EQ(writeRet, true);
+
+    EXPECT_CALL(*stub_, GetUIExtensionRootHostInfo(_, _, _)).Times(1);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = stub_->OnRemoteRequest(
+        static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO), data, reply, option);
+    EXPECT_EQ(ret, NO_ERROR);
+
+    HILOG_INFO("end");
+}
 } // namespace AAFwk
 } // namespace OHOS

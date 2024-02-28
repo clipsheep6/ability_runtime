@@ -42,6 +42,7 @@
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "ui_extension_utils.h"
@@ -1361,6 +1362,9 @@ void AbilityRecord::SetScheduler(const sptr<IAbilityScheduler> &scheduler)
         if (schedulerObject == nullptr || !schedulerObject->AddDeathRecipient(schedulerDeathRecipient_)) {
             HILOG_ERROR("AddDeathRecipient failed.");
         }
+        if (IsSceneBoard()) {
+            HILOG_INFO("Sceneboard DeathRecipient Added");
+        }
         pid_ = static_cast<int32_t>(IPCSkeleton::GetCallingPid()); // set pid when ability attach to service.
         // add collaborator mission bind pid
         NotifyMissionBindPid();
@@ -2061,6 +2065,34 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     }
 }
 
+void AbilityRecord::DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const
+{
+    if (!UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType)) {
+        // Dump host info only for uiextension.
+        return;
+    }
+
+    sptr<IRemoteObject> token = GetToken();
+    if (token == nullptr) {
+        HILOG_ERROR("Get token failed.");
+        return;
+    }
+
+    UIExtensionHostInfo hostInfo;
+    auto ret = IN_PROCESS_CALL(AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get ui extension host info failed with %{public}d.", ret);
+        return;
+    }
+
+    std::string dumpInfo = "      root host bundle name [" + hostInfo.elementName_.GetBundleName() + "]";
+    info.emplace_back(dumpInfo);
+    dumpInfo = "      root host module name [" + hostInfo.elementName_.GetModuleName() + "]";
+    info.emplace_back(dumpInfo);
+    dumpInfo = "      root host ability name [" + hostInfo.elementName_.GetAbilityName() + "]";
+    info.emplace_back(dumpInfo);
+}
+
 void AbilityRecord::DumpAbilityState(
     std::vector<std::string> &info, bool isClient, const std::vector<std::string> &params)
 {
@@ -2162,6 +2194,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     }
     // add dump client info
     DumpClientInfo(info, params, isClient);
+    DumpUIExtensionRootHostInfo(info);
 }
 
 void AbilityRecord::RemoveAbilityDeathRecipient() const
@@ -2886,8 +2919,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     auto callerPkg = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-    if (callerPkg == SHELL_ASSISTANT_BUNDLENAME
-        && GrantPermissionToShell(uriVec, want.GetFlags(), targetBundleName)) {
+    if (callerPkg == SHELL_ASSISTANT_BUNDLENAME && GrantPermissionToShell(uriVec, want.GetFlags(), targetBundleName)) {
         HILOG_INFO("permission to shell");
         return;
     }
@@ -2895,7 +2927,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         GrantUriPermissionFor2In1Inner(want, uriVec, targetBundleName, tokenId);
         return;
     }
-    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
+    uint32_t specifyTokenId = static_cast<uint32_t>(want.GetIntParam("specifyTokenId", 0));
+    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId, specifyTokenId);
 }
 
 bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission,
@@ -2944,9 +2977,10 @@ bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t caller
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
-    const std::string &targetBundleName, uint32_t tokenId)
+    const std::string &targetBundleName, uint32_t tokenId, uint32_t specifyTokenId)
 {
-    auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
+    auto callerTokenId = specifyTokenId > 0 ? specifyTokenId :
+        static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
     auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
     auto userId = GetCurrentAccountId();
     HILOG_INFO("callerTokenId = %{public}u, tokenId = %{public}u, permission = %{public}i",
@@ -3352,6 +3386,12 @@ bool AbilityRecord::BackgroundAbilityWindowDelayed()
 void AbilityRecord::DoBackgroundAbilityWindowDelayed(bool needBackground)
 {
     backgroundAbilityWindowDelayed_.store(needBackground);
+}
+
+bool AbilityRecord::IsSceneBoard() const
+{
+    return GetAbilityInfo().name == AbilityConfig::SCENEBOARD_ABILITY_NAME &&
+        GetAbilityInfo().bundleName == AbilityConfig::SCENEBOARD_BUNDLE_NAME;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -28,10 +28,10 @@ public:
     ~DialogUIExtensionCallback() = default;
     void OnRelease();
     void OnError();
+    void OnDestroy();
     void SetSessionId(int32_t sessionId);
     void SetUIContent(Ace::UIContent *uiContent);
 private:
-    void EraseUIExtension();
     int32_t sessionId_ = 0;
     Ace::UIContent *uiContent_ = nullptr;
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;

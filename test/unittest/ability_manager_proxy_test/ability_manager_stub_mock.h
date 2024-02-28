@@ -62,6 +62,15 @@ public:
         return 0;
     }
 
+    virtual int StartAbilityWithSpecifyTokenId(const Want& want,
+        const sptr<IRemoteObject>& callerToken,
+        uint32_t specifyTokenId,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
     virtual int StartAbility(
         const Want& want,
         const StartOptions& startOptions,
@@ -207,6 +216,11 @@ public:
     }
 
     virtual int UninstallApp(const std::string& bundleName, int32_t uid)
+    {
+        return 0;
+    }
+
+    virtual int32_t UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
     {
         return 0;
     }

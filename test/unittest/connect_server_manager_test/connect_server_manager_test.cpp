@@ -106,11 +106,11 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
     connectServerManager.SetLayoutInspectorCallback(createTest, setTest);
     const std::string instanceName = "test";
     connectServerManager.handlerConnectServerSo_ = nullptr;
-    EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
+    EXPECT_FALSE(connectServerManager.AddInstance(gettid(), ONE, instanceName));
     char data[] = "WaitForConnection";
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
-    EXPECT_FALSE(connectServerManager.AddInstance(ONE, instanceName));
+    EXPECT_FALSE(connectServerManager.AddInstance(gettid(), ONE, instanceName));
     HILOG_INFO("ConnectServerManagerTest_0400 is end");
 }
 
@@ -131,7 +131,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
     connectServerManager.instanceMap_.clear();
-    auto res = connectServerManager.instanceMap_.try_emplace(ONE, instanceName);
+    auto res = connectServerManager.instanceMap_.try_emplace(ONE, instanceName, gettid());
     EXPECT_TRUE(res.second);
     connectServerManager.RemoveInstance(ONE);
     EXPECT_TRUE(connectServerManager.handlerConnectServerSo_);
@@ -173,7 +173,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level
     const std::string bundleName = "StartServer";
     uint32_t socketFd = 0;
     connectServerManager.StartConnectServer(bundleName, socketFd, true);
-    EXPECT_FALSE(connectServerManager.AddInstance(TWO, instanceName));
+    EXPECT_FALSE(connectServerManager.AddInstance(gettid(), TWO, instanceName));
     HILOG_INFO("ConnectServerManagerTest_0700 is end");
 }
 

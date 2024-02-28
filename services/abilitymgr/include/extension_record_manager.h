@@ -23,6 +23,7 @@
 
 #include "ability_record.h"
 #include "extension_record.h"
+#include "ui_extension_host_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -72,6 +73,8 @@ public:
         std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, bool &isLoaded);
 
     std::shared_ptr<AAFwk::AbilityRecord> GetAbilityRecordBySessionInfo(const sptr<AAFwk::SessionInfo> &sessionInfo);
+
+    int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo);
 
 private:
     int32_t userId_;

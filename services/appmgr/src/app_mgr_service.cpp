@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1017,6 +1017,43 @@ bool AppMgrService::IsFinalAppProcess()
         return false;
     }
     return appMgrServiceInner_->IsFinalAppProcessByBundleName("");
+}
+
+int32_t AppMgrService::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
+        HILOG_ERROR("Permission verification failed");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->RegisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrService::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
+        HILOG_ERROR("Permission verification failed");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->UnregisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrService::UpdateRenderState(pid_t renderPid, int32_t state)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UpdateRenderState(renderPid, state);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

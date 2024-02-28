@@ -40,7 +40,6 @@
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
-
 #ifdef SUPPORT_GRAPHICS
 using OHOS::Ace::ContainerScope;
 #endif
@@ -53,11 +52,11 @@ const std::string BUNDLE_NAME_FLAG = "@bundle:";
 const std::string CACHE_DIRECTORY = "el2";
 const int PATH_THREE = 3;
 #ifdef APP_USE_ARM
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/libark_debugger.z.so";
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib/platformsdk/libark_debugger.z.so";
 #elif defined(APP_USE_X86_64)
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/platformsdk/libark_debugger.z.so";
 #else
-constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/libark_debugger.z.so";
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/platformsdk/libark_debugger.z.so";
 #endif
 
 bool g_debugMode = false;
@@ -93,12 +92,15 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     if (g_debugMode) {
         auto instanceId = gettid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
-        bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceName);
+        bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
         auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
             nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
         };
         panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, needBreakPoint};
         auto vm = const_cast<EcmaVM*>(arkNativeEngine->GetEcmaVm());
+        ConnectServerManager::Get().StoreDebuggerInfo(
+            instanceId, reinterpret_cast<void*>(vm), debugOption, workerPostTask, g_debugApp);
+
         panda::JSNApi::NotifyDebugMode(instanceId, vm, debugOption, instanceId, workerPostTask, g_debugApp);
     }
 }

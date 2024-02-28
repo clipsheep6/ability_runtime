@@ -850,6 +850,7 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
     callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
+    callback.onDestroy = std::bind(&DialogUIExtensionCallback::OnDestroy, disposedCallback);
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {

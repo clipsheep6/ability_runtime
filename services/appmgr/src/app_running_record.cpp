@@ -1930,5 +1930,15 @@ std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChil
     std::lock_guard lock(childProcessRecordMapLock_);
     return childProcessRecordMap_;
 }
+
+int32_t AppRunningRecord::GetAssignTokenId() const
+{
+    return assignTokenId_;
+}
+
+void AppRunningRecord::SetAssignTokenId(int32_t assignTokenId)
+{
+    assignTokenId_ = assignTokenId;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

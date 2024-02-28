@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,6 +56,7 @@
 #include "perf_profile.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "render_state_observer_manager.h"
 #include "system_ability_definition.h"
 #include "string_ex.h"
 #include "time_util.h"
@@ -124,6 +125,7 @@ const std::string DEBUG_APP = "debugApp";
 const std::string SERVICE_EXTENSION = ":ServiceExtension";
 const std::string KEEP_ALIVE = ":KeepAlive";
 const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
+const std::string TSAN_FLAG_NAME = "tsanEnabled";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -240,6 +242,7 @@ void AppMgrServiceInner::Init()
     ParseServiceExtMultiProcessWhiteList();
     deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
+    DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -289,7 +292,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     const std::shared_ptr<AAFwk::Want> &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("name:%{public}s.", abilityInfo->name.c_str());
+    HILOG_INFO("name:%{public}s.", abilityInfo->name.c_str());
     if (!CheckLoadAbilityConditions(token, abilityInfo, appInfo)) {
         HILOG_ERROR("CheckLoadAbilityConditions failed");
         return;
@@ -1462,6 +1465,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(con
         appRecord->SetCallerPid(want->GetIntParam(Want::PARAM_RESV_CALLER_PID, -1));
         appRecord->SetCallerUid(want->GetIntParam(Want::PARAM_RESV_CALLER_UID, -1));
         appRecord->SetCallerTokenId(want->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
+        appRecord->SetAssignTokenId(want->GetIntParam("specifyTokenId", 0));
     }
 
     if (preToken) {
@@ -2022,6 +2026,15 @@ void AppMgrServiceInner::SetOverlayInfo(const std::string &bundleName,
     }
 }
 
+void AppMgrServiceInner::SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg& startMsg)
+{
+    if (bundleInfo.applicationInfo.tsanEnabled) {
+        startMsg.appEnv.emplace(TSAN_FLAG_NAME, std::to_string(1));
+    } else {
+        startMsg.appEnv.emplace(TSAN_FLAG_NAME, std::to_string(0));
+    }
+}
+
 void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
                                                       uint8_t &setAllowInternet, uint8_t &allowInternet,
                                                       std::vector<int32_t> &gids, std::set<std::string> &permissions)
@@ -2080,7 +2093,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("StartProcess: %{public}s", bundleName.c_str());
     if (!appRecord) {
         HILOG_ERROR("appRecord is null");
         return;
@@ -2150,8 +2162,9 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     }
 
     SetOverlayInfo(bundleName, userId, startMsg);
+    SetAppEnvInfo(bundleInfo, startMsg);
 
-    HILOG_DEBUG("apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
+    HILOG_INFO("apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
         startMsg.apl.c_str(), bundleName.c_str(), startFlags);
 
     bool bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
@@ -2173,8 +2186,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
-    HILOG_DEBUG("pid: %{public}d, processName: %{public}s.",
-        pid, processName.c_str());
+    HILOG_INFO("pid: %{public}d, processName: %{public}s.", pid, processName.c_str());
     SetRunningSharedBundleList(bundleName, hspList);
     appRecord->GetPriorityObject()->SetPid(pid);
     appRecord->SetUid(startMsg.uid);
@@ -5382,6 +5394,47 @@ void AppMgrServiceInner::ClearData(std::shared_ptr<AppRunningRecord> appRecord)
     if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
         RemoveRunningSharedBundleList(appRecord->GetBundleName());
     }
+}
+
+int32_t AppMgrServiceInner::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (observer == nullptr) {
+        HILOG_ERROR("observer is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return DelayedSingleton<RenderStateObserverManager>::GetInstance()->RegisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (observer == nullptr) {
+        HILOG_ERROR("observer is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return DelayedSingleton<RenderStateObserverManager>::GetInstance()->UnregisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
+{
+    int32_t hostPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        HILOG_ERROR("No such appRecord, hostPid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    for (auto iter : renderRecordMap) {
+        if (iter.second != nullptr) {
+            int32_t pid = iter.second->GetPid();
+            if (renderPid == pid && ProcessExist(pid)) {
+                return DelayedSingleton<RenderStateObserverManager>::GetInstance()->OnRenderStateChanged(
+                    renderPid, state);
+            }
+        }
+    }
+    HILOG_ERROR("renderPid:%{pubclic}d not exist.", renderPid);
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

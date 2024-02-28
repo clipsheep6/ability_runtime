@@ -264,7 +264,7 @@ public:
         sptr<IRemoteObject> callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED);
-    
+
      /**
      * Create UIExtension with want, send want to ability manager service.
      *
@@ -1354,6 +1354,17 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus);
+
+    /**
+     * @brief Get host info of root caller.
+     *
+     * @param token The ability token.
+     * @param hostInfo The host info of root caller.
+     * @param userId The user id.
+     * @return ErrCode Returns ERR_OK on success, others on failure.
+     */
+    ErrCode GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
+        int32_t userId = DEFAULT_INVAL_VALUE);
 
 private:
     AbilityManagerClient();

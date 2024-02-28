@@ -226,6 +226,52 @@ int AbilityManagerProxy::StartAbility(
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartAbilityWithSpecifyTokenId(
+    const Want &want, const sptr<IRemoteObject> &callerToken, uint32_t specifyTokenId, int32_t userId, int requestCode)
+{
+    int error;
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return INNER_ERR;
+    }
+    if (callerToken) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("callerToken and flag write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(specifyTokenId)) {
+        HILOG_ERROR("specifyTokenId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AbilityManagerProxy::StartAbilityByInsightIntent(const Want &want, const sptr<IRemoteObject> &callerToken,
     uint64_t intentId, int32_t userId)
 {
@@ -1597,6 +1643,26 @@ int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::UNINSTALL_APP, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::UpgradeApp(const std::string &bundleName, const int32_t uid, const std::string &exitMsg)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, String16, Str8ToStr16(bundleName));
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, uid);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, String16, Str8ToStr16(exitMsg));
+    int error = SendRequest(AbilityManagerInterfaceCode::UPGRADE_APP, data, reply, option);
     if (error != NO_ERROR) {
         HILOG_ERROR("Send request error: %{public}d", error);
         return error;
@@ -4649,6 +4715,47 @@ int32_t AbilityManagerProxy::CancelApplicationAutoStartupByEDM(const AutoStartup
         HILOG_ERROR("Send request error: %{public}d.", ret);
         return ret;
     }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo, int32_t userId)
+{
+    if (token == nullptr) {
+        HILOG_ERROR("Input param invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken (data)) {
+        HILOG_ERROR("Write remote object failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+        HILOG_ERROR("Write flag and token failed.");
+        return INNER_ERR;
+    }
+
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("Write userId failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+
+    std::unique_ptr<UIExtensionHostInfo> info(reply.ReadParcelable<UIExtensionHostInfo>());
+    if (info == nullptr) {
+        HILOG_ERROR("Get host info failed.");
+        return INNER_ERR;
+    }
+    hostInfo = *info;
     return reply.ReadInt32();
 }
 } // namespace AAFwk

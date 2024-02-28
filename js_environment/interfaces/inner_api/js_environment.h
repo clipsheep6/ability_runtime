@@ -29,6 +29,7 @@ namespace JsEnv {
 class JsEnvironmentImpl;
 using RequestAotCallback =
     std::function<int32_t(const std::string& bundleName, const std::string& moduleName, int32_t triggerMode)>;
+using DebuggerPostTask = std::function<void(std::function<void()>&&)>;
 class JsEnvironment final : public std::enable_shared_from_this<JsEnvironment> {
 public:
     JsEnvironment() {}
@@ -87,6 +88,8 @@ public:
 
     void StartProfiler(const char* libraryPath,
         uint32_t instanceId, PROFILERTYPE profiler, int32_t interval, int tid, bool isDebugApp);
+    
+    DebuggerPostTask GetDebuggerPostTask();
 
     void DestroyHeapProfiler();
 

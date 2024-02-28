@@ -592,8 +592,9 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), -1);
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(MockToken(AbilityType::PAGE)), -1);
+    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), ERR_INVALID_VALUE);
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_EQ(abilityMs_->GetMissionIdByToken(token), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 end");
 }
 
@@ -1139,6 +1140,23 @@ HWTEST_F(AbilityManagerServiceFirstTest, ForceExitApp_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
+ * Function: UpgradeApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpgradeApp
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, UpgradeApp_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest UpgradeApp_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    std::string bundleName = "";
+    int32_t uid = 1;
+    std::string exitMsg = "App upgrade.";
+    EXPECT_EQ(abilityMs_->UpgradeApp(bundleName, uid, exitMsg), ERR_NULL_OBJECT);
+    HILOG_INFO("AbilityManagerServiceFirstTest UpgradeApp_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: ScheduleCommandAbilityDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService ScheduleCommandAbilityDone
@@ -1515,7 +1533,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_001,
     HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
-    want.SetParam("ScreenMode", 1);
+    want.SetParam("ohos.extra.param.key.startupMode", 1);
     AbilityRequest request;
     auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
     EXPECT_EQ(res, RESOLVE_ABILITY_ERR);

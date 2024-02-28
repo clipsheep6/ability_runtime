@@ -73,10 +73,14 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::KillProcessInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP)] =
         &AbilityManagerStub::UninstallAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP)] =
+        &AbilityManagerStub::UpgradeAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY)] =
         &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER)] =
         &AbilityManagerStub::StartAbilityAddCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID)] =
+        &AbilityManagerStub::StartAbilityInnerSpecifyTokenId;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN)] =
         &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS)] =
@@ -321,6 +325,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::PrepareTerminateAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION)] =
         &AbilityManagerStub::RequestModalUIExtensionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO)] =
+        &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -667,6 +673,19 @@ int AbilityManagerStub::UninstallAppInner(MessageParcel &data, MessageParcel &re
     return NO_ERROR;
 }
 
+int32_t AbilityManagerStub::UpgradeAppInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = Str16ToStr8(data.ReadString16());
+    int32_t uid = data.ReadInt32();
+    std::string exitMsg = Str16ToStr8(data.ReadString16());
+    int result = UpgradeApp(bundleName, uid, exitMsg);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("UpgradeAppInner error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     Want *want = data.ReadParcelable<Want>();
@@ -677,6 +696,27 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityInnerSpecifyTokenId(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t specifyTokenId = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityWithSpecifyTokenId(*want, callerToken, specifyTokenId, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;
@@ -2994,6 +3034,33 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
     int32_t userId = data.ReadInt32();
     UpdateSessionInfoBySCB(sessionInfos, userId);
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            HILOG_ERROR("caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    int32_t userId = data.ReadInt32();
+    UIExtensionHostInfo hostInfo;
+    auto result = GetUIExtensionRootHostInfo(callerToken, hostInfo, userId);
+    if (!reply.WriteParcelable(&hostInfo)) {
+        HILOG_ERROR("Write host info failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS
