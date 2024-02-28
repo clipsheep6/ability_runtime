@@ -9414,5 +9414,33 @@ void AbilityManagerService::WaitBootAnimationStart()
     }
     // other, the animation is ready, not wait.
 }
+
+int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Get ui extension host info.");
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not sa call.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    auto validUserId = GetValidUserId(userId);
+    auto connectManager = GetConnectManagerByUserId(validUserId);
+    if (connectManager == nullptr) {
+        HILOG_ERROR("Connect manager is nullptr, userId: %{public}d.", validUserId);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto ret = connectManager->GetUIExtensionRootHostInfo(token, hostInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get host info failed with %{public}d.", ret);
+        return ret;
+    }
+
+    return ERR_OK;
+}
 }  // namespace AAFwk
 }  // namespace OHOS

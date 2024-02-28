@@ -42,6 +42,7 @@
 #include "hilog_wrapper.h"
 #include "os_account_manager_wrapper.h"
 #include "parameters.h"
+#include "ui_extension_host_info.h"
 #include "scene_board_judgement.h"
 #include "system_ability_token_callback.h"
 #include "ui_extension_utils.h"
@@ -2064,6 +2065,34 @@ void AbilityRecord::Dump(std::vector<std::string> &info)
     }
 }
 
+void AbilityRecord::DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const
+{
+    if (!UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType)) {
+        // Dump host info only for uiextension.
+        return;
+    }
+
+    sptr<IRemoteObject> token = GetToken();
+    if (token == nullptr) {
+        HILOG_ERROR("Get token failed.");
+        return;
+    }
+
+    UIExtensionHostInfo hostInfo;
+    auto ret = IN_PROCESS_CALL(AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get ui extension host info failed with %{public}d.", ret);
+        return;
+    }
+
+    std::string dumpInfo = "      root host bundle name [" + hostInfo.elementName_.GetBundleName() + "]";
+    info.emplace_back(dumpInfo);
+    dumpInfo = "      root host module name [" + hostInfo.elementName_.GetModuleName() + "]";
+    info.emplace_back(dumpInfo);
+    dumpInfo = "      root host ability name [" + hostInfo.elementName_.GetAbilityName() + "]";
+    info.emplace_back(dumpInfo);
+}
+
 void AbilityRecord::DumpAbilityState(
     std::vector<std::string> &info, bool isClient, const std::vector<std::string> &params)
 {
@@ -2165,6 +2194,7 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     }
     // add dump client info
     DumpClientInfo(info, params, isClient);
+    DumpUIExtensionRootHostInfo(info);
 }
 
 void AbilityRecord::RemoveAbilityDeathRecipient() const

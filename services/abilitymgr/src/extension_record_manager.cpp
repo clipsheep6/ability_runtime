@@ -277,5 +277,37 @@ int32_t ExtensionRecordManager::CreateExtensionRecord(const std::shared_ptr<AAFw
     }
     return ERR_INVALID_VALUE;
 }
+
+int32_t ExtensionRecordManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo)
+{
+    if (token == nullptr) {
+        HILOG_ERROR("Input param invalid.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto abilityRecord = AAFwk::Token::GetAbilityRecordByToken(token);
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("Get ability record failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        HILOG_WARN("Not ui extension ability.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
+    auto rootCallerToken = GetRootCallerTokenLocked(extensionRecordId);
+    auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(rootCallerToken);
+    if (callerAbilityRecord == nullptr) {
+        HILOG_ERROR("Get caller ability record failed, id: %{public}d.", extensionRecordId);
+        return ERR_INVALID_VALUE;
+    }
+
+    hostInfo.elementName_ = callerAbilityRecord->GetElementName();
+    HILOG_DEBUG("Root host uri: %{public}s.", hostInfo.elementName_.GetURI().c_str());
+    return ERR_OK;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

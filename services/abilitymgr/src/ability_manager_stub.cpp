@@ -323,6 +323,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::PrepareTerminateAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION)] =
         &AbilityManagerStub::RequestModalUIExtensionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO)] =
+        &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -2975,6 +2977,33 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
     int32_t userId = data.ReadInt32();
     UpdateSessionInfoBySCB(sessionInfos, userId);
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            HILOG_ERROR("caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    int32_t userId = data.ReadInt32();
+    UIExtensionHostInfo hostInfo;
+    auto result = GetUIExtensionRootHostInfo(callerToken, hostInfo, userId);
+    if (!reply.WriteParcelable(&hostInfo)) {
+        HILOG_ERROR("Write host info failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

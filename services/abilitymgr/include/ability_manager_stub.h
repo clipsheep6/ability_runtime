@@ -274,6 +274,8 @@ private:
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -2620,5 +2620,27 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
     auto res = proxy_->QueryAllAutoStartupApplications(infoList);
     EXPECT_EQ(res, ERR_OK);
 }
+
+/**
+ * @tc.name: AbilityManagerProxy_GetUIExtensionRootHostInfo_0100
+ * @tc.desc: GetUIExtensionRootHostInfo
+ * @tc.type: FUNC
+ * @tc.require: issueI92G6Z
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo_0100, TestSize.Level1)
+{
+    HILOG_INFO("begin");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    auto token = sptr<MockAbilityToken>::MakeSptr();
+    UIExtensionHostInfo hostInfo;
+    proxy_->GetUIExtensionRootHostInfo(token, hostInfo, USER_ID);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO), mock_->code_);
+
+    HILOG_INFO("end");
+}
 } // namespace AAFwk
 } // namespace OHOS

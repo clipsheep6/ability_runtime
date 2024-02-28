@@ -228,7 +228,7 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for logout user (74)
     LOGOUT_USER = 74,
-	
+
     // Get forgeround UI abilities(75)
     GET_FOREGROUND_UI_ABILITIES = 75,
 
@@ -366,6 +366,9 @@ enum class AbilityManagerInterfaceCode {
 
     // request modal UIExtension by want
     REQUESET_MODAL_UIEXTENSION = 1056,
+
+    // get root host info of uiextesnion
+    GET_UI_EXTENSION_ROOT_HOST_INFO = 1057,
 
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,

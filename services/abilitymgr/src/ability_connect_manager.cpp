@@ -2562,5 +2562,13 @@ void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr
     CHECK_POINTER(uiExtensionAbilityRecordMgr_);
     uiExtensionAbilityRecordMgr_->RemoveExtensionRecord(abilityRecord->GetUIExtensionAbilityId());
 }
+
+int32_t AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo)
+{
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_INVALID_VALUE);
+    return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token, hostInfo);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
