@@ -1419,6 +1419,9 @@ public:
      */
     virtual int32_t NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
 
+    void CallAssertFaultCallback(
+        int64_t assertFaultSessionId, AAFwk::UserStatus status = AAFwk::UserStatus::ASSERT_TERMINATE);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1848,7 +1851,6 @@ private:
     void WaitBootAnimationStart();
     void AddAssertFaultCallback(sptr<IRemoteObject> &remote);
     void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote);
-    void CallAssertFaultCallback(int64_t assertFaultSessionId, AAFwk::UserStatus status);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

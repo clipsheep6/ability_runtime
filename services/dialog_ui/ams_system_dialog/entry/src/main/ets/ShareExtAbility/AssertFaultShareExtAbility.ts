@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import abilityManager from '@ohos.app.ability.abilityManager';
+import { BusinessError } from '@ohos.base';
 import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import wantConstant from '@ohos.app.ability.wantConstant';
 
@@ -23,6 +25,7 @@ const TEXT_DETAIL = 'assertFaultDialogDetail';
 export default class UiExtAbility extends UIExtensionAbility {
   storage: LocalStorage;
   message: string;
+  sessionId: string;
 
   onCreate() {
     console.info(TAG, 'onCreate');
@@ -37,6 +40,7 @@ export default class UiExtAbility extends UIExtensionAbility {
   }
 
   onSessionCreate(want, session) {
+    this.sessionId = want.parameters[wantConstant.Params.ASSERT_FAULT_SESSION_ID],
     console.info(TAG, `onSessionCreate, want: ${JSON.stringify(want)},`, `session: ${session}`);
     this.storage = new LocalStorage(
       {
@@ -54,5 +58,19 @@ export default class UiExtAbility extends UIExtensionAbility {
 
   onSessionDestroy(session) {
     console.info(TAG, 'onSessionDestroy');
+    console.info(TAG, `isUserAction: ${AppStorage.get('isUserAction')}`);
+    let isUserAction = AppStorage.get<boolean>('isUserAction');
+    if(isUserAction !== true || isUserAction === undefined) {
+      let status = abilityManager.UserStatus.ASSERT_TERMINATE;
+      try {
+        abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
+          console.log(TAG, 'NotifyUserActionResult success.');
+        }).catch((err: BusinessError) => {
+          console.error(TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
+        })
+      } catch (error) {
+        console.error(TAG, `try NotifyUserActionResult failed, error: ${JSON.stringify(error)}`);
+      }
+    }
   }
 };

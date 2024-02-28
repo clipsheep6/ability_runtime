@@ -22,10 +22,11 @@ let storage = LocalStorage.GetShared();
 @Entry(storage)
 @Component
 struct AssertFaultDialog {
-  @LocalStorageLink('session') session: UIExtensionContentSession = undefined;
-  @LocalStorageLink('sessionId') sessionId: string = '';
-  @LocalStorageLink('textTitle') textTitle: string = '';
-  @LocalStorageLink('textDetail') textDetail: string = '';
+  private session: UIExtensionContentSession = storage.get<UIExtensionContentSession>('session');
+  private sessionId: string = storage.get<string>('sessionId');
+  private textTitle: string = storage.get<string>('textTitle');
+  private textDetail: string = storage.get<string>('textDetail');
+
   private TAG = "AssertFaultDialog_Page";
 
   aboutToAppear() {
@@ -48,35 +49,25 @@ struct AssertFaultDialog {
           .height('15%')
 
           Flex({ direction: FlexDirection.Column }) {
-            Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
-              Flex({ direction: FlexDirection.Row, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
-                Image($r('app.media.errorMark'))
-                  .autoResize(true)
-                  .height('150px')
-                  .width('150px')
-              }
-              .margin(10)
-              .width('20%')
+            Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
+              Text(this.textTitle)
+                .fontSize(24)
+                .fontFamily('HarmonyHeiTi')
+                .fontWeight(FontWeight.Medium)
+                .fontColor($r('app.color.text_color'))
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+                .height('20%')
+                .margin({ left: 20 })
 
-              Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
-                Text(this.textTitle)
-                  .fontSize(24)
-                  .fontFamily('HarmonyHeiTi')
-                  .fontWeight(FontWeight.Medium)
-                  .fontColor($r('app.color.text_color'))
-                  .textOverflow({ overflow: TextOverflow.Ellipsis })
-                  .height('20%')
-
-                TextArea({ text: this.textDetail })
-                  .fontSize(16)
-                  .fontFamily('HarmonyHeiTi')
-                  .fontWeight(FontWeight.Medium)
-                  .fontColor($r('app.color.text_color'))
-                  .focusable(false)
-                  .backgroundColor("#FFFFFF")
-                  .height('80%')
-              }
-              .width('80%')
+              TextArea({ text: this.textDetail })
+                .fontSize(16)
+                .fontFamily('HarmonyHeiTi')
+                .fontWeight(FontWeight.Medium)
+                .fontColor($r('app.color.text_color'))
+                .focusable(false)
+                .backgroundColor("#FFFFFF")
+                .height('80%')
+                .margin({ left: 10 })
             }
             .height('80%')
 
@@ -96,6 +87,7 @@ struct AssertFaultDialog {
                   try {
                     abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
                       console.log(this.TAG, 'NotifyUserActionResult continue status success.');
+                      AppStorage.SetOrCreate('isUserAction', true);
                       this.session.terminateSelf().then(() => {
                         console.log(this.TAG, 'terminateSelf success.');
                       }).catch((err: BusinessError) => {
@@ -124,6 +116,7 @@ struct AssertFaultDialog {
                   try {
                     abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
                       console.log(this.TAG, 'NotifyUserActionResult retry status success.');
+                      AppStorage.SetOrCreate('isUserAction', true);
                       this.session.terminateSelf().then(() => {
                         console.log(this.TAG, 'terminateSelf success.');
                       }).catch((err: BusinessError) => {
@@ -152,6 +145,7 @@ struct AssertFaultDialog {
                   try {
                     abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
                       console.log(this.TAG, 'NotifyUserActionResult termination status success.');
+                      AppStorage.SetOrCreate('isUserAction', true);
                       this.session.terminateSelf().then(() => {
                         console.log(this.TAG, 'terminateSelf success.');
                       }).catch((err: BusinessError) => {
