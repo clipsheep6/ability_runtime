@@ -486,5 +486,22 @@ void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vecto
         }
     }
 }
+
+void MissionList::SignRestartAppFlag(const std::string &bundleName)
+{
+    for (auto mission : missions_) {
+        if (!mission) {
+            continue;
+        }
+        auto abilityRecord = mission->GetAbilityRecord();
+        if (!abilityRecord) {
+            continue;
+        }
+        if (abilityRecord->GetApplicationInfo().bundleName != bundleName) {
+            continue;
+        }
+        abilityRecord->SetRestartAppFlag(true);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

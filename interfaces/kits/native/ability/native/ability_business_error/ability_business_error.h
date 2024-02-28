@@ -117,6 +117,12 @@ enum class AbilityErrorCode {
     // The number of child process exceeds upper bound.
     ERROR_CODE_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND = 16000062,
 
+    // The target to restart does not belong to the current app or is not a UIAbility.
+    ERROR_CODE_RESTART_APP_INCORRECT_ABILITY = 16000063,
+
+    // Restart too frequently. Try again at least 10s later.
+    ERROR_CODE_RESTART_APP_FREQUENT = 16000064,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 

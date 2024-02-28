@@ -926,6 +926,8 @@ public:
 
     int32_t UpdateRenderState(pid_t renderPid, int32_t state);
 
+    int32_t SignRestartAppFlag(const std::string &bundleName);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);

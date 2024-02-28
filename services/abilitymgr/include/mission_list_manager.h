@@ -349,6 +349,8 @@ public:
         const AAFwk::ContinueState &state);
 
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord);
+
+    void SignRestartAppFlag(const std::string &bundleName);
 #ifdef SUPPORT_GRAPHICS
 public:
     /**

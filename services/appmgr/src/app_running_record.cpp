@@ -1940,5 +1940,15 @@ void AppRunningRecord::SetAssignTokenId(int32_t assignTokenId)
 {
     assignTokenId_ = assignTokenId;
 }
+
+void AppRunningRecord::SetRestartAppFlag(bool isRestartApp)
+{
+    isRestartApp_ = isRestartApp;
+}
+
+bool AppRunningRecord::GetRestartAppFlag() const
+{
+    return isRestartApp_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

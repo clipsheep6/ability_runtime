@@ -551,6 +551,11 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t UpdateRenderState(pid_t renderPid, int32_t state) = 0;
+
+    virtual int32_t SignRestartAppFlag(const std::string &bundleName)
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

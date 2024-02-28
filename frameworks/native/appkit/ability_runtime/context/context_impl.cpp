@@ -18,6 +18,7 @@
 #include <cerrno>
 #include <regex>
 
+#include "ability_manager_client.h"
 #include "app_mgr_client.h"
 #include "application_context.h"
 #include "bundle_mgr_helper.h"
@@ -953,6 +954,13 @@ int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo
 {
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
     auto result = appMgrClient->GetProcessRunningInformation(info);
+    HILOG_DEBUG("result is %{public}d.", result);
+    return result;
+}
+
+int32_t ContextImpl::RestartApp(const AAFwk::Want& want)
+{
+    auto result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->RestartApp(want);
     HILOG_DEBUG("result is %{public}d.", result);
     return result;
 }

@@ -1690,5 +1690,27 @@ int32_t AppMgrProxy::UpdateRenderState(pid_t renderPid, int32_t state)
     }
     return reply.ReadInt32();
 }
+
+int32_t AppMgrProxy::SignRestartAppFlag(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("parcel WriteString failed");
+        return IPC_PROXY_ERR;
+    }
+    auto ret = SendRequest(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

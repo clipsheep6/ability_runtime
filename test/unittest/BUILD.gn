@@ -155,6 +155,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_record.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/resident_process_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/restart_app_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",

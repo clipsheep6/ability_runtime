@@ -100,7 +100,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             (pair.second->GetProcessName() == processName) &&
             (pair.second->GetJointUserId() == jointUserId) &&
             !(pair.second->IsTerminating()) &&
-            !(pair.second->IsKilling());
+            !(pair.second->IsKilling()) && !(pair.second->GetRestartAppFlag());
     };
 
     // If it is not empty, look for whether it can come in the same process
@@ -114,7 +114,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
         if (appRecord && appRecord->GetProcessName() == processName &&
             (specifiedProcessFlag.empty() ||
             appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
-            !(appRecord->IsTerminating()) && !(appRecord->IsKilling())) {
+            !(appRecord->IsTerminating()) && !(appRecord->IsKilling()) && !(appRecord->GetRestartAppFlag())) {
             auto appInfoList = appRecord->GetAppInfoList();
             HILOG_DEBUG("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
                 appInfoList.size(), appRecord->GetProcessName().c_str(), specifiedProcessFlag.c_str());
@@ -139,7 +139,7 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     }
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord && appRecord->GetBundleName() == bundleName) {
+        if (appRecord && appRecord->GetBundleName() == bundleName && !(appRecord->GetRestartAppFlag())) {
             return true;
         }
     }
@@ -1125,6 +1125,23 @@ std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(
         return childRecord;
     }
     return nullptr;
+}
+
+int32_t AppRunningManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
+            continue;
+        }
+        HILOG_DEBUG("sign");
+        appRecord->SetRestartAppFlag(true);
+        return ERR_OK;
+    }
+    HILOG_ERROR("Not find apprecord.");
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

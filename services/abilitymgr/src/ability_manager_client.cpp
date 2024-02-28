@@ -1687,5 +1687,14 @@ ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObjec
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetUIExtensionRootHostInfo(token, hostInfo, userId);
 }
+
+int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->RestartApp(want);
+}
 } // namespace AAFwk
 } // namespace OHOS
