@@ -521,6 +521,7 @@ private:
     int32_t GetOrCreateTargetServiceRecord(
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
         std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+    inline void HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
