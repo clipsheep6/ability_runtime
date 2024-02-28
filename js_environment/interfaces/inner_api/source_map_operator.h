@@ -24,42 +24,57 @@
 
 namespace OHOS {
 namespace JsEnv {
+namespace {
+    enum InitStatus { NOT_EXECUTED, EXECUTED_SUCCESSFULLY };
+}
 class SourceMapOperator {
 public:
     SourceMapOperator(const std::string bundleName, bool isModular)
-        : bundleName_(bundleName), isModular_(isModular) {}
+        : bundleName_(bundleName), isModular_(isModular), initStatus_(NOT_EXECUTED) {}
 
     ~SourceMapOperator() = default;
 
-    std::string TranslateBySourceMap(const std::string& stackStr)
+    void InitSourceMap()
     {
-        SourceMap sourceMapObj;
+        sourceMapObj_ = std::make_shared<SourceMap>();
         std::vector<std::string> hapList;
-        sourceMapObj.GetHapPath(bundleName_, hapList);
+        sourceMapObj_->GetHapPath(bundleName_, hapList);
         for (auto &hapInfo : hapList) {
             if (!hapInfo.empty()) {
-                sourceMapObj.Init(isModular_, hapInfo);
+                sourceMapObj_->Init(isModular_, hapInfo);
             }
         }
-        return sourceMapObj.TranslateBySourceMap(stackStr);
+        initStatus_ = EXECUTED_SUCCESSFULLY;
+    }
+
+    std::string TranslateBySourceMap(const std::string& stackStr)
+    {
+        if (sourceMapObj_ == nullptr) {
+            JSENV_LOG_E("sourceMapObj_ is nullptr");
+            return "";
+        }
+        return sourceMapObj_->TranslateBySourceMap(stackStr);
     }
 
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
     {
-        SourceMap sourceMapObj;
-        std::vector<std::string> hapList;
-        sourceMapObj.GetHapPath(bundleName_, hapList);
-        for (auto &hapInfo : hapList) {
-            if (!hapInfo.empty()) {
-                sourceMapObj.Init(isModular_, hapInfo);
-            }
+        if (sourceMapObj_ == nullptr) {
+            JSENV_LOG_E("sourceMapObj_ is nullptr");
+            return false;
         }
-        return sourceMapObj.TranslateUrlPositionBySourceMap(url, line, column);
+        return sourceMapObj_->TranslateUrlPositionBySourceMap(url, line, column);
+    }
+
+    bool GetInitStatus() const
+    {
+        return (initStatus_ == InitStatus::EXECUTED_SUCCESSFULLY);
     }
 
 private:
     const std::string bundleName_;
     bool isModular_ = false;
+    std::shared_ptr<SourceMap> sourceMapObj_;
+    InitStatus initStatus_;
 };
 } // namespace JsEnv
 } // namespace OHOS
