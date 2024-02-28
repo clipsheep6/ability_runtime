@@ -79,6 +79,8 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER)] =
         &AbilityManagerStub::StartAbilityAddCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID)] =
+        &AbilityManagerStub::StartAbilityInnerSpecifyTokenId;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN)] =
         &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS)] =
@@ -688,6 +690,27 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
     int32_t userId = data.ReadInt32();
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, userId, requestCode);
+    reply.WriteInt32(result);
+    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityInnerSpecifyTokenId(MessageParcel &data, MessageParcel &reply)
+{
+    Want *want = data.ReadParcelable<Want>();
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t specifyTokenId = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityWithSpecifyTokenId(*want, callerToken, specifyTokenId, userId, requestCode);
     reply.WriteInt32(result);
     delete want;
     return NO_ERROR;

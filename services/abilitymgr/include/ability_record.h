@@ -990,8 +990,8 @@ private:
 
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
 
-    void GrantUriPermissionInner(
-        Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
+    void GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName,
+         uint32_t tokenId, uint32_t specifyTokenId = 0);
     void GrantUriPermissionFor2In1Inner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 

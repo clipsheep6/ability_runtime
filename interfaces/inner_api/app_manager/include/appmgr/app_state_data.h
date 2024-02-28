@@ -67,6 +67,7 @@ struct AppStateData : public Parcelable {
     std::string callerBundleName;
     bool isSplitScreenMode = false;
     bool isFloatingWindowMode = false;
+    bool isSpecifyTokenId = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
