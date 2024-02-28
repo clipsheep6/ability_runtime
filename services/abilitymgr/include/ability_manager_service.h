@@ -1399,6 +1399,22 @@ public:
     int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag) override;
 
     /**
+     * @brief Set applications auto start up state by EDM.
+     * @param infoList The auto startup info vector list.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override;
+
+    /**
+     * @brief Cancel applications auto start up state by EDM.
+     * @param infoList The auto startup info vector list.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override;
+
+    /**
      * @brief Get foreground ui abilities.
      * @param list Foreground ui abilities.
      * @return Returns ERR_OK on success, others on failure.

@@ -132,6 +132,16 @@ public:
         return 0;
     }
 
+    int32_t SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
+    int32_t CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag) override
+    {
+        return 0;
+    }
+
 #ifdef ABILITY_COMMAND_FOR_TEST
     virtual int ForceTimeoutForTest(const std::string& abilityName, const std::string& state) override
     {

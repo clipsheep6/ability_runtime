@@ -4605,5 +4605,85 @@ int32_t AbilityManagerProxy::CancelApplicationAutoStartupByEDM(const AutoStartup
     }
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    int32_t num = infoList.size();
+    if (num > MAX_AUTO_STARTUP_COUNT) {
+        HILOG_ERROR("infoList is too large.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(num)) {
+        HILOG_ERROR("Write num failed.");
+        return INNER_ERR;
+    }
+    for (auto i = 0; i < num; ++i) {
+        if (!data.WriteParcelable(&infoList.at(i))) {
+            HILOG_ERROR("Write AutoStartupInfo failed.");
+            return INNER_ERR;
+        }
+    }
+
+    if (!data.WriteBool(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(
+        AbilityManagerInterfaceCode::BATCH_SET_APPLICATION_AUTO_STARTUP_BY_EDM, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag)
+{
+    int32_t num = infoList.size();
+    if (num > MAX_AUTO_STARTUP_COUNT) {
+        HILOG_ERROR("infoList is too large.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(num)) {
+        HILOG_ERROR("Write num failed.");
+        return INNER_ERR;
+    }
+    for (auto i = 0; i < num; ++i) {
+        if (!data.WriteParcelable(&infoList.at(i))) {
+            HILOG_ERROR("Write AutoStartupInfo failed.");
+            return INNER_ERR;
+        }
+    }
+
+    if (!data.WriteBool(flag)) {
+        HILOG_ERROR("Write flag failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(
+        AbilityManagerInterfaceCode::BATCH_CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
 } // namespace AAFwk
 } // namespace OHOS

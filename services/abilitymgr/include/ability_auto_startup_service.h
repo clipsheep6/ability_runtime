@@ -107,6 +107,22 @@ public:
     int32_t CancelApplicationAutoStartupByEDM(const AutoStartupInfo &info, bool flag);
 
     /**
+     * @brief Set applications auto start up state by EDM.
+     * @param infoList The auto startup info vector list.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag);
+
+    /**
+     * @brief Cancel applications auto start up state by EDM.
+     * @param infoList The auto startup info vector list.
+     * @param flag Indicate whether to allow the application to change the auto start up state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelApplicationAutoStartupByEDM(const std::vector<AutoStartupInfo> &infoList, bool flag);
+
+    /**
      * @class ClientDeathRecipient
      * notices IRemoteBroker died.
      */
