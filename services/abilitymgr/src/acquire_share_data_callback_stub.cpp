@@ -52,6 +52,10 @@ int32_t AcquireShareDataCallbackStub::AcquireShareDataDoneInner(MessageParcel &d
 {
     int32_t resultCode = data.ReadInt32();
     std::shared_ptr<WantParams> wantParam(data.ReadParcelable<WantParams>());
+    if (wantParam == nullptr) {
+        HILOG_ERROR("wantParam is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     return AcquireShareDataDone(resultCode, *wantParam);
 }
 
