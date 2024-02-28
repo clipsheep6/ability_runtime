@@ -22,6 +22,7 @@
 #include "mock_ability_foreground_state_observer_stub.h"
 #include "mock_app_mgr_service.h"
 #include "quick_fix_callback_stub.h"
+#include "render_state_observer_stub.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -38,6 +39,14 @@ public:
     virtual ~AppForegroundStateObserverMock() = default;
 
     void OnAppStateChanged(const AppStateData &appStateData) override
+    {}
+};
+
+class RenderStateObserverMock : public RenderStateObserverStub {
+public:
+    RenderStateObserverMock() = default;
+    virtual ~RenderStateObserverMock() = default;
+    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
     {}
 };
 
@@ -438,6 +447,46 @@ HWTEST_F(AppMgrProxyTest, UnregisterAppForegroundStateObserver_0100, TestSize.Le
     EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
     sptr<IAppForegroundStateObserver> observer = new (std::nothrow) AppForegroundStateObserverMock();
     auto res = appMgrProxy_->RegisterAppForegroundStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: RegisterRenderStateObserver_0100
+ * @tc.desc: Test registerRenderStateObserversendRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, RegisterRenderStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto res = appMgrProxy_->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0100
+ * @tc.desc: Test unregisterRenderStateObserversendRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UnregisterRenderStateObserver_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto res = appMgrProxy_->UnregisterRenderStateObserver(observer);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: UpdateRenderState_0100
+ * @tc.desc: Test updateRenderState sendRequest.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, UpdateRenderState_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    pid_t renderPid = 0;
+    int32_t state = 0;
+    auto res = appMgrProxy_->UpdateRenderState(renderPid, state);
     EXPECT_EQ(res, NO_ERROR);
 }
 } // namespace AppExecFwk

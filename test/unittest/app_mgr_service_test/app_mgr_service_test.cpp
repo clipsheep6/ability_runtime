@@ -1501,5 +1501,47 @@ HWTEST_F(AppMgrServiceTest, UnregisterAppForegroundStateObserver_001, TestSize.L
     auto res = appMgrService->UnregisterAppForegroundStateObserver(observer);
     EXPECT_EQ(ERR_INVALID_OPERATION, res);
 }
+
+/**
+ * @tc.name: RegisterRenderStateObserver_0100
+ * @tc.desc: Test registerRenderStateObserver when inpit is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RegisterRenderStateObserver_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->appMgrServiceInner_ = nullptr;
+    sptr<IRenderStateObserver> observer = nullptr;
+    auto res = appMgrService->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0100
+ * @tc.desc: Test unregisterRenderStateObserver when input is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, UnregisterRenderStateObserver_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->appMgrServiceInner_ = nullptr;
+    sptr<IRenderStateObserver> observer = nullptr;
+    auto res = appMgrService->UnregisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: UpdateRenderState_0100
+ * @tc.desc: Test updateRenderState when appMgrServiceInner_ is nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, UpdateRenderState_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    pid_t renderPid = 0;
+    int32_t state = 0;
+    auto res = appMgrService->UpdateRenderState(renderPid, state);
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

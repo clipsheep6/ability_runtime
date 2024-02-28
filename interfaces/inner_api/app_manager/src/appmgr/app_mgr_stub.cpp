@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -159,6 +159,12 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsFinalAppProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF)] =
         &AppMgrStub::HandleClearUpApplicationDataBySelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_RENDER_STATUS_OBSERVER)] =
+        &AppMgrStub::HandleRegisterRenderStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_RENDER_STATUS_OBSERVER)] =
+        &AppMgrStub::HandleUnregisterRenderStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_RENDER_STATUS)] =
+        &AppMgrStub::HandleUpdateRenderState;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1021,6 +1027,51 @@ int32_t AppMgrStub::HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &
     HILOG_DEBUG("Called.");
     if (!reply.WriteBool(IsFinalAppProcess())) {
         HILOG_ERROR("Fail to write bool result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRegisterRenderStateObserver(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto callback = iface_cast<AppExecFwk::IRenderStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        HILOG_ERROR("Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RegisterRenderStateObserver(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUnregisterRenderStateObserver(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto callback = iface_cast<AppExecFwk::IRenderStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        HILOG_ERROR("Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = UnregisterRenderStateObserver(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUpdateRenderState(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    int32_t pid = data.ReadInt32();
+    int32_t state = data.ReadInt32();
+    int32_t result = UpdateRenderState(pid, state);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

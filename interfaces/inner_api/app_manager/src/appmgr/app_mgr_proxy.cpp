@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1613,6 +1613,82 @@ bool AppMgrProxy::IsFinalAppProcess()
     }
 
     return reply.ReadBool();
+}
+
+int32_t AppMgrProxy::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("Observer is null or Write Remote failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto error = SendRequest(AppMgrInterfaceCode::REGISTER_RENDER_STATUS_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        HILOG_ERROR("Observer is null or Write Remote failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_RENDER_STATUS_OBSERVER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::UpdateRenderState(pid_t renderPid, int32_t state)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteInt32(renderPid)) {
+        HILOG_ERROR("RenderPid write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteInt32(state)) {
+        HILOG_ERROR("State write failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+
+    auto error = SendRequest(AppMgrInterfaceCode::UPDATE_RENDER_STATUS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

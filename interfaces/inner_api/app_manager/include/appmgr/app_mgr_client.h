@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
 #include "irender_scheduler.h"
+#include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
 #include "refbase.h"
 #include "render_process_info.h"
@@ -607,6 +608,11 @@ public:
      */
     void ClearProcessByToken(sptr<IRemoteObject> token) const;
 
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

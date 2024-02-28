@@ -56,6 +56,7 @@ ohos_shared_library("libappms") {
     "src/module_running_record.cpp",
     "src/quick_fix_callback_with_record.cpp",
     "src/remote_client_manager.cpp",
+    "src/render_state_observer_manager.cpp",
     "src/window_focus_changed_listener.cpp",
     "src/window_visibility_changed_listener.cpp",
   ]

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,6 +56,7 @@
 #include "perf_profile.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "render_state_observer_manager.h"
 #include "system_ability_definition.h"
 #include "string_ex.h"
 #include "time_util.h"
@@ -241,6 +242,7 @@ void AppMgrServiceInner::Init()
     ParseServiceExtMultiProcessWhiteList();
     deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
+    DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -5391,6 +5393,47 @@ void AppMgrServiceInner::ClearData(std::shared_ptr<AppRunningRecord> appRecord)
     if (!GetAppRunningStateByBundleName(appRecord->GetBundleName())) {
         RemoveRunningSharedBundleList(appRecord->GetBundleName());
     }
+}
+
+int32_t AppMgrServiceInner::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (observer == nullptr) {
+        HILOG_ERROR("observer is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return DelayedSingleton<RenderStateObserverManager>::GetInstance()->RegisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (observer == nullptr) {
+        HILOG_ERROR("observer is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return DelayedSingleton<RenderStateObserverManager>::GetInstance()->UnregisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
+{
+    int32_t hostPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(hostPid);
+    if (!appRecord) {
+        HILOG_ERROR("No such appRecord, hostPid:%{public}d", hostPid);
+        return ERR_INVALID_VALUE;
+    }
+
+    auto renderRecordMap = appRecord->GetRenderRecordMap();
+    for (auto iter : renderRecordMap) {
+        if (iter.second != nullptr) {
+            int32_t pid = iter.second->GetPid();
+            if (renderPid == pid && ProcessExist(pid)) {
+                return DelayedSingleton<RenderStateObserverManager>::GetInstance()->OnRenderStateChanged(
+                    renderPid, state);
+            }
+        }
+    }
+    HILOG_ERROR("renderPid:%{pubclic}d not exist.", renderPid);
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
