@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -116,6 +116,7 @@ ohos_unittest("application_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
@@ -166,6 +167,7 @@ ohos_unittest("context_container_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
@@ -226,6 +228,7 @@ ohos_unittest("context_deal_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
@@ -283,6 +286,7 @@ ohos_unittest("application_impl_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
@@ -392,6 +396,7 @@ ohos_unittest("ability_stage_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/ability/native:uiabilitykit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
@@ -440,6 +445,7 @@ ohos_unittest("form_extension_context_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/ability/native:form_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_manager_helper",
@@ -495,6 +501,7 @@ ohos_unittest("bms_context_impl_test") {
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -536,6 +543,7 @@ ohos_unittest("context_container_by_mock_bms_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",

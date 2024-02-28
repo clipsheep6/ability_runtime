@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +23,7 @@
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #include "ohos_application.h"
-#include "reverse_continuation_scheduler_primary_stage.h"
+#include "reverse_continuation_scheduler_primary.h"
 #include "runtime.h"
 
 namespace OHOS {
@@ -69,16 +69,16 @@ void UIAbility::Init(std::shared_ptr<AppExecFwk::AbilityLocalRecord> record,
     handler_ = handler;
     token_ = token;
 #ifdef SUPPORT_GRAPHICS
-    continuationManager_ = std::make_shared<AppExecFwk::ContinuationManagerStage>();
-    std::weak_ptr<AppExecFwk::ContinuationManagerStage> continuationManager = continuationManager_;
-    continuationHandler_ =
-        std::make_shared<AppExecFwk::ContinuationHandlerStage>(continuationManager, weak_from_this());
+    continuationManager_ = std::make_shared<AppExecFwk::ContinuationManager>();
+    std::weak_ptr<BaseAbility> ability = weak_from_this();
+    std::weak_ptr<AppExecFwk::ContinuationManager> continuationManager = continuationManager_;
+    continuationHandler_ = std::make_shared<AppExecFwk::ContinuationHandler>(continuationManager, ability);
     if (!continuationManager_->Init(shared_from_this(), GetToken(), GetAbilityInfo(), continuationHandler_)) {
         continuationManager_.reset();
     } else {
-        std::weak_ptr<AppExecFwk::ContinuationHandlerStage> continuationHandler = continuationHandler_;
-        sptr<AppExecFwk::ReverseContinuationSchedulerPrimaryStage> primary =
-            new (std::nothrow) AppExecFwk::ReverseContinuationSchedulerPrimaryStage(continuationHandler, handler_);
+        std::weak_ptr<AppExecFwk::ContinuationHandler> continuationHandler = continuationHandler_;
+        sptr<AppExecFwk::ReverseContinuationSchedulerPrimary> primary =
+            new (std::nothrow) AppExecFwk::ReverseContinuationSchedulerPrimary(continuationHandler, handler_);
         if (primary == nullptr) {
             HILOG_ERROR("Primary is nullptr.");
         } else {
@@ -400,7 +400,7 @@ AppExecFwk::AbilityLifecycleExecutor::LifecycleState UIAbility::GetState()
 
 int32_t UIAbility::OnContinue(AAFwk::WantParams &wantParams)
 {
-    return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+    return AppExecFwk::ContinuationManager::OnContinueResult::REJECT;
 }
 
 void UIAbility::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)

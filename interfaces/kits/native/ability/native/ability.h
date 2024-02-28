@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,13 +20,12 @@
 #include <string>
 #include <unistd.h>
 
-#include "ability_context.h"
-#include "ability_continuation_interface.h"
 #include "ability_event_interface.h"
 #include "ability_lifecycle_executor.h"
 #include "ability_lifecycle_interface.h"
 #include "ability_transaction_callback_info.h"
 #include "appexecfwk_errors.h"
+#include "base_ability.h"
 #include "configuration.h"
 #include "context.h"
 #include "continuation_handler.h"
@@ -86,8 +85,7 @@ class AbilityRecovery;
 class ContinuationRegisterManager;
 class Ability : public IAbilityEvent,
                 public ILifeCycle,
-                public AbilityContext,
-                public IAbilityContinuation,
+                public AbilityRuntime::BaseAbility,
                 public IAbilityCallback,
                 public std::enable_shared_from_this<Ability> {
 public:
@@ -744,7 +742,7 @@ public:
      * @return If the ability is willing to continue and data saved successfully, it returns 0;
      * otherwise, it returns errcode.
      */
-    virtual int32_t OnContinue(WantParams &wantParams);
+    virtual int32_t OnContinue(WantParams &wantParams) override;
 
     /**
      * @brief Migrates this ability to the given device on the same distributed network. The ability to migrate and its
@@ -1083,7 +1081,7 @@ public:
      *
      * @return A string represents page ability stack info, empty if failed;
      */
-    virtual std::string GetContentInfo();
+    virtual std::string GetContentInfo() override;
 
     /**
      * @brief Set WindowScene listener

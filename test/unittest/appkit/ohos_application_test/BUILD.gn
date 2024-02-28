@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -65,6 +65,7 @@ ohos_unittest("ohos_application_test") {
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
+    "ability_runtime:base_ability_kit_native",
     "ability_runtime:runtime",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

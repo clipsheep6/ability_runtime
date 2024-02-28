@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,7 +64,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0100, Level1)
     HILOG_INFO("PassPrimary_0100 start");
     auto continuationManager = std::make_shared<ContinuationManager>();
     std::weak_ptr<ContinuationManager> weakContinuationManager = continuationManager;
-    std::weak_ptr<Ability> weakMockAbility = std::make_shared<MockNewAbility>();
+    std::weak_ptr<AbilityRuntime::BaseAbility> weakMockAbility = std::make_shared<MockNewAbility>();
     auto continuationHandler = std::make_shared<ContinuationHandler>(weakContinuationManager, weakMockAbility);
     std::weak_ptr<ContinuationHandler> weakContinuationHandler = continuationHandler;
     std::shared_ptr<AbilityHandler> handler = nullptr;
@@ -88,7 +88,7 @@ HWTEST_F(ReverseContinuationSchedulerReplicaProxyTest, PassPrimary_0200, Level1)
     HILOG_INFO("PassPrimary_0200 start");
     auto continuationManager = std::make_shared<ContinuationManager>();
     std::weak_ptr<ContinuationManager> weakContinuationManager = continuationManager;
-    std::weak_ptr<Ability> weakMockAbility = std::make_shared<MockNewAbility>();
+    std::weak_ptr<AbilityRuntime::BaseAbility> weakMockAbility = std::make_shared<MockNewAbility>();
     auto continuationHandler
         = std::make_shared<ContinuationHandler>(weakContinuationManager, weakMockAbility);
     std::weak_ptr<ContinuationHandler> weakContinuationHandler = continuationHandler;

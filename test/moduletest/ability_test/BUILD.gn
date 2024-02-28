@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -61,6 +61,7 @@ ohos_moduletest("ability_moduletest") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -120,6 +121,7 @@ ohos_moduletest("ability_conetxt_test") {
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
@@ -164,6 +166,7 @@ ohos_moduletest("ability_thread_call_request_module_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/appkit:app_context",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gtest_main",
@@ -205,6 +208,7 @@ ohos_moduletest("data_ability_operation_moduletest") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "${global_path}/resource_management/frameworks/resmgr:global_resmgr",
     "//third_party/googletest:gmock_main",
@@ -262,6 +266,7 @@ ohos_moduletest("data_ability_helper_module_test") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_native_path}/ability/native:ability_thread",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:base_ability_kit_native",
     "${ability_runtime_native_path}/ability/native:data_ability_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
     "//third_party/googletest:gmock_main",

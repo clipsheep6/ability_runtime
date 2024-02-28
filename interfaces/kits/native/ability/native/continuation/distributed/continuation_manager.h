@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,8 +26,10 @@
 
 using OHOS::AAFwk::WantParams;
 namespace OHOS {
+namespace AbilityRuntime {
+class BaseAbility;
+}
 namespace AppExecFwk {
-class Ability;
 class ContinuationHandler;
 class IAbilityContinuation;
 class ContinuationManager : public std::enable_shared_from_this<ContinuationManager> {
@@ -35,7 +37,7 @@ public:
     ContinuationManager();
     virtual ~ContinuationManager() = default;
 
-    bool Init(const std::shared_ptr<Ability> &ability, const sptr<IRemoteObject> &continueToken,
+    bool Init(const std::shared_ptr<AbilityRuntime::BaseAbility> &ability, const sptr<IRemoteObject> &continueToken,
         const std::shared_ptr<AbilityInfo> &abilityInfo,
         const std::shared_ptr<ContinuationHandler> &continuationHandler);
 
@@ -111,7 +113,7 @@ private:
     bool GetContentInfo(WantParams &wantParams);
 #endif
     sptr<IRemoteObject> continueToken_ = nullptr;
-    std::weak_ptr<Ability> ability_;
+    std::weak_ptr<AbilityRuntime::BaseAbility> ability_;
     std::weak_ptr<AbilityInfo> abilityInfo_;
     ProgressState progressState_ = ProgressState::INITIAL;
     bool reversible_ = false;

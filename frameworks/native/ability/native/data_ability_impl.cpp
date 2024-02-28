@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -436,12 +436,12 @@ bool DataAbilityImpl::CheckExecuteBatchPermission(
 
 bool DataAbilityImpl::CheckOpenFilePermission(const std::string &mode) const
 {
-    if (mode.find(READ) != string::npos) {
+    if (mode.find(READ) != std::string::npos) {
         if (!CheckReadAndWritePermission(READ)) {
             HILOG_WARN("DataAbilityImpl::OpenFile failed, do not have read permission");
             return false;
         }
-    } else if (mode.find(WRITE) != string::npos) {
+    } else if (mode.find(WRITE) != std::string::npos) {
         if (!CheckReadAndWritePermission(WRITE)) {
             HILOG_WARN("DataAbilityImpl::OpenFile failed, do not have write permission");
             return false;
