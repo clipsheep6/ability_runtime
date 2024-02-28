@@ -32,6 +32,7 @@
 #include "record_query_result.h"
 #include "refbase.h"
 #include "running_process_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -162,6 +163,15 @@ public:
     * @return Returns ERR_OK on success, others on failure.
     */
     int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
 
     /**
      * Set AbilityForegroundingFlag of an app-record to true.

@@ -25,6 +25,7 @@
 #include "iquick_fix_callback.h"
 #include "want.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -92,6 +93,16 @@ public:
      * @return
      */
     virtual void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) = 0;
+
+    /**
+     * ScheduleJsHeapMemory, call ScheduleJsHeapMemory() through proxy project,
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     *
+     * @return
+     */
+    virtual void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) = 0;
 
     /**
      * ScheduleLaunchApplication, call ScheduleLaunchApplication() through proxy project,
@@ -246,6 +257,7 @@ public:
         SCHEDULE_ATTACH_APP_DEBUG,
         SCHEDULE_DETACH_APP_DEBUG,
         SCHEDULE_NEW_PROCESS_REQUEST,
+        SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION,
     };
 };
 }  // namespace AppExecFwk

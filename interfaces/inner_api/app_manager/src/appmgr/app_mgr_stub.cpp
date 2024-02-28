@@ -28,6 +28,7 @@
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -93,6 +94,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetProcessRunningInformation;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS)] =
         &AppMgrStub::HandleDumpHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS)] =
+        &AppMgrStub::HandleDumpJsHeapMemory;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -372,6 +375,23 @@ int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &rep
         return result;
     }
     reply.WriteParcelable(&mallocInfo);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleDumpJsHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("AppMgrStub::HandleDumpJsHeapMemory.");
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::unique_ptr<JsHeapDumpInfo> info(data.ReadParcelable<JsHeapDumpInfo>());
+    if (info == nullptr) {
+        HILOG_ERROR("AppMgrStub read configuration error");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = DumpJsHeapMemory(*info);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result error");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 

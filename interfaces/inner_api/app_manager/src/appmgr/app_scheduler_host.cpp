@@ -64,6 +64,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION)] =
+        &AppSchedulerHost::HandleScheduleJsHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT)] =
         &AppSchedulerHost::HandleNotifyAppFault;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE)] =
@@ -150,6 +152,18 @@ int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageP
     struct OHOS::AppExecFwk::MallocInfo mallocInfo;
     ScheduleHeapMemory(pid, mallocInfo);
     reply.WriteParcelable(&mallocInfo);
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleJsHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::unique_ptr<JsHeapDumpInfo> info(data.ReadParcelable<JsHeapDumpInfo>());
+    if (!info) {
+        HILOG_ERROR("ReadParcelable<JsHeapDumpInfo> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    ScheduleJsHeapMemory(*info);
     return NO_ERROR;
 }
 

@@ -64,6 +64,7 @@
 #include "want.h"
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -332,6 +333,15 @@ public:
      * @return ERR_OK, return back success，others fail.
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
 
     /**
      * @brief Check whether the shared bundle is running.

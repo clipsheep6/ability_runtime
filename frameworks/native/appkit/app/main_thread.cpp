@@ -603,6 +603,39 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
 
 /**
  *
+ * @brief the application triggerGC and dump jsheap memory.
+ *
+ * @param info, pid, tid, needGC, needSnapshot.
+ */
+void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    HILOG_INFO("ScheduleJsHeapMemory pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        info.pid, info.tid, info.needGc, info.needSnapshot);
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory mainHandler nullptr");
+        return;
+    }
+    auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory app nullptr");
+        return;
+    }
+    auto &runtime = app->GetRuntime();
+    if (runtime == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory runtime nullptr");
+        return;
+    }
+    if (info.needSnapshot == true) {
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
+    } else {
+        if (info.needGc == true) {
+            runtime->ForceFullGC(info.tid);
+        }
+    }
+}
+
+/**
+ *
  * @brief Schedule the application process exit safely.
  *
  */

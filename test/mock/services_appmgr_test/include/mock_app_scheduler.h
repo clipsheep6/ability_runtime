@@ -56,6 +56,7 @@ public:
     MOCK_METHOD1(ScheduleChangeAppGcState, int32_t(int32_t state));
     MOCK_METHOD0(AttachAppDebug, void());
     MOCK_METHOD0(DetachAppDebug, void());
+    MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

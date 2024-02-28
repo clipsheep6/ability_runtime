@@ -51,6 +51,7 @@ public:
     MOCK_METHOD1(AttachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(DetachAppDebug, int32_t(const std::string &bundleName));
     MOCK_METHOD1(RegisterAbilityDebugResponse, int32_t(const sptr<AppExecFwk::IAbilityDebugResponse> &response));
+    MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
 };
 }  // namespace AAFwk
 }  // namespace OHOS

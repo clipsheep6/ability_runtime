@@ -324,6 +324,28 @@ int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     return ret;
 }
 
+int32_t AppMgrProxy::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    HILOG_DEBUG("AppMgrProxy::DumpJsHeapMemory.");
+    MessageParcel data;
+    MessageParcel reply;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    if (!data.WriteParcelable(&info)) {
+        HILOG_ERROR("info write failed");
+        return ERR_FLATTEN_OBJECT;
+    }
+    MessageOption option(MessageOption::TF_SYNC);
+    int32_t ret = SendRequest(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("AppMgrProxy SendRequest DUMP_JSHEAP_MEMORY_PROCESS is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return ret;
+}
+
 bool AppMgrProxy::SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply)
 {
     MessageOption option(MessageOption::TF_SYNC);

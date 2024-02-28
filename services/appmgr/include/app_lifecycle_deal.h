@@ -23,6 +23,7 @@
 #include "hap_module_info.h"
 #include "want.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -125,6 +126,16 @@ public:
      * @return
      */
     void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+
+    /**
+     * ScheduleJsHeapMemory, call ScheduleJsHeapMemory() through proxy project,
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     *
+     * @return
+     */
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
 
     /**
      * LowMemoryWarning, call ScheduleLowMemory() through proxy project,
