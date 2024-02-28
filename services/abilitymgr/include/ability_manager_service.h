@@ -124,6 +124,23 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
 
     /**
+     * StartAbilityWithSpecifyTokenId with want and specialId, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param callerToken, caller ability token.
+     * @param specialId the caller Id.
+     * @param userId, Designation User ID.
+     * @param requestCode the resultCode of the ability to start.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityWithSpecifyTokenId(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        uint32_t specifyTokenId,
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        int requestCode = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * StartAbility by insight intent, send want to ability manager service.
      *
      * @param want Ability want.
@@ -817,7 +834,8 @@ public:
         int requestCode,
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
-        bool isSendDialogResult = false);
+        bool isSendDialogResult = false,
+        uint32_t specifyTokenId = 0);
 
     int StartAbilityInner(
         const Want &want,
@@ -825,7 +843,8 @@ public:
         int requestCode,
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
-        bool isSendDialogResult = false);
+        bool isSendDialogResult = false,
+        uint32_t specifyTokenId = 0);
 
     int StartExtensionAbilityInner(
         const Want &want,
@@ -1735,7 +1754,7 @@ private:
      * @param abilityRequest, abilityRequest.
      * @return Returns whether the caller is allowed to start Ability.
      */
-    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest);
+    int CheckCallAbilityPermission(const AbilityRequest &abilityRequest, uint32_t specifyTokenId = 0);
 
     /**
      * Check if Caller is allowed to start Ability(Stage) by call.

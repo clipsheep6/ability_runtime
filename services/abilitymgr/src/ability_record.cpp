@@ -2919,8 +2919,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     auto callerPkg = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-    if (callerPkg == SHELL_ASSISTANT_BUNDLENAME
-        && GrantPermissionToShell(uriVec, want.GetFlags(), targetBundleName)) {
+    if (callerPkg == SHELL_ASSISTANT_BUNDLENAME && GrantPermissionToShell(uriVec, want.GetFlags(), targetBundleName)) {
         HILOG_INFO("permission to shell");
         return;
     }
@@ -2928,7 +2927,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         GrantUriPermissionFor2In1Inner(want, uriVec, targetBundleName, tokenId);
         return;
     }
-    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
+    uint32_t specifyTokenId = static_cast<uint32_t>(want.GetIntParam("specifyTokenId", 0));
+    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId, specifyTokenId);
 }
 
 bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission,
@@ -2977,9 +2977,10 @@ bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t caller
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
-    const std::string &targetBundleName, uint32_t tokenId)
+    const std::string &targetBundleName, uint32_t tokenId, uint32_t specifyTokenId)
 {
-    auto callerTokenId = static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
+    auto callerTokenId = specifyTokenId > 0 ? specifyTokenId :
+        static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
     auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
     auto userId = GetCurrentAccountId();
     HILOG_INFO("callerTokenId = %{public}u, tokenId = %{public}u, permission = %{public}i",

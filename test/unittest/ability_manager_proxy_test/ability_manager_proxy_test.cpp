@@ -2037,6 +2037,27 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbility_001, TestSize
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityWithSpecifyTokenId
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityWithSpecifyTokenId
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of startability with specify token id
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityWithSpecifyTokenId_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    uint32_t specifyTokenId = 0;
+    auto res = proxy_->StartAbilityWithSpecifyTokenId(want, callerToken, specifyTokenId);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: StartAbilityAsCaller
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartAbilityAsCaller

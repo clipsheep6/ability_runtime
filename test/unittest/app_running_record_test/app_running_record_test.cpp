@@ -306,5 +306,38 @@ HWTEST_F(AppRunningRecordTest, GetSplitModeAndFloatingMode_001, TestSize.Level1)
     appRunningRecord->GetSplitModeAndFloatingMode(isSplitScreenMode, isFloatingWindowMode);
     EXPECT_EQ(true, isFloatingWindowMode);
 }
+
+/**
+ * @tc.name: AppRunningRecord_GetAssignTokenId_0100
+ * @tc.desc: Test GetAssignTokenId works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetAssignTokenId_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningRecord_GetAssignTokenId_0100 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    EXPECT_NE(appRecord, nullptr);
+
+    int32_t assignTokenId = appRecord->GetAssignTokenId();
+    EXPECT_EQ(assignTokenId, 0);
+}
+
+/**
+ * @tc.name: AppRunningRecord_SetAssignTokenId_0100
+ * @tc.desc: Test SetAssignTokenId works.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_SetAssignTokenId_0100, TestSize.Level1)
+{
+    HILOG_DEBUG("AppRunningRecord_GetAssignTokenId_0100 called.");
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
+    EXPECT_NE(appRecord, nullptr);
+    int32_t setId = 100;
+    appRecord->SetAssignTokenId(setId);
+    int32_t assignTokenId = appRecord->GetAssignTokenId();
+    EXPECT_EQ(assignTokenId, setId);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
