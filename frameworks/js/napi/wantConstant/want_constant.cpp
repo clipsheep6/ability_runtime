@@ -32,11 +32,11 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     napi_value action = nullptr;
     napi_value entity = nullptr;
     napi_value Flags = nullptr;
-    napi_value startupMode = nullptr;
+    napi_value showMode = nullptr;
     napi_create_object(env, &action);
     napi_create_object(env, &entity);
     napi_create_object(env, &Flags);
-    napi_create_object(env, &startupMode);
+    napi_create_object(env, &showMode);
 
     SetNamedProperty(env, action, "ohos.want.action.home", "ACTION_HOME");
     SetNamedProperty(env, action, "ohos.want.action.dial", "ACTION_DIAL");
@@ -92,9 +92,8 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, Flags, 0x20000000, "FLAG_ABILITY_MISSION_TOP");
     SetNamedProperty(env, Flags, 0x40000000, "FLAG_START_WITHOUT_TIPS");
 
-    SetNamedProperty(env, startupMode, -1, "DEFAULT");
-    SetNamedProperty(env, startupMode, 0, "JUMP");
-    SetNamedProperty(env, startupMode, 1, "EMBEDDED_FULL");
+    SetNamedProperty(env, showMode, 0, "WINDOW");
+    SetNamedProperty(env, showMode, 1, "EMBEDDED_FULL");
 
 #ifdef ENABLE_ERRCODE
     napi_value params = nullptr;
@@ -111,13 +110,13 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, params, "ohos.extra.param.key.shareUrl", "SHARE_URL_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinuePageStack", "SUPPORT_CONTINUE_PAGE_STACK_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinueSourceExit", "SUPPORT_CONTINUE_SOURCE_EXIT_KEY");
-    SetNamedProperty(env, params, "ohos.extra.param.key.startupMode", "STARTUP_MODE_KEY");
+    SetNamedProperty(env, params, "ohos.extra.param.key.showMode", "SHOW_MODE_KEY");
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_PROPERTY("Action", action),
         DECLARE_NAPI_PROPERTY("Entity", entity),
         DECLARE_NAPI_PROPERTY("Params", params),
         DECLARE_NAPI_PROPERTY("Flags", Flags),
-        DECLARE_NAPI_PROPERTY("StartupMode", startupMode),
+        DECLARE_NAPI_PROPERTY("ShowMode", showMode),
     };
 #else
     napi_property_descriptor exportFuncs[] = {
