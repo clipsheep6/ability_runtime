@@ -61,7 +61,7 @@ private:
     AppfreezeManager(const AppfreezeManager&) = delete;
     uint64_t GetMilliseconds();
     std::map<int, std::set<int>> BinderParser(std::ifstream& fin, std::string& stack) const;
-    void ParseBinderPids(const std::map<int, std::set<int>>& binderInfo, std::set<int>& pids, int pid) const;
+    void ParseBinderPids(const std::map<int, std::set<int>>& binderInfo, std::set<int>& pids, int pid, int layer) const;
     std::set<int> GetBinderPeerPids(std::string& stack, int pid) const;
     std::string CatcherStacktrace(int pid) const;
     int AcquireStack(const FaultData& faultData, const AppInfo& appInfo);

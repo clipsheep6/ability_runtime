@@ -41,6 +41,7 @@ constexpr char EVENT_MESSAGE[] = "MSG";
 constexpr char EVENT_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr char EVENT_STACK[] = "STACK";
+constexpr int MAX_LAYER = 8;
 }
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
 ffrt::mutex AppfreezeManager::singletonMutex_;
@@ -299,7 +300,7 @@ std::set<int> AppfreezeManager::GetBinderPeerPids(std::string& stack, int pid) c
         return pids;
     }
 
-    ParseBinderPids(binderInfo, pids, pid);
+    ParseBinderPids(binderInfo, pids, pid, 0);
     for (auto& each : pids) {
         HILOG_DEBUG("each pids:%{public}d", each);
     }
@@ -307,13 +308,17 @@ std::set<int> AppfreezeManager::GetBinderPeerPids(std::string& stack, int pid) c
 }
 
 void AppfreezeManager::ParseBinderPids(const std::map<int, std::set<int>>& binderInfo,
-    std::set<int>& pids, int pid) const
+    std::set<int>& pids, int pid, int layer) const
 {
     auto it = binderInfo.find(pid);
+    layer++;
+    if (layer >= MAX_LAYER) {
+        return;
+    }
     if (it != binderInfo.end()) {
         for (auto& each : it->second) {
             pids.insert(each);
-            ParseBinderPids(binderInfo, pids, each);
+            ParseBinderPids(binderInfo, pids, each, layer);
         }
     }
 }
