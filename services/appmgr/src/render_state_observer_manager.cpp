@@ -69,8 +69,12 @@ void RenderStateObserverManager::HandleRegisterRenderStateObserver(const sptr<IR
             });
         if (deathRecipient_ == nullptr) {
             HILOG_ERROR("New RenderStateObserverManager failed.");
-            return;
         }
+    }
+
+    auto observerObj = observer->AsObject();
+    if (!observerObj || !observerObj->AddDeathRecipient(deathRecipient_)) {
+        HILOG_ERROR("AddDeathRecipient failed.");
     }
 
     observerList_.emplace_back(observer);

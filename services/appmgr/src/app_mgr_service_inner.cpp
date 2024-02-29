@@ -5423,18 +5423,12 @@ int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
         return ERR_INVALID_VALUE;
     }
 
-    auto renderRecordMap = appRecord->GetRenderRecordMap();
-    for (auto iter : renderRecordMap) {
-        if (iter.second != nullptr) {
-            int32_t pid = iter.second->GetPid();
-            if (renderPid == pid && ProcessExist(pid)) {
-                return DelayedSingleton<RenderStateObserverManager>::GetInstance()->OnRenderStateChanged(
-                    renderPid, state);
-            }
-        }
+    if (appRecord->GetRenderRecordByPid(renderPid) == nullptr) {
+        HILOG_ERROR("renderPid:%{pubclic}d not exist.", renderPid);
+        return ERR_INVALID_VALUE;
     }
-    HILOG_ERROR("renderPid:%{pubclic}d not exist.", renderPid);
-    return ERR_INVALID_VALUE;
+    return DelayedSingleton<RenderStateObserverManager>::GetInstance()->OnRenderStateChanged(
+        renderPid, state);
 }
 
 int32_t AppMgrServiceInner::SignRestartAppFlag(const std::string &bundleName)
