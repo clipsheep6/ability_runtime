@@ -4713,5 +4713,73 @@ int32_t AbilityManagerProxy::RestartApp(const AAFwk::Want &want)
     }
     return reply.ReadInt32();
 }
+
+Want AbilityManagerProxy::GetLaunchWantByAppId(const std::string &appId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return {};
+    }
+    if (!data.WriteString(appId)) {
+        HILOG_ERROR("Write appId failed.");
+        return {};
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::GET_LAUNCH_WANT_BY_APP_ID, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return {};
+    }
+    std::unique_ptr<Want> want(reply.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return {};
+    }
+    return *want;
+}
+
+int32_t AbilityManagerProxy::OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken, int32_t requestCode,
+    int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("Write want failed.");
+        return INNER_ERR;
+    }
+    if (callerToken != nullptr) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
 } // namespace AAFwk
 } // namespace OHOS

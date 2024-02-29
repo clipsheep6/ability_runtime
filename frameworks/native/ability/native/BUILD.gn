@@ -861,6 +861,9 @@ ohos_shared_library("ability_business_error") {
   public_configs = [ ":ability_business_error_public_config" ]
 
   external_deps = [ "c_utils:utils" ]
+  if (!build_ohos_sdk) {
+    external_deps += [ "bundle_framework:appexecfwk_base" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
