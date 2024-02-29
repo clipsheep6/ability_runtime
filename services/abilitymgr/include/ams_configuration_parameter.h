@@ -167,7 +167,6 @@ private:
     std::string abilityName_ {""};
     std::string pickerType_ {""};
     nlohmann::json pickerJsonObject_ = nlohmann::json::object();
-    bool isPcDevice_ = false;
     std::map<std::string, std::string> picker_;
 };
 }  // namespace AAFwk

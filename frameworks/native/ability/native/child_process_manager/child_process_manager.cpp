@@ -121,7 +121,7 @@ void ChildProcessManager::HandleSigChild(int32_t signo)
 
 ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
 {
-    if (!AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
+    if (!AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         HILOG_ERROR("Multi process model is not enabled");
         return ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
     }

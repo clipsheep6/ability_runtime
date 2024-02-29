@@ -2923,7 +2923,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         HILOG_INFO("permission to shell");
         return;
     }
-    if (AppUtils::GetInstance().JudgePCDevice()) {
+    if (AppUtils::GetInstance().IsGrantPersistUriPermission()) {
         GrantUriPermissionFor2In1Inner(want, uriVec, targetBundleName, tokenId);
         return;
     }
