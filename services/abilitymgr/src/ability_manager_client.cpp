@@ -1696,5 +1696,25 @@ int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->RestartApp(want);
 }
+
+AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::string &appId)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms is nullptr.");
+        return {};
+    }
+    return abms->GetElementNameByAppId(appId);
+}
+
+int32_t AbilityManagerClient::OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken, int32_t requestCode,
+    int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->OpenAtomicService(want, callerToken, requestCode, userId);
+}
 } // namespace AAFwk
 } // namespace OHOS

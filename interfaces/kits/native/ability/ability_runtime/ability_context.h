@@ -165,6 +165,8 @@ public:
     virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;
 
     virtual ErrCode RequestModalUIExtension(const AAFwk::Want& want) = 0;
+    
+    virtual ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task) = 0;
 
     /**
     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.

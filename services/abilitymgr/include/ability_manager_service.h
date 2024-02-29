@@ -263,6 +263,25 @@ public:
         int requestCode) override;
 
     /**
+     * @brief Obtains elementName by appId.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns elementName.
+     */
+    virtual AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId) override;
+
+    /**
+     * Pop-up launch of full-screen atomic service.
+     *
+     * @param want The want with parameters.
+     * @param callerToken caller ability token.
+     * @param requestCode Ability request code.
+     * @param userId The User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken,
+        int32_t requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.

@@ -17,6 +17,7 @@
 
 #include <cstdint>
 
+#include "ability_manager_client.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "js_extension_context.h"
@@ -139,6 +140,11 @@ napi_value JsUIExtensionContext::DisconnectAbility(napi_env env, napi_callback_i
 napi_value JsUIExtensionContext::ReportDrawnCompleted(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnReportDrawnCompleted);
+}
+
+napi_value JsUIExtensionContext::OpenAtomicService(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnOpenAtomicService);
 }
 
 napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
@@ -437,6 +443,70 @@ napi_value JsUIExtensionContext::OnReportDrawnCompleted(napi_env env, NapiCallba
     return result;
 }
 
+napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("OnOpenAtomicService start");
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string appId;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
+        HILOG_ERROR("OnOpenAtomicService, parse appId failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
+    std::string bundleName = elementName.GetBundleName();
+    std::string abilityName = elementName.GetAbilityName();
+    if (bundleName.empty() || abilityName.empty()) {
+        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
+        return CreateJsUndefined(env);
+    }
+
+    Want want;
+    want.SetElement(elementName);
+    return OpenAtomicServiceInner(env, info, want);
+}
+
+napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want)
+{
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
+    napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want, bool isInner) {
+        HILOG_DEBUG("OnOpenAtomicService async callback is begin");
+        HandleScope handleScope(env);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult error");
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            return;
+        }
+        if (isInner) {
+            asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+        } else {
+            asyncTask->Resolve(env, abilityResult);
+        }
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released");
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+    } else {
+        want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+        auto curRequestCode = context->GenerateCurRequestCode();
+        context->OpenAtomicService(want, curRequestCode, std::move(task));
+    }
+    HILOG_DEBUG("OnOpenAtomicService is called end");
+    return result;
+}
+
 napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     std::shared_ptr<UIExtensionContext> context)
 {
@@ -458,6 +528,7 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     BindNativeFunction(env, objValue, "connectServiceExtensionAbility", moduleName, ConnectAbility);
     BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
     BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);
+    BindNativeFunction(env, objValue, "openAtomicService", moduleName, OpenAtomicService);
 
     return objValue;
 }

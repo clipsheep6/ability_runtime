@@ -715,5 +715,24 @@ ErrCode BundleMgrHelper::GetJsonProfile(ProfileType profileType, const std::stri
     return bundleMgr->GetJsonProfile(profileType, bundleName, moduleName, profile, userId);
 }
 
+std::string BundleMgrHelper::ParseBundleNameByAppId(const std::string &appId) const
+{
+    size_t base = 89;
+    size_t count = appId.size() - base;
+    return appId.substr(0, count);
+}
+
+ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, Want &want, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    return bundleMgr->GetLaunchWantForBundle(bundleName, want, userId);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
