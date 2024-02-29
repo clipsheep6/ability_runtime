@@ -121,6 +121,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     if (!CheckConnectService()) {
         return -1;
     }
+    HILOG_ERROR("[DongLin]before size:%{public}zu", abilityInfos.size());
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
     HILOG_DEBUG("[ERMS-DFX] EvaluateResolveInfos interface cost %{public}lld mirco seconds.", cost);
@@ -209,6 +210,7 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
         return ERR_FAILED;
     }
 
+    HILOG_ERROR("[DongLin]proxy before size:%{public}zu", abilityInfos.size());
     int32_t ret = remote->SendRequest(EVALUATE_RESOLVE_INFO_CMD, data, reply, option);
     if (ret != ERR_NONE) {
         HILOG_ERROR("SendRequest error, ret = %{public}d", ret);
@@ -218,6 +220,7 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
     if (!ReadParcelableVector(abilityInfos, reply)) {
         HILOG_ERROR("GetParcelableInfos fail");
     }
+    HILOG_ERROR("[DongLin]proxy end size:%{public}zu", abilityInfos.size());
     HILOG_DEBUG("end");
     return ERR_OK;
 }
