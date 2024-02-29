@@ -1092,6 +1092,20 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid);
+}
+
+void JsRuntime::ForceFullGC(uint32_t tid)
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    DFXJSNApi::TriggerGC(vm, tid);
+}
+
 void JsRuntime::DestroyHeapProfiler()
 {
     CHECK_POINTER(jsEnv_);

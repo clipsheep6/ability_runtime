@@ -82,6 +82,8 @@ public:
     void DumpHeapSnapshot(bool isPrivate) override;
     void DestroyHeapProfiler() override;
     void ForceFullGC() override;
+    void ForceFullGC(uint32_t tid) override;
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override;
     void AllowCrossThreadExecution() override;
     void GetHeapPrepare() override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;

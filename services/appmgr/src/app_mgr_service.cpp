@@ -385,6 +385,14 @@ int32_t AppMgrService::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::Mallo
     return appMgrServiceInner_->DumpHeapMemory(pid, mallocInfo);
 }
 
+int32_t AppMgrService::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->DumpJsHeapMemory(info);
+}
+
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)
 {
     if (!IsReady()) {

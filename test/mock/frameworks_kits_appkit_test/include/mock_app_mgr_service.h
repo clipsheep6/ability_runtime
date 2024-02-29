@@ -23,6 +23,7 @@
 #include "app_mgr_stub.h"
 #include "hilog_wrapper.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -316,6 +317,11 @@ public:
     bool AddDeathRecipient(const sptr<DeathRecipient>& recipient)
     {
         return true;
+    }
+
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+    {
+        return 0;
     }
 
 private:

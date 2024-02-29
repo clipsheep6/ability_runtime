@@ -39,6 +39,7 @@
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -188,6 +189,15 @@ public:
      * @param recordId, the app record.
      */
     virtual void AddAbilityStageDone(const int32_t recordId) = 0;
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) = 0;
 
     /**
      * Start a resident process
