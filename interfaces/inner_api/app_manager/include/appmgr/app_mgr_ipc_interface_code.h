@@ -89,6 +89,7 @@ enum class AppMgrInterfaceCode {
     UNREGISTER_RENDER_STATUS_OBSERVER = 63,
     UPDATE_RENDER_STATUS = 64,
     SIGN_RESTART_APP_FLAG = 65,
+    DUMP_JSHEAP_MEMORY_PROCESS = 66，
 };
 } // AppExecFwk
 } // OHOS

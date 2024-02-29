@@ -152,6 +152,17 @@ void AppLifeCycleDeal::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
     appThread->ScheduleHeapMemory(pid, mallocInfo);
 }
 
+void AppLifeCycleDeal::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        HILOG_ERROR("appThread is nullptr");
+        return;
+    }
+
+    appThread->ScheduleJsHeapMemory(info);
+}
+
 void AppLifeCycleDeal::LowMemoryWarning()
 {
     auto appThread = GetApplicationClient();

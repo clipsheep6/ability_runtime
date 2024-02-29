@@ -36,6 +36,7 @@
 #include "overlay_event_subscriber.h"
 #include "watchdog.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -168,6 +169,14 @@ public:
      * @param mallocInfo, dynamic storage information output.
      */
     void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
+     *
+     * @brief triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot.
+     */
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
 
     /**
      *

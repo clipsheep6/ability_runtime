@@ -138,6 +138,25 @@ void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::
     mallocInfo = *info;
 }
 
+void AppSchedulerProxy::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    HILOG_DEBUG("AppSchedulerProxy::ScheduleJsHeapMemory start");
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("AppSchedulerProxy !WriteInterfaceToken.");
+        return;
+    }
+    data.WriteParcelable(&info);
+    int32_t ret = SendTransactCmd(operation, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        return;
+    }
+}
+
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
 {
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION);

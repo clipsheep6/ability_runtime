@@ -50,6 +50,7 @@ public:
     MOCK_METHOD1(ScheduleNotifyAppFault, int32_t(const FaultData &faultData));
     MOCK_METHOD0(AttachAppDebug, void());
     MOCK_METHOD0(DetachAppDebug, void());
+    MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
 
     void Post()
     {

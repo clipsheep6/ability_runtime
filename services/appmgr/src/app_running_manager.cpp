@@ -733,6 +733,27 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
     return ERR_OK;
 }
 
+int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    uint32_t pid = info.pid;
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second->GetPriorityObject();
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AppRunningRecord> appRecord = iter->second;
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appRecord->ScheduleJsHeapMemory(info);
+    return ERR_OK;
+}
+
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRenderPid(const pid_t pid)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);

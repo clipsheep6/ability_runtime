@@ -106,6 +106,9 @@ public:
 
     void DetachAppDebug() override
     {}
+
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
+    {}
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:
