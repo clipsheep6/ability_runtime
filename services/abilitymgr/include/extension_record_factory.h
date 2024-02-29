@@ -22,11 +22,13 @@
 namespace OHOS {
 namespace AbilityRuntime {
 constexpr const char *PROCESS_MODE_HOST_SPECIFIED_KEY = "ohos.extension.processMode.hostSpecified";
+constexpr const char *PROCESS_MODE_HOST_INSTANCE_KEY = "ohos.extension.processMode.hostInstance";
 constexpr uint32_t PROCESS_MODE_INSTANCE = 1 << static_cast<uint32_t>(AppExecFwk::ExtensionProcessMode::INSTANCE);
 constexpr uint32_t PROCESS_MODE_TYPE = 1 << static_cast<uint32_t>(AppExecFwk::ExtensionProcessMode::TYPE);
 constexpr uint32_t PROCESS_MODE_BUNDLE = 1 << static_cast<uint32_t>(AppExecFwk::ExtensionProcessMode::BUNDLE);
 constexpr uint32_t PROCESS_INNER_MODE_OFFSET = 16;
 constexpr uint32_t PROCESS_MODE_HOST_SPECIFIED = 1 << (PROCESS_INNER_MODE_OFFSET + 0);
+constexpr uint32_t PROCESS_MODE_HOST_INSTANCE = 1 << (PROCESS_INNER_MODE_OFFSET + 1);
 constexpr uint32_t PROCESS_MODE_SUPPORT_DEFAULT = PROCESS_MODE_BUNDLE | PROCESS_MODE_TYPE | PROCESS_MODE_INSTANCE;
 constexpr uint32_t PRE_CHECK_FLAG_NONE = 0;
 constexpr uint32_t PRE_CHECK_FLAG_CALLED_WITHIN_THE_BUNDLE = 1 << 0;
@@ -39,7 +41,7 @@ struct ExtensionRecordConfig {
 
 const std::map<AppExecFwk::ExtensionAbilityType, ExtensionRecordConfig> EXTENSION_RECORD_CONFIG_MAP = {
     { AppExecFwk::ExtensionAbilityType::EMBEDDED_UI,
-      { PROCESS_MODE_BUNDLE, PROCESS_MODE_SUPPORT_DEFAULT | PROCESS_MODE_HOST_SPECIFIED,
+      { PROCESS_MODE_BUNDLE, PROCESS_MODE_SUPPORT_DEFAULT | PROCESS_MODE_HOST_SPECIFIED | PROCESS_MODE_HOST_INSTANCE,
         PRE_CHECK_FLAG_CALLED_WITHIN_THE_BUNDLE | PRE_CHECK_FLAG_MULTIPLE_PROCESSES }},
 };
 

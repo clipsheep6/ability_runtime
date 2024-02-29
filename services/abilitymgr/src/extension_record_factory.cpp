@@ -89,6 +89,15 @@ uint32_t ExtensionRecordFactory::GetExtensionProcessMode(
         }
     }
 
+    if (config.processModeSupport & PROCESS_MODE_HOST_INSTANCE) {
+        if (abilityRequest.want.HasParameter(PROCESS_MODE_HOST_INSTANCE_KEY)) {
+            bool hostInstance = abilityRequest.want.GetBoolParam(PROCESS_MODE_HOST_INSTANCE_KEY, false);
+            if (hostInstance) {
+                return PROCESS_MODE_INSTANCE;
+            }
+        }
+    }
+
     if (abilityRequest.extensionProcessMode == ExtensionProcessMode::UNDEFINED) {
         return config.processModeDefault;
     }
