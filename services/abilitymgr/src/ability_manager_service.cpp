@@ -1684,7 +1684,7 @@ int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, sptr<IRemote
         HILOG_ERROR("The caller is not hap.");
         return CHECK_PERMISSION_FAILED;
     }
-    want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::FULL_SCREEN_MODE);
+    want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::JUMP_SCREEN_MODE);
     return StartAbility(want, callerToken, userId, requestCode);
 }
 
@@ -9414,7 +9414,7 @@ int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
 {
     int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
     int32_t result = ERR_OK;
-    if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+    if (screenMode == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
         result = GenerateAbilityRequest(want, -1, request, callerToken, userId);
         request.abilityInfo.isModuleJson = true;
         request.abilityInfo.isStageBasedModel = true;
@@ -9611,4 +9611,3 @@ int32_t AbilityManagerService::SignRestartAppFlag(int32_t userId, const std::str
 }
 }  // namespace AAFwk
 }  // namespace OHOS
- 
