@@ -238,6 +238,9 @@ enum class AbilityManagerInterfaceCode {
     // Pop-up launch of full-screen atomic service(77)
     OPEN_ATOMIC_SERVICE = 77,
 
+    // Querying whether to allow embedded startup of atomic service.
+    IS_EMBEDDED_OPEN_ALLOWED = 78,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

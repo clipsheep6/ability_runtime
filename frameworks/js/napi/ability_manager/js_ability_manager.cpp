@@ -34,6 +34,7 @@
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
+#include "napi_base_context.h"
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
@@ -113,6 +114,11 @@ public:
     static napi_value Off(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnOff);
+    }
+
+    static napi_value IsEmbeddedOpenAllowed(napi_env env, napi_callback_info info)
+    {
+        GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnIsEmbeddedOpenAllowed);
     }
 
 private:
@@ -481,6 +487,56 @@ private:
             CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
+
+    napi_value OnIsEmbeddedOpenAllowed(napi_env env, NapiCallbackInfo& info)
+    {
+        HILOG_DEBUG("Called.");
+        if (info.argc < ARGC_TWO) {
+            HILOG_ERROR("Not enough params");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+
+        bool stageMode = false;
+        napi_status status = OHOS::AbilityRuntime::IsStageContext(env, info.argv[0], stageMode);
+        if (status != napi_ok || !stageMode) {
+            HILOG_ERROR("it is not a stage mode");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        auto context = OHOS::AbilityRuntime::GetStageModeContext(env, info.argv[0]);
+        if (context == nullptr) {
+            HILOG_ERROR("get context failed");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
+        if (uiAbilityContext == nullptr) {
+            HILOG_ERROR("convert to UIAbility context failed");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        std::string appId;
+        if (!ConvertFromJsValue(env, info.argv[1], appId)) {
+            HILOG_ERROR("OnOpenAtomicService, parse appId failed.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        auto token = uiAbilityContext->GetToken();
+
+        NapiAsyncTask::CompleteCallback complete = [token, appId](napi_env env, NapiAsyncTask &task, int32_t status) {
+            auto isAllowed = AbilityManagerClient::GetInstance()->IsEmbeddedOpenAllowed(token, appId);
+            task.Resolve(env, CreateJsValue(env, isAllowed));
+        };
+
+        napi_value lastParam = (info.argc > ARGC_TWO) ?info. argv[ARGC_TWO] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsAbilityManager::OnIsEmbeddedOpenAllowed", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
 };
 } // namespace
 
@@ -506,6 +562,7 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
         env, exportObj, "getForegroundUIAbilities", moduleName, JsAbilityManager::GetForegroundUIAbilities);
     BindNativeFunction(env, exportObj, "on", moduleName, JsAbilityManager::On);
     BindNativeFunction(env, exportObj, "off", moduleName, JsAbilityManager::Off);
+    BindNativeFunction(env, exportObj, "isEmbeddedOpenAllowed", moduleName, JsAbilityManager::IsEmbeddedOpenAllowed);
     HILOG_DEBUG("end");
     return CreateJsUndefined(env);
 }

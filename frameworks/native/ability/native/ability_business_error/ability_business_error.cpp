@@ -66,6 +66,7 @@ constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "Input error. The specifie
 constexpr const char* ERROR_MSG_START_ABILITY_WAITTING = "The previous ability is starting, wait start later.";
 constexpr const char* ERROR_MSG_NOT_SELF_APPLICATION = "The target application is not self application.";
 
+// follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
 constexpr int32_t ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST = 8521220;
 
 static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {

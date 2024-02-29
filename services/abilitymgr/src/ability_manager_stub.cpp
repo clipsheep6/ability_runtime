@@ -401,6 +401,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::GetElementNameByAppIdInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE)] =
         &AbilityManagerStub::OpenAtomicServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
+        &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3085,6 +3087,28 @@ int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageP
         return ERR_INVALID_VALUE;
     }
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            HILOG_ERROR("caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    std::string appId = data.ReadString();
+    auto result = IsEmbeddedOpenAllowed(callerToken, appId);
+
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

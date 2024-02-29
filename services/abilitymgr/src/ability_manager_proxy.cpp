@@ -4781,5 +4781,38 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, sptr<IRemoteObject> c
     }
     return reply.ReadInt32();
 }
+
+bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
+{
+    if (callerToken == nullptr) {
+        HILOG_ERROR("Input param invalid.");
+        return false;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken (data)) {
+        HILOG_ERROR("Write remote object failed.");
+        return false;
+    }
+
+    if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("Write flag and callerToken failed.");
+        return false;
+    }
+
+    if (!data.WriteString(appId)) {
+        HILOG_ERROR("Write userId failed.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
 } // namespace AAFwk
 } // namespace OHOS

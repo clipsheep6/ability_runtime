@@ -1410,6 +1410,18 @@ public:
     {
         return 0;
     }
+
+    /**
+     * @brief Querying whether to allow embedded startup of atomic service.
+     *
+     * @param token The caller UIAbility token.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns true to allow ability to start, or false to reject.
+     */
+    virtual bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
+    {
+        return true;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

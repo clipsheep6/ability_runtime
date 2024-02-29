@@ -1376,6 +1376,15 @@ public:
     int32_t OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken,
         int32_t requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE);
 
+    /**
+     * @brief Querying whether to allow embedded startup of atomic service.
+     *
+     * @param token The caller UIAbility token.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns true to allow ability to start, or false to reject.
+     */
+    bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId);
+
 private:
     AbilityManagerClient();
     DISALLOW_COPY_AND_MOVE(AbilityManagerClient);
