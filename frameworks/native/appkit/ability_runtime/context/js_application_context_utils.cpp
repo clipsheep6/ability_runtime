@@ -32,6 +32,7 @@
 #include "js_error_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
+#include "napi_common_want.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -448,6 +449,49 @@ napi_value JsApplicationContextUtils::OnGetGroupDir(napi_env env, NapiCallbackIn
     NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnGetGroupDir",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+napi_value JsApplicationContextUtils::RestartApp(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnRestartApp, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInfo& info)
+{
+    // only support one params
+    if (info.argc == ARGC_ZERO) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        return CreateJsUndefined(env);
+    }
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        HILOG_ERROR("Parse want failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    auto errCode = applicationContext->RestartApp(want);
+    if (errCode == ERR_OK) {
+        return CreateJsUndefined(env);
+    }
+    if (errCode == ERR_INVALID_VALUE) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    } else if (errCode == AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY);
+    } else if (errCode == AAFwk::ERR_RESTART_APP_FREQUENT) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT);
+    } else {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
+    }
+    HILOG_ERROR("errCode is %{public}d.", errCode);
+    return CreateJsUndefined(env);
 }
 
 napi_value JsApplicationContextUtils::GetBundleCodeDir(napi_env env, napi_callback_info info)
@@ -1283,6 +1327,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getGroupDir", MD_NAME,
         JsApplicationContextUtils::GetGroupDir);
+    BindNativeFunction(env, object, "restartApp", MD_NAME,
+        JsApplicationContextUtils::RestartApp);
 }
 
 JsAppProcessState JsApplicationContextUtils::ConvertToJsAppProcessState(

@@ -25,6 +25,9 @@
 #include "context_impl.h"
 #include "environment_callback.h"
 namespace OHOS {
+namespace AAFwk {
+class Want;
+}
 namespace AbilityRuntime {
 using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
 class ApplicationContext : public Context {
@@ -92,6 +95,7 @@ public:
     Global::Resource::DeviceType GetDeviceType() const override;
     void KillProcessBySelf();
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
+    int32_t RestartApp(const AAFwk::Want& want);
 
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);
 

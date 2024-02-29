@@ -168,6 +168,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUnregisterRenderStateObserver;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_RENDER_STATUS)] =
         &AppMgrStub::HandleUpdateRenderState;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG)] =
+        &AppMgrStub::HandleSignRestartAppFlag;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1093,6 +1095,18 @@ int32_t AppMgrStub::HandleUpdateRenderState(MessageParcel &data, MessageParcel &
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSignRestartAppFlag(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::string bundleName = data.ReadString();
+    auto ret = SignRestartAppFlag(bundleName);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Write ret error.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

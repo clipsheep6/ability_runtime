@@ -26,6 +26,9 @@ namespace AppExecFwk {
 struct RunningProcessInfo;
 class BundleMgrHelper;
 }
+namespace AAFwk {
+class Want;
+}
 namespace AbilityRuntime {
 class ContextImpl : public Context {
 public:
@@ -318,6 +321,13 @@ public:
      * @return error code
      */
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
+
+    /**
+     * @brief Restart app
+     *
+     * @return error code
+     */
+    int32_t RestartApp(const AAFwk::Want& want);
 
     /**
      * @brief Get the token witch the app launched.

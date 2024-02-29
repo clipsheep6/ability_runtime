@@ -5454,5 +5454,15 @@ int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
     HILOG_ERROR("renderPid:%{pubclic}d not exist.", renderPid);
     return ERR_INVALID_VALUE;
 }
+
+int32_t AppMgrServiceInner::SignRestartAppFlag(const std::string &bundleName)
+{
+    HILOG_DEBUG("call.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+    return appRunningManager_->SignRestartAppFlag(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

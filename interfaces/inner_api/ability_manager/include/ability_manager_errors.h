@@ -377,6 +377,16 @@ enum {
      * Result(2097223) for query highest priority ability.
      */
     ERR_QUERY_HIGHEST_PRIORITY_ABILITY,
+
+    /**
+     * Result(2097224) for the target to restart does not belong to the current app or is not a UIAbility.
+     */
+    ERR_RESTART_APP_INCORRECT_ABILITY,
+
+    /**
+     * Result(2097225) for restart too frequently. Try again at least 10s later.
+     */
+    ERR_RESTART_APP_FREQUENT,
 };
 
 enum {

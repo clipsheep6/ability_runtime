@@ -949,6 +949,8 @@ public:
 
     bool IsSceneBoard() const;
 
+    void SetRestartAppFlag(bool isRestartApp);
+    bool GetRestartAppFlag() const;
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1160,6 +1162,8 @@ private:
     bool isAppAutoStartup_ = false;
     bool isConnected = false;
     std::atomic_bool backgroundAbilityWindowDelayed_ = false;
+
+    bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
 };
 }  // namespace AAFwk
 }  // namespace OHOS

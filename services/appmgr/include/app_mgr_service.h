@@ -451,6 +451,8 @@ public:
 
     int32_t UpdateRenderState(pid_t renderPid, int32_t state) override;
 
+    int32_t SignRestartAppFlag(const std::string &bundleName) override;
+
 private:
     /**
      * Init, Initialize application services.

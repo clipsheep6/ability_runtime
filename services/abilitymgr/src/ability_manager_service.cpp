@@ -71,6 +71,7 @@
 #include "parameters.h"
 #include "permission_constants.h"
 #include "recovery_param.h"
+#include "restart_app_manager.h"
 #include "sa_mgr_client.h"
 #include "scene_board_judgement.h"
 #include "session_info.h"
@@ -9477,8 +9478,101 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
         HILOG_ERROR("Get host info failed with %{public}d.", ret);
         return ret;
     }
+    return ERR_OK;
+}
 
+int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
+{
+    HILOG_DEBUG("call.");
+    int result = CheckRestartAppWant(want);
+    if (result != ERR_OK) {
+        HILOG_ERROR("CheckRestartAppWant error.");
+        return result;
+    }
+
+    std::string bundleName = want.GetElement().GetBundleName();
+    int32_t userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    int64_t now = time(nullptr);
+    RestartAppKeyType key(bundleName, userId);
+    if (RestartAppManager::GetInstance().IsRestartAppFrequent(key, now)) {
+        return AAFwk::ERR_RESTART_APP_FREQUENT;
+    }
+
+    result = SignRestartAppFlag(userId, bundleName);
+    if (result != ERR_OK) {
+        HILOG_ERROR("SignRestartAppFlag error.");
+        return result;
+    }
+    result = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->KillApplicationSelf();
+    if (result != ERR_OK) {
+        HILOG_ERROR("KillApplicationSelf error.");
+        return result;
+    }
+
+    HILOG_DEBUG("StartAbility begin.");
+    result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    if (result != ERR_OK) {
+        HILOG_ERROR("StartAbility error.");
+        return result;
+    }
+    RestartAppManager::GetInstance().AddRestartAppHistory(key, now);
+    return result;
+}
+
+int32_t AbilityManagerService::CheckRestartAppWant(const AAFwk::Want &want)
+{
+    std::string bundleName = want.GetElement().GetBundleName();
+    if (!CheckCallingTokenId(bundleName)) {
+        HILOG_ERROR("Not itself called, not allowed.");
+        return AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY;
+    }
+
+    auto bms = GetBundleManager();
+    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
+        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
+    auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    AppExecFwk::AbilityInfo abilityInfo;
+    bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));
+    if (!queryResult) {
+        HILOG_ERROR("Query ability info fail.");
+        return INNER_ERR;
+    }
+    if (abilityInfo.name.empty() || abilityInfo.bundleName.empty() || abilityInfo.type != AbilityType::PAGE) {
+        HILOG_ERROR("Ability is invalid or not UIAbility.");
+        return AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::SignRestartAppFlag(int32_t userId, const std::string &bundleName)
+{
+    auto appMgr = GetAppMgr();
+    if (appMgr == nullptr) {
+        HILOG_WARN("GetAppMgr failed");
+        return ERR_INVALID_VALUE;
+    }
+    auto ret = IN_PROCESS_CALL(appMgr->SignRestartAppFlag(bundleName));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("AppMgr SignRestartAppFlag error");
+        return ret;
+    }
+
+    auto connectManager = GetConnectManagerByUserId(userId);
+    connectManager->SignRestartAppFlag(bundleName);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->SignRestartAppFlag(bundleName);
+        return ERR_OK;
+    }
+    auto missionListManager = GetListManagerByUserId(userId);
+    if (missionListManager == nullptr) {
+        HILOG_ERROR("missionListManager is nullptr. userId:%{public}d", userId);
+        return ERR_INVALID_VALUE;
+    }
+    missionListManager->SignRestartAppFlag(bundleName);
     return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
+ 

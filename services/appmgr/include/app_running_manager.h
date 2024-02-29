@@ -253,7 +253,9 @@ public:
      * @return Returns the number of queries.
      */
     int32_t GetAllAppRunningRecordCountByBundleName(const std::string &bundleName);
- 
+
+    int32_t SignRestartAppFlag(const std::string &bundleName);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(
