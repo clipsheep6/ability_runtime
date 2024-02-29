@@ -1657,6 +1657,37 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     return missionListManager->StartAbility(abilityRequest);
 }
 
+Want AbilityManagerService::GetLaunchWantByAppId(const std::string &appId)
+{
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOG_ERROR("bms is invalid.");
+        return {};
+    }
+    auto bundleName = bms->ParseBundleNameByAppId(appId);
+    HILOG_INFO("bundleName is %{public}s.", bundleName.c_str());
+    Want launchWant;
+    auto queryRet = IN_PROCESS_CALL(bms->GetLaunchWantForBundle(bundleName, launchWant, GetUserId()));
+    if (queryRet != ERR_OK) {
+        HILOG_ERROR("The method returns err:%{public}d.", queryRet);
+        return {};
+    }
+    return launchWant;
+}
+
+int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, sptr<IRemoteObject> callerToken,
+    int32_t requestCode, int32_t userId)
+{
+    auto accessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto type = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessTokenId);
+    if (type != Security::AccessToken::TypeATokenTypeEnum::TOKEN_HAP) {
+        HILOG_ERROR("The caller is not hap.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::FULL_SCREEN_MODE);
+    return StartAbility(want, callerToken, userId, requestCode);
+}
+
 int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -5223,6 +5254,11 @@ int AbilityManagerService::GenerateAbilityRequest(
     if (request.abilityInfo.applicationInfo.name.empty() || request.abilityInfo.applicationInfo.bundleName.empty()) {
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
+    }
+    if (request.want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::IDLE_SCREEN_MODE) == 0 &&
+        request.abilityInfo.applicationInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_ERROR("The interface of starting atomicService can start only atomicService.");
+        return TARGET_ABILITY_NOT_SERVICE;
     }
     request.appInfo = request.abilityInfo.applicationInfo;
     request.uid = request.appInfo.uid;

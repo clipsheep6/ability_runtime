@@ -875,5 +875,17 @@ ErrCode AbilityContextImpl::RequestModalUIExtension(const AAFwk::Want& want)
     }
     return err;
 }
+
+ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("OpenAtomicService");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->OpenAtomicService(want, token_, requestCode, -1);
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
+        HILOG_ERROR("OpenAtomicService. ret=%{public}d", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    return err;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

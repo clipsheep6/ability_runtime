@@ -210,6 +210,8 @@ public:
 
     ErrCode RequestModalUIExtension(const Want &want) override;
 
+    ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task) override;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.

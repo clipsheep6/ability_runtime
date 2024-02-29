@@ -190,6 +190,10 @@ class AbilityContext extends Context {
   requestModalUIExtension(want, callback) {
     return this.__context_impl__.requestModalUIExtension(want, callback);
   }
+
+  openAtomicService(appId, callback) {
+    return this.__context_impl__.openAtomicService(appId, callback);
+  }
 }
 
 export default AbilityContext;
