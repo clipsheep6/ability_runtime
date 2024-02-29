@@ -1128,6 +1128,12 @@ public:
     int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
+    /**
+     * @brief Restart app self.
+     * @param want The ability type must be UIAbility.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RestartApp(const AAFwk::Want &want) override;
 private:
     template <typename T>
     int GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcelableInfos);

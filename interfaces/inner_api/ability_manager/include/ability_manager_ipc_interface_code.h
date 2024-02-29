@@ -481,10 +481,12 @@ enum class AbilityManagerInterfaceCode {
     // ipc id for cancel application auto startup by EDM
     CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6114,
 
+    // ipc id for restart app
+    RESTART_APP = 6115,
     // ipc id for request to display assert fault dialog
-    REQUEST_ASSERT_FAULT_DIALOG = 6115,
+    REQUEST_ASSERT_FAULT_DIALOG = 6116,
     // ipc id for notify the operation status of the user
-    NOTIFY_USER_ACTION_RESULT = 6116,
+    NOTIFY_USER_ACTION_RESULT = 6117,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -53,6 +53,7 @@ const std::string TASK_FINISH_USER_TEST = "FinishUserTest";
 const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
 const std::string TASK_ATTACH_CHILD_PROCESS = "AttachChildProcessTask";
 const std::string TASK_EXIT_CHILD_PROCESS_SAFELY = "ExitChildProcessSafelyTask";
+const std::string FOUNDATION_PROCESS = "foundation";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -1054,6 +1055,21 @@ int32_t AppMgrService::UpdateRenderState(pid_t renderPid, int32_t state)
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->UpdateRenderState(renderPid, state);
+}
+
+int32_t AppMgrService::SignRestartAppFlag(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    bool isCallingPermission =
+        AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_PROCESS);
+    if (!isCallingPermission) {
+        HILOG_ERROR("VerificationAllToken failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->SignRestartAppFlag(bundleName);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

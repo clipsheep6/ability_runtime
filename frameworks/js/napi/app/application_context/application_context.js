@@ -173,6 +173,10 @@ class ApplicationContext {
     return this.__context_impl__.clearUpApplicationData(callback);
   }
 
+  restartApp(want) {
+    return this.__context_impl__.restartApp(want);
+  }
+
   set area(mode) {
     return this.__context_impl__.switchArea(mode);
   }

@@ -691,7 +691,7 @@ void AbilityRecord::ProcessForegroundAbility(bool isRecent, const AbilityRequest
         GrantUriPermission(want_, applicationInfo_.bundleName, false, 0);
     }
 
-    if (isReady_) {
+    if (isReady_ && !GetRestartAppFlag()) {
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (!handler) {
             HILOG_ERROR("Fail to get AbilityEventHandler.");
@@ -3392,6 +3392,16 @@ bool AbilityRecord::IsSceneBoard() const
 {
     return GetAbilityInfo().name == AbilityConfig::SCENEBOARD_ABILITY_NAME &&
         GetAbilityInfo().bundleName == AbilityConfig::SCENEBOARD_BUNDLE_NAME;
+}
+
+void AbilityRecord::SetRestartAppFlag(bool isRestartApp)
+{
+    isRestartApp_ = isRestartApp;
+}
+
+bool AbilityRecord::GetRestartAppFlag() const
+{
+    return isRestartApp_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

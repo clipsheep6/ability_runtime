@@ -252,6 +252,7 @@ ohos_shared_library("app_context") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -318,6 +319,7 @@ ohos_shared_library("app_context_utils") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

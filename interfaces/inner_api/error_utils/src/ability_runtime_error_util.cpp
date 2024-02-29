@@ -138,7 +138,11 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_OPERATION_NOT_SUPPORTED,
         "Operation not supported." },
     { ERR_ABILITY_RUNTIME_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND,
-        "The number of child process exceeds upper bound." }
+        "The number of child process exceeds upper bound." },
+    { ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY,
+        "The target to restart does not belong to the current app or is not a UIAbility." },
+    { ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT,
+        "Restart too frequently. Try again at least 10s later." }
 };
 }
 

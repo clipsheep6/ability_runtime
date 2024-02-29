@@ -4758,5 +4758,26 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     hostInfo = *info;
     return reply.ReadInt32();
 }
+
+int32_t AbilityManagerProxy::RestartApp(const AAFwk::Want &want)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("want write failed.");
+        return IPC_PROXY_ERR;
+    }
+    auto ret = SendRequest(AbilityManagerInterfaceCode::RESTART_APP, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
 } // namespace AAFwk
 } // namespace OHOS

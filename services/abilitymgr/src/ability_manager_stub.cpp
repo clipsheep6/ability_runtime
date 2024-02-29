@@ -399,6 +399,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::RequestAssertFaultDialogInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_USER_ACTION_RESULT)] =
         &AbilityManagerStub::NotifyUserActionResultInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
+        &AbilityManagerStub::RestartAppInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3061,6 +3063,22 @@ int32_t AbilityManagerStub::GetUIExtensionRootHostInfoInner(MessageParcel &data,
     }
 
     return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call.");
+    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return IPC_STUB_ERR;
+    }
+    auto result = RestartApp(*want);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
+        return IPC_STUB_ERR;
+    }
+    return ERR_OK;
 }
 } // namespace AAFwk
 } // namespace OHOS

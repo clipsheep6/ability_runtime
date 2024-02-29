@@ -57,6 +57,9 @@ constexpr const char* ERROR_MSG_GRANT_URI_PERMISSION = "Sandbox application can 
 constexpr const char* ERROR_MSG_OPERATION_NOT_SUPPORTED = "Operation not supported.";
 constexpr const char* ERROR_MSG_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND =
     "The number of child process exceeds upper bound.";
+constexpr const char* ERROR_MSG_RESTART_APP_INCORRECT_ABILITY =
+    "The target to restart does not belong to the current app or is not a UIAbility.";
+constexpr const char* ERROR_MSG_RESTART_APP_FREQUENT = "Restart too frequently. Try again at least 10s later.";
 constexpr const char* ERROR_MSG_INVALID_CALLER = "The caller has been released.";
 constexpr const char* ERROR_MSG_NO_MISSION_ID = "The specified mission does not exist.";
 constexpr const char* ERROR_MSG_NO_MISSION_LISTENER = "Input error. The specified mission listener does not exist.";
@@ -96,6 +99,8 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED, ERROR_MSG_OPERATION_NOT_SUPPORTED },
     { AbilityErrorCode::ERROR_CODE_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND,
         ERROR_MSG_CHILD_PROCESS_NUMBER_EXCEEDS_UPPER_BOUND },
+    { AbilityErrorCode::ERROR_CODE_RESTART_APP_INCORRECT_ABILITY, ERROR_MSG_RESTART_APP_INCORRECT_ABILITY },
+    { AbilityErrorCode::ERROR_CODE_RESTART_APP_FREQUENT, ERROR_MSG_RESTART_APP_FREQUENT },
     { AbilityErrorCode::ERROR_CODE_INVALID_CALLER, ERROR_MSG_INVALID_CALLER },
     { AbilityErrorCode::ERROR_CODE_NO_MISSION_ID, ERROR_MSG_NO_MISSION_ID },
     { AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER, ERROR_MSG_NO_MISSION_LISTENER },
@@ -142,6 +147,8 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_APP_CONTROLLED, AbilityErrorCode::ERROR_CODE_CONTROLLED},
     {ERR_EDM_APP_CONTROLLED, AbilityErrorCode::ERROR_CODE_EDM_CONTROLLED},
     {ERR_INSIGHT_INTENT_START_INVALID_COMPONENT, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED},
+    {ERR_RESTART_APP_INCORRECT_ABILITY, AbilityErrorCode::ERROR_CODE_RESTART_APP_INCORRECT_ABILITY},
+    {ERR_RESTART_APP_FREQUENT, AbilityErrorCode::ERROR_CODE_RESTART_APP_FREQUENT},
 };
 }
 

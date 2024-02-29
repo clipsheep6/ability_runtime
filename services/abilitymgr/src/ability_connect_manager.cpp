@@ -2615,5 +2615,16 @@ int32_t AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
     CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_INVALID_VALUE);
     return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token, hostInfo);
 }
+
+void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    std::lock_guard guard(Lock_);
+    for (auto &[key, abilityRecord] : serviceMap_) {
+        if (abilityRecord == nullptr || abilityRecord->GetApplicationInfo().bundleName != bundleName) {
+            continue;
+        }
+        abilityRecord->SetRestartAppFlag(true);
+    }
+}
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -706,6 +706,9 @@ public:
      * @param AssignTokenId, the assign tokenId.
      */
     void SetAssignTokenId(int32_t tokenId);
+
+    void SetRestartAppFlag(bool isRestartApp);
+    bool GetRestartAppFlag() const;
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -844,6 +847,8 @@ private:
     std::set<uint32_t> windowIds_;
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> childProcessRecordMap_;
     ffrt::mutex childProcessRecordMapLock_;
+
+    bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

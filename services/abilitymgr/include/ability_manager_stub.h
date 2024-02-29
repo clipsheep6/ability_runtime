@@ -279,6 +279,7 @@ private:
     int32_t NotifyUserActionResultInner(MessageParcel &data, MessageParcel &reply);
 
     int32_t GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

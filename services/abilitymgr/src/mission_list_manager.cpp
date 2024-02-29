@@ -153,7 +153,7 @@ int MissionListManager::StartAbility(AbilityRequest &abilityRequest)
     }
 
     auto currentTopAbility = GetCurrentTopAbilityLocked();
-    if (currentTopAbility) {
+    if (currentTopAbility && !currentTopAbility->GetRestartAppFlag()) {
         std::string element = currentTopAbility->GetElementName().GetURI();
         auto state = currentTopAbility->GetAbilityState();
         HILOG_DEBUG("current top: %{public}s, state: %{public}s",
@@ -4045,6 +4045,22 @@ void MissionListManager::ReportAbilitAssociatedStartInfoToRSS(const AppExecFwk::
     ResourceSchedule::ResSchedClient::GetInstance().ReportData(
         ResourceSchedule::ResType::RES_TYPE_APP_ASSOCIATED_START, type, eventParams);
 #endif
+}
+
+void MissionListManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    for (const auto& missionList : currentMissionLists_) {
+        if (!missionList) {
+            continue;
+        }
+        missionList->SignRestartAppFlag(bundleName);
+    }
+    if (defaultStandardList_) {
+        defaultStandardList_->SignRestartAppFlag(bundleName);
+    }
+    if (defaultSingleList_) {
+        defaultSingleList_->SignRestartAppFlag(bundleName);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

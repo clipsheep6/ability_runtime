@@ -768,7 +768,7 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
     const AbilityRequest &abilityRequest) const
 {
     auto abilityRecord = GetAbilityRecordByToken(abilityRequest.callerToken);
-    if (abilityRecord != nullptr) {
+    if (abilityRecord != nullptr && !abilityRecord->GetRestartAppFlag()) {
         auto callerSessionInfo = abilityRecord->GetSessionInfo();
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
@@ -2054,6 +2054,17 @@ void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<Session
         CloseUIAbility(ability, -1, nullptr, false);
     }
     HILOG_INFO("The end of updating session info.");
+}
+
+void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    for (auto &[sessionId, abilityRecord] : sessionAbilityMap_) {
+        if (abilityRecord == nullptr || abilityRecord->GetApplicationInfo().bundleName != bundleName) {
+            continue;
+        }
+        abilityRecord->SetRestartAppFlag(true);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

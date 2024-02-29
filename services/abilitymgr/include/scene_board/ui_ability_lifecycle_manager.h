@@ -55,6 +55,8 @@ public:
         }
     };
 
+    void SignRestartAppFlag(const std::string &bundleName);
+
     /**
      * StartUIAbility with request.
      *

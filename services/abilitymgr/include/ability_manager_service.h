@@ -1463,6 +1463,13 @@ public:
     int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo,
         int32_t userId = DEFAULT_INVAL_VALUE) override;
 
+    /**
+     * @brief Restart app self.
+     * @param want The ability type must be UIAbility.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RestartApp(const AAFwk::Want &want) override;
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t ACTIVE_TIMEOUT_MSG = 1;
@@ -1895,6 +1902,9 @@ private:
     void WaitBootAnimationStart();
     void AddAssertFaultCallback(sptr<IRemoteObject> &remote);
     void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote);
+
+    int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
+    int32_t CheckRestartAppWant(const AAFwk::Want &want);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

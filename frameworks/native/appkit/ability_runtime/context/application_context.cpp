@@ -17,6 +17,7 @@
 
 #include <algorithm>
 
+#include "ability_manager_errors.h"
 #include "configuration_convertor.h"
 #include "hilog_wrapper.h"
 #include "running_process_info.h"
@@ -416,6 +417,18 @@ int32_t ApplicationContext::GetSystemPreferencesDir(const std::string &groupId, 
 std::string ApplicationContext::GetGroupDir(std::string groupId)
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetGroupDir(groupId) : "";
+}
+
+int32_t ApplicationContext::RestartApp(const AAFwk::Want& want)
+{
+    std::string abilityName = want.GetElement().GetAbilityName();
+    if (abilityName == "") {
+        HILOG_ERROR("abilityName is empty.");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleName = GetBundleName();
+    const_cast<AAFwk::Want &>(want).SetBundle(bundleName);
+    return (contextImpl_ != nullptr) ? contextImpl_->RestartApp(want) : ERR_INVALID_VALUE;
 }
 
 std::string ApplicationContext::GetDistributedFilesDir()
