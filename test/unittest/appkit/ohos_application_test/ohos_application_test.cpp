@@ -1296,5 +1296,23 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairP
     EXPECT_TRUE(ohosApplication_->runtime_ != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_NotifyUnLoadRepairPatch_0200 end.";
 }
+
+/*
+* @tc.number: AppExecFwk_OHOSApplicationTest_SetAppEnv_0100
+* @tc.name: SetAppEnv
+* @tc.desc: Verify SetAppEnv function
+*/
+HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_SetAppEnv_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetAppEnv_0100 start.";
+    AppEnvironment appEnvironment;
+    appEnvironment.name = "env_key_demo";
+    appEnvironment.value = "env_value_demo";
+    std::vector<AppEnvironment> appEnvironments = {appEnvironment};
+    ohosApplication_->SetAppEnv(appEnvironments);
+    std::string appEnvVal = getenv(appEnvironment.name.c_str());
+    EXPECT_EQ(appEnvVal, appEnvironment.value);
+    GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_SetAppEnv_0100 end.";
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
