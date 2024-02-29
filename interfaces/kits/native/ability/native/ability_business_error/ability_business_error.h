@@ -134,6 +134,9 @@ enum class AbilityErrorCode {
 
     // not self application.
     ERROR_NOT_SELF_APPLICATION = 16300003,
+
+    // observer not found.
+    ERROR_CODE_OBSERVER_NOT_FOUND = 16300004,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);
