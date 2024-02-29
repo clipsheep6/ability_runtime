@@ -2552,6 +2552,40 @@ ohos_unittest("embedded_ui_extension_module_loader_test") {
   ]
 }
 
+ohos_unittest("embedded_ui_extension_test") {
+  module_out_path = module_output_path
+  include_dirs = [
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/embedded_ui_extension_ability",
+  ]
+
+  sources = [ "embedded_ui_extension_test.cpp" ]
+
+  configs = [ ":module_private_config" ]
+
+  deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/runtime:runtime",
+    "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:embedded_ui_extension",
+    "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:appkit_native",
+    "//third_party/googletest:gmock_main",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
+    "c_utils:utils",
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+}
+
 ###############################################################################
 
 group("unittest") {
@@ -2592,6 +2626,7 @@ group("unittest") {
     ":data_uri_utils_test",
     ":distributed_client_test",
     ":embedded_ui_extension_module_loader_test",
+    ":embedded_ui_extension_test",
     ":extension_ability_thread_test",
     ":extension_impl_test",
     ":extension_test",

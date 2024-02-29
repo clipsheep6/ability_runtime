@@ -941,6 +941,8 @@ public:
 
     void SetProcessName(const std::string &process);
 
+    std::string GetProcessName() const;
+
     void SetURI(const std::string &uri);
     std::string GetURI() const;
 

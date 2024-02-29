@@ -206,7 +206,7 @@ napi_value JsUIExtensionContext::OnTerminateSelf(napi_env env, NapiCallbackInfo&
 
             ErrCode innerErrorCode = context->TerminateSelf();
             if (innerErrorCode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
                 task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
             }
@@ -268,17 +268,15 @@ napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, NapiCallb
 
 napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("OnTerminateSelfWithResult is start");
-
+    HILOG_DEBUG("called");
     if (info.argc == 0) {
         HILOG_ERROR("Not enough params");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
-
-    int resultCode = 0;
+    int32_t resultCode = 0;
     AAFwk::Want want;
-    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[0], resultCode, want)) {
+    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
         HILOG_ERROR("OnTerminateSelfWithResult Failed to parse ability result!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -289,19 +287,29 @@ napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCal
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                 return;
             }
-
+            sptr<Rosen::Window> uiWindow = context->GetWindow();
+            if (uiWindow == nullptr) {
+                HILOG_ERROR("uiWindow is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
+            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
+            if (ret != Rosen::WMError::WM_OK) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
             auto errorCode = context->TerminateSelf();
             if (errorCode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
                 task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));

@@ -27,8 +27,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-constexpr int32_t INVALID_EXTENSION_RECORD_ID = 0;
-
 class ExtensionRecordManager : public std::enable_shared_from_this<ExtensionRecordManager> {
 public:
     using ExtensionAbilityRecordMap = std::map<int32_t, std::shared_ptr<ExtensionRecord>>;
@@ -91,8 +89,10 @@ private:
     int32_t GetExtensionRecord(const int32_t extensionRecordId, const std::string &hostBundleName,
         std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded);
 
-    void UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest,
-        std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord);
+    int32_t UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest, std::shared_ptr<ExtensionRecord> &record);
+
+    bool IsHostSpecifiedProcessValid(const AAFwk::AbilityRequest &abilityRequest,
+        std::shared_ptr<ExtensionRecord> &record, const std::string &process);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

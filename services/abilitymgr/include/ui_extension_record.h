@@ -27,14 +27,11 @@ namespace OHOS {
 namespace AbilityRuntime {
 class UIExtensionRecord : public ExtensionRecord {
 public:
-    UIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
-        const std::string &hostBundleName, int32_t extensionRecordId);
+    UIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord);
 
     ~UIExtensionRecord() override;
 
     bool ContinueToGetCallerToken() override;
-
-    static int32_t NeedReuse(const AAFwk::AbilityRequest &abilityRequest);
 
     void Update(const AAFwk::AbilityRequest &abilityRequest) override;
 };
