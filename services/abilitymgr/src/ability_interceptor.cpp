@@ -186,7 +186,9 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
     HILOG_DEBUG("Call");
     AppExecFwk::DisposedRule disposedRule;
     if (CheckControl(want, userId, disposedRule)) {
-        HILOG_INFO("The target ability is intercpted.");
+        HILOG_INFO("The target ability is intercpted, disposedType is %{public}d, controlType is %{public}d, "
+            "componentType is %{public}d.", disposedRule.disposedType, disposedRule.controlType,
+            disposedRule.componentType);
 #ifdef SUPPORT_GRAPHICS
         if (!isForeground || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
