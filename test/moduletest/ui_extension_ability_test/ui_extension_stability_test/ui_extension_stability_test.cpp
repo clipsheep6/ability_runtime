@@ -68,7 +68,6 @@ static void SetNativeToken()
         .acls = nullptr,
         .aplStr = "system_core",
     };
-
     infoInstance.processName = "SetUpTestCase";
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
@@ -227,12 +226,14 @@ HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Le
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
     EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
+    WaitUntilAbilityForeground(observer);
 
     sptr<IRemoteObject> token = nullptr;
     auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
     int resultCode = 0;
     Want resultWant;
     ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+    WaitUntilProcessDied(observer);
 
     UnregisterApplicationStateObserver(observer);
     HILOG_INFO("TerminateUIExtensionAbility_0100 finish.");
@@ -258,11 +259,13 @@ HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Lev
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
     EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
+    WaitUntilAbilityForeground(observer);
 
     Want uiAbilityWant;
     AppExecFwk::ElementName uiAbilityElement("0", TARGET_BUNDLE_NAME, TARGET_UIABILITY_NAME, TARGET_MODULE_NAME);
     uiAbilityWant.SetElement(uiAbilityElement);
     EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant), ERR_OK);
+    WaitUntilAbilityForeground(observer);
 
     // start uiability and uiextension user repeatly.
     for (uint32_t i = 0; i < TEST_TIMES; i++) {
@@ -273,21 +276,25 @@ HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Lev
     // start uiability and destroy
     {
         auto ret = AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant);
+        WaitUntilAbilityForeground(observer);
         sptr<IRemoteObject> token = nullptr;
         ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
         int resultCode = 0;
         Want resultWant;
         ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+        WaitUntilAbilityForeground(observer);
     }
 
     // start ui extension user and destroy
     {
         auto ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
+        WaitUntilAbilityForeground(observer);
         sptr<IRemoteObject> token = nullptr;
         ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
         int resultCode = 0;
         Want resultWant;
         ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+        WaitUntilAbilityForeground(observer);
     }
 
     UnregisterApplicationStateObserver(observer);
