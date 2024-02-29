@@ -56,7 +56,7 @@
         "name": "AssertFaultDialog",
         "icon": "$media:icon",
         "description": "$string:AssertFaultShareExtAbility_desc",
-        "type": "share",
+        "type": "sys/commonUI",
         "visible": true,
         "srcEntry": "./ets/ShareExtAbility/AssertFaultShareExtAbility.ts"
       },

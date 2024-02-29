@@ -9419,12 +9419,12 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
         return ERR_INVALID_VALUE;
     }
     int64_t assertFaultSessionId = reinterpret_cast<int64_t>(remoteCallback.GetRefPtr());
-    want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
-    want.SetParam(ASSERT_FAULT_TITLE, wantParams.GetStringParam(ASSERT_FAULT_TITLE));
-    want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
+    // want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
+    // want.SetParam(ASSERT_FAULT_TITLE, wantParams.GetStringParam(ASSERT_FAULT_TITLE));
+    // want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
-        if (connection == nullptr || !connection->CreateModalUIExtension(want)) {
+        if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
             HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
             return ERR_INVALID_VALUE;
         }

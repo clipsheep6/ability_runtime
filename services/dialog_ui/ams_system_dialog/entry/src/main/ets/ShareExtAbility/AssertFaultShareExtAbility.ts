@@ -19,8 +19,7 @@ import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import wantConstant from '@ohos.app.ability.wantConstant';
 
 const TAG = 'AssertFaultDialog_UIExtension';
-const TEXT_TITLE = 'assertFaultDialogTitle';
-const TEXT_DETAIL = 'assertFaultDialogDetail';
+const TEXT_DETAIL : string = "File:\n../../third_party/musl/libc-test/src/functionalext/unittest/unit_test_assert_fail.c\nFunction: main\nLine: 23\n\nExpression:\n0\n\n(Press Retry to debug the application)";
 
 export default class UiExtAbility extends UIExtensionAbility {
   storage: LocalStorage;
@@ -46,10 +45,10 @@ export default class UiExtAbility extends UIExtensionAbility {
       {
         'session': session,
         'sessionId' : want.parameters[wantConstant.Params.ASSERT_FAULT_SESSION_ID],
-        'textTitle' : want.parameters[TEXT_TITLE],
-        'textDetail' : want.parameters[TEXT_DETAIL]
+        'textDetail' : TEXT_DETAIL
       });
     session.loadContent('pages/assertFaultDialog', this.storage);
+    session.setWindowBackgroundColor('#00000000');
   }
 
   onDestroy() {
