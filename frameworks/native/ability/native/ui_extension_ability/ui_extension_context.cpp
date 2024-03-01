@@ -178,5 +178,17 @@ Ace::UIContent* UIExtensionContext::GetUIContent()
     }
     return window_->GetUIContent();
 }
+
+ErrCode UIExtensionContext::OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("OpenAtomicService");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->OpenAtomicService(want, token_, requestCode);
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
+        HILOG_ERROR("OpenAtomicService. ret=%{public}d", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    return err;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

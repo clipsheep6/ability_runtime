@@ -263,6 +263,34 @@ public:
         int requestCode) override;
 
     /**
+     * @brief Obtains elementName by appId.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns elementName.
+     */
+    virtual AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId) override;
+
+    /**
+     * Pop-up launch of full-screen atomic service.
+     *
+     * @param want The want with parameters.
+     * @param callerToken caller ability token.
+     * @param requestCode Ability request code.
+     * @param userId The User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken,
+        int32_t requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE) override;
+
+    /**
+     * @brief Querying whether to allow embedded startup of atomic service.
+     *
+     * @param token The caller UIAbility token.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns true to allow ability to start, or false to reject.
+     */
+    virtual bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId) override;
+
+    /**
      * Start extension ability with want, send want to ability manager service.
      *
      * @param want, the want of the ability to start.
@@ -1905,6 +1933,9 @@ private:
 
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);
+
+    bool IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> callerToken, const std::string &appId,
+        std::shared_ptr<AbilityRecord> callerAbility);
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

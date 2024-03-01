@@ -28,6 +28,7 @@
 #include "insight_intent_executor_mgr.h"
 #include "int_wrapper.h"
 #include "js_embeddable_ui_ability_context.h"
+#include "js_embeddable_window_stage.h"
 #include "js_extension_common.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -653,19 +654,10 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
 
     HILOG_DEBUG("UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
         sessionInfo->uiExtensionComponentId, want.GetElement().GetURI().c_str());
-    auto componentId = sessionInfo->uiExtensionComponentId;
-    if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
-        sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
+    auto compId = sessionInfo->uiExtensionComponentId;
+    if (uiWindowMap_.find(compId) == uiWindowMap_.end()) {
         auto context = GetContext();
-        if (context == nullptr || context->GetAbilityInfo() == nullptr) {
-            HILOG_ERROR("Failed to get context");
-            return false;
-        }
-        option->SetWindowName(context->GetBundleName() + context->GetAbilityInfo()->name);
-        option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_UI_EXTENSION);
-        option->SetWindowSessionType(Rosen::WindowSessionType::EXTENSION_SESSION);
-        option->SetParentId(sessionInfo->hostWindowId);
-        auto uiWindow = Rosen::Window::Create(option, GetContext(), sessionInfo->sessionToken);
+        auto uiWindow = CreateUIWindow(context, sessionInfo);
         if (uiWindow == nullptr) {
             HILOG_ERROR("create ui window error.");
             return false;
@@ -674,26 +666,58 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
         napi_env env = jsRuntime_.GetNapiEnv();
         napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
         napi_value nativeContentSession = JsUIExtensionContentSession::CreateJsUIExtensionContentSession(
-            env, sessionInfo, uiWindow, GetContext(), abilityResultListeners_);
+            env, sessionInfo, uiWindow, context, abilityResultListeners_);
         napi_ref ref = nullptr;
         napi_create_reference(env, nativeContentSession, 1, &ref);
-        contentSessions_.emplace(
-            componentId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
+        contentSessions_.emplace(compId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
         int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
-        if (screenMode == AAFwk::HALF_SCREEN_MODE) {
-            screenMode_ = AAFwk::HALF_SCREEN_MODE;
-            napi_value argv[] = {nullptr};
+        if (screenMode == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+            screenMode_ = AAFwk::EMBEDDED_FULL_SCREEN_MODE;
+            auto jsAppWindowStage = CreateAppWindowStage(uiWindow, sessionInfo);
+            if (jsAppWindowStage == nullptr) {
+                HILOG_ERROR("JsAppWindowStage is nullptr.");
+                return false;
+            }
+            napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
             CallObjectMethod("onWindowStageCreate", argv, ARGC_ONE);
         } else {
             napi_value argv[] = {napiWant, nativeContentSession};
             CallObjectMethod("onSessionCreate", argv, ARGC_TWO);
         }
-        uiWindowMap_[componentId] = uiWindow;
+        uiWindowMap_[compId] = uiWindow;
         if (context->GetWindow() == nullptr) {
             context->SetWindow(uiWindow);
         }
     }
     return true;
+}
+
+sptr<Rosen::Window> JsUIExtension::CreateUIWindow(const std::shared_ptr<UIExtensionContext> context,
+    const sptr<AAFwk::SessionInfo> &sessionInfo)
+{
+    sptr<Rosen::WindowOption> option = new (std::nothrow) Rosen::WindowOption();
+    if (context == nullptr || context->GetAbilityInfo() == nullptr) {
+        HILOG_ERROR("Failed to get context");
+        return nullptr;
+    }
+    option->SetWindowName(context->GetBundleName() + context->GetAbilityInfo()->name);
+    option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_UI_EXTENSION);
+    option->SetWindowSessionType(Rosen::WindowSessionType::EXTENSION_SESSION);
+    option->SetParentId(sessionInfo->hostWindowId);
+    return Rosen::Window::Create(option, GetContext(), sessionInfo->sessionToken);
+}
+
+std::unique_ptr<NativeReference> JsUIExtension::CreateAppWindowStage(sptr<Rosen::Window> uiWindow,
+    sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    auto env = jsRuntime_.GetNapiEnv();
+    napi_value jsWindowStage = Rosen::JsEmbeddableWindowStage::CreateJsEmbeddableWindowStage(
+        env, uiWindow, sessionInfo);
+    if (jsWindowStage == nullptr) {
+        HILOG_ERROR("Failed to create jsWindowSatge object");
+        return nullptr;
+    }
+    return JsRuntime::LoadSystemModuleByEngine(env, "application.extensionWindow", &jsWindowStage, 1);
 }
 
 void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
@@ -751,7 +775,7 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
     }
     if (contentSessions_.find(componentId) != contentSessions_.end() && contentSessions_[componentId] != nullptr) {
         HandleScope handleScope(jsRuntime_);
-        if (screenMode_ == AAFwk::HALF_SCREEN_MODE) {
+        if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
             screenMode_ = AAFwk::IDLE_SCREEN_MODE;
             CallObjectMethod("onWindowStageDestroy");
         } else {

@@ -1406,6 +1406,42 @@ public:
     {
         return 0;
     }
+
+    /**
+     * @brief Obtains elementName by appId.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns ElementName.
+     */
+    virtual AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId)
+    {
+        return {};
+    }
+
+    /**
+     * @brief Pop-up launch of full-screen atomic service.
+     * @param want The want with parameters.
+     * @param callerToken caller ability token.
+     * @param requestCode Ability request code.
+     * @param userId The User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken,
+        int32_t requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Querying whether to allow embedded startup of atomic service.
+     *
+     * @param token The caller UIAbility token.
+     * @param appId The ID of the application to which this bundle belongs.
+     * @return Returns true to allow ability to start, or false to reject.
+     */
+    virtual bool IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
+    {
+        return true;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS

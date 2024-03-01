@@ -1661,6 +1661,37 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     return missionListManager->StartAbility(abilityRequest);
 }
 
+AppExecFwk::ElementName AbilityManagerService::GetElementNameByAppId(const std::string &appId)
+{
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOG_ERROR("bms is invalid.");
+        return {};
+    }
+    auto bundleName = bms->ParseBundleNameByAppId(appId);
+    HILOG_INFO("bundleName is %{public}s.", bundleName.c_str());
+    Want launchWant;
+    auto queryRet = IN_PROCESS_CALL(bms->GetLaunchWantForBundle(bundleName, launchWant, GetUserId()));
+    if (queryRet != ERR_OK) {
+        HILOG_ERROR("The method returns err:%{public}d.", queryRet);
+        return {};
+    }
+    return launchWant.GetElement();
+}
+
+int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, sptr<IRemoteObject> callerToken,
+    int32_t requestCode, int32_t userId)
+{
+    auto accessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto type = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessTokenId);
+    if (type != Security::AccessToken::TypeATokenTypeEnum::TOKEN_HAP) {
+        HILOG_ERROR("The caller is not hap.");
+        return CHECK_PERMISSION_FAILED;
+    }
+    want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::JUMP_SCREEN_MODE);
+    return StartAbility(want, callerToken, userId, requestCode);
+}
+
 int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -2364,7 +2395,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
         AppExecFwk::ApplicationInfo appInfo;
         if (!IN_PROCESS_CALL(bms->GetApplicationInfo(extensionSessionInfo->want.GetBundle(),
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo))) {
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetValidUserId(userId), appInfo))) {
             HILOG_ERROR("VerifyPermission failed to get application info");
             return CHECK_PERMISSION_FAILED;
         }
@@ -5227,6 +5258,12 @@ int AbilityManagerService::GenerateAbilityRequest(
     if (request.abilityInfo.applicationInfo.name.empty() || request.abilityInfo.applicationInfo.bundleName.empty()) {
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
+    }
+    if (request.want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::IDLE_SCREEN_MODE) == 0 &&
+        (request.abilityInfo.applicationInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE ||
+        request.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON)) {
+        HILOG_ERROR("The interface of starting atomicService can start only atomicService.");
+        return TARGET_ABILITY_NOT_SERVICE;
     }
     request.appInfo = request.abilityInfo.applicationInfo;
     request.uid = request.appInfo.uid;
@@ -9382,7 +9419,7 @@ int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
 {
     int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
     int32_t result = ERR_OK;
-    if (screenMode == AAFwk::HALF_SCREEN_MODE) {
+    if (screenMode == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
         result = GenerateAbilityRequest(want, -1, request, callerToken, userId);
         request.abilityInfo.isModuleJson = true;
         request.abilityInfo.isStageBasedModel = true;
@@ -9708,6 +9745,81 @@ int32_t AbilityManagerService::SignRestartAppFlag(int32_t userId, const std::str
     missionListManager->SignRestartAppFlag(bundleName);
     return ERR_OK;
 }
+
+bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
+{
+    auto deviceType = OHOS::system::GetDeviceType();
+    if (deviceType != "phone") {
+        HILOG_ERROR("device type is not allowd.");
+        return false;
+    }
+    auto accessTokenId = IPCSkeleton::GetCallingTokenID();
+    auto type = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessTokenId);
+    if (type != Security::AccessToken::TypeATokenTypeEnum::TOKEN_HAP) {
+        HILOG_ERROR("The caller is not hap.");
+        return false;
+    }
+    if (uiAbilityLifecycleManager_ == nullptr) {
+        HILOG_ERROR("The SceneBoard not enabled.");
+        return false;
+    }
+    auto isUIAbility = uiAbilityLifecycleManager_->IsContainsAbility(callerToken);
+    if (!isUIAbility) {
+        HILOG_ERROR("The caller is not UIAbility.");
+        return false;
+    }
+    auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
+    if (callerAbility == nullptr) {
+        HILOG_ERROR("The caller is invalid.");
+        return false;
+    }
+    if (!callerAbility->IsForeground() && !callerAbility->GetAbilityForegroundingFlag()) {
+        HILOG_ERROR("The caller not foreground.");
+        return false;
+    }
+    return IsEmbeddedOpenAllowedInner(callerToken, appId, callerAbility);
+}
+
+bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> callerToken, const std::string &appId,
+    std::shared_ptr<AbilityRecord> callerAbility)
+{
+    auto bms = GetBundleManager();
+    if (bms == nullptr) {
+        HILOG_ERROR("bms is invalid.");
+        return false;
+    }
+    auto bundleName = bms->ParseBundleNameByAppId(appId);
+    HILOG_INFO("bundleName is %{public}s.", bundleName.c_str());
+    Want launchWant;
+    auto queryRet = IN_PROCESS_CALL(bms->GetLaunchWantForBundle(bundleName, launchWant, GetUserId()));
+    if (queryRet != ERR_OK) {
+        HILOG_ERROR("The method returns err:%{public}d.", queryRet);
+        return false;
+    }
+    std::string abilityName = launchWant.GetElement().GetAbilityName();
+    if (bundleName.empty() || abilityName.empty()) {
+        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
+        return false;
+    }
+    AppExecFwk::ApplicationInfo appInfo;
+    bool ans = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
+        GetUserId(), appInfo));
+    if (!ans) {
+        HILOG_ERROR("Fail to get application info.");
+        return false;
+    }
+    if (appInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        HILOG_ERROR("The target is not atomic service.");
+        return false;
+    }
+    launchWant.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
+    auto erms = std::make_shared<EcologicalRuleInterceptor>();
+    queryRet = erms->DoProcess(launchWant, 0, GetUserId(), true, callerToken);
+    if (queryRet == ERR_OK) {
+        return true;
+    }
+    HILOG_ERROR("The erms returns err:%{public}d.", queryRet);
+    return false;
+}
 }  // namespace AAFwk
 }  // namespace OHOS
- 

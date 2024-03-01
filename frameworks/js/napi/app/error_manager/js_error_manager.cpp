@@ -44,8 +44,95 @@ constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char* ON_OFF_TYPE = "error";
+constexpr const char* ON_OFF_TYPE_UNHANDLED_REJECTION = "unhandledRejection";
 constexpr const char* ON_OFF_TYPE_SYNC = "errorEvent";
 constexpr const char* ON_OFF_TYPE_SYNC_LOOP = "loopObserver";
+constexpr uint32_t INITITAL_REFCOUNT_ONE = 1;
+
+thread_local std::set<napi_ref> unhandledRejectionObservers;
+thread_local std::map<napi_ref, napi_ref> pendingUnHandledRejections;
+
+napi_value AddRejection(napi_env env, napi_value promise, napi_value reason)
+{
+    napi_ref promiseRef = nullptr;
+    NAPI_CALL(env, napi_create_reference(env, promise, INITITAL_REFCOUNT_ONE, &promiseRef));
+    napi_ref reasonRef = nullptr;
+    NAPI_CALL(env, napi_create_reference(env, reason, INITITAL_REFCOUNT_ONE, &reasonRef));
+    pendingUnHandledRejections.insert(std::make_pair(promiseRef, reasonRef));
+    return CreateJsUndefined(env);
+}
+
+napi_value RemoveRejection(napi_env env, napi_value promise)
+{
+    napi_value ret = CreateJsUndefined(env);
+    auto iter = pendingUnHandledRejections.begin();
+    while (iter != pendingUnHandledRejections.end()) {
+        napi_value prom = nullptr;
+        NAPI_CALL(env, napi_get_reference_value(env, iter->first, &prom));
+        bool isEquals = false;
+        NAPI_CALL(env, napi_strict_equals(env, promise, prom, &isEquals));
+        if (isEquals) {
+            NAPI_CALL(env, napi_delete_reference(env, iter->first));
+            NAPI_CALL(env, napi_delete_reference(env, iter->second));
+            pendingUnHandledRejections.erase(iter);
+            return ret;
+        }
+        ++iter;
+    }
+    return ret;
+}
+
+napi_value UnhandledRejectionHandler(napi_env env, napi_value promise, napi_value reason)
+{
+    napi_value global = nullptr;
+    NAPI_CALL(env, napi_get_global(env, &global));
+    size_t argc = ARGC_TWO;
+    napi_value args[] = {reason, promise};
+    for (auto& iter : unhandledRejectionObservers) {
+        napi_value cb = nullptr;
+        NAPI_CALL(env, napi_get_reference_value(env, iter, &cb));
+        napi_value result = nullptr;
+        NAPI_CALL(env, napi_call_function(env, global, cb, argc, args, &result));
+    }
+    return CreateJsUndefined(env);
+}
+
+static napi_value OnUnhandledRejection(napi_env env, napi_callback_info info)
+{
+    size_t argc = ARGC_THREE; // 3 parameter size
+    napi_value argv[ARGC_THREE] = {0}; // 3 array length
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr));
+    int32_t event = 0;
+    NAPI_CALL(env, napi_get_value_int32(env, argv[0], &event));
+    if (event == static_cast<int32_t>(UnhandledRejectionEvent::REJECT)) {
+        return AddRejection(env, argv[INDEX_ONE], argv[INDEX_TWO]); // 2 array index
+    }
+    if (event == static_cast<int32_t>(UnhandledRejectionEvent::HANDLE)) {
+        return RemoveRejection(env, argv[INDEX_ONE]);
+    }
+    ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+    return CreateJsUndefined(env);
+}
+
+static napi_value NotifyUnhandledRejectionHandler(napi_env env, napi_callback_info info)
+{
+    if (!pendingUnHandledRejections.empty()) {
+        auto iter = pendingUnHandledRejections.begin();
+        while (iter != pendingUnHandledRejections.end()) {
+            napi_value promise = nullptr;
+            NAPI_CALL(env, napi_get_reference_value(env, iter->first, &promise));
+            napi_value reason = nullptr;
+            NAPI_CALL(env, napi_get_reference_value(env, iter->second, &reason));
+
+            UnhandledRejectionHandler(env, promise, reason);
+
+            NAPI_CALL(env, napi_delete_reference(env, iter->first));
+            NAPI_CALL(env, napi_delete_reference(env, iter->second));
+            iter = pendingUnHandledRejections.erase(iter);
+        }
+    }
+    return CreateJsUndefined(env);
+}
 
 class JsErrorManager final {
 public:
@@ -56,6 +143,7 @@ public:
     {
         HILOG_INFO("JsErrorManager Finalizer is called");
         std::unique_ptr<JsErrorManager>(static_cast<JsErrorManager*>(data));
+        ClearReference(env);
     }
 
     static napi_value On(napi_env env, napi_callback_info info)
@@ -66,6 +154,42 @@ public:
     static napi_value Off(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsErrorManager, OnOff);
+    }
+
+    napi_value SetRejectionCallback(napi_env env) const
+    {
+        napi_value rejectCallback = nullptr;
+        std::string rejectCallbackName = "OnUnhandledRejection";
+        NAPI_CALL(env, napi_create_function(env,
+                                            rejectCallbackName.c_str(),
+                                            rejectCallbackName.size(),
+                                            OnUnhandledRejection,
+                                            nullptr, &rejectCallback));
+        napi_ref rejectCallbackRef = nullptr;
+        NAPI_CALL(env, napi_create_reference(env, rejectCallback, INITITAL_REFCOUNT_ONE, &rejectCallbackRef));
+
+        napi_value checkCallback = nullptr;
+        std::string checkCallbackName = "NotifyUnhandledRejectionHandler";
+        NAPI_CALL(env, napi_create_function(env,
+                                            checkCallbackName.c_str(),
+                                            checkCallbackName.size(),
+                                            NotifyUnhandledRejectionHandler,
+                                            nullptr, &checkCallback));
+        napi_ref checkCallbackRef = nullptr;
+        NAPI_CALL(env, napi_create_reference(env, checkCallback, INITITAL_REFCOUNT_ONE, &checkCallbackRef));
+
+        NAPI_CALL(env, napi_set_promise_rejection_callback(env, rejectCallbackRef, checkCallbackRef));
+
+        return CreateJsUndefined(env);
+    }
+
+    static napi_value ClearReference(napi_env env)
+    {
+        for (auto& iter : unhandledRejectionObservers) {
+            NAPI_CALL(env, napi_delete_reference(env, iter));
+        }
+        unhandledRejectionObservers.clear();
+        return CreateJsUndefined(env);
     }
 
 private:
@@ -83,6 +207,19 @@ private:
                 return CreateJsUndefined(env);
             }
             return OnSetLoopWatch(env, argc, argv);
+        }
+        if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
+            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
+                HILOG_ERROR("UnhandledRejectionObserver can only be set from main thread.");
+                ThrowInvaildCallerError(env);
+                return CreateJsUndefined(env);
+            }
+            if (argc != ARGC_TWO) {
+                HILOG_ERROR("The number of params is invalid.");
+                ThrowInvalidNumParametersError(env);
+                return CreateJsUndefined(env);
+            }
+            return OnOnUnhandledRejection(env, argv[INDEX_ONE]);
         }
         return OnOnOld(env, argc, argv);
     }
@@ -117,6 +254,29 @@ private:
         }
         observer_->AddJsObserverObject(observerId, argv[INDEX_ONE]);
         return CreateJsValue(env, observerId);
+    }
+
+    napi_value OnOnUnhandledRejection(napi_env env, napi_value function)
+    {
+        if (function == nullptr) {
+            HILOG_ERROR("function is nullptr");
+            return nullptr;
+        }
+        for (auto& iter : unhandledRejectionObservers) {
+            napi_value observer = nullptr;
+            NAPI_CALL(env, napi_get_reference_value(env, iter, &observer));
+            bool equals = false;
+            NAPI_CALL(env, napi_strict_equals(env, observer, function, &equals));
+            if (equals) {
+                NAPI_CALL(env, napi_delete_reference(env, iter));
+                unhandledRejectionObservers.erase(iter);
+                break;
+            }
+        }
+        napi_ref myCallRef = nullptr;
+        NAPI_CALL(env, napi_create_reference(env, function, INITITAL_REFCOUNT_ONE, &myCallRef));
+        unhandledRejectionObservers.insert(myCallRef);
+        return nullptr;
     }
 
     napi_value OnOnNew(napi_env env, const size_t argc, napi_value* argv)
@@ -165,6 +325,19 @@ private:
             }
             return OnRemoveLoopWatch(env, argc, argv);
         }
+        if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
+            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
+                HILOG_ERROR("UnhandledRejectionObserver can only be unset from main thread.");
+                ThrowInvaildCallerError(env);
+                return CreateJsUndefined(env);
+            }
+            if (argc != ARGC_TWO && argc != ARGC_ONE) {
+                HILOG_ERROR("The number of params is invalid.");
+                ThrowInvalidNumParametersError(env);
+                return CreateJsUndefined(env);
+            }
+            return OnOffUnhandledRejection(env, argc, argv);
+        }
         return OnOffOld(env, argc, argv);
     }
 
@@ -211,6 +384,34 @@ private:
         NapiAsyncTask::Schedule("JSErrorManager::OnUnregisterErrorObserver",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
+    }
+
+    napi_value OnOffUnhandledRejection(napi_env env, size_t argc, napi_value* argv)
+    {
+        auto res = CreateJsUndefined(env);
+        if (argc == ARGC_ONE) {
+            return ClearReference(env);
+        }
+        napi_value function = argv[INDEX_ONE];
+        if (function == nullptr) {
+            HILOG_ERROR("function is nullptr");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return res;
+        }
+        for (auto& iter : unhandledRejectionObservers) {
+            napi_value observer = nullptr;
+            NAPI_CALL(env, napi_get_reference_value(env, iter, &observer));
+            bool equals = false;
+            NAPI_CALL(env, napi_strict_equals(env, observer, function, &equals));
+            if (equals) {
+                NAPI_CALL(env, napi_delete_reference(env, iter));
+                unhandledRejectionObservers.erase(iter);
+                return res;
+            }
+        }
+        HILOG_ERROR("Remove UnhandledRjectionObserver failed");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_OBSERVER_NOT_FOUND);
+        return res;
     }
 
     napi_value OnOffNew(napi_env env, size_t argc, napi_value* argv)
@@ -326,7 +527,7 @@ private:
         }
         loopObserver_->mainRunner = AppExecFwk::EventRunner::GetMainEventRunner();
         napi_ref ref = nullptr;
-        napi_create_reference(env, argv[INDEX_TWO], 1, &ref);
+        napi_create_reference(env, argv[INDEX_TWO], INITITAL_REFCOUNT_ONE, &ref);
         loopObserver_->observerObject = std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
         loopObserver_->env = env;
         loopObserver_->mainRunner->SetTimeout(number);
@@ -368,6 +569,7 @@ napi_value JsErrorManagerInit(napi_env env, napi_value exportObj)
         return nullptr;
     }
     std::unique_ptr<JsErrorManager> jsErrorManager = std::make_unique<JsErrorManager>();
+    jsErrorManager->SetRejectionCallback(env);
     napi_wrap(env, exportObj, jsErrorManager.release(), JsErrorManager::Finalizer, nullptr, nullptr);
 
     HILOG_INFO("JsErrorManager BindNativeFunction called");

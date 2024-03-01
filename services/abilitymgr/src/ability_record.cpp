@@ -3368,6 +3368,11 @@ void AbilityRecord::SetProcessName(const std::string &process)
     abilityInfo_.process = process;
 }
 
+std::string AbilityRecord::GetProcessName() const
+{
+    return abilityInfo_.process;
+}
+
 void AbilityRecord::SetUIExtensionAbilityId(const int32_t uiExtensionAbilityId)
 {
     uiExtensionAbilityId_ = uiExtensionAbilityId;

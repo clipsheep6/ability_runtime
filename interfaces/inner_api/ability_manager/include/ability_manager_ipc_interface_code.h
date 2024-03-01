@@ -232,6 +232,15 @@ enum class AbilityManagerInterfaceCode {
     // Get forgeround UI abilities(75)
     GET_FOREGROUND_UI_ABILITIES = 75,
 
+    // Obtains elementName by appId(76)
+    GET_ELEMENT_NAME_BY_APP_ID = 76,
+
+    // Pop-up launch of full-screen atomic service(77)
+    OPEN_ATOMIC_SERVICE = 77,
+
+    // Querying whether to allow embedded startup of atomic service.
+    IS_EMBEDDED_OPEN_ALLOWED = 78,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,

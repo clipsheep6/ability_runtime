@@ -158,7 +158,7 @@ int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
         if (isExit) {
             faultData.forceExit = true;
             faultData.waitSaveState = AppRecovery::GetInstance().IsEnabled();
-            AAFwk::ExitReason exitReason = { REASON_APP_FREEZE, faultData.errorObject.name };
+            AAFwk::ExitReason exitReason = {REASON_APP_FREEZE, "Kill Reason:" + faultData.errorObject.name};
             AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
         }
         NotifyANR(faultData);

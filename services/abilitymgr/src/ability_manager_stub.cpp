@@ -401,6 +401,12 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::NotifyUserActionResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
         &AbilityManagerStub::RestartAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID)] =
+        &AbilityManagerStub::GetElementNameByAppIdInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE)] =
+        &AbilityManagerStub::OpenAtomicServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
+        &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3079,6 +3085,64 @@ int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &
         return IPC_STUB_ERR;
     }
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::GetElementNameByAppIdInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string appId = data.ReadString();
+    auto elementName = GetElementNameByAppId(appId);
+    if (!reply.WriteParcelable(&elementName)) {
+        HILOG_ERROR("Write want error");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t requestCode = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int32_t openRet = OpenAtomicService(*want, callerToken, requestCode, userId);
+    if (openRet != ERR_OK) {
+        HILOG_ERROR("Open atomic service to be failed.");
+        return openRet;
+    }
+    if (!reply.WriteInt32(openRet)) {
+        HILOG_ERROR("Write openRet failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            HILOG_ERROR("caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    std::string appId = data.ReadString();
+    auto result = IsEmbeddedOpenAllowed(callerToken, appId);
+
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

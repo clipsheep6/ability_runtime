@@ -19,12 +19,12 @@
 #include "hilog_wrapper.h"
 #include "ui_extension_utils.h"
 #include "ui_extension_record.h"
+#include "ui_extension_record_factory.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
-constexpr const char* SEPARATOR = ":";
-constexpr const char* DEFAULT_PROCESS_NAME = "UIExtension";
+constexpr const char *SEPARATOR = ":";
 }
 std::atomic_int32_t ExtensionRecordManager::extensionRecordId_ = INVALID_EXTENSION_RECORD_ID;
 
@@ -154,18 +154,55 @@ std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetAbilityRecordBy
     return nullptr;
 }
 
-void ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest,
-    std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord)
+bool ExtensionRecordManager::IsHostSpecifiedProcessValid(const AAFwk::AbilityRequest &abilityRequest,
+    std::shared_ptr<ExtensionRecord> &record, const std::string &process)
 {
-    switch (abilityRequest.extensionProcessMode) {
-        case AppExecFwk::ExtensionProcessMode::INSTANCE: {
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (auto &iter: extensionRecords_) {
+        if (iter.second == nullptr || iter.second->abilityRecord_ == nullptr) {
+            continue;
+        }
+        if (iter.second->abilityRecord_->GetProcessName() != process) {
+            continue;
+        }
+        HILOG_DEBUG("found match extension record: id %{public}d", iter.first);
+        AppExecFwk::AbilityInfo abilityInfo = iter.second->abilityRecord_->GetAbilityInfo();
+        if (abilityRequest.abilityInfo.bundleName != abilityInfo.bundleName) {
+            HILOG_ERROR("bundleName is not match");
+            return false;
+        }
+        if (abilityRequest.abilityInfo.name != abilityInfo.name) {
+            HILOG_ERROR("abilityName is not match");
+            return false;
+        }
+        return true;
+    }
+    HILOG_ERROR("specified process not found, %{public}s", process.c_str());
+    return false;
+}
+
+int32_t ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest,
+    std::shared_ptr<ExtensionRecord> &record)
+{
+    std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = record->abilityRecord_;
+    switch (record->processMode_) {
+        case PROCESS_MODE_INSTANCE: {
             std::string process = abilityRequest.abilityInfo.bundleName + SEPARATOR + abilityRequest.abilityInfo.name
                 + SEPARATOR + std::to_string(abilityRecord->GetUIExtensionAbilityId());
             abilityRecord->SetProcessName(process);
             break;
         }
-        case AppExecFwk::ExtensionProcessMode::TYPE: {
+        case PROCESS_MODE_TYPE: {
             std::string process = abilityRequest.abilityInfo.bundleName + SEPARATOR + abilityRequest.abilityInfo.name;
+            abilityRecord->SetProcessName(process);
+            break;
+        }
+        case PROCESS_MODE_HOST_SPECIFIED: {
+            std::string process = abilityRequest.want.GetStringParam(PROCESS_MODE_HOST_SPECIFIED_KEY);
+            if (!IsHostSpecifiedProcessValid(abilityRequest, record, process)) {
+                HILOG_ERROR("host specified process name is invalid, %{public}s", process.c_str());
+                return ERR_INVALID_VALUE;
+            }
             abilityRecord->SetProcessName(process);
             break;
         }
@@ -173,40 +210,60 @@ void ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &abil
             // no need to update
             break;
     }
+    return ERR_OK;
 }
 
 int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::AbilityRequest &abilityRequest,
     const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded)
 {
-    // factory pattern with ability request
+    std::shared_ptr<ExtensionRecordFactory> factory = nullptr;
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
-        int32_t extensionRecordId = UIExtensionRecord::NeedReuse(abilityRequest);
-        if (extensionRecordId != INVALID_EXTENSION_RECORD_ID) {
-            HILOG_DEBUG("reuse record, id: %{public}d", extensionRecordId);
-            int32_t ret = GetExtensionRecord(extensionRecordId, hostBundleName, extensionRecord, isLoaded);
-            if (ret == ERR_OK) {
-                extensionRecord->Update(abilityRequest);
-            }
-            return ret;
-        }
-        std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = AAFwk::AbilityRecord::CreateAbilityRecord(abilityRequest);
-        if (abilityRecord == nullptr) {
-            HILOG_ERROR("Failed to create ability record");
-            return ERR_NULL_OBJECT;
-        }
-        abilityRecord->SetOwnerMissionUserId(userId_);
-        int32_t ret = CreateExtensionRecord(abilityRecord, hostBundleName, extensionRecord, extensionRecordId);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("Failed to create extension record, ret: %{public}d", ret);
-            return ret;
-        }
-        UpdateProcessName(abilityRequest, abilityRecord);
-        HILOG_DEBUG("extensionRecordId: %{public}d, extensionProcessMode:%{public}d, process: %{public}s",
-            extensionRecordId, abilityRequest.extensionProcessMode, abilityRecord->GetAbilityInfo().process.c_str());
-        isLoaded = false;
-        return ERR_OK;
+        factory = DelayedSingleton<UIExtensionRecordFactory>::GetInstance();
     }
-    return ERR_INVALID_VALUE;
+    if (factory == nullptr) {
+        HILOG_ERROR("Invalid extensionAbilityType");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = factory->PreCheck(abilityRequest, hostBundleName);
+    if (result != ERR_OK) {
+        return result;
+    }
+
+    int32_t extensionRecordId = INVALID_EXTENSION_RECORD_ID;
+    bool needReuse = factory->NeedReuse(abilityRequest, extensionRecordId);
+    if (needReuse) {
+        HILOG_DEBUG("reuse record, id: %{public}d", extensionRecordId);
+        int32_t ret = GetExtensionRecord(extensionRecordId, hostBundleName, extensionRecord, isLoaded);
+        if (ret == ERR_OK) {
+            extensionRecord->Update(abilityRequest);
+        }
+        return ret;
+    }
+
+    result = factory->CreateRecord(abilityRequest, extensionRecord);
+    if (result != ERR_OK) {
+        return result;
+    }
+    CHECK_POINTER_AND_RETURN(extensionRecord, ERR_NULL_OBJECT);
+    std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = extensionRecord->abilityRecord_;
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
+
+    isLoaded = false;
+    extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
+    extensionRecord->extensionRecordId_ = extensionRecordId;
+    extensionRecord->hostBundleName_ = hostBundleName;
+    abilityRecord->SetOwnerMissionUserId(userId_);
+    abilityRecord->SetUIExtensionAbilityId(extensionRecordId);
+    result = UpdateProcessName(abilityRequest, extensionRecord);
+    if (result != ERR_OK) {
+        return result;
+    }
+    HILOG_DEBUG("extensionRecordId: %{public}d, extensionProcessMode:%{public}d, process: %{public}s",
+        extensionRecordId, abilityRequest.extensionProcessMode, abilityRecord->GetAbilityInfo().process.c_str());
+    std::lock_guard<std::mutex> lock(mutex_);
+    extensionRecords_[extensionRecordId] = extensionRecord;
+    return ERR_OK;
 }
 
 int32_t ExtensionRecordManager::StartAbility(const AAFwk::AbilityRequest &abilityRequest)
@@ -268,7 +325,9 @@ int32_t ExtensionRecordManager::CreateExtensionRecord(const std::shared_ptr<AAFw
     }
     extensionRecordId = GenerateExtensionRecordId(extensionRecordId);
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
-        extensionRecord = std::make_shared<UIExtensionRecord>(abilityRecord, hostBundleName, extensionRecordId);
+        extensionRecord = std::make_shared<UIExtensionRecord>(abilityRecord);
+        extensionRecord->hostBundleName_ = hostBundleName;
+        extensionRecord->extensionRecordId_ = extensionRecordId;
         std::lock_guard<std::mutex> lock(mutex_);
         HILOG_DEBUG("add UIExtension, id %{public}d.", extensionRecordId);
         extensionRecords_[extensionRecordId] = extensionRecord;

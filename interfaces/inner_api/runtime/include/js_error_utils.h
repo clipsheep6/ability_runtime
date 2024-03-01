@@ -26,6 +26,7 @@ void ThrowError(napi_env env, int32_t errCode, const std::string& errorMsg = "")
 void ThrowError(napi_env env, const AbilityErrorCode& err);
 void ThrowInvaildCallerError(napi_env env);
 void ThrowTooFewParametersError(napi_env env);
+void ThrowInvalidNumParametersError(napi_env env);
 void ThrowNoPermissionError(napi_env env, const std::string& permission);
 void ThrowErrorByNativeErr(napi_env env, int32_t err);
 

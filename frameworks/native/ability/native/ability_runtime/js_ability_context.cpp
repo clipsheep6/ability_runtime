@@ -293,6 +293,11 @@ napi_value JsAbilityContext::RequestModalUIExtension(napi_env env, napi_callback
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnRequestModalUIExtension);
 }
 
+napi_value JsAbilityContext::OpenAtomicService(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnOpenAtomicService);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -1421,6 +1426,8 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::StartAbilityByType);
     BindNativeFunction(env, object, "requestModalUIExtension", moduleName,
         JsAbilityContext::RequestModalUIExtension);
+    BindNativeFunction(env, object, "openAtomicService", moduleName,
+        JsAbilityContext::OpenAtomicService);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1871,6 +1878,77 @@ napi_value JsAbilityContext::OnRequestModalUIExtension(napi_env env, NapiCallbac
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnRequestModalUIExtension",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo& info)
+{
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string appId;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
+        HILOG_ERROR("OnOpenAtomicService, parse appId failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
+    std::string bundleName = elementName.GetBundleName();
+    std::string abilityName = elementName.GetAbilityName();
+    if (bundleName.empty() || abilityName.empty()) {
+        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
+        return CreateJsUndefined(env);
+    }
+
+    Want want;
+    want.SetElement(elementName);
+    return OpenAtomicServiceInner(env, info, want);
+}
+
+napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want)
+{
+    InheritWindowMode(want);
+    want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND);
+    std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count());
+    want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
+    napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
+    AddFreeInstallObserver(env, want, lastParam, true);
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask =
+        CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
+        bool isInner) {
+        HILOG_DEBUG("OnOpenAtomicService async callback is begin");
+        HandleScope handleScope(env);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult error");
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+        } else {
+            if (isInner) {
+                asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+            } else {
+                asyncTask->Resolve(env, abilityResult);
+            }
+        }
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released");
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+    } else {
+        want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+        curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
+        context->OpenAtomicService(want, curRequestCode_, std::move(task));
+    }
+    HILOG_DEBUG("OnOpenAtomicService is called end");
     return result;
 }
 }  // namespace AbilityRuntime

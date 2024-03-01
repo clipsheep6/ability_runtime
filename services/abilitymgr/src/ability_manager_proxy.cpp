@@ -4779,5 +4779,106 @@ int32_t AbilityManagerProxy::RestartApp(const AAFwk::Want &want)
     }
     return reply.ReadInt32();
 }
+
+AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByAppId(const std::string &appId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return {};
+    }
+    if (!data.WriteString(appId)) {
+        HILOG_ERROR("Write appId failed.");
+        return {};
+    }
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return {};
+    }
+    std::unique_ptr<AppExecFwk::ElementName> elementName(reply.ReadParcelable<AppExecFwk::ElementName>());
+    if (elementName == nullptr) {
+        HILOG_ERROR("elementName is nullptr");
+        return {};
+    }
+    return *elementName;
+}
+
+int32_t AbilityManagerProxy::OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken, int32_t requestCode,
+    int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&want)) {
+        HILOG_ERROR("Write want failed.");
+        return INNER_ERR;
+    }
+    if (callerToken != nullptr) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+            HILOG_ERROR("flag and callerToken write failed.");
+            return INNER_ERR;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("flag write failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteInt32(requestCode)) {
+        HILOG_ERROR("requestCode write failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(userId)) {
+        HILOG_ERROR("userId write failed.");
+        return INNER_ERR;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d.", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
+{
+    if (callerToken == nullptr) {
+        HILOG_ERROR("Input param invalid.");
+        return false;
+    }
+
+    MessageParcel data;
+    if (!WriteInterfaceToken (data)) {
+        HILOG_ERROR("Write remote object failed.");
+        return false;
+    }
+
+    if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
+        HILOG_ERROR("Write flag and callerToken failed.");
+        return false;
+    }
+
+    if (!data.WriteString(appId)) {
+        HILOG_ERROR("Write userId failed.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return false;
+    }
+    return reply.ReadBool();
+}
 } // namespace AAFwk
 } // namespace OHOS
