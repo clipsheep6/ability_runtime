@@ -45,11 +45,16 @@ std::unordered_map<AAFwk::UserStatus , int32_t> assertResultMap = {
 };
 constexpr int32_t ASSERT_FAULT_DEFAULT_VALUE = -1; // default value is abort
 constexpr char ASSERT_FAULT_THREAD[] = "assertFaultTHR";
-constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
+// constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
+constexpr char ASSERT_FAULT_PROMPT[] = "(Press Retry to debug the application)";
 
 constexpr char TEST_ASSERT_TITLE[] = "Debug Assertion Failed!";
-constexpr char TEST_ASSERT_DETAIL[] = "Program:\n/data/app/el2/100/base/com.acts.helloworld/\nFile: test.cpp\nLine: 43\n\nFor information on how your program can cause an assertion failure, see the c++ documentation on asserts.\n\n(Press Retry to debug the application)";
+constexpr char TEST_ASSERT_DETAIL[] = "File:\n../../third_party/musl/libc-test/src/functionalext/unittest/unit_test_assert_fail.c\nFunction: main\nLine: 23\n\nExpression:\n0\n\n(Press Retry to debug the application)";
+constexpr char TEST_ASSERT_FILE[] = "../../third_party/musl/libc-test/src/functionalext/unittest/unit_test_assert_fail.c";
+constexpr char TEST_ASSERT_FUNC[] = "main";
+constexpr char TEST_ASSERT_LINE[] = "23";
+constexpr char TEST_ASSERT_EXPR[] = "0";
 }
 std::mutex AssertFaultTaskThread::constructorMutex_;
 std::shared_ptr<AssertFaultTaskThread> AssertFaultTaskThread::instance_;
@@ -118,7 +123,7 @@ void AssertFaultTaskThread::InitAssertFaultTask(const wptr<AppExecFwk::MainThrea
     assertRunner_ = runner;
     assertHandler_ = assertHandler;
 
-    assertHandler_->PostTask(AssertFaultTaskThread::AssertCallback, "TestCall", 20000);
+    assertHandler_->PostTask(AssertFaultTaskThread::AssertCallback, "TestCall", 10000);
 }
 
 void AssertFaultTaskThread::Stop()
@@ -157,10 +162,13 @@ int32_t AssertFaultTaskThread::HandleAssertCallback()
             break;
         }
 
+        std::string textDetail = std::string("File:\n") + TEST_ASSERT_FILE + "\nFunction: " + TEST_ASSERT_FUNC +
+            "\nLine: " + TEST_ASSERT_LINE + "\n\nExpression:\n" + TEST_ASSERT_EXPR + "\n\n" + ASSERT_FAULT_PROMPT;
+
         std::unique_lock<std::mutex> lockAssertResult(assertResultMutex_);
         AAFwk::WantParams wantParams;
-        wantParams.SetParam(ASSERT_FAULT_TITLE, AAFwk::String::Box(TEST_ASSERT_TITLE));
-        wantParams.SetParam(ASSERT_FAULT_DETAIL, AAFwk::String::Box(TEST_ASSERT_DETAIL));
+        // wantParams.SetParam(ASSERT_FAULT_TITLE, AAFwk::String::Box(TEST_ASSERT_TITLE));
+        wantParams.SetParam(ASSERT_FAULT_DETAIL, AAFwk::String::Box(textDetail));
         auto err = amsClient->RequestAssertFaultDialog(assertFaultCallback->AsObject(), wantParams);
         if (err != ERR_OK) {
             HILOG_ERROR("Request assert fault dialog failed.");
@@ -168,6 +176,7 @@ int32_t AssertFaultTaskThread::HandleAssertCallback()
         }
 
         assertResultCV_.wait(lockAssertResult);
+        HILOG_DEBUG("Wait assert result over.");
         assertReuslt = ConvertAssertReuslt(assertFaultCallback->GetAssertResult());
     } while(false);
 
@@ -181,6 +190,7 @@ void AssertFaultTaskThread::NotifyReleaseLongWaiting()
 {
     std::unique_lock<std::mutex> lockAssertResult(assertResultMutex_);
     assertResultCV_.notify_one();
+    HILOG_DEBUG("Notify assert result done.");
 }
 
 int32_t AssertFaultTaskThread::ConvertAssertReuslt(AAFwk::UserStatus status)

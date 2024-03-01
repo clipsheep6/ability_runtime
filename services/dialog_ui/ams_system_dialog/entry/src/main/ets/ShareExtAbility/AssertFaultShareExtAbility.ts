@@ -19,11 +19,9 @@ import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import wantConstant from '@ohos.app.ability.wantConstant';
 
 const TAG = 'AssertFaultDialog_UIExtension';
-const TEXT_DETAIL : string = "File:\n../../third_party/musl/libc-test/src/functionalext/unittest/unit_test_assert_fail.c\nFunction: main\nLine: 23\n\nExpression:\n0\n\n(Press Retry to debug the application)";
 
 export default class UiExtAbility extends UIExtensionAbility {
   storage: LocalStorage;
-  message: string;
   sessionId: string;
 
   onCreate() {
@@ -44,8 +42,7 @@ export default class UiExtAbility extends UIExtensionAbility {
     this.storage = new LocalStorage(
       {
         'session': session,
-        'sessionId' : want.parameters[wantConstant.Params.ASSERT_FAULT_SESSION_ID],
-        'textDetail' : TEXT_DETAIL
+        'sessionId' : this.sessionId,
       });
     session.loadContent('pages/assertFaultDialog', this.storage);
     session.setWindowBackgroundColor('#00000000');
@@ -59,16 +56,16 @@ export default class UiExtAbility extends UIExtensionAbility {
     console.info(TAG, 'onSessionDestroy');
     console.info(TAG, `isUserAction: ${AppStorage.get('isUserAction')}`);
     let isUserAction = AppStorage.get<boolean>('isUserAction');
-    if(isUserAction !== true || isUserAction === undefined) {
+    if(isUserAction === undefined) {
       let status = abilityManager.UserStatus.ASSERT_TERMINATE;
       try {
-        abilityManager.notifyUserActionResult(this.sessionId, status).then(() => {
-          console.log(TAG, 'NotifyUserActionResult success.');
+        abilityManager.notifyDebugAssertResult(this.sessionId, status).then(() => {
+          console.log(TAG, 'notifyDebugAssertResult success.');
         }).catch((err: BusinessError) => {
-          console.error(TAG, `NotifyUserActionResult failed, error: ${JSON.stringify(err)}`);
+          console.error(TAG, `notifyDebugAssertResult failed, error: ${JSON.stringify(err)}`);
         })
       } catch (error) {
-        console.error(TAG, `try NotifyUserActionResult failed, error: ${JSON.stringify(error)}`);
+        console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);
       }
     }
   }

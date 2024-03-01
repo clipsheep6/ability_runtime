@@ -1680,12 +1680,12 @@ int32_t AbilityManagerClient::RequestAssertFaultDialog(
     return abms->RequestAssertFaultDialog(callback, wantParams);
 }
 
-int32_t AbilityManagerClient::NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+int32_t AbilityManagerClient::NotifyDebugAssertResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
 {
     HILOG_DEBUG("Notify user action result to assert fault callback.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->NotifyUserActionResult(assertFaultSessionId, userStatus);
+    return abms->NotifyDebugAssertResult(assertFaultSessionId, userStatus);
 }
 
 void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)

@@ -398,7 +398,7 @@ void AbilityManagerStub::FourthStepInit()
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG)] =
         &AbilityManagerStub::RequestAssertFaultDialogInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_USER_ACTION_RESULT)] =
-        &AbilityManagerStub::NotifyUserActionResultInner;
+        &AbilityManagerStub::NotifyDebugAssertResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
         &AbilityManagerStub::RestartAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID)] =
@@ -2978,12 +2978,12 @@ int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, M
     return NO_ERROR;
 }
 
-int32_t AbilityManagerStub::NotifyUserActionResultInner(MessageParcel &data, MessageParcel &reply)
+int32_t AbilityManagerStub::NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Notify user action result to assert fault process.");
     int64_t assertSessionId = data.ReadInt64();
     int32_t status = data.ReadInt32();
-    auto result = NotifyUserActionResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
+    auto result = NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Write result failed.");
         return ERR_INVALID_VALUE;

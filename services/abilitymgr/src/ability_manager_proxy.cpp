@@ -4588,7 +4588,7 @@ int32_t AbilityManagerProxy::RequestAssertFaultDialog(
     return reply.ReadInt32();
 }
 
-int32_t AbilityManagerProxy::NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+int32_t AbilityManagerProxy::NotifyDebugAssertResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
 {
     HILOG_DEBUG("Notify user action result to assert fault callback.");
     MessageParcel data;

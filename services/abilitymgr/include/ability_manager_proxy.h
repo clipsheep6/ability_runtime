@@ -1115,7 +1115,7 @@ public:
      * @param userStatus Operation status of the user.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int32_t NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
+    virtual int32_t NotifyDebugAssertResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
 
     /**
      * @brief Get host info of root caller.

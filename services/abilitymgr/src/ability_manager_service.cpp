@@ -173,7 +173,7 @@ constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
-constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
+// constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
@@ -9457,22 +9457,28 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
         return ERR_INVALID_VALUE;
     }
     int64_t assertFaultSessionId = reinterpret_cast<int64_t>(remoteCallback.GetRefPtr());
-    // want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
+    want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
     // want.SetParam(ASSERT_FAULT_TITLE, wantParams.GetStringParam(ASSERT_FAULT_TITLE));
-    // want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
-        if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
-            HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
-            return ERR_INVALID_VALUE;
-        }
-    } else {
-        // Test code at native
-        auto ret = RequestModalUIExtensionInner(want);
-        if (ret != ERR_OK) {
-            HILOG_ERROR("Request modal ui extension error, %{public}d", ret);
-            return ret;
-        }
+    want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
+    // if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        // auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
+        // if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
+        //     HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
+        //     return ERR_INVALID_VALUE;
+        // }
+    // } else {
+    //     // Test code at native
+    //     auto ret = RequestModalUIExtensionInner(want);
+    //     if (ret != ERR_OK) {
+    //         HILOG_ERROR("Request modal ui extension error, %{public}d", ret);
+    //         return ret;
+    //     }
+    // }
+
+    auto connection = std::make_shared<ModalSystemAssertUIExtension>();
+    if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
+        HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
+        return ERR_INVALID_VALUE;
     }
 
     AddAssertFaultCallback(remoteCallback);
@@ -9545,17 +9551,23 @@ void AbilityManagerService::CallAssertFaultCallback(int64_t assertFaultSessionId
         return;
     }
 
-    callback->NotifyUserActionResult(status);
+    callback->NotifyDebugAssertResult(status);
 }
 
-int32_t AbilityManagerService::NotifyUserActionResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+int32_t AbilityManagerService::NotifyDebugAssertResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
 {
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Product of assert fault dialog is not enabled.");
+        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    }
+
     auto permissionSA = PermissionVerification::GetInstance();
     if (permissionSA == nullptr) {
         HILOG_ERROR("Permission verification instance is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
+    CHECK_CALLER_IS_SYSTEM_APP;
     if (!permissionSA->VerifyCallingPermission(PermissionConstants::PERMISSION_NOTIFY_USER_ACTION_RESULT)) {
         HILOG_ERROR("Permission %{public}s verification failed.",
             PermissionConstants::PERMISSION_NOTIFY_USER_ACTION_RESULT);

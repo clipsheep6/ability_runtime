@@ -16,9 +16,12 @@
 #ifndef OHOS_ABILITY_RUNTIME_ASSERT_FAULT_PROXY_H
 #define OHOS_ABILITY_RUNTIME_ASSERT_FAULT_PROXY_H
 
+#include <queue>
+
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "iremote_proxy.h"
+#include "ability_connect_callback_stub.h"
 #include "assert_fault_interface.h"
 
 namespace OHOS {
@@ -31,7 +34,7 @@ public:
      *
      * @param status - User action result.
      */
-    void NotifyUserActionResult(AAFwk::UserStatus status) override;
+    void NotifyDebugAssertResult(AAFwk::UserStatus status) override;
 
 private:
     static inline BrokerDelegator<AssertFaultProxy> delegator_;
@@ -46,6 +49,40 @@ public:
 
 private:
     RemoteDiedHandler handler_;
+};
+
+class ModalSystemAssertUIExtension : public std::enable_shared_from_this<ModalSystemAssertUIExtension> {
+public:
+    ModalSystemAssertUIExtension() = default;
+    virtual~ModalSystemAssertUIExtension();
+
+    bool CreateModalUIExtension(const AAFwk::Want& want);
+
+private:
+    class AssertDialogConnection : public OHOS::AAFwk::AbilityConnectionStub {
+        public:
+            AssertDialogConnection() = default;
+            virtual ~AssertDialogConnection();
+
+            bool RequestShowDialog(const AAFwk::Want& want);
+            void CleanUp();
+
+            void OnAbilityConnectDone(const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject,
+                int resultCode) override;
+            void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override;
+
+        private:
+            std::mutex mutex_;
+            std::atomic_bool isDialogShow_ = false;
+            std::queue<AAFwk::Want> consumptionList_;
+            sptr<IRemoteObject> remoteObject_;
+            sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+    };
+
+    sptr<AssertDialogConnection> GetConnection();
+
+    std::mutex dialogConnectionMutex_;
+    sptr<AssertDialogConnection> dialogConnectionCallback_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

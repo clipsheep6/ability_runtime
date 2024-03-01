@@ -110,7 +110,7 @@
     },
     {
         "name": "title_assertFault",
-        "value": "AssertDialog标题"
+        "value": "AssertFaultDialog"
     }
   ]
 }

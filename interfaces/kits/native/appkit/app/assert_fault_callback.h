@@ -36,7 +36,7 @@ public:
      *
      * @param status - User action result.
      */
-    void NotifyUserActionResult(AAFwk::UserStatus status) override;
+    void NotifyDebugAssertResult(AAFwk::UserStatus status) override;
 
     AAFwk::UserStatus GetAssertResult();
 private:

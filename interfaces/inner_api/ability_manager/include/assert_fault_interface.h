@@ -34,7 +34,7 @@ public:
      *
      * @param status - User action result.
      */
-    virtual void NotifyUserActionResult(AAFwk::UserStatus status) = 0;
+    virtual void NotifyDebugAssertResult(AAFwk::UserStatus status) = 0;
 protected:
     enum MessageCode {
         NOTIFY_USER_ACTION_RESULT,
