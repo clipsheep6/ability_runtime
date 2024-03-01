@@ -2391,7 +2391,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
         AppExecFwk::ApplicationInfo appInfo;
         if (!IN_PROCESS_CALL(bms->GetApplicationInfo(extensionSessionInfo->want.GetBundle(),
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, userId, appInfo))) {
+            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetValidUserId(userId), appInfo))) {
             HILOG_ERROR("VerifyPermission failed to get application info");
             return CHECK_PERMISSION_FAILED;
         }
