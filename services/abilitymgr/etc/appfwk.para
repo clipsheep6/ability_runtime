@@ -19,6 +19,7 @@ component.startup.whitelist.associatedWakeUp=true
 component.startup.extension.multiprocess.enable=false
 component.startup.extension.multiprocess.whitelist=com.ohos.systemui;com.ohos.launcher;com.ohos.sceneboard;
 persist.sys.prepare_terminate=false
+persist.sys.abilityms.support.ecologicalrulemgrservice = true
 persist.sys.ams.inherit_window_split_screen_mode = true
 persist.sys.ams.support_anco_app = false
 persist.sys.ams.timeout_unit_time_ratio = 1
