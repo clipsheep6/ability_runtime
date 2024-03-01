@@ -19,3 +19,4 @@ component.startup.whitelist.associatedWakeUp=true
 component.startup.extension.multiprocess.enable=false
 component.startup.extension.multiprocess.whitelist=com.ohos.systemui;com.ohos.launcher;com.ohos.sceneboard;
 persist.sys.prepare_terminate=false
+persist.sys.abilityms.support.ecologicalrulemgrservice = true
