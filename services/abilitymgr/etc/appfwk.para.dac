@@ -19,3 +19,4 @@ component.startup.whitelist.associatedWakeUp = foundation:foundation:0775
 component.startup.extension.multiprocess.enable = foundation:foundation:0775
 component.startup.extension.multiprocess.whitelist = foundation:foundation:0775
 persist.sys.prepare_terminate = foundation:foundation:0775
+persist.sys.abilityms.support.ecologicalrulemgrservice = foundation:foundation:0777
