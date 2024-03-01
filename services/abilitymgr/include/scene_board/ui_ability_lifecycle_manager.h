@@ -297,8 +297,6 @@ public:
 
     int MoveMissionToFront(int32_t sessionId, std::shared_ptr<StartOptions> startOptions = nullptr);
 
-    void SetDevice(std::string deviceType);
-
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
         const int32_t oriValidUserId);
 
@@ -382,7 +380,6 @@ private:
     std::queue<AbilityRequest> abilityQueue_;
     std::queue<SpecifiedInfo> specifiedInfoQueue_;
     sptr<ISessionHandler> handler_;
-    bool isPcDevice_ = false;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

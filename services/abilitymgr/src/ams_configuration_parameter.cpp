@@ -14,6 +14,7 @@
  */
 
 #include "ams_configuration_parameter.h"
+#include "app_utils.h"
 #include "config_policy_utils.h"
 #include "hilog_wrapper.h"
 
@@ -22,14 +23,9 @@ namespace AAFwk {
 namespace {
 const int LOAD_CONFIGURATION_FAILED = -1;
 const int LOAD_CONFIGURATION_SUCCESS = 0;
-const int32_t TIME_OUT_UNIT_TIME_RATIO = 10;
 }
 
-AmsConfigurationParameter::AmsConfigurationParameter()
-{
-    std::string deviceType = OHOS::system::GetParameter("const.product.devicetype", "unknown");
-    isPcDevice_ = (deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1");
-}
+AmsConfigurationParameter::AmsConfigurationParameter() {}
 
 AmsConfigurationParameter &AmsConfigurationParameter::GetInstance()
 {
@@ -102,10 +98,7 @@ int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 
 int AmsConfigurationParameter::GetAppStartTimeoutTime() const
 {
-    if (isPcDevice_) {
-        return timeoutUnitTime_ * TIME_OUT_UNIT_TIME_RATIO;
-    }
-    return timeoutUnitTime_;
+    return timeoutUnitTime_ * AppUtils::GetInstance().GetTimeoutUnitTimeRatio();
 }
 
 void AmsConfigurationParameter::SetPickerJsonObject(nlohmann::json Object)
