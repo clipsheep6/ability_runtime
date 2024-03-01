@@ -212,13 +212,6 @@ bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissio
 
     return true;
 }
-
-bool ShouldUseMultipleRenderProcess(std::string& deviceType) {
-    // The "default" device type means phone.
-    return deviceType == "tablet" || deviceType == "pc" || deviceType == "2in1" ||
-           deviceType == "default" || deviceType == "phone";
-}
-
 }  // namespace
 
 using OHOS::AppExecFwk::Constants::PERMISSION_GRANTED;
@@ -240,7 +233,6 @@ void AppMgrServiceInner::Init()
     supportIsolationMode_ = OHOS::system::GetParameter(SUPPORT_ISOLATION_MODE, "false");
     supportServiceExtMultiProcess_ = OHOS::system::GetParameter(SUPPORT_SERVICE_EXT_MULTI_PROCESS, "false");
     ParseServiceExtMultiProcessWhiteList();
-    deviceType_ = OHOS::system::GetDeviceType();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
 }
@@ -324,9 +316,9 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
     std::string specifiedProcessFlag = "";
-    bool isPcDevice = (deviceType_ == "pc" || deviceType_ == "2in1");
     bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
-    bool isSpecifiedProcess = abilityInfo->isolationProcess && isPcDevice && isUIAbility;
+    bool isSpecifiedProcess = abilityInfo->isolationProcess && 
+        AppUtils::GetInstance().IsStartSpecifiedProcess() && isUIAbility;
     if (isSpecifiedProcess) {
         specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
         HILOG_INFO("specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
@@ -3798,7 +3790,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
     }
 
     auto renderRecordMap = appRecord->GetRenderRecordMap();
-    if (!renderRecordMap.empty() && !ShouldUseMultipleRenderProcess(deviceType_)) {
+    if (!renderRecordMap.empty() && !AppUtils::GetInstance().IsUseMultiRenderProcess()) {
         for (auto iter : renderRecordMap) {
             if (iter.second != nullptr) {
                 renderPid = iter.second->GetPid();
@@ -3816,7 +3808,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
     }
 
     // The phone device allows a maximum of 40 render processes to be created.
-    if (deviceType_ == "default" &&
+    if (AppUtils::GetInstance().IsLimitMaximumOfRenderProcess() &&
         renderRecordMap.size() >= PHONE_MAX_RENDER_PROCESS_NUM) {
         HILOG_ERROR(
             "Reaching the maximum render process limitation, hostPid:%{public}d",
@@ -5087,7 +5079,7 @@ int32_t AppMgrServiceInner::StartChildProcess(const pid_t hostPid, const std::st
 
 int32_t AppMgrServiceInner::StartChildProcessPreCheck(const pid_t callingPid)
 {
-    if (!AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
+    if (!AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         HILOG_ERROR("Multi process model is not enabled");
         return ERR_INVALID_OPERATION;
     }
