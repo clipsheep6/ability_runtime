@@ -209,11 +209,6 @@ private:
             return OnSetLoopWatch(env, argc, argv);
         }
         if (type == ON_OFF_TYPE_UNHANDLED_REJECTION) {
-            if (!AppExecFwk::EventRunner::IsAppMainThread()) {
-                HILOG_ERROR("UnhandledRejectionObserver can only be set from main thread.");
-                ThrowInvaildCallerError(env);
-                return CreateJsUndefined(env);
-            }
             if (argc != ARGC_TWO) {
                 HILOG_ERROR("The number of params is invalid.");
                 ThrowInvalidNumParametersError(env);
