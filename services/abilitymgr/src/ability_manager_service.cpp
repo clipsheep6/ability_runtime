@@ -175,6 +175,7 @@ const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
 // constexpr char ASSERT_FAULT_TITLE[] = "assertFaultDialogTitle";
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
+constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.ams.support_assert_fault_dialog";
 
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 const std::unordered_set<std::string> COMMON_PICKER_TYPE = {
@@ -9439,6 +9440,11 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
     const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("Request to display assert fault dialog begin.");
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Product of assert fault dialog is not enabled.");
+        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    }
+
     sptr<IRemoteObject> remoteCallback = callback;
     if (remoteCallback == nullptr) {
         HILOG_ERROR("Params remote callback is nullptr");
@@ -9458,22 +9464,7 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
     }
     int64_t assertFaultSessionId = reinterpret_cast<int64_t>(remoteCallback.GetRefPtr());
     want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
-    // want.SetParam(ASSERT_FAULT_TITLE, wantParams.GetStringParam(ASSERT_FAULT_TITLE));
     want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
-    // if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        // auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
-        // if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
-        //     HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
-        //     return ERR_INVALID_VALUE;
-        // }
-    // } else {
-    //     // Test code at native
-    //     auto ret = RequestModalUIExtensionInner(want);
-    //     if (ret != ERR_OK) {
-    //         HILOG_ERROR("Request modal ui extension error, %{public}d", ret);
-    //         return ret;
-    //     }
-    // }
 
     auto connection = std::make_shared<ModalSystemAssertUIExtension>();
     if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
