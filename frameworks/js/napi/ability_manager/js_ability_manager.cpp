@@ -117,9 +117,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnOff);
     }
 
-    static napi_value NotifyUserActionResult(napi_env env, napi_callback_info info)
+    static napi_value NotifyDebugAssertResult(napi_env env, napi_callback_info info)
     {
-        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifyUserActionResult);
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifyDebugAssertResult);
+	}
+
     static napi_value IsEmbeddedOpenAllowed(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnIsEmbeddedOpenAllowed);
@@ -215,7 +217,7 @@ private:
         return true;
     }
 
-    napi_value OnNotifyUserActionResult(napi_env env, size_t argc, napi_value *argv)
+    napi_value OnNotifyDebugAssertResult(napi_env env, size_t argc, napi_value *argv)
     {
         HILOG_DEBUG("Called.");
         if (argc < ARGC_ONE) {
@@ -251,7 +253,7 @@ private:
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(AAFwk::INNER_ERR)));
                 return;
             }
-            auto ret = amsClient->NotifyUserActionResult(assertSessionId, static_cast<AAFwk::UserStatus>(userStatus));
+            auto ret = amsClient->NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(userStatus));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Notify user action result failed, error is %{public}d.", ret);
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
@@ -629,7 +631,7 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
         env, exportObj, "getForegroundUIAbilities", moduleName, JsAbilityManager::GetForegroundUIAbilities);
     BindNativeFunction(env, exportObj, "on", moduleName, JsAbilityManager::On);
     BindNativeFunction(env, exportObj, "off", moduleName, JsAbilityManager::Off);
-    BindNativeFunction(env, exportObj, "notifyUserActionResult", moduleName, JsAbilityManager::NotifyUserActionResult);
+    BindNativeFunction(env, exportObj, "notifyDebugAssertResult", moduleName, JsAbilityManager::NotifyDebugAssertResult);
     BindNativeFunction(env, exportObj, "isEmbeddedOpenAllowed", moduleName, JsAbilityManager::IsEmbeddedOpenAllowed);
     HILOG_DEBUG("end");
     return CreateJsUndefined(env);
