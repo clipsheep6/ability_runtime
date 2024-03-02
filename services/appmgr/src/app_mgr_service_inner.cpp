@@ -737,7 +737,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
         appRecord->SetApplicationPendingState(ApplicationPendingState::READY);
     }
 
-    HILOG_INFO("application is backgrounded");
+    HILOG_DEBUG("application is backgrounded");
     AAFwk::EventInfo eventInfo;
     auto applicationInfo = appRecord->GetApplicationInfo();
     if (!applicationInfo) {
@@ -773,7 +773,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
         return;
     }
     if (appRecord->GetState() != ApplicationState::APP_STATE_BACKGROUND) {
-        HILOG_ERROR("current state is not background");
+        HILOG_DEBUG("current state is not background");
         return;
     }
 
@@ -2411,7 +2411,7 @@ void AppMgrServiceInner::ClearRecentAppList()
 
 void AppMgrServiceInner::OnRemoteDied(const wptr<IRemoteObject> &remote, bool isRenderProcess, bool isChildProcess)
 {
-    HILOG_ERROR("On remote died.");
+    HILOG_DEBUG("On remote died.");
     if (isRenderProcess) {
         OnRenderRemoteDied(remote);
         return;
@@ -3115,7 +3115,7 @@ int AppMgrServiceInner::FinishUserTestLocked(
     std::lock_guard<ffrt::mutex> lock(userTestLock_);
     auto userTestRecord = appRecord->GetUserTestInfo();
     if (!userTestRecord) {
-        HILOG_WARN("not start user test");
+        HILOG_DEBUG("not start user test");
         return ERR_INVALID_VALUE;
     }
     if (!userTestRecord->isFinished) {
@@ -5317,8 +5317,6 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
             eventInfo.callerVersionName = callerApplicationInfo->versionName;
             eventInfo.callerVersionCode = callerApplicationInfo->versionCode;
         }
-    } else {
-        HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
     }
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
 }

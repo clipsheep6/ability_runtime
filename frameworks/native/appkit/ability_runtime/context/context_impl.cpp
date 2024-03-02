@@ -356,7 +356,6 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 {
     HILOG_DEBUG("begin.");
     if (bundleName.empty() || moduleName.empty()) {
-        HILOG_ERROR("bundleName or moduleName is empty");
         return nullptr;
     }
 

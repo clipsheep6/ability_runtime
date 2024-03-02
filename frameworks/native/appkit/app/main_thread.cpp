@@ -232,7 +232,7 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         // libraries in patch lib path has a higher priority when loading.
         std::string patchLibPath = LOCAL_CODE_PATH;
         patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-        HILOG_INFO("lib path = %{private}s", patchLibPath.c_str());
+        HILOG_DEBUG("lib path = %{private}s", patchLibPath.c_str());
         appLibPaths["default"].emplace_back(patchLibPath);
     }
 
@@ -2001,7 +2001,7 @@ void MainThread::HandleTerminateApplication(bool isLastProcess)
     }
 
     if (!applicationImpl_->PerformTerminate(isLastProcess)) {
-        HILOG_WARN("PerformTerminate() failed.");
+        HILOG_DEBUG("PerformTerminate() failed.");
     }
 
     std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();

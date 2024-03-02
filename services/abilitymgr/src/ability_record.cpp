@@ -2096,7 +2096,6 @@ void AbilityRecord::DumpUIExtensionRootHostInfo(std::vector<std::string> &info) 
 void AbilityRecord::DumpAbilityState(
     std::vector<std::string> &info, bool isClient, const std::vector<std::string> &params)
 {
-    HILOG_INFO("begin");
     std::string dumpInfo = "      AbilityRecord ID #" + std::to_string(recordId_);
     info.push_back(dumpInfo);
     dumpInfo = "        app name [" + GetAbilityInfo().applicationName + "]";
@@ -2827,8 +2826,11 @@ int32_t AbilityRecord::GetOwnerMissionUserId()
 void AbilityRecord::DumpClientInfo(std::vector<std::string> &info, const std::vector<std::string> &params,
     bool isClient, bool dumpConfig) const
 {
-    if (!isClient || !scheduler_ || !isReady_) {
+    if (!scheduler_ || !isReady_) {
         HILOG_ERROR("something nullptr.");
+        return;
+    }
+    if (!isClient) {
         return;
     }
     std::unique_lock<ffrt::mutex> lock(dumpLock_);
@@ -3182,7 +3184,7 @@ void AbilityRecord::NotifyMissionBindPid()
     }
     auto sessionInfo = GetSessionInfo();
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr");
+        HILOG_DEBUG("sessionInfo is nullptr");
         return;
     }
     int32_t persistentId = sessionInfo->persistentId;

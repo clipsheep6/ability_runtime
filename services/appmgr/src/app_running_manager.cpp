@@ -975,7 +975,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("App running record is nullptr.");
             return;
         }
-        HILOG_INFO("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
+        HILOG_DEBUG("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
         pids.emplace(info->pid_);
     }
