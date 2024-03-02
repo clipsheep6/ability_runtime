@@ -131,14 +131,38 @@ foundation/ability            #元能力子系统
 
 **aa start**
 
-| 命令                                                           | 描述                      |
-| -------------------------------------------------------------- | ------------------------ |
-| aa start [-d <device>] -a <ability-name> -b <bundle-name> [-D] | 启动ability，设备ID 可空  |
+  | 参数 | 参数说明              |
+  | -------- |-------------------|
+  | -h/--help | 帮助信息。             |
+  | -d | 可选参数，deviceId。    |
+  | -a | 可选参数，abilityName。 |
+  | -b | 可选参数，bundleName。  |
+  | -U  | 可选参数，URI。         |
+  | -A  | 可选参数，action。      |
+  | -e  | 可选参数，entity。      |
+  | -t  | 可选参数，type。        |
+  | --pi  | 可选参数，整形类型键值对。     |
+  | --pb  | 可选参数，布尔类型键值对。     |
+  | --ps  | 可选参数，字符串类型键值对。    |
+  | --psn | 可选参数，空字符串关键字。     |
+  | -D | 可选参数，调试模式。        |
 
-```
-示例：
-aa start -d 12345 -a com.ohos.app.MainAbility -b com.ohos.app -D
-```
+  **返回值**：
+
+  当启动成功时，返回"start ability successfully."；当启动失败时，返回"error: failed to start ability."，同时会包含相应的失败信息。
+
+  **使用方法**：
+
+  
+  ```bash
+  # 显示启动Ability
+  aa start [-d <deviceId>] -a <abilityName> -b <bundleName> [-D] [--pi <key> <integer-value>] \
+    [--pb <key> <bool-value: true/false/t/f大小写不敏感] [--ps <key> <value>] [--psn <key>]
+  
+  # 隐式启动Ability。如果命令中的参数都不填，会导致启动失败。
+  aa start [-d <deviceId>] [-U <URI>] [-t <type>] [-A <action>] [-e <entity>] [-D] [--pi <key> <integer-value>] \
+    [--pb <key> <bool-value: true/false/t/f大小写不敏感] [--ps <key> <value>] [--psn <key>]
+  ```
 
 **aa dump**
 
