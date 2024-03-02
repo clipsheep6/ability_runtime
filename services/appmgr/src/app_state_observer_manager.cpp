@@ -525,9 +525,9 @@ void AppStateObserverManager::HandleOnAppProcessCreated(const std::shared_ptr<Ap
     }
     ProcessData data = WrapProcessData(appRecord);
     HILOG_INFO("Process Create, bundle:%{public}s, pid:%{public}d, uid:%{public}d, processType:%{public}d, "
-        "extensionType:%{public}d, processName:%{public}s, renderUid:%{public}d",
+        "extensionType:%{public}d, processName:%{public}s, renderUid:%{public}d, isTestMode:%{public}d",
         data.bundleName.c_str(), data.pid, data.uid, data.processType, data.extensionType, data.processName.c_str(),
-        data.renderUid);
+        data.renderUid, data.isTestMode);
     HandleOnProcessCreated(data);
 }
 
@@ -650,6 +650,9 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.processName = appRecord->GetProcessName();
     processData.extensionType = appRecord->GetExtensionType();
     processData.processType = appRecord->GetProcessType();
+    if (appRecord->GetUserTestInfo() != nullptr) {
+        processData.isTestMode = true;
+    }
     return processData;
 }
 
