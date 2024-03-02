@@ -9578,11 +9578,8 @@ int32_t AbilityManagerService::CheckRestartAppWant(const AAFwk::Want &want)
     auto userId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
     AppExecFwk::AbilityInfo abilityInfo;
     bool queryResult = IN_PROCESS_CALL(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, abilityInfo));
-    if (!queryResult) {
-        HILOG_ERROR("Query ability info fail.");
-        return INNER_ERR;
-    }
-    if (abilityInfo.name.empty() || abilityInfo.bundleName.empty() || abilityInfo.type != AbilityType::PAGE) {
+    if (!queryResult || abilityInfo.name.empty() ||
+        abilityInfo.bundleName.empty() || abilityInfo.type != AbilityType::PAGE) {
         HILOG_ERROR("Ability is invalid or not UIAbility.");
         return AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY;
     }
