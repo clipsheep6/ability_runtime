@@ -2983,8 +2983,8 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
     auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
     auto userId = GetCurrentAccountId();
-    HILOG_INFO("callerTokenId = %{public}u, tokenId = %{public}u, permission = %{public}i",
-        callerTokenId, tokenId, static_cast<int>(permission));
+    HILOG_INFO("callerTokenId = %{public}u, tokenId = %{public}u, permission = %{public}i, specifyTokenId = %{public}u",
+        callerTokenId, tokenId, static_cast<int>(permission), specifyTokenId);
     std::unordered_map<uint32_t, std::vector<Uri>> uriVecMap; // flag, vector
     uint32_t flag = want.GetFlags();
     for (auto&& str : uriVec) {
