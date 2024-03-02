@@ -5261,7 +5261,7 @@ int AbilityManagerService::GenerateAbilityRequest(
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
     }
-    if (request.want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::IDLE_SCREEN_MODE) == 0 &&
+    if (request.want.GetIntParam(SCREEN_MODE_KEY, ScreenMode::IDLE_SCREEN_MODE) == ScreenMode::JUMP_SCREEN_MODE &&
         (request.abilityInfo.applicationInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE ||
         request.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON)) {
         HILOG_ERROR("The interface of starting atomicService can start only atomicService.");
@@ -9639,6 +9639,10 @@ bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToke
     auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
     if (callerAbility == nullptr) {
         HILOG_ERROR("The caller is invalid.");
+        return false;
+    }
+    if (callerAbility->GetApplicationInfo().accessTokenId != accessTokenId) {
+        HILOG_ERROR("The callerToken does not belong to the caller.");
         return false;
     }
     if (!callerAbility->IsForeground() && !callerAbility->GetAbilityForegroundingFlag()) {

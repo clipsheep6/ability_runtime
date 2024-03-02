@@ -60,6 +60,10 @@ class UIExtensionContext extends ExtensionContext {
   reportDrawnCompleted(callback) {
     return this.__context_impl__.reportDrawnCompleted(callback);
   }
+
+  openAtomicService(appId, callback) {
+    return this.__context_impl__.openAtomicService(appId, callback);
+  }
 }
 
 export default UIExtensionContext;
