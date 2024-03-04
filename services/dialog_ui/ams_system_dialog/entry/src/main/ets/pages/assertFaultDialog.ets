@@ -38,99 +38,96 @@ struct AssertFaultCustomDialog {
 
   build() {
     Column() {
-
-      Column() {
-        Flex({ justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
-          Text($r('app.string.title_assertFault'))
-            .fontSize(32)
-            .fontColor($r('app.color.text_color'))
-            .fontFamily('HarmonyHeiTi')
-            .fontWeight(FontWeight.Medium)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-            .margin({ top: '25%', left: '5%' })
-        }
-        .height('18%')
-
-        Flex({ direction: FlexDirection.Column }) {
-          Text(this.textDetail)
-            .fontSize(16)
-            .fontFamily('HarmonyHeiTi')
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.text_color'))
-            .focusable(false)
-            .backgroundColor("#FFFFFF")
-            .height('67%')
-            .width('95%')
-            .margin({ left: '6%' })
-
-          Text(this.detail)
-            .fontSize(16)
-            .fontFamily('HarmonyHeiTi')
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.text_color'))
-            .focusable(false)
-            .backgroundColor("#FFFFFF")
-            .height('7%')
-            .width('95%')
-            .margin({ top: '2%', left: '6%' })
-
-          Flex({ direction: FlexDirection.RowReverse }) {
-            Button($r('app.string.button_continue'))
-              .margin(20)
-              .fontFamily('HarmonyHeiTi')
-              .height(40)
-              .width(80)
-              .type(ButtonType.Capsule)
-              .borderRadius($r('sys.float.ohos_id_corner_radius_button'))
-              .backgroundColor($r('app.color.button_color'))
-              .fontColor($r('sys.color.ohos_id_color_foreground_contrary'))
-              .fontSize($r('sys.float.ohos_id_text_size_button1'))
-              .onClick(() => {
-                console.info('AssertFaultCustomDialog', 'Continue button click');
-                this.continueClick();
-              })
-
-            Button($r('app.string.button_retry'))
-              .margin(20)
-              .fontFamily('HarmonyHeiTi')
-              .height(40)
-              .width(80)
-              .type(ButtonType.Capsule)
-              .borderRadius($r('sys.float.ohos_id_corner_radius_button'))
-              .backgroundColor($r('app.color.button_color'))
-              .fontColor($r('sys.color.ohos_id_color_foreground_contrary'))
-              .fontSize($r('sys.float.ohos_id_text_size_button1'))
-              .onClick(() => {
-                console.info('AssertFaultCustomDialog', 'Retry button click');
-                this.retryClick();
-              })
-
-            Button($r('app.string.button_termination'))
-              .margin(20)
-              .fontFamily('HarmonyHeiTi')
-              .height(40)
-              .width(80)
-              .type(ButtonType.Capsule)
-              .borderRadius($r('sys.float.ohos_id_corner_radius_button'))
-              .backgroundColor($r('app.color.button_color'))
-              .fontColor($r('sys.color.ohos_id_color_foreground_contrary'))
-              .fontSize($r('sys.float.ohos_id_text_size_button1'))
-              .onClick(() => {
-                console.info('AssertFaultCustomDialog', 'Termination button click');
-                this.terminationClick();
-              })
-          }
-          .height('20%')
-        }
-        .height('82%')
+      Flex({ justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
+        Text($r('app.string.title_assertFault'))
+          .fontSize(32)
+          .fontColor($r('app.color.text_color'))
+          .fontFamily('HarmonyHeiTi')
+          .fontWeight(FontWeight.Medium)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .margin({ top: '25%', left: '5%' })
       }
-      .height('550px')
-      .width('720px')
-      .borderRadius(16)
-      .borderWidth(1)
-      .borderColor("#e9e9e9")
-      .backgroundColor("#FFFFFF")
+      .height('18%')
+
+      Flex({ direction: FlexDirection.Column }) {
+        Text(this.textDetail)
+          .fontSize(16)
+          .fontFamily('HarmonyHeiTi')
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_color'))
+          .focusable(false)
+          .backgroundColor("#FFFFFF")
+          .height('67%')
+          .width('95%')
+          .margin({ left: '5%' })
+
+        Text(this.detail)
+          .fontSize(16)
+          .fontFamily('HarmonyHeiTi')
+          .fontWeight(FontWeight.Medium)
+          .fontColor($r('app.color.text_color'))
+          .focusable(false)
+          .backgroundColor("#FFFFFF")
+          .height('7%')
+          .width('95%')
+          .margin({ top: '2%', left: '5%' })
+
+        Flex({ direction: FlexDirection.RowReverse }) {
+          Button($r('app.string.button_continue'))
+            .margin(20)
+            .fontFamily('HarmonyHeiTi')
+            .height(40)
+            .width(80)
+            .type(ButtonType.Capsule)
+            .borderRadius($r('sys.float.ohos_id_corner_radius_button'))
+            .backgroundColor($r('app.color.button_color'))
+            .fontColor($r('sys.color.ohos_id_color_foreground_contrary'))
+            .fontSize($r('sys.float.ohos_id_text_size_button1'))
+            .onClick(() => {
+              console.info('AssertFaultCustomDialog', 'Continue button click');
+              this.continueClick();
+            })
+
+          Button($r('app.string.button_retry'))
+            .margin(20)
+            .fontFamily('HarmonyHeiTi')
+            .height(40)
+            .width(80)
+            .type(ButtonType.Capsule)
+            .borderRadius($r('sys.float.ohos_id_corner_radius_button'))
+            .backgroundColor($r('app.color.button_color'))
+            .fontColor($r('sys.color.ohos_id_color_foreground_contrary'))
+            .fontSize($r('sys.float.ohos_id_text_size_button1'))
+            .onClick(() => {
+              console.info('AssertFaultCustomDialog', 'Retry button click');
+              this.retryClick();
+            })
+
+          Button($r('app.string.button_termination'))
+            .margin(20)
+            .fontFamily('HarmonyHeiTi')
+            .height(40)
+            .width(80)
+            .type(ButtonType.Capsule)
+            .borderRadius($r('sys.float.ohos_id_corner_radius_button'))
+            .backgroundColor($r('app.color.button_color'))
+            .fontColor($r('sys.color.ohos_id_color_foreground_contrary'))
+            .fontSize($r('sys.float.ohos_id_text_size_button1'))
+            .onClick(() => {
+              console.info('AssertFaultCustomDialog', 'Termination button click');
+              this.terminationClick();
+            })
+        }
+        .height('20%')
+      }
+      .height('82%')
     }
+    .height('550px')
+    .width('720px')
+    .borderRadius(16)
+    .borderWidth(1)
+    .borderColor("#e9e9e9")
+    .backgroundColor("#FFFFFF")
   }
 }
 
@@ -148,8 +145,7 @@ struct AssertFaultDialog {
     cancel: this.existApp,
     autoCancel: false,
     alignment: DialogAlignment.Center,
-    gridCount: 10,
-    customStyle: false
+    customStyle: true
   });
 
   aboutToAppear() {
@@ -188,6 +184,7 @@ struct AssertFaultDialog {
       console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);
     }
   }
+
   onRetryCall() {
     console.info(TAG, 'On retry called');
     let status = abilityManager.UserStatus.ASSERT_RETRY;
@@ -207,6 +204,7 @@ struct AssertFaultDialog {
       console.error(TAG, `try notifyDebugAssertResult failed, error: ${JSON.stringify(error)}`);
     }
   }
+
   onTerminationCall() {
     console.info(TAG, 'On termination called');
     let status = abilityManager.UserStatus.ASSERT_TERMINATE;
@@ -228,6 +226,7 @@ struct AssertFaultDialog {
   }
 
   build() {
-    Column(this.dialogController.open()) {}
+    Column(this.dialogController.open()) {
+    }
   }
 }
