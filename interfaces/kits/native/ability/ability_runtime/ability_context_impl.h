@@ -212,6 +212,10 @@ public:
 
     ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task) override;
 
+    void RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
+
+    void UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.

@@ -116,6 +116,20 @@ public:
     std::shared_ptr<LifeCycle> GetLifecycle() override final;
 
     /**
+     * Register lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be registered on ability.
+     */
+    void RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) override;
+
+    /**
+     * Unregister lifecycle observer on ability.
+     *
+     * @param observer the lifecycle observer to be unregistered on ability.
+     */
+    void UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer) override;
+
+    /**
      * @brief Obtains a resource manager.
      *
      * @return Returns a ResourceManager object.

@@ -707,6 +707,30 @@ void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &wid
     }
 }
 
+void AbilityContextImpl::RegisterAbilityLifecycleObserver(
+    const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("register ability lifecycle observer failed, abilityCallback is nullptr.");
+        return;
+    }
+    abilityCallback->RegisterAbilityLifecycleObserver(observer);
+}
+
+void AbilityContextImpl::UnregisterAbilityLifecycleObserver(
+    const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("unregister ability lifecycle observer failed, abilityCallback is nullptr.");
+        return;
+    }
+    abilityCallback->UnregisterAbilityLifecycleObserver(observer);
+}
+
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)
 {

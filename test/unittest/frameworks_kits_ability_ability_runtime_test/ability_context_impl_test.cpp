@@ -15,13 +15,17 @@
 
 #include <gtest/gtest.h>
 #define private public
+#include "ability.h"
 #include "ability_context_impl.h"
+#include "ability_handler.h"
+#include "ability_info.h"
 #define protected public
 #include "ability_loader.h"
 #include "ability_manager_client.h"
 #include "ability_thread.h"
 #include "iability_callback.h"
 #include "mock_context.h"
+#include "mock_lifecycle_observer.h"
 #include "mock_serviceability_manager_service.h"
 #include "scene_board_judgement.h"
 #include "sys_mgr_client.h"
@@ -70,6 +74,14 @@ public:
     void EraseUIExtension(int32_t sessionId)
     {
         return;
+    }
+
+    void RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
+    {
+    }
+
+    void UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
+    {
     }
 };
 
@@ -1220,6 +1232,49 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbilityByType_0100, F
     const std::string type = "share";
     ErrCode ret = context_->StartAbilityByType(type, wantParams, nullptr);
     EXPECT_TRUE(ret == ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_RegisterAbilityLifecycleObserver_0100
+ * @tc.name: RegisterAbilityLifecycleObserver/UnregisterAbilityLifecycleObserver
+ * @tc.desc: test register/unregister ability lifecycle observer.
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RegisterAbilityLifecycleObserver_0100,
+    Function | MediumTest | Level1)
+{
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    EXPECT_NE(ability, nullptr);
+    std::shared_ptr<AbilityContextImpl> context = std::make_shared<AbilityContextImpl>();
+
+    // attach ability to ability context, so that ability can be registered as lifecycle observer into ability context.
+    ability->AttachAbilityContext(context);
+    EXPECT_NE(ability->GetAbilityContext(), nullptr);
+
+    // init ability to make sure lifecycle is created.
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
+    ability->Init(abilityInfo, nullptr, handler, nullptr);
+    std::shared_ptr<LifeCycle> lifeCycle = ability->GetLifecycle();
+    EXPECT_NE(lifeCycle, nullptr);
+
+    // register lifecycle observer on ability, so that it can receive lifecycle callback from ability.
+    std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    EXPECT_EQ(LifeCycle::Event::UNDEFINED, observer->GetLifecycleState());
+    context->RegisterAbilityLifecycleObserver(observer);
+
+    // mock ability lifecycle events, expecting that observer can observe them.
+    Want want;
+    ability->OnStart(want);
+    EXPECT_EQ(LifeCycle::Event::ON_START, lifeCycle->GetLifecycleState());
+    EXPECT_EQ(LifeCycle::Event::ON_START, observer->GetLifecycleState());
+    LifeCycle::Event finalObservedState = observer->GetLifecycleState();
+
+    // unregister lifecycle observer on ability, expecting that observer remains in the previous state,
+    // can not observe later lifecycle events anymore.
+    context->UnregisterAbilityLifecycleObserver(observer);
+    ability->OnStop();
+    EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
+    EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
 }
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -74,6 +74,22 @@ public:
     std::shared_ptr<AppExecFwk::LifeCycle> GetLifecycle() override final;
 
     /**
+     * Register lifecycle observer on UIAbility.
+     *
+     * @param observer the lifecycle observer to be registered on UIAbility.
+     */
+    void RegisterAbilityLifecycleObserver(
+        const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override final;
+
+    /**
+     * Unregister lifecycle observer on UIAbility.
+     *
+     * @param observer the lifecycle observer to be unregistered on UIAbility.
+     */
+    void UnregisterAbilityLifecycleObserver(
+        const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override final;
+
+    /**
      * @brief Obtains the AbilityContext object of the ability.
      * @return Returns the AbilityContext object of the ability.
      */
