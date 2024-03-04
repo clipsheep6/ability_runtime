@@ -61,7 +61,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dll";
 #elif defined(MAC_PLATFORM)
 constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dylib";
 #else
-#error "Unsupported platform"
+constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.so";
 #endif
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char *message)

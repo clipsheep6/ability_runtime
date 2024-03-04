@@ -298,21 +298,21 @@ std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_v
 }
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    NapiAsyncTask::ExecuteCallback &&execute, nullptr_t, napi_value *result)
+    NapiAsyncTask::ExecuteCallback &&execute, std::nullptr_t, napi_value *result)
 {
     return CreateAsyncTaskWithLastParam(
         env, lastParam, std::make_unique<NapiAsyncTask::ExecuteCallback>(std::move(execute)), nullptr, result);
 }
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, NapiAsyncTask::CompleteCallback &&complete, napi_value *result)
+    std::nullptr_t, NapiAsyncTask::CompleteCallback &&complete, napi_value *result)
 {
     return CreateAsyncTaskWithLastParam(
         env, lastParam, nullptr, std::make_unique<NapiAsyncTask::CompleteCallback>(std::move(complete)), result);
 }
 
 std::unique_ptr<NapiAsyncTask> CreateAsyncTaskWithLastParam(napi_env env, napi_value lastParam,
-    nullptr_t, nullptr_t, napi_value *result)
+    std::nullptr_t, std::nullptr_t, napi_value *result)
 {
     return CreateAsyncTaskWithLastParam(env, lastParam, std::unique_ptr<NapiAsyncTask::ExecuteCallback>(),
         std::unique_ptr<NapiAsyncTask::CompleteCallback>(), result);
