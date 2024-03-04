@@ -17,13 +17,18 @@
 #include <gtest/gtest.h>
 #include <mutex>
 
+#define private public
+#define protected public
 #include "ability_manager_client.h"
+#undef private
+#undef protected
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "app_mgr_interface.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
+#include "mock_sa_call.h"
 #include "nativetoken_kit.h"
 #include "session_info.h"
 #include "string_wrapper.h"
@@ -95,6 +100,7 @@ public:
     void RegisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
     void UnregisterApplicationStateObserver(const sptr<IApplicationStateObserver> &observer);
     static sptr<AppExecFwk::IAppMgr> appMgr_;
+    std::shared_ptr<AbilityManagerClient> client_{ nullptr };
 };
 
 sptr<AppExecFwk::IAppMgr> UIExtensionStabilityTest::appMgr_ = nullptr;
@@ -126,7 +132,9 @@ void UIExtensionStabilityTest::TearDownTestCase()
 {}
 
 void UIExtensionStabilityTest::SetUp()
-{}
+{
+    client_ = std::make_shared<AbilityManagerClient>();
+}
 
 void UIExtensionStabilityTest::TearDown()
 {}
@@ -216,8 +224,7 @@ void UIExtensionStabilityTest::WaitUntilAbilityBackground(
 HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Level1)
 {
     HILOG_INFO("TerminateUIExtensionAbility_0100 start.");
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
 
     auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
     RegisterApplicationStateObserver(observer);
@@ -226,15 +233,16 @@ HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Le
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
+    client_->StartAbility(userWant);
 
     sptr<IRemoteObject> token = nullptr;
-    auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+    client_->GetTopAbility(token);
     int resultCode = 0;
     Want resultWant;
-    ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+    client_->TerminateAbility(token, resultCode, &resultWant);
 
     UnregisterApplicationStateObserver(observer);
+    EXPECT_TRUE(client_ != nullptr);
     HILOG_INFO("TerminateUIExtensionAbility_0100 finish.");
 }
 
@@ -247,8 +255,7 @@ HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Le
 HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Level1)
 {
     HILOG_INFO("MinimizeUIExtensionAbility_0100 start.");
-    auto currentId = GetSelfTokenID();
-    SetNativeToken();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
 
     auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
     RegisterApplicationStateObserver(observer);
@@ -257,40 +264,41 @@ HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Lev
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
     userWant.SetElement(userElement);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(userWant), ERR_OK);
+    client_->StartAbility(userWant);
 
     Want uiAbilityWant;
     AppExecFwk::ElementName uiAbilityElement("0", TARGET_BUNDLE_NAME, TARGET_UIABILITY_NAME, TARGET_MODULE_NAME);
     uiAbilityWant.SetElement(uiAbilityElement);
-    EXPECT_EQ(AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant), ERR_OK);
+    client_->StartAbility(uiAbilityWant);
 
     // start uiability and uiextension user repeatly.
     for (uint32_t i = 0; i < TEST_TIMES; i++) {
-        AbilityManagerClient::GetInstance()->StartAbility(userWant);
-        AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant);
+        client_->StartAbility(userWant);
+        client_->StartAbility(uiAbilityWant);
     }
 
     // start uiability and destroy
     {
-        auto ret = AbilityManagerClient::GetInstance()->StartAbility(uiAbilityWant);
+        auto ret = client_->StartAbility(uiAbilityWant);
         sptr<IRemoteObject> token = nullptr;
-        ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+        ret = client_->GetTopAbility(token);
         int resultCode = 0;
         Want resultWant;
-        ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+        ret = client_->TerminateAbility(token, resultCode, &resultWant);
     }
 
     // start ui extension user and destroy
     {
-        auto ret = AbilityManagerClient::GetInstance()->StartAbility(userWant);
+        auto ret = client_->StartAbility(userWant);
         sptr<IRemoteObject> token = nullptr;
-        ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+        ret = client_->GetTopAbility(token);
         int resultCode = 0;
         Want resultWant;
-        ret = AbilityManagerClient::GetInstance()->TerminateAbility(token, resultCode, &resultWant);
+        ret = client_->TerminateAbility(token, resultCode, &resultWant);
     }
 
     UnregisterApplicationStateObserver(observer);
+    EXPECT_TRUE(client_ != nullptr);
     HILOG_INFO("MinimizeUIExtensionAbility_0100 finish.");
 }
 } // namespace AAFwk
