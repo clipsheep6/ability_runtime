@@ -387,6 +387,11 @@ enum {
      * Result(2097225) for restart too frequently. Try again at least 10s later.
      */
     ERR_RESTART_APP_FREQUENT,
+
+    /**
+     * Result(2097226) for connect ERMS service failed.
+     */
+    ERR_CONNECT_ERMS_FAILED,
 };
 
 enum {

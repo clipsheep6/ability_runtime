@@ -15,6 +15,7 @@
 
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
 
+#include "ability_manager_errors.h"
 #include "iservice_registry.h"
 #include "iremote_broker.h"
 #include "hilog_wrapper.h"
@@ -119,7 +120,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     HILOG_DEBUG("want: %{public}s, callerInfo: %{public}s, type: %{public}d", want.ToString().c_str(),
         callerInfo.ToString().c_str(), type);
     if (!CheckConnectService()) {
-        return -1;
+        return AAFwk::ERR_CONNECT_ERMS_FAILED;
     }
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
@@ -133,14 +134,9 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
     HILOG_DEBUG("callerInfo: %{public}s, want: %{public}s", callerInfo.ToString().c_str(), want.ToString().c_str());
-    if (callerInfo.packageName.find_first_not_of(' ') == std::string::npos) {
-        rule.isAllow = true;
-        HILOG_DEBUG("callerInfo packageName is empty, allow = true");
-        return 0;
-    }
 
     if (!CheckConnectService()) {
-        return -1;
+        return AAFwk::ERR_CONNECT_ERMS_FAILED;
     }
     int32_t res = ecologicalRuleMgrServiceProxy_->QueryStartExperience(want, callerInfo, rule);
     if (rule.replaceWant != nullptr) {
