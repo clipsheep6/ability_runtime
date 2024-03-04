@@ -22,12 +22,14 @@
 #include "in_process_call_wrapper.h"
 #include "remote_client_manager.h"
 #include "ui_extension_utils.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const std::string THREAD_NAME = "AppStateObserverManager";
 const int BUNDLE_NAME_LIST_MAX_SIZE = 128;
+constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 } // namespace
 AppStateObserverManager::AppStateObserverManager()
 {
@@ -650,7 +652,7 @@ ProcessData AppStateObserverManager::WrapProcessData(const std::shared_ptr<AppRu
     processData.processName = appRecord->GetProcessName();
     processData.extensionType = appRecord->GetExtensionType();
     processData.processType = appRecord->GetProcessType();
-    if (appRecord->GetUserTestInfo() != nullptr) {
+    if (appRecord->GetUserTestInfo() != nullptr && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         processData.isTestMode = true;
     }
     return processData;
