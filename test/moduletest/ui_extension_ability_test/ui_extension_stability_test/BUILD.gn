@@ -18,7 +18,10 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 ohos_moduletest("ui_extension_stability_test") {
   module_out_path = "ability_runtime/ui_extension"
 
-  include_dirs = [ "../include" ]
+  include_dirs = [
+    "../include",
+    "${ability_runtime_test_path}/mock/mock_sa_call",
+  ]
 
   sources = [
     "../src/ui_extension_connect_module_test_observer.cpp",
