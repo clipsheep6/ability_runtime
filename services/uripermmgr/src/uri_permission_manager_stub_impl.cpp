@@ -87,7 +87,7 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uri
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
-    if (AppUtils::GetInstance().JudgePCDevice()) {
+    if (AppUtils::GetInstance().IsGrantPersistUriPermission()) {
         bool isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
         // IsSACall function used for visibility checks.
         if (!isSystemAppCall && !PermissionVerification::GetInstance()->IsSACall()) {

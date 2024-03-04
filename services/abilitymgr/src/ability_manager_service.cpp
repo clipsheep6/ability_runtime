@@ -371,7 +371,6 @@ bool AbilityManagerService::Init()
     std::string deviceType = OHOS::system::GetDeviceType();
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
-        uiAbilityLifecycleManager_->SetDevice(deviceType);
     } else {
         InitMissionListManager(MAIN_USER_ID, true);
     }
@@ -952,7 +951,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             HILOG_ERROR("Check permission failed");
             return result;
         }
-    } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && OHOS::system::GetDeviceType() == STR_PHONE) ||
+    } else if ((callerBundleName == SHELL_ASSISTANT_BUNDLENAME && AppUtils::GetInstance().IsSupportAncoApp()) ||
         IPCSkeleton::GetCallingUid() == BROKER_UID) {
         // temp add for broker, remove when delete issacall
         if (abilityRequest.collaboratorType != CollaboratorType::RESERVE_TYPE && !abilityInfo.visible) {
@@ -1341,7 +1340,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
         }
         abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
-        if (AppUtils::GetInstance().JudgePCDevice()) {
+        if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
             if (startOptions.windowLeftUsed_) {
                 abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
             }
@@ -1448,7 +1447,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     }
     abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
-    if (AppUtils::GetInstance().JudgePCDevice()) {
+    if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
         if (startOptions.windowLeftUsed_) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
         }

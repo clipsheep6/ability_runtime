@@ -42,7 +42,8 @@ public:
 
 void ChildProcessManagerTest::SetUpTestCase()
 {
-    AAFwk::AppUtils::GetInstance().isMultiProcessModel_ = true;
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.isLoaded = true;
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.value = true;
 
     sptr<IRemoteObject> bundleMgrService =  sptr<IRemoteObject>(new (std::nothrow) AppExecFwk::BundleMgrService());
     sptr<IRemoteObject> mockAppMgrService = sptr<IRemoteObject>(new (std::nothrow) AppExecFwk::MockAppMgrService());
@@ -56,7 +57,10 @@ void ChildProcessManagerTest::SetUpTestCase()
 }
 
 void ChildProcessManagerTest::TearDownTestCase()
-{}
+{
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.isLoaded = false;
+    AAFwk::AppUtils::GetInstance().isMultiProcessModel_.value = false;
+}
 
 void ChildProcessManagerTest::SetUp()
 {}

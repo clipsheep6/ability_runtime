@@ -19,6 +19,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "app_gallery_enable_util.h"
+#include "app_utils.h"
 #include "default_app_interface.h"
 #include "errors.h"
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
@@ -109,7 +110,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     int32_t tokenId = request.want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN,
         static_cast<int32_t>(IPCSkeleton::GetCallingTokenID()));
     AddIdentity(tokenId, identity);
-    if (dialogAppInfos.size() == 0 && (deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
+    if (dialogAppInfos.size() == 0 && AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
             HILOG_INFO("hint dialog doesn't generate.");
             return ERR_IMPLICIT_START_ABILITY_FAIL;
@@ -128,7 +129,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
-    } else if (dialogAppInfos.size() == 0 && deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
+    } else if (dialogAppInfos.size() == 0 && !AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         std::string type = MatchTypeAndUri(request.want);
         ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type,
             userId, request.callerToken);
@@ -171,13 +172,13 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     //There is a default opening method add Only one application supports
     bool defaultPicker = false;
     defaultPicker = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, defaultPicker);
-    if (dialogAppInfos.size() == 1 && (!defaultPicker || deviceType == STR_PHONE || deviceType == STR_DEFAULT)) {
+    if (dialogAppInfos.size() == 1 && (!defaultPicker || AppUtils::GetInstance().IsSelectorDialogDefaultPossion())) {
         auto info = dialogAppInfos.front();
         HILOG_INFO("ImplicitQueryInfos success, target ability: %{public}s", info.abilityName.data());
         return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
-    if (deviceType == STR_PHONE || deviceType == STR_DEFAULT) {
+    if (AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
         ret = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
         if (ret != ERR_OK) {
@@ -295,7 +296,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     std::vector<AppExecFwk::AbilityInfo> implicitAbilityInfos;
     std::vector<AppExecFwk::ExtensionAbilityInfo> implicitExtensionInfos;
     std::vector<std::string> infoNames;
-    if (deviceType != STR_PHONE && deviceType != STR_DEFAULT) {
+    if (!AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(implicitwant, abilityInfoFlag, userId,
             withDefault, implicitAbilityInfos, implicitExtensionInfos));
         if (implicitAbilityInfos.size() != 0 && typeName != TYPE_ONLY_MATCH_WILDCARD) {
@@ -579,7 +580,7 @@ void ImplicitStartProcessor::AddAbilityInfoToDialogInfos(const AddInfoParam &par
     if (param.isExtension && param.info.type != AbilityType::EXTENSION) {
         return;
     }
-    if (param.deviceType != STR_PHONE && param.deviceType != STR_DEFAULT) {
+    if (!AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         bool isDefaultFlag = param.withDefault && IsExistDefaultApp(param.userId, param.typeName);
         if (!param.isMoreHapList && !isDefaultFlag &&
             std::find(param.infoNames.begin(), param.infoNames.end(),

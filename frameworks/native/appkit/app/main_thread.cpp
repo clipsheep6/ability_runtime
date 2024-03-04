@@ -2298,7 +2298,7 @@ void MainThread::Start()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
 
-    if (AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
+    if (AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         ChildProcessInfo info;
         if (IsStartChild(info)) {
             ChildMainThread::Start(info);

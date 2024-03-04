@@ -63,7 +63,7 @@ int32_t ExtensionRecordFactory::PreCheck(const AAFwk::AbilityRequest &abilityReq
         }
     }
     if (preCheckFlag & PRE_CHECK_FLAG_MULTIPLE_PROCESSES) {
-        if (!AppUtils::GetInstance().isMultiProcessModel()) {
+        if (!AppUtils::GetInstance().IsMultiProcessModel()) {
             HILOG_WARN("not multi process model.");
             return ERR_INVALID_VALUE;
         }
