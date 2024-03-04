@@ -46,7 +46,7 @@ public:
 
     void OnEvent(const int64_t formId, const std::string& message) override;
 
-    void OnUpdate(const int64_t formId) override;
+    void OnUpdate(const int64_t formId, const AAFwk::WantParams &wantParams) override;
 
     void OnCastToNormal(const int64_t formId) override;
 
