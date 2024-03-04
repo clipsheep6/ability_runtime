@@ -228,36 +228,6 @@ int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const
     return reply.ReadInt32();
 }
 
-bool UriPermissionManagerProxy::CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId)
-{
-    HILOG_DEBUG("UriPermissionManagerProxy::CheckPersistableUriPermissionProxy is called.");
-    MessageParcel data;
-    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
-        return false;
-    }
-    if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("Write uri failed.");
-        return false;
-    }
-    if (!data.WriteInt32(flag)) {
-        HILOG_ERROR("Write flag failed.");
-        return false;
-    }
-    if (!data.WriteInt32(tokenId)) {
-        HILOG_ERROR("Write tokenId failed.");
-        return false;
-    }
-    MessageParcel reply;
-    MessageOption option;
-    int error = SendTransactCmd(UriPermMgrCmd::ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY, data, reply, option);
-    if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
-        return false;
-    }
-    return reply.ReadBool();
-}
-
 bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::VerifyUriPermission is called.");

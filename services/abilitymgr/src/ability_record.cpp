@@ -83,8 +83,6 @@ const uint32_t RELEASE_STARTING_BG_TIMEOUT = 15000; // release starting window r
 const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
-const char* GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER = "persist.sys.prepare_terminate";
-constexpr int32_t GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE = 6;
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
@@ -294,7 +292,6 @@ bool AbilityRecord::Init()
     if (applicationInfo_.isLauncherApp) {
         isLauncherAbility_ = true;
     }
-    InitPersistableUriPermissionConfig();
     return true;
 }
 
@@ -2877,6 +2874,25 @@ void AbilityRecord::DumpAbilityInfoDone(std::vector<std::string> &infos)
     dumpCondition_.notify_all();
 }
 
+bool AbilityRecord::GetUriListFromWant(Want &want, std::vector<std::string> &uriVec)
+{
+    std::string uriStr = want.GetUri().ToString();
+    uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
+    if (!uriStr.empty()) {
+        uriVec.emplace_back(uriStr);
+    }
+    HILOG_INFO("uriVec size: %{public}zu", uriVec.size());
+    if (uriVec.size() == 0) {
+        HILOG_WARN("size of uri list is zero.");
+        return false;
+    }
+    if (uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("size of uri list is more than %{public}i", MAX_URI_COUNT);
+        return false;
+    }
+    return true;
+}
+
 void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId)
 {
     // reject sandbox to grant uri permission by start ability
@@ -2906,17 +2922,8 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         return;
     }
     std::vector<std::string> uriVec;
-    std::string uriStr = want.GetUri().ToString();
-    uriVec = want.GetStringArrayParam(AbilityConfig::PARAMS_STREAM);
-    if (!uriStr.empty()) {
-        uriVec.emplace_back(uriStr);
-    }
-    HILOG_DEBUG("GrantUriPermission uriVec size: %{public}zu", uriVec.size());
-    if (uriVec.size() == 0) {
-        return;
-    }
-    if (uriVec.size() > MAX_URI_COUNT) {
-        HILOG_ERROR("size of uriVec is more than %{public}i", MAX_URI_COUNT);
+    if (!GetUriListFromWant(want, uriVec)) {
+        HILOG_ERROR("Get uri list from want failed.");
         return;
     }
 
@@ -2933,31 +2940,14 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId, specifyTokenId);
 }
 
-bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission,
-    int32_t userId)
+bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t userId)
 {
     auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
     auto &&authority = uri.GetAuthority();
-    HILOG_INFO("uri authority is %{public}s.", authority.c_str());
-    if (!isGrantPersistableUriPermissionEnable_ || authority != "docs") {
-        flag &= (~Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION);
-    }
-    if (permission) {
-        return true;
-    }
-    if (authority == "media") {
-        HILOG_WARN("the type of uri media, have no permission.");
+    HILOG_DEBUG("uri authority is %{public}s.", authority.c_str());
+    if (authority == "media" || authority == "docs") {
+        HILOG_WARN("Authotity is media or docs, do not have permission.");
         return false;
-    }
-    if (authority == "docs") {
-        if (!isGrantPersistableUriPermissionEnable_ ||
-            !AAFwk::UriPermissionManagerClient::GetInstance().CheckPersistableUriPermissionProxy(
-                uri, flag, callerTokenId)) {
-            HILOG_WARN("the type of uri docs, have no permission.");
-            return false;
-        }
-        flag |= Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-        return true;
     }
     // uri of bundle name type
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
@@ -2971,7 +2961,7 @@ bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t caller
         return false;
     }
     auto authorityAccessTokenId = uriBundleInfo.applicationInfo.accessTokenId;
-    if (authorityAccessTokenId != callerAccessTokenId_ && authorityAccessTokenId != callerTokenId) {
+    if (authorityAccessTokenId != callerTokenId) {
         HILOG_ERROR("the uri does not belong to caller, have not permission");
         return false;
     }
@@ -2985,36 +2975,35 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
         static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
     auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
     auto userId = GetCurrentAccountId();
-    HILOG_INFO("callerTokenId = %{public}u, tokenId = %{public}u, permission = %{public}i, specifyTokenId = %{public}u",
+    HILOG_INFO("callerTokenId=%{public}u, tokenId=%{public}u, permission=%{public}i, specifyTokenId=%{public}u",
         callerTokenId, tokenId, static_cast<int>(permission), specifyTokenId);
-    std::unordered_map<uint32_t, std::vector<Uri>> uriVecMap; // flag, vector
     uint32_t flag = want.GetFlags();
-    for (auto&& str : uriVec) {
-        Uri uri(str);
+    std::vector<Uri> validUriList = {};
+    for (auto &&uriStr : uriVec) {
+        Uri uri(uriStr);
         auto &&scheme = uri.GetScheme();
-        HILOG_INFO("uri is %{private}s, scheme is %{public}s.", str.c_str(), scheme.c_str());
         // only support file scheme
         if (scheme != "file") {
-            HILOG_WARN("only support file uri.");
+            HILOG_WARN("only support file uri, scheme is %{public}s.", scheme.c_str());
             continue;
         }
-        if (!CheckUriPermission(uri, flag, callerTokenId, permission, userId)) {
+        if (!permission && !CheckUriPermission(uri, callerTokenId, userId)) {
             HILOG_ERROR("no permission to grant uri.");
             continue;
         }
-        if (uriVecMap.find(flag) == uriVecMap.end()) {
-            std::vector<Uri> uriVec;
-            uriVecMap.emplace(flag, uriVec);
-        }
-        uriVecMap[flag].emplace_back(uri);
+        validUriList.emplace_back(uri);
     }
-    for (const auto &item : uriVecMap) {
-        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(item.second, item.first,
-            targetBundleName, appIndex_, callerTokenId));
-        if (ret == ERR_OK) {
-            isGrantedUriPermission_ = true;
-        }
+    if (validUriList.size() == 0) {
+        HILOG_ERROR("Size of valid uri list is zero.");
+        return;
     }
+    auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(validUriList, flag,
+        targetBundleName, appIndex_, callerTokenId));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("grant uri permission failed, Error Code is %{public}d", ret);
+        return;
+    }
+    isGrantedUriPermission_ = true;
 }
 
 bool AbilityRecord::GrantPermissionToShell(const std::vector<std::string> &strUriVec, uint32_t flag,
@@ -3261,18 +3250,6 @@ void AbilityRecord::SetOtherMissionStackAbilityRecord(const std::shared_ptr<Abil
 int32_t AbilityRecord::GetCollaboratorType() const
 {
     return collaboratorType_;
-}
-
-void AbilityRecord::InitPersistableUriPermissionConfig()
-{
-    char value[GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE] = "false";
-    int retSysParam = GetParameter(GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, "false", value,
-        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_SIZE);
-    HILOG_DEBUG("GrantPersistableUriPermissionEnable, %{public}s value is %{public}s.",
-        GRANT_PERSISTABLE_URI_PERMISSION_ENABLE_PARAMETER, value);
-    if (retSysParam > 0 && !std::strcmp(value, "true")) {
-        isGrantPersistableUriPermissionEnable_ = true;
-    }
 }
 
 std::string AbilityRecord::GetMissionAffinity() const

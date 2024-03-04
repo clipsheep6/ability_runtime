@@ -104,15 +104,6 @@ int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, cons
     return INNER_ERR;
 }
 
-bool UriPermissionManagerClient::CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId)
-{
-    auto uriPermMgr = ConnectUriPermService();
-    if (uriPermMgr) {
-        return uriPermMgr->CheckPersistableUriPermissionProxy(uri, flag, tokenId);
-    }
-    return false;
-}
-
 bool UriPermissionManagerClient::VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId)
 {
     auto uriPermMgr = ConnectUriPermService();

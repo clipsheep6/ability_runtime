@@ -259,19 +259,27 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_001, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
- * Function: ConnectManager
+ * Function: VerifyUriPermission
  * SubFunction: NA
- * FunctionPoints: URIPermissionManagerService ConnectManager
+ * FunctionPoints: URIPermissionManagerService VerifyUriPermission
  */
-HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_002, TestSize.Level1)
+HWTEST_F(UriPermissionImplTest, Upms_VerifyUriPermission_001, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    MockSystemAbilityManager::isNullptr = true;
-    sptr<StorageManager::IStorageManager> storageManager = nullptr;
-    upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
-    MockSystemAbilityManager::isNullptr = false;
-    ASSERT_EQ(storageManager, nullptr);
+    auto callerTokenId = 1;
+    auto targetTokenId = 2;
+    auto invalidTokenId = 3;
+    std::string uri = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
+    auto flagRead = 1;
+    auto flagWrite = 2;
+    upms->AddTempUriPermission(uri, flagRead, callerTokenId, targetTokenId, false);
+    auto ret = upms->VerifyUriPermission(Uri(uri), flagRead, targetTokenId);
+    EXPECT_EQ(ret, true);
+    ret = upms->VerifyUriPermission(Uri(uri), flagWrite, targetTokenId);
+    EXPECT_EQ(ret, false);
+    ret = upms->VerifyUriPermission(Uri(uri), flagRead, invalidTokenId);
+    EXPECT_EQ(ret, false);
 }
 
 /*
@@ -284,11 +292,10 @@ HWTEST_F(UriPermissionImplTest, Upms_SendEvent_001, TestSize.Level1)
 {
     auto upms = std::make_unique<UriPermissionManagerStubImpl>();
     ASSERT_NE(upms, nullptr);
-    Uri uri("test");
-    std::string targetBundleName = "bundleName";
-    uint32_t targetTokenId = 0;
-    std::vector<std::string> uriVec;
-    upms->SendEvent(uri, targetBundleName, targetTokenId, uriVec);
+    std::string uri = "file://com.example.test/data/storage/el2/base/haps/entry/files/test_A.txt";
+    std::string targetBundleName = "com.example.test";
+    auto ret = upms->SendEvent(1, 2, uri);
+    ASSERT_EQ(ret, false);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

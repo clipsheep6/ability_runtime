@@ -46,9 +46,6 @@ int UriPermissionManagerStub::OnRemoteRequest(
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY : {
             return HandleRevokeUriPermissionManually(data, reply);
         }
-        case UriPermMgrCmd::ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY : {
-            return HandleCheckPerSiSTableUriPermissionProxy(data, reply);
-        }
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
         }
@@ -130,20 +127,6 @@ int UriPermissionManagerStub::HandleRevokeUriPermissionManually(MessageParcel &d
     auto bundleName = data.ReadString();
     int result = RevokeUriPermissionManually(*uri, bundleName);
     reply.WriteInt32(result);
-    return ERR_OK;
-}
-
-int UriPermissionManagerStub::HandleCheckPerSiSTableUriPermissionProxy(MessageParcel &data, MessageParcel &reply)
-{
-    std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
-    if (!uri) {
-        HILOG_ERROR("To read uri failed.");
-        return ERR_DEAD_OBJECT;
-    }
-    auto flag = data.ReadInt32();
-    auto tokenId = data.ReadInt32();
-    bool result = CheckPersistableUriPermissionProxy(*uri, flag, tokenId);
-    reply.WriteBool(result);
     return ERR_OK;
 }
 

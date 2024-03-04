@@ -22,10 +22,10 @@
 
 #include "app_mgr_interface.h"
 #include "bundle_mgr_helper.h"
+#include "event_report.h"
 #include "istorage_manager.h"
 #include "uri.h"
 #include "uri_permission_manager_stub.h"
-#include "uri_permission_rdb.h"
 
 namespace OHOS::AAFwk {
 namespace {
@@ -63,7 +63,6 @@ public:
     int RevokeAllUriPermissions(uint32_t tokenId) override;
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
 
-    bool CheckPersistableUriPermissionProxy(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
     
@@ -76,41 +75,35 @@ private:
     int32_t GetCurrentAccountId() const;
     int GrantUriPermissionImpl(const Uri &uri, unsigned int flag,
         TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove);
-    int GetUriPermissionFlag(const Uri &uri, unsigned int flag, uint32_t fromTokenId,
-        uint32_t targetTokenId, unsigned int &newFlag);
     int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
         TokenId targetTokenId, uint32_t autoRemove);
-    int DeleteTempUriPermission(const std::string &uri, uint32_t flag, uint32_t targetTokenId);
-    int DeleteTempUriPermissionAndShareFile(const std::string &uri, uint32_t fromTokenId, uint32_t targetTokenId);
-
-    void GetUriPermissionBatchFlag(const std::vector<Uri> &uriVec,
-        unsigned int flag, uint32_t targetTokenId,
-        std::unordered_map<uint32_t, std::vector<std::string>> &uriVecMap,
-        std::unordered_map<uint32_t, std::vector<uint32_t>> &fromTokenIdVecMap);
+    int DeleteTempUriPermission(const std::string &uri, uint32_t fromTokenId, uint32_t targetTokenId);
 
     int GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec, unsigned int flag,
         TokenId initiatorTokenId, TokenId targetTokenId, uint32_t autoRemove);
+    int GrantBatchUriPermission(const std::vector<Uri> &uriVec, unsigned int flag, uint32_t initiatorTokenId,
+        uint32_t targetTokenId, uint32_t autoRemove);
 
-    int GrantSingleUriPermission(const Uri &uri, unsigned int flag,
-        const std::string &targetBundleName, uint32_t autoRemove, int32_t appIndex, uint32_t initiatorTokenId);
+    int GrantSingleUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId, uint32_t targetTokenId,
+        uint32_t autoRemove);
 
-    void InitPersistableUriPermissionConfig();
-
-    void SendEvent(const Uri &uri, const std::string &targetBundleName, uint32_t targetTokenId,
-        const std::vector<std::string> &uriVec = {});
+    bool SendEvent(uint32_t callerTokenId, uint32_t targetTokenId, std::string &uri);
 
     int CheckRule(unsigned int flag);
+
+    bool CheckUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId);
+    bool CheckUriTypeIsValid(const Uri &uri);
+    bool CheckAndCreateEventInfo(uint32_t callerTokenId, uint32_t targetTokenId, EventInfo &eventInfo);
+    bool CheckIsSystemAppByBundleName(std::string &bundleName);
+    std::string GetBundleNameByTokenId(uint32_t tokenId);
 
     int GrantUriPermissionInner(const std::vector<Uri> &uriVec, unsigned int flag, const std::string targetBundleName,
         int32_t appIndex, uint32_t initiatorTokenId);
 
-    int CheckGrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string &targetBundleName, int32_t appIndex, uint32_t initiatorTokenId);
-
     int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId = 0);
 
-    void HandleUriPermission(
+    int32_t HandleUriPermission(
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
 
     bool IsFoundationCall();
@@ -132,8 +125,6 @@ private:
     sptr<AppExecFwk::IAppMgr> appMgr_ = nullptr;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_ = nullptr;
     sptr<StorageManager::IStorageManager> storageManager_ = nullptr;
-    std::shared_ptr<UriPermissionRdb> uriPermissionRdb_;
-    bool isGrantPersistableUriPermissionEnable_ = false;
 };
 }  // namespace OHOS::AAFwk
 #endif  // OHOS_ABILITY_RUNTIME_URI_PERMISSION_MANAGER_STUB_IMPL_H

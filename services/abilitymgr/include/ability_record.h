@@ -474,8 +474,6 @@ public:
 
     bool GetRecoveryInfo();
 
-    void InitPersistableUriPermissionConfig();
-
 #ifdef SUPPORT_GRAPHICS
     /**
      * check whether the ability 's window is attached.
@@ -999,12 +997,14 @@ private:
     void GrantUriPermissionFor2In1Inner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
-    bool CheckUriPermission(Uri &uri, uint32_t &flag, uint32_t callerTokenId, bool permission, int32_t userId);
+    bool CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t userId);
     LastExitReason CovertAppExitReasonToLastReason(const Reason exitReason);
 
     void NotifyMissionBindPid();
 
     void DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const;
+
+    bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
@@ -1157,7 +1157,6 @@ private:
     bool isNeedBackToOtherMissionStack_ = false;
     std::weak_ptr<AbilityRecord> otherMissionStackAbilityRecord_; // who starts this ability record by SA
     int32_t collaboratorType_ = 0;
-    bool isGrantPersistableUriPermissionEnable_ = false;
     std::string missionAffinity_ = "";
     bool lockedState_ = false;
     bool isAttachDebug_ = false;

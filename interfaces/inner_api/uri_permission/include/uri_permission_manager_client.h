@@ -85,15 +85,6 @@ public:
     int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName);
 
     /**
-     * @brief check if caller can grant persistable uri permission
-     *
-     * @param uri The file uri.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param tokenId A tokenId of an application.
-     */
-    bool CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId);
-
-    /**
      * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission
      *
      * @param uri The file uri.
