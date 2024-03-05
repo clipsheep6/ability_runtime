@@ -4691,6 +4691,12 @@ void AppMgrServiceInner::SetCurrentUserId(const int32_t userId)
 
 int32_t AppMgrServiceInner::GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid)
 {
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != FOUNDATION_UID) {
+        HILOG_ERROR("Caller is not foundation.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     auto callerRecord = GetAppRunningRecordByPid(pid);
     if (callerRecord == nullptr) {
         HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
