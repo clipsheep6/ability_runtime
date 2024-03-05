@@ -60,6 +60,7 @@ public:
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
     static napi_value SetMissionContinueState(napi_env env, napi_callback_info info);
     static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
+    static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
 
 private:
     static void WrapJsUIAbilityContext(napi_env env, std::shared_ptr<AbilityContext> uiAbiContext,
@@ -88,6 +89,7 @@ private:
     napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     napi_value OnSetMissionContinueState(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityByType(napi_env env, NapiCallbackInfo& info);
+    napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
 
 #ifdef SUPPORT_GRAPHICS
 public:

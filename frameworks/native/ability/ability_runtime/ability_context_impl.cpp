@@ -492,6 +492,16 @@ ErrCode AbilityContextImpl::MoveAbilityToBackground()
     return err;
 }
 
+ErrCode AbilityContextImpl::MoveUIAbilityToBackground()
+{
+    HILOG_DEBUG("call");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MoveUIAbilityToBackground(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("MoveAbilityToBackground failed: %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode AbilityContextImpl::TerminateSelf()
 {
     HILOG_INFO("TerminateSelf");

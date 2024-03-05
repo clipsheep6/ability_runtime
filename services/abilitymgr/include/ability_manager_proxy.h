@@ -308,6 +308,14 @@ public:
     virtual int MoveAbilityToBackground(const sptr<IRemoteObject> &token) override;
 
     /**
+     * Move the UIAbility to background, called by app self.
+     *
+     * @param token the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t MoveUIAbilityToBackground(const sptr<IRemoteObject> token) override;
+
+    /**
      * CloseAbility, close the special ability.
      *
      * @param token, the token of the ability to terminate.

@@ -2722,6 +2722,44 @@ int AbilityManagerService::MoveAbilityToBackground(const sptr<IRemoteObject> &to
     return missionListManager->MoveAbilityToBackground(abilityRecord);
 }
 
+int32_t AbilityManagerService::MoveUIAbilityToBackground(const sptr<IRemoteObject> token)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("MoveUIAbilityToBackground called.");
+    if (!AppUtils::GetInstance().EnableMoveUIAbilityToBackgroundApi()) {
+        return ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE;
+    }
+    if (!VerificationAllToken(token)) {
+        return ERR_INVALID_VALUE;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    if (!IsAppSelfCalled(abilityRecord)) {
+        return CHECK_PERMISSION_FAILED;
+    }
+    if (!IsAbilityControllerForeground(abilityRecord->GetAbilityInfo().bundleName)) {
+        HILOG_ERROR("Can not move ability to background in Wukong mode.");
+        return ERR_WUKONG_MODE_CANT_MOVE_STATE;
+    }
+    if (!abilityRecord->IsAbilityState(FOREGROUND) && !abilityRecord->IsAbilityState(FOREGROUNDING)) {
+        HILOG_ERROR("Ability not in foregorund state.");
+        return ERR_ABILITY_NOT_FOREGROUND;
+    }
+    if (abilityRecord->GetAbilityInfo().type != AppExecFwk::AbilityType::PAGE) {
+        HILOG_ERROR("Cannot background non UIAbility.");
+        return RESOLVE_CALL_ABILITY_TYPE_ERR;
+    }
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
+        uiAbilityLifecycleManager_->NotifySCBToMinimizeUIAbility(abilityRecord, token);
+    }
+
+    auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
+    auto missionListManager = GetListManagerByUserId(ownerUserId);
+    CHECK_POINTER_AND_RETURN(missionListManager, ERR_INVALID_VALUE);
+    return missionListManager->MoveAbilityToBackground(abilityRecord);
+}
+
 int AbilityManagerService::TerminateAbility(const sptr<IRemoteObject> &token, int resultCode, const Want *resultWant)
 {
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
@@ -8576,6 +8614,18 @@ bool AbilityManagerService::JudgeSelfCalled(const std::shared_ptr<AbilityRecord>
         return false;
     }
 
+    return true;
+}
+
+bool AbilityManagerService::IsAppSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    CHECK_POINTER_RETURN_BOOL(abilityRecord);
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("Is not app self called.");
+        return false;
+    }
     return true;
 }
 

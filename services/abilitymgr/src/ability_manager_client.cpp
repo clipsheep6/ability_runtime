@@ -324,6 +324,12 @@ ErrCode AbilityManagerClient::MoveAbilityToBackground(sptr<IRemoteObject> token)
     return abms->MoveAbilityToBackground(token);
 }
 
+ErrCode AbilityManagerClient::MoveUIAbilityToBackground(const sptr<IRemoteObject> token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveUIAbilityToBackground(token);
+}
 
 ErrCode AbilityManagerClient::CloseAbility(sptr<IRemoteObject> token, int resultCode, const Want *resultWant)
 {

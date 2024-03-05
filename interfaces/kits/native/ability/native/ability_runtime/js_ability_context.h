@@ -63,6 +63,7 @@ public:
     static napi_value StartAbilityByType(napi_env env, napi_callback_info info);
     static napi_value RequestModalUIExtension(napi_env env, napi_callback_info info);
     static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
+    static napi_value MoveAbilityToBackground(napi_env env, napi_callback_info info);
 
     static void ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);
@@ -110,6 +111,7 @@ private:
     napi_value OnRequestModalUIExtension(napi_env env, NapiCallbackInfo& info);
     napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
     napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want);
+    napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
     static napi_value WrapWant(napi_env env, const AAFwk::Want& want);

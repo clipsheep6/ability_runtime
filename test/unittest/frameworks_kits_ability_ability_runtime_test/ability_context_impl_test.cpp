@@ -1222,6 +1222,19 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetWeakSessionToken_0100, 
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_MoveUIAbilityToBackground_0100
+ * @tc.name: MoveUIAbilityToBackground
+ * @tc.desc: move UIAbility to background
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_MoveUIAbilityToBackground_0100, Function | MediumTest | Level1)
+{
+    GTEST_LOG_(INFO) << "Ability_Context_Impl_MoveUIAbilityToBackground_0100 begin.";
+    AAFwk::AbilityManagerClient::GetInstance()->proxy_ = g_mockAbilityMs;
+    ErrCode ret = context_->MoveUIAbilityToBackground();
+    EXPECT_TRUE(ret == ERR_OK);
+}
+
+/**
  * @tc.number: Ability_Context_Impl_StartAbilityByType_0100
  * @tc.name: StartAbilityByType
  * @tc.desc: start UIAbility or UIExtensionAbility by type

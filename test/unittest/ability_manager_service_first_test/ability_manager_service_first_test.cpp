@@ -27,6 +27,7 @@
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "app_utils.h"
 #include "connection_observer_errors.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
@@ -806,6 +807,21 @@ HWTEST_F(AbilityManagerServiceFirstTest, DoAbilityBackground_001, TestSize.Level
     EXPECT_EQ(abilityMs_->DoAbilityBackground(nullptr, 1), ERR_INVALID_VALUE);
     EXPECT_EQ(abilityMs_->DoAbilityBackground(MockToken(AbilityType::PAGE), 1), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceFirstTest DoAbilityBackground_001 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_MoveUIAbilityToBackground_0100
+ * @tc.desc: Test the state of MoveUIAbilityToBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, MoveUIAbilityToBackground_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest MoveUIAbilityToBackground_0100 start");
+    if (AppUtils::GetInstance().EnableMoveUIAbilityToBackgroundApi()) {
+        auto abilityMs_ = std::make_shared<AbilityManagerService>();
+        auto token = MockToken(AbilityType::PAGE);
+        EXPECT_EQ(abilityMs_->MoveUIAbilityToBackground(token), ERR_INVALID_VALUE);
+    }
 }
 
 /*

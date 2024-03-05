@@ -639,6 +639,18 @@ HWTEST_F(AbilityManagerClientBranchTest, MoveAbilityToBackground_0100, TestSize.
 }
 
 /**
+ * @tc.name: AbilityManagerClient_MoveUIAbilityToBackground_0100
+ * @tc.desc: MoveUIAbilityToBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, MoveUIAbilityToBackground_0100, TestSize.Level1)
+{
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->MoveUIAbilityToBackground(token);
+    EXPECT_EQ(ERR_OK, result);
+}
+
+/**
  * @tc.name: AbilityManagerClient_CloseAbility_0100
  * @tc.desc: CloseAbility
  * @tc.type: FUNC

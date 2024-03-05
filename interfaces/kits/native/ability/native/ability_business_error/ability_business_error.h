@@ -123,6 +123,12 @@ enum class AbilityErrorCode {
     // Restart too frequently. Try again at least 10s later.
     ERROR_CODE_RESTART_APP_FREQUENT = 16000064,
 
+    // ability not foreground.
+    ERROR_CODE_ABILITY_NOT_FOREGROUND = 16000065,
+
+    // wukong mode, can not move to foreground or background.
+    ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE = 16000066,
+
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,
 

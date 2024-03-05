@@ -193,6 +193,7 @@ private:
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetConnectionDataInner(MessageParcel &data, MessageParcel &reply);
     int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
+    int32_t MoveUIAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);

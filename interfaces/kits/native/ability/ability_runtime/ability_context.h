@@ -221,6 +221,8 @@ public:
 
     virtual ErrCode MoveAbilityToBackground() = 0;
 
+    virtual ErrCode MoveUIAbilityToBackground() = 0;
+
     virtual ErrCode TerminateSelf() = 0;
 
     virtual ErrCode CloseAbility() = 0;

@@ -80,6 +80,7 @@ ohos_unittest("ui_ability_lifecycle_manager_test") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "window_manager:session_manager_lite",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

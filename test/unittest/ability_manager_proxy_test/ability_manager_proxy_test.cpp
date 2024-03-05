@@ -1854,6 +1854,22 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DoAbilityBackground_001, T
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 
+/**
+ * @tc.name: AbilityManagerProxyTest_MoveUIAbilityToBackground_0100
+ * @tc.desc: Test the state of MoveUIAbilityToBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, MoveUIAbilityToBackground_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    auto token = sptr<MockAbilityToken>::MakeSptr();
+    auto res = proxy_->MoveUIAbilityToBackground(token);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: SendANRProcessID

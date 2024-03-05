@@ -325,6 +325,11 @@ public:
         return 0;
     }
 
+    int32_t MoveUIAbilityToBackground(const sptr<IRemoteObject> token) override
+    {
+        return 0;
+    }
+
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
 #ifdef ABILITY_COMMAND_FOR_TEST

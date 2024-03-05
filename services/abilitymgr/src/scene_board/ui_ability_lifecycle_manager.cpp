@@ -28,6 +28,7 @@
 #include "iability_info_callback.h"
 #include "mission_info.h"
 #include "session_info.h"
+#include "session_manager_lite.h"
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -582,6 +583,20 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
         return iter->second;
     }
     return nullptr;
+}
+
+int32_t UIAbilityLifecycleManager::NotifySCBToMinimizeUIAbility(const std::shared_ptr<AbilityRecord> abilityRecord,
+    const sptr<IRemoteObject> token)
+{
+    HILOG_INFO("NotifySCBToMinimizeUIAbility.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto sceneSessionManager = Rosen::SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
+    Rosen::WSError ret = sceneSessionManager->PendingSessionToBackgroundForDelegator(token);
+    if (ret != Rosen::WSError::WS_OK) {
+        HILOG_ERROR("Call sceneSessionManager PendingSessionToBackgroundForDelegator error:%{public}d", ret);
+    }
+    return static_cast<int32_t>(ret);
 }
 
 int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser)

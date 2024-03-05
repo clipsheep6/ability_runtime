@@ -91,6 +91,8 @@ public:
 
     ErrCode MoveAbilityToBackground() override;
 
+    ErrCode MoveUIAbilityToBackground() override;
+
     ErrCode TerminateSelf() override;
 
     ErrCode CloseAbility() override;

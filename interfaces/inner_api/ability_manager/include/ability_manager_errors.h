@@ -392,6 +392,21 @@ enum {
      * Result(2097226) for connect ERMS service failed.
      */
     ERR_CONNECT_ERMS_FAILED,
+
+    /**
+     * Result(2097227) for ability is not foreground state.
+     */
+    ERR_ABILITY_NOT_FOREGROUND,
+
+    /**
+     * Result(2097228) for in wukong mode, ability can not move to foreground or background.
+     */
+    ERR_WUKONG_MODE_CANT_MOVE_STATE,
+
+    /**
+     * Result(2097229) for operation not supported on current device.
+     */
+    ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE,
 };
 
 enum {

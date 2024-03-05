@@ -170,6 +170,11 @@ napi_value JsEmbeddableUIAbilityContext::StartAbilityByType(napi_env env, napi_c
     GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnStartAbilityByType);
 }
 
+napi_value JsEmbeddableUIAbilityContext::MoveAbilityToBackground(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsEmbeddableUIAbilityContext, OnMoveAbilityToBackground);
+}
+
 napi_value JsEmbeddableUIAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
     if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
@@ -412,6 +417,17 @@ napi_value JsEmbeddableUIAbilityContext::OnStartAbilityByType(napi_env env, Napi
     return jsAbilityContext_->OnStartAbilityByType(env, info);
 }
 
+napi_value JsEmbeddableUIAbilityContext::OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info)
+{
+    if (screenMode_ == AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+        HILOG_ERROR("OnMoveAbilityToBackground in half screen mode.");
+        ThrowError(env, static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER), ERR_MSG_NOT_SUPPORT);
+        return CreateJsUndefined(env);
+    }
+    CHECK_POINTER_RETURN(env, jsAbilityContext_);
+    return jsAbilityContext_->OnMoveAbilityToBackground(env, info);
+}
+
 #ifdef SUPPORT_GRAPHICS
 napi_value JsEmbeddableUIAbilityContext::SetMissionLabel(napi_env env, napi_callback_info info)
 {
@@ -535,6 +551,7 @@ napi_value JsEmbeddableUIAbilityContext::CreateJsEmbeddableUIAbilityContext(napi
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, objValue, "setMissionLabel", moduleName, SetMissionLabel);
     BindNativeFunction(env, objValue, "setMissionIcon", moduleName, SetMissionIcon);
+    BindNativeFunction(env, objValue, "moveAbilityToBackground", moduleName, MoveAbilityToBackground);
 #endif
     return objValue;
 }

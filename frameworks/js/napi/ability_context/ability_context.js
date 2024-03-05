@@ -194,6 +194,10 @@ class AbilityContext extends Context {
   openAtomicService(appId, callback) {
     return this.__context_impl__.openAtomicService(appId, callback);
   }
+  
+  moveAbilityToBackground(callback) {
+    return this.__context_impl__.moveAbilityToBackground(callback);
+  }
 }
 
 export default AbilityContext;

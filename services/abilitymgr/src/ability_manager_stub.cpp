@@ -319,6 +319,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetDlpConnectionInfosInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND)] =
         &AbilityManagerStub::MoveAbilityToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND)] =
+        &AbilityManagerStub::MoveUIAbilityToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE)] =
         &AbilityManagerStub::SetMissionContinueStateInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB)] =
@@ -459,6 +461,21 @@ int AbilityManagerStub::MoveAbilityToBackgroundInner(MessageParcel &data, Messag
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::MoveUIAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    const sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("token is nullptr.");
+        return IPC_STUB_ERR;
+    }
+    int32_t result = MoveUIAbilityToBackground(token);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

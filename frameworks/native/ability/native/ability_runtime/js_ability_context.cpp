@@ -299,6 +299,11 @@ napi_value JsAbilityContext::OpenAtomicService(napi_env env, napi_callback_info 
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnOpenAtomicService);
 }
 
+napi_value JsAbilityContext::MoveAbilityToBackground(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnMoveAbilityToBackground);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -1428,6 +1433,7 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::RequestModalUIExtension);
     BindNativeFunction(env, object, "openAtomicService", moduleName,
         JsAbilityContext::OpenAtomicService);
+    BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1949,6 +1955,36 @@ napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackIn
         context->OpenAtomicService(want, curRequestCode_, std::move(task));
     }
     HILOG_DEBUG("OnOpenAtomicService is called end");
+    return result;
+}
+
+napi_value JsAbilityContext::OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("OnMoveAbilityToBackground");
+    auto abilityContext = context_.lock();
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_DEBUG("OnMoveAbilityToBackground task");
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+
+            auto errcode = context->MoveUIAbilityToBackground();
+            if (errcode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnMoveAbilityToBackground",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }
 }  // namespace AbilityRuntime

@@ -411,6 +411,18 @@ public:
     {
         return 0;
     };
+
+    /**
+     * Move the UIAbility to background, called by app self.
+     *
+     * @param token the token of the ability to move.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t MoveUIAbilityToBackground(const sptr<IRemoteObject> token)
+    {
+        return 0;
+    };
+
     /**
      * CloseAbility, close the special ability.
      *
