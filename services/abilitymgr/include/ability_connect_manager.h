@@ -337,7 +337,7 @@ private:
     int DispatchTerminate(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     void HandleStartTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord, int resultCode);
-    void HandleStopTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    void HandleStopTimeoutTask(std::shared_ptr<AbilityRecord> abilityRecord);
     void HandleTerminateDisconnectTask(const ConnectListType& connectlist);
     void HandleCommandTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord);
     void HandleCommandWindowTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord,

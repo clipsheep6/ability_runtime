@@ -1123,7 +1123,7 @@ void AbilityConnectManager::StartRootLauncher(const std::shared_ptr<AbilityRecor
     StartAbilityLocked(requestInfo);
 }
 
-void AbilityConnectManager::HandleStopTimeoutTask(const std::shared_ptr<AbilityRecord> &abilityRecord)
+void AbilityConnectManager::HandleStopTimeoutTask(std::shared_ptr<AbilityRecord> abilityRecord)
 {
     HILOG_DEBUG("Complete stop ability timeout start.");
     std::lock_guard guard(Lock_);
