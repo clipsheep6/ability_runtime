@@ -32,6 +32,7 @@
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
 #include "mock_native_token.h"
+#include "mock_sa_call.h"
 
 using namespace testing::ext;
 using OHOS::iface_cast;
@@ -164,6 +165,7 @@ void AppRunningProcessesInfoModuleTest::TearDownTestCase()
 
 void AppRunningProcessesInfoModuleTest::SetUp()
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     service_.reset(new (std::nothrow) AppMgrServiceInner());
     mockToken_ = new (std::nothrow) MockAbilityToken();
     mockBundleMgr_ = DelayedSingleton<BundleMgrHelper>::GetInstance();
