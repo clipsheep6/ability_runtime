@@ -587,10 +587,6 @@ int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, cons
         HILOG_ERROR("AppMgrService is not ready.");
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        return ERR_INVALID_OPERATION;
-    }
     return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
@@ -598,10 +594,6 @@ int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const 
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
-        return ERR_INVALID_OPERATION;
-    }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyHotReloadPage(bundleName, callback);
@@ -623,10 +615,6 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
 {
     if (!IsReady()) {
         HILOG_ERROR("AppMgrService is not ready.");
-        return ERR_INVALID_OPERATION;
-    }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);

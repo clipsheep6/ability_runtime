@@ -109,6 +109,7 @@ const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
+constexpr int32_t QUICKFIX_UID = 5524;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -3048,6 +3049,11 @@ bool AppMgrServiceInner::GetAppRunningStateByBundleName(const std::string &bundl
         return false;
     }
 
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission deny, not SA.");
+        return false;
+    }
+
     return appRunningManager_->GetAppRunningStateByBundleName(bundleName);
 }
 
@@ -3061,6 +3067,11 @@ int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName,
         return ERR_INVALID_OPERATION;
     }
 
+    if (IPCSkeleton::GetCallingUid() != QUICKFIX_UID) {
+        HILOG_ERROR("Permission deny, not quick_fix.");
+        return ERR_PERMISSION_DENIED;
+    }
+
     return appRunningManager_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
@@ -3071,6 +3082,11 @@ int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName, c
     if (!appRunningManager_) {
         HILOG_ERROR("app running manager is nullptr.");
         return ERR_INVALID_OPERATION;
+    }
+
+    if (IPCSkeleton::GetCallingUid() != QUICKFIX_UID) {
+        HILOG_ERROR("Permission deny, not quick_fix.");
+        return ERR_PERMISSION_DENIED;
     }
 
     return appRunningManager_->NotifyHotReloadPage(bundleName, callback);
@@ -3110,6 +3126,11 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
     if (!appRunningManager_) {
         HILOG_ERROR("app running manager is nullptr.");
         return ERR_INVALID_OPERATION;
+    }
+
+    if (IPCSkeleton::GetCallingUid() != QUICKFIX_UID) {
+        HILOG_ERROR("Permission deny, not quick_fix.");
+        return ERR_PERMISSION_DENIED;
     }
 
     return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
