@@ -38,6 +38,7 @@
 #include "nocopyable.h"
 #include "system_ability.h"
 #include "task_handler_wrap.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -192,6 +193,21 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
+     * Authenticate dump permissions
+     *
+     * @return Returns true on permission, others on false
+     */
+    bool HasDumpPermission() const;
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
 
     // the function about service running info
     /**

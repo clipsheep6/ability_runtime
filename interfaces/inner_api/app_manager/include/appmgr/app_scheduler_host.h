@@ -30,7 +30,7 @@ class AppSchedulerHost : public IRemoteStub<IAppScheduler> {
 public:
     AppSchedulerHost();
     virtual ~AppSchedulerHost();
-
+    void InitMemberFuncMap();
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
@@ -55,6 +55,7 @@ private:
     int32_t HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleUpdateApplicationInfoInstalled(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleHeapMemory(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleScheduleJsHeapMemory(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyAppFault(MessageParcel &data, MessageParcel &reply);
     int32_t HandleScheduleChangeAppGcState(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);

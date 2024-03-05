@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -599,6 +599,35 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     mallocInfo.uordblks = uordblks;
     mallocInfo.fordblks = fordblks;
     mallocInfo.hblkhd = hblkhd;
+}
+
+/**
+ *
+ * @brief the application triggerGC and dump jsheap memory.
+ *
+ * @param info, pid, tid, needGC, needSnapshot.
+ */
+void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        info.pid, info.tid, info.needGc, info.needSnapshot);
+    auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory app nullptr");
+        return;
+    }
+    auto &runtime = app->GetRuntime();
+    if (runtime == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory runtime nullptr");
+        return;
+    }
+    if (info.needSnapshot == true) {
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
+    } else {
+        if (info.needGc == true) {
+            runtime->ForceFullGC(info.tid);
+        }
+    }
 }
 
 /**

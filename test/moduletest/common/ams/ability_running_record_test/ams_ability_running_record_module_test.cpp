@@ -185,6 +185,9 @@ public:
     void DetachAppDebug() override
     {}
 
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
+    {}
+
 private:
     int abilityLaunchTime = 0;
     int appLaunchTime = 0;

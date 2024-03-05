@@ -30,6 +30,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -384,6 +385,26 @@ int32_t AppMgrService::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::Mallo
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->DumpHeapMemory(pid, mallocInfo);
+}
+
+// Authenticate dump permissions
+bool AppMgrService::HasDumpPermission() const
+{
+    uint32_t callingTokenID = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callingTokenID, "ohos.permission.DUMP");
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        HILOG_ERROR("No dump permission, please check!");
+        return false;
+    }
+    return true;
+}
+
+int32_t AppMgrService::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    if (!IsReady() || !HasDumpPermission()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->DumpJsHeapMemory(info);
 }
 
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)

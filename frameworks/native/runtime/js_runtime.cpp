@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1090,6 +1090,20 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
+}
+
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC)
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid);
+}
+
+void JsRuntime::ForceFullGC(uint32_t tid)
+{
+    auto vm = GetEcmaVm();
+    CHECK_POINTER(vm);
+    DFXJSNApi::TriggerGC(vm, tid);
 }
 
 void JsRuntime::DestroyHeapProfiler()

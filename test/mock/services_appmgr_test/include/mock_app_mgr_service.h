@@ -228,6 +228,11 @@ public:
         return 0;
     }
 
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+    {
+        return 0;
+    }
+
 private:
     Semaphore sem_;
     std::string data_;
