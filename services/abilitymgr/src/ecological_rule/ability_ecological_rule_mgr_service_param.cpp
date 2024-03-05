@@ -110,10 +110,26 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
     }
 
     if (!in.ReadInt32(info->callerModelType)) {
-        HILOG_ERROR("read targetAppType failed");
+        HILOG_ERROR("read callerModelType failed");
         delete info;
         return nullptr;
     }
+
+    info->targetAppDistType = in.ReadString();
+    info->targetLinkFeature = in.ReadString();
+
+    if (!in.ReadInt32(info->targetLinkType)) {
+        HILOG_ERROR("read targetLinkType failed");
+        delete info;
+        return nullptr;
+    }
+
+    if (!in.ReadInt32(info->callerAbilityType)) {
+        HILOG_ERROR("read callerAbilityType failed");
+        delete info;
+        return nullptr;
+    }
+
     return info;
 }
 
@@ -148,6 +164,26 @@ bool AbilityCallerInfo::Marshalling(Parcel &parcel) const
         HILOG_ERROR("write callerModelType failed");
         return false;
     }
+
+    if (!parcel.WriteString(targetAppDistType)) {
+        HILOG_ERROR("write targetAppDistType failed");
+        return false;
+    }
+
+    if (!parcel.WriteString(targetLinkFeature)) {
+        HILOG_ERROR("write targetLinkFeature failed");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(targetLinkType)) {
+        HILOG_ERROR("write targetLinkType failed");
+        return false;
+    }
+
+    if (!parcel.WriteInt32(callerAbilityType)) {
+        HILOG_ERROR("write callerAbilityType failed");
+        return false;
+    }
     return true;
 }
 
@@ -155,7 +191,9 @@ std::string AbilityCallerInfo::ToString() const
 {
     std::string str = "CallerInfo{packageName:" + packageName + ",uid:" + std::to_string(uid) +
         ",pid:" + std::to_string(pid) + ",callerAppType:" + std::to_string(callerAppType) +
-        ",targetAppType:" + std::to_string(targetAppType) + ",callerModelType:" + std::to_string(callerModelType) + "}";
+        ",targetAppType:" + std::to_string(targetAppType) + ",callerModelType:" + std::to_string(callerModelType) +
+        ",targetAppDistType:" + targetAppDistType + ",targetLinkFeature:" + targetLinkFeature + ",targetLinkType:" +
+        std::to_string(targetLinkType) + ",callerAbilityType:" + std::to_string(callerAbilityType) + "}";
     return str;
 }
 } // namespace EcologicalRuleMgrService

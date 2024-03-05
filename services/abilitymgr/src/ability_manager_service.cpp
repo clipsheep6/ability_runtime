@@ -5317,6 +5317,11 @@ int AbilityManagerService::GenerateAbilityRequest(
         request.appInfo.name.c_str(), request.abilityInfo.moduleName.c_str(), request.uid);
 
     request.want.SetModuleName(request.abilityInfo.moduleName);
+    request.want.SetParam("targetBundleType", static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
+    if (!request.abilityInfo.skillUri.empty()) {
+        request.want.SetParam("targetLinkFeature", request.abilityInfo.skillUri.front().linkFeature);
+    }
+    request.want.SetParam("targetAppDistType", request.abilityInfo.applicationInfo.appDistributionType);
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
         AAFwk::PermissionVerification::GetInstance()->VerifyStartRecentAbilityPermission()) {
