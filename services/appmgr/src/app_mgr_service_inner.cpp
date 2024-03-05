@@ -4691,6 +4691,11 @@ void AppMgrServiceInner::SetCurrentUserId(const int32_t userId)
 
 int32_t AppMgrServiceInner::GetBundleNameByPid(const int32_t pid, std::string &bundleName, int32_t &uid)
 {
+    HILOG_DEBUG("Called.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Permission verification failed.");
+        return ERR_PERMISSION_DENIED;
+    }
     auto callerRecord = GetAppRunningRecordByPid(pid);
     if (callerRecord == nullptr) {
         HILOG_ERROR("callerRecord is nullptr, can not get callerBundleName.");
@@ -4700,6 +4705,7 @@ int32_t AppMgrServiceInner::GetBundleNameByPid(const int32_t pid, std::string &b
     uid = callerRecord->GetUid();
     return ERR_OK;
 }
+
 void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord) {
     if (appRecord == nullptr) {
         HILOG_ERROR("appRecord is nullptr.");
