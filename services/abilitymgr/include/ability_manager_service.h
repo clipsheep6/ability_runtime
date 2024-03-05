@@ -727,7 +727,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int UninstallApp(const std::string &bundleName, int32_t uid) override;
-    
+
     /**
      * Upgrade app, record exit reason and kill application
      *
@@ -1614,6 +1614,7 @@ private:
     int ConnectRemoteAbility(Want &want, const sptr<IRemoteObject> &callerToken, const sptr<IRemoteObject> &connect);
     int DisconnectRemoteAbility(const sptr<IRemoteObject> &connect);
     int PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId);
+    void PreLoadAppDataAbilitiesTask(const std::string &bundleName, const int32_t userId);
     void UpdateAsCallerSourceInfo(Want& want, sptr<IRemoteObject> asCallerSourceToken);
     void UpdateCallerInfo(Want& want, const sptr<IRemoteObject> &callerToken);
     void UpdateCallerInfoFromToken(Want& want, const sptr<IRemoteObject> &token);
@@ -1920,7 +1921,7 @@ private:
 
     int32_t UninstallAppInner(const std::string &bundleName, const int32_t uid, const bool isUpgrade,
         const std::string &exitMsg);
-        
+
     int32_t GetMissionIdByAbilityTokenInner(const sptr<IRemoteObject> &token);
     bool CheckCallerIsDmsProcess();
 

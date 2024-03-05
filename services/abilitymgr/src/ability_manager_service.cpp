@@ -2135,11 +2135,18 @@ void AbilityManagerService::ReportAbilitAssociatedStartInfoToRSS(
 void AbilityManagerService::ReportEventToSuspendManager(const AppExecFwk::AbilityInfo &abilityInfo)
 {
 #ifdef EFFICIENCY_MANAGER_ENABLE
+    if (taskHandler_ == nullptr) {
+        HILOG_ERROR("taskhandler null");
+        return;
+    }
     std::string reason = (abilityInfo.type == AppExecFwk::AbilityType::PAGE) ?
         "THAW_BY_START_PAGE_ABILITY" : "THAW_BY_START_NOT_PAGE_ABILITY";
-    SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
-        abilityInfo.applicationInfo.uid,
-        abilityInfo.applicationInfo.bundleName, reason);
+    const auto uid = abilityInfo.applicationInfo.uid;
+    const auto bundleName = abilityInfo.applicationInfo.bundleName;
+    taskHandler_->SubmitTask([reason, uid, bundleName]() {
+        SuspendManager::SuspendManagerClient::GetInstance().ThawOneApplication(
+            uid, bundleName, reason);
+        });
 #endif // EFFICIENCY_MANAGER_ENABLE
 }
 
@@ -5553,27 +5560,46 @@ std::shared_ptr<AppExecFwk::BundleMgrHelper> AbilityManagerService::GetBundleMan
 
 int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName, const int32_t userId)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (bundleName.empty()) {
         HILOG_ERROR("Invalid bundle name when app data abilities preloading.");
         return ERR_INVALID_VALUE;
     }
 
-    auto dataAbilityManager = GetDataAbilityManagerByUserId(userId);
-    if (dataAbilityManager == nullptr) {
-        HILOG_ERROR("Invalid data ability manager when app data abilities preloading.");
+    if (taskHandler_ == nullptr) {
+        HILOG_ERROR("taskHandler nullptr.");
         return ERR_INVALID_STATE;
     }
 
+    taskHandler_->SubmitTask([weak = weak_from_this(), bundleName, userId]() {
+        auto pthis = weak.lock();
+        if (pthis == nullptr) {
+            HILOG_ERROR("pthis nullptr.");
+            return;
+        }
+        pthis->PreLoadAppDataAbilitiesTask(bundleName, userId);
+        });
+
+    return ERR_OK;
+}
+
+void AbilityManagerService::PreLoadAppDataAbilitiesTask(const std::string &bundleName, const int32_t userId)
+{
+    HILOG_INFO("called");
+    auto dataAbilityManager = GetDataAbilityManagerByUserId(userId);
+    if (dataAbilityManager == nullptr) {
+        HILOG_ERROR("Invalid data ability manager when app data abilities preloading.");
+        return;
+    }
+
     auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
+    CHECK_POINTER(bms);
 
     AppExecFwk::BundleInfo bundleInfo;
     bool ret = IN_PROCESS_CALL(
         bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, userId));
     if (!ret) {
         HILOG_ERROR("Failed to get bundle info when app data abilities preloading, userId is %{public}d", userId);
-        return RESOLVE_APP_ERR;
+        return;
     }
 
     auto begin = system_clock::now();
@@ -5586,7 +5612,7 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         }
         if ((system_clock::now() - begin) >= DATA_ABILITY_START_TIMEOUT) {
             HILOG_ERROR("App data ability preloading for '%{public}s' timeout.", bundleName.c_str());
-            return ERR_TIMED_OUT;
+            return;
         }
         dataAbilityRequest.abilityInfo = *it;
         dataAbilityRequest.uid = bundleInfo.uid;
@@ -5597,12 +5623,9 @@ int AbilityManagerService::PreLoadAppDataAbilities(const std::string &bundleName
         if (dataAbility == nullptr) {
             HILOG_ERROR(
                 "Failed to preload data ability '%{public}s.%{public}s'.", it->bundleName.c_str(), it->name.c_str());
-            return ERR_NULL_OBJECT;
+            return;
         }
     }
-
-    HILOG_DEBUG("App data abilities preloading done.");
-    return ERR_OK;
 }
 
 bool AbilityManagerService::IsSystemUiApp(const AppExecFwk::AbilityInfo &info) const
