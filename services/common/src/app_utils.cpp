@@ -173,14 +173,14 @@ bool AppUtils::IsMultiProcessModel()
     return isMultiProcessModel_.value;
 }
 
-bool AppUtils::IsStartOptionsWithProcessOption()
+bool AppUtils::IsStartOptionsWithProcessOptions()
 {
-    if (!isStartOptionsWithProcessOption_.isLoaded) {
-        isStartOptionsWithProcessOption_.value = system::GetBoolParameter(START_OPTIONS_WITH_PROCESS_OPTION, false);
-        isStartOptionsWithProcessOption_.isLoaded = true;
+    if (!isStartOptionsWithProcessOptions_.isLoaded) {
+        isStartOptionsWithProcessOptions_.value = system::GetBoolParameter(START_OPTIONS_WITH_PROCESS_OPTION, false);
+        isStartOptionsWithProcessOptions_.isLoaded = true;
     }
-    HILOG_INFO("isStartOptionsWithProcessOption_ is %{public}d", isStartOptionsWithProcessOption_.value);
-    return isStartOptionsWithProcessOption_.value;
+    HILOG_INFO("isStartOptionsWithProcessOptions_ is %{public}d", isStartOptionsWithProcessOptions_.value);
+    return isStartOptionsWithProcessOptions_.value;
 }
 
 bool AppUtils::EnableMoveUIAbilityToBackgroundApi()

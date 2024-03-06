@@ -33,8 +33,8 @@ enum class AbilityErrorCode {
     // invalid param.
     ERROR_CODE_INVALID_PARAM = 401,
 
-    // no such systemcap.
-    ERROR_CODE_SYSTEMCAP = 801,
+    // capability not support.
+    ERROR_CODE_CAPABILITY_NOT_SUPPORT = 801,
 
     // common inner error.
     ERROR_CODE_INNER = 16000050,
@@ -128,6 +128,12 @@ enum class AbilityErrorCode {
 
     // wukong mode, can not move to foreground or background.
     ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE = 16000066,
+
+    // Start options check failed.
+    ERROR_START_OPTIONS_CHECK_FAILED = 16000067,
+
+    // Ability already running.
+    ERROR_ABILITY_ALREADY_RUNNING = 16000068,
 
     // invalid caller.
     ERROR_CODE_INVALID_CALLER = 16200001,

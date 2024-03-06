@@ -169,6 +169,8 @@ public:
     
     virtual ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task) = 0;
 
+    virtual ErrCode ChangeAbilityVisibility(bool isShow) { return 0; }
+
     /**
     * @brief Connects the current ability to an ability using the AbilityInfo.AbilityType.SERVICE template.
     *

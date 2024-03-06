@@ -555,6 +555,16 @@ int32_t UIAbility::OnShare(AAFwk::WantParams &wantParams)
     return ERR_OK;
 }
 
+bool UIAbility::CheckIsSilentForeground() const
+{
+    return isSilentForeground_;
+}
+
+void UIAbility::SetIsSilentForeground(bool isSilentForeground)
+{
+    isSilentForeground_ = isSilentForeground;
+}
+
 #ifdef SUPPORT_GRAPHICS
 void UIAbility::OnSceneCreated()
 {
@@ -576,6 +586,10 @@ void UIAbility::OnForeground(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin.");
     DoOnForeground(want);
+    if (isSilentForeground_) {
+        HILOG_DEBUG("silent foreground, return");
+        return;
+    }
     DispatchLifecycleOnForeground(want);
     HILOG_DEBUG("End.");
     AAFwk::EventInfo eventInfo;

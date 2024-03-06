@@ -20,8 +20,11 @@
 
 #include "ability_window_configuration.h"
 #include "parcel.h"
+
 namespace OHOS {
 namespace AAFwk {
+class ProcessOptions;
+
 class StartOptions final : public Parcelable, public std::enable_shared_from_this<StartOptions> {
 public:
     const int32_t DEFAULT_DISPLAY_ID {0};
@@ -29,6 +32,7 @@ public:
     bool windowTopUsed_ = false;
     bool windowWidthUsed_ = false;
     bool windowHeightUsed_ = false;
+    std::shared_ptr<ProcessOptions> processOptions = nullptr;
 
     StartOptions() = default;
     ~StartOptions() = default;

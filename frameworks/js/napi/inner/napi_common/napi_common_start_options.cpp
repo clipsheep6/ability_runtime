@@ -18,12 +18,47 @@
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "int_wrapper.h"
+#include "process_options.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 EXTERN_C_START
 
-bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
+bool UnwrapProcessOptions(napi_env env, napi_value param, std::shared_ptr<AAFwk::ProcessOptions> &processOptions)
+{
+    if (!IsExistsByPropertyName(env, param, "processMode") &&
+        !IsExistsByPropertyName(env, param, "startupVisibility")) {
+        return true;
+    }
+    auto option = std::make_shared<AAFwk::ProcessOptions>();
+    int32_t processMode = 0;
+    if (!UnwrapInt32ByPropertyName(env, param, "processMode", processMode)) {
+        HILOG_ERROR("Unwrap processMode failed.");
+        return false;
+    }
+    option->processMode = AAFwk::ProcessOptions::ConvertInt32ToProcessMode(processMode);
+    if (option->processMode == AAFwk::ProcessMode::UNSPECIFIED) {
+        HILOG_ERROR("Convert processMode failed.");
+        return false;
+    }
+    int32_t startupVisibility = 0;
+    if (!UnwrapInt32ByPropertyName(env, param, "startupVisibility", startupVisibility)) {
+        HILOG_ERROR("Unwrap startupVisibility failed.");
+        return false;
+    }
+    option->startupVisibility = AAFwk::ProcessOptions::ConvertInt32ToStartupVisibility(startupVisibility);
+    if (option->startupVisibility == AAFwk::StartupVisibility::UNSPECIFIED) {
+        HILOG_ERROR("Convert startupVisibility failed.");
+        return false;
+    }
+    processOptions = option;
+    HILOG_INFO("processMode:%{public}d, startupVisibility:%{public}d",
+        static_cast<int32_t>(processOptions->processMode),
+        static_cast<int32_t>(processOptions->startupVisibility));
+    return true;
+}
+
+bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, bool parseProcessOptions)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
@@ -70,6 +105,13 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
     if (UnwrapInt32ByPropertyName(env, param, "windowHeight", windowHeight)) {
         startOptions.SetWindowHeight(windowHeight);
         startOptions.windowHeightUsed_ = true;
+    }
+
+    if (parseProcessOptions) {
+        if (!UnwrapProcessOptions(env, param, startOptions.processOptions)) {
+            HILOG_ERROR("Unwrap processOptions failed.");
+            return false;
+        }
     }
 
     return true;

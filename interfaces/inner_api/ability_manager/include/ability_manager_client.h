@@ -274,6 +274,10 @@ public:
      */
     ErrCode RequestModalUIExtension(const Want &want);
 
+    ErrCode ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow);
+
+    ErrCode ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow);
+
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *

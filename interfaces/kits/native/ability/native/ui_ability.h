@@ -315,6 +315,10 @@ public:
      */
     virtual int32_t OnShare(AAFwk::WantParams &wantParams);
 
+    bool CheckIsSilentForeground() const;
+
+    void SetIsSilentForeground(bool isSilentForeground);
+
 protected:
     const AAFwk::LaunchParam &GetLaunchParam() const;
     bool IsRestoredInContinuation() const;
@@ -349,6 +353,7 @@ private:
     sptr<IRemoteObject> reverseContinuationSchedulerReplica_ = nullptr;
     bool isNewRuleFlagSetted_ = false;
     bool startUpNewRule_ = false;
+    bool isSilentForeground_ = false;
 
 #ifdef SUPPORT_GRAPHICS
 public:

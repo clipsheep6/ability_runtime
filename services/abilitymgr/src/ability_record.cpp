@@ -48,6 +48,7 @@
 #include "ui_extension_utils.h"
 #include "uri_permission_manager_client.h"
 #include "permission_constants.h"
+#include "process_options.h"
 #ifdef SUPPORT_GRAPHICS
 #include "image_source.h"
 #include "locale_config.h"
@@ -409,8 +410,12 @@ bool AbilityRecord::CanRestartResident()
 // only for UIAbility
 void AbilityRecord::ForegroundAbility(uint32_t sceneFlag)
 {
-    isWindowStarted_ = true;
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (GetAbilityVisibilityState() == AbilityVisibilityState::FOREGROUND_HIDE) {
+        HILOG_DEBUG("Ability visibility state is FOREGROUND_HIDE, should not do foreground again.");
+        return;
+    }
+    isWindowStarted_ = true;
     HILOG_INFO("ForegroundLifecycle: name:%{public}s.", abilityInfo_.name.c_str());
     CHECK_POINTER(lifecycleDeal_);
 
@@ -1247,6 +1252,34 @@ AbilityState AbilityRecord::GetAbilityState() const
 bool AbilityRecord::IsForeground() const
 {
     return currentState_ == AbilityState::FOREGROUND || currentState_ == AbilityState::FOREGROUNDING;
+}
+
+AbilityVisibilityState AbilityRecord::GetAbilityVisibilityState() const
+{
+    return abilityVisibilityState_.load();
+}
+
+void AbilityRecord::SetAbilityVisibilityState(AbilityVisibilityState state)
+{
+    abilityVisibilityState_.store(state);
+}
+
+void AbilityRecord::UpdateAbilityVisibilityState()
+{
+    if (GetAbilityVisibilityState() == AbilityVisibilityState::INITIAL) {
+        auto state = AbilityVisibilityState::UNSPECIFIED;
+        auto sessionInfo = GetSessionInfo();
+        if (sessionInfo && sessionInfo->processOptions &&
+            ProcessOptions::IsNewProcessMode(sessionInfo->processOptions->processMode)) {
+            auto startupVisibility = sessionInfo->processOptions->startupVisibility;
+            if (startupVisibility == StartupVisibility::STARTUP_SHOW) {
+                state = AbilityVisibilityState::FOREGROUND_SHOW;
+            } else if (startupVisibility == StartupVisibility::STARTUP_HIDE) {
+                state = AbilityVisibilityState::FOREGROUND_HIDE;
+            }
+        }
+        SetAbilityVisibilityState(state);
+    }
 }
 
 void AbilityRecord::SetAbilityStateInner(AbilityState state)

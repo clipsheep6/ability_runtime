@@ -894,6 +894,15 @@ ErrCode AbilityContextImpl::RequestModalUIExtension(const AAFwk::Want& want)
     return err;
 }
 
+ErrCode AbilityContextImpl::ChangeAbilityVisibility(bool isShow)
+{
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ChangeAbilityVisibility(token_, isShow);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ChangeAbilityVisibility is failed %{public}d", err);
+    }
+    return err;
+}
+
 ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task)
 {
     HILOG_DEBUG("OpenAtomicService");

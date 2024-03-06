@@ -28,7 +28,7 @@ constexpr const char* ERROR_MSG_OK = "OK.";
 constexpr const char* ERROR_MSG_PERMISSION_DENIED = "The application does not have permission to call the interface.";
 constexpr const char* ERROR_MSG_NOT_SYSTEM_APP = "The application is not system-app, can not use system-api.";
 constexpr const char* ERROR_MSG_INVALID_PARAM = "Invalid input parameter.";
-constexpr const char* ERROR_MSG_SYSTEMCAP = "The specified SystemCapability name was not found.";
+constexpr const char* ERROR_MSG_CAPABILITY_NOT_SUPPORT = "Capability not support.";
 constexpr const char* ERROR_MSG_INNER = "Internal error.";
 constexpr const char* ERROR_MSG_RESOLVE_ABILITY = "The specified ability does not exist.";
 constexpr const char* ERROR_MSG_INVALID_ABILITY_TYPE = "Incorrect ability type.";
@@ -69,6 +69,8 @@ constexpr const char* ERROR_MSG_ABILITY_NOT_FOREGROUND =
     "The interface can be called only when ability is foreground.";
 constexpr const char* ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE =
     "An ability cannot move to foreground or background in Wukong mode.";
+constexpr const char* ERROR_MSG_START_OPTIONS_CHECK_FAILED = "Start options check failed.";
+constexpr const char* ERROR_MSG_ABILITY_ALREADY_RUNNING = "Ability already running.";
 
 // follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
 constexpr int32_t ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST = 8521220;
@@ -78,7 +80,7 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_PERMISSION_DENIED, ERROR_MSG_PERMISSION_DENIED },
     { AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP, ERROR_MSG_NOT_SYSTEM_APP },
     { AbilityErrorCode::ERROR_CODE_INVALID_PARAM, ERROR_MSG_INVALID_PARAM },
-    { AbilityErrorCode::ERROR_CODE_SYSTEMCAP, ERROR_MSG_SYSTEMCAP },
+    { AbilityErrorCode::ERROR_CODE_CAPABILITY_NOT_SUPPORT, ERROR_MSG_CAPABILITY_NOT_SUPPORT },
     { AbilityErrorCode::ERROR_CODE_INNER, ERROR_MSG_INNER },
     { AbilityErrorCode::ERROR_CODE_RESOLVE_ABILITY, ERROR_MSG_RESOLVE_ABILITY },
     { AbilityErrorCode::ERROR_CODE_INVALID_ABILITY_TYPE, ERROR_MSG_INVALID_ABILITY_TYPE },
@@ -114,7 +116,9 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_START_ABILITY_WAITTING, ERROR_MSG_START_ABILITY_WAITTING },
     { AbilityErrorCode::ERROR_NOT_SELF_APPLICATION, ERROR_MSG_NOT_SELF_APPLICATION },
     { AbilityErrorCode::ERROR_CODE_ABILITY_NOT_FOREGROUND, ERROR_MSG_ABILITY_NOT_FOREGROUND },
-    { AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE, ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE }
+    { AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE, ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE },
+    { AbilityErrorCode::ERROR_START_OPTIONS_CHECK_FAILED, ERROR_MSG_START_OPTIONS_CHECK_FAILED },
+    { AbilityErrorCode::ERROR_ABILITY_ALREADY_RUNNING, ERROR_MSG_ABILITY_ALREADY_RUNNING },
 };
 
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
@@ -158,6 +162,10 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_INSIGHT_INTENT_START_INVALID_COMPONENT, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED},
     {ERR_RESTART_APP_INCORRECT_ABILITY, AbilityErrorCode::ERROR_CODE_RESTART_APP_INCORRECT_ABILITY},
     {ERR_RESTART_APP_FREQUENT, AbilityErrorCode::ERROR_CODE_RESTART_APP_FREQUENT},
+    {ERR_CAPABILITY_NOT_SUPPORT, AbilityErrorCode::ERROR_CODE_CAPABILITY_NOT_SUPPORT},
+    {ERR_NOT_ALLOW_IMPLICIT_START, AbilityErrorCode::ERROR_CODE_RESOLVE_ABILITY},
+    {ERR_START_OPTIONS_CHECK_FAILED, AbilityErrorCode::ERROR_START_OPTIONS_CHECK_FAILED},
+    {ERR_ABILITY_ALREADY_RUNNING, AbilityErrorCode::ERROR_ABILITY_ALREADY_RUNNING},
     {ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST, AbilityErrorCode::ERROR_CODE_INVALID_ID},
     {ERR_ABILITY_NOT_FOREGROUND, AbilityErrorCode::ERROR_CODE_ABILITY_NOT_FOREGROUND},
     {ERR_WUKONG_MODE_CANT_MOVE_STATE, AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE},

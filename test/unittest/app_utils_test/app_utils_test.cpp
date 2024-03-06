@@ -246,21 +246,21 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_1000, TestSize.Level0)
 
 /**
  * @tc.number: AppUtilsTest_1100
- * @tc.desc: Test IsStartOptionsWithProcessOption works
+ * @tc.desc: Test IsStartOptionsWithProcessOptions works
  * @tc.type: FUNC
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_1100, TestSize.Level0)
 {
     HILOG_INFO("AppUtilsTest_1100 called.");
-    bool isStartOptionsWithProcessOption = AAFwk::AppUtils::GetInstance().IsStartOptionsWithProcessOption();
+    bool isStartOptionsWithProcessOptions = AAFwk::AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     std::string deviceType = OHOS::system::GetDeviceType();
     HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
-        EXPECT_TRUE(isStartOptionsWithProcessOption == false);
+        EXPECT_TRUE(isStartOptionsWithProcessOptions == false);
     } else if (deviceType == "phone") {
-        EXPECT_TRUE(isStartOptionsWithProcessOption == false);
+        EXPECT_TRUE(isStartOptionsWithProcessOptions == false);
     } else if (deviceType == "2in1") {
-        EXPECT_TRUE(isStartOptionsWithProcessOption == true);
+        EXPECT_TRUE(isStartOptionsWithProcessOptions == true);
     }
 }
 

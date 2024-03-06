@@ -44,7 +44,7 @@ public:
     bool IsGrantPersistUriPermission();
     bool IsStartOptionsWithAnimation();
     bool IsMultiProcessModel();
-    bool IsStartOptionsWithProcessOption();
+    bool IsStartOptionsWithProcessOptions();
     bool EnableMoveUIAbilityToBackgroundApi();
 
 private:
@@ -61,7 +61,7 @@ private:
     volatile DeviceConfiguration<bool> isGrantPersistUriPermission_ = {false, false};
     volatile DeviceConfiguration<bool> isStartOptionsWithAnimation_ = {false, false};
     volatile DeviceConfiguration<bool> isMultiProcessModel_ = {false, false};
-    volatile DeviceConfiguration<bool> isStartOptionsWithProcessOption_ = {false, false};
+    volatile DeviceConfiguration<bool> isStartOptionsWithProcessOptions_ = {false, false};
     volatile DeviceConfiguration<bool> enableMoveUIAbilityToBackgroundApi_ = {false, true};
     DISALLOW_COPY_AND_MOVE(AppUtils);
 };

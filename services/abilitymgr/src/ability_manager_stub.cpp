@@ -405,6 +405,10 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::OpenAtomicServiceInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
         &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY)] =
+        &AbilityManagerStub::ChangeAbilityVisibilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
+        &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -788,6 +792,7 @@ int AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner(MessagePar
         HILOG_ERROR("startOptions is nullptr");
         return ERR_INVALID_VALUE;
     }
+    startOptions->processOptions = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
@@ -842,6 +847,40 @@ int AbilityManagerStub::RequestModalUIExtensionInner(MessageParcel &data, Messag
     int32_t result = RequestModalUIExtension(*want);
     reply.WriteInt32(result);
     delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ChangeAbilityVisibilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    bool isShow = data.ReadBool();
+    int result = ChangeAbilityVisibility(token, isShow);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo = data.ReadParcelable<SessionInfo>();
+    if (!sessionInfo) {
+        HILOG_ERROR("read sessionInfo failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    bool isShow = data.ReadBool();
+    int result = ChangeUIAbilityVisibilityBySCB(sessionInfo, isShow);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
+    }
     return NO_ERROR;
 }
 
@@ -939,6 +978,7 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
         delete want;
         return ERR_INVALID_VALUE;
     }
+    startOptions->processOptions = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> asCallerSourceToken = nullptr;
     if (data.ReadBool()) {
@@ -1611,6 +1651,7 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
         HILOG_ERROR("startOptions is nullptr");
         return ERR_INVALID_VALUE;
     }
+    startOptions->processOptions = nullptr;
     int result = MoveMissionToFront(missionId, *startOptions);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("MoveMissionToFront failed.");

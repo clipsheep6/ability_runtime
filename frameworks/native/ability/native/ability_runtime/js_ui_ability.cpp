@@ -537,6 +537,10 @@ void JsUIAbility::OnForeground(const Want &want)
     }
 
     UIAbility::OnForeground(want);
+    if (CheckIsSilentForeground()) {
+        HILOG_DEBUG("silent foreground, do not call 'onForeground'");
+        return;
+    }
     CallOnForegroundFunc(want);
 }
 
@@ -728,6 +732,11 @@ void JsUIAbility::DoOnForeground(const Want &want)
     auto window = scene_->GetMainWindow();
     if (window != nullptr && securityFlag_) {
         window->SetSystemPrivacyMode(true);
+    }
+
+    if (CheckIsSilentForeground()) {
+        HILOG_INFO("silent foreground, do not show window");
+        return;
     }
 
     HILOG_DEBUG("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);

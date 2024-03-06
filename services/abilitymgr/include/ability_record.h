@@ -223,6 +223,7 @@ struct AbilityRequest {
     sptr<IAbilityConnection> connect = nullptr;
 
     std::shared_ptr<AbilityStartSetting> startSetting = nullptr;
+    std::shared_ptr<ProcessOptions> processOptions = nullptr;
     std::string specifiedFlag;
     int32_t userId = -1;
     bool callSpecifiedFlagTimeout = false;
@@ -295,6 +296,13 @@ enum class AbilityWindowState {
     FOREGROUNDING,
     BACKGROUNDING,
     TERMINATING
+};
+
+enum class AbilityVisibilityState {
+    INITIAL = 0,
+    FOREGROUND_HIDE,
+    FOREGROUND_SHOW,
+    UNSPECIFIED,
 };
 
 /**
@@ -403,6 +411,11 @@ public:
     AbilityState GetAbilityState() const;
 
     bool IsForeground() const;
+
+    AbilityVisibilityState GetAbilityVisibilityState() const;
+    void SetAbilityVisibilityState(AbilityVisibilityState state);
+
+    void UpdateAbilityVisibilityState();
 
     /**
      * set ability scheduler for accessing ability thread.
@@ -1136,6 +1149,7 @@ private:
     mutable bool isDumpTimeout_ = false;
     std::vector<std::string> dumpInfos_;
     std::atomic<AbilityState> pendingState_ = AbilityState::INITIAL;    // pending life state
+    std::atomic<AbilityVisibilityState> abilityVisibilityState_ = AbilityVisibilityState::INITIAL;
 
     // scene session
     sptr<SessionInfo> sessionInfo_ = nullptr;

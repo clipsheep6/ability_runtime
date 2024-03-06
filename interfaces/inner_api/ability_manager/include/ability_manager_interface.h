@@ -288,6 +288,17 @@ public:
     {
         return 0;
     }
+
+    virtual int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
+    {
+        return 0;
+    }
+
+        virtual int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow)
+    {
+        return 0;
+    }
+
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *

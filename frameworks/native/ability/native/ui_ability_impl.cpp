@@ -23,6 +23,7 @@
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #include "ohos_application.h"
+#include "process_options.h"
 #include "scene_board_judgement.h"
 #include "time_util.h"
 
@@ -182,6 +183,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
     }
 #endif
     SetLifeCycleStateInfo(targetState);
+    UpdateSilentForeground(sessionInfo);
     if (ability_ != nullptr) {
         ability_->SetLaunchParam(targetState.launchParam);
         if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
@@ -350,6 +352,23 @@ void UIAbilityImpl::NotifyMemoryLevel(int32_t level)
         return;
     }
     ability_->OnMemoryLevel(level);
+}
+
+void UIAbilityImpl::UpdateSilentForeground(sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    if (ability_ == nullptr) {
+        HILOG_DEBUG("ability_ is null");
+        return;
+    }
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL &&
+        sessionInfo && sessionInfo->processOptions &&
+        AAFwk::ProcessOptions::IsNewProcessMode(sessionInfo->processOptions->processMode) &&
+        sessionInfo->processOptions->startupVisibility == AAFwk::StartupVisibility::STARTUP_HIDE) {
+        HILOG_INFO("Set IsSilentForeground to true.");
+        ability_->SetIsSilentForeground(true);
+        return;
+    }
+    ability_->SetIsSilentForeground(false);
 }
 
 #ifdef SUPPORT_GRAPHICS
@@ -521,6 +540,12 @@ void UIAbilityImpl::Foreground(const AAFwk::Want &want)
 
     HILOG_DEBUG("Call onForeground.");
     ability_->OnForeground(want);
+    if (ability_->CheckIsSilentForeground()) {
+        HILOG_INFO("Is silent foreground.");
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        notifyForegroundByWindow_ = true;
+        return;
+    }
     {
         std::lock_guard<std::mutex> lock(notifyForegroundLock_);
         notifyForegroundByAbility_ = true;

@@ -407,6 +407,46 @@ enum {
      * Result(2097229) for operation not supported on current device.
      */
     ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE,
+
+    /**
+     * Result(2097230) for capability not support.
+     */
+    ERR_CAPABILITY_NOT_SUPPORT,
+
+    /**
+     * Result(2097231) for not allow implicit start.
+     */
+    ERR_NOT_ALLOW_IMPLICIT_START,
+
+    /**
+     * Result(2097232) for start options check failed.
+     */
+    ERR_START_OPTIONS_CHECK_FAILED,
+
+    /**
+     * Result(2097233) for ability already running.
+     */
+    ERR_ABILITY_ALREADY_RUNNING,
+
+    /**
+     * Native error(2097234) for not self application.
+     */
+    ERR_NATIVE_NOT_SELF_APPLICATION,
+
+    /**
+     * Native error(2097235) for IPC parcel failed.
+     */
+    ERR_NATIVE_IPC_PARCEL_FAILED,
+
+    /**
+     * Native error(2097236) for ability not found.
+     */
+    ERR_NATIVE_ABILITY_NOT_FOUND,
+
+    /**
+     * Native error(2097237) for ability state check failed.
+     */
+    ERR_NATIVE_ABILITY_STATE_CHECK_FAILED,
 };
 
 enum {

@@ -41,6 +41,7 @@ ohos_shared_library("napi_common") {
 
   deps = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
+    "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "//third_party/libuv:uv",
   ]

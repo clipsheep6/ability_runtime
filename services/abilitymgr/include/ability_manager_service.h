@@ -330,6 +330,10 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
+
+    int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
+
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
@@ -1877,6 +1881,10 @@ private:
     bool CheckCollaboratorType(int32_t type);
 
     bool CheckUserIdActive(int32_t userId);
+
+    int32_t CheckProcessOptions(const Want &want, const StartOptions &startOptions);
+
+    bool IsCallerInStatusBar();
 
     void GetConnectManagerAndUIExtensionBySessionInfo(const sptr<SessionInfo> &sessionInfo,
         std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility);

@@ -226,6 +226,9 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
+
+    int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
     /**
      * Start ui extension ability with extension session info, send extension session info to ability manager service.
      *
