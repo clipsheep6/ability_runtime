@@ -15,6 +15,7 @@
 
 #include "js_environment.h"
 
+#include "ffrt.h"
 #include "js_env_logger.h"
 #include "js_environment_impl.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
@@ -25,6 +26,7 @@ namespace OHOS {
 namespace JsEnv {
 namespace {
 static const std::string DEBUGGER = "@Debugger";
+static const std::string NOT_INIT = "SourceMap is not initialized yet \n";
 }
 
 static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILERTYPE type)
@@ -129,13 +131,32 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         return;
     }
 
-    auto translateBySourceMapFunc = [&](const std::string& rawStack) {
-        return sourceMapOperator_->TranslateBySourceMap(rawStack);
+    auto init = [weak = weak_from_this()]() {
+        JSENV_LOG_I("Init sourceMap");
+        auto jsEnv = weak.lock();
+        if (jsEnv != nullptr && jsEnv->sourceMapOperator_ != nullptr) {
+            jsEnv->sourceMapOperator_->InitSourceMap();
+        }
+    };
+
+    ffrt::submit(init, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
+
+    auto translateBySourceMapFunc = [&](const std::string& rawStack) -> std::string {
+        if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
+            return sourceMapOperator_->TranslateBySourceMap(rawStack);
+        } else {
+            JSENV_LOG_E("SourceMap is not initialized yet");
+            return NOT_INIT + rawStack;
+        }
     };
     engine_->RegisterTranslateBySourceMap(translateBySourceMapFunc);
 
-    auto translateUrlBySourceMapFunc = [&](std::string& url, int& line, int& column) {
-        return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
+    auto translateUrlBySourceMapFunc = [&](std::string& url, int& line, int& column) -> bool {
+        if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
+            return sourceMapOperator_->TranslateUrlPositionBySourceMap(url, line, column);
+        }
+        JSENV_LOG_E("SourceMap is not initialized yet");
+        return false;
     };
     engine_->RegisterSourceMapTranslateCallback(translateUrlBySourceMapFunc);
 }

@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <sstream>
 #include <unistd.h>
 
 #include "js_env_logger.h"
@@ -42,6 +43,7 @@ constexpr int32_t INDEX_TWO = 2;
 constexpr int32_t INDEX_THREE = 3;
 constexpr int32_t INDEX_FOUR = 4;
 constexpr int32_t ANS_MAP_SIZE = 5;
+constexpr int32_t NUM_THIRTEEN = 13;
 constexpr int32_t NUM_TWENTY = 20;
 constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
@@ -175,7 +177,7 @@ std::string SourceMap::TranslateBySourceMap(const std::string& stackStr)
         ans = ans + temp + "\n";
     }
     if (ans.empty()) {
-        return (NOT_FOUNDMAP + stackStr + "\n");
+        return (NOT_FOUNDMAP + stackStr);
     }
     return ans;
 }
@@ -208,54 +210,36 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
         if (names == std::string::npos) {
             continue;
         }
+        std::size_t mappingsStart = value.find("\"mappings\":") + NUM_THIRTEEN;
+        if (mappingsStart == std::string::npos) {
+            continue;
+        }
+        std::size_t mappingsEnd = value.find("\"", mappingsStart);
+        if (mappingsEnd == std::string::npos) {
+            continue;
+        }
+        std::string mappings = value.substr(mappingsStart, mappingsEnd - mappingsStart);
         // Intercept the sourcemap file path as the key
         std::string url = value.substr(sources + NUM_TWENTY, names - sources - NUM_TWENTYSIX);
         std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
         modularMap->url_ = url;
-        ExtractSourceMapData(value, modularMap);
+        ExtractSourceMapData(mappings, modularMap);
         sourceMaps_.emplace(key, modularMap);
     }
 }
 
 void SourceMap::ExtractStackInfo(const std::string& stackStr, std::vector<std::string>& res)
 {
+    std::stringstream ss(stackStr);
     std::string tempStr;
-    for (uint32_t i = 0; i < stackStr.length(); i++) {
-        if (stackStr[i] == '\n') {
-            res.push_back(tempStr);
-            tempStr = "";
-        } else {
-            tempStr += stackStr[i];
-        }
-    }
-    if (!tempStr.empty()) {
+    while (std::getline(ss, tempStr)) {
         res.push_back(tempStr);
     }
 }
 
-void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData)
+void SourceMap::ExtractSourceMapData(const std::string& mappings, std::shared_ptr<SourceMapData>& curMapData)
 {
-    std::vector<std::string> sourceKey;
-    ExtractKeyInfo(sourceMapData, sourceKey);
-
-    std::string mark = "";
-    for (auto sourceKeyInfo : sourceKey) {
-        if (sourceKeyInfo == SOURCES || sourceKeyInfo == NAMES ||
-            sourceKeyInfo == MAPPINGS || sourceKeyInfo == FILE ||
-            sourceKeyInfo == SOURCE_CONTENT ||  sourceKeyInfo == SOURCE_ROOT) {
-            mark = sourceKeyInfo;
-        } else if (mark == SOURCES) {
-            curMapData->sources_.push_back(sourceKeyInfo);
-        } else if (mark == NAMES) {
-            curMapData->names_.push_back(sourceKeyInfo);
-        } else if (mark == MAPPINGS) {
-            curMapData->mappings_.push_back(sourceKeyInfo);
-        } else if (mark == FILE) {
-            curMapData->files_.push_back(sourceKeyInfo);
-        } else {
-            continue;
-        }
-    }
+    curMapData->mappings_.push_back(mappings);
 
     if (curMapData->mappings_.empty()) {
         return;
@@ -309,8 +293,6 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
     }
     curMapData->mappings_.clear();
     curMapData->mappings_.shrink_to_fit();
-    sourceKey.clear();
-    sourceKey.shrink_to_fit();
 }
 
 MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap)
