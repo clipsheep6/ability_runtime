@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <regex>
 
 #include "ability_business_error.h"
 #include "ability_manager_client.h"
@@ -116,6 +117,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnOff);
     }
 
+    static napi_value NotifyDebugAssertResult(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAbilityManager, OnNotifyDebugAssertResult);
+	}
+
     static napi_value IsEmbeddedOpenAllowed(napi_env env, napi_callback_info info)
     {
         GET_NAPI_INFO_AND_CALL(env, info, JsAbilityManager, OnIsEmbeddedOpenAllowed);
@@ -199,6 +205,68 @@ private:
             OnOffAbilityForeground(env, argc, argv);
         }
         return CreateJsUndefined(env);
+    }
+
+    bool CheckIsNumString(const std::string &numStr) {
+        const std::regex regexJsperf(R"(^\d*)");
+        std::match_results<std::string::const_iterator> matchResults;
+        if (!std::regex_match(numStr, matchResults, regexJsperf)) {
+            HILOG_DEBUG("the order not match");
+            return false;
+        }
+        return true;
+    }
+
+    napi_value OnNotifyDebugAssertResult(napi_env env, size_t argc, napi_value *argv)
+    {
+        HILOG_DEBUG("Called.");
+        if (argc < ARGC_ONE) {
+            HILOG_ERROR("Not enough params when off.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        std::string assertSessionStr;
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], assertSessionStr) || !CheckIsNumString(assertSessionStr)) {
+            HILOG_ERROR("Convert session id error.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        int64_t assertSessionId = std::stoll(assertSessionStr);
+        if (assertSessionId == 0) {
+            HILOG_ERROR("Convert session id failed.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        int32_t userStatus;
+        if (!ConvertFromJsValue(env, argv[INDEX_ONE], userStatus)) {
+            HILOG_ERROR("Convert status failed.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+
+        NapiAsyncTask::CompleteCallback complete =
+            [assertSessionId, userStatus](napi_env env, NapiAsyncTask &task, int32_t status) {
+            auto amsClient = AbilityManagerClient::GetInstance();
+            if (amsClient == nullptr) {
+                HILOG_ERROR("Ams instance is nullptr.");
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(AAFwk::INNER_ERR)));
+                return;
+            }
+            auto ret = amsClient->NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(userStatus));
+            if (ret != ERR_OK) {
+                HILOG_ERROR("Notify user action result failed, error is %{public}d.", ret);
+                task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+                return;
+            }
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
+        };
+
+        napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JsAbilityManager::OnGetForegroundUIAbilities", env,
+            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        return result;
     }
 
     napi_value OnOffAbilityForeground(napi_env env, size_t argc, napi_value *argv)
@@ -548,6 +616,7 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
     napi_wrap(env, exportObj, jsAbilityManager.release(), JsAbilityManager::Finalizer, nullptr, nullptr);
 
     napi_set_named_property(env, exportObj, "AbilityState", AbilityStateInit(env));
+    napi_set_named_property(env, exportObj, "UserStatus", UserStatusInit(env));
 
     const char *moduleName = "JsAbilityManager";
     BindNativeFunction(env, exportObj, "getAbilityRunningInfos", moduleName,
@@ -562,6 +631,7 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
         env, exportObj, "getForegroundUIAbilities", moduleName, JsAbilityManager::GetForegroundUIAbilities);
     BindNativeFunction(env, exportObj, "on", moduleName, JsAbilityManager::On);
     BindNativeFunction(env, exportObj, "off", moduleName, JsAbilityManager::Off);
+    BindNativeFunction(env, exportObj, "notifyDebugAssertResult", moduleName, JsAbilityManager::NotifyDebugAssertResult);
     BindNativeFunction(env, exportObj, "isEmbeddedOpenAllowed", moduleName, JsAbilityManager::IsEmbeddedOpenAllowed);
     HILOG_DEBUG("end");
     return CreateJsUndefined(env);

@@ -1490,6 +1490,26 @@ public:
     virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) override;
 
     /**
+     * @brief Request to display assert fault dialog.
+     * @param callback Listen for user operation callbacks.
+     * @param wantParams Assert dialog box display information.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestAssertFaultDialog(
+        const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams) override;
+
+    /**
+     * @brief Notify the operation status of the user.
+     * @param assertFaultSessionId Indicates the request ID of AssertFault.
+     * @param userStatus Operation status of the user.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyDebugAssertResult(int64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
+
+    void CallAssertFaultCallback(
+        int64_t assertFaultSessionId, AAFwk::UserStatus status = AAFwk::UserStatus::ASSERT_TERMINATE);
+
+    /**
      * @brief Get host info of root caller.
      *
      * @param token The ability token.
@@ -1943,6 +1963,8 @@ private:
     bool CheckCallerIsDmsProcess();
 
     void WaitBootAnimationStart();
+    void AddAssertFaultCallback(sptr<IRemoteObject> &remote);
+    void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote);
 
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);
@@ -2042,7 +2064,8 @@ private:
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
 
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
-    std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
+    ffrt::mutex assertFaultSessionMutex_;
+    std::unordered_map<int64_t, std::pair<sptr<IRemoteObject>, sptr<DeathRecipient>>> assertFaultSessionDailogs_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

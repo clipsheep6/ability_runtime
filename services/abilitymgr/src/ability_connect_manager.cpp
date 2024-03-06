@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <mutex>
+#include <regex>
 
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
@@ -67,6 +68,8 @@ const std::unordered_map<std::string, std::string> trustMap = {
 const std::unordered_set<std::string> FROZEN_WHITE_LIST {
     "com.huawei.hmos.huaweicast"
 };
+constexpr char BUNDLE_NAME_DIALOG[] = "com.ohos.amsdialog";
+constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -1862,9 +1865,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     }
 
     auto token = abilityRecord->GetToken();
+    bool isRemove = false;
     if (GetExtensionFromServiceMapInner(abilityRecord->GetAbilityRecordId()) != nullptr) {
         MoveToTerminatingMap(abilityRecord);
         RemoveServiceAbility(abilityRecord);
+        isRemove = true;
     }
 
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
@@ -1874,7 +1879,47 @@ void AbilityConnectManager::HandleAbilityDiedTask(
                 token->AsObject()));
         }
         RestartAbility(abilityRecord, currentUserId);
+    } else {
+        if (isRemove) {
+            HandleNotifyAssertFaultDialogDied(abilityRecord);
+        }
     }
+}
+
+static bool CheckIsNumString(const std::string &numStr) {
+    const std::regex regexJsperf(R"(^\d*)");
+    std::match_results<std::string::const_iterator> matchResults;
+    if (numStr.empty() || !std::regex_match(numStr, matchResults, regexJsperf)) {
+        HILOG_ERROR("The order not match");
+        return false;
+    }
+    return true;
+}
+
+void AbilityConnectManager::HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("Called.");
+    CHECK_POINTER(abilityRecord);
+    if (abilityRecord->GetAbilityInfo().name != ABILITY_NAME_ASSERT_FAULT_DIALOG ||
+        abilityRecord->GetAbilityInfo().bundleName != BUNDLE_NAME_DIALOG) {
+        HILOG_ERROR("Is not assert fault dialog.");
+        return;
+    }
+
+    auto want = abilityRecord->GetWant();
+    auto assertSessionStr = want.GetStringParam(Want::PARAM_ASSERT_FAULT_SESSION_ID);
+    if (!CheckIsNumString(assertSessionStr)) {
+        HILOG_ERROR("Check assert session str is number failed.");
+        return;
+    }
+
+    auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
+    if (abilityMgr == nullptr) {
+        HILOG_ERROR("Get service instance is nullptr.");
+        return;
+    }
+
+    abilityMgr->CallAssertFaultCallback(std::stoll(assertSessionStr));
 }
 
 void AbilityConnectManager::HandleUIExtensionDied(const std::shared_ptr<AbilityRecord> &abilityRecord)

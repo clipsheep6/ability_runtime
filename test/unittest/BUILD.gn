@@ -124,6 +124,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_helper.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/assert_fault_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",

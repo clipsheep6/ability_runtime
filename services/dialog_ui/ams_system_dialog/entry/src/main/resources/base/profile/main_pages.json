@@ -5,6 +5,7 @@
     "pages/switchUserDialog",
     "pages/tipsDialog",
     "pages/jumpInterceptorDialog",
+    "pages/assertFaultDialog",
     "pages/PhonePage"
   ]
 }

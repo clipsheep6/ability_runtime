@@ -30,6 +30,7 @@ abilityms_files = [
   "src/ability_scheduler_stub.cpp",
   "src/ability_scheduler_proxy.cpp",
   "src/ability_token_stub.cpp",
+  "src/assert_fault_proxy.cpp",
   "src/app_scheduler.cpp",
   "src/app_exit_reason_helper.cpp",
   "src/connection_record.cpp",
