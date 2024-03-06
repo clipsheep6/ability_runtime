@@ -3323,12 +3323,12 @@ void AppMgrServiceInner::HandleStartSpecifiedProcessTimeout(const int64_t eventI
 
 int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!appRunningManager_) {
         HILOG_ERROR("appRunningManager_ is null");
         return ERR_INVALID_VALUE;
     }
     CHECK_CALLER_IS_SYSTEM_APP;
-
     auto ret = AAFwk::PermissionVerification::GetInstance()->VerifyUpdateConfigurationPerm();
     if (ret != ERR_OK) {
         return ret;
@@ -3350,12 +3350,14 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return result;
     }
     // notify
-    std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
+    HILOG_INFO("tjwTime1");
+    // std::lock_guard<ffrt::mutex> notifyLock(configurationObserverLock_);
     for (auto &observer : configurationObservers_) {
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
         }
     }
+    HILOG_INFO("tjwTime2");
     return result;
 }
 
