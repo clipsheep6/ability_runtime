@@ -37,7 +37,7 @@ public:
     virtual void NotifyDebugAssertResult(AAFwk::UserStatus status) = 0;
 protected:
     enum MessageCode {
-        NOTIFY_USER_ACTION_RESULT,
+        NOTIFY_DEBUG_ASSERT_RESULT,
     };
 };
 }  // namespace AbilityRuntime

@@ -24,31 +24,31 @@
 #include "event_handler.h"
 #include "event_runner.h"
 #include "iremote_object.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 class MainThread;
 } // namespace AppExecFwk
 namespace AbilityRuntime {
-class AssertFaultTaskThread : public std::enable_shared_from_this<AssertFaultTaskThread> {
+class AssertFaultTaskThread : public DelayedSingleton<AssertFaultTaskThread>,
+    public std::enable_shared_from_this<AssertFaultTaskThread> {
+    DISALLOW_COPY_AND_MOVE(AssertFaultTaskThread);
 public:
     AssertFaultTaskThread() = default;
-    virtual~AssertFaultTaskThread() = default;
+    virtual ~AssertFaultTaskThread() = default;
 
     static std::shared_ptr<AssertFaultTaskThread> GetInstance();
 
     void InitAssertFaultTask(const wptr<AppExecFwk::MainThread> &weak, bool isDebugModule);
     void NotifyReleaseLongWaiting();
     void Stop();
-    AAFwk::UserStatus AssertCallbackInner(const std::string &exprStr);
+    AAFwk::UserStatus RequestAssertResult(const std::string &exprStr);
 
 private:
     AAFwk::UserStatus HandleAssertCallback(const std::string &exprStr);
-    // int32_t ConvertAssertReuslt(AAFwk::UserStatus status);
 
 private:
-    static std::mutex constructorMutex_;
-    static std::shared_ptr<AssertFaultTaskThread> instance_;
     wptr<AppExecFwk::MainThread> mainThread_;
     std::mutex assertResultMutex_;
     std::condition_variable assertResultCV_;

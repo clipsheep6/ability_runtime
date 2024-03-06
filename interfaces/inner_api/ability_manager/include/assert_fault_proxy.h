@@ -24,12 +24,12 @@
 #include "ability_connect_callback_stub.h"
 #include "assert_fault_interface.h"
 
-
 namespace OHOS {
 namespace AbilityRuntime {
 class AssertFaultProxy : public IRemoteProxy<IAssertFaultInterface> {
 public:
-    explicit AssertFaultProxy(const sptr<IRemoteObject>& impl);
+    explicit AssertFaultProxy(const sptr<IRemoteObject> &impl);
+    virtual ~AssertFaultProxy() = default;
     /**
      * Notify listeners of user operation results.
      *
@@ -45,8 +45,8 @@ class AssertFaultRemoteDeathRecipient : public IRemoteObject::DeathRecipient {
 public:
     using RemoteDiedHandler = std::function<void(const wptr<IRemoteObject> &)>;
     explicit AssertFaultRemoteDeathRecipient(RemoteDiedHandler handler);
-    ~AssertFaultRemoteDeathRecipient() = default;
-    void OnRemoteDied(const wptr<IRemoteObject>& remote) override;
+    virtual ~AssertFaultRemoteDeathRecipient() = default;
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
 
 private:
     RemoteDiedHandler handler_;
@@ -55,33 +55,32 @@ private:
 class ModalSystemAssertUIExtension : public std::enable_shared_from_this<ModalSystemAssertUIExtension> {
 public:
     ModalSystemAssertUIExtension() = default;
-    virtual~ModalSystemAssertUIExtension();
+    virtual ~ModalSystemAssertUIExtension();
 
-    bool CreateModalUIExtension(const AAFwk::Want& want);
+    bool CreateModalUIExtension(const AAFwk::Want &want);
 
 private:
     class AssertDialogConnection : public OHOS::AAFwk::AbilityConnectionStub {
-        public:
-            AssertDialogConnection() = default;
-            virtual ~AssertDialogConnection();
+    public:
+        AssertDialogConnection() = default;
+        virtual ~AssertDialogConnection();
 
-            bool RequestShowDialog(const AAFwk::Want& want);
-            void CleanUp();
+        bool RequestShowDialog(const AAFwk::Want &want);
+        void CleanUp();
 
-            void OnAbilityConnectDone(const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remoteObject,
-                int resultCode) override;
-            void OnAbilityDisconnectDone(const AppExecFwk::ElementName& element, int resultCode) override;
+        void OnAbilityConnectDone(const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remoteObject,
+            int resultCode) override;
+        void OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode) override;
 
-        private:
-            std::mutex mutex_;
-            std::atomic_bool isDialogShow_ = false;
-            std::queue<AAFwk::Want> consumptionList_;
-            sptr<IRemoteObject> remoteObject_;
-            sptr<IRemoteObject::DeathRecipient> deathRecipient_;
+    private:
+        std::mutex mutex_;
+        std::atomic_bool isDialogShow_ = false;
+        std::queue<AAFwk::Want> consumptionList_;
+        sptr<IRemoteObject> remoteObject_;
+        sptr<IRemoteObject::DeathRecipient> deathRecipient_;
     };
 
     sptr<AssertDialogConnection> GetConnection();
-
     std::mutex dialogConnectionMutex_;
     sptr<AssertDialogConnection> dialogConnectionCallback_;
 };

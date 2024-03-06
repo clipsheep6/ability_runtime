@@ -22,14 +22,12 @@ namespace AbilityRuntime {
 namespace {
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char UIEXTENSION_TYPE_KEY[] = "ability.want.params.uiExtensionType";
-constexpr char SYS_DIALOG_Z_ORDER[] = "sysDialogZOrder";
-constexpr char SYS_DIALOG_Z_ORDER_VALUE[] = "2";
 constexpr int32_t DEFAULT_VAL = 0;
 constexpr int32_t INVALID_USERID = -1;
 constexpr int32_t MESSAGE_PARCEL_KEY_SIZE = 3;
 constexpr uint32_t COMMAND_START_DIALOG = 1;
 }
-AssertFaultProxy::AssertFaultProxy(const sptr<IRemoteObject>& impl) : IRemoteProxy<IAssertFaultInterface>(impl)
+AssertFaultProxy::AssertFaultProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAssertFaultInterface>(impl)
 {}
 
 void AssertFaultProxy::NotifyDebugAssertResult(AAFwk::UserStatus status)
@@ -54,8 +52,7 @@ void AssertFaultProxy::NotifyDebugAssertResult(AAFwk::UserStatus status)
 
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
-    if (remote->SendRequest(MessageCode::NOTIFY_USER_ACTION_RESULT, data, reply, option)
-        != NO_ERROR) {
+    if (remote->SendRequest(MessageCode::NOTIFY_DEBUG_ASSERT_RESULT, data, reply, option) != NO_ERROR) {
         HILOG_ERROR("Remote send request failed.");
     }
 }
@@ -63,7 +60,7 @@ void AssertFaultProxy::NotifyDebugAssertResult(AAFwk::UserStatus status)
 AssertFaultRemoteDeathRecipient::AssertFaultRemoteDeathRecipient(RemoteDiedHandler handler) : handler_(handler)
 {}
 
-void AssertFaultRemoteDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
+void AssertFaultRemoteDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (handler_ == nullptr) {
         HILOG_ERROR("Callback is nullptr.");
@@ -89,9 +86,9 @@ sptr<ModalSystemAssertUIExtension::AssertDialogConnection> ModalSystemAssertUIEx
     return dialogConnectionCallback_;
 }
 
-bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want& want)
+bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &want)
 {
-    HILOG_ERROR("Called.");
+    HILOG_DEBUG("Called.");
     auto callback = GetConnection();
     if (callback == nullptr) {
         HILOG_ERROR("Callback is nullptr.");
@@ -128,7 +125,7 @@ ModalSystemAssertUIExtension::AssertDialogConnection::~AssertDialogConnection()
     CleanUp();
 }
 
-bool ModalSystemAssertUIExtension::AssertDialogConnection::RequestShowDialog(const AAFwk::Want& want)
+bool ModalSystemAssertUIExtension::AssertDialogConnection::RequestShowDialog(const AAFwk::Want &want)
 {
     HILOG_DEBUG("Called.");
     {
@@ -161,7 +158,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::CleanUp()
 }
 
 void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
-    const AppExecFwk::ElementName& element, const sptr<IRemoteObject>& remote, int resultCode)
+    const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remote, int resultCode)
 {
     HILOG_DEBUG("Called.");
     if (remote == nullptr) {
@@ -172,7 +169,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
     if (remoteObject_ == nullptr) {
         remoteObject_ = remote;
         wptr<AssertDialogConnection> weakThis = iface_cast<AssertDialogConnection>(this->AsObject());
-        deathRecipient_ = 
+        deathRecipient_ =
             new (std::nothrow) AssertFaultRemoteDeathRecipient([weakThis] (const wptr<IRemoteObject> &remote) {
                 auto remoteObj = weakThis.promote();
                 if (remoteObj == nullptr) {
@@ -198,7 +195,6 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
     param[ASSERT_FAULT_DETAIL] = want.GetStringParam(ASSERT_FAULT_DETAIL);
     param[AAFwk::Want::PARAM_ASSERT_FAULT_SESSION_ID] =
         want.GetStringParam(AAFwk::Want::PARAM_ASSERT_FAULT_SESSION_ID);
-    param[SYS_DIALOG_Z_ORDER] = SYS_DIALOG_Z_ORDER_VALUE;
     std::string paramStr = param.dump();
     data.WriteString16(Str8ToStr16(paramStr));
     consumptionList_.pop();
@@ -213,7 +209,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
 }
 
 void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityDisconnectDone(
-    const AppExecFwk::ElementName& element, int resultCode)
+    const AppExecFwk::ElementName &element, int resultCode)
 {
     HILOG_DEBUG("Called.");
     CleanUp();

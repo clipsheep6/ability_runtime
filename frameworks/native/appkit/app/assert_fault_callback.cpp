@@ -17,7 +17,6 @@
 #include "assert_fault_task_thread.h"
 #include "hilog_wrapper.h"
 
-
 namespace OHOS {
 namespace AbilityRuntime {
 AssertFaultCallback::AssertFaultCallback(const std::weak_ptr<AssertFaultTaskThread> &assertFaultThread)
@@ -35,7 +34,7 @@ int32_t AssertFaultCallback::OnRemoteRequest(
         return ERR_INVALID_STATE;
     }
 
-    if (code == static_cast<uint32_t>(MessageCode::NOTIFY_USER_ACTION_RESULT)) {
+    if (code == static_cast<uint32_t>(MessageCode::NOTIFY_DEBUG_ASSERT_RESULT)) {
         auto status = static_cast<AAFwk::UserStatus>(data.ReadInt32());
         NotifyDebugAssertResult(status);
         return NO_ERROR;
@@ -61,5 +60,5 @@ AAFwk::UserStatus AssertFaultCallback::GetAssertResult()
 {
     return status_;
 }
-}
+}  // namespace AbilityRuntime
 }  // namespace OHOS
