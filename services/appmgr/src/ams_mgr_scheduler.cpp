@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -434,6 +434,15 @@ bool AmsMgrScheduler::IsAttachDebug(const std::string &bundleName)
         return false;
     }
     return amsMgrServiceInner_->IsAttachDebug(bundleName);
+}
+
+void AmsMgrScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->SetAppAssertionPauseState(pid, flag);
 }
 
 void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)

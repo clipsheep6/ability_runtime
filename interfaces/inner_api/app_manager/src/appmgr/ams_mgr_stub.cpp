@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -97,6 +97,8 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleRegisterAbilityDebugResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
         &AmsMgrStub::HandleIsAttachDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_APP_ASSERT_PAUSE_STATE)] =
+        &AmsMgrStub::HandleSetAppAssertionPauseState;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN)] =
         &AmsMgrStub::HandleClearProcessByToken;
 }
@@ -505,6 +507,15 @@ int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &repl
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto pid = data.ReadInt32();
+    auto flag = data.ReadBool();
+    SetAppAssertionPauseState(pid, flag);
     return NO_ERROR;
 }
 

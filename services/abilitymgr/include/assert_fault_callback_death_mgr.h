@@ -25,13 +25,18 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-using DeathMap = std::unordered_map<uint64_t, std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>>;
 class AssertFaultCallbackDeathMgr : public DelayedSingleton<AssertFaultCallbackDeathMgr>,
     public std::enable_shared_from_this<AssertFaultCallbackDeathMgr> {
     DISALLOW_COPY_AND_MOVE(AssertFaultCallbackDeathMgr);
 public:
     AssertFaultCallbackDeathMgr() = default;
     virtual ~AssertFaultCallbackDeathMgr();
+    struct DeathItem
+    {
+        int32_t pid_;
+        sptr<IRemoteObject> iremote_;
+        sptr<IRemoteObject::DeathRecipient> deathObj_;
+    };
 
     void AddAssertFaultCallback(sptr<IRemoteObject> &remote);
     void RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote);
@@ -39,6 +44,7 @@ public:
         uint64_t assertFaultSessionId, AAFwk::UserStatus status = AAFwk::UserStatus::ASSERT_TERMINATE);
 
 private:
+    using DeathMap = std::unordered_map<uint64_t, DeathItem>;
     std::mutex assertFaultSessionMutex_;
     DeathMap assertFaultSessionDailogs_;
 };

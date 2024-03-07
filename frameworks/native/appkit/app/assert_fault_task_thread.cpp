@@ -28,9 +28,9 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 std::unordered_map<AAFwk::UserStatus, Assert_Status> assertResultMap = {
-    {AAFwk::UserStatus::ASSERT_TERMINATE, Assert_Status::ABORT},
-    {AAFwk::UserStatus::ASSERT_CONTINUE, Assert_Status::IGNORE},
-    {AAFwk::UserStatus::ASSERT_RETRY, Assert_Status::RETRY},
+    {AAFwk::UserStatus::ASSERT_TERMINATE, Assert_Status::ASSERT_ABORT},
+    {AAFwk::UserStatus::ASSERT_CONTINUE, Assert_Status::ASSERT_IGNORE},
+    {AAFwk::UserStatus::ASSERT_RETRY, Assert_Status::ASSERT_RETRY},
 };
 const AAFwk::UserStatus ASSERT_FAULT_DEFAULT_VALUE = AAFwk::UserStatus::ASSERT_TERMINATE; // default value is abort
 constexpr char ASSERT_FAULT_THREAD[] = "assertFaultTHR";
@@ -64,7 +64,7 @@ Assert_Status ConvertAssertResult(AAFwk::UserStatus status)
     auto result = assertResultMap.find(status);
     if (result == assertResultMap.end()) {
         HILOG_ERROR("Find %{public}d failed, convert assert reuslt error.", status);
-        return Assert_Status::ABORT;
+        return Assert_Status::ASSERT_ABORT;
     }
     return result->second;
 }
@@ -75,7 +75,7 @@ static Assert_Status AssertCallback(AssertFailureInfo assertFail)
     auto instance = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
     if (instance == nullptr) {
         HILOG_ERROR("Invalid Instance.");
-        return Assert_Status::ABORT;
+        return Assert_Status::ASSERT_ABORT;
     }
 
     std::string textFile = std::string("File:\n") +

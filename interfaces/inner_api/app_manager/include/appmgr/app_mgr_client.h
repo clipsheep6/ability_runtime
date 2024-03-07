@@ -557,6 +557,14 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
+     * Set application assertion pause state.
+     *
+     * @param pid App process pid.
+     * @param flag assertion pause state.
+     */
+    void SetAppAssertionPauseState(int32_t pid, bool flag);
+
+    /**
      * Register application or process state observer.
      * @param observer, ability token.
      * @param bundleNameList, the list of bundle names.

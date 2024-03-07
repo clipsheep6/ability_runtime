@@ -828,6 +828,34 @@ bool AmsMgrProxy::IsAttachDebug(const std::string &bundleName)
     return reply.ReadBool();
 }
 
+void AmsMgrProxy::SetAppAssertionPauseState(int32_t pid, bool flag)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("Write pid fail.");
+        return;
+    }
+
+    if (!data.WriteBool(flag)) {
+        HILOG_ERROR("Write flag fail.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::SET_APP_ASSERT_PAUSE_STATE),
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, err: %{public}d", ret);
+    }
+}
+
 void AmsMgrProxy::ClearProcessByToken(sptr<IRemoteObject> token)
 {
     MessageParcel data;
