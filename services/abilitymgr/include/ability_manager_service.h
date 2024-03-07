@@ -133,7 +133,7 @@ public:
      * @param requestCode the resultCode of the ability to start.
      * @return Returns ERR_OK on success, others on failure.
      */
-    virtual int StartAbilityWithSpecifyTokenIdInner(
+    int StartAbilityWithSpecifyTokenIdInner(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         uint32_t specifyTokenId,

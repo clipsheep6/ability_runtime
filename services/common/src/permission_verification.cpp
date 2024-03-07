@@ -45,10 +45,13 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
     return true;
 }
 
-bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName) const
+bool PermissionVerification::VerifyCallingPermission(
+    const std::string &permissionName, const uint32_t specifyTokenId) const
 {
-    HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
-    auto callerToken = GetCallingTokenID();
+    HILOG_DEBUG("VerifyCallingPermission permission %{public}s, specifyTokenId is %{public}u",
+        permissionName.c_str(), specifyTokenId);
+    auto callerToken = specifyTokenId == 0 ? GetCallingTokenID() : specifyTokenId;
+    HILOG_DEBUG("callerToken is %{public}u", callerToken);
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName, false);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
@@ -314,7 +317,7 @@ bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTok
         HILOG_DEBUG("TargetAbility is in same APP, PASS.");
         return true;
     }
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, specifyTokenId)) {
         HILOG_DEBUG("Caller has PERMISSION_START_INVISIBLE_ABILITY, PASS.");
         return true;
     }
