@@ -41,6 +41,8 @@
 #include "app_utils.h"
 #include "app_exit_reason_data_manager.h"
 #include "application_util.h"
+#include "assert_fault_callback_death_mgr.h"
+#include "assert_fault_proxy.h"
 #include "bundle_mgr_client.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -173,6 +175,8 @@ constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 
+constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
+constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.ams.support_assert_fault_dialog";
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 const std::unordered_set<std::string> COMMON_PICKER_TYPE = {
     "share", "action"
@@ -9592,6 +9596,81 @@ int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
         result = GenerateExtensionAbilityRequest(want, request, callerToken, userId);
     }
     return result;
+}
+
+int32_t AbilityManagerService::RequestAssertFaultDialog(
+    const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("Request to display assert fault dialog begin.");
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Product of assert fault dialog is not enabled.");
+        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    }
+
+    sptr<IRemoteObject> remoteCallback = callback;
+    if (remoteCallback == nullptr) {
+        HILOG_ERROR("Params remote callback is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
+    if (sysDialog == nullptr) {
+        HILOG_ERROR("SystemDialogScheduler is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    Want want;
+    if (!sysDialog->GetAssertFaultDialogWant(want)) {
+        HILOG_ERROR("Get assert fault dialog want failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(remoteCallback.GetRefPtr());
+    want.SetParam(Want::PARAM_ASSERT_FAULT_SESSION_ID, std::to_string(assertFaultSessionId));
+    want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
+
+    auto connection = std::make_shared<ModalSystemAssertUIExtension>();
+    if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
+        HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto callbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
+    if (callbackDeathMgr == nullptr) {
+        HILOG_ERROR("Get callback death manager instance is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    callbackDeathMgr->AddAssertFaultCallback(remoteCallback);
+    HILOG_DEBUG("Request to display assert fault dialog end.");
+    return ERR_OK;
+}
+
+int32_t AbilityManagerService::NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+{
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Product of assert fault dialog is not enabled.");
+        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    }
+
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto permissionSA = PermissionVerification::GetInstance();
+    if (permissionSA == nullptr) {
+        HILOG_ERROR("Permission verification instance is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!permissionSA->VerifyCallingPermission(PermissionConstants::PERMISSION_NOTIFY_DEBUG_ASSERT_RESULT)) {
+        HILOG_ERROR("Permission %{public}s verification failed.",
+            PermissionConstants::PERMISSION_NOTIFY_DEBUG_ASSERT_RESULT);
+        return ERR_PERMISSION_DENIED;
+    }
+
+    auto callbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
+    if (callbackDeathMgr == nullptr) {
+        HILOG_ERROR("Get callback death manager instance is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    callbackDeathMgr->CallAssertFaultCallback(assertFaultSessionId, userStatus);
+    return ERR_OK;
 }
 
 void AbilityManagerService::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)

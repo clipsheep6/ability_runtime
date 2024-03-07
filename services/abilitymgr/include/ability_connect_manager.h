@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -525,6 +525,7 @@ private:
     int32_t GetOrCreateTargetServiceRecord(
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
         std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+    inline void HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
