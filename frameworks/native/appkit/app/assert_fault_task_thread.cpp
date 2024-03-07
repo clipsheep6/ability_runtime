@@ -24,6 +24,29 @@
 #include "main_thread.h"
 #include "string_wrapper.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+typedef enum Assert_Status {
+    ASSERT_ABORT,
+    ASSERT_RETRY,
+    ASSERT_IGNORE
+}Assert_Status;
+
+typedef struct AssertFailureInfo {
+    char *expression;
+    char *file;
+    char *function;
+    int line;
+}AssertFailureInfo;
+
+typedef Assert_Status(*assert_call)(AssertFailureInfo assert_fail);
+void set_assert_callback(assert_call cb) {};
+
+#ifdef __cplusplus
+}
+#endif
+
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
