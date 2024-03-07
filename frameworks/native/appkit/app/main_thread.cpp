@@ -134,6 +134,8 @@ constexpr char EVENT_KEY_HAPPEN_TIME[] = "HAPPEN_TIME";
 constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
+constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
+constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.ams.support_assert_fault_dialog";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
@@ -681,6 +683,7 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
             HILOG_ERROR("appThread is nullptr");
             return;
         }
+        appThread->HandleInitAssertFaultTask(data.GetDebugApp(), data.GetApplicationInfo().debug);
         appThread->HandleLaunchApplication(data, config);
     };
     if (!mainHandler_->PostTask(task, "MainThread:LaunchApplication")) {
@@ -903,6 +906,7 @@ void MainThread::HandleTerminateApplicationLocal()
     }
     HILOG_DEBUG("runner is stopped");
     SetRunnerStarted(false);
+    HandleCancelAssertFaultTask();
 }
 
 /**
@@ -3016,6 +3020,51 @@ bool MainThread::NotifyDeviceDisConnect()
     bool isLastProcess = appMgr_->IsFinalAppProcess();
     ScheduleTerminateApplication(isLastProcess);
     return true;
+}
+
+void MainThread::AssertFaultPauseMainThreadDetection()
+{
+    HILOG_DEBUG("Called.");
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+}
+
+void MainThread::AssertFaultResumeMainThreadDetection()
+{
+    HILOG_DEBUG("Called.");
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+}
+
+void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
+{
+    if (!isDebugApp) {
+        HILOG_ERROR("Non-debug version application.");
+        return;
+    }
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Unsupport assert fault dialog.");
+        return;
+    }
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer Mode is false.");
+        return;
+    }
+    auto assertThread = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
+    if (assertThread == nullptr) {
+        HILOG_ERROR("Get assert thread instance is nullptr.");
+        return;
+    }
+    assertThread->InitAssertFaultTask(this, isDebugModule);
+    assertThread_ = assertThread;
+}
+
+void MainThread::HandleCancelAssertFaultTask()
+{
+    auto assertThread = assertThread_.lock();
+    if (assertThread == nullptr) {
+        HILOG_ERROR("Get assert thread instance is nullptr.");
+        return;
+    }
+    assertThread->Stop();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

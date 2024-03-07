@@ -32,6 +32,8 @@ abilityms_files = [
   "src/ability_token_stub.cpp",
   "src/app_scheduler.cpp",
   "src/app_exit_reason_helper.cpp",
+  "src/assert_fault_callback_death_mgr.cpp",
+  "src/assert_fault_proxy.cpp",
   "src/connection_record.cpp",
   "src/data_ability_caller_recipient.cpp",
   "src/data_ability_manager.cpp",
