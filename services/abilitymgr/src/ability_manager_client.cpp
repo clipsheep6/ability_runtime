@@ -569,26 +569,6 @@ ErrCode AbilityManagerClient::Connect()
     return ERR_OK;
 }
 
-void AbilityManagerClient::RemoveDeathRecipient()
-{
-    HILOG_INFO("RemoveDeathRecipient");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (proxy_ == nullptr) {
-        HILOG_INFO("AbilityMgrProxy do not exist");
-        return;
-    }
-    if (deathRecipient_ == nullptr) {
-        HILOG_INFO("AbilityMgrDeathRecipient do not exist");
-        return;
-    }
-    auto serviceRemote = proxy_->AsObject();
-    if (serviceRemote != nullptr && serviceRemote->RemoveDeathRecipient(deathRecipient_)) {
-        proxy_ = nullptr;
-        deathRecipient_ = nullptr;
-        HILOG_INFO("Remove DeathRecipient success");
-    }
-}
-
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
 {
     HILOG_INFO("call");
