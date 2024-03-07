@@ -41,17 +41,26 @@ public:
         }
     }
 
+    virtual ~AssetHelper();
+
+    void operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::string& ami,
+        bool& useSecureMem, bool isRestricted = false);
+
+private:
     std::string NormalizedFileName(const std::string& fileName) const;
 
-    void operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami);
+    bool ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize,
+        bool& useSecureMem, bool isRestricted);
 
-    bool ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const;
-
-    bool ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content);
+    bool ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize,
+        bool& useSecureMem, bool isRestricted);
 
     void GetAmi(std::string& ami, const std::string& filePath);
-private:
-    std::shared_ptr<JsEnv::WorkerInfo> workerInfo_;
+
+    bool GetSafeData(const std::string& ami, uint8_t** buff, size_t* buffSize);
+
+    std::shared_ptr<JsEnv::WorkerInfo> workerInfo_ = nullptr;
+    int fd_ = -1;
 };
 
 } // namespace AbilityRuntime

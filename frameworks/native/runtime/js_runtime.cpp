@@ -233,7 +233,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
     if (isDebugApp) {
         ConnectServerManager::Get().StartConnectServer(bundleName_, -1, true);
     }
-    
+
     ConnectServerManager::Get().StoreInstanceMessage(gettid(), instanceId_);
     EcmaVM* vm = GetEcmaVm();
     auto debuggerPostTask = jsEnv_->GetDebuggerPostTask();
@@ -1360,6 +1360,7 @@ void JsRuntime::InitWorkerModule(const Options& options)
     workerInfo->hapPath = options.hapPath;
     workerInfo->isStageModel = options.isStageModel;
     workerInfo->moduleName = options.moduleName;
+    workerInfo->apiTargetVersion = options.apiTargetVersion;
     if (options.isJsFramework) {
         SetJsFramework();
     }

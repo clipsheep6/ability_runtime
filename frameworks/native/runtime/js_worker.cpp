@@ -19,8 +19,8 @@
 #include <climits>
 #include <cstdlib>
 #include <fstream>
-#include <vector>
 #include <unistd.h>
+#include <vector>
 
 #include "bundle_mgr_helper.h"
 #include "connect_server_manager.h"
@@ -30,6 +30,7 @@
 #endif
 #include "declarative_module_preloader.h"
 #include "extractor.h"
+#include "file_mapper.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_base/include/bundle_info.h"
 #include "foundation/bundlemanager/bundle_framework/interfaces/inner_api/appexecfwk_core/include/bundlemgr/bundle_mgr_proxy.h"
 #include "foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include/iservice_registry.h"
@@ -48,6 +49,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
+constexpr int32_t API8 = 8;
 const std::string BUNDLE_NAME_FLAG = "@bundle:";
 const std::string CACHE_DIRECTORY = "el2";
 const int PATH_THREE = 3;
@@ -125,6 +127,8 @@ void OffWorkerFunc(NativeEngine* nativeEngine)
 
 using Extractor = AbilityBase::Extractor;
 using ExtractorUtil = AbilityBase::ExtractorUtil;
+using FileMapper = AbilityBase::FileMapper;
+using FileMapperType = AbilityBase::FileMapperType;
 using IBundleMgr = AppExecFwk::IBundleMgr;
 
 std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
@@ -144,16 +148,27 @@ std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
     return normalizedFilePath;
 }
 
-void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& content, std::string &ami)
+AssetHelper::~AssetHelper()
 {
-    if (uri.empty() || workerInfo_ == nullptr) {
-        HILOG_ERROR("Uri is empty.");
+    HILOG_DEBUG("destroyed.");
+    if (fd_ != -1) {
+        close(fd_);
+        fd_ = -1;
+    }
+}
+
+void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::string& ami,
+    bool& useSecureMem, bool isRestricted)
+{
+    if (uri.empty() || buff == nullptr || buffSize == nullptr || workerInfo_ == nullptr) {
+        HILOG_ERROR("Input params invalid.");
         return;
     }
 
     HILOG_DEBUG("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
     std::string realPath;
     std::string filePath;
+    useSecureMem = false;
 
     // 1. compilemode is jsbundle
     // 2. compilemode is esmodule
@@ -189,11 +204,11 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
 
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
-            if (!ReadAmiData(ami, content)) {
-                HILOG_ERROR("Get asset content by ami failed.");
+            if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
+                HILOG_ERROR("Get buffer by ami failed.");
             }
-        } else if (!ReadFilePathData(filePath, content)) {
-            HILOG_ERROR("Get asset content by filepath failed.");
+        } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
+            HILOG_ERROR("Get buffer by filepath failed.");
         }
     } else {
         // 2.1 start with @bundle:bundlename/modulename
@@ -227,43 +242,108 @@ void AssetHelper::operator()(const std::string& uri, std::vector<uint8_t>& conte
         ami = workerInfo_->codePath + filePath;
         HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
-            if (!ReadAmiData(ami, content)) {
-                HILOG_ERROR("Get asset content by ami failed.");
+            if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
+                HILOG_ERROR("Get buffer by ami failed.");
             }
-        } else if (!ReadFilePathData(filePath, content)) {
-            HILOG_ERROR("Get asset content by filepath failed.");
+        } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
+            HILOG_ERROR("Get buffer by filepath failed.");
         }
     }
 }
 
-bool AssetHelper::ReadAmiData(const std::string& ami, std::vector<uint8_t>& content) const
+bool AssetHelper::GetSafeData(const std::string& ami, uint8_t** buff, size_t* buffSize)
 {
+    HILOG_DEBUG("Use secure mem.");
+    std::string resolvedPath;
+    resolvedPath.reserve(PATH_MAX);
+    resolvedPath.resize(PATH_MAX - 1);
+    if (realpath(ami.c_str(), &(resolvedPath[0])) == nullptr) {
+        HILOG_ERROR("Realpath file %{private}s caught error: %{public}d.", ami.c_str(), errno);
+        return false;
+    }
+
+    int fd = open(resolvedPath.c_str(), O_RDONLY);
+    if (fd < 0) {
+        HILOG_ERROR("Open file %{private}s caught error: %{public}d.", resolvedPath.c_str(), errno);
+        return false;
+    }
+
+    struct stat statbuf;
+    if (fstat(fd, &statbuf) < 0) {
+        HILOG_ERROR("Get fstat of file %{private}s caught error: %{public}d.", resolvedPath.c_str(), errno);
+        close(fd);
+        return false;
+    }
+
+    std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
+    if (fileMapper == nullptr) {
+        HILOG_ERROR("Create file mapper failed.");
+        close(fd);
+        return false;
+    }
+
+    auto result = fileMapper->CreateFileMapper(resolvedPath, false, fd, 0, statbuf.st_size, FileMapperType::SAFE_ABC);
+    if (!result) {
+        HILOG_ERROR("Create file %{private}s mapper failed.", resolvedPath.c_str());
+        close(fd);
+        return false;
+    }
+
+    *buff = fileMapper->GetDataPtr();
+    *buffSize = fileMapper->GetDataLen();
+    fd_ = fd;
+    return true;
+}
+
+bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize,
+    bool& useSecureMem, bool isRestricted)
+{
+    // Current function is a private, validity of workerInfo_ has been checked by caller.
+    bool apiSatisfy = workerInfo_->apiTargetVersion == 0 || workerInfo_->apiTargetVersion > API8;
+    if (workerInfo_->isStageModel && !isRestricted && apiSatisfy && GetSafeData(ami, buff, buffSize)) {
+        useSecureMem = true;
+        return true;
+    }
+
     char path[PATH_MAX];
     if (realpath(ami.c_str(), path) == nullptr) {
-        HILOG_ERROR("ReadAmiData realpath(%{private}s) failed, errno = %{public}d", ami.c_str(), errno);
+        HILOG_ERROR("Realpath file %{private}s caught error: %{public}d.", ami.c_str(), errno);
         return false;
     }
 
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
     if (!stream.is_open()) {
-        HILOG_ERROR("ReadAmiData failed to open file %{private}s", ami.c_str());
+        HILOG_ERROR("Failed to open file %{private}s.", ami.c_str());
         return false;
     }
 
     auto fileLen = stream.tellg();
     if (!workerInfo_->isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
-        HILOG_ERROR("ReadAmiData failed, file is too large");
+        HILOG_ERROR("File is too large.");
         return false;
     }
 
-    content.resize(fileLen);
+    if (fileLen <= 0) {
+        HILOG_ERROR("Invalid file length.");
+        return false;
+    }
 
-    stream.seekg(0);
-    stream.read(reinterpret_cast<char*>(content.data()), content.size());
+    auto temp = std::make_unique<uint8_t[]>(fileLen);
+    if (temp == nullptr) {
+        HILOG_ERROR("Alloc mem failed.");
+        return false;
+    }
+
+    stream.seekg(0, std::ios::beg);
+    stream.read(reinterpret_cast<char*>(temp.get()), fileLen);
+
+    *buff = temp.get();
+    *buffSize = fileLen;
     return true;
 }
 
-bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint8_t>& content)
+bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize,
+    bool& useSecureMem, bool isRestricted)
 {
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
@@ -323,6 +403,17 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
     } else {
         realfilePath = filePath.substr(pos + 1);
         HILOG_DEBUG("realfilePath: %{private}s", realfilePath.c_str());
+        bool apiSatisfy = workerInfo_->apiTargetVersion == 0 || workerInfo_->apiTargetVersion > API8;
+        if (workerInfo_->isStageModel && !isRestricted && apiSatisfy && !extractor->IsHapCompress(realfilePath)) {
+            HILOG_DEBUG("Use secure mem.");
+            auto safeData = extractor->GetSafeData(realfilePath);
+            if (safeData != nullptr) {
+                *buff = safeData->GetDataPtr();
+                *buffSize = safeData->GetDataLen();
+                useSecureMem = true;
+                return true;
+            }
+        }
         if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
             HILOG_ERROR("get mergeAbc fileBuffer failed");
             return false;
@@ -333,7 +424,9 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, std::vector<uint
         HILOG_ERROR("ReadFilePathData failed, file is too large");
         return false;
     }
-    content.assign(dataPtr.get(), dataPtr.get() + fileLen);
+
+    *buff = dataPtr.get();
+    *buffSize = fileLen;
     return true;
 }
 
