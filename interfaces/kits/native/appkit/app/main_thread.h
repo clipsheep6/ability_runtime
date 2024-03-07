@@ -27,6 +27,7 @@
 #include "app_mgr_interface.h"
 #include "ability_record_mgr.h"
 #include "application_impl.h"
+#include "assert_fault_task_thread.h"
 #include "common_event_subscriber.h"
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
@@ -294,6 +295,8 @@ public:
     void AttachAppDebug() override;
     void DetachAppDebug() override;
     bool NotifyDeviceDisConnect();
+    void AssertFaultPauseMainThreadDetection();
+    void AssertFaultResumeMainThreadDetection();
 private:
     /**
      *
@@ -634,6 +637,8 @@ private:
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
         bool multiProjects, const Configuration &config);
+    void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
+    void HandleCancelAssertFaultTask();
 
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
@@ -652,6 +657,7 @@ private:
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
     std::shared_ptr<IdleTime> idleTime_ = nullptr;
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
+    std::weak_ptr<AbilityRuntime::AssertFaultTaskThread> assertThread_;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.
