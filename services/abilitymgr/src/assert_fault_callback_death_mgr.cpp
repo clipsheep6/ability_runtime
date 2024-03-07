@@ -13,19 +13,21 @@
  * limitations under the License.
  */
 
+#include "app_scheduler.h"
 #include "assert_fault_callback_death_mgr.h"
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 AssertFaultCallbackDeathMgr::~AssertFaultCallbackDeathMgr()
 {
     for (auto &item : assertFaultSessionDailogs_) {
-        if (item.second.first == nullptr || item.second.second == nullptr) {
+        if (item.second.iremote_ == nullptr || item.second.deathObj_ == nullptr) {
             HILOG_WARN("Callback is nullptr.");
             continue;
         }
-        item.second.first->RemoveDeathRecipient(item.second.second);
+        item.second.iremote_->RemoveDeathRecipient(item.second.deathObj_);
     }
 
     assertFaultSessionDailogs_.clear();
@@ -42,19 +44,25 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
     std::weak_ptr<AssertFaultCallbackDeathMgr> weakThis = shared_from_this();
     sptr<AssertFaultRemoteDeathRecipient> deathRecipient =
         new (std::nothrow) AssertFaultRemoteDeathRecipient([weakThis] (const wptr<IRemoteObject> &remote) {
-            auto ams = weakThis.lock();
-            if (ams == nullptr) {
+            auto callbackDeathMgr = weakThis.lock();
+            if (callbackDeathMgr == nullptr) {
                 HILOG_ERROR("Invalid manager instance.");
                 return;
             }
-            ams->RemoveAssertFaultCallback(remote);
+            callbackDeathMgr->RemoveAssertFaultCallback(remote);
         });
 
     remote->AddDeathRecipient(deathRecipient);
+    auto callerPid = IPCSkeleton::GetCallingPid();
     uint64_t assertFaultSessionId = reinterpret_cast<uint64_t>(remote.GetRefPtr());
     std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
-    assertFaultSessionDailogs_[assertFaultSessionId] =
-        std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>(remote, deathRecipient);
+    assertFaultSessionDailogs_[assertFaultSessionId] = {callerPid, remote, deathRecipient};
+    auto appScheduler = DelayedSingleton<AAFwk::AppScheduler>::GetInstance();
+    if (appScheduler == nullptr) {
+        HILOG_ERROR("Get app scheduler instance is nullptr.");
+        return;
+    }
+    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(callerPid, false));
 }
 
 void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote)
@@ -74,8 +82,8 @@ void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteOb
         return;
     }
 
-    if (iter->second.first != nullptr && iter->second.second != nullptr) {
-        iter->second.first->RemoveDeathRecipient(iter->second.second);
+    if (iter->second.iremote_ != nullptr && iter->second.deathObj_ != nullptr) {
+        iter->second.iremote_->RemoveDeathRecipient(iter->second.deathObj_);
     }
 
     assertFaultSessionDailogs_.erase(iter);
@@ -91,13 +99,20 @@ void AssertFaultCallbackDeathMgr::CallAssertFaultCallback(uint64_t assertFaultSe
         return;
     }
 
-    sptr<AssertFaultProxy> callback = iface_cast<AssertFaultProxy>(iter->second.first);
+    sptr<AssertFaultProxy> callback = iface_cast<AssertFaultProxy>(iter->second.iremote_);
     if (callback == nullptr) {
         HILOG_ERROR("Convert assert fault proxy failed, callback is nullptr.");
         return;
     }
 
     callback->NotifyDebugAssertResult(status);
+    auto pid = iter->second.pid_;
+    auto appScheduler = DelayedSingleton<AAFwk::AppScheduler>::GetInstance();
+    if (appScheduler == nullptr) {
+        HILOG_ERROR("Get app scheduler instance is nullptr.");
+        return;
+    }
+    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(pid, false));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

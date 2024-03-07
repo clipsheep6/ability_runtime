@@ -845,6 +845,14 @@ bool AppMgrClient::IsAttachDebug(const std::string &bundleName)
     return amsService_->IsAttachDebug(bundleName);
 }
 
+void AppMgrClient::SetAppAssertionPauseState(int32_t pid, bool flag)
+{
+    if (!IsAmsServiceReady()) {
+        return;
+    }
+    amsService_->SetAppAssertionPauseState(pid, flag);
+}
+
 bool AppMgrClient::IsAmsServiceReady()
 {
     if (mgrHolder_ == nullptr) {

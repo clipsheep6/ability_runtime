@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -242,6 +242,14 @@ public:
     virtual bool IsAttachDebug(const std::string &bundleName) = 0;
 
     /**
+     * Set application assertion pause state.
+     *
+     * @param pid App process pid.
+     * @param flag assertion pause state.
+     */
+    virtual void SetAppAssertionPauseState(int32_t pid, bool flag) {};
+
+    /**
      * To clear the process by ability token.
      *
      * @param token the unique identification to the ability.
@@ -281,6 +289,7 @@ public:
         REGISTER_ABILITY_DEBUG_RESPONSE,
         IS_ATTACH_DEBUG,
         START_SPECIFIED_PROCESS,
+        SET_APP_ASSERT_PAUSE_STATE,
         CLEAR_PROCESS_BY_TOKEN,
     };
 };

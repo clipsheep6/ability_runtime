@@ -4401,7 +4401,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             return ERR_OK;
         }
 
-        if (appRecord->IsDebugApp()) {
+        if (appRecord->IsDebugApp() || appRecord->IsAssertionPause()) {
             return ERR_OK;
         }
 
@@ -5426,6 +5426,22 @@ int32_t AppMgrServiceInner::UnregisterRenderStateObserver(const sptr<IRenderStat
         return ERR_INVALID_VALUE;
     }
     return DelayedSingleton<RenderStateObserverManager>::GetInstance()->UnregisterRenderStateObserver(observer);
+}
+
+void AppMgrServiceInner::SetAppAssertionPauseState(int32_t pid, bool flag)
+{
+    HILOG_DEBUG("Called.");
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (callerUid != FOUNDATION_UID) {
+        HILOG_ERROR("Caller is not foundation.");
+		return;
+    }
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (appRecord == nullptr) {
+        HILOG_ERROR("No such appRecord pid is %{public}d.", pid);
+        return;
+    }
+    appRecord->SetAssertionPauseFlag(flag);
 }
 
 int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)

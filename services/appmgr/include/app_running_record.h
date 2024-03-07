@@ -719,6 +719,9 @@ public:
 
     void SetRestartAppFlag(bool isRestartApp);
     bool GetRestartAppFlag() const;
+
+    void SetAssertionPauseFlag(bool flag);
+    bool IsAssertionPause() const;
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -859,6 +862,7 @@ private:
     ffrt::mutex childProcessRecordMapLock_;
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
+    bool isAssertPause_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

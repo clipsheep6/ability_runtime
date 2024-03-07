@@ -256,7 +256,7 @@ private:
             [assertSessionId, userStatus](napi_env env, NapiAsyncTask &task, int32_t status) {
             auto amsClient = AbilityManagerClient::GetInstance();
             if (amsClient == nullptr) {
-                HILOG_ERROR("Ams instance is nullptr.");
+                HILOG_ERROR("Ability manager service instance is nullptr.");
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(AAFwk::INNER_ERR)));
                 return;
             }
