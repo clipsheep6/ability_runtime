@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -499,6 +499,10 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for restart app
     RESTART_APP = 6115,
+    // ipc id for request to display assert fault dialog
+    REQUEST_ASSERT_FAULT_DIALOG = 6116,
+    // ipc id for notify the operation status of the user
+    NOTIFY_DEBUG_ASSERT_RESULT = 6117,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

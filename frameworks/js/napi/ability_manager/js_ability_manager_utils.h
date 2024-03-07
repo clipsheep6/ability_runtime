@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@ napi_value CreateJsExtensionRunningInfoArray(
 napi_value CreateJsAbilityRunningInfo(napi_env env, const AAFwk::AbilityRunningInfo &info);
 napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunningInfo &info);
 napi_value AbilityStateInit(napi_env env);
+napi_value UserStatusInit(napi_env env);
 napi_value CreateJsElementName(napi_env env, const AppExecFwk::ElementName &elementName);
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData);
 napi_value CreateJsAbilityStateDataArray(
