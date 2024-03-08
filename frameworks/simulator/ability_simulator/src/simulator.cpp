@@ -92,7 +92,8 @@ public:
 
     bool Initialize(const Options &options);
 
-    int64_t StartAbility(const std::string &abilityName, TerminateCallback callback) override;
+    int64_t StartAbility(
+        const std::string &abilitySrcPath, TerminateCallback callback, const std::string &abilityName = "") override;
     void TerminateAbility(int64_t abilityId) override;
     void UpdateConfiguration(const AppExecFwk::Configuration &config) override;
     void SetMockList(const std::map<std::string, std::string> &mockList) override;
@@ -110,7 +111,7 @@ private:
     void InitJsAbilityStageContext(napi_value instanceValue);
     napi_value CreateJsLaunchParam(napi_env env);
     bool ParseBundleAndModuleInfo();
-    bool ParseAbilityInfo(const std::string &abilitySrcPath);
+    bool ParseAbilityInfo(const std::string &abilitySrcPath, const std::string &abilityName = "");
     bool LoadRuntimeEnv(napi_env env, napi_value globalObject);
     static napi_value RequireNapi(napi_env env, napi_callback_info info);
     inline void SetHostResolveBufferTracker();
@@ -284,12 +285,18 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     return true;
 }
 
-bool SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath)
+bool SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath, const std::string &abilityName)
 {
-    auto path = abilitySrcPath;
-    path.erase(path.rfind("."));
-    auto abilityName = path.substr(path.rfind('/') + 1, path.length());
-    abilityInfo_ = AppExecFwk::BundleContainer::GetInstance().GetAbilityInfo(options_.moduleName, abilityName);
+    if (!abilityName.empty()) {
+        abilityInfo_ = AppExecFwk::BundleContainer::GetInstance().GetAbilityInfo(options_.moduleName, abilityName);
+    } else {
+        auto path = abilitySrcPath;
+        path.erase(path.rfind("."));
+        auto abilityNameFromPath = path.substr(path.rfind('/') + 1, path.length());
+        abilityInfo_ = AppExecFwk::BundleContainer::GetInstance().GetAbilityInfo(
+            options_.moduleName, abilityNameFromPath);
+    }
+    
     if (abilityInfo_ == nullptr) {
         HILOG_ERROR("ability info parse failed.");
         return false;
@@ -302,9 +309,10 @@ bool SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath)
     return true;
 }
 
-int64_t SimulatorImpl::StartAbility(const std::string &abilitySrcPath, TerminateCallback callback)
+int64_t SimulatorImpl::StartAbility(
+    const std::string &abilitySrcPath, TerminateCallback callback, const std::string &abilityName)
 {
-    if (!ParseAbilityInfo(abilitySrcPath)) {
+    if (!ParseAbilityInfo(abilitySrcPath, abilityName)) {
         return -1;
     }
 
