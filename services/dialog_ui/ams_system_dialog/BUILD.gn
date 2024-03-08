@@ -16,7 +16,7 @@ import("//build/ohos.gni")
 ohos_hap("ams_system_dialog_hap") {
   hap_profile = "entry/src/main/module.json"
 
-  js_build_mode = 'debug'
+  js_build_mode = "debug"
 
   deps = [
     ":ams_system_dialog_js_assets",
