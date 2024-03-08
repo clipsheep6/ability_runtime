@@ -1676,19 +1676,12 @@ AppExecFwk::ElementName AbilityManagerService::GetElementNameByAppId(const std::
         HILOG_ERROR("bms is invalid.");
         return {};
     }
-    auto bundleName = bms->ParseBundleNameByAppId(appId);
-    HILOG_INFO("bundleName is %{public}s.", bundleName.c_str());
-    Want launchWant;
-    auto queryRet = IN_PROCESS_CALL(bms->GetLaunchWantForBundle(bundleName, launchWant, GetUserId()));
-    if (queryRet != ERR_OK) {
-        HILOG_ERROR("The method returns err:%{public}d.", queryRet);
-        return {};
-    }
+    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
     return launchWant.GetElement();
 }
 
-int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, sptr<IRemoteObject> callerToken,
-    int32_t requestCode, int32_t userId)
+int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, const StartOptions &options,
+    sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {
     auto accessTokenId = IPCSkeleton::GetCallingTokenID();
     auto type = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessTokenId);
@@ -1697,7 +1690,7 @@ int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, sptr<IRemote
         return CHECK_PERMISSION_FAILED;
     }
     want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::JUMP_SCREEN_MODE);
-    return StartAbility(want, callerToken, userId, requestCode);
+    return StartAbility(want, options, callerToken, userId, requestCode);
 }
 
 int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
@@ -9788,12 +9781,7 @@ bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToke
         HILOG_ERROR("The SceneBoard not enabled.");
         return false;
     }
-    auto isUIAbility = uiAbilityLifecycleManager_->IsContainsAbility(callerToken);
-    if (!isUIAbility) {
-        HILOG_ERROR("The caller is not UIAbility.");
-        return false;
-    }
-    auto callerAbility = Token::GetAbilityRecordByToken(callerToken);
+    auto callerAbility = uiAbilityLifecycleManager_->GetAbilityRecordByToken(callerToken);
     if (callerAbility == nullptr) {
         HILOG_ERROR("The caller is invalid.");
         return false;
@@ -9817,14 +9805,8 @@ bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> calle
         HILOG_ERROR("bms is invalid.");
         return false;
     }
-    auto bundleName = bms->ParseBundleNameByAppId(appId);
-    HILOG_INFO("bundleName is %{public}s.", bundleName.c_str());
-    Want launchWant;
-    auto queryRet = IN_PROCESS_CALL(bms->GetLaunchWantForBundle(bundleName, launchWant, GetUserId()));
-    if (queryRet != ERR_OK) {
-        HILOG_ERROR("The method returns err:%{public}d.", queryRet);
-        return false;
-    }
+    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
+    std::string bundleName = launchWant.GetElement().GetBundleName();
     std::string abilityName = launchWant.GetElement().GetAbilityName();
     if (bundleName.empty() || abilityName.empty()) {
         HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
@@ -9843,7 +9825,7 @@ bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> calle
     }
     launchWant.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
     auto erms = std::make_shared<EcologicalRuleInterceptor>();
-    queryRet = erms->DoProcess(launchWant, 0, GetUserId(), true, callerToken);
+    auto queryRet = erms->DoProcess(launchWant, 0, GetUserId(), true, callerToken);
     if (queryRet == ERR_OK) {
         return true;
     }

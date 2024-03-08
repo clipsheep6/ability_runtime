@@ -321,8 +321,9 @@ public:
 
     std::vector<std::shared_ptr<AbilityRecord>> GetAbilityRecordsByName(const AppExecFwk::ElementName &element);
 
-private:
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
+
+private:
     int32_t GetPersistentIdByAbilityRequest(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
     int32_t GetReusedSpecifiedPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;
     int32_t GetReusedStandardPersistentId(const AbilityRequest &abilityRequest, bool &reuse, int32_t userId) const;

@@ -453,6 +453,19 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
         return CreateJsUndefined(env);
     }
 
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
+    Want want;
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+        HILOG_DEBUG("OnOpenAtomicService atomic service options is used.");
+        if (!AppExecFwk::UnwrapStartOptionsAndWant(env, info.argv[INDEX_ONE], startOptions, want)) {
+            HILOG_ERROR("Fail to parse atomic service options.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        unwrapArgc++;
+    }
+
     auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
     std::string bundleName = elementName.GetBundleName();
     std::string abilityName = elementName.GetAbilityName();
@@ -462,14 +475,13 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
         return CreateJsUndefined(env);
     }
 
-    Want want;
     want.SetElement(elementName);
-    return OpenAtomicServiceInner(env, info, want);
+    return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
 }
 
-napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want)
+napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want,
+    const AAFwk::StartOptions &options, size_t unwrapArgc)
 {
-    decltype(info.argc) unwrapArgc = ARGC_ONE;
     napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
     napi_value result = nullptr;
     std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
@@ -496,7 +508,7 @@ napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallba
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
         auto curRequestCode = context->GenerateCurRequestCode();
-        context->OpenAtomicService(want, curRequestCode, std::move(task));
+        context->OpenAtomicService(want, options, curRequestCode, std::move(task));
     }
     HILOG_DEBUG("OnOpenAtomicService is called end");
     return result;

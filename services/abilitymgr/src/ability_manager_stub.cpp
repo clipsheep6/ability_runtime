@@ -3105,13 +3105,18 @@ int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageP
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
+    std::unique_ptr<StartOptions> options(data.ReadParcelable<StartOptions>());
+    if (options == nullptr) {
+        HILOG_ERROR("options is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     sptr<IRemoteObject> callerToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
     }
     int32_t requestCode = data.ReadInt32();
     int32_t userId = data.ReadInt32();
-    int32_t openRet = OpenAtomicService(*want, callerToken, requestCode, userId);
+    int32_t openRet = OpenAtomicService(*want, *options, callerToken, requestCode, userId);
     if (openRet != ERR_OK) {
         HILOG_ERROR("Open atomic service to be failed.");
         return openRet;

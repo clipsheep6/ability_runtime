@@ -167,7 +167,8 @@ public:
 
     virtual ErrCode RequestModalUIExtension(const AAFwk::Want& want) = 0;
     
-    virtual ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task) = 0;
+    virtual ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+        RuntimeTask &&task) = 0;
 
     virtual ErrCode ChangeAbilityVisibility(bool isShow) { return 0; }
 

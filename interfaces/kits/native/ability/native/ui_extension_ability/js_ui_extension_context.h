@@ -57,7 +57,8 @@ private:
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
-    napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want);
+    napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        const AAFwk::StartOptions &options, size_t unwrapArgc);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {

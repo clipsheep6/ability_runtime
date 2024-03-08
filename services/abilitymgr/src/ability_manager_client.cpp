@@ -1736,13 +1736,13 @@ AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::s
     return abms->GetElementNameByAppId(appId);
 }
 
-int32_t AbilityManagerClient::OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken, int32_t requestCode,
-    int32_t userId)
+int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &options,
+    sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {
     HILOG_DEBUG("Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
-    return abms->OpenAtomicService(want, callerToken, requestCode, userId);
+    return abms->OpenAtomicService(want, options, callerToken, requestCode, userId);
 }
 
 bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)

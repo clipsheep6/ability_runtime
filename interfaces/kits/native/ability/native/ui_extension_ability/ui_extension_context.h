@@ -117,7 +117,8 @@ public:
 
     Ace::UIContent* GetUIContent();
 
-    ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task);
+    ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+        RuntimeTask &&task);
 
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

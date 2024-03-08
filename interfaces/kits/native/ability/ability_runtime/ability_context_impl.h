@@ -216,7 +216,8 @@ public:
 
     ErrCode ChangeAbilityVisibility(bool isShow) override;
 
-    ErrCode OpenAtomicService(AAFwk::Want& want, int requestCode, RuntimeTask &&task) override;
+    ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+        RuntimeTask &&task) override;
 
     void RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
 

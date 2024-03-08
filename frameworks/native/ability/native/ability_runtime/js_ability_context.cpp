@@ -1945,9 +1945,22 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
 
     std::string appId;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
-        HILOG_ERROR("OnOpenAtomicService, parse appId failed.");
+        HILOG_ERROR("Fail to parse appId.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
+    }
+
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
+    Want want;
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+        HILOG_DEBUG("OnOpenAtomicService atomic service options is used.");
+        if (!AppExecFwk::UnwrapStartOptionsAndWant(env, info.argv[INDEX_ONE], startOptions, want)) {
+            HILOG_ERROR("Fail to parse atomic service options.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        unwrapArgc++;
     }
 
     auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
@@ -1959,19 +1972,18 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
         return CreateJsUndefined(env);
     }
 
-    Want want;
     want.SetElement(elementName);
-    return OpenAtomicServiceInner(env, info, want);
+    return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
 }
 
-napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want)
+napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want,
+    AAFwk::StartOptions &options, size_t unwrapArgc)
 {
     InheritWindowMode(want);
     want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND);
     std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count());
     want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
-    decltype(info.argc) unwrapArgc = ARGC_ONE;
     napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
     AddFreeInstallObserver(env, want, lastParam, true);
     napi_value result = nullptr;
@@ -2001,7 +2013,7 @@ napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackIn
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
         curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
-        context->OpenAtomicService(want, curRequestCode_, std::move(task));
+        context->OpenAtomicService(want, options, curRequestCode_, std::move(task));
     }
     HILOG_DEBUG("OnOpenAtomicService is called end");
     return result;

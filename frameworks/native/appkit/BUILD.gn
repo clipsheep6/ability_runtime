@@ -425,6 +425,8 @@ ohos_shared_library("appkit_manager_helper") {
   deps = []
 
   external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",

@@ -115,7 +115,8 @@ private:
     napi_value OnHideAbility(napi_env env, NapiCallbackInfo& info);
     napi_value ChangeAbilityVisibility(napi_env env, NapiCallbackInfo& info, bool isShow);
     napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
-    napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want);
+    napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        AAFwk::StartOptions &options, size_t unwrapArgc);
     napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);

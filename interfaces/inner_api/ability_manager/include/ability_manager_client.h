@@ -1385,7 +1385,7 @@ public:
      * @param userId The User ID.
      * @return Returns ERR_OK on success, others on failure.
      */
-    int32_t OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken,
+    int32_t OpenAtomicService(Want& want, const StartOptions &options, sptr<IRemoteObject> callerToken,
         int32_t requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**

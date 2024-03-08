@@ -90,13 +90,14 @@ public:
     ErrCode QueryExtensionAbilityInfosOnlyWithTypeName(const std::string &extensionTypeName,
         const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos);
     sptr<IDefaultApp> GetDefaultAppProxy();
-    std::string ParseBundleNameByAppId(const std::string &appId) const;
+    Want GetLaunchWantByAppId(const std::string &appId, int32_t userId);
     ErrCode GetLaunchWantForBundle(const std::string &bundleName, Want &want, int32_t userId);
 
 private:
     sptr<IBundleMgr> Connect();
     sptr<IBundleInstaller> ConnectBundleInstaller();
     void OnDeath();
+    std::string ParseBundleNameByAppId(const std::string &appId) const;
 	
 private:
     DECLARE_DELAYED_SINGLETON(BundleMgrHelper)

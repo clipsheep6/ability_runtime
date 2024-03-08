@@ -17,6 +17,7 @@
 
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
+#include "napi_common_want.h"
 #include "int_wrapper.h"
 #include "process_options.h"
 
@@ -115,6 +116,26 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
     }
 
     return true;
+}
+
+bool UnwrapStartOptionsAndWant(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, AAFwk::Want &want)
+{
+    if (!IsTypeForNapiValue(env, param, napi_object)) {
+        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        return false;
+    }
+    napi_value jsValue = GetPropertyValueByPropertyName(env, param, "parameters", napi_object);
+    if (jsValue != nullptr) {
+        AAFwk::WantParams wantParams;
+        if (UnwrapWantParams(env, jsValue, wantParams)) {
+            want.SetParams(wantParams);
+        }
+    }
+    int32_t flags = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "flags", flags)) {
+        want.SetFlags(flags);
+    }
+    return UnwrapStartOptions(env, param, startOptions);
 }
 EXTERN_C_END
 }  // namespace AppExecFwk

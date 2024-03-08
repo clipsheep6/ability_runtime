@@ -4808,8 +4808,8 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByAppId(const std::st
     return *elementName;
 }
 
-int32_t AbilityManagerProxy::OpenAtomicService(Want& want, sptr<IRemoteObject> callerToken, int32_t requestCode,
-    int32_t userId)
+int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &options,
+    sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
@@ -4818,6 +4818,10 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, sptr<IRemoteObject> c
     }
     if (!data.WriteParcelable(&want)) {
         HILOG_ERROR("Write want failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteParcelable(&options)) {
+        HILOG_ERROR("options write failed.");
         return INNER_ERR;
     }
     if (callerToken != nullptr) {
