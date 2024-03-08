@@ -56,6 +56,7 @@ struct AppSpawnStartMsg {
     DataGroupInfoList dataGroupInfoList; // list of harmony shared package
     uint32_t mountPermissionFlags;
     std::string ownerId;
+    std::string provisionType;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
