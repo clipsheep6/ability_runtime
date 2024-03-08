@@ -484,10 +484,10 @@ napi_value JsWantAgent::OnGetOperationType(napi_env env, napi_callback_info info
 
 napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 {
+    HILOG_INFO("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("JsWantAgent::OnGetBundleName enter, argc = %{public}d", static_cast<int32_t>(argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
@@ -548,10 +548,10 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 {
+    HILOG_INFO("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("JsWantAgent::OnGetUid enter, argc = %{public}d", static_cast<int32_t>(argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
@@ -1111,7 +1111,7 @@ napi_value JsWantAgent::OnNapiGetWant(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnNapiTrigger(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    HILOG_INFO("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
@@ -1201,10 +1201,10 @@ napi_value JsWantAgent::OnNapiGetWantAgent(napi_env env, napi_callback_info info
 
 napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info info)
 {
+    HILOG_INFO("called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("JsWantAgent::OnNapiGetOperationType enter, argc = %{public}d", static_cast<int32_t>(argc));
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
