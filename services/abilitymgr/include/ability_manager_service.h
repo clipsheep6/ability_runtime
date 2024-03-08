@@ -1571,6 +1571,9 @@ private:
         std::shared_ptr<AbilityConnectManager> &connectManager, std::shared_ptr<AbilityRecord> &targetAbility);
 
     virtual int RegisterSessionHandler(const sptr<IRemoteObject> &object) override;
+
+    bool CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 

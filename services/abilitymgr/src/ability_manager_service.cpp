@@ -3119,6 +3119,10 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
         }
         HILOG_INFO("App bundleName: %{public}s, uid: %{public}d", bundleName.c_str(), appUid);
     }
+    if (!CheckSenderWantInfo(callerUid, wantSenderInfo)) {
+        HILOG_ERROR("check bundleName failed");
+        return nullptr;
+    }
 
     std::string apl;
     if (!wantSenderInfo.bundleName.empty()) {
@@ -8023,6 +8027,25 @@ int AbilityManagerService::RegisterSessionHandler(const sptr<IRemoteObject> &obj
     sptr<ISessionHandler> handler = iface_cast<ISessionHandler>(object);
     uiAbilityLifecycleManager_->SetSessionHandler(handler);
     return ERR_OK;
+}
+
+bool AbilityManagerService::CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo)
+{
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
+        auto bms = GetBundleManager();
+        CHECK_POINTER_AND_RETURN(bms, false);
+
+        std::string bundleName;
+        if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+            HILOG_ERROR("Get Bundle Name failed.");
+            return false;
+        }
+        if (wantSenderInfo.bundleName != bundleName) {
+            HILOG_ERROR("wantSender bundleName check failed");
+            return false;
+        }
+    }
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
