@@ -2772,7 +2772,7 @@ int32_t AbilityManagerService::MoveUIAbilityToBackground(const sptr<IRemoteObjec
     }
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
-        uiAbilityLifecycleManager_->NotifySCBToMinimizeUIAbility(abilityRecord, token);
+        return uiAbilityLifecycleManager_->NotifySCBToMinimizeUIAbility(abilityRecord, token);
     }
 
     auto ownerUserId = abilityRecord->GetOwnerMissionUserId();
