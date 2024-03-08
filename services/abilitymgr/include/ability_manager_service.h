@@ -1966,6 +1966,7 @@ private:
 
     bool IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> callerToken, const std::string &appId,
         std::shared_ptr<AbilityRecord> callerAbility);
+    int32_t CheckDebugAssertPermission();
 
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;

@@ -9598,13 +9598,45 @@ int32_t AbilityManagerService::GenerateEmbeddableUIAbilityRequest(
     return result;
 }
 
+int32_t AbilityManagerService::CheckDebugAssertPermission()
+{
+    HILOG_DEBUG("Called.");
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Product of assert fault dialog is not enabled.");
+        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    }
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer Mode is false.");
+        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    }
+
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Get bundle manager instance is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t flags = static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION);
+    AppExecFwk::BundleInfo bundleInfo;
+    auto ret = bundleMgr->GetBundleInfoForSelf(flags, bundleInfo);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Get bundle Info failed.");
+        return ret;
+    }
+    if (!bundleInfo.applicationInfo.debug) {
+        HILOG_ERROR("Non-debug version application.");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 int32_t AbilityManagerService::RequestAssertFaultDialog(
     const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("Request to display assert fault dialog begin.");
-    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
-        HILOG_ERROR("Product of assert fault dialog is not enabled.");
-        return ERR_NOT_SUPPORTED_PRODUCT_TYPE;
+    auto checkRet = CheckDebugAssertPermission();
+    if (checkRet != ERR_OK) {
+        HILOG_ERROR("Check debug assert permission error.");
+        return checkRet;
     }
 
     sptr<IRemoteObject> remoteCallback = callback;

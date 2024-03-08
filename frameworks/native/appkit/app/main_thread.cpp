@@ -2356,7 +2356,6 @@ void MainThread::Start()
     sigemptyset(&sigAct.sa_mask);
     sigAct.sa_flags = SA_SIGINFO;
     sigAct.sa_sigaction = &MainThread::HandleSignal;
-    sigaction(SIGUSR1, &sigAct, NULL);
     sigaction(MUSL_SIGNAL_JSHEAP, &sigAct, NULL);
 
     thread->Init(runner);

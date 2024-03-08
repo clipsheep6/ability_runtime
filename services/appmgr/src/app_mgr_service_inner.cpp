@@ -5434,7 +5434,7 @@ void AppMgrServiceInner::SetAppAssertionPauseState(int32_t pid, bool flag)
     auto callerUid = IPCSkeleton::GetCallingUid();
     if (callerUid != FOUNDATION_UID) {
         HILOG_ERROR("Caller is not foundation.");
-		return;
+        return;
     }
     auto appRecord = GetAppRunningRecordByPid(pid);
     if (appRecord == nullptr) {

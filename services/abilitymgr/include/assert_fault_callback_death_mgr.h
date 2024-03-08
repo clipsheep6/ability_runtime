@@ -31,8 +31,7 @@ class AssertFaultCallbackDeathMgr : public DelayedSingleton<AssertFaultCallbackD
 public:
     AssertFaultCallbackDeathMgr() = default;
     virtual ~AssertFaultCallbackDeathMgr();
-    struct DeathItem
-    {
+    struct DeathItem {
         int32_t pid_;
         sptr<IRemoteObject> iremote_;
         sptr<IRemoteObject::DeathRecipient> deathObj_;
