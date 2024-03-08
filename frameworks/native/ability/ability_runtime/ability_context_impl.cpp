@@ -436,6 +436,13 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContextImpl::CreateMod
     return stageContext_ ? stageContext_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
 }
 
+int32_t AbilityContextImpl::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return stageContext_ ? stageContext_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager)
+        : ERR_INVALID_VALUE;
+}
+
 void AbilityContextImpl::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo>& abilityInfo)
 {
     abilityInfo_ = abilityInfo;

@@ -103,6 +103,12 @@ std::shared_ptr<Context> MockContextImpl::CreateModuleContext(const std::string 
     return appContext;
 }
 
+int32_t MockContextImpl::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return 0;
+}
+
 std::shared_ptr<Global::Resource::ResourceManager> MockContextImpl::CreateModuleResourceManager(
     const std::string &bundleName, const std::string &moduleName)
 {

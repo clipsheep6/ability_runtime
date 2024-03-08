@@ -230,6 +230,49 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
     return contextObj;
 }
 
+napi_value JsApplicationContextUtils::CreateSystemHspModuleResourceManager(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnCreateSystemHspModuleResourceManager, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info)
+{
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    std::string bundleName = "";
+    if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
+        HILOG_ERROR("Parse bundleName failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    std::string moduleName = "";
+    if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
+        HILOG_DEBUG("Parse module name failed.");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    int32_t retCode = applicationContext->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager);
+    if (resourceManager == nullptr && retCode == ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP) {
+        HILOG_ERROR("Failed to create resourceManager");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP);
+        return CreateJsUndefined(env);
+    }
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("Failed to create resourceManager");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    return CreateJsResourceManager(env, resourceManager, nullptr);
+}
+
 napi_value JsApplicationContextUtils::CreateModuleResourceManager(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
@@ -1310,6 +1353,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeFunction(env, object, "switchArea", MD_NAME, JsApplicationContextUtils::SwitchArea);
     BindNativeFunction(env, object, "getArea", MD_NAME, JsApplicationContextUtils::GetArea);
     BindNativeFunction(env, object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
+    BindNativeFunction(env, object, "createSystemHspModuleResourceManager", MD_NAME,
+        JsApplicationContextUtils::CreateSystemHspModuleResourceManager);
     BindNativeFunction(env, object, "createModuleResourceManager", MD_NAME,
         JsApplicationContextUtils::CreateModuleResourceManager);
     BindNativeFunction(env, object, "on", MD_NAME, JsApplicationContextUtils::On);

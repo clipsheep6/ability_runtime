@@ -135,6 +135,12 @@ std::shared_ptr<Global::Resource::ResourceManager> MockAbilityRuntimeContext::Cr
     return nullptr;
 }
 
+int32_t MockAbilityRuntimeContext::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return 0;
+}
+
 int MockAbilityRuntimeContext::GetArea()
 {
     return {};

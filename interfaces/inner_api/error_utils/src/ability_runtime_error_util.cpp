@@ -142,7 +142,9 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
     { ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY,
         "The target to restart does not belong to the current app or is not a UIAbility." },
     { ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT,
-        "Restart too frequently. Try again at least 10s later." }
+        "Restart too frequently. Try again at least 10s later." },
+    { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP,
+        "The input bundleName and moduleName is not system HSP" },
 };
 }
 

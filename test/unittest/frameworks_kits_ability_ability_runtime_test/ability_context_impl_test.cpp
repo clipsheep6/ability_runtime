@@ -1169,6 +1169,22 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_CreateModuleContext_0200, 
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_CreateSystemHspModuleResourceManager_0100
+ * @tc.name: CreateSystemHspModuleResourceManager
+ * @tc.desc: Create Module Context sucess
+ */
+HWTEST_F(AbilityContextImplTest,
+         Ability_Context_Impl_CreateSystemHspModuleResourceManager_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    std::string moduleName = "com.test.moduleName";
+    std::string bundleName = "com.test.bundleName";
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    auto ret = context_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager);
+    EXPECT_EQ(ret, 0);
+}
+
+/**
  * @tc.number: Ability_Context_Impl_CreateModuleContext_0300
  * @tc.name: CreateModuleContext
  * @tc.desc: Create Module Context sucess

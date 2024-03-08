@@ -297,6 +297,13 @@ std::shared_ptr<Global::Resource::ResourceManager> ApplicationContext::CreateMod
     return contextImpl_ ? contextImpl_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
 }
 
+int32_t ApplicationContext::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return contextImpl_ ?
+        contextImpl_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager) : ERR_INVALID_VALUE;
+}
+
 std::shared_ptr<AppExecFwk::ApplicationInfo> ApplicationContext::GetApplicationInfo() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetApplicationInfo() : nullptr;
