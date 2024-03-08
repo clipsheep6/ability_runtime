@@ -449,6 +449,8 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     callerInfo.targetAppDistType = want.GetStringParam("targetAppDistType");
     (const_cast<Want &>(want)).RemoveParam("targetLinkFeature");
     (const_cast<Want &>(want)).RemoveParam("targetAppDistType");
+    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
+        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
 
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -486,8 +488,6 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
             callerInfo.packageName = BUNDLE_NAME_SCENEBOARD;
         }
     }
-    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
-        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
 }
 
 ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int32_t userId, bool isForeground,

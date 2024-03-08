@@ -278,6 +278,15 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu.",
         abilityInfos.size(), extensionInfos.size());
 
+    if (abilityInfos.size() == 1) {
+        auto skillUri =  abilityInfos.front().skillUri;
+        for (const auto& iter : skillUri) {
+            if (iter.isMatch) {
+                request.want.SetParam("targetLinkFeature", iter.linkFeature);
+            }
+        }
+    }
+
     if (abilityInfos.size() + extensionInfos.size() > 1) {
         HILOG_INFO("More than one target application, filter by erms");
         bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos, userId);
