@@ -2251,6 +2251,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
                                   0, AppExecFwk::EventQueue::Priority::IMMEDIATE)) {
         HILOG_ERROR("HandleDumpHeap postTask false");
     }
+    runtime->DumpCpuProfile(isPrivate);
 }
 
 void MainThread::DestroyHeapProfiler()
