@@ -7,6 +7,10 @@
         {
             "type": "photoPicker",
             "typePicker": "sysPicker/photoPicker"
+        },
+        {
+            "type": "cameraPicker",
+            "typePicker": "sysPicker/camera"
         }
     ]
 }
