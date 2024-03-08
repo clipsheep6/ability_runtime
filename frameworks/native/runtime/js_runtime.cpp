@@ -1085,6 +1085,13 @@ void JsRuntime::RemoveTask(const std::string& name)
     jsEnv_->RemoveTask(name);
 }
 
+void JsRuntime::DumpCpuProfile(bool isPrivate)
+{
+    auto nativeEngine = GetNativeEnginePointer();
+    CHECK_POINTER(nativeEngine);
+    nativeEngine->DumpCpuProfile(true, DumpFormat::JSON, isPrivate, false);
+}
+
 void JsRuntime::DumpHeapSnapshot(bool isPrivate)
 {
     auto nativeEngine = GetNativeEnginePointer();

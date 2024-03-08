@@ -63,6 +63,10 @@ public:
     {
         return;
     }
+    void DumpCpuProfile(bool isPrivate) override
+    {
+        return;
+    }
     void DestroyHeapProfiler() override
     {
         return;
