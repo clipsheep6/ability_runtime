@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -113,6 +113,19 @@ napi_value AbilityStateInit(napi_env env)
     napi_set_named_property(env, objValue, "BACKGROUND", CreateJsValue(env, AAFwk::AbilityState::BACKGROUND));
     napi_set_named_property(env, objValue, "FOREGROUNDING", CreateJsValue(env, AAFwk::AbilityState::FOREGROUNDING));
     napi_set_named_property(env, objValue, "BACKGROUNDING", CreateJsValue(env, AAFwk::AbilityState::BACKGROUNDING));
+    return objValue;
+}
+
+napi_value UserStatusInit(napi_env env)
+{
+    HILOG_DEBUG("Called.");
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(
+        env, objValue, "ASSERT_TERMINATE", CreateJsValue(env, AAFwk::UserStatus::ASSERT_TERMINATE));
+    napi_set_named_property(env, objValue, "ASSERT_CONTINUE", CreateJsValue(env, AAFwk::UserStatus::ASSERT_CONTINUE));
+    napi_set_named_property(env, objValue, "ASSERT_RETRY", CreateJsValue(env, AAFwk::UserStatus::ASSERT_RETRY));
     return objValue;
 }
 

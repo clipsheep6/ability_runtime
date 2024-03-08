@@ -938,6 +938,8 @@ public:
 
     int32_t SignRestartAppFlag(const std::string &bundleName);
 
+    void SetAppAssertionPauseState(int32_t pid, bool flag);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);

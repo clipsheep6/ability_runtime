@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -405,6 +405,10 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::OpenAtomicServiceInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
         &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG)] =
+        &AbilityManagerStub::RequestAssertFaultDialogInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT)] =
+        &AbilityManagerStub::NotifyDebugAssertResultInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY)] =
         &AbilityManagerStub::ChangeAbilityVisibilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
@@ -2989,6 +2993,36 @@ int32_t AbilityManagerStub::OpenFileInner(MessageParcel &data, MessageParcel &re
     int fd = OpenFile(*uri, flag);
     reply.WriteFileDescriptor(fd);
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Request to display assert fault dialog.");
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
+    if (wantParams == nullptr) {
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed.");
+        return ERR_NULL_OBJECT;
+    }
+    auto result = RequestAssertFaultDialog(callback, *wantParams);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Notify user action result to assert fault process.");
+    uint64_t assertSessionId = data.ReadUint64();
+    int32_t status = data.ReadInt32();
+    auto result = NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
 }
 
 int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply)
