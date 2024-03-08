@@ -900,8 +900,8 @@ void AppMgrServiceInner::ClearUpApplicationDataByUserId(
         return;
     }
     // 5.revoke uri permission rights
-    result = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
-    if (result != 0) {
+    result = IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId));
+    if (result != ERR_OK) {
         HILOG_ERROR("Revoke all uri permissions is fail");
         return;
     }

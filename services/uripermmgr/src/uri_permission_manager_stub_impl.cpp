@@ -317,6 +317,13 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
 int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
 {
     HILOG_INFO("Start to remove all uri permission for uninstalled app or clear app data.");
+        auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    Security::AccessToken::NativeTokenInfo nativeInfo;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
+    if (nativeInfo.processName != "foundation") {
+        HILOG_ERROR("RevokeAllUriPermission can only be called by foundation");
+        return CHECK_PERMISSION_FAILED;
+    }
     std::map<unsigned int, std::vector<std::string>> uriLists;
     {
         std::lock_guard<std::mutex> guard(mutex_);

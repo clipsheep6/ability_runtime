@@ -62,7 +62,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
 void AbilityBundleEventCallback::HandleRemoveUriPermission(uint32_t tokenId)
 {
     HILOG_DEBUG("HandleRemoveUriPermission: %{public}i", tokenId);
-    auto ret = AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId);
+    auto ret = IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId));
     if (!ret) {
         HILOG_ERROR("Revoke all uri permissions failed.");
     }
