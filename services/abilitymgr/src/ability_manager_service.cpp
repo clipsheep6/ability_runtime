@@ -5278,26 +5278,26 @@ void AbilityManagerService::StartHighestPriorityAbility(int32_t userId, bool isB
     callback->OnStartUserDone(userId, ERR_OK);
 
     Want abilityWant; // donot use 'want' here, because the entity of 'want' is not empty
-    if (!abilityInfo.name.empty()) {
-        /* highest priority ability */
-        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
-            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
-        abilityWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
-    } else {
-        /* highest priority extension ability */
-        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
-            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
-        abilityWant.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
-    }
-
 #ifdef SUPPORT_GRAPHICS
     abilityWant.SetParam(NEED_STARTINGWINDOW, false);
     // wait BOOT_ANIMATION_STARTED to start LAUNCHER
     WaitBootAnimationStart();
 #endif
-
-    /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
-    (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+    if (!abilityInfo.name.empty()) {
+        /* highest priority ability */
+        HILOG_INFO("Start the highest priority ability. bundleName: %{public}s, ability:%{public}s",
+            abilityInfo.bundleName.c_str(), abilityInfo.name.c_str());
+        abilityWant.SetElementName(abilityInfo.bundleName, abilityInfo.name);
+        /* note: OOBE APP need disable itself, otherwise, it will be started when restart system everytime */
+        (void)StartAbility(abilityWant, userId, DEFAULT_INVAL_VALUE);
+    } else {
+        /* highest priority extension ability */
+        HILOG_INFO("Start the highest priority extension ability. bundleName: %{public}s, ability:%{public}s",
+            extensionAbilityInfo.bundleName.c_str(), extensionAbilityInfo.name.c_str());
+        abilityWant.SetElementName(extensionAbilityInfo.bundleName, extensionAbilityInfo.name);
+        // accountMgr StartUser, it doesn't perceive abilityMgr to start LAUNCHER
+        IN_PROCESS_CALL_WITHOUT_RET(StartExtensionAbility(abilityWant, nullptr, userId, extensionAbilityInfo.type));
+    }
 }
 
 int AbilityManagerService::GenerateAbilityRequest(

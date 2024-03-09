@@ -27,7 +27,6 @@ namespace AAFwk {
 const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 namespace {
-const int32_t BROKER_UID = 5557;
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 const std::set<std::string> OBSERVER_NATIVE_CALLER = {
     "memmgrservice",
@@ -370,18 +369,12 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
 
 int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
-    uint32_t specifyTokenId = verificationInfo.specifyTokenId;
-    HILOG_INFO("specifyTokenId = %{public}u", specifyTokenId);
-    if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
-        SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Support SA call");
-        return ERR_OK;
-    }
     if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
-        specifyTokenId)) {
+        verificationInfo.specifyTokenId)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
-    if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
+    if (!IsSACall() &&
+        !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         return CHECK_PERMISSION_FAILED;
     }
 
