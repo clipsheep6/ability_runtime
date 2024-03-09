@@ -168,6 +168,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
+    UpdateSilentForeground(targetState, sessionInfo);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
         ability_->sceneFlag_ = targetState.sceneFlag;
@@ -183,7 +184,6 @@ void UIAbilityImpl::HandleAbilityTransaction(
     }
 #endif
     SetLifeCycleStateInfo(targetState);
-    UpdateSilentForeground(sessionInfo);
     if (ability_ != nullptr) {
         ability_->SetLaunchParam(targetState.launchParam);
         if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL) {
@@ -354,11 +354,15 @@ void UIAbilityImpl::NotifyMemoryLevel(int32_t level)
     ability_->OnMemoryLevel(level);
 }
 
-void UIAbilityImpl::UpdateSilentForeground(sptr<AAFwk::SessionInfo> sessionInfo)
+void UIAbilityImpl::UpdateSilentForeground(const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
 {
     if (ability_ == nullptr) {
         HILOG_DEBUG("ability_ is null");
         return;
+    }
+    if (ability_->CheckIsSilentForeground() && targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_STARTED_NEW;
     }
     if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL &&
         sessionInfo && sessionInfo->processOptions &&

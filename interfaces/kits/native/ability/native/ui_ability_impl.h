@@ -212,7 +212,7 @@ protected:
 
 private:
     void AfterFocusedCommon(bool isFocused);
-    void UpdateSilentForeground(sptr<AAFwk::SessionInfo> sessionInfo);
+    void UpdateSilentForeground(const AAFwk::LifeCycleStateInfo &targetState, sptr<AAFwk::SessionInfo> sessionInfo);
 
     std::shared_ptr<AppExecFwk::AbilityLifecycleCallbacks> abilityLifecycleCallbacks_;
     bool hasSaveData_ = false;

@@ -59,7 +59,17 @@ bool UnwrapProcessOptions(napi_env env, napi_value param, std::shared_ptr<AAFwk:
     return true;
 }
 
-bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, bool parseProcessOptions)
+bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
+{
+    UnwrapStartOptions(env, param, startOptions);
+    if (!UnwrapProcessOptions(env, param, startOptions.processOptions)) {
+        HILOG_ERROR("Unwrap processOptions failed.");
+        return false;
+    }
+    return true;
+}
+
+bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
 {
     HILOG_INFO("%{public}s called.", __func__);
 
@@ -106,13 +116,6 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
     if (UnwrapInt32ByPropertyName(env, param, "windowHeight", windowHeight)) {
         startOptions.SetWindowHeight(windowHeight);
         startOptions.windowHeightUsed_ = true;
-    }
-
-    if (parseProcessOptions) {
-        if (!UnwrapProcessOptions(env, param, startOptions.processOptions)) {
-            HILOG_ERROR("Unwrap processOptions failed.");
-            return false;
-        }
     }
 
     return true;

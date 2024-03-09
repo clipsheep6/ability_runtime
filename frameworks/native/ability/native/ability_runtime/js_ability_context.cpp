@@ -346,7 +346,11 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbility start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions, true);
+        if (!AppExecFwk::UnwrapStartOptionsWithProcessOption(env, info.argv[INDEX_ONE], startOptions)) {
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            HILOG_ERROR("unwrap startOptions failed.");
+            return CreateJsUndefined(env);
+        }
         unwrapArgc++;
     }
 
