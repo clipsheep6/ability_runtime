@@ -9680,7 +9680,12 @@ int32_t AbilityManagerService::NotifyDebugAssertResult(uint64_t assertFaultSessi
         HILOG_ERROR("Permission verification instance is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    if (!permissionSA->VerifyCallingPermission(PermissionConstants::PERMISSION_NOTIFY_DEBUG_ASSERT_RESULT)) {
+    int32_t pid = IPCSkeleton::GetCallingPid();
+    std::string bundleName;
+    int32_t uid;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(pid, bundleName, uid);
+    if (!permissionSA->VerifyCallingPermission(PermissionConstants::PERMISSION_NOTIFY_DEBUG_ASSERT_RESULT) &&
+        bundleName != AMS_DIALOG_BUNDLENAME) {
         HILOG_ERROR("Permission %{public}s verification failed.",
             PermissionConstants::PERMISSION_NOTIFY_DEBUG_ASSERT_RESULT);
         return ERR_PERMISSION_DENIED;

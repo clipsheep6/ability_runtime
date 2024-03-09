@@ -86,9 +86,6 @@
       },
       {
         "name": "ohos.permission.SET_DEFAULT_APPLICATION"
-      },
-      {
-        "name": "ohos.permission.NOTIFY_DEBUG_ASSERT_RESULT"
       }
     ]
   }
