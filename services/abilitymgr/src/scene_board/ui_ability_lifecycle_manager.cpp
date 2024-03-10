@@ -1550,6 +1550,7 @@ int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abil
     sessionInfo->callerToken = abilityRequest.callerToken;
     sessionInfo->want = abilityRequest.want;
     sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->processOptions = abilityRequest.processOptions;
     SpecifiedInfo specifiedInfo;
     specifiedInfo.abilityName = abilityRequest.abilityInfo.name;
     specifiedInfo.bundleName = abilityRequest.abilityInfo.bundleName;
