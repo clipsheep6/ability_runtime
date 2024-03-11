@@ -48,7 +48,6 @@ public:
     SourceMapData() = default;
     ~SourceMapData() = default;
 
-    std::string url_;
     SourceMapInfo nowPos_;
     std::vector<std::string> files_;
     std::vector<std::string> sources_;
