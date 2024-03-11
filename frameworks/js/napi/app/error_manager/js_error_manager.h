@@ -16,11 +16,14 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_ERROR_MANAGER_H
 #define OHOS_ABILITY_RUNTIME_JS_ERROR_MANAGER_H
 
+#include <set>
+
 #include "ierror_observer.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+enum class UnhandledRejectionEvent : uint32_t { REJECT = 0, HANDLE };
 napi_value JsErrorManagerInit(napi_env env, napi_value exportObj);
 }  // namespace AbilityRuntime
 }  // namespace OHOS

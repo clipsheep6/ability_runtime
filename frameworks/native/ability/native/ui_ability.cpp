@@ -110,6 +110,34 @@ std::shared_ptr<OHOS::AppExecFwk::LifeCycle> UIAbility::GetLifecycle()
     return lifecycle_;
 }
 
+void UIAbility::RegisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (observer == nullptr) {
+        HILOG_ERROR("register UIAbility lifecycle observer failed, observer is nullptr.");
+        return;
+    }
+    if (lifecycle_ == nullptr) {
+        HILOG_ERROR("register UIAbility lifecycle observer failed, lifecycle_ is nullptr.");
+        return;
+    }
+    lifecycle_->AddObserver(observer);
+}
+
+void UIAbility::UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("Called.");
+    if (observer == nullptr) {
+        HILOG_ERROR("unregister UIAbility lifecycle observer failed, observer is nullptr.");
+        return;
+    }
+    if (lifecycle_ == nullptr) {
+        HILOG_ERROR("unregister UIAbility lifecycle observer failed, lifecycle_ is nullptr.");
+        return;
+    }
+    lifecycle_->RemoveObserver(observer);
+}
+
 void UIAbility::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext)
 {
     abilityContext_ = abilityContext;
@@ -527,6 +555,16 @@ int32_t UIAbility::OnShare(AAFwk::WantParams &wantParams)
     return ERR_OK;
 }
 
+bool UIAbility::CheckIsSilentForeground() const
+{
+    return isSilentForeground_;
+}
+
+void UIAbility::SetIsSilentForeground(bool isSilentForeground)
+{
+    isSilentForeground_ = isSilentForeground;
+}
+
 #ifdef SUPPORT_GRAPHICS
 void UIAbility::OnSceneCreated()
 {
@@ -548,6 +586,10 @@ void UIAbility::OnForeground(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Begin.");
     DoOnForeground(want);
+    if (isSilentForeground_) {
+        HILOG_DEBUG("silent foreground, return");
+        return;
+    }
     DispatchLifecycleOnForeground(want);
     HILOG_DEBUG("End.");
     AAFwk::EventInfo eventInfo;

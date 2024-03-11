@@ -1143,6 +1143,24 @@ HWTEST_F(ApplicationContextTest, CreateModuleResourceManager_0100, TestSize.Leve
 }
 
 /**
+ * @tc.number: CreateSystemHspModuleResourceManager_0100
+ * @tc.name: CreateSystemHspModuleResourceManager
+ * @tc.desc: Create ModuleContext failed
+ */
+HWTEST_F(ApplicationContextTest, CreateSystemHspModuleResourceManager_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "CreateSystemHspModuleResourceManager_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    std::string moduleName = "moduleName";
+    std::string bundleName = "com.test.bundleName";
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    auto ret = context_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager);
+    EXPECT_EQ(ret, 0);
+    GTEST_LOG_(INFO) << "CreateModuleResourceManager_0100 end";
+}
+
+/**
  * @tc.number: GetAllTempDir_0100
  * @tc.name: GetAllTempDir
  * @tc.desc: GetAllTempDir

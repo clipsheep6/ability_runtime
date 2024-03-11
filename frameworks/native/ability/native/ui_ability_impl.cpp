@@ -23,6 +23,7 @@
 #include "hitrace_meter.h"
 #include "js_ui_ability.h"
 #include "ohos_application.h"
+#include "process_options.h"
 #include "scene_board_judgement.h"
 #include "time_util.h"
 
@@ -167,6 +168,7 @@ void UIAbilityImpl::HandleAbilityTransaction(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
+    UpdateSilentForeground(targetState, sessionInfo);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
         ability_->sceneFlag_ = targetState.sceneFlag;
@@ -352,6 +354,27 @@ void UIAbilityImpl::NotifyMemoryLevel(int32_t level)
     ability_->OnMemoryLevel(level);
 }
 
+void UIAbilityImpl::UpdateSilentForeground(const AAFwk::LifeCycleStateInfo &targetState,
+    sptr<AAFwk::SessionInfo> sessionInfo)
+{
+    if (ability_ == nullptr) {
+        HILOG_DEBUG("ability_ is null");
+        return;
+    }
+    if (ability_->CheckIsSilentForeground() && targetState.state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
+        lifecycleState_ = AAFwk::ABILITY_STATE_STARTED_NEW;
+    }
+    if (lifecycleState_ == AAFwk::ABILITY_STATE_INITIAL &&
+        sessionInfo && sessionInfo->processOptions &&
+        AAFwk::ProcessOptions::IsNewProcessMode(sessionInfo->processOptions->processMode) &&
+        sessionInfo->processOptions->startupVisibility == AAFwk::StartupVisibility::STARTUP_HIDE) {
+        HILOG_INFO("Set IsSilentForeground to true.");
+        ability_->SetIsSilentForeground(true);
+        return;
+    }
+    ability_->SetIsSilentForeground(false);
+}
+
 #ifdef SUPPORT_GRAPHICS
 void UIAbilityImpl::AfterUnFocused()
 {
@@ -521,6 +544,12 @@ void UIAbilityImpl::Foreground(const AAFwk::Want &want)
 
     HILOG_DEBUG("Call onForeground.");
     ability_->OnForeground(want);
+    if (ability_->CheckIsSilentForeground()) {
+        HILOG_INFO("Is silent foreground.");
+        std::lock_guard<std::mutex> lock(notifyForegroundLock_);
+        notifyForegroundByWindow_ = true;
+        return;
+    }
     {
         std::lock_guard<std::mutex> lock(notifyForegroundLock_);
         notifyForegroundByAbility_ = true;

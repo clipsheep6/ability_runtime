@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2022-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -124,6 +124,8 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ams_configuration_parameter.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_data_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/app_exit_reason_helper.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/assert_fault_callback_death_mgr.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/assert_fault_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/atomic_service_status_callback_stub.cpp",
@@ -144,6 +146,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/exit_reason.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/extension_record_factory.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/extension_record_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/free_install_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/insight_intent_execute_manager.cpp",
@@ -155,12 +158,14 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/pending_want_record.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/resident_process_manager.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/restart_app_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/scene_board/ui_ability_lifecycle_manager.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler/start_ability_sandbox_savefile.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record_factory.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_controller.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_event_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_receiver_proxy.cpp",
@@ -200,6 +205,7 @@ ohos_source_set("abilityms_test_source") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/connectionobs_manager:connection_obs_manager",
     "${ability_runtime_innerkits_path}/uri_permission:uri_permission_mgr",
@@ -355,7 +361,6 @@ group("unittest") {
     "ams_service_app_spawn_client_test:unittest",
     "ams_service_app_spawn_msg_wrapper_test:unittest",
     "ams_service_app_spawn_socket_test:unittest",
-    "ams_service_event_drive_test:unittest",
     "ams_service_load_ability_process_test:unittest",
     "ams_service_startup_test:unittest",
     "app_debug_info_test:unittest",
@@ -385,6 +390,7 @@ group("unittest") {
     "app_spawn_client_test:unittest",
     "app_spawn_socket_test:unittest",
     "app_state_observer_manager_test:unittest",
+    "app_utils_test:unittest",
     "appkit:unittest",
     "application_context_test:unittest",
     "atomic_service_status_callback_proxy_test:unittest",
@@ -435,6 +441,7 @@ group("unittest") {
     "free_install_manager_test:unittest",
     "image_info_test:unittest",
     "implicit_start_processor_test:unittest",
+    "insight_intent:unittest",
     "js_auto_fill_extension_test:unittest",
     "js_service_extension_test:unittest",
     "lifecycle_deal_test:unittest",
@@ -456,6 +463,9 @@ group("unittest") {
     "quick_fix:unittest",
     "remote_mission_listener_proxy_test:unittest",
     "remote_mission_listener_stub_test:unittest",
+    "render_state_observer_manager_test:unittest",
+    "render_state_observer_proxy_test:unittest",
+    "render_state_observer_stub_test:unittest",
     "resident_process_manager_test:unittest",
     "running_infos_test:unittest",
     "runtime_test:unittest",
@@ -470,6 +480,7 @@ group("unittest") {
     "task_data_persistence_mgr_test:unittest",
     "task_handler_wrap_test:unittest",
     "trigger_Info_test:unittest",
+    "ui_extension:unittest",
     "ui_extension_ability_test:unittest",
     "ui_extension_context_test:unittest",
     "ui_extension_utils_test:unittest",

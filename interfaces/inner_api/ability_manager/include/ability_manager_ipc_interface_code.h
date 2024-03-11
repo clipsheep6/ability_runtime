@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -228,9 +228,18 @@ enum class AbilityManagerInterfaceCode {
 
     // ipc id for logout user (74)
     LOGOUT_USER = 74,
-	
+
     // Get forgeround UI abilities(75)
     GET_FOREGROUND_UI_ABILITIES = 75,
+
+    // Obtains elementName by appId(76)
+    GET_ELEMENT_NAME_BY_APP_ID = 76,
+
+    // Pop-up launch of full-screen atomic service(77)
+    OPEN_ATOMIC_SERVICE = 77,
+
+    // Querying whether to allow embedded startup of atomic service.
+    IS_EMBEDDED_OPEN_ALLOWED = 78,
 
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
@@ -367,6 +376,15 @@ enum class AbilityManagerInterfaceCode {
     // request modal UIExtension by want
     REQUESET_MODAL_UIEXTENSION = 1056,
 
+    // get root host info of uiextesnion
+    GET_UI_EXTENSION_ROOT_HOST_INFO = 1057,
+
+    // change current ability visibility
+    CHANGE_ABILITY_VISIBILITY = 1058,
+
+    // change ui ability visibility by scb
+    CHANGE_UI_ABILITY_VISIBILITY_BY_SCB = 1059,
+
     // ipc id for continue ability(1101)
     START_CONTINUATION = 1101,
 
@@ -403,6 +421,8 @@ enum class AbilityManagerInterfaceCode {
     DELEGATOR_DO_ABILITY_FOREGROUND = 1122,
     DELEGATOR_DO_ABILITY_BACKGROUND = 1123,
     GET_TOP_ABILITY_TOKEN         = 1124,
+    // ipc id for starting ability with specify token id(1125)
+    START_ABILITY_WITH_SPECIFY_TOKENID = 1125,
 
     // ipc id 2001-3000 for tools
     // ipc id for dumping state (2001)
@@ -448,6 +468,8 @@ enum class AbilityManagerInterfaceCode {
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,
     RECORD_PROCESS_EXIT_REASON = 6003,
+    UPGRADE_APP = 6004,
+    MOVE_UI_ABILITY_TO_BACKGROUND = 6005,
 
     // ipc id for register auto startup system callback
     REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK = 6101,
@@ -474,6 +496,13 @@ enum class AbilityManagerInterfaceCode {
     SET_APPLICATION_AUTO_STARTUP_BY_EDM = 6113,
     // ipc id for cancel application auto startup by EDM
     CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM = 6114,
+
+    // ipc id for restart app
+    RESTART_APP = 6115,
+    // ipc id for request to display assert fault dialog
+    REQUEST_ASSERT_FAULT_DIALOG = 6116,
+    // ipc id for notify the operation status of the user
+    NOTIFY_DEBUG_ASSERT_RESULT = 6117,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

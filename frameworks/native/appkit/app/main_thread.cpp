@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -134,6 +134,8 @@ constexpr char EVENT_KEY_HAPPEN_TIME[] = "HAPPEN_TIME";
 constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
+constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
+constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
 
 const int32_t JSCRASH_TYPE = 3;
 const std::string JSVM_TYPE = "ARK";
@@ -232,7 +234,7 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         // libraries in patch lib path has a higher priority when loading.
         std::string patchLibPath = LOCAL_CODE_PATH;
         patchLibPath += (patchLibPath.back() == '/') ? patchNativeLibraryPath : "/" + patchNativeLibraryPath;
-        HILOG_INFO("lib path = %{private}s", patchLibPath.c_str());
+        HILOG_DEBUG("lib path = %{private}s", patchLibPath.c_str());
         appLibPaths["default"].emplace_back(patchLibPath);
     }
 
@@ -243,7 +245,7 @@ void MainThread::GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &h
         }
         std::string libPath = LOCAL_CODE_PATH;
         libPath += (libPath.back() == '/') ? nativeLibraryPath : "/" + nativeLibraryPath;
-        HILOG_INFO("lib path = %{private}s", libPath.c_str());
+        HILOG_DEBUG("lib path = %{private}s", libPath.c_str());
         appLibPaths["default"].emplace_back(libPath);
     }
 
@@ -603,6 +605,35 @@ void MainThread::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
 
 /**
  *
+ * @brief the application triggerGC and dump jsheap memory.
+ *
+ * @param info, pid, tid, needGC, needSnapshot.
+ */
+void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        info.pid, info.tid, info.needGc, info.needSnapshot);
+    auto app = applicationForDump_.lock();
+    if (app == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory app nullptr");
+        return;
+    }
+    auto &runtime = app->GetRuntime();
+    if (runtime == nullptr) {
+        HILOG_ERROR("ScheduleJsHeapMemory runtime nullptr");
+        return;
+    }
+    if (info.needSnapshot == true) {
+        runtime->DumpHeapSnapshot(info.tid, info.needGc);
+    } else {
+        if (info.needGc == true) {
+            runtime->ForceFullGC(info.tid);
+        }
+    }
+}
+
+/**
+ *
  * @brief Schedule the application process exit safely.
  *
  */
@@ -652,6 +683,7 @@ void MainThread::ScheduleLaunchApplication(const AppLaunchData &data, const Conf
             HILOG_ERROR("appThread is nullptr");
             return;
         }
+        appThread->HandleInitAssertFaultTask(data.GetDebugApp(), data.GetApplicationInfo().debug);
         appThread->HandleLaunchApplication(data, config);
     };
     if (!mainHandler_->PostTask(task, "MainThread:LaunchApplication")) {
@@ -872,8 +904,10 @@ void MainThread::HandleTerminateApplicationLocal()
     if (ret != ERR_OK) {
         HILOG_ERROR("runner->Run failed ret = %{public}d", ret);
     }
+
     HILOG_DEBUG("runner is stopped");
     SetRunnerStarted(false);
+    HandleCancelAssertFaultTask();
 }
 
 /**
@@ -2001,7 +2035,7 @@ void MainThread::HandleTerminateApplication(bool isLastProcess)
     }
 
     if (!applicationImpl_->PerformTerminate(isLastProcess)) {
-        HILOG_WARN("PerformTerminate() failed.");
+        HILOG_DEBUG("PerformTerminate() failed.");
     }
 
     std::shared_ptr<EventRunner> signalRunner = signalHandler_->GetEventRunner();
@@ -2253,6 +2287,7 @@ void MainThread::HandleDumpHeap(bool isPrivate)
                                   0, AppExecFwk::EventQueue::Priority::IMMEDIATE)) {
         HILOG_ERROR("HandleDumpHeap postTask false");
     }
+    runtime->DumpCpuProfile(isPrivate);
 }
 
 void MainThread::DestroyHeapProfiler()
@@ -2298,7 +2333,7 @@ void MainThread::Start()
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
 
-    if (AAFwk::AppUtils::GetInstance().isMultiProcessModel()) {
+    if (AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         ChildProcessInfo info;
         if (IsStartChild(info)) {
             ChildMainThread::Start(info);
@@ -2322,7 +2357,6 @@ void MainThread::Start()
     sigemptyset(&sigAct.sa_mask);
     sigAct.sa_flags = SA_SIGINFO;
     sigAct.sa_sigaction = &MainThread::HandleSignal;
-    sigaction(SIGUSR1, &sigAct, NULL);
     sigaction(MUSL_SIGNAL_JSHEAP, &sigAct, NULL);
 
     thread->Init(runner);
@@ -3009,25 +3043,18 @@ int32_t MainThread::ScheduleRequestTerminateProcess()
     return NO_ERROR;
 }
 
-
 void MainThread::RequestTerminateProcess()
 {
-    auto abilityMgrClient = AAFwk::AbilityManagerClient::GetInstance();
-    if (abilityMgrClient == nullptr) {
-        HILOG_ERROR("Ability client obj is nullptr");
-        return;
-    }
-
     if (abilityRecordMgr_ == nullptr) {
         HILOG_ERROR("Ability record mgr obj is nullptr");
         return;
     }
+
     auto abilityTokenList = abilityRecordMgr_->GetAllTokens();
     for (auto &item : abilityTokenList) {
         if (item == nullptr) {
             continue;
         }
-
         auto abilityRecord = abilityRecordMgr_->GetAbilityItem(item);
         if (abilityRecord == nullptr) {
             continue;
@@ -3038,6 +3065,51 @@ void MainThread::RequestTerminateProcess()
         }
         thread->RequestTerminateSelf();
     }
+}
+
+void MainThread::AssertFaultPauseMainThreadDetection()
+{
+    HILOG_DEBUG("Called.");
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+}
+
+void MainThread::AssertFaultResumeMainThreadDetection()
+{
+    HILOG_DEBUG("Called.");
+    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+}
+
+void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
+{
+    if (!isDebugApp) {
+        HILOG_ERROR("Non-debug version application.");
+        return;
+    }
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Unsupport assert fault dialog.");
+        return;
+    }
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer Mode is false.");
+        return;
+    }
+    auto assertThread = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
+    if (assertThread == nullptr) {
+        HILOG_ERROR("Get assert thread instance is nullptr.");
+        return;
+    }
+    assertThread->InitAssertFaultTask(this, isDebugModule);
+    assertThread_ = assertThread;
+}
+
+void MainThread::HandleCancelAssertFaultTask()
+{
+    auto assertThread = assertThread_.lock();
+    if (assertThread == nullptr) {
+        HILOG_ERROR("Get assert thread instance is nullptr.");
+        return;
+    }
+    assertThread->Stop();
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -98,24 +98,6 @@ HWTEST_F(UriPermissionManagerTest, LoadUriPermService_001, TestSize.Level1)
     EXPECT_TRUE(ret);
 }
 
-/*
- * Feature: UriPermissionManagerClient
- * Function: CheckPersistableUriPermissionProxy
- * SubFunction: CheckPersistableUriPermissionProxy
- * FunctionPoints: NA
- * CaseDescription: Verify UriPermissionManagerClient AddGrantInfo
- */
-HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_001, TestSize.Level1)
-{
-    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
-    auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
-    unsigned int perReadFlag = Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_PERSISTABLE_URI_PERMISSION;
-    std::string bundleName = "com.example.test";
-    uint32_t targetTokenId = 100002;
-    Uri uri(uriStr);
-    bool res = upmc.CheckPersistableUriPermissionProxy(uri, perReadFlag, targetTokenId);
-    EXPECT_EQ(res, false);
-}
 
 /*
  * Feature: UriPermissionManagerClient

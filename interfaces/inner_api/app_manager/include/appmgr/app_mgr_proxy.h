@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "bundle_info.h"
 #include "iremote_proxy.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -163,6 +164,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
 
     /**
      * Notify that the ability stage has been updated
@@ -484,6 +494,29 @@ public:
      */
     int32_t RequestTerminateApplication() override;
 
+    /*
+     * Register render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
+
+    /**
+     * Unregister render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
+
+    /**
+     * Update render state.
+     * @param renderPid Render pid.
+     * @param state foreground or background state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UpdateRenderState(pid_t renderPid, int32_t state) override;
+
+    int32_t SignRestartAppFlag(const std::string &bundleName) override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

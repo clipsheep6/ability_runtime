@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_SPAWN_MSG_WRAPPER_H
 #define OHOS_ABILITY_RUNTIME_APP_SPAWN_MSG_WRAPPER_H
 
+#include <map>
 #include <string>
 #include <vector>
 #include <unistd.h>
@@ -55,6 +56,7 @@ struct AppSpawnStartMsg {
     std::string overlayInfo; // overlay hap resource path list
     DataGroupInfoList dataGroupInfoList; // list of harmony shared package
     uint32_t mountPermissionFlags;
+    std::map<std::string, std::string> appEnv; // environment variable to be set to the process
     std::string ownerId;
 };
 
@@ -129,7 +131,7 @@ public:
     */
     const std::string& GetExtraInfoStr() const
     {
-        return extraInfoStr;
+        return extraInfoStr_;
     }
 
 private:
@@ -152,11 +154,13 @@ private:
      */
     void FreeMsg();
 
+    void BuildExtraInfo(const AppSpawnStartMsg &startMsg);
+
 private:
     bool isValid_ = false;
     // because AppSpawnMsg's size is uncertain, so should use raw pointer.
     AppSpawnMsg *msg_ = nullptr;
-    std::string extraInfoStr;
+    std::string extraInfoStr_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

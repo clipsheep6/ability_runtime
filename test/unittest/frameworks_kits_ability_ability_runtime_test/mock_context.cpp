@@ -92,6 +92,12 @@ std::shared_ptr<Global::Resource::ResourceManager> MockContext::CreateModuleReso
     return nullptr;
 }
 
+int32_t MockContext::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return 0;
+}
+
 int MockContext::GetArea()
 {
     return mode_;

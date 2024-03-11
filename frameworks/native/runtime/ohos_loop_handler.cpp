@@ -49,9 +49,12 @@ void OHOSLoopHandler::OnTriggered()
     }
 
     int64_t timeStamp = static_cast<int64_t>(uv_now(uvLoop_)) + timeout;
+    // we don't check timestamp in emulator for computer clock is inaccurate
+#ifndef RUNTIME_EMULATOR
     if (timeStamp == lastTimeStamp_) {
         return;
     }
+#endif
 
     if (haveTimerTask_) {
         eventHandler->RemoveTask(TIMER_TASK);

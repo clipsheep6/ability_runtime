@@ -45,12 +45,30 @@ struct AbilityCallerInfo : public Parcelable {
         TYPE_BOXED_ATOM_SERVICE
     };
 
+    enum {
+        MODEL_STAGE = 0,
+        MODEL_FA
+    };
+
+    enum {
+        LINK_TYPE_INVALID = 0,
+        LINK_TYPE_UNIVERSAL_LINK,
+        LINK_TYPE_DEEP_LINK,
+        LINK_TYPE_WEB_LINK,
+        LINK_TYPE_ABILITY
+    };
+
     std::string packageName;
     int32_t uid = 0L;
     int32_t pid = 0L;
 
     int32_t callerAppType = TYPE_INVALID;
     int32_t targetAppType = TYPE_INVALID;
+    int32_t callerModelType = MODEL_STAGE;
+    std::string targetAppDistType = "";
+    std::string targetLinkFeature = "";
+    int32_t targetLinkType = LINK_TYPE_INVALID;
+    int32_t callerAbilityType = 0L;
 
     bool ReadFromParcel(Parcel &parcel);
 

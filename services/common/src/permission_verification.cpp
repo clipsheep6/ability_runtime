@@ -36,7 +36,7 @@ const std::set<std::string> OBSERVER_NATIVE_CALLER = {
 bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const std::string &permissionName) const
 {
     HILOG_DEBUG("VerifyPermissionByTokenId permission %{public}s", permissionName.c_str());
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, permissionName);
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId, permissionName, false);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
         return false;
@@ -45,11 +45,14 @@ bool PermissionVerification::VerifyPermissionByTokenId(const int &tokenId, const
     return true;
 }
 
-bool PermissionVerification::VerifyCallingPermission(const std::string &permissionName) const
+bool PermissionVerification::VerifyCallingPermission(
+    const std::string &permissionName, const uint32_t specifyTokenId) const
 {
-    HILOG_DEBUG("VerifyCallingPermission permission %{public}s", permissionName.c_str());
-    auto callerToken = GetCallingTokenID();
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
+    HILOG_DEBUG("VerifyCallingPermission permission %{public}s, specifyTokenId is %{public}u",
+        permissionName.c_str(), specifyTokenId);
+    auto callerToken = specifyTokenId == 0 ? GetCallingTokenID() : specifyTokenId;
+    HILOG_DEBUG("callerToken is %{public}u", callerToken);
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName, false);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_ERROR("permission %{public}s: PERMISSION_DENIED", permissionName.c_str());
         return false;
@@ -244,11 +247,6 @@ int PermissionVerification::CheckCallDataAbilityPermission(const VerificationInf
 
 int PermissionVerification::CheckCallServiceAbilityPermission(const VerificationInfo &verificationInfo) const
 {
-    if (IPCSkeleton::GetCallingUid() != BROKER_UID &&
-        SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
-        HILOG_DEBUG("Add switch for suites");
-        return ERR_OK;
-    }
     if ((verificationInfo.apiTargetVersion > API8 || IsShellCall()) &&
         !JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
         HILOG_ERROR("Application can not start ServiceAbility from background after API8.");
@@ -304,17 +302,22 @@ unsigned int PermissionVerification::GetCallingTokenID() const
     return callerToken;
 }
 
-bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible) const
+bool PermissionVerification::JudgeStartInvisibleAbility(const uint32_t accessTokenId, const bool visible,
+    const uint32_t specifyTokenId) const
 {
     if (visible) {
         HILOG_DEBUG("TargetAbility visible is true, PASS.");
+        return true;
+    }
+    if (specifyTokenId > 0 && accessTokenId == specifyTokenId) {
+        HILOG_DEBUG("AccessTokenId is the same as specifyTokenId, targetAbility is in same APP, PASS.");
         return true;
     }
     if (IsCallFromSameAccessToken(accessTokenId)) {
         HILOG_DEBUG("TargetAbility is in same APP, PASS.");
         return true;
     }
-    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY)) {
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_START_INVISIBLE_ABILITY, specifyTokenId)) {
         HILOG_DEBUG("Caller has PERMISSION_START_INVISIBLE_ABILITY, PASS.");
         return true;
     }
@@ -362,12 +365,15 @@ bool PermissionVerification::JudgeAssociatedWakeUp(const uint32_t accessTokenId,
 
 int PermissionVerification::JudgeInvisibleAndBackground(const VerificationInfo &verificationInfo) const
 {
-    if (IPCSkeleton::GetCallingUid() != BROKER_UID &&
+    uint32_t specifyTokenId = verificationInfo.specifyTokenId;
+    HILOG_INFO("specifyTokenId = %{public}u", specifyTokenId);
+    if (specifyTokenId == 0 && IPCSkeleton::GetCallingUid() != BROKER_UID &&
         SupportSystemAbilityPermission::IsSupportSaCallPermission() && IsSACall()) {
         HILOG_DEBUG("Support SA call");
         return ERR_OK;
     }
-    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible)) {
+    if (!JudgeStartInvisibleAbility(verificationInfo.accessTokenId, verificationInfo.visible,
+        specifyTokenId)) {
         return ABILITY_VISIBLE_FALSE_DENY_REQUEST;
     }
     if (!JudgeStartAbilityFromBackground(verificationInfo.isBackgroundCall, verificationInfo.withContinuousTask)) {
@@ -405,7 +411,7 @@ bool PermissionVerification::VerifyPrepareTerminatePermission() const
 bool PermissionVerification::VerifyPrepareTerminatePermission(const int &tokenId) const
 {
     int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(tokenId,
-        PermissionConstants::PERMISSION_PREPARE_TERMINATE);
+        PermissionConstants::PERMISSION_PREPARE_TERMINATE, false);
     if (ret != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
         HILOG_DEBUG("permission denied.");
         return false;

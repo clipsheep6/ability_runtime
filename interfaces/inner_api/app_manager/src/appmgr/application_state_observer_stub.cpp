@@ -22,60 +22,9 @@
 namespace OHOS {
 namespace AppExecFwk {
 std::mutex ApplicationStateObserverStub::callbackMutex_;
-
-ApplicationStateObserverStub::ApplicationStateObserverStub()
-{
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnForegroundApplicationChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_ABILITY_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnAbilityStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_EXTENSION_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnExtensionStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_CREATED)] =
-        &ApplicationStateObserverStub::HandleOnProcessCreated;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnProcessStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_DIED)] =
-        &ApplicationStateObserverStub::HandleOnProcessDied;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APPLICATION_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnApplicationStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED)] =
-        &ApplicationStateObserverStub::HandleOnAppStateChanged;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED)] =
-        &ApplicationStateObserverStub::HandleOnProcessReused;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APP_STARTED)] =
-        &ApplicationStateObserverStub::HandleOnAppStarted;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED)] =
-        &ApplicationStateObserverStub::HandleOnAppStopped;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW)] =
-        &ApplicationStateObserverStub::HandleOnPageShow;
-    memberFuncMap_[static_cast<uint32_t>(
-        IApplicationStateObserver::Message::TRANSACT_ON_PAGE_HIDE)] =
-        &ApplicationStateObserverStub::HandleOnPageHide;
-}
-
-ApplicationStateObserverStub::~ApplicationStateObserverStub()
-{
-    memberFuncMap_.clear();
-}
-
 int ApplicationStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("ApplicationStateObserverStub::OnReceived, code = %{public}u, flags= %{public}d.",
-        code, option.GetFlags());
     std::u16string descriptor = ApplicationStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
@@ -90,7 +39,7 @@ int ApplicationStateObserverStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
-    HILOG_DEBUG("ApplicationStateObserverStub::OnRemoteRequest end");
+    HILOG_WARN("ApplicationStateObserverStub::OnRemoteRequest, default case, need check");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

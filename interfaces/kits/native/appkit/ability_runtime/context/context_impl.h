@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,9 @@ namespace OHOS {
 namespace AppExecFwk {
 struct RunningProcessInfo;
 class BundleMgrHelper;
+}
+namespace AAFwk {
+class Want;
 }
 namespace AbilityRuntime {
 class ContextImpl : public Context {
@@ -225,6 +228,9 @@ public:
     std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
         const std::string &bundleName, const std::string &moduleName) override;
 
+    int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName, const std::string &moduleName,
+        std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) override;
+
     /**
     * @brief Obtains an IBundleMgr instance.
     * You can use this instance to obtain information about the application bundle.
@@ -328,6 +334,13 @@ public:
      * @return error code
      */
     int32_t GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info);
+
+    /**
+     * @brief Restart app
+     *
+     * @return error code
+     */
+    int32_t RestartApp(const AAFwk::Want& want);
 
     /**
      * @brief Get the token witch the app launched.

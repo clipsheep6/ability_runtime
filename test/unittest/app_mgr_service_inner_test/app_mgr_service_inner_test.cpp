@@ -33,6 +33,7 @@
 #include "mock_render_scheduler.h"
 #include "mock_sa_call.h"
 #include "parameters.h"
+#include "render_state_observer_stub.h"
 #include "window_manager.h"
 
 using namespace testing;
@@ -59,6 +60,14 @@ public:
 public:
     std::shared_ptr<AbilityInfo> abilityInfo_;
     std::shared_ptr<ApplicationInfo> applicationInfo_;
+};
+
+class RenderStateObserverMock : public RenderStateObserverStub {
+public:
+    RenderStateObserverMock() = default;
+    virtual ~RenderStateObserverMock() = default;
+    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
+    {}
 };
 
 void AppMgrServiceInnerTest::InitAppInfo(const std::string& deviceName,
@@ -290,6 +299,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
 {
     HILOG_INFO("PointerDeviceUpdateConfig_0100 start");
 
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     std::shared_ptr<AppExecFwk::Configuration> config;
@@ -1733,18 +1743,18 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, bundleInfo);
     EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0, false);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 1, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 1);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0, false);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 1, false);
 
     appMgrServiceInner->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     appMgrServiceInner->SetAppSpawnClient(nullptr);
-    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleName, 0);
-    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
+    appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
     HILOG_INFO("StartProcess_001 end");
 }
@@ -3850,7 +3860,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
     hapModuleInfo.process = "processName2";
     EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
     applicationInfo_->process = "";
-    
+
     HILOG_INFO("IsMainProcess_001 end");
 }
 
@@ -3994,6 +4004,59 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterAppForegroundStateObserver_0100, Test
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterAppForegroundStateObserver(observer);
     EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: RegisterStateStateObserver_0100
+ * @tc.desc: Test unregister by nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0100, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+
+/**
+ * @tc.name: RegisterStateStateObserver_0200
+ * @tc.desc: Test unregister without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0200, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0100
+ * @tc.desc: Test unregister by nullptr.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0100, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: UnregisterRenderStateObserver_0200
+ * @tc.desc: Test unregister without permission.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0200, TestSize.Level1)
+{
+    sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

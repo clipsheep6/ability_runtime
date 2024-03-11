@@ -33,6 +33,7 @@ struct WorkerInfo {
     std::string hapPath;
     bool isStageModel = true;
     std::string moduleName;
+    int32_t apiTargetVersion = 0;
 };
 
 class JsEnvironmentImpl {

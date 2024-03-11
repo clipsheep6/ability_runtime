@@ -145,22 +145,6 @@ ErrCode AbilityContextImpl::StartAbility(const AAFwk::Want& want, int requestCod
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("StartAbility");
-    int32_t screenMode = want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
-    if (screenMode == AAFwk::HALF_SCREEN_MODE) {
-        auto uiContent = GetUIContent();
-        if (uiContent == nullptr) {
-            HILOG_ERROR("uiContent is nullptr");
-            return ERR_INVALID_VALUE;
-        }
-        Ace::ModalUIExtensionCallbacks callback;
-        Ace::ModalUIExtensionConfig config;
-        int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
-        if (sessionId == 0) {
-            HILOG_ERROR("CreateModalUIExtension failed");
-            return ERR_INVALID_VALUE;
-        }
-        return ERR_OK;
-    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("StartAbility. ret=%{public}d", err);
@@ -452,6 +436,13 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContextImpl::CreateMod
     return stageContext_ ? stageContext_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
 }
 
+int32_t AbilityContextImpl::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return stageContext_ ? stageContext_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager)
+        : ERR_INVALID_VALUE;
+}
+
 void AbilityContextImpl::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo>& abilityInfo)
 {
     abilityInfo_ = abilityInfo;
@@ -502,6 +493,16 @@ ErrCode AbilityContextImpl::MoveAbilityToBackground()
 {
     HILOG_DEBUG("call");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MoveAbilityToBackground(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("MoveAbilityToBackground failed: %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode AbilityContextImpl::MoveUIAbilityToBackground()
+{
+    HILOG_DEBUG("call");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->MoveUIAbilityToBackground(token_);
     if (err != ERR_OK) {
         HILOG_ERROR("MoveAbilityToBackground failed: %{public}d", err);
     }
@@ -723,6 +724,30 @@ void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &wid
     }
 }
 
+void AbilityContextImpl::RegisterAbilityLifecycleObserver(
+    const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("register ability lifecycle observer failed, abilityCallback is nullptr.");
+        return;
+    }
+    abilityCallback->RegisterAbilityLifecycleObserver(observer);
+}
+
+void AbilityContextImpl::UnregisterAbilityLifecycleObserver(
+    const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("call");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("unregister ability lifecycle observer failed, abilityCallback is nullptr.");
+        return;
+    }
+    abilityCallback->UnregisterAbilityLifecycleObserver(observer);
+}
+
 #ifdef SUPPORT_GRAPHICS
 ErrCode AbilityContextImpl::SetMissionLabel(const std::string& label)
 {
@@ -850,6 +875,7 @@ ErrCode AbilityContextImpl::CreateModalUIExtensionWithApp(const AAFwk::Want &wan
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&DialogUIExtensionCallback::OnError, disposedCallback);
     callback.onRelease = std::bind(&DialogUIExtensionCallback::OnRelease, disposedCallback);
+    callback.onDestroy = std::bind(&DialogUIExtensionCallback::OnDestroy, disposedCallback);
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
@@ -871,6 +897,28 @@ ErrCode AbilityContextImpl::RequestModalUIExtension(const AAFwk::Want& want)
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
     if (err != ERR_OK) {
         HILOG_ERROR("RequestModalUIExtension is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode AbilityContextImpl::ChangeAbilityVisibility(bool isShow)
+{
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ChangeAbilityVisibility(token_, isShow);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ChangeAbilityVisibility is failed %{public}d", err);
+    }
+    return err;
+}
+
+ErrCode AbilityContextImpl::OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+    RuntimeTask &&task)
+{
+    HILOG_DEBUG("OpenAtomicService");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->OpenAtomicService(want, options, token_, requestCode, -1);
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
+        HILOG_ERROR("OpenAtomicService. ret=%{public}d", err);
+        OnAbilityResultInner(requestCode, err, want);
     }
     return err;
 }

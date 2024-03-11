@@ -17,11 +17,57 @@
 
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
+#include "napi_common_want.h"
 #include "int_wrapper.h"
+#include "process_options.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 EXTERN_C_START
+
+bool UnwrapProcessOptions(napi_env env, napi_value param, std::shared_ptr<AAFwk::ProcessOptions> &processOptions)
+{
+    if (!IsExistsByPropertyName(env, param, "processMode") &&
+        !IsExistsByPropertyName(env, param, "startupVisibility")) {
+        return true;
+    }
+    auto option = std::make_shared<AAFwk::ProcessOptions>();
+    int32_t processMode = 0;
+    if (!UnwrapInt32ByPropertyName(env, param, "processMode", processMode)) {
+        HILOG_ERROR("Unwrap processMode failed.");
+        return false;
+    }
+    option->processMode = AAFwk::ProcessOptions::ConvertInt32ToProcessMode(processMode);
+    if (option->processMode == AAFwk::ProcessMode::UNSPECIFIED) {
+        HILOG_ERROR("Convert processMode failed.");
+        return false;
+    }
+    int32_t startupVisibility = 0;
+    if (!UnwrapInt32ByPropertyName(env, param, "startupVisibility", startupVisibility)) {
+        HILOG_ERROR("Unwrap startupVisibility failed.");
+        return false;
+    }
+    option->startupVisibility = AAFwk::ProcessOptions::ConvertInt32ToStartupVisibility(startupVisibility);
+    if (option->startupVisibility == AAFwk::StartupVisibility::UNSPECIFIED) {
+        HILOG_ERROR("Convert startupVisibility failed.");
+        return false;
+    }
+    processOptions = option;
+    HILOG_INFO("processMode:%{public}d, startupVisibility:%{public}d",
+        static_cast<int32_t>(processOptions->processMode),
+        static_cast<int32_t>(processOptions->startupVisibility));
+    return true;
+}
+
+bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
+{
+    UnwrapStartOptions(env, param, startOptions);
+    if (!UnwrapProcessOptions(env, param, startOptions.processOptions)) {
+        HILOG_ERROR("Unwrap processOptions failed.");
+        return false;
+    }
+    return true;
+}
 
 bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
 {
@@ -73,6 +119,26 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
     }
 
     return true;
+}
+
+bool UnwrapStartOptionsAndWant(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, AAFwk::Want &want)
+{
+    if (!IsTypeForNapiValue(env, param, napi_object)) {
+        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        return false;
+    }
+    napi_value jsValue = GetPropertyValueByPropertyName(env, param, "parameters", napi_object);
+    if (jsValue != nullptr) {
+        AAFwk::WantParams wantParams;
+        if (UnwrapWantParams(env, jsValue, wantParams)) {
+            want.SetParams(wantParams);
+        }
+    }
+    int32_t flags = 0;
+    if (UnwrapInt32ByPropertyName(env, param, "flags", flags)) {
+        want.SetFlags(flags);
+    }
+    return UnwrapStartOptions(env, param, startOptions);
 }
 EXTERN_C_END
 }  // namespace AppExecFwk

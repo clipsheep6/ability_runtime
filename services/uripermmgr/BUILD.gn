@@ -17,10 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("upms_config") {
   visibility = [ ":*" ]
   visibility += [ "${ability_runtime_test_path}/unittest/*" ]
-  include_dirs = [
-    "include",
-    "include/rdb",
-  ]
+  include_dirs = [ "include" ]
   cflags = []
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
@@ -29,9 +26,6 @@ config("upms_config") {
 
 libupms_sources = [
   "src/proxy_authorization_uri_config.cpp",
-  "src/rdb/ability_rdb_open_callback.cpp",
-  "src/rdb/rdb_data_manager.cpp",
-  "src/rdb/uri_permission_rdb.cpp",
   "src/uri_permission_manager_service.cpp",
   "src/uri_permission_manager_stub_impl.cpp",
 ]
@@ -74,7 +68,6 @@ ohos_shared_library("libupms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",
@@ -116,7 +109,6 @@ ohos_static_library("libupms_static") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "storage_service:storage_manager_sa_proxy",

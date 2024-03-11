@@ -23,11 +23,10 @@
 
 #include "ability_record.h"
 #include "extension_record.h"
+#include "ui_extension_host_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-constexpr int32_t INVALID_EXTENSION_RECORD_ID = 0;
-
 class ExtensionRecordManager : public std::enable_shared_from_this<ExtensionRecordManager> {
 public:
     using ExtensionAbilityRecordMap = std::map<int32_t, std::shared_ptr<ExtensionRecord>>;
@@ -73,6 +72,8 @@ public:
 
     std::shared_ptr<AAFwk::AbilityRecord> GetAbilityRecordBySessionInfo(const sptr<AAFwk::SessionInfo> &sessionInfo);
 
+    int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo);
+
 private:
     int32_t userId_;
     static std::atomic_int32_t extensionRecordId_;
@@ -88,8 +89,10 @@ private:
     int32_t GetExtensionRecord(const int32_t extensionRecordId, const std::string &hostBundleName,
         std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded);
 
-    void UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest,
-        std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord);
+    int32_t UpdateProcessName(const AAFwk::AbilityRequest &abilityRequest, std::shared_ptr<ExtensionRecord> &record);
+
+    bool IsHostSpecifiedProcessValid(const AAFwk::AbilityRequest &abilityRequest,
+        std::shared_ptr<ExtensionRecord> &record, const std::string &process);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

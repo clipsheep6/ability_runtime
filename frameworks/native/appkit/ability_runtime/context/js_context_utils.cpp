@@ -46,6 +46,7 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateSystemHspModuleResourceManager(napi_env env, napi_callback_info info);
     static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
 
     napi_value OnGetCacheDir(napi_env env, NapiCallbackInfo& info);
@@ -77,6 +78,7 @@ private:
     napi_value OnSwitchArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateModuleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     bool CheckCallerIsSystemApp();
 };
@@ -210,6 +212,51 @@ napi_value JsBaseContext::OnCreateModuleContext(napi_env env, NapiCallbackInfo& 
         },
         nullptr, nullptr);
     return object;
+}
+
+napi_value JsBaseContext::CreateSystemHspModuleResourceManager(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext,
+        OnCreateSystemHspModuleResourceManager, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    std::string bundleName = "";
+    if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
+        HILOG_ERROR("Parse bundleName failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    std::string moduleName = "";
+    if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
+        HILOG_ERROR("Parse moduleName failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    int32_t retCode = context->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager);
+    if (resourceManager == nullptr && retCode == ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP) {
+        HILOG_ERROR("Failed to create resourceManager");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP);
+        return CreateJsUndefined(env);
+    }
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("Failed to create resourceManager");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    return CreateJsResourceManager(env, resourceManager, nullptr);
 }
 
 napi_value JsBaseContext::CreateModuleResourceManager(napi_env env, napi_callback_info info)
@@ -687,6 +734,8 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeFunction(env, object, "switchArea", moduleName, JsBaseContext::SwitchArea);
     BindNativeFunction(env, object, "getArea", moduleName, JsBaseContext::GetArea);
     BindNativeFunction(env, object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
+    BindNativeFunction(env, object, "createSystemHspModuleResourceManager", moduleName,
+        JsBaseContext::CreateSystemHspModuleResourceManager);
     BindNativeFunction(env, object, "createModuleResourceManager", moduleName,
         JsBaseContext::CreateModuleResourceManager);
     BindNativeFunction(env, object, "getGroupDir", moduleName, JsBaseContext::GetGroupDir);

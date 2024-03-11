@@ -17,6 +17,7 @@
 
 #include <cstdint>
 
+#include "ability_manager_client.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "js_extension_context.h"
@@ -136,6 +137,16 @@ napi_value JsUIExtensionContext::DisconnectAbility(napi_env env, napi_callback_i
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnDisconnectAbility);
 }
 
+napi_value JsUIExtensionContext::ReportDrawnCompleted(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnReportDrawnCompleted);
+}
+
+napi_value JsUIExtensionContext::OpenAtomicService(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnOpenAtomicService);
+}
+
 napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -152,11 +163,6 @@ napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& 
     if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
         HILOG_DEBUG("Failed, input param type invalid");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
-        return CreateJsUndefined(env);
-    }
-
-    if (want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE) == AAFwk::HALF_SCREEN_MODE) {
-        HILOG_ERROR("Not support half screen pulling up half screen");
         return CreateJsUndefined(env);
     }
 
@@ -201,7 +207,7 @@ napi_value JsUIExtensionContext::OnTerminateSelf(napi_env env, NapiCallbackInfo&
 
             ErrCode innerErrorCode = context->TerminateSelf();
             if (innerErrorCode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
                 task.Reject(env, CreateJsErrorByNativeErr(env, innerErrorCode));
             }
@@ -263,17 +269,15 @@ napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, NapiCallb
 
 napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("OnTerminateSelfWithResult is start");
-
+    HILOG_DEBUG("called");
     if (info.argc == 0) {
         HILOG_ERROR("Not enough params");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
-
-    int resultCode = 0;
+    int32_t resultCode = 0;
     AAFwk::Want want;
-    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[0], resultCode, want)) {
+    if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[INDEX_ZERO], resultCode, want)) {
         HILOG_ERROR("OnTerminateSelfWithResult Failed to parse ability result!");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
@@ -284,19 +288,29 @@ napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCal
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                 return;
             }
-
+            sptr<Rosen::Window> uiWindow = context->GetWindow();
+            if (uiWindow == nullptr) {
+                HILOG_ERROR("uiWindow is nullptr");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
+            auto ret = uiWindow->TransferAbilityResult(resultCode, want);
+            if (ret != Rosen::WMError::WM_OK) {
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                return;
+            }
             auto errorCode = context->TerminateSelf();
             if (errorCode == 0) {
-                task.Resolve(env, CreateJsUndefined(env));
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
             } else {
                 task.Reject(env, CreateJsErrorByNativeErr(env, errorCode));
             }
         };
 
-    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[1] : nullptr;
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[INDEX_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -395,6 +409,111 @@ napi_value JsUIExtensionContext::OnDisconnectAbility(napi_env env, NapiCallbackI
     return result;
 }
 
+napi_value JsUIExtensionContext::OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("called.");
+    auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, innerErrorCode]() {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+        *innerErrorCode = context->ReportDrawnCompleted();
+    };
+
+    NapiAsyncTask::CompleteCallback complete = [innerErrorCode](napi_env env, NapiAsyncTask& task, int32_t status) {
+        if (*innerErrorCode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+        }
+    };
+
+    napi_value lastParam = info.argv[INDEX_ZERO];
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnReportDrawnCompleted",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
+    return result;
+}
+
+napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("OnOpenAtomicService start");
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string appId;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
+        HILOG_ERROR("OnOpenAtomicService, parse appId failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
+    Want want;
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+        HILOG_DEBUG("OnOpenAtomicService atomic service options is used.");
+        if (!AppExecFwk::UnwrapStartOptionsAndWant(env, info.argv[INDEX_ONE], startOptions, want)) {
+            HILOG_ERROR("Fail to parse atomic service options.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        unwrapArgc++;
+    }
+
+    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
+    std::string bundleName = elementName.GetBundleName();
+    std::string abilityName = elementName.GetAbilityName();
+    if (bundleName.empty() || abilityName.empty()) {
+        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
+        return CreateJsUndefined(env);
+    }
+
+    want.SetElement(elementName);
+    return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
+}
+
+napi_value JsUIExtensionContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want,
+    const AAFwk::StartOptions &options, size_t unwrapArgc)
+{
+    napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want, bool isInner) {
+        HILOG_DEBUG("OnOpenAtomicService async callback is begin");
+        HandleScope handleScope(env);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult error");
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            return;
+        }
+        if (isInner) {
+            asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+        } else {
+            asyncTask->Resolve(env, abilityResult);
+        }
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released");
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+    } else {
+        want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+        auto curRequestCode = context->GenerateCurRequestCode();
+        context->OpenAtomicService(want, options, curRequestCode, std::move(task));
+    }
+    HILOG_DEBUG("OnOpenAtomicService is called end");
+    return result;
+}
+
 napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     std::shared_ptr<UIExtensionContext> context)
 {
@@ -415,6 +534,8 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     BindNativeFunction(env, objValue, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
     BindNativeFunction(env, objValue, "connectServiceExtensionAbility", moduleName, ConnectAbility);
     BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
+    BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);
+    BindNativeFunction(env, objValue, "openAtomicService", moduleName, OpenAtomicService);
 
     return objValue;
 }

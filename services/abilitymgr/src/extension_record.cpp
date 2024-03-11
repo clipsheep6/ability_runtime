@@ -19,9 +19,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-ExtensionRecord::ExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
-    const std::string &hostBundleName, int32_t extensionRecordId)
-    : abilityRecord_(abilityRecord), hostBundleName_(hostBundleName), extensionRecordId_(extensionRecordId)
+ExtensionRecord::ExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord)
+    : abilityRecord_(abilityRecord)
 {}
 
 ExtensionRecord::~ExtensionRecord() = default;

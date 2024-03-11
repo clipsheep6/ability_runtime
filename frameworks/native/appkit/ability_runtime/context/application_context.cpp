@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <algorithm>
 
+#include "ability_manager_errors.h"
 #include "configuration_convertor.h"
 #include "hilog_wrapper.h"
 #include "running_process_info.h"
@@ -296,6 +297,13 @@ std::shared_ptr<Global::Resource::ResourceManager> ApplicationContext::CreateMod
     return contextImpl_ ? contextImpl_->CreateModuleResourceManager(bundleName, moduleName) : nullptr;
 }
 
+int32_t ApplicationContext::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    return contextImpl_ ?
+        contextImpl_->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager) : ERR_INVALID_VALUE;
+}
+
 std::shared_ptr<AppExecFwk::ApplicationInfo> ApplicationContext::GetApplicationInfo() const
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetApplicationInfo() : nullptr;
@@ -430,6 +438,18 @@ int32_t ApplicationContext::GetSystemPreferencesDir(const std::string &groupId, 
 std::string ApplicationContext::GetGroupDir(std::string groupId)
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetGroupDir(groupId) : "";
+}
+
+int32_t ApplicationContext::RestartApp(const AAFwk::Want& want)
+{
+    std::string abilityName = want.GetElement().GetAbilityName();
+    if (abilityName == "") {
+        HILOG_ERROR("abilityName is empty.");
+        return ERR_INVALID_VALUE;
+    }
+    std::string bundleName = GetBundleName();
+    const_cast<AAFwk::Want &>(want).SetBundle(bundleName);
+    return (contextImpl_ != nullptr) ? contextImpl_->RestartApp(want) : ERR_INVALID_VALUE;
 }
 
 std::string ApplicationContext::GetDistributedFilesDir()

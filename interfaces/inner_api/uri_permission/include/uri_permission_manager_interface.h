@@ -35,7 +35,7 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const Uri &uri, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0) = 0;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName.
@@ -46,7 +46,7 @@ public:
      * @return Returns true if the authorization is successful, otherwise returns false.
      */
     virtual int GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
-        const std::string targetBundleName, int32_t appIndex = 0) = 0;
+        const std::string targetBundleName, int32_t appIndex = 0, uint32_t initiatorTokenId = 0) = 0;
 
     /**
      * @brief Authorize the uri permission to targetBundleName for 2in1, only supports foundation process calls.
@@ -87,15 +87,6 @@ public:
     virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) = 0;
 
     /**
-     * @brief check if caller can grant persistable uri permission
-     *
-     * @param uri The file uri.
-     * @param flag Want::FLAG_AUTH_READ_URI_PERMISSION or Want::FLAG_AUTH_WRITE_URI_PERMISSION.
-     * @param tokenId A tokenId of an application.
-     */
-    virtual bool CheckPersistableUriPermissionProxy(const Uri& uri, uint32_t flag, uint32_t tokenId) = 0;
-
-    /**
      * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission
      *
      * @param uri The file uri.
@@ -117,9 +108,6 @@ public:
         ON_REVOKE_ALL_URI_PERMISSION,
 
         ON_REVOKE_URI_PERMISSION_MANUALLY,
-
-        // ipc id for CheckPersistableUriPermissionProxy
-        ON_CHECK_PERSISTABLE_URIPERMISSION_PROXY,
 
         // ipc id for VerifyUriPermission
         ON_VERIFY_URI_PERMISSION,

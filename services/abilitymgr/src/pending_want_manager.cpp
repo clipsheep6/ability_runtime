@@ -223,15 +223,15 @@ void PendingWantManager::CancelWantSenderLocked(PendingWantRecord &record, bool 
         wantRecords_.erase(record.GetKey());
     }
 }
-int32_t PendingWantManager::DeviceIdDetermine(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid)
+int32_t PendingWantManager::DeviceIdDetermine(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     int32_t result = ERR_OK;
     std::string localDeviceId;
     DelayedSingleton<AbilityManagerService>::GetInstance()->GetLocalDeviceId(localDeviceId);
     if (want.GetElement().GetDeviceID() == "" || want.GetElement().GetDeviceID() == localDeviceId) {
-        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(
-            want, callerToken, requestCode, callerUid);
+        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityWithSpecifyTokenIdInner(
+            want, callerToken, callerTokenId, requestCode, callerUid);
         if (result != ERR_OK && result != START_ABILITY_WAITING) {
             HILOG_ERROR("%{public}s:result != ERR_OK && result != START_ABILITY_WAITING.", __func__);
         }
@@ -256,22 +256,22 @@ int32_t PendingWantManager::DeviceIdDetermine(
     return result;
 }
 
-int32_t PendingWantManager::PendingWantStartAbility(
-    const Want &want, const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid)
+int32_t PendingWantManager::PendingWantStartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
+    int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     HILOG_INFO("begin");
-    int32_t result = DeviceIdDetermine(want, callerToken, requestCode, callerUid);
+    int32_t result = DeviceIdDetermine(want, callerToken, requestCode, callerUid, callerTokenId);
     return result;
 }
 
 int32_t PendingWantManager::PendingWantStartAbilitys(const std::vector<WantsInfo> wantsInfo,
-    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid)
+    const sptr<IRemoteObject> &callerToken, int32_t requestCode, const int32_t callerUid, int32_t callerTokenId)
 {
     HILOG_INFO("begin");
 
     int32_t result = ERR_OK;
     for (const auto &item : wantsInfo) {
-        auto res = DeviceIdDetermine(item.want, callerToken, requestCode, callerUid);
+        auto res = DeviceIdDetermine(item.want, callerToken, requestCode, callerUid, callerTokenId);
         if (res != ERR_OK && res != START_ABILITY_WAITING) {
             result = res;
         }

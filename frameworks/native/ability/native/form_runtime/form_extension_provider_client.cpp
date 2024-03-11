@@ -228,7 +228,7 @@ void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId
         HILOG_ERROR("Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
-        ownerFormExtension->OnUpdate(formId);
+        ownerFormExtension->OnUpdate(formId, want.GetParams());
     }
 
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {

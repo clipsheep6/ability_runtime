@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -126,6 +126,8 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app/application_env.cpp",
     "${ability_runtime_native_path}/appkit/app/application_env_impl.cpp",
     "${ability_runtime_native_path}/appkit/app/application_impl.cpp",
+    "${ability_runtime_native_path}/appkit/app/assert_fault_callback.cpp",
+    "${ability_runtime_native_path}/appkit/app/assert_fault_task_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/child_main_thread.cpp",
     "${ability_runtime_native_path}/appkit/app/extension_plugin_info.cpp",
     "${ability_runtime_native_path}/appkit/app/idle_time.cpp",
@@ -160,6 +162,7 @@ ohos_shared_library("appkit_native") {
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:extractresourcemanager",
     "ability_base:string_utils",
@@ -249,6 +252,7 @@ ohos_shared_library("app_context") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
+    "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "${ability_runtime_innerkits_path}/deps_wrapper:ability_deps_wrapper",
     "${ability_runtime_innerkits_path}/runtime:runtime",
@@ -314,6 +318,7 @@ ohos_shared_library("app_context_utils") {
   ]
 
   external_deps = [
+    "ability_base:want",
     "access_token:libtokenid_sdk",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
@@ -423,6 +428,8 @@ ohos_shared_library("appkit_manager_helper") {
   deps = []
 
   external_deps = [
+    "ability_base:want",
+    "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",

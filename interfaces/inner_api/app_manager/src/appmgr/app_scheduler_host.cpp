@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -66,6 +66,11 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT)] =
         &AppSchedulerHost::HandleNotifyAppFault;
+    InitMemberFuncMap();
+}
+
+void AppSchedulerHost::InitMemberFuncMap()
+{
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE)] =
         &AppSchedulerHost::HandleScheduleChangeAppGcState;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG)] =
@@ -74,6 +79,8 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleDetachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_REQUEST_TERMINATE_PROCESS)] =
         &AppSchedulerHost::HandleScheduleRequestTerminateProcess;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION)] =
+        &AppSchedulerHost::HandleScheduleJsHeapMemory;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -152,6 +159,18 @@ int32_t AppSchedulerHost::HandleScheduleHeapMemory(MessageParcel &data, MessageP
     struct OHOS::AppExecFwk::MallocInfo mallocInfo;
     ScheduleHeapMemory(pid, mallocInfo);
     reply.WriteParcelable(&mallocInfo);
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleJsHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::unique_ptr<JsHeapDumpInfo> info(data.ReadParcelable<JsHeapDumpInfo>());
+    if (!info) {
+        HILOG_ERROR("ReadParcelable<JsHeapDumpInfo> failed");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
+    ScheduleJsHeapMemory(*info);
     return NO_ERROR;
 }
 

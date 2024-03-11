@@ -19,13 +19,8 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-namespace {
-const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
-}
-
-UIExtensionRecord::UIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
-    const std::string &hostBundleName, int32_t extensionRecordId)
-    : ExtensionRecord(abilityRecord, hostBundleName, extensionRecordId)
+UIExtensionRecord::UIExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord)
+    : ExtensionRecord(abilityRecord)
 {}
 
 UIExtensionRecord::~UIExtensionRecord() = default;
@@ -33,18 +28,6 @@ UIExtensionRecord::~UIExtensionRecord() = default;
 bool UIExtensionRecord::ContinueToGetCallerToken()
 {
     return true;
-}
-
-int32_t UIExtensionRecord::NeedReuse(const AAFwk::AbilityRequest &abilityRequest)
-{
-    int32_t uiExtensionAbilityId = abilityRequest.sessionInfo->want.GetIntParam(UIEXTENSION_ABILITY_ID,
-        INVALID_EXTENSION_RECORD_ID);
-    if (uiExtensionAbilityId == INVALID_EXTENSION_RECORD_ID) {
-        HILOG_DEBUG("UIEXTENSION_ABILITY_ID is not config, no reuse");
-        return uiExtensionAbilityId;
-    }
-    HILOG_INFO("UIExtensionAbility id: %{public}d.", uiExtensionAbilityId);
-    return uiExtensionAbilityId;
 }
 
 void UIExtensionRecord::Update(const AAFwk::AbilityRequest &abilityRequest)

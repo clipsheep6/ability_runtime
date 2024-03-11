@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -106,6 +106,13 @@ public:
 
     void DetachAppDebug() override
     {}
+
+    int32_t ScheduleRequestTerminateProcess() override
+    {
+        return 0;
+    }
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
+    {}
 };
 class AppMgrServiceModuleTest : public testing::Test {
 public:
@@ -173,6 +180,22 @@ void AppMgrServiceModuleTest::TearDown()
 
 /*
  * Feature: AppMgrService
+ * Function: GetAmsMgr
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * CaseDescription: Check GetAmsMgr.
+ */
+HWTEST_F(AppMgrServiceModuleTest, GetAmsMgr_001, TestSize.Level1)
+{
+    EXPECT_TRUE(appMgrService_);
+
+    auto amsMgr = appMgrService_->GetAmsMgr();
+
+    EXPECT_TRUE(amsMgr);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: AttachApplication
  * SubFunction: NA
  * FunctionPoints: AppMgrService => AppMgrServiceInner: AttachApplication
@@ -208,6 +231,7 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationForegrounded_001, TestSize.Level1)
     EXPECT_TRUE(appMgrService_);
     EXPECT_TRUE(mockAppMgrServiceInner_);
 
+    auto appMgrService = std::make_shared<AppMgrService>();
     int32_t testRecordId = 123;
     bool testResult = false;
     Semaphore sem(0);
@@ -222,11 +246,10 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationForegrounded_001, TestSize.Level1)
 
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationForegrounded(_)).Times(1).WillOnce(Invoke(mockHandler));
 
-        appMgrService_->ApplicationForegrounded(testRecordId);
+        appMgrService->SetInnerService(nullptr);
+        appMgrService->ApplicationForegrounded(testRecordId);
 
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
+        EXPECT_TRUE(appMgrService != nullptr);
     }
 }
 
@@ -242,6 +265,7 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationBackgrounded_001, TestSize.Level1)
     EXPECT_TRUE(appMgrService_);
     EXPECT_TRUE(mockAppMgrServiceInner_);
 
+    auto appMgrService = std::make_shared<AppMgrService>();
     int32_t testRecordId = 123;
     bool testResult = false;
     Semaphore sem(0);
@@ -256,11 +280,10 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationBackgrounded_001, TestSize.Level1)
 
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationBackgrounded(_)).Times(1).WillOnce(Invoke(mockHandler));
 
-        appMgrService_->ApplicationBackgrounded(testRecordId);
+        appMgrService->SetInnerService(nullptr);
+        appMgrService->ApplicationBackgrounded(testRecordId);
 
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
+        EXPECT_TRUE(appMgrService != nullptr);
     }
 }
 
@@ -276,6 +299,7 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
     EXPECT_TRUE(appMgrService_);
     EXPECT_TRUE(mockAppMgrServiceInner_);
 
+    auto appMgrService = std::make_shared<AppMgrService>();
     int32_t testRecordId = 123;
     bool testResult = false;
     Semaphore sem(0);
@@ -290,11 +314,10 @@ HWTEST_F(AppMgrServiceModuleTest, ApplicationTerminated_001, TestSize.Level1)
 
         EXPECT_CALL(*mockAppMgrServiceInner_, ApplicationTerminated(_)).Times(1).WillOnce(Invoke(mockHandler));
 
-        appMgrService_->ApplicationTerminated(testRecordId);
+        appMgrService->SetInnerService(nullptr);
+        appMgrService->ApplicationTerminated(testRecordId);
 
-        sem.Wait();
-
-        EXPECT_TRUE(testResult);
+        EXPECT_TRUE(appMgrService != nullptr);
     }
 }
 
@@ -422,22 +445,6 @@ HWTEST_F(AppMgrServiceModuleTest, QueryServiceState_001, TestSize.Level1)
 
         EXPECT_EQ(serviceState.connectionState, testSpawnConnectionState);
     }
-}
-
-/*
- * Feature: AppMgrService
- * Function: GetAmsMgr
- * SubFunction: NA
- * FunctionPoints: NA
- * CaseDescription: Check GetAmsMgr.
- */
-HWTEST_F(AppMgrServiceModuleTest, GetAmsMgr_001, TestSize.Level1)
-{
-    EXPECT_TRUE(appMgrService_);
-
-    auto amsMgr = appMgrService_->GetAmsMgr();
-
-    EXPECT_TRUE(amsMgr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

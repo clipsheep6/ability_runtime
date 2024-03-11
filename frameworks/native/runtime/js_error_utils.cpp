@@ -22,6 +22,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr const char* ERR_MSG_TOO_FEW_PARAM = "Parameter error. Too few parameters.";
+constexpr const char* ERR_MSG_NOT_MAINTHREAD = "Caller error. Caller from non-main thread.";
+constexpr const char* ERR_MSG_INVALID_NUM_PARAMS = "Parameter error. The number of parameters is invalid.";
 } // namespace
 
 void ThrowError(napi_env env, int32_t errCode, const std::string& errorMsg)
@@ -34,11 +36,25 @@ void ThrowError(napi_env env, const AbilityErrorCode& err)
     napi_throw(env, CreateJsError(env, static_cast<int32_t>(err), GetErrorMsg(err)));
 }
 
+void ThrowInvaildCallerError(napi_env env)
+{
+    napi_throw(env, CreateJsError(env,
+        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_CALLER),
+        ERR_MSG_NOT_MAINTHREAD));
+}
+
 void ThrowTooFewParametersError(napi_env env)
 {
     napi_throw(env, CreateJsError(env,
         static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
         ERR_MSG_TOO_FEW_PARAM));
+}
+
+void ThrowInvalidNumParametersError(napi_env env)
+{
+    napi_throw(env, CreateJsError(env,
+        static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM),
+        ERR_MSG_INVALID_NUM_PARAMS));
 }
 
 void ThrowNoPermissionError(napi_env env, const std::string& permission)

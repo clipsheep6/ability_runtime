@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@
 #include "app_mgr_interface.h"
 #include "ability_record_mgr.h"
 #include "application_impl.h"
+#include "assert_fault_task_thread.h"
 #include "common_event_subscriber.h"
 #include "resource_manager.h"
 #include "foundation/ability/ability_runtime/interfaces/inner_api/runtime/include/runtime.h"
@@ -36,6 +37,7 @@
 #include "overlay_event_subscriber.h"
 #include "watchdog.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -171,6 +173,14 @@ public:
 
     /**
      *
+     * @brief triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot.
+     */
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
+
+    /**
+     *
      * @brief Low the memory which used by application.
      *
      */
@@ -293,6 +303,8 @@ public:
      */
     int32_t ScheduleRequestTerminateProcess() override;
 
+    void AssertFaultPauseMainThreadDetection();
+    void AssertFaultResumeMainThreadDetection();
 private:
     /**
      *
@@ -554,6 +566,8 @@ private:
 
     int32_t ChangeAppGcState(int32_t state);
 
+    void RequestTerminateProcess();
+
     class MainHandler : public EventHandler {
     public:
         MainHandler(const std::shared_ptr<EventRunner> &runner, const sptr<MainThread> &thread);
@@ -633,6 +647,8 @@ private:
     bool InitResourceManager(std::shared_ptr<Global::Resource::ResourceManager> &resourceManager,
         const AppExecFwk::HapModuleInfo &entryHapModuleInfo, const std::string &bundleName,
         bool multiProjects, const Configuration &config);
+    void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
+    void HandleCancelAssertFaultTask();
 
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
@@ -651,6 +667,7 @@ private:
     std::vector<void *> handleAbilityLib_;  // the handler of ACE Library.
     std::shared_ptr<IdleTime> idleTime_ = nullptr;
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
+    std::weak_ptr<AbilityRuntime::AssertFaultTaskThread> assertThread_;
 #endif                                      // ABILITY_LIBRARY_LOADER
 #ifdef APPLICATION_LIBRARY_LOADER
     void *handleAppLib_ = nullptr;  // the handler of ACE Library.

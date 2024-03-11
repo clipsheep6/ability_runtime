@@ -377,6 +377,76 @@ enum {
      * Result(2097223) for query highest priority ability.
      */
     ERR_QUERY_HIGHEST_PRIORITY_ABILITY,
+
+    /**
+     * Result(2097224) for the target to restart does not belong to the current app or is not a UIAbility.
+     */
+    ERR_RESTART_APP_INCORRECT_ABILITY,
+
+    /**
+     * Result(2097225) for restart too frequently. Try again at least 10s later.
+     */
+    ERR_RESTART_APP_FREQUENT,
+
+    /**
+     * Result(2097226) for connect ERMS service failed.
+     */
+    ERR_CONNECT_ERMS_FAILED,
+
+    /**
+     * Result(2097227) for ability is not foreground state.
+     */
+    ERR_ABILITY_NOT_FOREGROUND,
+
+    /**
+     * Result(2097228) for in wukong mode, ability can not move to foreground or background.
+     */
+    ERR_WUKONG_MODE_CANT_MOVE_STATE,
+
+    /**
+     * Result(2097229) for operation not supported on current device.
+     */
+    ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE,
+
+    /**
+     * Result(2097230) for capability not support.
+     */
+    ERR_CAPABILITY_NOT_SUPPORT,
+
+    /**
+     * Result(2097231) for not allow implicit start.
+     */
+    ERR_NOT_ALLOW_IMPLICIT_START,
+
+    /**
+     * Result(2097232) for start options check failed.
+     */
+    ERR_START_OPTIONS_CHECK_FAILED,
+
+    /**
+     * Result(2097233) for ability already running.
+     */
+    ERR_ABILITY_ALREADY_RUNNING,
+
+    /**
+     * Native error(2097234) for not self application.
+     */
+    ERR_NATIVE_NOT_SELF_APPLICATION,
+
+    /**
+     * Native error(2097235) for IPC parcel failed.
+     */
+    ERR_NATIVE_IPC_PARCEL_FAILED,
+
+    /**
+     * Native error(2097236) for ability not found.
+     */
+    ERR_NATIVE_ABILITY_NOT_FOUND,
+
+    /**
+     * Native error(2097237) for ability state check failed.
+     */
+    ERR_NATIVE_ABILITY_STATE_CHECK_FAILED,
 };
 
 enum {

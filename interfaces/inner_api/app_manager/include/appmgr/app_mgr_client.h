@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,12 +32,14 @@
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
 #include "irender_scheduler.h"
+#include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
 #include "refbase.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -172,14 +174,14 @@ public:
 
     /**
      * Normal scheduling to exit the process.
-     * 
+     *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual AppMgrResultCode RequestTerminateProcess();
     
     /**
      * Normal scheduling to exit the application.
-     * 
+     *
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual AppMgrResultCode RequestTerminateApplication();
@@ -259,6 +261,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual AppMgrResultCode DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual AppMgrResultCode DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
 
     /**
      * GetConfiguration
@@ -560,6 +571,14 @@ public:
     bool IsAttachDebug(const std::string &bundleName);
 
     /**
+     * Set application assertion pause state.
+     *
+     * @param pid App process pid.
+     * @param flag assertion pause state.
+     */
+    void SetAppAssertionPauseState(int32_t pid, bool flag);
+
+    /**
      * Register application or process state observer.
      * @param observer, ability token.
      * @param bundleNameList, the list of bundle names.
@@ -621,6 +640,11 @@ public:
      */
     void ClearProcessByToken(sptr<IRemoteObject> token) const;
 
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

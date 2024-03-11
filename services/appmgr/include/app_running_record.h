@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -44,6 +44,7 @@
 #include "app_spawn_msg_wrapper.h"
 #include "app_malloc_info.h"
 #include "window_visibility_changed_listener.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -428,6 +429,15 @@ public:
     void ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     /**
+     * ScheduleJsHeapMemory, triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     *
+     * @return
+     */
+    void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
+
+    /**
      * GetAbilityRunningRecordByToken, Obtaining the ability record through token.
      *
      * @param token, the unique identification to the ability.
@@ -699,6 +709,25 @@ public:
      */
     int32_t RequestTerminateProcess() const;
 
+    /*
+     * @brief Obtains the app record assign tokenId.
+     *
+     * @return Returns app record AssignTokenId.
+     */
+    int32_t GetAssignTokenId() const;
+
+    /**
+     * @brief Setting the assign tokenId.
+     *
+     * @param AssignTokenId, the assign tokenId.
+     */
+    void SetAssignTokenId(int32_t tokenId);
+
+    void SetRestartAppFlag(bool isRestartApp);
+    bool GetRestartAppFlag() const;
+
+    void SetAssertionPauseFlag(bool flag);
+    bool IsAssertionPause() const;
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -830,12 +859,16 @@ private:
     int32_t callerPid_ = -1;
     int32_t callerUid_ = -1;
     int32_t callerTokenId_ = -1;
+    int32_t assignTokenId_ = 0;
     ProcessType processType_ = ProcessType::NORMAL;
     ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 
     std::set<uint32_t> windowIds_;
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> childProcessRecordMap_;
     ffrt::mutex childProcessRecordMapLock_;
+
+    bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
+    bool isAssertPause_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

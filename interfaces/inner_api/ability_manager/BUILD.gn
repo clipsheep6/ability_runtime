@@ -103,6 +103,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/system_ability_token_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_ability_connect_info.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/ui_extension_host_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/user_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_receiver_stub.cpp",
@@ -124,11 +125,13 @@ ohos_shared_library("ability_manager") {
   deps = [
     ":ability_start_setting",
     ":mission_info",
+    ":process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
     "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
@@ -215,6 +218,26 @@ ohos_shared_library("ability_start_setting") {
   public_configs = [ ":ability_manager_public_config" ]
 
   external_deps = [ "c_utils:utils" ]
+
+  cflags_cc = []
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
+ohos_shared_library("process_options") {
+  include_dirs = [
+    "include/",
+    "${ability_runtime_services_path}/common/include",
+  ]
+
+  sources =
+      [ "${ability_runtime_services_path}/abilitymgr/src/process_options.cpp" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
 
   cflags_cc = []
   innerapi_tags = [ "platformsdk" ]

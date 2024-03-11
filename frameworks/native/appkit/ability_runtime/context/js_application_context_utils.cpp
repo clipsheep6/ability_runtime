@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@
 #include "js_error_utils.h"
 #include "js_resource_manager_utils.h"
 #include "js_runtime_utils.h"
+#include "napi_common_want.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -227,6 +228,49 @@ napi_value JsApplicationContextUtils::OnCreateModuleContext(napi_env env, NapiCa
         },
         nullptr, nullptr);
     return contextObj;
+}
+
+napi_value JsApplicationContextUtils::CreateSystemHspModuleResourceManager(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnCreateSystemHspModuleResourceManager, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info)
+{
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    std::string bundleName = "";
+    if (!ConvertFromJsValue(env, info.argv[0], bundleName)) {
+        HILOG_ERROR("Parse bundleName failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    std::string moduleName = "";
+    if (!ConvertFromJsValue(env, info.argv[1], moduleName)) {
+        HILOG_DEBUG("Parse module name failed.");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    std::shared_ptr<Global::Resource::ResourceManager> resourceManager = nullptr;
+    int32_t retCode = applicationContext->CreateSystemHspModuleResourceManager(bundleName, moduleName, resourceManager);
+    if (resourceManager == nullptr && retCode == ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP) {
+        HILOG_ERROR("Failed to create resourceManager");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP);
+        return CreateJsUndefined(env);
+    }
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("Failed to create resourceManager");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    return CreateJsResourceManager(env, resourceManager, nullptr);
 }
 
 napi_value JsApplicationContextUtils::CreateModuleResourceManager(napi_env env, napi_callback_info info)
@@ -450,6 +494,49 @@ napi_value JsApplicationContextUtils::OnGetGroupDir(napi_env env, NapiCallbackIn
     return result;
 }
 
+napi_value JsApplicationContextUtils::RestartApp(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("called");
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils, OnRestartApp, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnRestartApp(napi_env env, NapiCallbackInfo& info)
+{
+    // only support one params
+    if (info.argc == ARGC_ZERO) {
+        HILOG_ERROR("Not enough params");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        return CreateJsUndefined(env);
+    }
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        HILOG_ERROR("Parse want failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    auto errCode = applicationContext->RestartApp(want);
+    if (errCode == ERR_OK) {
+        return CreateJsUndefined(env);
+    }
+    if (errCode == ERR_INVALID_VALUE) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+    } else if (errCode == AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_INCORRECT_ABILITY);
+    } else if (errCode == AAFwk::ERR_RESTART_APP_FREQUENT) {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_RESTART_APP_FREQUENT);
+    } else {
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
+    }
+    HILOG_ERROR("errCode is %{public}d.", errCode);
+    return CreateJsUndefined(env);
+}
+
 napi_value JsApplicationContextUtils::GetBundleCodeDir(napi_env env, napi_callback_info info)
 {
     HILOG_DEBUG("called");
@@ -515,7 +602,6 @@ napi_value JsApplicationContextUtils::RequestTerminateApplication(napi_env env, 
 
 napi_value JsApplicationContextUtils::OnRequestTerminateProcess(napi_env env, NapiCallbackInfo &info)
 {
-    // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -542,7 +628,6 @@ napi_value JsApplicationContextUtils::OnRequestTerminateProcess(napi_env env, Na
 
 napi_value JsApplicationContextUtils::OnRequestTerminateApplication(napi_env env, NapiCallbackInfo &info)
 {
-    // only support 0 or 1 params
     if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
@@ -1332,6 +1417,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeFunction(env, object, "switchArea", MD_NAME, JsApplicationContextUtils::SwitchArea);
     BindNativeFunction(env, object, "getArea", MD_NAME, JsApplicationContextUtils::GetArea);
     BindNativeFunction(env, object, "createModuleContext", MD_NAME, JsApplicationContextUtils::CreateModuleContext);
+    BindNativeFunction(env, object, "createSystemHspModuleResourceManager", MD_NAME,
+        JsApplicationContextUtils::CreateSystemHspModuleResourceManager);
     BindNativeFunction(env, object, "createModuleResourceManager", MD_NAME,
         JsApplicationContextUtils::CreateModuleResourceManager);
     BindNativeFunction(env, object, "on", MD_NAME, JsApplicationContextUtils::On);
@@ -1353,6 +1440,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::RequestTerminateProcess);
     BindNativeFunction(env, object, "requestTerminateApplication", MD_NAME,
         JsApplicationContextUtils::RequestTerminateApplication);
+    BindNativeFunction(env, object, "restartApp", MD_NAME,
+        JsApplicationContextUtils::RestartApp);
 }
 
 JsAppProcessState JsApplicationContextUtils::ConvertToJsAppProcessState(

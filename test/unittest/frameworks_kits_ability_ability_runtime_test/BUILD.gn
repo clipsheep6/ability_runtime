@@ -27,6 +27,7 @@ ohos_unittest("ability_context_impl_test") {
 
   include_dirs = [
     "${ability_runtime_test_path}/mock/frameworks_kits_ability_ability_runtime_test/AMS",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
     "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context/",
   ]
 

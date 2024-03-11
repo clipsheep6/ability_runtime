@@ -56,6 +56,7 @@ const std::string INTERCEPT_PARAMETERS = "intercept_parammeters";
 const std::string INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
 const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
+const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
 #define RETURN_BY_ISEDM(object)                 \
     if (object) {                               \
@@ -185,7 +186,9 @@ ErrCode DisposedRuleInterceptor::DoProcess(const Want &want, int requestCode, in
     HILOG_DEBUG("Call");
     AppExecFwk::DisposedRule disposedRule;
     if (CheckControl(want, userId, disposedRule)) {
-        HILOG_INFO("The target ability is intercpted.");
+        HILOG_INFO("The target ability is intercpted, disposedType is %{public}d, controlType is %{public}d, "
+            "componentType is %{public}d.", disposedRule.disposedType, disposedRule.controlType,
+            disposedRule.componentType);
 #ifdef SUPPORT_GRAPHICS
         if (!isForeground || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
@@ -400,6 +403,13 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     ErmsCallerInfo callerInfo;
     ExperienceRule rule;
+    if (callerToken != nullptr) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
+            HILOG_DEBUG("callerModelType is FA.");
+            callerInfo.callerModelType = ErmsCallerInfo::MODEL_FA;
+        }
+    }
     GetEcologicalCallerInfo(want, callerInfo, userId);
     std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
     if (supportErms == "false") {
@@ -415,7 +425,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(const Want &want, int requestCode, 
     }
     HILOG_DEBUG("check ecological rule success");
     if (rule.isAllow) {
-        HILOG_ERROR("ecological rule is allow, keep going.");
+        HILOG_DEBUG("ecological rule is allow, keep going.");
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -435,6 +445,12 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
     callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
     callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.targetLinkFeature = want.GetStringParam("targetLinkFeature");
+    callerInfo.targetAppDistType = want.GetStringParam("targetAppDistType");
+    (const_cast<Want &>(want)).RemoveParam("targetLinkFeature");
+    (const_cast<Want &>(want)).RemoveParam("targetAppDistType");
+    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
+        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
 
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -442,27 +458,19 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         return;
     }
 
-    std::string targetBundleName = want.GetBundle();
-    AppExecFwk::ApplicationInfo targetAppInfo;
-    bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
-    if (!getTargetResult) {
-        HILOG_ERROR("Get targetAppInfo failed.");
-    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+    auto targetBundleType = static_cast<AppExecFwk::BundleType>(want.GetIntParam("targetBundleType", -1));
+    if (targetBundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the target type  is atomic service");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
-    } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
+    } else if (targetBundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the target type is app");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
-        if (callerInfo.packageName == "") {
-            callerInfo.packageName = targetAppInfo.name;
-        }
     }
 
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
-        HILOG_ERROR("Get callerBundleName failed.");
+        HILOG_ERROR("Get callerBundleName failed,uid: %{public}d.", callerInfo.uid);
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
@@ -476,6 +484,9 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
         HILOG_DEBUG("the caller type is app");
         callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
+        if (callerInfo.packageName == "" && callerAppInfo.name == BUNDLE_NAME_SCENEBOARD) {
+            callerInfo.packageName = BUNDLE_NAME_SCENEBOARD;
+        }
     }
 }
 
@@ -599,7 +610,7 @@ bool AbilityJumpInterceptor::CheckIfExemptByBundleName(std::shared_ptr<AppExecFw
         HILOG_INFO("Bundle:%{public}s is system app.", bundleName.c_str());
         return true;
     }
-    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission);
+    int32_t ret = Security::AccessToken::AccessTokenKit::VerifyAccessToken(appInfo.accessTokenId, permission, false);
     if (ret == Security::AccessToken::PermissionState::PERMISSION_DENIED) {
         HILOG_DEBUG("VerifyPermission %{public}d: PERMISSION_DENIED.", appInfo.accessTokenId);
         return false;

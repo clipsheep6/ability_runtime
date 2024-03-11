@@ -28,10 +28,14 @@
 #include "quick_fix_callback_with_record.h"
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
+#ifdef EFFICIENCY_MANAGER_ENABLE
+#include "suspend_manager_client.h"
+#endif
 
 namespace OHOS {
 namespace AppExecFwk {
 namespace {
+    constexpr int32_t QUICKFIX_UID = 5524;
     const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 }
 using EventFwk::CommonEventSupport;
@@ -96,7 +100,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             (pair.second->GetProcessName() == processName) &&
             (pair.second->GetJointUserId() == jointUserId) &&
             !(pair.second->IsTerminating()) &&
-            !(pair.second->IsKilling());
+            !(pair.second->IsKilling()) && !(pair.second->GetRestartAppFlag());
     };
 
     // If it is not empty, look for whether it can come in the same process
@@ -110,7 +114,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
         if (appRecord && appRecord->GetProcessName() == processName &&
             (specifiedProcessFlag.empty() ||
             appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
-            !(appRecord->IsTerminating()) && !(appRecord->IsKilling())) {
+            !(appRecord->IsTerminating()) && !(appRecord->IsKilling()) && !(appRecord->GetRestartAppFlag())) {
             auto appInfoList = appRecord->GetAppInfoList();
             HILOG_DEBUG("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
                 appInfoList.size(), appRecord->GetProcessName().c_str(), specifiedProcessFlag.c_str());
@@ -135,7 +139,7 @@ bool AppRunningManager::CheckAppRunningRecordIsExistByBundleName(const std::stri
     }
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        if (appRecord && appRecord->GetBundleName() == bundleName) {
+        if (appRecord && appRecord->GetBundleName() == bundleName && !(appRecord->GetRestartAppFlag())) {
             return true;
         }
     }
@@ -670,11 +674,37 @@ bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunni
 
 int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
 {
+    std::unordered_set<int32_t> frozenPids;
+#ifdef EFFICIENCY_MANAGER_ENABLE
+    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
+    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
+    if (appSuspendState.empty()) {
+        HILOG_WARN("Get app state empty");
+    }
+    for (auto &[uid, pids] : appSuspendState) {
+        for (auto &[pid, isFrozen] : pids) {
+            if (isFrozen) {
+                frozenPids.insert(pid);
+            }
+        }
+    }
+#endif
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
-        HILOG_DEBUG("Notification app [%{public}s]", appRecord->GetName().c_str());
-        appRecord->ScheduleMemoryLevel(level);
+        if (!appRecord) {
+            HILOG_ERROR("appRecord null");
+            continue;
+        }
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (!priorityObject) {
+            HILOG_WARN("priorityObject null");
+            continue;
+        }
+        auto pid = priorityObject->GetPid();
+        if (frozenPids.count(pid) == 0) {
+            appRecord->ScheduleMemoryLevel(level);
+        }
     }
     return ERR_OK;
 }
@@ -700,6 +730,27 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
         }
     }
     appRecord->ScheduleHeapMemory(pid, mallocInfo);
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    uint32_t pid = info.pid;
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second->GetPriorityObject();
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AppRunningRecord> appRecord = iter->second;
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appRecord->ScheduleJsHeapMemory(info);
     return ERR_OK;
 }
 
@@ -777,6 +828,9 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             HILOG_DEBUG("Process of [%{public}s] is running, processName: %{public}s.",
                 bundleName.c_str(), appRecord->GetProcessName().c_str());
+            if (IPCSkeleton::GetCallingUid() == QUICKFIX_UID && appRecord->GetPriorityObject() != nullptr) {
+                HILOG_INFO("pid: %{public}d.", appRecord->GetPriorityObject()->GetPid());
+            }
             return true;
         }
     }
@@ -942,7 +996,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
             HILOG_ERROR("App running record is nullptr.");
             return;
         }
-        HILOG_INFO("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
+        HILOG_DEBUG("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
         pids.emplace(info->pid_);
     }
@@ -1092,6 +1146,23 @@ std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(
         return childRecord;
     }
     return nullptr;
+}
+
+int32_t AppRunningManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
+            continue;
+        }
+        HILOG_DEBUG("sign");
+        appRecord->SetRestartAppFlag(true);
+        return ERR_OK;
+    }
+    HILOG_ERROR("Not find apprecord.");
+    return ERR_INVALID_VALUE;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

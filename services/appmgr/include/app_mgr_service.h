@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,6 +38,7 @@
 #include "nocopyable.h"
 #include "system_ability.h"
 #include "task_handler_wrap.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -192,6 +193,21 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo) override;
+
+    /**
+     * Authenticate dump permissions
+     *
+     * @return Returns true on permission, others on false
+     */
+    bool HasDumpPermission() const;
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override;
 
     // the function about service running info
     /**
@@ -450,6 +466,13 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RequestTerminateApplication() override;
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state) override;
+
+    int32_t SignRestartAppFlag(const std::string &bundleName) override;
 
 private:
     /**

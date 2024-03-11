@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,9 +32,11 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     napi_value action = nullptr;
     napi_value entity = nullptr;
     napi_value Flags = nullptr;
+    napi_value showMode = nullptr;
     napi_create_object(env, &action);
     napi_create_object(env, &entity);
     napi_create_object(env, &Flags);
+    napi_create_object(env, &showMode);
 
     SetNamedProperty(env, action, "ohos.want.action.home", "ACTION_HOME");
     SetNamedProperty(env, action, "ohos.want.action.dial", "ACTION_DIAL");
@@ -90,6 +92,9 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, Flags, 0x20000000, "FLAG_ABILITY_MISSION_TOP");
     SetNamedProperty(env, Flags, 0x40000000, "FLAG_START_WITHOUT_TIPS");
 
+    SetNamedProperty(env, showMode, 0, "WINDOW");
+    SetNamedProperty(env, showMode, 1, "EMBEDDED_FULL");
+
 #ifdef ENABLE_ERRCODE
     napi_value params = nullptr;
     napi_create_object(env, &params);
@@ -100,16 +105,19 @@ napi_value WantConstantInit(napi_env env, napi_value exports)
     SetNamedProperty(env, params, "ohos.dlp.params.index", "DLP_PARAMS_INDEX");
     SetNamedProperty(env, params, "ability.params.backToOtherMissionStack", "ABILITY_BACK_TO_OTHER_MISSION_STACK");
     SetNamedProperty(env, params, "ohos.ability.params.abilityRecoveryRestart", "ABILITY_RECOVERY_RESTART");
+    SetNamedProperty(env, params, "ohos.ability.params.asssertFaultSessionId", "ASSERT_FAULT_SESSION_ID");
     SetNamedProperty(env, params, "ohos.extra.param.key.contentTitle", "CONTENT_TITLE_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.shareAbstract", "SHARE_ABSTRACT_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.shareUrl", "SHARE_URL_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinuePageStack", "SUPPORT_CONTINUE_PAGE_STACK_KEY");
     SetNamedProperty(env, params, "ohos.extra.param.key.supportContinueSourceExit", "SUPPORT_CONTINUE_SOURCE_EXIT_KEY");
+    SetNamedProperty(env, params, "ohos.extra.param.key.showMode", "SHOW_MODE_KEY");
     napi_property_descriptor exportFuncs[] = {
         DECLARE_NAPI_PROPERTY("Action", action),
         DECLARE_NAPI_PROPERTY("Entity", entity),
         DECLARE_NAPI_PROPERTY("Params", params),
         DECLARE_NAPI_PROPERTY("Flags", Flags),
+        DECLARE_NAPI_PROPERTY("ShowMode", showMode),
     };
 #else
     napi_property_descriptor exportFuncs[] = {

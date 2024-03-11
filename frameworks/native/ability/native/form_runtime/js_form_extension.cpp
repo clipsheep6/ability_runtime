@@ -36,6 +36,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 const int ON_EVENT_PARAMS_SIZE = 2;
+const int ARGC_TWO = 2;
 
 napi_value AttachFormExtensionContext(napi_env env, void* value, void*)
 {
@@ -219,6 +220,7 @@ void JsFormExtension::OnDestroy(const int64_t formId)
 void JsFormExtension::OnStop()
 {
     HILOG_INFO("call");
+    CallObjectMethod("onStop", nullptr, nullptr, 0);
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
@@ -244,10 +246,10 @@ void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
     CallObjectMethod("onFormEvent", "onEvent", argv, ON_EVENT_PARAMS_SIZE);
 }
 
-void JsFormExtension::OnUpdate(const int64_t formId)
+void JsFormExtension::OnUpdate(const int64_t formId, const AAFwk::WantParams &wantParams)
 {
     HILOG_INFO("OnUpdate, formId: %{public}" PRId64 ".", formId);
-    FormExtension::OnUpdate(formId);
+    FormExtension::OnUpdate(formId, wantParams);
 
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
@@ -255,8 +257,10 @@ void JsFormExtension::OnUpdate(const int64_t formId)
     napi_value napiFormId = nullptr;
     napi_create_string_utf8(env, std::to_string(formId).c_str(),
         NAPI_AUTO_LENGTH, &napiFormId);
-    napi_value argv[] = {napiFormId};
-    CallObjectMethod("onUpdateForm", "onUpdate", argv, 1);
+    // wrap wantParams
+    napi_value nativeObj = WrapWantParams(env, wantParams);
+    napi_value argv[] = {napiFormId, nativeObj};
+    CallObjectMethod("onUpdateForm", "onUpdate", argv, ARGC_TWO);
 }
 
 void JsFormExtension::OnCastToNormal(const int64_t formId)

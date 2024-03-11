@@ -55,7 +55,6 @@ ohos_unittest("uri_permission_impl_test") {
     "c_utils:utils",
     "init:libbeget_proxy",
     "init:libbegetutil",
-    "relational_store:native_rdb",
     "storage_service:storage_manager_sa_proxy",
   ]
 }

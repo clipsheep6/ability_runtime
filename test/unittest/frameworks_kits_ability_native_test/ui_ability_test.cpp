@@ -25,6 +25,7 @@
 #include "ability_recovery.h"
 #include "fa_ability_thread.h"
 #include "hilog_wrapper.h"
+#include "mock_lifecycle_observer.h"
 #include "ohos_application.h"
 #include "runtime.h"
 
@@ -1301,6 +1302,44 @@ HWTEST_F(UIAbilityBaseTest, UIAbility_GetAbilityContext_0100, TestSize.Level1)
     auto abilityContext = ability_->GetAbilityContext();
     ASSERT_EQ(abilityContext, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.number: UIAbility_RegisterAbilityLifecycleObserver_0100
+ * @tc.name: UIAbility RegisterAbilityLifecycleObserver/UnregisterAbilityLifecycleObserver test.
+ * @tc.desc: Verify function RegisterAbilityLifecycleObserver/UnregisterAbilityLifecycleObserver.
+ */
+HWTEST_F(UIAbilityBaseTest, UIAbility_RegisterAbilityLifecycleObserver_0100, Function | MediumTest | Level1)
+{
+    std::shared_ptr<AbilityRuntime::UIAbility> ability = std::make_shared<AbilityRuntime::UIAbility>();
+    EXPECT_NE(ability, nullptr);
+
+    // init UIAbility to make sure lifecycle is created.
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, nullptr);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(nullptr);
+    ability->Init(abilityRecord, nullptr, handler, nullptr);
+    std::shared_ptr<LifeCycle> lifeCycle = ability->GetLifecycle();
+    EXPECT_NE(lifeCycle, nullptr);
+
+    // register lifecycle observer on UIAbility, so that it can receive lifecycle callback from UIAbility.
+    std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    EXPECT_EQ(LifeCycle::Event::UNDEFINED, observer->GetLifecycleState());
+    ability->RegisterAbilityLifecycleObserver(observer);
+
+    // mock UIAbility lifecycle events, expecting that observer can observe them.
+    Want want;
+    ability->OnStart(want);
+    EXPECT_EQ(LifeCycle::Event::ON_START, lifeCycle->GetLifecycleState());
+    EXPECT_EQ(LifeCycle::Event::ON_START, observer->GetLifecycleState());
+    LifeCycle::Event finalObservedState = observer->GetLifecycleState();
+
+    // unregister lifecycle observer on UIAbility, expecting that observer remains in the previous state,
+    // can not observe later lifecycle events anymore.
+    ability->UnregisterAbilityLifecycleObserver(observer);
+    ability->OnStop();
+    EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
+    EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
 }
 } // namespace AppExecFwk
 } // namespace OHOS

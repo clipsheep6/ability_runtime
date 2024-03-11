@@ -63,6 +63,10 @@ public:
     {
         return;
     }
+    void DumpCpuProfile(bool isPrivate) override
+    {
+        return;
+    }
     void DestroyHeapProfiler() override
     {
         return;
@@ -121,6 +125,8 @@ public:
         bool needBreakPoint, const std::string &processName, bool isDebug = true) override {}
 
     void DoCleanWorkAfterStageCleaned() override {}
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {}
+    void ForceFullGC(uint32_t tid) override {}
 public:
     Language language;
 };

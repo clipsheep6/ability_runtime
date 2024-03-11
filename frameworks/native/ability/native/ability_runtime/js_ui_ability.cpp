@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -67,6 +67,25 @@ napi_value PromiseCallback(napi_env env, napi_callback_info info)
     callbackInfo->Call();
     AppExecFwk::AbilityTransactionCallbackInfo<>::Destroy(callbackInfo);
     data = nullptr;
+    return nullptr;
+}
+
+napi_value OnContinuePromiseCallback(napi_env env, napi_callback_info info)
+{
+    void *data = nullptr;
+    size_t argc = 1;
+    napi_value argv = {nullptr};
+    NAPI_CALL_NO_THROW(napi_get_cb_info(env, info, &argc, &argv, nullptr, &data), nullptr);
+    int32_t onContinueRes = 0;
+    if (!ConvertFromJsValue(env, argv, onContinueRes)) {
+        HILOG_ERROR("Get js return value failed.");
+        return nullptr;
+    }
+    auto *callbackInfo = static_cast<AppExecFwk::AbilityTransactionCallbackInfo<int32_t> *>(data);
+    callbackInfo->Call(onContinueRes);
+    AppExecFwk::AbilityTransactionCallbackInfo<int32_t>::Destroy(callbackInfo);
+    data = nullptr;
+
     return nullptr;
 }
 } // namespace
@@ -202,7 +221,7 @@ void JsUIAbility::SetAbilityContext(std::shared_ptr<AbilityInfo> abilityInfo,
         return;
     }
     napi_value contextObj = nullptr;
-    int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+    int32_t screenMode = want->GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::IDLE_SCREEN_MODE);
     CreateJSContext(env, contextObj, screenMode);
     if (shellContextRef_ == nullptr) {
         HILOG_ERROR("shellContextRef_ is nullptr.");
@@ -518,6 +537,10 @@ void JsUIAbility::OnForeground(const Want &want)
     }
 
     UIAbility::OnForeground(want);
+    if (CheckIsSilentForeground()) {
+        HILOG_DEBUG("silent foreground, do not call 'onForeground'");
+        return;
+    }
     CallOnForegroundFunc(want);
 }
 
@@ -709,6 +732,11 @@ void JsUIAbility::DoOnForeground(const Want &want)
     auto window = scene_->GetMainWindow();
     if (window != nullptr && securityFlag_) {
         window->SetSystemPrivacyMode(true);
+    }
+
+    if (CheckIsSilentForeground()) {
+        HILOG_INFO("silent foreground, do not show window");
+        return;
     }
 
     HILOG_DEBUG("Move scene to foreground, sceneFlag_: %{public}d.", UIAbility::sceneFlag_);
@@ -956,6 +984,7 @@ bool JsUIAbility::GetInsightIntentExecutorInfo(const Want &want,
 
 int32_t JsUIAbility::OnContinue(WantParams &wantParams)
 {
+    HILOG_INFO("OnContinue called.");
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     if (jsAbilityObj_ == nullptr) {
@@ -967,32 +996,27 @@ int32_t JsUIAbility::OnContinue(WantParams &wantParams)
         HILOG_ERROR("Failed to get Ability object.");
         return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
     }
-
-    napi_value methodOnCreate = nullptr;
-    napi_get_named_property(env, obj, "onContinue", &methodOnCreate);
-    if (methodOnCreate == nullptr) {
-        HILOG_ERROR("Failed to get 'onContinue' from Ability object.");
-        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
-    }
-
     napi_value jsWantParams = OHOS::AppExecFwk::WrapWantParams(env, wantParams);
-    napi_value result = nullptr;
-    napi_call_function(env, obj, methodOnCreate, 1, &jsWantParams, &result);
-
-    OHOS::AppExecFwk::UnwrapWantParams(env, jsWantParams, wantParams);
-
-    int32_t numberResult = 0;
-    if (!ConvertFromJsValue(env, result, numberResult)) {
-        HILOG_ERROR("'onContinue' is not implemented.");
-        return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+    napi_value result = CallObjectMethod("onContinue", &jsWantParams, 1, true);
+    int32_t onContinueRes = 0;
+    if (!CheckPromise(result)) {
+        if (!ConvertFromJsValue(env, result, onContinueRes)) {
+            HILOG_ERROR("'onContinue' is not implemented");
+            return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+        }
+    } else {
+        if (!CallPromise(result, onContinueRes)) {
+            HILOG_ERROR("Failed to call promise.");
+            return AppExecFwk::ContinuationManagerStage::OnContinueResult::REJECT;
+        }
     }
-
+    OHOS::AppExecFwk::UnwrapWantParams(env, jsWantParams, wantParams);
     auto applicationContext = AbilityRuntime::Context::GetApplicationContext();
     if (applicationContext != nullptr) {
         applicationContext->DispatchOnAbilityContinue(jsAbilityObj_);
     }
-
-    return numberResult;
+    HILOG_INFO("OnContinue end.");
+    return onContinueRes;
 }
 
 int32_t JsUIAbility::OnSaveState(int32_t reason, WantParams &wantParams)
@@ -1267,6 +1291,48 @@ bool JsUIAbility::CallPromise(napi_value result, AppExecFwk::AbilityTransactionC
     HandleScope handleScope(jsRuntime_);
     napi_value promiseCallback = nullptr;
     napi_create_function(env, "promiseCallback", strlen("promiseCallback"), PromiseCallback,
+        callbackInfo, &promiseCallback);
+    napi_value argv[1] = { promiseCallback };
+    napi_call_function(env, result, then, 1, argv, nullptr);
+    HILOG_DEBUG("CallPromise complete");
+    return true;
+}
+
+bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
+{
+    auto env = jsRuntime_.GetNapiEnv();
+    if (!CheckTypeForNapiValue(env, result, napi_object)) {
+        HILOG_ERROR("Error to convert native value to NativeObject.");
+        return false;
+    }
+    napi_value then = nullptr;
+    napi_get_named_property(env, result, "then", &then);
+    if (then == nullptr) {
+        HILOG_ERROR("Error to get property: then.");
+        return false;
+    }
+    bool isCallable = false;
+    napi_is_callable(env, then, &isCallable);
+    if (!isCallable) {
+        HILOG_ERROR("property then is not callable");
+        return false;
+    }
+
+    std::weak_ptr<UIAbility> weakPtr = shared_from_this();
+    auto asyncCallback = [abilityWeakPtr = weakPtr, this, &onContinueRes](int32_t &result) {
+        auto ability = abilityWeakPtr.lock();
+        if (ability == nullptr) {
+            HILOG_ERROR("Ability is nullptr.");
+            return;
+        }
+        onContinueRes = result;
+    };
+    auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<int32_t>::Create();
+    callbackInfo->Push(asyncCallback);
+
+    HandleScope handleScope(jsRuntime_);
+    napi_value promiseCallback = nullptr;
+    napi_create_function(env, nullptr, NAPI_AUTO_LENGTH, OnContinuePromiseCallback,
         callbackInfo, &promiseCallback);
     napi_value argv[1] = { promiseCallback };
     napi_call_function(env, result, then, 1, argv, nullptr);

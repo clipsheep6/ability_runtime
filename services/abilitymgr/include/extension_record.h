@@ -25,10 +25,12 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+constexpr int32_t INVALID_EXTENSION_RECORD_ID = 0;
+}
 class ExtensionRecord : public std::enable_shared_from_this<ExtensionRecord> {
 public:
-    ExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord,
-        const std::string &hostBundleName, int32_t extensionRecordId);
+    ExtensionRecord(const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord);
 
     virtual ~ExtensionRecord();
 
@@ -44,7 +46,9 @@ public:
 
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord_ = nullptr;
     std::string hostBundleName_;
-    int32_t extensionRecordId_ = 0;
+    int32_t extensionRecordId_ = INVALID_EXTENSION_RECORD_ID;
+    uint32_t processMode_ = 0;
+    bool isHostSpecified_ = false;
 
 private:
     sptr<IRemoteObject> rootCallerToken_ = nullptr;

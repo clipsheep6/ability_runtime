@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,6 +53,7 @@
 #include "iapplication_state_observer.h"
 #include "iconfiguration_observer.h"
 #include "iremote_object.h"
+#include "irender_state_observer.h"
 #include "istart_specified_ability_response.h"
 #include "record_query_result.h"
 #include "refbase.h"
@@ -64,6 +65,7 @@
 #include "want.h"
 #include "window_focus_changed_listener.h"
 #include "window_visibility_changed_listener.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -332,6 +334,15 @@ public:
      * @return ERR_OK, return back success，others fail.
      */
     virtual int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
 
     /**
      * @brief Check whether the shared bundle is running.
@@ -691,7 +702,7 @@ public:
      */
     void HandleWindowVisibilityChanged(
             const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
-    
+
     /**
      * Set the current userId, only used by abilityMgr.
      *
@@ -889,7 +900,7 @@ public:
      * @return child process record.
      */
     virtual int32_t GetChildProcessInfoForSelf(ChildProcessInfo &info);
-    
+
     /**
      * Attach child process scheduler to app manager service.
      *
@@ -932,6 +943,16 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RequestTerminateApplication() const;
+
+    int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
+
+    int32_t UpdateRenderState(pid_t renderPid, int32_t state);
+
+    int32_t SignRestartAppFlag(const std::string &bundleName);
+
+    void SetAppAssertionPauseState(int32_t pid, bool flag);
 
 private:
 
@@ -998,7 +1019,7 @@ private:
      * @return
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
-                      const std::shared_ptr<AppRunningRecord> &appRecord, const int uid,
+                      std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
                       const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
 
     /**
@@ -1142,7 +1163,7 @@ private:
     int VerifyProcessPermission() const;
 
     int VerifyProcessPermission(const std::string &bundleName) const;
-    
+
     bool CheckCallerIsAppGallery();
 
     void ApplicationTerminatedSendProcessEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
@@ -1200,6 +1221,7 @@ private:
     void KillRenderProcess(const std::shared_ptr<AppRunningRecord> &appRecord);
 
     void SetOverlayInfo(const std::string& bundleName, const int32_t userId, AppSpawnStartMsg& startMsg);
+    void SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnStartMsg& startMsg);
 
     void TimeoutNotifyApp(int32_t pid, int32_t uid, const std::string& bundleName, const FaultData &faultData);
 
@@ -1271,7 +1293,6 @@ private:
     std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
     std::string supportServiceExtMultiProcess_ {"false"};
-    std::string deviceType_ {"default"};
     int32_t currentUserId_ = 0;
     int32_t lastRenderUid_ = Constants::START_UID_FOR_RENDER_PROCESS;
     sptr<IAbilityDebugResponse> abilityDebugResponse_;

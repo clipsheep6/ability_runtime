@@ -109,11 +109,16 @@ public:
 
     virtual int GenerateCurRequestCode();
 
+    virtual ErrCode ReportDrawnCompleted();
+
     void SetWindow(sptr<Rosen::Window> window);
 
     sptr<Rosen::Window> GetWindow();
 
     Ace::UIContent* GetUIContent();
+
+    ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+        RuntimeTask &&task);
 
     using SelfType = UIExtensionContext;
     static const size_t CONTEXT_TYPE_ID;

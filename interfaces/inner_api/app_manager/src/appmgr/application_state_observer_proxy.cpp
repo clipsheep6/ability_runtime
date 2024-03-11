@@ -21,6 +21,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+const int32_t ERR_INVALID_STUB = 32;
+}
 ApplicationStateObserverProxy::ApplicationStateObserverProxy(
     const sptr<IRemoteObject> &impl) : IRemoteProxy<IApplicationStateObserver>(impl)
 {}
@@ -46,8 +49,9 @@ void ApplicationStateObserverProxy::OnForegroundApplicationChanged(const AppStat
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_FOREGROUND_APPLICATION_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, bundleName: %{public}s.",
+            ret, appStateData.bundleName.c_str());
     }
 }
 
@@ -63,8 +67,9 @@ void ApplicationStateObserverProxy::OnAbilityStateChanged(const AbilityStateData
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_ABILITY_STATE_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is wrong, error code: %{public}d.", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d, bundleName: %{public}s.",
+            ret, abilityStateData.bundleName.c_str());
     }
 }
 
@@ -80,8 +85,9 @@ void ApplicationStateObserverProxy::OnExtensionStateChanged(const AbilityStateDa
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_EXTENSION_STATE_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is wrong, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d, bundleName:%{public}s.",
+            ret, abilityStateData.bundleName.c_str());
     }
 }
 
@@ -97,8 +103,9 @@ void ApplicationStateObserverProxy::OnProcessCreated(const ProcessData &processD
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_CREATED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d, bundleName:%{public}s.",
+            ret, processData.bundleName.c_str());
     }
 }
 
@@ -115,8 +122,9 @@ void ApplicationStateObserverProxy::OnProcessReused(const ProcessData &processDa
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_REUSED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d, bundleName:%{public}s.",
+            ret, processData.bundleName.c_str());
     }
 }
 
@@ -132,8 +140,9 @@ void ApplicationStateObserverProxy::OnProcessStateChanged(const ProcessData &pro
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_STATE_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d, bundleName:%{public}s.",
+            ret, processData.bundleName.c_str());
     }
     HILOG_DEBUG("end");
 }
@@ -150,8 +159,9 @@ void ApplicationStateObserverProxy::OnProcessDied(const ProcessData &processData
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PROCESS_DIED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is wrong, error code: %{public}d, bundleName:%{public}s.",
+            ret, processData.bundleName.c_str());
     }
 }
 
@@ -161,15 +171,16 @@ void ApplicationStateObserverProxy::OnApplicationStateChanged(const AppStateData
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("OnApplicationStateChanged, WriteInterfaceToken failed");
+        HILOG_ERROR("WriteInterfaceToken failed");
         return;
     }
     data.WriteParcelable(&appStateData);
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APPLICATION_STATE_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("OnApplicationStateChanged, SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, bundleName: %{public}s.",
+            ret, appStateData.bundleName.c_str());
     }
 }
 
@@ -179,15 +190,16 @@ void ApplicationStateObserverProxy::OnAppStateChanged(const AppStateData &appSta
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("OnAppStateChanged, WriteInterfaceToken failed");
+        HILOG_ERROR("WriteInterfaceToken failed");
         return;
     }
     data.WriteParcelable(&appStateData);
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("OnAppStateChanged, SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR || ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, , bundleName: %{public}s",
+            ret, appStateData.bundleName.c_str());
     }
 }
 
@@ -197,15 +209,16 @@ void ApplicationStateObserverProxy::OnAppStarted(const AppStateData &appStateDat
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("OnAppStarted, WriteInterfaceToken failed");
+        HILOG_ERROR("WriteInterfaceToken failed");
         return;
     }
     data.WriteParcelable(&appStateData);
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STARTED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("OnAppStarted, SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, bundleName: %{public}s.",
+            ret, appStateData.bundleName.c_str());
     }
 }
 
@@ -222,8 +235,9 @@ void ApplicationStateObserverProxy::OnAppStopped(const AppStateData &appStateDat
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STOPPED),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("OnAppStopped, SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, bundleName: %{public}s.",
+            ret, appStateData.bundleName.c_str());
     }
 }
 
@@ -233,15 +247,16 @@ void ApplicationStateObserverProxy::OnPageShow(const PageStateData &pageStateDat
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("OnPageShow, WriteInterfaceToken failed");
+        HILOG_ERROR("WriteInterfaceToken failed");
         return;
     }
     data.WriteParcelable(&pageStateData);
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("OnPageShow, SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR || ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, bundleName: %{public}s",
+            ret, pageStateData.bundleName.c_str());
     }
 }
 
@@ -251,15 +266,16 @@ void ApplicationStateObserverProxy::OnPageHide(const PageStateData &pageStateDat
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("OnPageHide, WriteInterfaceToken failed");
+        HILOG_ERROR("WriteInterfaceToken failed");
         return;
     }
     data.WriteParcelable(&pageStateData);
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_HIDE),
         data, reply, option);
-    if (ret != NO_ERROR) {
-        HILOG_WARN("OnPageHide, SendRequest is failed, error code: %{public}d", ret);
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
+        HILOG_WARN("SendRequest is failed, error code: %{public}d, bundleName: %{public}s",
+            ret, pageStateData.bundleName.c_str());
     }
 }
 

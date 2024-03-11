@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 
 #include "insight_intent_execute_param.h"
 #include "hilog_wrapper.h"
+#include "int_wrapper.h"
+#include "string_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -32,6 +34,7 @@ bool InsightIntentExecuteParam::ReadFromParcel(Parcel &parcel)
     insightIntentParam_ = wantParams;
     executeMode_ = parcel.ReadInt32();
     insightIntentId_ = parcel.ReadUint64();
+    displayId_ = parcel.ReadInt32();
     return true;
 }
 
@@ -58,6 +61,7 @@ bool InsightIntentExecuteParam::Marshalling(Parcel &parcel) const
     parcel.WriteParcelable(insightIntentParam_.get());
     parcel.WriteInt32(executeMode_);
     parcel.WriteUint64(insightIntentId_);
+    parcel.WriteInt32(displayId_);
     return true;
 }
 
@@ -85,8 +89,11 @@ bool InsightIntentExecuteParam::GenerateFromWant(const AAFwk::Want &want,
     executeParam.insightIntentName_ = wantParams.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME);
     executeParam.insightIntentId_ = std::stoull(wantParams.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_ID));
     executeParam.executeMode_ = wantParams.GetIntParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, 0);
-    executeParam.insightIntentParam_ =
-        std::make_shared<WantParams>(wantParams.GetWantParams(INSIGHT_INTENT_EXECUTE_PARAM_PARAM));
+
+    auto insightIntentParam = wantParams.GetWantParams(INSIGHT_INTENT_EXECUTE_PARAM_PARAM);
+    UpdateInsightIntentCallerInfo(wantParams, insightIntentParam);
+    executeParam.insightIntentParam_ = std::make_shared<WantParams>(insightIntentParam);
+
     return true;
 }
 
@@ -105,6 +112,26 @@ bool InsightIntentExecuteParam::RemoveInsightIntent(AAFwk::Want &want)
         want.RemoveParam(INSIGHT_INTENT_EXECUTE_PARAM_PARAM);
     }
     return true;
+}
+
+void InsightIntentExecuteParam::UpdateInsightIntentCallerInfo(const WantParams &wantParams,
+    WantParams &insightIntentParam)
+{
+    insightIntentParam.Remove(AAFwk::Want::PARAM_RESV_CALLER_TOKEN);
+    insightIntentParam.SetParam(AAFwk::Want::PARAM_RESV_CALLER_TOKEN,
+        AAFwk::Integer::Box(wantParams.GetIntParam(AAFwk::Want::PARAM_RESV_CALLER_TOKEN, 0)));
+
+    insightIntentParam.Remove(AAFwk::Want::PARAM_RESV_CALLER_UID);
+    insightIntentParam.SetParam(AAFwk::Want::PARAM_RESV_CALLER_UID,
+        AAFwk::Integer::Box(wantParams.GetIntParam(AAFwk::Want::PARAM_RESV_CALLER_UID, 0)));
+
+    insightIntentParam.Remove(AAFwk::Want::PARAM_RESV_CALLER_PID);
+    insightIntentParam.SetParam(AAFwk::Want::PARAM_RESV_CALLER_PID,
+        AAFwk::Integer::Box(wantParams.GetIntParam(AAFwk::Want::PARAM_RESV_CALLER_PID, 0)));
+
+    insightIntentParam.Remove(AAFwk::Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    insightIntentParam.SetParam(AAFwk::Want::PARAM_RESV_CALLER_BUNDLE_NAME,
+        AAFwk::String::Box(wantParams.GetStringParam(AAFwk::Want::PARAM_RESV_CALLER_BUNDLE_NAME)));
 }
 } // namespace AppExecFwk
 } // namespace OHOS

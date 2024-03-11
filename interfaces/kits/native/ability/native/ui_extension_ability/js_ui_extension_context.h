@@ -38,6 +38,8 @@ public:
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value ConnectAbility(napi_env env, napi_callback_info info);
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
+    static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
+    static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
 
 protected:
     virtual napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
@@ -46,6 +48,8 @@ protected:
     virtual napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
@@ -53,6 +57,8 @@ private:
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
+    napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
+        const AAFwk::StartOptions &options, size_t unwrapArgc);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {

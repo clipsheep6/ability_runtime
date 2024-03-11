@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -707,12 +707,12 @@ void UIAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 void UIAbilityThread::RequestTerminateSelf()
 {
     if (currentAbility_ == nullptr) {
-        HILOG_ERROR("current ability is nullptr");
+        HILOG_ERROR("Current ability is nullptr");
         return;
     }
     auto context = currentAbility_->GetAbilityContext();
     if (context == nullptr) {
-        HILOG_ERROR("current ability context is nullptr");
+        HILOG_ERROR("Current ability context is nullptr");
         return;
     }
 

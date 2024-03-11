@@ -207,6 +207,10 @@ private:
         const AppExecFwk::InsightIntentExecuteResult &result) override;
     void PostInsightIntentExecuted(const sptr<AAFwk::SessionInfo> &sessionInfo,
         const AppExecFwk::InsightIntentExecuteResult &result, bool needForeground);
+    std::unique_ptr<NativeReference> CreateAppWindowStage(sptr<Rosen::Window> uiWindow,
+        sptr<AAFwk::SessionInfo> sessionInfo);
+    sptr<Rosen::Window> CreateUIWindow(const std::shared_ptr<UIExtensionContext> context,
+        const sptr<AAFwk::SessionInfo> &sessionInfo);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

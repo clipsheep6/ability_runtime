@@ -53,6 +53,8 @@ public:
     void SetToken(const sptr<IRemoteObject> &token) override;
     void SwitchArea(int mode) override;
     std::shared_ptr<Context> CreateModuleContext(const std::string &moduleName) override;
+    int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName,
+        const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) override;
     std::shared_ptr<Context> CreateModuleContext(
         const std::string &bundleName, const std::string &moduleName) override;
     int GetArea() override;

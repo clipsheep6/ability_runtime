@@ -20,18 +20,22 @@
 #include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_exit_reason_data_manager.h"
+#include "app_utils.h"
 #include "errors.h"
 #include "exit_reason.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
 #include "mission_info.h"
+#include "process_options.h"
 #include "session_info.h"
+#include "session_manager_lite.h"
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
 namespace AAFwk {
 namespace {
+constexpr const char* SEPARATOR = ":";
 constexpr char EVENT_KEY_UID[] = "UID";
 constexpr char EVENT_KEY_PID[] = "PID";
 constexpr char EVENT_KEY_MESSAGE[] = "MSG";
@@ -86,6 +90,7 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
         }
     } else {
         uiAbilityRecord = CreateAbilityRecord(abilityRequest, sessionInfo);
+        UpdateProcessName(abilityRequest, uiAbilityRecord);
     }
     CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
 
@@ -276,7 +281,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
     auto abilityInfo = abilityRequest.abilityInfo;
     bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
-    if (abilityInfo.isolationProcess && isPcDevice_ && isUIAbility) {
+    if (abilityInfo.isolationProcess && AppUtils::GetInstance().IsStartSpecifiedProcess() && isUIAbility) {
         HILOG_INFO("StartSpecifiedProcess");
         EnqueueAbilityToFront(abilityRequest);
         DelayedSingleton<AppScheduler>::GetInstance()->StartSpecifiedProcess(abilityRequest.want, abilityInfo);
@@ -293,6 +298,7 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
     sessionInfo->requestCode = abilityRequest.requestCode;
     sessionInfo->persistentId = GetPersistentIdByAbilityRequest(abilityRequest, sessionInfo->reuse, userId);
     sessionInfo->userId = userId;
+    sessionInfo->processOptions = abilityRequest.processOptions;
     HILOG_INFO("Reused sessionId: %{public}d, userId: %{public}d.", sessionInfo->persistentId, userId);
     return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
@@ -426,6 +432,7 @@ void UIAbilityLifecycleManager::CompleteForegroundSuccess(const std::shared_ptr<
     std::string element = abilityRecord->GetElementName().GetURI();
     HILOG_DEBUG("ability: %{public}s", element.c_str());
     abilityRecord->SetAbilityState(AbilityState::FOREGROUND);
+    abilityRecord->UpdateAbilityVisibilityState();
 
     // new version. started by caller, scheduler call request
     if (abilityRecord->IsStartedByCall() && abilityRecord->IsStartToForeground() && abilityRecord->IsReady()) {
@@ -534,6 +541,23 @@ void UIAbilityLifecycleManager::EraseSpecifiedAbilityRecord(const std::shared_pt
     }
 }
 
+void UIAbilityLifecycleManager::UpdateProcessName(const AbilityRequest &abilityRequest,
+    std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    if (abilityRecord == nullptr || abilityRequest.sessionInfo == nullptr ||
+        abilityRequest.sessionInfo->processOptions == nullptr ||
+        !ProcessOptions::IsNewProcessMode(abilityRequest.sessionInfo->processOptions->processMode)) {
+        HILOG_DEBUG("No need to update process name.");
+        return;
+    }
+    static uint32_t index = 0;
+    std::string processName = abilityRequest.abilityInfo.bundleName + SEPARATOR +
+        abilityRequest.abilityInfo.moduleName + SEPARATOR + abilityRequest.abilityInfo.name +
+        SEPARATOR + std::to_string(index++);
+    HILOG_DEBUG("processName: %{public}s", processName.c_str());
+    abilityRecord->SetProcessName(processName);
+}
+
 void UIAbilityLifecycleManager::UpdateAbilityRecordLaunchReason(
     const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const
 {
@@ -581,6 +605,20 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
         return iter->second;
     }
     return nullptr;
+}
+
+int32_t UIAbilityLifecycleManager::NotifySCBToMinimizeUIAbility(const std::shared_ptr<AbilityRecord> abilityRecord,
+    const sptr<IRemoteObject> token)
+{
+    HILOG_INFO("NotifySCBToMinimizeUIAbility.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto sceneSessionManager = Rosen::SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
+    Rosen::WSError ret = sceneSessionManager->PendingSessionToBackgroundForDelegator(token);
+    if (ret != Rosen::WSError::WS_OK) {
+        HILOG_ERROR("Call sceneSessionManager PendingSessionToBackgroundForDelegator error:%{public}d", ret);
+    }
+    return static_cast<int32_t>(ret);
 }
 
 int UIAbilityLifecycleManager::MinimizeUIAbility(const std::shared_ptr<AbilityRecord> &abilityRecord, bool fromUser)
@@ -768,7 +806,7 @@ int UIAbilityLifecycleManager::NotifySCBPendingActivation(sptr<SessionInfo> &ses
     const AbilityRequest &abilityRequest) const
 {
     auto abilityRecord = GetAbilityRecordByToken(abilityRequest.callerToken);
-    if (abilityRecord != nullptr) {
+    if (abilityRecord != nullptr && !abilityRecord->GetRestartAppFlag()) {
         auto callerSessionInfo = abilityRecord->GetSessionInfo();
         CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
         CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
@@ -1512,6 +1550,7 @@ int UIAbilityLifecycleManager::StartAbilityBySpecifed(const AbilityRequest &abil
     sessionInfo->callerToken = abilityRequest.callerToken;
     sessionInfo->want = abilityRequest.want;
     sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->processOptions = abilityRequest.processOptions;
     SpecifiedInfo specifiedInfo;
     specifiedInfo.abilityName = abilityRequest.abilityInfo.name;
     specifiedInfo.bundleName = abilityRequest.abilityInfo.bundleName;
@@ -1548,7 +1587,7 @@ int UIAbilityLifecycleManager::ReleaseCallLocked(
 
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
 
-    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto abilityRecords = GetAbilityRecordsByNameInner(element);
     auto isExist = [connect] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
         return abilityRecord->IsExistConnection(connect);
     };
@@ -1575,7 +1614,7 @@ void UIAbilityLifecycleManager::OnCallConnectDied(const std::shared_ptr<CallReco
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
 
     AppExecFwk::ElementName element = callRecord->GetTargetServiceName();
-    auto abilityRecords = GetAbilityRecordsByName(element);
+    auto abilityRecords = GetAbilityRecordsByNameInner(element);
     auto isExist = [callRecord] (const std::shared_ptr<AbilityRecord> &abilityRecord) {
         return abilityRecord->IsExistConnection(callRecord->GetConCallBack());
     };
@@ -1590,6 +1629,13 @@ void UIAbilityLifecycleManager::OnCallConnectDied(const std::shared_ptr<CallReco
 }
 
 std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilityRecordsByName(
+    const AppExecFwk::ElementName &element)
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    return GetAbilityRecordsByNameInner(element);
+}
+
+std::vector<std::shared_ptr<AbilityRecord>> UIAbilityLifecycleManager::GetAbilityRecordsByNameInner(
     const AppExecFwk::ElementName &element)
 {
     std::vector<std::shared_ptr<AbilityRecord>> records;
@@ -2020,9 +2066,57 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
 }
 
-void UIAbilityLifecycleManager::SetDevice(std::string deviceType)
+int UIAbilityLifecycleManager::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
-    isPcDevice_ = (deviceType == "pc" || deviceType == "2in1");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+    auto callingTokenId = IPCSkeleton::GetCallingTokenID();
+    auto tokenID = abilityRecord->GetApplicationInfo().accessTokenId;
+    if (callingTokenId != tokenID) {
+        HILOG_ERROR("Is not self.");
+        return ERR_NATIVE_NOT_SELF_APPLICATION;
+    }
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
+    if (sessionInfo->processOptions == nullptr ||
+        sessionInfo->processOptions->processMode != ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM) {
+        HILOG_ERROR("Process options check failed.");
+        return ERR_START_OPTIONS_CHECK_FAILED;
+    }
+    auto callerSessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER_AND_RETURN(callerSessionInfo, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(callerSessionInfo->sessionToken, ERR_INVALID_VALUE);
+    auto callerSession = iface_cast<Rosen::ISession>(callerSessionInfo->sessionToken);
+    return static_cast<int>(callerSession->ChangeSessionVisibilityWithStatusBar(callerSessionInfo, isShow));
+}
+
+int UIAbilityLifecycleManager::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    CHECK_POINTER_AND_RETURN(sessionInfo, ERR_INVALID_VALUE);
+    auto iter = sessionAbilityMap_.find(sessionInfo->persistentId);
+    if (iter == sessionAbilityMap_.end()) {
+        HILOG_ERROR("Ability not found.");
+        return ERR_NATIVE_ABILITY_NOT_FOUND;
+    }
+    std::shared_ptr<AbilityRecord> uiAbilityRecord = iter->second;
+    CHECK_POINTER_AND_RETURN(uiAbilityRecord, ERR_INVALID_VALUE);
+    auto state = uiAbilityRecord->GetAbilityVisibilityState();
+    if (state == AbilityVisibilityState::UNSPECIFIED || state == AbilityVisibilityState::INITIAL) {
+        HILOG_ERROR("Ability visibility state check failed.");
+        return ERR_NATIVE_ABILITY_STATE_CHECK_FAILED;
+    }
+    HILOG_INFO("Change ability visibility state to: %{public}d", isShow);
+    if (isShow) {
+        uiAbilityRecord->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_SHOW);
+        uiAbilityRecord->ProcessForegroundAbility(sessionInfo->callingTokenId);
+    } else {
+        uiAbilityRecord->SetAbilityVisibilityState(AbilityVisibilityState::FOREGROUND_HIDE);
+    }
+    return ERR_OK;
 }
 
 void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
@@ -2054,6 +2148,17 @@ void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<Session
         CloseUIAbility(ability, -1, nullptr, false);
     }
     HILOG_INFO("The end of updating session info.");
+}
+
+void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    for (auto &[sessionId, abilityRecord] : sessionAbilityMap_) {
+        if (abilityRecord == nullptr || abilityRecord->GetApplicationInfo().bundleName != bundleName) {
+            continue;
+        }
+        abilityRecord->SetRestartAppFlag(true);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

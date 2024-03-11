@@ -141,7 +141,7 @@ HWTEST_F(JsEnvironmentTest, LoadScript_0200, TestSize.Level0)
     auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
     ASSERT_EQ(ret, true);
 
-    EXPECT_EQ(jsEnv->LoadScript(""), false);
+    EXPECT_EQ(jsEnv->LoadScript(""), true);
 }
 
 /**

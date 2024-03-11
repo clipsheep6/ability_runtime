@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +30,7 @@
 #include "permission_constants.h"
 #include "permission_verification.h"
 #include "system_ability_definition.h"
+#include "base/security/access_token/interfaces/innerkits/accesstoken/include/accesstoken_kit.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -53,6 +54,7 @@ const std::string TASK_FINISH_USER_TEST = "FinishUserTest";
 const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
 const std::string TASK_ATTACH_CHILD_PROCESS = "AttachChildProcessTask";
 const std::string TASK_EXIT_CHILD_PROCESS_SAFELY = "ExitChildProcessSafelyTask";
+const std::string FOUNDATION_PROCESS = "foundation";
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -383,6 +385,26 @@ int32_t AppMgrService::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::Mallo
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->DumpHeapMemory(pid, mallocInfo);
+}
+
+// Authenticate dump permissions
+bool AppMgrService::HasDumpPermission() const
+{
+    uint32_t callingTokenID = IPCSkeleton::GetCallingTokenID();
+    int res = Security::AccessToken::AccessTokenKit::VerifyAccessToken(callingTokenID, "ohos.permission.DUMP");
+    if (res != Security::AccessToken::PermissionState::PERMISSION_GRANTED) {
+        HILOG_ERROR("No dump permission, please check!");
+        return false;
+    }
+    return true;
+}
+
+int32_t AppMgrService::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    if (!IsReady() || !HasDumpPermission()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->DumpJsHeapMemory(info);
 }
 
 void AppMgrService::AddAbilityStageDone(const int32_t recordId)
@@ -1035,5 +1057,56 @@ int32_t AppMgrService::RequestTerminateApplication()
     return appMgrServiceInner_->RequestTerminateApplication();
 }
 
+int32_t AppMgrService::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
+        HILOG_ERROR("Permission verification failed");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->RegisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrService::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (AAFwk::PermissionVerification::GetInstance()->VerifyAppStateObserverPermission() == ERR_PERMISSION_DENIED) {
+        HILOG_ERROR("Permission verification failed");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->UnregisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrService::UpdateRenderState(pid_t renderPid, int32_t state)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UpdateRenderState(renderPid, state);
+}
+
+int32_t AppMgrService::SignRestartAppFlag(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    bool isCallingPermission =
+        AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_PROCESS);
+    if (!isCallingPermission) {
+        HILOG_ERROR("VerificationAllToken failed.");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->SignRestartAppFlag(bundleName);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -41,6 +41,7 @@ ohos_unittest("AmsServiceStartupTest") {
     "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/child_process_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/render_state_observer_manager.cpp",
   ]
 
   sources += [ "ams_service_startup_test.cpp" ]

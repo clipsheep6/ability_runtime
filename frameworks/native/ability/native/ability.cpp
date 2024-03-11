@@ -815,6 +815,34 @@ std::shared_ptr<LifeCycle> Ability::GetLifecycle()
     return lifecycle_;
 }
 
+void Ability::RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("called");
+    if (observer == nullptr) {
+        HILOG_ERROR("register ability lifecycle observer failed, observer is nullptr.");
+        return;
+    }
+    if (lifecycle_ == nullptr) {
+        HILOG_ERROR("register ability lifecycle observer failed, lifecycle_ is nullptr.");
+        return;
+    }
+    lifecycle_->AddObserver(observer);
+}
+
+void Ability::UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
+{
+    HILOG_DEBUG("called");
+    if (observer == nullptr) {
+        HILOG_ERROR("unregister ability lifecycle observer failed, observer is nullptr.");
+        return;
+    }
+    if (lifecycle_ == nullptr) {
+        HILOG_ERROR("unregister ability lifecycle observer failed, lifecycle_ is nullptr.");
+        return;
+    }
+    lifecycle_->RemoveObserver(observer);
+}
+
 AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 {
     HILOG_DEBUG("called");
@@ -1648,7 +1676,7 @@ bool Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 void Ability::OnDelete(const int64_t formId)
 {}
 
-void Ability::OnUpdate(const int64_t formId)
+void Ability::OnUpdate(const int64_t formId, const AAFwk::WantParams &wantParams)
 {}
 
 void Ability::OnCastTemptoNormal(const int64_t formId)

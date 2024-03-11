@@ -29,6 +29,7 @@ namespace {
     const std::string HSPLIST_SOCKET_TYPE = "|HspList|";
     const std::string OVERLAY_SOCKET_TYPE = "|Overlay|";
     const std::string DATA_GROUP_SOCKET_TYPE = "|DataGroup|";
+    const std::string APP_ENV_TYPE = "|AppEnv|";
     const std::string DATAGROUPINFOLIST_DATAGROUPID = "dataGroupId";
     const std::string DATAGROUPINFOLIST_GID = "gid";
     const std::string DATAGROUPINFOLIST_DIR = "dir";
@@ -64,6 +65,15 @@ static std::string DumpToJson(const DataGroupInfoList &dataGroupInfoList)
         dataGroupInfoListJson[DATAGROUPINFOLIST_DIR].emplace_back(dir);
     }
     return dataGroupInfoListJson.dump();
+}
+
+static std::string DumpAppEnvToJson(const std::map<std::string, std::string> &appEnv)
+{
+    nlohmann::json appEnvJson;
+    for (const auto &[envName, envValue] : appEnv) {
+        appEnvJson[envName] = envValue;
+    }
+    return appEnvJson.dump();
 }
 
 bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
@@ -128,23 +138,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->accessTokenIdEx = startMsg.accessTokenIdEx;
         msg_->hapFlags = startMsg.hapFlags;
 
-        if (!startMsg.hspList.empty()) {
-            this->extraInfoStr += HSPLIST_SOCKET_TYPE + DumpToJson(startMsg.hspList) +
-                                  HSPLIST_SOCKET_TYPE;
-        }
-
-        if (!startMsg.dataGroupInfoList.empty()) {
-            this->extraInfoStr += DATA_GROUP_SOCKET_TYPE + DumpToJson(startMsg.dataGroupInfoList) +
-                                  DATA_GROUP_SOCKET_TYPE;
-        }
-
-        if (!startMsg.overlayInfo.empty()) {
-            this->extraInfoStr += OVERLAY_SOCKET_TYPE + startMsg.overlayInfo +
-                                  OVERLAY_SOCKET_TYPE;
-        }
-        if (!this->extraInfoStr.empty()) {
-            msg_->extraInfo.totalLength = this->extraInfoStr.size() + 1;
-        }
+        BuildExtraInfo(startMsg);
     } else if (msg_->code == AppSpawn::ClientSocket::AppOperateCode::GET_RENDER_TERMINATION_STATUS) {
         msg_->pid = startMsg.pid;
     } else {
@@ -155,6 +149,34 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
     isValid_ = true;
     DumpMsg();
     return isValid_;
+}
+
+void AppSpawnMsgWrapper::BuildExtraInfo(const AppSpawnStartMsg &startMsg)
+{
+    if (!startMsg.hspList.empty()) {
+        extraInfoStr_ += HSPLIST_SOCKET_TYPE + DumpToJson(startMsg.hspList) +
+                                HSPLIST_SOCKET_TYPE;
+    }
+
+    if (!startMsg.dataGroupInfoList.empty()) {
+        extraInfoStr_ += DATA_GROUP_SOCKET_TYPE + DumpToJson(startMsg.dataGroupInfoList) +
+                                DATA_GROUP_SOCKET_TYPE;
+    }
+
+    if (!startMsg.overlayInfo.empty()) {
+        extraInfoStr_ += OVERLAY_SOCKET_TYPE + startMsg.overlayInfo +
+                                OVERLAY_SOCKET_TYPE;
+    }
+
+    if (!startMsg.appEnv.empty()) {
+        auto appEnvStr = DumpAppEnvToJson(startMsg.appEnv);
+        HILOG_INFO("AppEnv: %{public}s", appEnvStr.c_str());
+        extraInfoStr_ += APP_ENV_TYPE + appEnvStr + APP_ENV_TYPE;
+    }
+
+    if (!extraInfoStr_.empty()) {
+        msg_->extraInfo.totalLength = extraInfoStr_.size() + 1;
+    }
 }
 
 bool AppSpawnMsgWrapper::VerifyMsg(const AppSpawnStartMsg &startMsg) const

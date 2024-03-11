@@ -23,6 +23,7 @@
 #include "app_mgr_stub.h"
 #include "hilog_wrapper.h"
 #include "app_malloc_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -77,6 +78,9 @@ public:
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
+    MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
     
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
@@ -313,6 +317,11 @@ public:
     bool AddDeathRecipient(const sptr<DeathRecipient>& recipient)
     {
         return true;
+    }
+
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+    {
+        return 0;
     }
 
 private:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include <cmath>
 #include <regex>
 
+#include "app_utils.h"
 #include "display_info.h"
 #include "constants.h"
 #include "ability_record.h"
@@ -109,6 +110,7 @@ const std::string DIALOG_POSITION = "position";
 const std::string VERTICAL_SCREEN_DIALOG_POSITION = "landscapeScreen";
 const std::string ABILITY_NAME_ANR_DIALOG = "AnrDialog";
 const std::string ABILITY_NAME_FREEZE_DIALOG = "SwitchUserDialog";
+const std::string ABILITY_NAME_ASSERT_FAULT_DIALOG = "AssertFaultDialog";
 const std::string ABILITY_NAME_TIPS_DIALOG = "TipsDialog";
 const std::string ABILITY_NAME_SELECTOR_DIALOG = "SelectorDialog";
 const std::string ABILITY_NAME_APPGALLERY_SELECTOR_DIALOG = "AppSelectorExtensionAbility";
@@ -308,8 +310,8 @@ void SystemDialogScheduler::GetSelectorDialogLandscapePosition(
 void SystemDialogScheduler::GetSelectorDialogPositionAndSize(
     DialogPosition &portraitPosition, DialogPosition &landscapePosition, int lineNums) const
 {
-    portraitPosition.wideScreen = (deviceType_ != STR_PHONE) && (deviceType_ != STR_DEFAULT);
-    portraitPosition.align = ((deviceType_ == STR_PHONE) || (deviceType_ == STR_DEFAULT)) ?
+    portraitPosition.wideScreen = !AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
+    portraitPosition.align = AppUtils::GetInstance().IsSelectorDialogDefaultPossion() ?
         DialogAlign::BOTTOM : DialogAlign::CENTER;
     landscapePosition.wideScreen = portraitPosition.wideScreen;
     landscapePosition.align = portraitPosition.align;
@@ -508,8 +510,8 @@ const std::string SystemDialogScheduler::GetDialogPositionParams(const DialogPos
 
 void SystemDialogScheduler::InitDialogPosition(DialogType type, DialogPosition &position) const
 {
-    position.wideScreen = (deviceType_ == STR_PHONE) ? false : (deviceType_ != STR_DEFAULT);
-    position.align = ((deviceType_ == STR_PHONE) ? true : (deviceType_ == STR_DEFAULT)) ?
+    position.wideScreen = !AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
+    position.align = AppUtils::GetInstance().IsSelectorDialogDefaultPossion() ?
         DialogAlign::BOTTOM : DialogAlign::CENTER;
     auto display = Rosen::DisplayManager::GetInstance().GetDefaultDisplay();
 
@@ -675,6 +677,27 @@ void SystemDialogScheduler::GetAppNameFromResource(int32_t labelId,
     }
     resourceManager->GetStringById(static_cast<uint32_t>(labelId), appName);
     HILOG_DEBUG("Get app display info, labelId: %{public}d, appname: %{public}s.", labelId, appName.c_str());
+}
+
+bool SystemDialogScheduler::GetAssertFaultDialogWant(Want &want)
+{
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr) {
+        HILOG_ERROR("Failed to get bms.");
+        return false;
+    }
+
+    std::string bundleName;
+    auto callingUid = IPCSkeleton::GetCallingUid();
+    if (IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, bundleName)) != ERR_OK) {
+        HILOG_ERROR("VerifyPermission failed to get bundle name by uid");
+        return false;
+    }
+
+    want.SetElementName(BUNDLE_NAME_DIALOG, ABILITY_NAME_ASSERT_FAULT_DIALOG);
+    want.SetParam(BUNDLE_NAME, bundleName);
+    want.SetParam(UIEXTENSION_TYPE_KEY, UIEXTENSION_SYS_COMMON_UI);
+    return true;
 }
 
 Want SystemDialogScheduler::GetSwitchUserDialogWant()

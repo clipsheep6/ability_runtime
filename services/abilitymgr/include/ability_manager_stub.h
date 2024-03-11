@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -88,7 +88,9 @@ private:
     int ReleaseDataAbilityInner(MessageParcel &data, MessageParcel &reply);
     int KillProcessInner(MessageParcel &data, MessageParcel &reply);
     int UninstallAppInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpgradeAppInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityInnerSpecifyTokenId(MessageParcel &data, MessageParcel &reply);
     int StartAbilityByUIContentSessionAddCallerInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityByUIContentSessionForOptionsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply);
@@ -108,6 +110,8 @@ private:
     int StartAbilityForSettingsInner(MessageParcel &data, MessageParcel &reply);
     int StartAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply);
     int RequestModalUIExtensionInner(MessageParcel &data, MessageParcel &reply);
+    int ChangeAbilityVisibilityInner(MessageParcel &data, MessageParcel &reply);
+    int ChangeUIAbilityVisibilityBySCBInner(MessageParcel &data, MessageParcel &reply);
 
     int GetWantSenderInner(MessageParcel &data, MessageParcel &reply);
     int SendWantSenderInner(MessageParcel &data, MessageParcel &reply);
@@ -191,6 +195,7 @@ private:
     int GetDlpConnectionInfosInner(MessageParcel &data, MessageParcel &reply);
     int GetConnectionDataInner(MessageParcel &data, MessageParcel &reply);
     int MoveAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
+    int32_t MoveUIAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply);
     int SetMissionContinueStateInner(MessageParcel &data, MessageParcel &reply);
 #ifdef SUPPORT_GRAPHICS
     int SetMissionLabelInner(MessageParcel &data, MessageParcel &reply);
@@ -269,10 +274,19 @@ private:
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
     int32_t OpenFileInner(MessageParcel &data, MessageParcel &reply);
 
+    int32_t GetElementNameByAppIdInner(MessageParcel &data, MessageParcel &reply);
+    int32_t OpenAtomicServiceInner(MessageParcel &data, MessageParcel &reply);
+    int32_t IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply);
+
     //insight intent related
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply);
+
+    int32_t GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
+    int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

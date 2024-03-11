@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -138,6 +138,25 @@ void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::
     mallocInfo = *info;
 }
 
+void AppSchedulerProxy::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    HILOG_DEBUG("AppSchedulerProxy::ScheduleJsHeapMemory start");
+    uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("AppSchedulerProxy !WriteInterfaceToken.");
+        return;
+    }
+    data.WriteParcelable(&info);
+    int32_t ret = SendTransactCmd(operation, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        return;
+    }
+}
+
 void AppSchedulerProxy::ScheduleShrinkMemory(const int32_t level)
 {
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_SHRINK_MEMORY_APPLICATION_TRANSACTION);
@@ -241,7 +260,7 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
 
 void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
-    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return;
@@ -256,12 +275,12 @@ void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const Application
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_INFO("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
 }
 
 void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
-    HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage start");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleAbilityStage start");
     MessageParcel data;
     constexpr int32_t max = 10000;
     constexpr int32_t large = 60;
@@ -295,7 +314,7 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     if (ret != NO_ERROR) {
         HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_INFO("AppSchedulerProxy ScheduleAbilityStage end");
+    HILOG_DEBUG("AppSchedulerProxy ScheduleAbilityStage end");
 }
 
 void AppSchedulerProxy::ScheduleProfileChanged(const Profile &profile)

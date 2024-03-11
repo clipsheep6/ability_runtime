@@ -21,11 +21,7 @@ ohos_moduletest("specified_ability_service_test") {
 
   include_dirs = [ "${ability_runtime_test_path}/mock/services_abilitymgr_test/libs/appexecfwk_core/include" ]
 
-  sources = [
-    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service.cpp",
-    "${ability_runtime_services_path}/abilitymgr/src/ecological_rule/ability_ecological_rule_mgr_service_param.cpp",
-    "specified_ability_service_test.cpp",
-  ]
+  sources = [ "specified_ability_service_test.cpp" ]
 
   configs = [ "${ability_runtime_services_path}/abilitymgr:abilityms_config" ]
 

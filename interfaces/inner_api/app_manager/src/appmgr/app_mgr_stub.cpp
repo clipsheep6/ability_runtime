@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,6 +28,7 @@
 #include "ipc_types.h"
 #include "iremote_object.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -93,6 +94,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetProcessRunningInformation;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS)] =
         &AppMgrStub::HandleDumpHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS)] =
+        &AppMgrStub::HandleDumpJsHeapMemory;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -159,6 +162,14 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleIsFinalAppProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF)] =
         &AppMgrStub::HandleClearUpApplicationDataBySelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_RENDER_STATUS_OBSERVER)] =
+        &AppMgrStub::HandleRegisterRenderStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_RENDER_STATUS_OBSERVER)] =
+        &AppMgrStub::HandleUnregisterRenderStateObserver;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_RENDER_STATUS)] =
+        &AppMgrStub::HandleUpdateRenderState;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG)] =
+        &AppMgrStub::HandleSignRestartAppFlag;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_PROCESS)] =
         &AppMgrStub::HandleRequestTerminateProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_APPLICATION)] =
@@ -217,16 +228,6 @@ int32_t AppMgrStub::HandleApplicationTerminated(MessageParcel &data, MessageParc
 {
     HITRACE_METER(HITRACE_TAG_APP);
     ApplicationTerminated(data.ReadInt32());
-    return NO_ERROR;
-}
-
-int32_t AppMgrStub::HandleCheckPermission(MessageParcel &data, MessageParcel &reply)
-{
-    HITRACE_METER(HITRACE_TAG_APP);
-    int32_t recordId = data.ReadInt32();
-    std::string permission = data.ReadString();
-    int32_t result = CheckPermission(recordId, permission);
-    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
@@ -386,6 +387,23 @@ int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &rep
         return result;
     }
     reply.WriteParcelable(&mallocInfo);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleDumpJsHeapMemory(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("AppMgrStub::HandleDumpJsHeapMemory.");
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::unique_ptr<JsHeapDumpInfo> info(data.ReadParcelable<JsHeapDumpInfo>());
+    if (info == nullptr) {
+        HILOG_ERROR("AppMgrStub read configuration error");
+        return ERR_INVALID_VALUE;
+    }
+    auto result = DumpJsHeapMemory(*info);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result error");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 
@@ -1034,6 +1052,85 @@ int32_t AppMgrStub::HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &
 {
     HILOG_DEBUG("Called.");
     if (!reply.WriteBool(IsFinalAppProcess())) {
+        HILOG_ERROR("Fail to write bool result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRegisterRenderStateObserver(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto callback = iface_cast<AppExecFwk::IRenderStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        HILOG_ERROR("Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = RegisterRenderStateObserver(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUnregisterRenderStateObserver(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto callback = iface_cast<AppExecFwk::IRenderStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        HILOG_ERROR("Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t result = UnregisterRenderStateObserver(callback);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUpdateRenderState(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    int32_t pid = data.ReadInt32();
+    int32_t state = data.ReadInt32();
+    int32_t result = UpdateRenderState(pid, state);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSignRestartAppFlag(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::string bundleName = data.ReadString();
+    auto ret = SignRestartAppFlag(bundleName);
+    if (!reply.WriteInt32(ret)) {
+        HILOG_ERROR("Write ret error.");
+        return IPC_STUB_ERR;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto result = RequestTerminateProcess();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write bool result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleRequestTerminateApplication(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto result = RequestTerminateApplication();
+    if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write bool result.");
         return ERR_INVALID_VALUE;
     }

@@ -47,6 +47,7 @@ ohos_unittest("form_extension_context_test") {
     "${ability_runtime_napi_path}/inner/napi_common:napi_common",
     "${ability_runtime_native_path}/ability/native:ability_business_error",
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
+    "${ability_runtime_native_path}/ability/native:auto_startup_callback",
     "${ability_runtime_native_path}/ability/native:form_extension",
     "${ability_runtime_native_path}/appkit:app_context",
     "${ability_runtime_services_path}/abilitymgr:abilityms",
@@ -76,6 +77,7 @@ ohos_unittest("form_extension_context_test") {
     "napi:ace_napi",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
+    "window_manager:session_manager_lite",
   ]
 
   if (background_task_mgr_continuous_task_enable) {

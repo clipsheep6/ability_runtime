@@ -236,6 +236,9 @@ public:
     virtual std::shared_ptr<Global::Resource::ResourceManager> CreateModuleResourceManager(
         const std::string &bundleName, const std::string &moduleName) = 0;
 
+    virtual int32_t CreateSystemHspModuleResourceManager(const std::string &bundleName,
+        const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager) = 0;
+
     /**
      * @brief Get file area
      *

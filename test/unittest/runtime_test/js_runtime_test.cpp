@@ -752,7 +752,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeRunScriptTest_0100, TestSize.Level0)
     std::string hapPath = "";
     bool useCommonChunk = true;
     bool ret = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).RunScript(srcPath, hapPath, useCommonChunk);
-    EXPECT_FALSE(ret);
+    EXPECT_TRUE(ret);
 
     HILOG_INFO("RunScript end");
 }

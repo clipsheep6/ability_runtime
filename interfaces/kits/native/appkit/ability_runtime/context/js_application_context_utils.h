@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -56,6 +56,7 @@ public:
     static napi_value SwitchArea(napi_env env, napi_callback_info info);
     static napi_value GetArea(napi_env env, napi_callback_info info);
     static napi_value CreateModuleContext(napi_env env, napi_callback_info info);
+    static napi_value CreateSystemHspModuleResourceManager(napi_env env, napi_callback_info info);
     static napi_value CreateModuleResourceManager(napi_env env, napi_callback_info info);
     static napi_value SetAutoStartup(napi_env env, napi_callback_info info);
     static napi_value CancelAutoStartup(napi_env env, napi_callback_info info);
@@ -97,6 +98,7 @@ public:
     napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
     napi_value OnRequestTerminateProcess(napi_env env, NapiCallbackInfo &info);
     napi_value OnRequestTerminateApplication(napi_env env, NapiCallbackInfo &info);
+    napi_value OnRestartApp(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -114,6 +116,7 @@ public:
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env);
+    static napi_value RestartApp(napi_env env, napi_callback_info info);
 
 protected:
     std::weak_ptr<ApplicationContext> applicationContext_;
@@ -124,6 +127,7 @@ private:
     napi_value OnSwitchArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetArea(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateModuleContext(napi_env env, NapiCallbackInfo& info);
+    napi_value OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetApplicationContext(napi_env env, NapiCallbackInfo& info);
     bool CheckCallerIsSystemApp();
     static void BindNativeApplicationContext(napi_env env, napi_value object);

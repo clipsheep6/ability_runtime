@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -540,6 +540,12 @@ bool AppScheduler::IsAttachDebug(const std::string &bundleName)
         return INNER_ERR;
     }
     return ERR_OK;
+}
+
+void AppScheduler::SetAppAssertionPauseState(int32_t pid, bool flag)
+{
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->SetAppAssertionPauseState(pid, flag);
 }
 
 void AppScheduler::ClearProcessByToken(sptr<IRemoteObject> token) const

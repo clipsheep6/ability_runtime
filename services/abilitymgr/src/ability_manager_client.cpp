@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,7 +79,10 @@ AbilityManagerClient::AbilityManagerClient()
 {}
 
 AbilityManagerClient::~AbilityManagerClient()
-{}
+{
+    HILOG_INFO("Remove DeathRecipient");
+    RemoveDeathRecipient();
+}
 
 ErrCode AbilityManagerClient::AttachAbilityThread(
     sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token)
@@ -257,6 +260,28 @@ ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
     return abms->RequestModalUIExtension(want);
 }
 
+ErrCode AbilityManagerClient::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->ChangeAbilityVisibility(token, isShow);
+}
+
+ErrCode AbilityManagerClient::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("sessionInfo is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("abilityName: %{public}s, isShow: %{public}d",
+        sessionInfo->want.GetElement().GetAbilityName().c_str(), isShow);
+    return abms->ChangeUIAbilityVisibilityBySCB(sessionInfo, isShow);
+}
+
 ErrCode AbilityManagerClient::StartUIExtensionAbility(sptr<SessionInfo> extensionSessionInfo, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -321,6 +346,12 @@ ErrCode AbilityManagerClient::MoveAbilityToBackground(sptr<IRemoteObject> token)
     return abms->MoveAbilityToBackground(token);
 }
 
+ErrCode AbilityManagerClient::MoveUIAbilityToBackground(const sptr<IRemoteObject> token)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->MoveUIAbilityToBackground(token);
+}
 
 ErrCode AbilityManagerClient::CloseAbility(sptr<IRemoteObject> token, int resultCode, const Want *resultWant)
 {
@@ -394,7 +425,7 @@ ErrCode AbilityManagerClient::ConnectAbility(const Want &want, sptr<IAbilityConn
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+    HILOG_DEBUG("name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
@@ -540,6 +571,7 @@ ErrCode AbilityManagerClient::Connect()
 
 void AbilityManagerClient::RemoveDeathRecipient()
 {
+    HILOG_INFO("RemoveDeathRecipient");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (proxy_ == nullptr) {
         HILOG_INFO("AbilityMgrProxy do not exist");
@@ -555,12 +587,6 @@ void AbilityManagerClient::RemoveDeathRecipient()
         deathRecipient_ = nullptr;
         HILOG_INFO("Remove DeathRecipient success");
     }
-}
-
-__attribute__((destructor)) void DeathRecipientDestructor()
-{
-    HILOG_INFO("Remove DeathRecipient");
-    AbilityManagerClient::GetInstance()->RemoveDeathRecipient();
 }
 
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
@@ -1673,12 +1699,78 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
     return abms->OpenFile(uri, flag);
 }
 
+int32_t AbilityManagerClient::RequestAssertFaultDialog(
+    const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("Request to display assert fault dialog.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RequestAssertFaultDialog(callback, wantParams);
+}
+
+int32_t AbilityManagerClient::NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
+{
+    HILOG_DEBUG("Notify user action result to assert fault callback.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->NotifyDebugAssertResult(assertFaultSessionId, userStatus);
+}
+
 void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
 {
     HILOG_DEBUG("Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     abms->UpdateSessionInfoBySCB(sessionInfos, userId);
+}
+
+ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo, int32_t userId)
+{
+    HILOG_DEBUG("Get ui extension host info.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->GetUIExtensionRootHostInfo(token, hostInfo, userId);
+}
+
+int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->RestartApp(want);
+}
+
+AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::string &appId)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms is nullptr.");
+        return {};
+    }
+    return abms->GetElementNameByAppId(appId);
+}
+
+int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &options,
+    sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->OpenAtomicService(want, options, callerToken, requestCode, userId);
+}
+
+bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
+{
+    HILOG_DEBUG("Get ui extension host info.");
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        HILOG_ERROR("abms is nullptr.");
+        return false;
+    }
+    return abms->IsEmbeddedOpenAllowed(callerToken, appId);
 }
 } // namespace AAFwk
 } // namespace OHOS

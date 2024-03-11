@@ -13,6 +13,10 @@
       "value": "SelectorDialog"
     },
     {
+      "name": "SelectorExtAbility_label",
+      "value": "SelectorDialog"
+    },
+    {
       "name": "TipsServiceExtAbility_desc",
       "value": "TipsDialog"
     },
@@ -65,8 +69,28 @@
       "value": "SwitchUserDialog"
     },
     {
+      "name": "AssertFaultShareExtAbility_desc",
+      "value": "AssertFaultDialog"
+    },
+    {
         "name": "message_title_switchUser",
         "value": "Switching, please wait a moment..."
+    },
+    {
+        "name": "button_continue",
+        "value": "continue"
+    },
+    {
+        "name": "button_termination",
+        "value": "termination"
+    },
+    {
+        "name": "button_retry",
+        "value": "retry"
+    },
+    {
+        "name": "title_assertFault",
+        "value": "AssertFaultDialog"
     }
   ]
 }

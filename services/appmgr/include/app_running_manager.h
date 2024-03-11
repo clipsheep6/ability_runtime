@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@
 #include "record_query_result.h"
 #include "refbase.h"
 #include "running_process_info.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -164,6 +165,15 @@ public:
     int32_t DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo);
 
     /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid, tid, needGc, needSnapshot
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info);
+
+    /**
      * Set AbilityForegroundingFlag of an app-record to true.
      *
      * @param pid, pid.
@@ -243,7 +253,9 @@ public:
      * @return Returns the number of queries.
      */
     int32_t GetAllAppRunningRecordCountByBundleName(const std::string &bundleName);
- 
+
+    int32_t SignRestartAppFlag(const std::string &bundleName);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(

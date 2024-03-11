@@ -57,6 +57,13 @@ class UIExtensionContext extends ExtensionContext {
     return this.__context_impl__.disconnectServiceExtensionAbility(connection, callback);
   }
 
+  reportDrawnCompleted(callback) {
+    return this.__context_impl__.reportDrawnCompleted(callback);
+  }
+
+  openAtomicService(appId, options, callback) {
+    return this.__context_impl__.openAtomicService(appId, options, callback);
+  }
 }
 
 export default UIExtensionContext;

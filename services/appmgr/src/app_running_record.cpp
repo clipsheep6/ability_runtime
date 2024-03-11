@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -201,7 +201,7 @@ void AppRunningRecord::SetApplicationClient(const sptr<IAppScheduler> &thread)
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty()) {
-        HILOG_ERROR("moduleRecordList is empty");
+        HILOG_DEBUG("moduleRecordList is empty");
         return;
     }
     for (const auto &moduleRecord : moduleRecordList) {
@@ -636,6 +636,13 @@ void AppRunningRecord::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 {
     if (appLifeCycleDeal_) {
         appLifeCycleDeal_->ScheduleHeapMemory(pid, mallocInfo);
+    }
+}
+
+void AppRunningRecord::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    if (appLifeCycleDeal_) {
+        appLifeCycleDeal_->ScheduleJsHeapMemory(info);
     }
 }
 
@@ -1116,7 +1123,7 @@ void AppRunningRecord::RemoveAppDeathRecipient() const
     auto object = appLifeCycleDeal_->GetApplicationClient()->AsObject();
     if (object) {
         if (!object->RemoveDeathRecipient(appDeathRecipient_)) {
-            HILOG_WARN("Failed to remove deathRecipient.");
+            HILOG_DEBUG("Failed to remove deathRecipient.");
         }
     }
 }
@@ -1934,11 +1941,40 @@ std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChil
 int32_t AppRunningRecord::RequestTerminateProcess() const
 {
     if (appLifeCycleDeal_ == nullptr) {
-        HILOG_ERROR("appLifeCycleDeal_ is nullptr.");
+        HILOG_ERROR("AppLifeCycleDeal is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    HILOG_ERROR("AppRunningRecord::RequestTerminateProcess");
     return appLifeCycleDeal_->RequestTerminateProcess();
+}
+
+int32_t AppRunningRecord::GetAssignTokenId() const
+{
+    return assignTokenId_;
+}
+
+void AppRunningRecord::SetAssignTokenId(int32_t assignTokenId)
+{
+    assignTokenId_ = assignTokenId;
+}
+
+void AppRunningRecord::SetRestartAppFlag(bool isRestartApp)
+{
+    isRestartApp_ = isRestartApp;
+}
+
+bool AppRunningRecord::GetRestartAppFlag() const
+{
+    return isRestartApp_;
+}
+
+void AppRunningRecord::SetAssertionPauseFlag(bool flag)
+{
+    isAssertPause_ = flag;
+}
+
+bool AppRunningRecord::IsAssertionPause() const
+{
+    return isAssertPause_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -73,10 +73,14 @@ void AbilityManagerStub::FirstStepInit()
         &AbilityManagerStub::KillProcessInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNINSTALL_APP)] =
         &AbilityManagerStub::UninstallAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UPGRADE_APP)] =
+        &AbilityManagerStub::UpgradeAppInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY)] =
         &AbilityManagerStub::StartAbilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER)] =
         &AbilityManagerStub::StartAbilityAddCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID)] =
+        &AbilityManagerStub::StartAbilityInnerSpecifyTokenId;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN)] =
         &AbilityManagerStub::StartAbilityAsCallerByTokenInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS)] =
@@ -315,12 +319,16 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetDlpConnectionInfosInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND)] =
         &AbilityManagerStub::MoveAbilityToBackgroundInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND)] =
+        &AbilityManagerStub::MoveUIAbilityToBackgroundInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE)] =
         &AbilityManagerStub::SetMissionContinueStateInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB)] =
         &AbilityManagerStub::PrepareTerminateAbilityBySCBInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION)] =
         &AbilityManagerStub::RequestModalUIExtensionInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO)] =
+        &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -389,6 +397,22 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::CancelApplicationAutoStartupByEDMInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
         &AbilityManagerStub::GetForegroundUIAbilitiesInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
+        &AbilityManagerStub::RestartAppInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID)] =
+        &AbilityManagerStub::GetElementNameByAppIdInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE)] =
+        &AbilityManagerStub::OpenAtomicServiceInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
+        &AbilityManagerStub::IsEmbeddedOpenAllowedInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG)] =
+        &AbilityManagerStub::RequestAssertFaultDialogInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT)] =
+        &AbilityManagerStub::NotifyDebugAssertResultInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY)] =
+        &AbilityManagerStub::ChangeAbilityVisibilityInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
+        &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -445,6 +469,21 @@ int AbilityManagerStub::MoveAbilityToBackgroundInner(MessageParcel &data, Messag
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result failed");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::MoveUIAbilityToBackgroundInner(MessageParcel &data, MessageParcel &reply)
+{
+    const sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("token is nullptr.");
+        return IPC_STUB_ERR;
+    }
+    int32_t result = MoveUIAbilityToBackground(token);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }
@@ -663,9 +702,22 @@ int AbilityManagerStub::UninstallAppInner(MessageParcel &data, MessageParcel &re
     return NO_ERROR;
 }
 
+int32_t AbilityManagerStub::UpgradeAppInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = Str16ToStr8(data.ReadString16());
+    int32_t uid = data.ReadInt32();
+    std::string exitMsg = Str16ToStr8(data.ReadString16());
+    int result = UpgradeApp(bundleName, uid, exitMsg);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("UpgradeAppInner error");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
@@ -674,7 +726,26 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, userId, requestCode);
     reply.WriteInt32(result);
-    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityInnerSpecifyTokenId(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t specifyTokenId = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int requestCode = data.ReadInt32();
+    int32_t result = StartAbilityWithSpecifyTokenId(*want, callerToken, specifyTokenId, userId, requestCode);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 
@@ -723,6 +794,7 @@ int AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner(MessagePar
         HILOG_ERROR("startOptions is nullptr");
         return ERR_INVALID_VALUE;
     }
+    startOptions->processOptions = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
@@ -749,7 +821,7 @@ int AbilityManagerStub::StartAbilityByUIContentSessionForOptionsInner(MessagePar
 
 int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
@@ -763,20 +835,52 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     int32_t result = StartExtensionAbility(*want, callerToken, userId,
         static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
 int AbilityManagerStub::RequestModalUIExtensionInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
     }
     int32_t result = RequestModalUIExtension(*want);
     reply.WriteInt32(result);
-    delete want;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ChangeAbilityVisibilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    if (!token) {
+        HILOG_ERROR("read ability token failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    bool isShow = data.ReadBool();
+    int result = ChangeAbilityVisibility(token, isShow);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<SessionInfo> sessionInfo = data.ReadParcelable<SessionInfo>();
+    if (!sessionInfo) {
+        HILOG_ERROR("read sessionInfo failed.");
+        return ERR_NULL_OBJECT;
+    }
+
+    bool isShow = data.ReadBool();
+    int result = ChangeUIAbilityVisibilityBySCB(sessionInfo, isShow);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("write result failed.");
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
+    }
     return NO_ERROR;
 }
 
@@ -796,7 +900,7 @@ int AbilityManagerStub::StartUIExtensionAbilityInner(MessageParcel &data, Messag
 
 int AbilityManagerStub::StopExtensionAbilityInner(MessageParcel& data, MessageParcel& reply)
 {
-    Want* want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
@@ -810,13 +914,12 @@ int AbilityManagerStub::StopExtensionAbilityInner(MessageParcel& data, MessagePa
     int32_t result =
         StopExtensionAbility(*want, callerToken, userId, static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
 int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
@@ -831,13 +934,12 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
 int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr!");
         return ERR_INVALID_VALUE;
@@ -857,13 +959,12 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
     int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode,
         isSendDialogResult);
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
 int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
@@ -871,9 +972,9 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
     StartOptions *startOptions = data.ReadParcelable<StartOptions>();
     if (startOptions == nullptr) {
         HILOG_ERROR("startOptions is nullptr");
-        delete want;
         return ERR_INVALID_VALUE;
     }
+    startOptions->processOptions = nullptr;
     sptr<IRemoteObject> callerToken = nullptr;
     sptr<IRemoteObject> asCallerSourceToken = nullptr;
     if (data.ReadBool()) {
@@ -886,14 +987,13 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
     int requestCode = data.ReadInt32();
     int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete want;
     delete startOptions;
     return NO_ERROR;
 }
 
 int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
@@ -909,15 +1009,12 @@ int AbilityManagerStub::ConnectAbilityInner(MessageParcel &data, MessageParcel &
     int32_t userId = data.ReadInt32();
     int32_t result = ConnectAbilityCommon(*want, callback, token, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
     reply.WriteInt32(result);
-    if (want != nullptr) {
-        delete want;
-    }
     return NO_ERROR;
 }
 
 int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("%{public}s, want is nullptr!", __func__);
         return ERR_INVALID_VALUE;
@@ -935,15 +1032,12 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
     bool isQueryExtensionOnly = data.ReadBool();
     int32_t result = ConnectAbilityCommon(*want, callback, token, extensionType, userId, isQueryExtensionOnly);
     reply.WriteInt32(result);
-    if (want != nullptr) {
-        delete want;
-    }
     return NO_ERROR;
 }
 
 int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("%{public}s, want is nullptr", __func__);
         return ERR_INVALID_VALUE;
@@ -969,9 +1063,6 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
     }
 
     reply.WriteInt32(result);
-    if (want != nullptr) {
-        delete want;
-    }
     return NO_ERROR;
 }
 
@@ -986,7 +1077,7 @@ int AbilityManagerStub::DisconnectAbilityInner(MessageParcel &data, MessageParce
 
 int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
@@ -998,7 +1089,6 @@ int AbilityManagerStub::StopServiceAbilityInner(MessageParcel &data, MessageParc
     }
     int32_t result = StopServiceAbility(*want, userId, token);
     reply.WriteInt32(result);
-    delete want;
     return NO_ERROR;
 }
 
@@ -1042,7 +1132,7 @@ int AbilityManagerStub::DumpStateInner(MessageParcel &data, MessageParcel &reply
 
 int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
@@ -1050,7 +1140,6 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
     AbilityStartSetting *abilityStartSetting = data.ReadParcelable<AbilityStartSetting>();
     if (abilityStartSetting == nullptr) {
         HILOG_ERROR("abilityStartSetting is nullptr");
-        delete want;
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> callerToken = nullptr;
@@ -1061,14 +1150,13 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete want;
     delete abilityStartSetting;
     return NO_ERROR;
 }
 
 int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, MessageParcel &reply)
 {
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr.");
         return ERR_INVALID_VALUE;
@@ -1076,7 +1164,6 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     StartOptions *startOptions = data.ReadParcelable<StartOptions>();
     if (startOptions == nullptr) {
         HILOG_ERROR("startOptions is nullptr.");
-        delete want;
         return ERR_INVALID_VALUE;
     }
     sptr<IRemoteObject> callerToken = nullptr;
@@ -1087,7 +1174,6 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, *startOptions, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    delete want;
     delete startOptions;
     return NO_ERROR;
 }
@@ -1546,6 +1632,7 @@ int AbilityManagerStub::MoveMissionToFrontByOptionsInner(MessageParcel &data, Me
         HILOG_ERROR("startOptions is nullptr");
         return ERR_INVALID_VALUE;
     }
+    startOptions->processOptions = nullptr;
     int result = MoveMissionToFront(missionId, *startOptions);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("MoveMissionToFront failed.");
@@ -1589,7 +1676,7 @@ int AbilityManagerStub::MoveMissionsToBackgroundInner(MessageParcel &data, Messa
 int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner begin.");
-    Want *want = data.ReadParcelable<Want>();
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("want is nullptr");
         return ERR_INVALID_VALUE;
@@ -1607,7 +1694,6 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
     HILOG_DEBUG("resolve call ability ret = %d", result);
 
     reply.WriteInt32(result);
-    delete want;
 
     HILOG_DEBUG("AbilityManagerStub::StartAbilityByCallInner end.");
 
@@ -2909,6 +2995,36 @@ int32_t AbilityManagerStub::OpenFileInner(MessageParcel &data, MessageParcel &re
     return ERR_OK;
 }
 
+int32_t AbilityManagerStub::RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Request to display assert fault dialog.");
+    sptr<IRemoteObject> callback = data.ReadRemoteObject();
+    std::unique_ptr<WantParams> wantParams(data.ReadParcelable<WantParams>());
+    if (wantParams == nullptr) {
+        HILOG_ERROR("ContinueMissionInner wantParams readParcelable failed.");
+        return ERR_NULL_OBJECT;
+    }
+    auto result = RequestAssertFaultDialog(callback, *wantParams);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Notify user action result to assert fault process.");
+    uint64_t assertSessionId = data.ReadUint64();
+    int32_t status = data.ReadInt32();
+    auto result = NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(status));
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AbilityManagerStub::GetForegroundUIAbilitiesInner(MessageParcel &data, MessageParcel &reply)
 {
     HILOG_DEBUG("Called.");
@@ -2960,6 +3076,112 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
     int32_t userId = data.ReadInt32();
     UpdateSessionInfoBySCB(sessionInfos, userId);
     return ERR_OK;
+}
+
+int32_t AbilityManagerStub::GetUIExtensionRootHostInfoInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            HILOG_ERROR("caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    int32_t userId = data.ReadInt32();
+    UIExtensionHostInfo hostInfo;
+    auto result = GetUIExtensionRootHostInfo(callerToken, hostInfo, userId);
+    if (!reply.WriteParcelable(&hostInfo)) {
+        HILOG_ERROR("Write host info failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("call.");
+    std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return IPC_STUB_ERR;
+    }
+    auto result = RestartApp(*want);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("fail to write result.");
+        return IPC_STUB_ERR;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerStub::GetElementNameByAppIdInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::string appId = data.ReadString();
+    auto elementName = GetElementNameByAppId(appId);
+    if (!reply.WriteParcelable(&elementName)) {
+        HILOG_ERROR("Write want error");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerStub::OpenAtomicServiceInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<StartOptions> options(data.ReadParcelable<StartOptions>());
+    if (options == nullptr) {
+        HILOG_ERROR("options is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t requestCode = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int32_t openRet = OpenAtomicService(*want, *options, callerToken, requestCode, userId);
+    if (openRet != ERR_OK) {
+        HILOG_ERROR("Open atomic service to be failed.");
+        return openRet;
+    }
+    if (!reply.WriteInt32(openRet)) {
+        HILOG_ERROR("Write openRet failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
+int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+        if (callerToken == nullptr) {
+            HILOG_ERROR("caller token is nullptr.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    std::string appId = data.ReadString();
+    auto result = IsEmbeddedOpenAllowed(callerToken, appId);
+
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
 }
 } // namespace AAFwk
 } // namespace OHOS

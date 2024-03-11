@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <cerrno>
 #include <regex>
 
+#include "ability_manager_client.h"
 #include "app_mgr_client.h"
 #include "application_context.h"
 #include "bundle_mgr_helper.h"
@@ -75,6 +76,7 @@ const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
 const int32_t API11 = 11;
 const int32_t API_VERSION_MOD = 100;
+const int32_t ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP = 16400001;
 const int AREA2 = 2;
 const int AREA3 = 3;
 
@@ -355,7 +357,6 @@ std::shared_ptr<Context> ContextImpl::CreateModuleContext(const std::string &bun
 {
     HILOG_DEBUG("begin.");
     if (bundleName.empty() || moduleName.empty()) {
-        HILOG_ERROR("bundleName or moduleName is empty");
         return nullptr;
     }
 
@@ -433,6 +434,55 @@ std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::CreateModuleReso
     }
     UpdateResConfig(resourceManager);
     return resourceManager;
+}
+
+int32_t ContextImpl::CreateSystemHspModuleResourceManager(const std::string &bundleName,
+    const std::string &moduleName, std::shared_ptr<Global::Resource::ResourceManager> &resourceManager)
+{
+    HILOG_DEBUG("begin, bundleName: %{public}s, moduleName: %{public}s", bundleName.c_str(), moduleName.c_str());
+    if (bundleName.empty() || moduleName.empty()) {
+        HILOG_ERROR("bundleName is %{public}s, moduleName is %{public}s", bundleName.c_str(), moduleName.c_str());
+        return ERR_INVALID_VALUE;
+    }
+
+    int accountId = GetCurrentAccountId();
+    if (accountId == 0) {
+        accountId = GetCurrentActiveAccountId();
+    }
+    AppExecFwk::BundleInfo bundleInfo;
+    GetBundleInfo(bundleName, bundleInfo, accountId);
+    if (bundleInfo.name.empty() || bundleInfo.applicationInfo.name.empty()) {
+        HILOG_WARN("GetBundleInfo is error");
+        ErrCode ret = bundleMgr_->GetDependentBundleInfo(bundleName, bundleInfo,
+            AppExecFwk::GetDependentBundleInfoFlag::GET_ALL_DEPENDENT_BUNDLE_INFO);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetDependentBundleInfo failed:%{public}d", ret);
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    if (bundleInfo.applicationInfo.bundleType != AppExecFwk::BundleType::APP_SERVICE_FWK) {
+        HILOG_ERROR("input bundleName:%{public}s is not system hsp", bundleName.c_str());
+        return ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP;
+    }
+
+    std::string selfBundleName = GetBundleName();
+    if (bundleInfo.applicationInfo.codePath == std::to_string(TYPE_RESERVE) ||
+        bundleInfo.applicationInfo.codePath == std::to_string(TYPE_OTHERS)) {
+        resourceManager = InitOthersResourceManagerInner(bundleInfo, selfBundleName == bundleName, moduleName);
+        if (resourceManager == nullptr) {
+            HILOG_ERROR("InitOthersResourceManagerInner create resourceManager failed");
+        }
+        return ERR_INVALID_VALUE;
+    }
+
+    resourceManager = InitResourceManagerInner(bundleInfo, selfBundleName == bundleName, moduleName);
+    if (resourceManager == nullptr) {
+        HILOG_ERROR("InitResourceManagerInner create resourceManager failed");
+        return ERR_INVALID_VALUE;
+    }
+    UpdateResConfig(resourceManager);
+    return ERR_OK;
 }
 
 int32_t ContextImpl::GetBundleInfo(const std::string &bundleName, AppExecFwk::BundleInfo &bundleInfo,
@@ -831,11 +881,11 @@ void ContextImpl::SetResourceManager(const std::shared_ptr<Global::Resource::Res
 
 std::shared_ptr<Global::Resource::ResourceManager> ContextImpl::GetResourceManager() const
 {
-    if (parentContext_ != nullptr) {
-        return parentContext_->GetResourceManager();
+    if (resourceManager_) {
+        return resourceManager_;
     }
 
-    return resourceManager_;
+    return parentContext_ != nullptr ? parentContext_->GetResourceManager() : nullptr;
 }
 
 std::shared_ptr<AppExecFwk::ApplicationInfo> ContextImpl::GetApplicationInfo() const
@@ -973,6 +1023,13 @@ int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo
 {
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
     auto result = appMgrClient->GetProcessRunningInformation(info);
+    HILOG_DEBUG("result is %{public}d.", result);
+    return result;
+}
+
+int32_t ContextImpl::RestartApp(const AAFwk::Want& want)
+{
+    auto result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->RestartApp(want);
     HILOG_DEBUG("result is %{public}d.", result);
     return result;
 }

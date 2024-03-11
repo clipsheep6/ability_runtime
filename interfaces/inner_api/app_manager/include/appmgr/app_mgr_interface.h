@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,11 +33,13 @@
 #include "iquick_fix_callback.h"
 #include "iremote_broker.h"
 #include "iremote_object.h"
+#include "irender_state_observer.h"
 #include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
 #include "system_memory_attr.h"
 #include "want.h"
+#include "app_jsheap_mem_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -187,6 +189,15 @@ public:
      * @param recordId, the app record.
      */
     virtual void AddAbilityStageDone(const int32_t recordId) = 0;
+
+    /**
+     * DumpJsHeapMemory, call DumpJsHeapMemory() through proxy project.
+     * triggerGC and dump the application's jsheap memory info.
+     *
+     * @param info, pid tid needGc needSnapshot
+     * @return ERR_OK ,return back success, others fail.
+     */
+    virtual int DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) = 0;
 
     /**
      * Start a resident process
@@ -528,6 +539,7 @@ public:
      * @return Returns true is final application process, others return false.
      */
     virtual bool IsFinalAppProcess()  = 0;
+
     /**
      * Normal scheduling to exit the process.
      *
@@ -543,6 +555,33 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t RequestTerminateApplication() = 0;
+
+    /**
+     * Register render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) = 0;
+
+    /**
+     * Unregister render state observer.
+     * @param observer Render process state observer.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) = 0;
+
+    /**
+     * Update render state.
+     * @param renderPid Render pid.
+     * @param state foreground or background state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t UpdateRenderState(pid_t renderPid, int32_t state) = 0;
+
+    virtual int32_t SignRestartAppFlag(const std::string &bundleName)
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

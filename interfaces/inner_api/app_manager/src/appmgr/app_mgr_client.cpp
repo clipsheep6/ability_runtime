@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -304,9 +304,12 @@ AppMgrResultCode AppMgrClient::KillApplicationSelf()
 
 AppMgrResultCode AppMgrClient::RequestTerminateProcess()
 {
+    if (mgrHolder_ == nullptr) {
+        HILOG_ERROR("MgrHolder is null!");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
-        HILOG_ERROR("AppMgrClient::RequestTerminateProcess");
         int32_t result = service->RequestTerminateProcess();
         if (result == ERR_OK) {
             return AppMgrResultCode::RESULT_OK;
@@ -318,6 +321,10 @@ AppMgrResultCode AppMgrClient::RequestTerminateProcess()
 
 AppMgrResultCode AppMgrClient::RequestTerminateApplication()
 {
+    if (mgrHolder_ == nullptr) {
+        HILOG_ERROR("MgrHolder is null!");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         int32_t result = service->RequestTerminateApplication();
@@ -426,6 +433,16 @@ AppMgrResultCode AppMgrClient::DumpHeapMemory(const int32_t pid, OHOS::AppExecFw
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return AppMgrResultCode(service->DumpHeapMemory(pid, mallocInfo));
+}
+
+AppMgrResultCode AppMgrClient::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("DumpJsHeapMemory: service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return AppMgrResultCode(service->DumpJsHeapMemory(info));
 }
 
 AppMgrResultCode AppMgrClient::GetConfiguration(Configuration& config)
@@ -862,6 +879,14 @@ bool AppMgrClient::IsAttachDebug(const std::string &bundleName)
     return amsService_->IsAttachDebug(bundleName);
 }
 
+void AppMgrClient::SetAppAssertionPauseState(int32_t pid, bool flag)
+{
+    if (!IsAmsServiceReady()) {
+        return;
+    }
+    amsService_->SetAppAssertionPauseState(pid, flag);
+}
+
 bool AppMgrClient::IsAmsServiceReady()
 {
     if (mgrHolder_ == nullptr) {
@@ -973,6 +998,33 @@ void AppMgrClient::ClearProcessByToken(sptr<IRemoteObject> token) const
         return;
     }
     amsService->ClearProcessByToken(token);
+}
+
+int32_t AppMgrClient::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->RegisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrClient::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->UnregisterRenderStateObserver(observer);
+}
+
+int32_t AppMgrClient::UpdateRenderState(pid_t renderPid, int32_t state)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->UpdateRenderState(renderPid, state);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

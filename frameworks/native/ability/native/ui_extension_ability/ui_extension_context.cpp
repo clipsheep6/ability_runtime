@@ -109,6 +109,16 @@ ErrCode UIExtensionContext::StartAbilityForResult(
     return err;
 }
 
+ErrCode UIExtensionContext::ReportDrawnCompleted()
+{
+    HILOG_DEBUG("begin.");
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->ReportDrawnCompleted(token_);
+    if (err != ERR_OK) {
+        HILOG_ERROR("ret=%{public}d", err);
+    }
+    return err;
+}
+
 void UIExtensionContext::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData)
 {
     HILOG_DEBUG("begin.");
@@ -167,6 +177,19 @@ Ace::UIContent* UIExtensionContext::GetUIContent()
         return nullptr;
     }
     return window_->GetUIContent();
+}
+
+ErrCode UIExtensionContext::OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
+    RuntimeTask &&task)
+{
+    HILOG_DEBUG("OpenAtomicService");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->OpenAtomicService(want, options, token_, requestCode);
+    if (err != ERR_OK && err != AAFwk::START_ABILITY_WAITING) {
+        HILOG_ERROR("OpenAtomicService. ret=%{public}d", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    return err;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

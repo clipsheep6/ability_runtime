@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -90,8 +90,14 @@ public:
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
     MOCK_METHOD1(AttachChildProcess, void(const sptr<IRemoteObject> &childScheduler));
     MOCK_METHOD0(ExitChildProcessSafely, void());
+    MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
+    MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
 
     MOCK_METHOD0(IsFinalAppProcess, bool());
+    MOCK_METHOD0(RequestTerminateProcess, int32_t());
+    MOCK_METHOD0(RequestTerminateApplication, int32_t());
+
     virtual int StartUserTestProcess(
         const AAFwk::Want &want, const sptr<IRemoteObject> &observer, const BundleInfo &bundleInfo, int32_t userId)
     {
@@ -221,6 +227,11 @@ public:
     }
 
     int32_t UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
+    {
+        return 0;
+    }
+
+    int32_t DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
     {
         return 0;
     }

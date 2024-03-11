@@ -715,5 +715,53 @@ ErrCode BundleMgrHelper::GetJsonProfile(ProfileType profileType, const std::stri
     return bundleMgr->GetJsonProfile(profileType, bundleName, moduleName, profile, userId);
 }
 
+Want BundleMgrHelper::GetLaunchWantByAppId(const std::string &appId, int32_t userId)
+{
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to connect.");
+        return {};
+    }
+
+    auto bundleName = ParseBundleNameByAppId(appId);
+    HILOG_INFO("bundleName is %{public}s.", bundleName.c_str());
+    AppExecFwk::BundleInfo bundleInfo;
+    bool ret = bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId);
+    if (!ret) {
+        HILOG_ERROR("The GetBundleInfo returns false.");
+        return {};
+    }
+    if (bundleInfo.appId != appId) {
+        HILOG_ERROR("The appId is invalid.");
+        return {};
+    }
+    Want launchWant;
+    auto queryRet = bundleMgr->GetLaunchWantForBundle(bundleName, launchWant, userId);
+    if (queryRet != ERR_OK) {
+        HILOG_ERROR("The method returns err:%{public}d.", queryRet);
+        return {};
+    }
+    return launchWant;
+}
+
+std::string BundleMgrHelper::ParseBundleNameByAppId(const std::string &appId) const
+{
+    size_t base = 89;
+    size_t count = appId.size() - base;
+    return appId.substr(0, count);
+}
+
+ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, Want &want, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleMgr = Connect();
+    if (bundleMgr == nullptr) {
+        HILOG_ERROR("Failed to connect.");
+        return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
+    }
+
+    return bundleMgr->GetLaunchWantForBundle(bundleName, want, userId);
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -27,6 +27,7 @@
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "app_utils.h"
 #include "connection_observer_errors.h"
 #include "mock_ability_connect_callback.h"
 #include "mock_ability_token.h"
@@ -592,8 +593,9 @@ HWTEST_F(AbilityManagerServiceFirstTest, GetMissionIdByToken_001, TestSize.Level
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), -1);
-    EXPECT_EQ(abilityMs_->GetMissionIdByToken(MockToken(AbilityType::PAGE)), -1);
+    EXPECT_EQ(abilityMs_->GetMissionIdByToken(nullptr), ERR_INVALID_VALUE);
+    OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_EQ(abilityMs_->GetMissionIdByToken(token), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceFirstTest GetMissionIdByToken_001 end");
 }
 
@@ -805,6 +807,21 @@ HWTEST_F(AbilityManagerServiceFirstTest, DoAbilityBackground_001, TestSize.Level
     EXPECT_EQ(abilityMs_->DoAbilityBackground(nullptr, 1), ERR_INVALID_VALUE);
     EXPECT_EQ(abilityMs_->DoAbilityBackground(MockToken(AbilityType::PAGE), 1), ERR_INVALID_VALUE);
     HILOG_INFO("AbilityManagerServiceFirstTest DoAbilityBackground_001 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_MoveUIAbilityToBackground_0100
+ * @tc.desc: Test the state of MoveUIAbilityToBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, MoveUIAbilityToBackground_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest MoveUIAbilityToBackground_0100 start");
+    if (AppUtils::GetInstance().EnableMoveUIAbilityToBackgroundApi()) {
+        auto abilityMs_ = std::make_shared<AbilityManagerService>();
+        auto token = MockToken(AbilityType::PAGE);
+        EXPECT_EQ(abilityMs_->MoveUIAbilityToBackground(token), ERR_INVALID_VALUE);
+    }
 }
 
 /*
@@ -1135,6 +1152,23 @@ HWTEST_F(AbilityManagerServiceFirstTest, ForceExitApp_001, TestSize.Level1)
     ExitReason exitReason = { REASON_JS_ERROR, "Js Error." };
     EXPECT_EQ(abilityMs_->ForceExitApp(pid, exitReason), ERR_PERMISSION_DENIED);
     HILOG_INFO("AbilityManagerServiceFirstTest ForceExitApp_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: UpgradeApp
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService UpgradeApp
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, UpgradeApp_001, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceFirstTest UpgradeApp_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    std::string bundleName = "";
+    int32_t uid = 1;
+    std::string exitMsg = "App upgrade.";
+    EXPECT_EQ(abilityMs_->UpgradeApp(bundleName, uid, exitMsg), ERR_NULL_OBJECT);
+    HILOG_INFO("AbilityManagerServiceFirstTest UpgradeApp_001 end");
 }
 
 /*
@@ -1515,7 +1549,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, GenerateEmbeddableUIAbilityRequest_001,
     HILOG_INFO("AbilityManagerServiceSecondTest GenerateEmbeddableUIAbilityRequest_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     Want want;
-    want.SetParam("ScreenMode", 1);
+    want.SetParam("ohos.extra.param.key.startupMode", 1);
     AbilityRequest request;
     auto res = abilityMs_->GenerateEmbeddableUIAbilityRequest(want, request, nullptr, USER_ID_U100);
     EXPECT_EQ(res, RESOLVE_ABILITY_ERR);

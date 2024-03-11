@@ -299,6 +299,8 @@ public:
 
     void CleanUselessTempData();
 
+    void SetAppEnv(const std::vector<AppEnvironment>& appEnvironments);
+
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
     void UpdateAppContextResMgr(const Configuration &config);

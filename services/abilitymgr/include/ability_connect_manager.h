@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -260,6 +260,10 @@ public:
 
     void RemoveLauncherDeathRecipient();
 
+    int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo);
+
+    void SignRestartAppFlag(const std::string &bundleName);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;
@@ -374,7 +378,7 @@ private:
      *
      * @param connect, the ptr of the connect record.
      */
-    void RemoveConnectionRecordFromMap(const std::shared_ptr<ConnectionRecord> &connect);
+    void RemoveConnectionRecordFromMap(std::shared_ptr<ConnectionRecord> connect);
 
     /**
      * RemoveServiceAbility.
@@ -521,6 +525,7 @@ private:
     int32_t GetOrCreateTargetServiceRecord(
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
         std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
+    void HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

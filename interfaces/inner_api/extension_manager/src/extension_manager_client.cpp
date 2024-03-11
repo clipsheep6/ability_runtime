@@ -17,6 +17,7 @@
 
 #include "ability_manager_errors.h"
 #include "extension_ability_info.h"
+#include "extension_manager_proxy.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
@@ -66,7 +67,7 @@ void ExtensionManagerClient::Connect()
         return;
     }
 
-    proxy_ = iface_cast<IExtensionManager>(remoteObj);
+    proxy_ = sptr<IExtensionManager>(new ExtensionManagerProxy(remoteObj));
     HILOG_DEBUG("Connect ability manager service success.");
 }
 

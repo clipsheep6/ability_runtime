@@ -498,6 +498,9 @@ bool JsUIExtensionBase::HandleSessionCreate(const AAFwk::Want &want, const sptr<
             return false;
         }
         uiWindowMap_[componentId] = uiWindow;
+        if (context_->GetWindow() == nullptr) {
+            context_->SetWindow(uiWindow);
+        }
     }
     return true;
 }

@@ -19,6 +19,7 @@
 #include <cstdint>
 
 #include "ability_manager_client.h"
+#include "app_utils.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -293,6 +294,26 @@ napi_value JsAbilityContext::RequestModalUIExtension(napi_env env, napi_callback
     GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnRequestModalUIExtension);
 }
 
+napi_value JsAbilityContext::ShowAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnShowAbility);
+}
+
+napi_value JsAbilityContext::HideAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnHideAbility);
+}
+
+napi_value JsAbilityContext::OpenAtomicService(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnOpenAtomicService);
+}
+
+napi_value JsAbilityContext::MoveAbilityToBackground(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAbilityContext, OnMoveAbilityToBackground);
+}
+
 void JsAbilityContext::ClearFailedCallConnection(
     const std::weak_ptr<AbilityContext>& abilityContext, const std::shared_ptr<CallerCallBack> &callback)
 {
@@ -325,7 +346,11 @@ napi_value JsAbilityContext::OnStartAbility(napi_env env, NapiCallbackInfo& info
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
         HILOG_DEBUG("OnStartAbility start options is used.");
-        AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_ONE], startOptions);
+        if (!AppExecFwk::UnwrapStartOptionsWithProcessOption(env, info.argv[INDEX_ONE], startOptions)) {
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            HILOG_ERROR("unwrap startOptions failed.");
+            return CreateJsUndefined(env);
+        }
         unwrapArgc++;
     }
 
@@ -1301,8 +1326,7 @@ void JsAbilityContext::InheritWindowMode(AAFwk::Want &want)
         return;
     }
     auto windowMode = context->GetCurrentWindowMode();
-    auto deviceType = context->GetDeviceType();
-    if (deviceType != Global::Resource::DeviceType::DEVICE_TWOINONE &&
+    if (AAFwk::AppUtils::GetInstance().IsInheritWindowSplitScreenMode() &&
         (windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY ||
         windowMode == AAFwk::AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY)) {
         want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
@@ -1421,6 +1445,13 @@ napi_value CreateJsAbilityContext(napi_env env, std::shared_ptr<AbilityContext> 
         JsAbilityContext::StartAbilityByType);
     BindNativeFunction(env, object, "requestModalUIExtension", moduleName,
         JsAbilityContext::RequestModalUIExtension);
+    BindNativeFunction(env, object, "showAbility", moduleName,
+        JsAbilityContext::ShowAbility);
+    BindNativeFunction(env, object, "hideAbility", moduleName,
+        JsAbilityContext::HideAbility);
+    BindNativeFunction(env, object, "openAtomicService", moduleName,
+        JsAbilityContext::OpenAtomicService);
+    BindNativeFunction(env, object, "moveAbilityToBackground", moduleName, JsAbilityContext::MoveAbilityToBackground);
 
 #ifdef SUPPORT_GRAPHICS
     BindNativeFunction(env, object, "setMissionLabel", moduleName, JsAbilityContext::SetMissionLabel);
@@ -1856,7 +1887,7 @@ napi_value JsAbilityContext::OnRequestModalUIExtension(napi_env env, NapiCallbac
             auto context = weak.lock();
             if (!context) {
                 HILOG_WARN("context is released");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             auto errcode = context->RequestModalUIExtension(want);
@@ -1870,6 +1901,154 @@ napi_value JsAbilityContext::OnRequestModalUIExtension(napi_env env, NapiCallbac
     napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnRequestModalUIExtension",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+napi_value JsAbilityContext::OnShowAbility(napi_env env, NapiCallbackInfo& info)
+{
+    return ChangeAbilityVisibility(env, info, true);
+}
+
+napi_value JsAbilityContext::OnHideAbility(napi_env env, NapiCallbackInfo& info)
+{
+    return ChangeAbilityVisibility(env, info, false);
+}
+
+napi_value JsAbilityContext::ChangeAbilityVisibility(napi_env env, NapiCallbackInfo& info, bool isShow)
+{
+    HILOG_DEBUG("called");
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_, isShow](napi_env env, NapiAsyncTask& task, int32_t status) {
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+            auto errCode = context->ChangeAbilityVisibility(isShow);
+            if (errCode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errCode));
+            }
+        };
+
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::ChangeAbilityVisibility",
+        env, CreateAsyncTaskWithLastParam(env, nullptr, nullptr, std::move(complete), &result));
+    return result;
+}
+
+napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo& info)
+{
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    std::string appId;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], appId)) {
+        HILOG_ERROR("Fail to parse appId.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    decltype(info.argc) unwrapArgc = ARGC_ONE;
+    Want want;
+    AAFwk::StartOptions startOptions;
+    if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+        HILOG_DEBUG("OnOpenAtomicService atomic service options is used.");
+        if (!AppExecFwk::UnwrapStartOptionsAndWant(env, info.argv[INDEX_ONE], startOptions, want)) {
+            HILOG_ERROR("Fail to parse atomic service options.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        unwrapArgc++;
+    }
+
+    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
+    std::string bundleName = elementName.GetBundleName();
+    std::string abilityName = elementName.GetAbilityName();
+    if (bundleName.empty() || abilityName.empty()) {
+        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
+        return CreateJsUndefined(env);
+    }
+
+    want.SetElement(elementName);
+    return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
+}
+
+napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want,
+    AAFwk::StartOptions &options, size_t unwrapArgc)
+{
+    InheritWindowMode(want);
+    want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND);
+    std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
+        system_clock::now().time_since_epoch()).count());
+    want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
+    napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
+    AddFreeInstallObserver(env, want, lastParam, true);
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask =
+        CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
+        bool isInner) {
+        HILOG_DEBUG("OnOpenAtomicService async callback is begin");
+        HandleScope handleScope(env);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult error");
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+        } else {
+            if (isInner) {
+                asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+            } else {
+                asyncTask->Resolve(env, abilityResult);
+            }
+        }
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released");
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+    } else {
+        want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+        curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);
+        context->OpenAtomicService(want, options, curRequestCode_, std::move(task));
+    }
+    HILOG_DEBUG("OnOpenAtomicService is called end");
+    return result;
+}
+
+napi_value JsAbilityContext::OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("OnMoveAbilityToBackground");
+    auto abilityContext = context_.lock();
+
+    NapiAsyncTask::CompleteCallback complete =
+        [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
+            HILOG_DEBUG("OnMoveAbilityToBackground task");
+            auto context = weak.lock();
+            if (!context) {
+                HILOG_WARN("context is released");
+                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+                return;
+            }
+
+            auto errcode = context->MoveUIAbilityToBackground();
+            if (errcode == 0) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+            }
+        };
+
+    napi_value lastParam = (info.argc > ARGC_ZERO) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnMoveAbilityToBackground",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
 }

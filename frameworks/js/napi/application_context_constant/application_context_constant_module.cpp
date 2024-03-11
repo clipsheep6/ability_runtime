@@ -49,6 +49,27 @@ static napi_value InitAreaModeObject(napi_env env)
     return object;
 }
 
+static napi_value InitProcessModeObject(napi_env env)
+{
+    napi_value object = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "NEW_PROCESS_ATTACH_TO_PARENT", CREATE_VALUE_ONE));
+    NAPI_CALL(env, SetEnumItem(env, object, "NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM", CREATE_VALUE_TWO));
+
+    return object;
+}
+
+static napi_value InitStartupVisibilityObject(napi_env env)
+{
+    napi_value object = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &object));
+
+    NAPI_CALL(env, SetEnumItem(env, object, "STARTUP_HIDE", CREATE_VALUE_ZERO));
+    NAPI_CALL(env, SetEnumItem(env, object, "STARTUP_SHOW", CREATE_VALUE_ONE));
+    return object;
+}
+
 /*
  * The module initialization.
  */
@@ -56,9 +77,15 @@ static napi_value ApplicationContextConstantInit(napi_env env, napi_value export
 {
     napi_value areaMode = InitAreaModeObject(env);
     NAPI_ASSERT(env, areaMode != nullptr, "failed to create AreaMode object");
+    napi_value processMode = InitProcessModeObject(env);
+    NAPI_ASSERT(env, processMode != nullptr, "failed to create ProcessMode object");
+    napi_value startupVisibility = InitStartupVisibilityObject(env);
+    NAPI_ASSERT(env, startupVisibility != nullptr, "failed to create StartupVisibility object");
 
     napi_property_descriptor exportObjs[] = {
         DECLARE_NAPI_PROPERTY("AreaMode", areaMode),
+        DECLARE_NAPI_PROPERTY("ProcessMode", processMode),
+        DECLARE_NAPI_PROPERTY("StartupVisibility", startupVisibility),
     };
 
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);

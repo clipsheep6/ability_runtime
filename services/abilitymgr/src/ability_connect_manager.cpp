@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <mutex>
+#include <regex>
 
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
@@ -24,6 +25,7 @@
 #include "ability_util.h"
 #include "appfreeze_manager.h"
 #include "app_utils.h"
+#include "assert_fault_callback_death_mgr.h"
 #include "extension_config.h"
 #include "hitrace_meter.h"
 #include "hilog_wrapper.h"
@@ -45,6 +47,7 @@ const std::string DEBUG_APP = "debugApp";
 const std::string FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+const std::string MAX_UINT64_VALUE = "18446744073709551615";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
 const int CONNECT_TIMEOUT_MULTIPLE = 45;
@@ -67,6 +70,8 @@ const std::unordered_map<std::string, std::string> trustMap = {
 const std::unordered_set<std::string> FROZEN_WHITE_LIST {
     "com.huawei.hmos.huaweicast"
 };
+constexpr char BUNDLE_NAME_DIALOG[] = "com.ohos.amsdialog";
+constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
@@ -649,6 +654,9 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     }
     std::string element = abilityRecord->GetURI();
     HILOG_DEBUG("Ability: %{public}s", element.c_str());
+    if (abilityRecord->IsSceneBoard()) {
+        HILOG_INFO("Attach Ability: %{public}s", element.c_str());
+    }
     abilityRecord->SetScheduler(scheduler);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()) {
         DelayedSingleton<AppScheduler>::GetInstance()->MoveToForeground(token);
@@ -813,7 +821,7 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
             PostExtensionDelayDisconnectTask(connectRecord);
         }
     }
-
+    CompleteStartServiceReq(abilityRecord->GetURI());
     return ERR_OK;
 }
 
@@ -1601,7 +1609,7 @@ bool AbilityConnectManager::IsAbilityConnected(const std::shared_ptr<AbilityReco
     return std::any_of(connectRecordList.begin(), connectRecordList.end(), isMatch);
 }
 
-void AbilityConnectManager::RemoveConnectionRecordFromMap(const std::shared_ptr<ConnectionRecord> &connection)
+void AbilityConnectManager::RemoveConnectionRecordFromMap(std::shared_ptr<ConnectionRecord> connection)
 {
     for (auto &connectCallback : connectMap_) {
         auto &connectList = connectCallback.second;
@@ -1859,9 +1867,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     }
 
     auto token = abilityRecord->GetToken();
+    bool isRemove = false;
     if (GetExtensionFromServiceMapInner(abilityRecord->GetAbilityRecordId()) != nullptr) {
         MoveToTerminatingMap(abilityRecord);
         RemoveServiceAbility(abilityRecord);
+        isRemove = true;
     }
 
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
@@ -1871,7 +1881,53 @@ void AbilityConnectManager::HandleAbilityDiedTask(
                 token->AsObject()));
         }
         RestartAbility(abilityRecord, currentUserId);
+    } else {
+        if (isRemove) {
+            HandleNotifyAssertFaultDialogDied(abilityRecord);
+        }
     }
+}
+
+static bool CheckIsNumString(const std::string &numStr)
+{
+    const std::regex regexJsperf(R"(^\d*)");
+    std::match_results<std::string::const_iterator> matchResults;
+    if (numStr.empty() || !std::regex_match(numStr, matchResults, regexJsperf)) {
+        HILOG_ERROR("Number parsing error, %{public}s.", numStr.c_str());
+        return false;
+    }
+    if (MAX_UINT64_VALUE.length() < numStr.length() ||
+        (MAX_UINT64_VALUE.length() == numStr.length() && MAX_UINT64_VALUE.compare(numStr) < 0)) {
+        HILOG_ERROR("Number parsing error, %{public}s.", numStr.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+void AbilityConnectManager::HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    HILOG_DEBUG("Called.");
+    CHECK_POINTER(abilityRecord);
+    if (abilityRecord->GetAbilityInfo().name != ABILITY_NAME_ASSERT_FAULT_DIALOG ||
+        abilityRecord->GetAbilityInfo().bundleName != BUNDLE_NAME_DIALOG) {
+        HILOG_ERROR("Is not assert fault dialog.");
+        return;
+    }
+
+    auto want = abilityRecord->GetWant();
+    auto assertSessionStr = want.GetStringParam(Want::PARAM_ASSERT_FAULT_SESSION_ID);
+    if (!CheckIsNumString(assertSessionStr)) {
+        HILOG_ERROR("Check assert session str is number failed.");
+        return;
+    }
+
+    auto callbackDeathMgr = DelayedSingleton<AbilityRuntime::AssertFaultCallbackDeathMgr>::GetInstance();
+    if (callbackDeathMgr == nullptr) {
+        HILOG_ERROR("Get callback death manager instance is nullptr.");
+        return;
+    }
+    callbackDeathMgr->CallAssertFaultCallback(std::stoull(assertSessionStr));
 }
 
 void AbilityConnectManager::HandleUIExtensionDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
@@ -2558,6 +2614,25 @@ void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(uiExtensionAbilityRecordMgr_);
     uiExtensionAbilityRecordMgr_->RemoveExtensionRecord(abilityRecord->GetUIExtensionAbilityId());
+}
+
+int32_t AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
+    UIExtensionHostInfo &hostInfo)
+{
+    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_INVALID_VALUE);
+    return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token, hostInfo);
+}
+
+void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
+{
+    std::lock_guard guard(Lock_);
+    for (auto &[key, abilityRecord] : serviceMap_) {
+        if (abilityRecord == nullptr || abilityRecord->GetApplicationInfo().bundleName != bundleName) {
+            continue;
+        }
+        abilityRecord->SetRestartAppFlag(true);
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -150,6 +150,17 @@ void AppLifeCycleDeal::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
     }
 
     appThread->ScheduleHeapMemory(pid, mallocInfo);
+}
+
+void AppLifeCycleDeal::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
+{
+    auto appThread = GetApplicationClient();
+    if (!appThread) {
+        HILOG_ERROR("appThread is nullptr");
+        return;
+    }
+
+    appThread->ScheduleJsHeapMemory(info);
 }
 
 void AppLifeCycleDeal::LowMemoryWarning()
@@ -319,7 +330,7 @@ int32_t AppLifeCycleDeal::RequestTerminateProcess() const
     HILOG_ERROR("AppLifeCycleDeal::RequestTerminateProcess");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        HILOG_ERROR("AppThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleRequestTerminateProcess();
