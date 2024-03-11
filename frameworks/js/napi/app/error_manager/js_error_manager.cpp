@@ -258,8 +258,7 @@ private:
 
     napi_value OnOnUnhandledRejection(napi_env env, napi_value function)
     {
-        if (function == nullptr) {
-            HILOG_ERROR("function is nullptr");
+        if (!ValidateFunction(env, function)) {
             return nullptr;
         }
         for (auto& iter : unhandledRejectionObservers) {
@@ -393,9 +392,7 @@ private:
             return ClearReference(env);
         }
         napi_value function = argv[INDEX_ONE];
-        if (function == nullptr) {
-            HILOG_ERROR("function is nullptr");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        if (!ValidateFunction(env, function)) {
             return res;
         }
         for (auto& iter : unhandledRejectionObservers) {
@@ -554,6 +551,18 @@ private:
             return type;
         }
         return "";
+    }
+
+    bool ValidateFunction(napi_env env, napi_value function)
+    {
+        if (function == nullptr ||
+            CheckTypeForNapiValue(env, function, napi_null) ||
+            CheckTypeForNapiValue(env, function, napi_undefined)) {
+            HILOG_ERROR("function is invalid");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return false;
+        }
+        return true;
     }
 
     int32_t serialNumber_ = 0;
