@@ -466,6 +466,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RequestTerminateApplication() override;
+
     int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
 
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
