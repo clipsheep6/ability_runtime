@@ -310,6 +310,57 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadSystemModuleByEngineTest_0100, TestSize.Lev
 }
 
 /**
+ * @tc.name: JsRuntimeFinishPreloadTest_0100
+ * @tc.desc: JsRuntime test for FinishPreload.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeFinishPreloadTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("FinishPreload start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+
+    jsRuntime->FinishPreload();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    HILOG_INFO("FinishPreload end");
+}
+
+/**
+ * @tc.name: JsRuntimePostPreloadTest_0100
+ * @tc.desc: JsRuntime test for FinishPreload.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimePostPreloadTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("PostPreload start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+
+    jsRuntime->PostPreload(options_);
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    HILOG_INFO("PostPreload end");
+}
+
+/**
+ * @tc.name: JsRuntimeLoadAotFileTest_0100
+ * @tc.desc: JsRuntime test for LoadAotFile.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeLoadAotFileTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("LoadAotFile start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+
+    jsRuntime->LoadAotFile(options_);
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    HILOG_INFO("LoadAotFile end");
+}
+
+/**
  * @tc.name: JsRuntimeLoadModuleTest_0100
  * @tc.desc: JsRuntime test for LoadModule.
  * @tc.type: FUNC
@@ -480,15 +531,48 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
     HILOG_INFO("StartDebugMode start");
 
     auto jsRuntime = std::make_unique<JsRuntime>();
-    EXPECT_TRUE(jsRuntime != nullptr);
 
     bool needBreakPoint = true;
     bool debugApp = true;
     const std::string processName = "test";
     jsRuntime->StartDebugMode(needBreakPoint, processName, debugApp);
-    jsRuntime->StopDebugMode();
+    EXPECT_TRUE(jsRuntime != nullptr);
 
     HILOG_INFO("StartDebugMode end");
+}
+
+/**
+ * @tc.name: JsRuntimeStopDebugModeTest_0100
+ * @tc.desc: JsRuntime test for StopDebugMode.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeStopDebugModeTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("StopDebugMode start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+
+    jsRuntime->StopDebugMode();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    HILOG_INFO("StopDebugMode end");
+}
+
+/**
+ * @tc.name: JsRuntimeInitConsoleModuleTest_0100
+ * @tc.desc: JsRuntime test for InitConsoleModule.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeInitConsoleModuleTest_0100, TestSize.Level0)
+{
+    HILOG_INFO("InitConsoleModule start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+
+    jsRuntime->InitConsoleModule();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    HILOG_INFO("InitConsoleModule end");
 }
 
 /**
@@ -564,6 +648,44 @@ HWTEST_F(JsRuntimeTest, JsRuntimeUpdateModuleNameAndAssetPathTest_0100, TestSize
     jsRuntime->UpdateModuleNameAndAssetPath(moduleName);
 
     HILOG_INFO("UpdateModuleNameAndAssetPath end");
+}
+
+/**
+ * @tc.name: JsRuntimeUpdateModuleNameAndAssetPathTest_0200
+ * @tc.desc: JsRuntime test for UpdateModuleNameAndAssetPath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUpdateModuleNameAndAssetPathTest_0200, TestSize.Level0)
+{
+    HILOG_INFO("JsRuntimeUpdateModuleNameAndAssetPathTest_0200 start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    jsRuntime->isBundle_ = false;
+    std::string moduleName = "moduleName";
+    jsRuntime->UpdateModuleNameAndAssetPath(moduleName);
+
+    HILOG_INFO("JsRuntimeUpdateModuleNameAndAssetPathTest_0200 end");
+}
+
+/**
+ * @tc.name: JsRuntimeUpdateModuleNameAndAssetPathTest_0300
+ * @tc.desc: JsRuntime test for UpdateModuleNameAndAssetPath.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, JsRuntimeUpdateModuleNameAndAssetPathTest_0300, TestSize.Level0)
+{
+    HILOG_INFO("JsRuntimeUpdateModuleNameAndAssetPathTest_0300 start");
+
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    EXPECT_TRUE(jsRuntime != nullptr);
+
+    jsRuntime->isBundle_ = false;
+    std::string moduleName = "";
+    jsRuntime->UpdateModuleNameAndAssetPath(moduleName);
+
+    HILOG_INFO("JsRuntimeUpdateModuleNameAndAssetPathTest_0300 end");
 }
 
 /**
@@ -691,7 +813,8 @@ HWTEST_F(JsRuntimeTest, ReadSourceMapData_0100, TestSize.Level0)
     std::string hapPath = "";
     std::string sourceMapPath = "";
     std::string content = "";
-    jsRuntime->ReadSourceMapData(hapPath, sourceMapPath, content);
+    auto result = jsRuntime->ReadSourceMapData(hapPath, sourceMapPath, content);
+    ASSERT_FALSE(result);
     HILOG_INFO("ReadSourceMapData end");
 }
 
@@ -1064,6 +1187,96 @@ HWTEST_F(JsRuntimeTest, ForceFullGC_0100, TestSize.Level0)
     jsRuntime->ForceFullGC();
     ASSERT_NE(jsRuntime, nullptr);
     HILOG_INFO("ForceFullGC_0100 end");
+}
+
+/**
+ * @tc.name: AllowCrossThreadExecution_0100
+ * @tc.desc: JsRuntime test for AllowCrossThreadExecution.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, AllowCrossThreadExecution_0100, TestSize.Level0)
+{
+    HILOG_INFO("AllowCrossThreadExecution_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    jsRuntime->AllowCrossThreadExecution();
+    ASSERT_NE(jsRuntime, nullptr);
+    HILOG_INFO("AllowCrossThreadExecution_0100 end");
+}
+
+/**
+ * @tc.name: GetHeapPrepare_0100
+ * @tc.desc: JsRuntime test for GetHeapPrepare.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetHeapPrepare_0100, TestSize.Level0)
+{
+    HILOG_INFO("GetHeapPrepare_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    jsRuntime->GetHeapPrepare();
+    ASSERT_NE(jsRuntime, nullptr);
+    HILOG_INFO("GetHeapPrepare_0100 end");
+}
+
+/**
+ * @tc.name: InitLoop_0100
+ * @tc.desc: JsRuntime test for InitLoop.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, InitLoop_0100, TestSize.Level0)
+{
+    HILOG_INFO("InitLoop_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    auto result = jsRuntime->InitLoop();
+    ASSERT_EQ(result, true);
+    HILOG_INFO("InitLoop_0100 end");
+}
+
+/**
+ * @tc.name: InitSourceMap_0100
+ * @tc.desc: JsRuntime test for InitSourceMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, InitSourceMap_0100, TestSize.Level0)
+{
+    HILOG_INFO("InitSourceMap_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    jsRuntime->InitSourceMap(nullptr);
+    ASSERT_NE(jsRuntime, nullptr);
+    HILOG_INFO("InitSourceMap_0100 end");
+}
+
+/**
+ * @tc.name: Deinitialize_0100
+ * @tc.desc: JsRuntime test for Deinitialize.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, Deinitialize_0100, TestSize.Level0)
+{
+    HILOG_INFO("Deinitialize_0100 start");
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    jsRuntime->Deinitialize();
+    ASSERT_NE(jsRuntime, nullptr);
+    HILOG_INFO("Deinitialize_0100 end");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
