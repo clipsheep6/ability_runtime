@@ -1954,7 +1954,6 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
         return CreateJsUndefined(env);
     }
 
-    decltype(info.argc) unwrapArgc = ARGC_ONE;
     Want want;
     AAFwk::StartOptions startOptions;
     if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
@@ -1964,7 +1963,6 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
-        unwrapArgc++;
     }
 
     auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
@@ -1977,25 +1975,22 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
     }
 
     want.SetElement(elementName);
-    return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
+    return OpenAtomicServiceInner(env, info, want, startOptions);
 }
 
 napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, Want &want,
-    AAFwk::StartOptions &options, size_t unwrapArgc)
+    AAFwk::StartOptions &options)
 {
     InheritWindowMode(want);
     want.AddFlags(Want::FLAG_INSTALL_ON_DEMAND);
     std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
         system_clock::now().time_since_epoch()).count());
     want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
-    napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
-    AddFreeInstallObserver(env, want, lastParam, true);
+    AddFreeInstallObserver(env, want, nullptr, true);
     napi_value result = nullptr;
-    std::unique_ptr<NapiAsyncTask> uasyncTask =
-        CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    auto uasyncTask = CreateAsyncTaskWithLastParam(env, nullptr, nullptr, nullptr, &result);
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
-    RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want,
-        bool isInner) {
+    RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want, bool isInner) {
         HILOG_DEBUG("OnOpenAtomicService async callback is begin");
         HandleScope handleScope(env);
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);

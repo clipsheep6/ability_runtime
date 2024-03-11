@@ -747,6 +747,9 @@ Want BundleMgrHelper::GetLaunchWantByAppId(const std::string &appId, int32_t use
 std::string BundleMgrHelper::ParseBundleNameByAppId(const std::string &appId) const
 {
     size_t base = 89;
+    if (appId.size() <= base) {
+        return "";
+    }
     size_t count = appId.size() - base;
     return appId.substr(0, count);
 }

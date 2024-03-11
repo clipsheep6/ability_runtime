@@ -1097,5 +1097,67 @@ HWTEST_F(AbilityManagerServiceThirdTest, SetPickerElementName_004, TestSize.Leve
     const sptr<SessionInfo> extensionSessionInfo = sessionInfo;
     abilityMs_->SetPickerElementName(extensionSessionInfo, USER_ID_U100);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GetElementNameByAppId
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GetElementNameByAppId
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, GetElementNameByAppId_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    std::string appId = "";
+    auto element = abilityMs->GetElementNameByAppId(appId);
+    EXPECT_EQ(element.GetBundleName(), "");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: GetElementNameByAppId
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService GetElementNameByAppId
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, GetElementNameByAppId_002, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    std::string appId = "com.ohos.mms_BCGe7sedrxc1rYrKpF/n6UElJwTjGp/z03SDQ66oBvat7ycay9aTDbq4N6R+cFiJx34bcLJ2prbMUjBX";
+    auto element = abilityMs->GetElementNameByAppId(appId);
+    EXPECT_EQ(element.GetBundleName(), "");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: OpenAtomicService
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService OpenAtomicService
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, OpenAtomicService_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    Want want;
+    StartOptions startOptions;
+    int32_t userId = 100;
+    auto openRet = abilityMs->OpenAtomicService(want, startOptions, nullptr, 1, userId);
+    EXPECT_EQ(openRet, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsEmbeddedOpenAllowedInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsEmbeddedOpenAllowedInner
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, IsEmbeddedOpenAllowedInner_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    std::string appId = "";
+    auto isAllowed = abilityMs->IsEmbeddedOpenAllowedInner(nullptr, appId, nullptr);
+    EXPECT_FALSE(isAllowed);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

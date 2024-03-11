@@ -1987,5 +1987,49 @@ HWTEST_F(AbilityManagerClientBranchTest, UpdateSessionInfoBySCB_0100, TestSize.L
     EXPECT_TRUE(client_ != nullptr);
     GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 end";
 }
+
+/**
+ * @tc.name: AbilityManagerClient_GetElementNameByAppId_0100
+ * @tc.desc: GetElementNameByAppId
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByAppId_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetElementNameByAppId_0100 start";
+    std::string appId = "com.ohos.demo_1";
+    client_->GetElementNameByAppId(appId);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "GetElementNameByAppId_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_OpenAtomicService_0100
+ * @tc.desc: OpenAtomicService
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, OpenAtomicService_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "OpenAtomicService_0100 start";
+    Want want;
+    int32_t userId = 100;
+    StartOptions startOptions;
+    client_->OpenAtomicService(want, startOptions, nullptr, 1, userId);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "OpenAtomicService_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_IsEmbeddedOpenAllowed_0100
+ * @tc.desc: IsEmbeddedOpenAllowed
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, IsEmbeddedOpenAllowed_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "IsEmbeddedOpenAllowed_0100 start";
+    std::string appId = "";
+    client_->IsEmbeddedOpenAllowed(nullptr, appId);
+    EXPECT_TRUE(client_ != nullptr);
+    GTEST_LOG_(INFO) << "IsEmbeddedOpenAllowed_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS
