@@ -169,7 +169,6 @@ private:
     void InitWorkerModule(const Options& options);
     void ReInitJsEnvImpl(const Options& options);
     void PostPreload(const Options& options);
-    void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
 
     std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);

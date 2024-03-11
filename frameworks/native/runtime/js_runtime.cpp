@@ -576,22 +576,6 @@ void JsRuntime::PostPreload(const Options& options)
     panda::JSNApi::SetLoop(vm, loop);
 }
 
-void JsRuntime::LoadAotFile(const Options& options)
-{
-    auto vm = GetEcmaVm();
-    CHECK_POINTER(vm);
-    if (options.hapPath.empty()) {
-        return;
-    }
-
-    bool newCreate = false;
-    std::string loadPath = ExtractorUtil::GetLoadFilePath(options.hapPath);
-    std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
-    if (extractor != nullptr && newCreate) {
-        panda::JSNApi::LoadAotFile(vm, options.moduleName);
-    }
-}
-
 bool JsRuntime::Initialize(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
@@ -657,7 +641,6 @@ bool JsRuntime::Initialize(const Options& options)
             bundleName_ = options.bundleName;
             codePath_ = options.codePath;
             ReInitJsEnvImpl(options);
-            LoadAotFile(options);
 
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
@@ -998,7 +981,6 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         return false;
     }
     if (newCreate) {
-        panda::JSNApi::LoadAotFile(vm, moduleName_);
         auto resourceManager = AbilityBase::ExtractResourceManager::GetExtractResourceManager().GetGlobalObject();
         if (resourceManager) {
             resourceManager->AddResource(loadPath.c_str());
