@@ -23,7 +23,7 @@ namespace AppExecFwk {
 bool AppStateData::Marshalling(Parcel &parcel) const
 {
     return (parcel.WriteString(bundleName) && parcel.WriteInt32(uid) && parcel.WriteInt32(state)
-        && parcel.WriteInt32(pid) && parcel.WriteInt32(accessTokenId) && parcel.WriteBool(isFocused)
+        && parcel.WriteInt32(pid) && parcel.WriteUint32(accessTokenId) && parcel.WriteBool(isFocused)
         && parcel.WriteInt32(static_cast<int32_t>(extensionType)) && parcel.WriteInt32Vector(renderPids)
         && parcel.WriteString(callerBundleName) && parcel.WriteBool(isSplitScreenMode)
         && parcel.WriteBool(isFloatingWindowMode));
@@ -35,7 +35,7 @@ bool AppStateData::ReadFromParcel(Parcel &parcel)
     uid = parcel.ReadInt32();
     state = parcel.ReadInt32();
     pid = parcel.ReadInt32();
-    accessTokenId = parcel.ReadInt32();
+    accessTokenId = parcel.ReadUint32();
     isFocused = parcel.ReadBool();
     extensionType = static_cast<ExtensionAbilityType>(parcel.ReadInt32());
     parcel.ReadInt32Vector(&renderPids);
