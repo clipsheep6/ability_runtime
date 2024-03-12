@@ -2049,6 +2049,7 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
                                                       uint8_t &setAllowInternet, uint8_t &allowInternet,
                                                       std::vector<int32_t> &gids, std::set<std::string> &permissions)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     hasAccessBundleDirReq = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
         [] (const auto &reqPermission) {
             if (PERMISSION_ACCESS_BUNDLE_DIR == reqPermission) {

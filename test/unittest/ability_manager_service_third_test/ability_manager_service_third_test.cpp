@@ -613,22 +613,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, IsRunningInStabilityTest_001, TestSize.
     HILOG_INFO("AbilityManagerServiceThirdTest IsRunningInStabilityTest_001 end");
 }
 
-/*
- * Feature: AbilityManagerService
- * Function: InitAbilityInfoFromExtension
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService InitAbilityInfoFromExtension
- */
-HWTEST_F(AbilityManagerServiceThirdTest, InitAbilityInfoFromExtension_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceThirdTest InitAbilityInfoFromExtension_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    ExtensionAbilityInfo extensionInfo;
-    AbilityInfo abilityInfo;
-    EXPECT_EQ(abilityMs_->InitAbilityInfoFromExtension(extensionInfo, abilityInfo), 0);
-    HILOG_INFO("AbilityManagerServiceThirdTest InitAbilityInfoFromExtension_001 end");
-}
-
 #ifdef ABILITY_COMMAND_FOR_TEST
 /*
  * Feature: AbilityManagerService

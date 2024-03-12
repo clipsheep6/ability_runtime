@@ -163,6 +163,7 @@ ohos_source_set("abilityms_test_source") {
     "${ability_runtime_services_path}/abilitymgr/src/sender_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/start_ability_handler/start_ability_sandbox_savefile.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/start_ability_utils.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/task_data_persistence_mgr.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/ui_extension_record_factory.cpp",

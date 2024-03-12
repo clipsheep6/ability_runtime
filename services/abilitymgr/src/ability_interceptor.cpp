@@ -34,6 +34,7 @@
 #include "parameters.h"
 #include "permission_constants.h"
 #include "permission_verification.h"
+#include "start_ability_utils.h"
 #include "system_dialog_scheduler.h"
 #include "want.h"
 #include "want_params_wrapper.h"
@@ -85,27 +86,15 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
 
 bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
 {
-    // get bms
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-    if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
-        return false;
-    }
-
     // get crowdtest status and time
-    std::string bundleName = want.GetBundle();
-    AppExecFwk::ApplicationInfo callerAppInfo;
-    bool result = IN_PROCESS_CALL(
-        bundleMgrHelper->GetApplicationInfo(bundleName, AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO,
-            userId, callerAppInfo)
-    );
-    if (!result) {
-        HILOG_DEBUG("GetApplicaionInfo from bms failed.");
+    AppExecFwk::ApplicationInfo appInfo;
+    if (!StartAbilityUtils::GetApplicationInfo(want.GetBundle(), userId, appInfo)) {
+        HILOG_ERROR("failed to get application info.");
         return false;
     }
 
-    auto appDistributionType = callerAppInfo.appDistributionType;
-    auto appCrowdtestDeadline = callerAppInfo.crowdtestDeadline;
+    auto appDistributionType = appInfo.appDistributionType;
+    auto appCrowdtestDeadline = appInfo.crowdtestDeadline;
     int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
     if (appDistributionType == AppExecFwk::Constants::APP_DISTRIBUTION_TYPE_CROWDTESTING &&
@@ -524,7 +513,7 @@ ErrCode AbilityJumpInterceptor::DoProcess(const Want &want, int requestCode, int
         Want targetWant = want;
         Want dialogWant = sysDialogScheduler->GetJumpInterceptorDialogWant(targetWant);
         AbilityUtil::ParseJumpInterceptorWant(dialogWant, controlRule.callerPkg);
-        LoadAppLabelInfo(bundleMgrHelper, dialogWant, controlRule, userId);
+        LoadAppLabelInfo(dialogWant, controlRule, userId);
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(dialogWant,
             requestCode, userId));
         if (ret != ERR_OK) {
@@ -559,7 +548,7 @@ bool AbilityJumpInterceptor::CheckControl(std::shared_ptr<AppExecFwk::BundleMgrH
         HILOG_INFO("Jump within the same app.");
         return false;
     }
-    if (CheckIfJumpExempt(bundleMgrHelper, controlRule, userId)) {
+    if (CheckIfJumpExempt(controlRule, userId)) {
         HILOG_INFO("Jump from or to system or exempt apps.");
         return false;
     }
@@ -579,15 +568,14 @@ bool AbilityJumpInterceptor::CheckControl(std::shared_ptr<AppExecFwk::BundleMgrH
     return controlRule.jumpMode != AppExecFwk::AbilityJumpMode::DIRECT;
 }
 
-bool AbilityJumpInterceptor::CheckIfJumpExempt(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper,
-    AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
+bool AbilityJumpInterceptor::CheckIfJumpExempt(AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
 {
-    if (CheckIfExemptByBundleName(bundleMgrHelper, controlRule.callerPkg,
+    if (CheckIfExemptByBundleName(controlRule.callerPkg,
         PermissionConstants::PERMISSION_EXEMPT_AS_CALLER, userId)) {
         HILOG_INFO("Jump from exempt caller app, No need to intercept.");
         return true;
     }
-    if (CheckIfExemptByBundleName(bundleMgrHelper, controlRule.targetPkg,
+    if (CheckIfExemptByBundleName(controlRule.targetPkg,
         PermissionConstants::PERMISSION_EXEMPT_AS_TARGET, userId)) {
         HILOG_INFO("Jump to exempt target app, No need to intercept.");
         return true;
@@ -596,16 +584,16 @@ bool AbilityJumpInterceptor::CheckIfJumpExempt(std::shared_ptr<AppExecFwk::Bundl
     return false;
 }
 
-bool AbilityJumpInterceptor::CheckIfExemptByBundleName(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper,
-    const std::string &bundleName, const std::string &permission, int32_t userId)
+bool AbilityJumpInterceptor::CheckIfExemptByBundleName(const std::string &bundleName,
+    const std::string &permission, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AppExecFwk::ApplicationInfo appInfo;
-    if (!IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-        userId, appInfo))) {
-        HILOG_ERROR("VerifyPermission failed to get application info.");
+    if (!StartAbilityUtils::GetApplicationInfo(bundleName, userId, appInfo)) {
+        HILOG_ERROR("failed to get application info.");
         return false;
     }
+
     if (appInfo.isSystemApp) {
         HILOG_INFO("Bundle:%{public}s is system app.", bundleName.c_str());
         return true;
@@ -619,16 +607,14 @@ bool AbilityJumpInterceptor::CheckIfExemptByBundleName(std::shared_ptr<AppExecFw
     return true;
 }
 
-bool AbilityJumpInterceptor::LoadAppLabelInfo(std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleMgrHelper, Want &want,
+bool AbilityJumpInterceptor::LoadAppLabelInfo(Want &want,
     AppExecFwk::AppJumpControlRule &controlRule, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     AppExecFwk::ApplicationInfo callerAppInfo;
-    IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(controlRule.callerPkg,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
+    StartAbilityUtils::GetApplicationInfo(controlRule.callerPkg, userId, callerAppInfo);
     AppExecFwk::ApplicationInfo targetAppInfo;
-    IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(controlRule.targetPkg,
-        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    StartAbilityUtils::GetApplicationInfo(controlRule.targetPkg, userId, callerAppInfo);
     want.SetParam(JUMP_DIALOG_CALLER_BUNDLE_NAME, controlRule.callerPkg);
     want.SetParam(JUMP_DIALOG_CALLER_MODULE_NAME, callerAppInfo.labelResource.moduleName);
     want.SetParam(JUMP_DIALOG_CALLER_LABEL_ID, callerAppInfo.labelId);

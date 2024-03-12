@@ -1708,9 +1708,6 @@ private:
     void InitDataAbilityManager(int32_t userId, bool switchUser);
     void InitPendWantManager(int32_t userId, bool switchUser);
 
-    int32_t InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
-        AppExecFwk::AbilityInfo &abilityInfo);
-
     // multi user
     void StartFreezingScreen();
     void StopFreezingScreen();

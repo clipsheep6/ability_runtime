@@ -81,6 +81,7 @@
 #include "softbus_bus_center.h"
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
 #include "start_options.h"
+#include "start_ability_utils.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
@@ -842,15 +843,17 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         HILOG_INFO("%{public}s: Caller is specific system ability.", __func__);
     }
 
+    int32_t oriValidUserId = GetValidUserId(userId);
+    int32_t validUserId = oriValidUserId;
+
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
+        StartAbilityUtils::GetAppIndex(want, callerToken));
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
         HILOG_ERROR("interceptorExecuter_ is nullptr or DoProcess return error.");
         return result;
     }
-
-    int32_t oriValidUserId = GetValidUserId(userId);
-    int32_t validUserId = oriValidUserId;
 
     if (callerToken != nullptr && CheckIfOperateRemote(want)) {
         HILOG_INFO("try to StartRemoteAbility");
@@ -1096,6 +1099,10 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         return ERR_INVALID_CALLER;
     }
 
+    int32_t oriValidUserId = GetValidUserId(userId);
+    int32_t validUserId = oriValidUserId;
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
+        StartAbilityUtils::GetAppIndex(want, callerToken));
     result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
@@ -1104,9 +1111,6 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
-
-    int32_t oriValidUserId = GetValidUserId(userId);
-    int32_t validUserId = oriValidUserId;
 
     if (AbilityUtil::IsStartFreeInstall(want)) {
         if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
@@ -1308,6 +1312,10 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         return ERR_INVALID_CALLER;
     }
 
+    int32_t oriValidUserId = GetValidUserId(userId);
+    int32_t validUserId = oriValidUserId;
+    StartAbilityInfoWrap threadLocalInfo(want, validUserId,
+        StartAbilityUtils::GetAppIndex(want, callerToken));
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
@@ -1316,9 +1324,6 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
         return result;
     }
-
-    int32_t oriValidUserId = GetValidUserId(userId);
-    int32_t validUserId = oriValidUserId;
 
     if (AbilityUtil::IsStartFreeInstall(want)) {
         if (CheckIfOperateRemote(want) || freeInstallManager_ == nullptr) {
@@ -1723,6 +1728,8 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
 
     auto requestCode = sessionInfo->requestCode;
+    StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId,
+        StartAbilityUtils::GetAppIndex(sessionInfo->want, sessionInfo->callerToken));
     if (sessionInfo->want.GetBoolParam(IS_CALL_BY_SCB, true)) {
         HILOG_DEBUG("interceptorExecuter_ called.");
         auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -5273,47 +5280,16 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.callerToken = callerToken;
     request.startSetting = nullptr;
 
-    auto bms = GetBundleManager();
-    CHECK_POINTER_AND_RETURN(bms, GET_ABILITY_SERVICE_FAILED);
-    auto abilityInfoFlag = (AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_PERMISSION |
-        AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_METADATA);
-    HILOG_DEBUG("QueryAbilityInfo from bms, userId is %{public}d.", userId);
-    int32_t appIndex = want.GetIntParam(DLP_INDEX, 0);
-    if (appIndex == 0) {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(want, abilityInfoFlag, userId, request.abilityInfo));
-    } else {
-        IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxAbilityInfo(want, appIndex,
-            abilityInfoFlag, userId, request.abilityInfo));
+    auto abilityInfo = StartAbilityUtils::startAbilityInfo;
+    if (abilityInfo == nullptr || abilityInfo->GetAppBundleName() != want.GetElement().GetBundleName()) {
+        abilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want, userId, want.GetIntParam(DLP_INDEX, 0));
     }
-    if (request.abilityInfo.name.empty() || request.abilityInfo.bundleName.empty()) {
-        // try to find extension
-        std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-        if (appIndex == 0) {
-            IN_PROCESS_CALL_WITHOUT_RET(bms->QueryExtensionAbilityInfos(want, abilityInfoFlag,
-                userId, extensionInfos));
-        } else {
-            IN_PROCESS_CALL_WITHOUT_RET(bms->GetSandboxExtAbilityInfos(want, appIndex,
-                abilityInfoFlag, userId, extensionInfos));
-        }
-        if (extensionInfos.size() <= 0) {
-            HILOG_ERROR("GenerateAbilityRequest error. Get extension info failed.");
-            return RESOLVE_ABILITY_ERR;
-        }
-
-        AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
-        if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
-            HILOG_ERROR("extensionInfo empty.");
-            return RESOLVE_ABILITY_ERR;
-        }
-        request.extensionProcessMode = extensionInfo.extensionProcessMode;
-        HILOG_DEBUG("Extension ability info found, name=%{public}s.",
-            extensionInfo.name.c_str());
-        // For compatibility translates to AbilityInfo
-        InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
+    CHECK_POINTER_AND_RETURN(abilityInfo, GET_ABILITY_SERVICE_FAILED);
+    if (abilityInfo->status == RESOLVE_ABILITY_ERR) {
+        return RESOLVE_ABILITY_ERR;
     }
-    HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
-        request.abilityInfo.name.c_str(), request.abilityInfo.isStageBasedModel);
+    request.abilityInfo = abilityInfo->abilityInfo;
+    request.extensionProcessMode = abilityInfo->extensionProcessMode;
 
     if (request.abilityInfo.applicationInfo.codePath == std::to_string(CollaboratorType::RESERVE_TYPE)) {
         request.collaboratorType = CollaboratorType::RESERVE_TYPE;
@@ -5393,7 +5369,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     }
     HILOG_DEBUG("Extension ability info found, name=%{public}s.", extensionInfo.name.c_str());
     // For compatibility translates to AbilityInfo
-    InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
+    StartAbilityInfo::InitAbilityInfoFromExtension(extensionInfo, request.abilityInfo);
     request.extensionProcessMode = extensionInfo.extensionProcessMode;
 
     HILOG_DEBUG("QueryAbilityInfo success, ability name: %{public}s, is stage mode: %{public}d.",
@@ -6275,6 +6251,8 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return CHECK_PERMISSION_FAILED;
     }
 
+    StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
+        StartAbilityUtils::GetAppIndex(want, callerToken));
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, 0, GetUserId(), true);
     if (result != ERR_OK) {
@@ -7219,45 +7197,6 @@ bool AbilityManagerService::IsAbilityControllerForeground(const std::string &bun
         }
     }
     return true;
-}
-
-int32_t AbilityManagerService::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
-    AppExecFwk::AbilityInfo &abilityInfo)
-{
-    abilityInfo.applicationName = extensionInfo.applicationInfo.name;
-    abilityInfo.applicationInfo = extensionInfo.applicationInfo;
-    abilityInfo.bundleName = extensionInfo.bundleName;
-    abilityInfo.package = extensionInfo.moduleName;
-    abilityInfo.moduleName = extensionInfo.moduleName;
-    abilityInfo.name = extensionInfo.name;
-    abilityInfo.srcEntrance = extensionInfo.srcEntrance;
-    abilityInfo.srcPath = extensionInfo.srcEntrance;
-    abilityInfo.iconPath = extensionInfo.icon;
-    abilityInfo.iconId = extensionInfo.iconId;
-    abilityInfo.label = extensionInfo.label;
-    abilityInfo.labelId = extensionInfo.labelId;
-    abilityInfo.description = extensionInfo.description;
-    abilityInfo.descriptionId = extensionInfo.descriptionId;
-    abilityInfo.priority = extensionInfo.priority;
-    abilityInfo.permissions = extensionInfo.permissions;
-    abilityInfo.readPermission = extensionInfo.readPermission;
-    abilityInfo.writePermission = extensionInfo.writePermission;
-    abilityInfo.uri = extensionInfo.uri;
-    abilityInfo.extensionAbilityType = extensionInfo.type;
-    abilityInfo.visible = extensionInfo.visible;
-    abilityInfo.resourcePath = extensionInfo.resourcePath;
-    abilityInfo.enabled = extensionInfo.enabled;
-    abilityInfo.isModuleJson = true;
-    abilityInfo.isStageBasedModel = true;
-    abilityInfo.process = extensionInfo.process;
-    abilityInfo.metadata = extensionInfo.metadata;
-    abilityInfo.compileMode = extensionInfo.compileMode;
-    abilityInfo.type = AppExecFwk::AbilityType::EXTENSION;
-    abilityInfo.extensionTypeName = extensionInfo.extensionTypeName;
-    if (!extensionInfo.hapPath.empty()) {
-        abilityInfo.hapPath = extensionInfo.hapPath;
-    }
-    return 0;
 }
 
 int AbilityManagerService::StartUserTest(const Want &want, const sptr<IRemoteObject> &observer)
