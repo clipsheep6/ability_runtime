@@ -6974,7 +6974,9 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId, sptr
     }
     bool isBoot = oldUserId == U0_USER_ID ? true : false;
     StartHighestPriorityAbility(userId, isBoot, callback);
-    PauseOldConnectManager(oldUserId);
+    if (AmsConfigurationParameter::GetInstance().MultiUserType() == 0) {
+        PauseOldConnectManager(oldUserId);
+    }
 }
 
 void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)
