@@ -379,7 +379,7 @@ int SystemDialogScheduler::GetSelectorDialogWant(const std::vector<DialogAppInfo
     }
     if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()
         && isCallerStageBasedModel) {
-        auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+        auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
         if (bundleMgrHelper == nullptr) {
             HILOG_ERROR("The bundleMgrHelper is nullptr.");
             return INNER_ERR;
@@ -445,7 +445,7 @@ int SystemDialogScheduler::GetPcSelectorDialogWant(const std::vector<DialogAppIn
     }
     if (AppGalleryEnableUtil::IsEnableAppGallerySelector() && Rosen::SceneBoardJudgement::IsSceneBoardEnabled()
         && isCallerStageBasedModel) {
-        auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+        auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
         if (bundleMgrHelper == nullptr) {
             HILOG_ERROR("The bundleMgrHelper is nullptr.");
             return INNER_ERR;

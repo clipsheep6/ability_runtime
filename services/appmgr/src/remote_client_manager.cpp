@@ -43,19 +43,6 @@ void RemoteClientManager::SetSpawnClient(const std::shared_ptr<AppSpawnClient> &
     appSpawnClient_ = appSpawnClient;
 }
 
-std::shared_ptr<BundleMgrHelper> RemoteClientManager::GetBundleManagerHelper()
-{
-    if (bundleManagerHelper_ == nullptr) {
-        bundleManagerHelper_  = DelayedSingleton<BundleMgrHelper>::GetInstance();
-    }
-    return bundleManagerHelper_;
-}
-
-void RemoteClientManager::SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper)
-{
-    bundleManagerHelper_ = bundleMgrHelper;
-}
-
 std::shared_ptr<AppSpawnClient> RemoteClientManager::GetNWebSpawnClient()
 {
     return nwebSpawnClient_;

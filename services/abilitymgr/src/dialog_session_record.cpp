@@ -103,7 +103,7 @@ void DialogSessionRecord::ClearAllDialogContexts()
 bool DialogSessionRecord::QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId)
 {
     std::string bundleName = dialogAbilityInfo.bundleName;
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, ERR_INVALID_VALUE);
     BundleInfo bundleInfo;
     bool ret = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(bundleName,

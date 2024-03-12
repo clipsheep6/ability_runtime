@@ -2983,7 +2983,7 @@ bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t
         return false;
     }
     // uri of bundle name type
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("bundleMgrHelper is nullptr");
         return false;

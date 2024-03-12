@@ -1102,9 +1102,6 @@ private:
      */
     int64_t SystemTimeMillisecond();
 
-    // Test add the bundle manager instance.
-    void SetBundleManagerHelper(const std::shared_ptr<BundleMgrHelper> &bundleMgrHelper);
-
     void HandleTerminateApplicationTimeOut(const int64_t eventId);
 
     void HandleAddAbilityStageTimeOut(const int64_t eventId);

@@ -95,7 +95,7 @@ int FreeInstallManager::StartFreeInstall(const Want &want, int32_t userId, int r
         freeInstallList_.push_back(info);
     }
     sptr<AtomicServiceStatusCallback> callback = new AtomicServiceStatusCallback(weak_from_this(), isAsync);
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);
     AppExecFwk::AbilityInfo abilityInfo = {};
     constexpr auto flag = AppExecFwk::AbilityInfoFlag::GET_ABILITY_INFO_WITH_APPLICATION;
@@ -334,7 +334,7 @@ int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const spt
 int FreeInstallManager::ConnectFreeInstall(const Want &want, int32_t userId,
     const sptr<IRemoteObject> &callerToken, const std::string& localDeviceId)
 {
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);
     std::string wantDeviceId = want.GetElement().GetDeviceID();
     if (!(localDeviceId == wantDeviceId || wantDeviceId.empty())) {
@@ -413,7 +413,7 @@ void FreeInstallManager::PostUpgradeAtomicServiceTask(int resultCode, const Want
             std::string nameKey = want.GetElement().GetBundleName() + want.GetElement().GetModuleName();
             if (timeStampMap.find(nameKey) == timeStampMap.end() ||
                 sptr->GetTimeStamp() - timeStampMap[nameKey] > UPDATE_ATOMOIC_SERVICE_TASK_TIMER) {
-                auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+                auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
                 CHECK_POINTER(bundleMgrHelper);
                 bundleMgrHelper->UpgradeAtomicService(want, userId);
                 timeStampMap.emplace(nameKey, sptr->GetTimeStamp());

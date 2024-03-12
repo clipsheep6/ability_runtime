@@ -836,7 +836,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
         }
     }
     std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    auto bundleMgr = remoteClientManager->GetBundleManagerHelper();
+    auto bundleMgr = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     std::string callerBundleName;
     if (bundleMgr != nullptr &&
         IN_PROCESS_CALL(bundleMgr->GetNameForUid(appRecord->GetCallerUid(), callerBundleName)) == ERR_OK) {

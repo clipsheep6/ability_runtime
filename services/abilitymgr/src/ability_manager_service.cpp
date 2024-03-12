@@ -5618,7 +5618,7 @@ int32_t AbilityManagerService::UninstallAppInner(const std::string &bundleName, 
 std::shared_ptr<AppExecFwk::BundleMgrHelper> AbilityManagerService::GetBundleManager()
 {
     if (bundleMgrHelper_ == nullptr) {
-        bundleMgrHelper_ = AbilityUtil::GetBundleManagerHelper();
+        bundleMgrHelper_ = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     }
     return bundleMgrHelper_;
 }

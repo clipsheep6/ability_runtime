@@ -219,12 +219,12 @@ sptr<AAFwk::IAbilityManager> ContextDeal::GetAbilityManager()
 
 std::string ContextDeal::GetAppType()
 {
-    auto ptr = GetBundleManager();
-    if (ptr == nullptr) {
+    auto bundleMgrHelper = GetBundleManager();
+    if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("GetAppType failed to get bundle manager service");
         return "";
     }
-    std::string retString = ptr->GetAppType(applicationInfo_->bundleName);
+    std::string retString = bundleMgrHelper->GetAppType(applicationInfo_->bundleName);
     return retString;
 }
 
@@ -453,8 +453,8 @@ int ContextDeal::GetColorMode()
 
 bool ContextDeal::HapModuleInfoRequestInit()
 {
-    auto ptr = GetBundleManager();
-    if (ptr == nullptr) {
+    auto bundleMgrHelper = GetBundleManager();
+    if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("Failed to get bundle manager service.");
         return false;
     }
@@ -465,7 +465,7 @@ bool ContextDeal::HapModuleInfoRequestInit()
     }
 
     hapModuleInfoLocal_ = std::make_shared<HapModuleInfo>();
-    if (!ptr->GetHapModuleInfo(*abilityInfo_.get(), *hapModuleInfoLocal_)) {
+    if (!bundleMgrHelper->GetHapModuleInfo(*abilityInfo_.get(), *hapModuleInfoLocal_)) {
         HILOG_ERROR("Failed, will retval false value.");
         return false;
     }

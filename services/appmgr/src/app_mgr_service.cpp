@@ -282,12 +282,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
     if (!IsReady()) {
         return ERR_INVALID_OPERATION;
     }
-    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    if (remoteClientManager == nullptr) {
-        HILOG_ERROR("The remoteClientManager is nullptr.");
-        return ERR_INVALID_OPERATION;
-    }
-    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_INVALID_OPERATION;
@@ -497,12 +492,7 @@ int AppMgrService::FinishUserTest(const std::string &msg, const int64_t &resultC
         HILOG_ERROR("Not ready");
         return ERR_INVALID_OPERATION;
     }
-    std::shared_ptr<RemoteClientManager> remoteClientManager = std::make_shared<RemoteClientManager>();
-    if (remoteClientManager == nullptr) {
-        HILOG_ERROR("The remoteClientManager is nullptr.");
-        return ERR_INVALID_OPERATION;
-    }
-    auto bundleMgrHelper = remoteClientManager->GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return ERR_INVALID_OPERATION;

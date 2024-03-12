@@ -632,7 +632,7 @@ void DataAbilityManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
 void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     // restart data ability if necessary
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     CHECK_POINTER(bundleMgrHelper);
     std::vector<AppExecFwk::BundleInfo> bundleInfos;
     bool getBundleInfos = bundleMgrHelper->GetBundleInfos(

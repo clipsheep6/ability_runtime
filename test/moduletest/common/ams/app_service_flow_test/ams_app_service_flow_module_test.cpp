@@ -13,22 +13,25 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-
 #include <unistd.h>
 
-#include "iremote_object.h"
-#include "refbase.h"
-
-#include "app_launch_data.h"
 #define private public
 #include "app_mgr_service_inner.h"
+#include "iservice_registry.h"
 #undef private
+
+
+#include "app_launch_data.h"
 #include "hilog_wrapper.h"
-#include "mock_ability_token.h"
-#include "mock_bundle_manager.h"
+#include "iremote_object.h"
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
+#include "mock_bundle_installer_service.h"
+#include "mock_bundle_manager_service.h"
+#include "mock_system_ability_manager.h"
+#include "refbase.h"
+#include "singleton.h"
 
 using namespace testing::ext;
 using testing::_;
@@ -39,6 +42,9 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 const uint32_t CYCLE_NUMBER = 10;
+constexpr int32_t BUNDLE_MGR_SERVICE_SYS_ABILITY_ID = 401;
+sptr<MockBundleInstallerService> mockBundleInstaller = new (std::nothrow) MockBundleInstallerService();
+sptr<MockBundleManagerService> mockBundleMgr = new (std::nothrow) MockBundleManagerService();
 }  // namespace
 struct TestApplicationPreRunningRecord {
     TestApplicationPreRunningRecord(
@@ -64,6 +70,9 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+    void MockBundleInstallerAndSA() const;
+    sptr<ISystemAbilityManager> iSystemAbilityMgr_ = nullptr;
+    sptr<AppExecFwk::MockSystemAbilityManager> mockSystemAbility_ = nullptr;
 
 protected:
     sptr<MockAppScheduler> TestCreateApplicationClient(const std::shared_ptr<AppRunningRecord>& appRecord) const;
@@ -74,7 +83,6 @@ protected:
 protected:
     std::shared_ptr<AppMgrServiceInner> serviceInner_ = nullptr;
     std::shared_ptr<AMSEventHandler> handler_ = nullptr;
-    std::shared_ptr<BundleMgrHelper> mockBundleMgr_{ nullptr };
 };
 
 void AmsAppServiceFlowModuleTest::SetUpTestCase()
@@ -92,12 +100,31 @@ void AmsAppServiceFlowModuleTest::SetUp()
     handler_ = std::make_shared<AMSEventHandler>(taskHandler, serviceInner_);
     serviceInner_->SetTaskHandler(taskHandler);
     serviceInner_->SetEventHandler(handler_);
-    mockBundleMgr_ = DelayedSingleton<BundleMgrHelper>::GetInstance();
-    serviceInner_->SetBundleManagerHelper(mockBundleMgr_);
+    mockSystemAbility_ = new (std::nothrow) AppExecFwk::MockSystemAbilityManager();
+    iSystemAbilityMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = mockSystemAbility_;
 }
 
 void AmsAppServiceFlowModuleTest::TearDown()
-{}
+{
+    SystemAbilityManagerClient::GetInstance().systemAbilityManager_ = iSystemAbilityMgr_;
+}
+
+void AmsAppServiceFlowModuleTest::MockBundleInstallerAndSA() const
+{
+    auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
+    auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
+        if (systemAbilityId == BUNDLE_MGR_SERVICE_SYS_ABILITY_ID) {
+            return bms->AsObject();
+        } else {
+            return saMgr->GetSystemAbility(systemAbilityId);
+        }
+    };
+    EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
+    EXPECT_CALL(*mockSystemAbility_, GetSystemAbility(testing::_))
+        .WillOnce(testing::Invoke(mockGetSystemAbility))
+        .WillRepeatedly(testing::Invoke(mockGetSystemAbility));
+}
 
 sptr<MockAppScheduler> AmsAppServiceFlowModuleTest::TestCreateApplicationClient(
     const std::shared_ptr<AppRunningRecord>& appRecord) const
@@ -164,6 +191,10 @@ TestApplicationPreRunningRecord AmsAppServiceFlowModuleTest::TestCreateApplicati
  */
 HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_001, TestSize.Level1)
 {
+    MockBundleInstallerAndSA();
+    EXPECT_CALL(*mockBundleMgr, GetHapModuleInfo(testing::_, testing::_, testing::_))
+        .WillOnce(testing::Return(true))
+        .WillRepeatedly(testing::Return(true));
     HILOG_INFO("AmsAppServiceFlowModuleTest ServiceFlow_BackKey_001 start");
     sptr<IRemoteObject> abilityA1Token;
     TestApplicationPreRunningRecord testAppA = TestCreateApplicationRecordAndSetState("abilityA1", "appA",
