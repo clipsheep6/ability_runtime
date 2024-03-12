@@ -1265,6 +1265,40 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOpt
     return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
 }
 
+int AbilityManagerService::StartAbilityForResultAsCaller(
+    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+
+    AAFwk::Want newWant = want;
+    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
+    auto asCallerSourceToken = connectManager_->GetUIExtensionSourceToken(callerToken);
+    if (asCallerSourceToken != nullptr) {
+        HILOG_DEBUG("Update as caller source info.");
+        UpdateAsCallerSourceInfo(newWant, asCallerSourceToken);
+    }
+
+    return StartAbilityWrap(newWant, callerToken, requestCode, userId, true);
+}
+
+int AbilityManagerService::StartAbilityForResultAsCaller(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    HILOG_DEBUG("Called.");
+    CHECK_CALLER_IS_SYSTEM_APP;
+
+    AAFwk::Want newWant = want;
+    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
+    auto asCallerSourceToken = connectManager_->GetUIExtensionSourceToken(callerToken);
+    if (asCallerSourceToken != nullptr) {
+        HILOG_DEBUG("Update as caller source info.");
+        UpdateAsCallerSourceInfo(newWant, asCallerSourceToken);
+    }
+
+    return StartAbilityForOptionWrap(newWant, startOptions, callerToken, userId, requestCode, true);
+}
+
 int AbilityManagerService::StartAbilityForOptionWrap(const Want &want, const StartOptions &startOptions,
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, bool isStartAsCaller)
 {

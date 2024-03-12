@@ -430,6 +430,62 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
     return reply.ReadInt32();
 }
 
+int AbilityManagerProxy::StartAbilityForResultAsCaller(
+    const Want &want, const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
+    if (callerToken) {
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, callerToken);
+    } else {
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, requestCode);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
+int AbilityManagerProxy::StartAbilityForResultAsCaller(const Want &want, const StartOptions &startOptions,
+    const sptr<IRemoteObject> &callerToken, int requestCode, int32_t userId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &startOptions);
+    if (callerToken) {
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, true);
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, callerToken);
+    } else {
+        PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, false);
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, requestCode);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    MessageParcel reply;
+    MessageOption option;
+    int error =
+        SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
+
 int AbilityManagerProxy::CheckUISessionParams(MessageParcel &data, const sptr<IRemoteObject> &callerToken,
     const sptr<SessionInfo> &sessionInfo, int32_t userId, int requestCode)
 {

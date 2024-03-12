@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -120,6 +120,11 @@ napi_value JsUIExtensionContext::TerminateSelf(napi_env env, napi_callback_info 
 napi_value JsUIExtensionContext::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartAbilityForResult);
+}
+
+napi_value JsUIExtensionContext::StartAbilityForResultAsCaller(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartAbilityForResultAsCaller);
 }
 
 napi_value JsUIExtensionContext::TerminateSelfWithResult(napi_env env, napi_callback_info info)
@@ -315,6 +320,53 @@ napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCal
     NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnTerminateSelfWithResult",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     HILOG_DEBUG("OnTerminateSelfWithResult is called end");
+    return result;
+}
+
+napi_value JsUIExtensionContext::OnStartAbilityForResultAsCaller(napi_env env, NapiCallbackInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    if (info.argc == ARGC_ZERO) {
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+    size_t unwrapArgc = 0;
+    AAFwk::Want want;
+    AAFwk::StartOptions startOptions;
+    if (!CheckStartAbilityInputParam(env, info, want, startOptions, unwrapArgc)) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        HILOG_DEBUG("Input param type invalid.");
+        return CreateJsUndefined(env);
+    }
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask = CreateAsyncTaskWithLastParam(env, nullptr, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want &want, bool isInner) {
+        HILOG_INFO("Async callback is called.");
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("Wrap abilityResult failed.");
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            return;
+        }
+        if (isInner) {
+            asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+            return;
+        }
+        asyncTask->Resolve(env, abilityResult);
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("The context is released.");
+        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+        return result;
+    }
+    want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+    int curRequestCode = context->GenerateCurRequestCode();
+    unwrapArgc == INDEX_ONE ?
+        context->StartAbilityForResultAsCaller(want, curRequestCode, std::move(task)) :
+        context->StartAbilityForResultAsCaller(want, startOptions, curRequestCode, std::move(task));
+    HILOG_DEBUG("End.");
     return result;
 }
 
@@ -532,6 +584,7 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
     BindNativeFunction(env, objValue, "terminateSelf", moduleName, TerminateSelf);
     BindNativeFunction(env, objValue, "startAbilityForResult", moduleName, StartAbilityForResult);
     BindNativeFunction(env, objValue, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);
+    BindNativeFunction(env, objValue, "startAbilityForResultAsCaller", moduleName, StartAbilityForResultAsCaller);
     BindNativeFunction(env, objValue, "connectServiceExtensionAbility", moduleName, ConnectAbility);
     BindNativeFunction(env, objValue, "disconnectServiceExtensionAbility", moduleName, DisconnectAbility);
     BindNativeFunction(env, objValue, "reportDrawnCompleted", moduleName, ReportDrawnCompleted);

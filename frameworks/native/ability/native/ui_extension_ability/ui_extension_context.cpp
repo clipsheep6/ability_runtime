@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -85,7 +85,10 @@ ErrCode UIExtensionContext::DisconnectAbility(
 ErrCode UIExtensionContext::StartAbilityForResult(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
 {
     HILOG_DEBUG("begin.");
-    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("ret=%{public}d", err);
@@ -99,13 +102,50 @@ ErrCode UIExtensionContext::StartAbilityForResult(
     const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
 {
     HILOG_DEBUG("begin.");
-    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, token_, requestCode);
     if (err != ERR_OK) {
         HILOG_ERROR("ret=%{public}d", err);
         OnAbilityResultInner(requestCode, err, want);
     }
     HILOG_DEBUG("end.");
+    return err;
+}
+
+ErrCode UIExtensionContext::StartAbilityForResultAsCaller(const AAFwk::Want &want, int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("Called.");
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    }
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityForResultAsCaller(want, token_, requestCode);
+    if (err != ERR_OK) {
+        HILOG_ERROR("The result = %{public}d.", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    HILOG_DEBUG("End.");
+    return err;
+}
+
+ErrCode UIExtensionContext::StartAbilityForResultAsCaller(
+    const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("Called.");
+    {
+        std::lock_guard<std::mutex> lock(mutexlock_);
+        resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+    }
+    ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityForResultAsCaller(
+        want, startOptions, token_, requestCode);
+    if (err != ERR_OK) {
+        HILOG_ERROR("The result = %{public}d.", err);
+        OnAbilityResultInner(requestCode, err, want);
+    }
+    HILOG_DEBUG("End.");
     return err;
 }
 
@@ -122,6 +162,7 @@ ErrCode UIExtensionContext::ReportDrawnCompleted()
 void UIExtensionContext::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData)
 {
     HILOG_DEBUG("begin.");
+    std::lock_guard<std::mutex> lock(mutexlock_);
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {
         if (callback->second) {
@@ -146,6 +187,7 @@ AppExecFwk::AbilityType UIExtensionContext::GetAbilityInfoType() const
 void UIExtensionContext::OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData)
 {
     HILOG_DEBUG("begin.");
+    std::lock_guard<std::mutex> lock(mutexlock_);
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {
         if (callback->second) {

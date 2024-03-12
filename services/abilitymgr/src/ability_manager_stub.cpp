@@ -395,6 +395,11 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::SetApplicationAutoStartupByEDMInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM)] =
         &AbilityManagerStub::CancelApplicationAutoStartupByEDMInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER)] =
+        &AbilityManagerStub::StartAbilityForResultAsCallerInner;
+    requestFuncMap_[static_cast<uint32_t>(
+        AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS)] =
+        &AbilityManagerStub::StartAbilityForResultAsCallerForOptionsInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES)] =
         &AbilityManagerStub::GetForegroundUIAbilitiesInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
@@ -2913,6 +2918,49 @@ int32_t AbilityManagerStub::ExecuteIntentInner(MessageParcel &data, MessageParce
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityForResultAsCallerInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("The want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t requestCode = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int32_t result = StartAbilityForResultAsCaller(*want, callerToken, requestCode, userId);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::StartAbilityForResultAsCallerForOptionsInner(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::unique_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("The want is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    std::unique_ptr<StartOptions> startOptions(data.ReadParcelable<StartOptions>());
+    if (startOptions == nullptr) {
+        HILOG_ERROR("The startOptions is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    sptr<IRemoteObject> callerToken = nullptr;
+    if (data.ReadBool()) {
+        callerToken = data.ReadRemoteObject();
+    }
+    int32_t requestCode = data.ReadInt32();
+    int32_t userId = data.ReadInt32();
+    int32_t result = StartAbilityForResultAsCaller(*want, *startOptions, callerToken, requestCode, userId);
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

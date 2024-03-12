@@ -2487,6 +2487,22 @@ bool AbilityConnectManager::IsUIExtensionFocused(uint32_t uiExtensionTokenId, co
     return false;
 }
 
+sptr<IRemoteObject> AbilityConnectManager::GetUIExtensionSourceToken(const sptr<IRemoteObject> &token)
+{
+    HILOG_DEBUG("Called");
+    std::lock_guard guard(Lock_);
+    for (auto &item : uiExtensionMap_) {
+        auto sessionInfo = item.second.second;
+        auto uiExtension = item.second.first.lock();
+        if (sessionInfo != nullptr && uiExtension->GetToken() != nullptr &&
+            uiExtension->GetToken()->AsObject() == token) {
+            HILOG_DEBUG("The source token found.");
+            return sessionInfo->callerToken;
+        }
+    }
+    return nullptr;
+}
+
 bool AbilityConnectManager::IsWindowExtensionFocused(uint32_t extensionTokenId, const sptr<IRemoteObject>& focusToken)
 {
     std::lock_guard guard(Lock_);

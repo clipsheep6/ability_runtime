@@ -278,6 +278,9 @@ private:
     int32_t OpenAtomicServiceInner(MessageParcel &data, MessageParcel &reply);
     int32_t IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply);
 
+    int StartAbilityForResultAsCallerInner(MessageParcel &data, MessageParcel &reply);
+    int StartAbilityForResultAsCallerForOptionsInner(MessageParcel &data, MessageParcel &reply);
+
     //insight intent related
     int32_t StartAbilityByInsightIntentInner(MessageParcel &data, MessageParcel &reply);
     int32_t ExecuteInsightIntentDoneInner(MessageParcel &data, MessageParcel &reply);

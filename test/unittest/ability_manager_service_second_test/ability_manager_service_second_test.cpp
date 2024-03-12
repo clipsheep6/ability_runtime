@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -400,6 +400,43 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartAbilityAsCaller_002, TestSize.Lev
     EXPECT_EQ(abilityMs_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr, USER_ID_U100, requestCode),
     CHECK_PERMISSION_FAILED);
     HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityAsCaller_002 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCaller
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartAbilityForResultAsCaller_001, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityForResultAsCaller_001 start");
+    Want want;
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityForResultAsCaller(want, callerToken, requestCode, USER_ID_U100), ERR_NO_INIT);
+    HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityForResultAsCaller_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCaller
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, StartAbilityForResultAsCaller_002, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityForResultAsCaller_002 start");
+    Want want;
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 0;
+    EXPECT_EQ(abilityMs_->StartAbilityForResultAsCaller(want, startOptions, callerToken, requestCode, USER_ID_U100),
+        ERR_NO_INIT);
+    HILOG_INFO("AbilityManagerServiceSecondTest StartAbilityForResultAsCaller_002 end");
 }
 
 /*
