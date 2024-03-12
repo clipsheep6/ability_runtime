@@ -81,6 +81,12 @@ enum class AbilityErrorCode {
     // ability wait start.
     ERROR_START_ABILITY_WAITTING = 16000017,
 
+    // jump to other applicaiton is not enable after API12.
+    ERROR_CODE_NOT_SUPPORT_CROSS_APP_START = 16000018,
+
+    // implicit start can not match any component.
+    ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT = 16000019,
+
     // free install network abnormal.
     ERROR_CODE_NETWORK_ABNORMAL = 16000051,
 

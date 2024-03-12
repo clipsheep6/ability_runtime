@@ -71,6 +71,9 @@ constexpr const char* ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE =
     "An ability cannot move to foreground or background in Wukong mode.";
 constexpr const char* ERROR_MSG_START_OPTIONS_CHECK_FAILED = "Start options check failed.";
 constexpr const char* ERROR_MSG_ABILITY_ALREADY_RUNNING = "Ability already running.";
+constexpr const char* ERROR_MSG_NOT_SUPPORT_CROSS_APP_START =
+    "The application is not allow jumping to other applications.";
+constexpr const char* ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT = "Can not match any component.";
 
 // follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
 constexpr int32_t ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST = 8521220;
@@ -119,6 +122,8 @@ static std::unordered_map<AbilityErrorCode, const char*> ERR_CODE_MAP = {
     { AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE, ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE },
     { AbilityErrorCode::ERROR_START_OPTIONS_CHECK_FAILED, ERROR_MSG_START_OPTIONS_CHECK_FAILED },
     { AbilityErrorCode::ERROR_ABILITY_ALREADY_RUNNING, ERROR_MSG_ABILITY_ALREADY_RUNNING },
+    { AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_CROSS_APP_START, ERROR_MSG_NOT_SUPPORT_CROSS_APP_START },
+    { AbilityErrorCode::ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT, ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT },
 };
 
 static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP {
@@ -170,6 +175,7 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_ABILITY_NOT_FOREGROUND, AbilityErrorCode::ERROR_CODE_ABILITY_NOT_FOREGROUND},
     {ERR_WUKONG_MODE_CANT_MOVE_STATE, AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE},
     {ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED},
+    {ERR_IMPLICIT_START_ABILITY_FAIL, AbilityErrorCode::ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT},
 };
 }
 
