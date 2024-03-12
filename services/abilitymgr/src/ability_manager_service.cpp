@@ -827,6 +827,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
     if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
@@ -1065,6 +1066,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         HILOG_ERROR("Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
     startParams.userId = userId;
@@ -1242,11 +1244,18 @@ int AbilityManagerService::StartAbility(const Want &want, const StartOptions &st
     const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
 {
     HILOG_DEBUG("Start ability with startOptions.");
-    auto ret = CheckProcessOptions(want, startOptions);
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    return StartUIAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode);
+}
+
+int AbilityManagerService::StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options,
+    sptr<IRemoteObject> callerToken, int32_t userId, int requestCode)
+{
+    auto ret = CheckProcessOptions(want, options);
     if (ret != ERR_OK) {
         return ret;
     }
-    return StartAbilityForOptionWrap(want, startOptions, callerToken, userId, requestCode, false);
+    return StartAbilityForOptionWrap(want, options, callerToken, userId, requestCode, false);
 }
 
 int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOptions &startOptions,
@@ -1256,6 +1265,7 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOpt
     HILOG_DEBUG("Start ability as caller with startOptions.");
     CHECK_CALLER_IS_SYSTEM_APP;
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     AAFwk::Want newWant = want;
     if (asCallerSoureToken != nullptr) {
         HILOG_DEBUG("start as caller, UpdateCallerInfo");
@@ -1620,6 +1630,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         }
     }
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
         interceptorExecuter_->DoProcess(want, requestCode, GetUserId(), true);
     if (result != ERR_OK) {
@@ -1733,7 +1744,7 @@ int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, const StartO
         return CHECK_PERMISSION_FAILED;
     }
     want.SetParam(AAFwk::SCREEN_MODE_KEY, AAFwk::ScreenMode::JUMP_SCREEN_MODE);
-    return StartAbility(want, options, callerToken, userId, requestCode);
+    return StartUIAbilityForOptionWrap(want, options, callerToken, userId, requestCode);
 }
 
 int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
@@ -1753,6 +1764,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
 
     auto currentUserId = GetUserId();
+    (sessionInfo->want).RemoveParam(AAFwk::SCREEN_MODE_KEY);
     EventInfo eventInfo = BuildEventInfo(sessionInfo->want, currentUserId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
@@ -3424,6 +3436,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HILOG_DEBUG("called");
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     bool isEnterpriseAdmin = AAFwk::UIExtensionUtils::IsEnterpriseAdmin(extensionType);
     if (!isEnterpriseAdmin && !JudgeMultiUserConcurrency(userId)) {
         HILOG_ERROR("Multi-user non-concurrent mode is not satisfied.");
@@ -5445,6 +5458,7 @@ int AbilityManagerService::StopServiceAbility(const Want &want, int32_t userId, 
         return ERR_CROSS_USER;
     }
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     AbilityRequest abilityRequest;
     auto result = GenerateAbilityRequest(want, DEFAULT_INVAL_VALUE, abilityRequest, nullptr, validUserId);
     if (result != ERR_OK) {
@@ -6285,6 +6299,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return CHECK_PERMISSION_FAILED;
     }
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
         StartAbilityUtils::GetAppIndex(want, callerToken));
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -9290,6 +9305,7 @@ int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &w
         return ERR_INVALID_VALUE;
     }
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.callerUid = IPCSkeleton::GetCallingUid();

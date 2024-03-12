@@ -1997,6 +1997,9 @@ private:
         std::shared_ptr<AbilityRecord> callerAbility);
     int32_t CheckDebugAssertPermission();
 
+    int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
+        int32_t userId, int requestCode);
+
     constexpr static int REPOLL_TIME_MICRO_SECONDS = 1000000;
     constexpr static int WAITING_BOOT_ANIMATION_TIMER = 5;
 
