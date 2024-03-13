@@ -195,6 +195,11 @@ public:
         arkBundleName_ = bundleName;
     }
 
+    void SetCompilerFrameworkAotPath(std::string frameworkAotPath)
+    {
+        CompilerFrameworkAotPath_ = std::move(frameworkAotPath);
+    }
+
     void SetGcThreadNum(size_t num)
     {
         gcThreadNum_ = num;
@@ -316,6 +321,11 @@ private:
         return arkBundleName_;
     }
 
+    std::string GetArkCompilerFrameworkAotPath() const
+    {
+        return CompilerFrameworkAotPath_;
+    }
+
     size_t GetGcThreadNum() const
     {
         return gcThreadNum_;
@@ -375,6 +385,7 @@ private:
     bool enableCpuprofiler_ {false};
     int arkProperties_ {-1};
     std::string arkBundleName_ = {""};
+    std::string CompilerFrameworkAotPath_ = {""};
     size_t gcThreadNum_ {DEFAULT_GC_THREAD_NUM};
     size_t longPauseTime_ {DEFAULT_LONG_PAUSE_TIME};
     bool enableAsmInterpreter_ {true};
