@@ -2158,6 +2158,8 @@ void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName
             continue;
         }
         abilityRecord->SetRestartAppFlag(true);
+        NotifySCBToHandleException(abilityRecord, static_cast<int32_t>(ErrorLifecycleState::ABILITY_STATE_DIED),
+            "onAbilityDied");
     }
 }
 }  // namespace AAFwk
