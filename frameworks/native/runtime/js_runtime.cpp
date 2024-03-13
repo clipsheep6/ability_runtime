@@ -44,6 +44,7 @@
 #include "js_runtime_utils.h"
 #include "js_utils.h"
 #include "js_worker.h"
+#include "matching_skills.h"
 #include "module_checker_delegate.h"
 #include "napi/native_api.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
@@ -54,6 +55,7 @@
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
 #include "extractor.h"
+#include "pgo_save_listener.h"
 #include "system_ability_definition.h"
 #include "systemcapability.h"
 #include "source_map.h"
@@ -598,6 +600,16 @@ void JsRuntime::FinishPreload()
     jsEnv_->StopMonitorJSHeapUsage();
 }
 
+void JsRuntime::Register(const std::string &bundleName)
+{
+    OHOS::EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(panda::JSNApi::GetSavePgoListener());
+    EventFwk::CommonEventSubscribeInfo subscribeInfo(matchingSkills);
+    auto pgoSaveListener = std::make_shared<AppExecFwk::PgoSaveListener>(bundleName, subscribeInfo);
+    (void)EventFwk::CommonEventManager::SubscribeCommonEvent(pgoSaveListener);
+    HILOG_INFO("register pgo saving listener done");
+}
+
 void JsRuntime::PostPreload(const Options& options)
 {
     auto vm = GetEcmaVm();
@@ -611,6 +623,9 @@ void JsRuntime::PostPreload(const Options& options)
         postOption.SetAnDir(sandBoxAnFilePath);
     }
     bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
+    if (profileEnabled) {
+        Register(options.bundleName);
+    }
     postOption.SetEnableProfile(profileEnabled);
     panda::JSNApi::PostFork(vm, postOption);
     reinterpret_cast<NativeEngine*>(env)->ReinitUVLoop();
