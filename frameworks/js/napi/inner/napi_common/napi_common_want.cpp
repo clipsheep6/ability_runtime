@@ -85,6 +85,15 @@ napi_value WrapElementName(napi_env env, const ElementName &elementName)
     NAPI_CALL(env, napi_create_string_utf8(env, elementName.GetModuleName().c_str(), NAPI_AUTO_LENGTH, &jsValue));
     NAPI_CALL(env, napi_set_named_property(env, jsObject, "moduleName", jsValue));
 
+    jsValue = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, elementName.GetShortName().c_str(), NAPI_AUTO_LENGTH, &jsValue));
+    NAPI_CALL(env, napi_set_named_property(env, jsObject, "shortName", jsValue));
+
+    jsValue = nullptr;
+    NAPI_CALL(env, napi_create_string_utf8(env, elementName.GetUri().c_str(), NAPI_AUTO_LENGTH, &jsValue));
+    NAPI_CALL(env, napi_set_named_property(env, jsObject, "uri", jsValue));
+
+
     return jsObject;
 }
 
