@@ -93,6 +93,10 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
         msg_->allowInternet = startMsg.allowInternet;
         msg_->mountPermissionFlags = startMsg.mountPermissionFlags;
         if (strcpy_s(msg_->ownerId, sizeof(msg_->ownerId), startMsg.ownerId.c_str()) != EOK) {
+            HILOG_ERROR("failed to transform provisionType!");
+            return false;
+        }
+        if (strcpy_s(msg_->provisionType, sizeof(msg_->provisionType), startMsg.provisionType.c_str()) != EOK) {
             HILOG_ERROR("failed to transform ownerId!");
             return false;
         }
