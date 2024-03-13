@@ -177,12 +177,12 @@ class ApplicationContext {
     return this.__context_impl__.clearUpApplicationData(callback);
   }
 
-  requestTerminateProcess(callback) {
-    return this.__context_impl__.requestTerminateProcess(callback);
+  terminateProcess() {
+    return this.__context_impl__.requestTerminateProcess();
   }
 
-  requestTerminateApplication(callback) {
-    return this.__context_impl__.requestTerminateProcess(callback);
+  terminateApplication() {
+    return this.__context_impl__.requestTerminateProcess();
   }
 
   restartApp(want) {

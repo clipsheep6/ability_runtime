@@ -327,7 +327,6 @@ int32_t AppLifeCycleDeal::DetachAppDebug()
 
 int32_t AppLifeCycleDeal::RequestTerminateProcess() const
 {
-    HILOG_ERROR("AppLifeCycleDeal::RequestTerminateProcess");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
         HILOG_ERROR("AppThread is nullptr.");

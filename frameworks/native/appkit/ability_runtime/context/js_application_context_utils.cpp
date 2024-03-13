@@ -602,16 +602,10 @@ napi_value JsApplicationContextUtils::RequestTerminateApplication(napi_env env, 
 
 napi_value JsApplicationContextUtils::OnRequestTerminateProcess(napi_env env, NapiCallbackInfo &info)
 {
-    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
-    }
-
     NapiAsyncTask::CompleteCallback complete =
         [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = applicationContext.lock();
-            if (!context) {
+            if (context == nullptr) {
                 task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
                     "applicationContext if already released."));
                 return;
@@ -619,7 +613,7 @@ napi_value JsApplicationContextUtils::OnRequestTerminateProcess(napi_env env, Na
             context->RequestTerminateProcess();
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
-    napi_value lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value lastParam = nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnRequestTerminateProcess",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -628,16 +622,10 @@ napi_value JsApplicationContextUtils::OnRequestTerminateProcess(napi_env env, Na
 
 napi_value JsApplicationContextUtils::OnRequestTerminateApplication(napi_env env, NapiCallbackInfo &info)
 {
-    if (info.argc != ARGC_ZERO && info.argc != ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
-        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-        return CreateJsUndefined(env);
-    }
-
     NapiAsyncTask::CompleteCallback complete =
         [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = applicationContext.lock();
-            if (!context) {
+            if (context == nullptr) {
                 task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
                     "applicationContext if already released."));
                 return;
@@ -645,7 +633,7 @@ napi_value JsApplicationContextUtils::OnRequestTerminateApplication(napi_env env
             context->RequestTerminateApplication();
             task.ResolveWithNoError(env, CreateJsUndefined(env));
         };
-    napi_value lastParam = (info.argc = ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
+    napi_value lastParam = nullptr;
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsApplicationContextUtils::OnRequestTerminateApplication",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
@@ -1436,9 +1424,9 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getGroupDir", MD_NAME,
         JsApplicationContextUtils::GetGroupDir);
-    BindNativeFunction(env, object, "requestTerminateProcess", MD_NAME,
+    BindNativeFunction(env, object, "terminateProcess", MD_NAME,
         JsApplicationContextUtils::RequestTerminateProcess);
-    BindNativeFunction(env, object, "requestTerminateApplication", MD_NAME,
+    BindNativeFunction(env, object, "terminateApplication", MD_NAME,
         JsApplicationContextUtils::RequestTerminateApplication);
     BindNativeFunction(env, object, "restartApp", MD_NAME,
         JsApplicationContextUtils::RestartApp);

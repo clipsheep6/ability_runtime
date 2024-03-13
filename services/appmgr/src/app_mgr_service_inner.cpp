@@ -5432,7 +5432,6 @@ int32_t AppMgrServiceInner::RequestTerminateApplication() const
 
     auto &bundleName = appRecord->GetBundleName();
     std::list<pid_t> pids;
-
     if (appRunningManager_ != nullptr || appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
         HILOG_ERROR("Failed to obtain the pid under the bundle");
         return ERR_INVALID_VALUE;
