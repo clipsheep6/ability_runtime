@@ -433,10 +433,15 @@ private:
                 napi_create_object(env, &object);
                 napi_value abilityObj = nullptr;
                 napi_create_object(env, &abilityObj);
+                napi_set_named_property(env, abilityObj, "deviceId", CreateJsValue(env, "");
                 napi_set_named_property(env, abilityObj, "bundleName",
                     CreateJsValue(env, snapshotWrap->missionSnapshot.topAbility.GetBundleName()));
                 napi_set_named_property(env, abilityObj, "abilityName",
                     CreateJsValue(env, snapshotWrap->missionSnapshot.topAbility.GetAbilityName()));
+                napi_set_named_property(env, abilityObj, "moduleName", CreateJsValue(env, "");
+                napi_set_named_property(env, abilityObj, "shortName", CreateJsValue(env, "");
+                napi_set_named_property(env, abilityObj, "uri", CreateJsValue(env, "");
+
                 napi_set_named_property(env, object, "ability", abilityObj);
 #ifdef SUPPORT_GRAPHICS
                 auto snapshotValue = Media::PixelMapNapi::CreatePixelMap(
