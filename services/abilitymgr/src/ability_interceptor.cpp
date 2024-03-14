@@ -434,10 +434,10 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
     callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
     callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
     callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
-    callerInfo.targetLinkFeature = want.GetStringParam("targetLinkFeature");
-    callerInfo.targetAppDistType = want.GetStringParam("targetAppDistType");
-    (const_cast<Want &>(want)).RemoveParam("targetLinkFeature");
-    (const_cast<Want &>(want)).RemoveParam("targetAppDistType");
+    callerInfo.targetLinkFeature = want.GetStringParam("send_to_erms_targetLinkFeature");
+    callerInfo.targetAppDistType = want.GetStringParam("send_to_erms_targetAppDistType");
+    (const_cast<Want &>(want)).RemoveParam("send_to_erms_targetLinkFeature");
+    (const_cast<Want &>(want)).RemoveParam("send_to_erms_targetAppDistType");
     HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
         callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
 
@@ -447,7 +447,8 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         return;
     }
 
-    auto targetBundleType = static_cast<AppExecFwk::BundleType>(want.GetIntParam("targetBundleType", -1));
+    auto targetBundleType = static_cast<AppExecFwk::BundleType>(want.GetIntParam("send_to_erms_targetBundleType", -1));
+    (const_cast<Want &>(want)).RemoveParam("send_to_erms_targetBundleType");
     if (targetBundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the target type  is atomic service");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
