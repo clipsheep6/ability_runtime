@@ -1,6 +1,5 @@
 {
-    "uiextension":[
-        {
+    "uiextension": [{
             "type": "share",
             "typePicker": "sysPicker/share"
         },
@@ -11,6 +10,14 @@
         {
             "type": "cameraPicker",
             "typePicker": "sysPicker/camera"
+        },
+        {
+            "type": "navigation",
+            "typePicker": "sysPicker/navigation"
+        },
+        {
+            "type": "finance",
+            "typePicker": "sysPicker/appSelector"
         }
     ]
 }
