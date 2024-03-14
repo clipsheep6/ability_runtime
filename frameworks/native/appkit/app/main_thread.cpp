@@ -76,6 +76,7 @@
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
+#include "cache.h"
 
 #if defined(NWEB)
 #include <thread>
@@ -1559,6 +1560,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         }
         OHOS::NWeb::NWebHelper::TryPreReadLib(isFirstStartUpWeb, app->GetAppContext()->GetBundleCodeDir());
     }).detach();
+#endif
+
+#ifdef SUPPORT_GRAPHICS
+    HILOG_INFO("HandleLaunchApplication cacheDir: %{public}s", applicationContext->GetCacheDir().c_str());
+    OHOS::EglSetCacheDir(applicationContext->GetCacheDir());
 #endif
 }
 

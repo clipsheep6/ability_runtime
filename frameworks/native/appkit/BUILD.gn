@@ -59,6 +59,7 @@ config("appkit_config") {
     "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${graphic_path}/frameworks/opengl_wrapper/src/EGL/include/private/EGL",
     "//third_party/json/include",
   ]
 }
@@ -159,6 +160,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/js_environment/frameworks/js_environment:js_environment",
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "${ability_runtime_services_path}/common:app_util",
+    "${graphic_path}/frameworks/opengl_wrapper:EGL"
   ]
 
   external_deps = [
