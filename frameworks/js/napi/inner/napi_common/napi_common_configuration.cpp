@@ -68,6 +68,14 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     jsValue = WrapBoolToJS(env, hasPointerDevice == "true" ? true : false);
     SetPropertyValueByPropertyName(env, jsObject, "hasPointerDevice", jsValue);
 
+    std::string fontSize = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE);
+    jsValue = WrapDoubleToJS(env, std::stod(fontSize));
+    SetPropertyValueByPropertyName(env, jsObject, "fontSize", jsValue);
+
+    std::string fontWeight = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT);
+    jsValue = WrapDoubleToJS(env, std::stod(fontWeight));
+    SetPropertyValueByPropertyName(env, jsObject, "fontWeight", jsValue);
+
     return jsObject;
 }
 
@@ -98,6 +106,24 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
         }
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, GetColorModeStr(colormode))) {
             HILOG_ERROR("colorMode parsing failed");
+            return false;
+        }
+    }
+
+    double fontSize = 0.0;
+    if (UnwrapDoubleByPropertyName(env, param, "fontSize", fontSize)) {
+        HILOG_DEBUG("The parsed fontSize part %{public}lf", fontSize);
+        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE, std::to_string(fontSize))) {
+            HILOG_ERROR("fontSize parsing failed");
+            return false;
+        }
+    }
+
+    double fontWeight = 0.0;
+    if (UnwrapDoubleByPropertyName(env, param, "fontWeight", fontWeight)) {
+        HILOG_DEBUG("The parsed fontWeight part %{public}lf", fontWeight);
+        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT, std::to_string(fontWeight))) {
+            HILOG_ERROR("fontWeight parsing failed");
             return false;
         }
     }

@@ -429,6 +429,8 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
     }
     std::string language = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
     std::string colorMode = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
+    std::string fontSize = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE);
+    std::string fontWeight = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT);
     std::string languageIsSetByApp =
         config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
     std::string colorModeIsSetByApp =
@@ -454,6 +456,9 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
         HILOG_DEBUG("language has been set by app");
         return;
     }
+
+    //TODO set by app
+
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);
     configuration_->Merge(changeKeyV, config);
