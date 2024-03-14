@@ -1645,8 +1645,13 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         return ERR_CROSS_USER;
     }
 
+    if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
+        HILOG_ERROR("RequestDialogService does not support implicit start");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+
     AbilityRequest abilityRequest;
-    result = GenerateAbilityRequest(want, requestCode, abilityRequest, callerToken, validUserId);
+    result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, validUserId);
     if (result != ERR_OK) {
         HILOG_ERROR("Generate ability request local error when RequestDialogService.");
         return result;
@@ -1665,13 +1670,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     }
 
     auto type = abilityInfo.type;
-    if (type == AppExecFwk::AbilityType::PAGE) {
-        result = CheckCallAbilityPermission(abilityRequest);
-        if (result != ERR_OK) {
-            HILOG_ERROR("Check permission failed");
-            return result;
-        }
-    } else if (type == AppExecFwk::AbilityType::EXTENSION &&
+    if (type == AppExecFwk::AbilityType::EXTENSION &&
         abilityInfo.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
         HILOG_DEBUG("Check call ability permission, name is %{public}s.", abilityInfo.name.c_str());
         result = CheckCallServicePermission(abilityRequest);
@@ -1691,36 +1690,14 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         return result;
     }
 
-    if (type == AppExecFwk::AbilityType::EXTENSION) {
-        auto connectManager = GetConnectManagerByUserId(validUserId);
-        if (!connectManager) {
-            HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
-            return ERR_INVALID_VALUE;
-        }
-        HILOG_DEBUG("request dialog service, start service extension,name is %{public}s.", abilityInfo.name.c_str());
-        ReportEventToSuspendManager(abilityInfo);
-        return connectManager->StartAbility(abilityRequest);
-    }
-
-    if (!IsAbilityControllerStart(want, abilityInfo.bundleName)) {
-        HILOG_ERROR("IsAbilityControllerStart failed : %{public}s.", abilityInfo.bundleName.c_str());
-        return ERR_WOULD_BLOCK;
-    }
-    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        ReportEventToSuspendManager(abilityInfo);
-        abilityRequest.userId = oriValidUserId;
-        abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
-        return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
-    }
-    auto missionListManager = GetListManagerByUserId(oriValidUserId);
-    if (missionListManager == nullptr) {
-        HILOG_ERROR("missionListManager is nullptr. userId:%{public}d", validUserId);
+    auto connectManager = GetConnectManagerByUserId(validUserId);
+    if (!connectManager) {
+        HILOG_ERROR("connectManager is nullptr. userId=%{public}d", validUserId);
         return ERR_INVALID_VALUE;
     }
-    ReportAbilitStartInfoToRSS(abilityInfo);
+    HILOG_DEBUG("request dialog service, start service extension,name is %{public}s.", abilityInfo.name.c_str());
     ReportEventToSuspendManager(abilityInfo);
-    HILOG_DEBUG("RequestDialogService, start ability, name is %{public}s.", abilityInfo.name.c_str());
-    return missionListManager->StartAbility(abilityRequest);
+    return connectManager->StartAbility(abilityRequest);
 }
 
 AppExecFwk::ElementName AbilityManagerService::GetElementNameByAppId(const std::string &appId)
