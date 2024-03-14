@@ -1563,8 +1563,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
 #endif
 
 #ifdef SUPPORT_GRAPHICS
-   HILOG_INFO("HandleLaunchApplication cacheDir: %{public}s", applicationContext->GetCacheDir().c_str());
-   OHOS::EglSetCacheDir(applicationContext->GetCacheDir());
+    HILOG_INFO("HandleLaunchApplication cacheDir: %{public}s", applicationContext->GetCacheDir().c_str());
+    OHOS::EglSetCacheDir(applicationContext->GetCacheDir());
 #endif
 }
 
