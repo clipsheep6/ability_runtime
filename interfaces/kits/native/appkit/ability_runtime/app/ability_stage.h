@@ -54,6 +54,7 @@ public:
     bool ContainsAbility() const;
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
     virtual void OnMemoryLevel(int level);
+    virtual void AutoStartup();
 
 private:
     std::shared_ptr<Context> context_;

@@ -45,6 +45,8 @@ public:
     void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration) override;
 
     void OnMemoryLevel(int32_t level) override;
+    
+    void AutoStartup() override;
 
 private:
     napi_value CallObjectMethod(const char* name, napi_value const * argv = nullptr, size_t argc = 0);
