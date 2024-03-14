@@ -592,18 +592,14 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
     }
     uint32_t tokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
     HILOG_DEBUG("The tokenId is %{public}u", tokenId);
-    auto docsUriRet = HandleUriPermission(tokenId, flag, docsVec, isSystemAppCall);
+    HandleUriPermission(tokenId, flag, docsVec, isSystemAppCall);
     if (!otherVec.empty()) {
-        auto otherUriRet = GrantUriPermissionInner(otherVec, flag, targetBundleName, appIndex, initiatorTokenId);
-        if (docsUriRet != ERR_OK) {
-            HILOG_WARN("Grant docs uris permission failed.");
-            return otherUriRet;
-        }
+        return GrantUriPermissionInner(otherVec, flag, targetBundleName, appIndex, initiatorTokenId);
     }
-    return docsUriRet;
+    return ERR_OK;
 }
 
-int32_t UriPermissionManagerStubImpl::HandleUriPermission(
+void UriPermissionManagerStubImpl::HandleUriPermission(
     uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall)
 {
     uint32_t policyFlag = 0;
@@ -616,7 +612,7 @@ int32_t UriPermissionManagerStubImpl::HandleUriPermission(
         checkPersistPermission(tokenId, docsVec, result);
         if (docsVec.size() != result.size()) {
             HILOG_ERROR("Check persist permission failed.");
-            return INNER_ERR;
+            return;
         }
         std::vector<PolicyInfo> policyVec;
         auto docsItem = docsVec.begin();
@@ -636,7 +632,6 @@ int32_t UriPermissionManagerStubImpl::HandleUriPermission(
             }
         }
     }
-    return ERR_OK;
 }
 
 bool UriPermissionManagerStubImpl::IsFoundationCall()

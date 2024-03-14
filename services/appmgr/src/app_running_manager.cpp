@@ -597,6 +597,8 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             appData.uid = appRecord->GetUid();
             appData.pid = appRecord->GetPriorityObject()->GetPid();
             appData.state = static_cast<int32_t>(ApplicationState::APP_STATE_FOREGROUND);
+            auto appInfo = appRecord->GetApplicationInfo();
+            appData.accessTokenId = appInfo ? appInfo->accessTokenId : 0;
             appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);

@@ -18,6 +18,7 @@
 #include <cinttypes>
 #include <csignal>
 #include <mutex>
+#include <queue>
 #include <securec.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -165,6 +166,7 @@ const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
+const char* WANT_PARAMS_ATTACHE_TO_PARENT = "ohos.ability.params.attachToParent";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
@@ -313,6 +315,12 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
     MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, processName);
     HILOG_DEBUG("processName = %{public}s", processName.c_str());
 
+    bool needAttachToParent = false;
+    if (want) {
+        needAttachToParent = want->GetBoolParam(WANT_PARAMS_ATTACHE_TO_PARENT, false);
+        want->RemoveParam(WANT_PARAMS_ATTACHE_TO_PARENT);
+    }
+
     std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
     std::string specifiedProcessFlag = "";
@@ -347,6 +355,10 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         }
         SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
         auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
+        if (needAttachToParent && callRecord == nullptr) {
+            HILOG_ERROR("parent is not exist.");
+            return;
+        }
         if (callRecord != nullptr) {
             auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
             HILOG_DEBUG("req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
@@ -356,6 +368,13 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag);
+        if (needAttachToParent) {
+            auto pid = appRecord->GetPriorityObject()->GetPid();
+            if (pid > 0) {
+                appRecord->SetParentAppRecord(callRecord);
+                callRecord->AddChildAppRecord(pid, appRecord);
+            }
+        }
         std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
         bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
         (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
@@ -771,6 +790,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
 
     KillRenderProcess(appRecord);
     KillChildProcess(appRecord);
+    KillAttachedChildProcess(appRecord);
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
     appRecord->SetProcessChangeReason(ProcessChangeReason::REASON_APP_TERMINATED);
@@ -2469,6 +2489,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     // kill render if exist.
     KillRenderProcess(appRecord);
     KillChildProcess(appRecord);
+    KillAttachedChildProcess(appRecord);
 
     if (appRecord->GetPriorityObject() != nullptr) {
         SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
@@ -5291,6 +5312,40 @@ void AppMgrServiceInner::ExitChildProcessSafelyByChildPid(const pid_t pid)
     if (result < 0) {
         HILOG_ERROR("KillChildProcessByPid kill process is fail.");
         return;
+    }
+}
+
+void AppMgrServiceInner::KillAttachedChildProcess(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return;
+    }
+    auto parentAppRecord = appRecord->GetParentAppRecord();
+    if (parentAppRecord) {
+        parentAppRecord->RemoveChildAppRecord(appRecord->GetPriorityObject()->GetPid());
+    }
+    std::vector<pid_t> pids;
+    std::queue<std::shared_ptr<AppRunningRecord>> queue;
+    queue.push(appRecord);
+    while (!queue.empty()) {
+        auto front = queue.front();
+        queue.pop();
+        if (front == nullptr) {
+            continue;
+        }
+        auto childAppRecordMap = front->GetChildAppRecordMap();
+        for (const auto& [pid, weakChildAppRecord] : childAppRecordMap) {
+            auto childRecord = weakChildAppRecord.lock();
+            if (childRecord) {
+                queue.push(childRecord);
+                pids.push_back(pid);
+            }
+        }
+        front->ClearChildAppRecordMap();
+    }
+    for (const auto& pid : pids) {
+        KillProcessByPid(pid);
     }
 }
 

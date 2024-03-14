@@ -376,7 +376,7 @@ ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
         auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
-        return systemUIExtension->CreateModalUIExtension(want);
+        return systemUIExtension->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
     } else {
         return abilityRecord->CreateModalUIExtension(want);
     }

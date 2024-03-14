@@ -231,6 +231,7 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
     UpdateStartUpServiceConfigString(Object, AmsConfig::DEVICE_TYPE, deviceType_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::BOOT_ANIMATION_TIMEOUT_TIME, bootAnimationTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::TIMEOUT_UNIT_TIME, timeoutUnitTime_);
+    UpdateStartUpServiceConfigInteger(Object, AmsConfig::MULTI_USER_TYPE, multiUserType_);
     return LOAD_CONFIGURATION_SUCCESS;
 }
 
@@ -294,6 +295,11 @@ void AmsConfigurationParameter::UpdateStartUpServiceConfigString(nlohmann::json&
     if (CheckServiceConfigEnable(Object, configName, JsonValueType::STRING)) {
         value = Object.at(AmsConfig::SERVICE_ITEM_AMS).at(configName).get<std::string>();
     }
+}
+
+int AmsConfigurationParameter::MultiUserType() const
+{
+    return multiUserType_;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

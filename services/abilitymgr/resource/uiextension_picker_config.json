@@ -14,6 +14,10 @@
         {
             "type": "finance",
             "typePicker": "sysPicker/appSelector"
+        },
+        {
+            "type": "cameraPicker",
+            "typePicker": "sysPicker/camera"
         }
     ]
 }

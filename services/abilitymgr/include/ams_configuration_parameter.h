@@ -47,6 +47,7 @@ constexpr const char* PICKER_TYPE = "picker_type";
 constexpr const char* UIEATENSION = "uiextension";
 constexpr const char* UIEATENSION_TYPE = "type";
 constexpr const char* UIEATENSION_TYPE_PICKER = "typePicker";
+constexpr const char* MULTI_USER_TYPE = "multiUserType";
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -128,6 +129,8 @@ public:
      */
     nlohmann::json GetPickerJsonObject() const;
 
+    int MultiUserType() const;
+
     const std::map<std::string, std::string>& GetPickerMap() const;
 
     enum { READ_OK = 0, READ_FAIL = 1, READ_JSON_FAIL = 2 };
@@ -168,6 +171,7 @@ private:
     std::string pickerType_ {""};
     nlohmann::json pickerJsonObject_ = nlohmann::json::object();
     std::map<std::string, std::string> picker_;
+    int multiUserType_ {0};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

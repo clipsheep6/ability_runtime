@@ -1019,6 +1019,8 @@ private:
 
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
+    bool CheckNeedAttachToParent() const;
+
 #ifdef SUPPORT_GRAPHICS
     std::shared_ptr<Want> GetWantFromMission() const;
     void SetShowWhenLocked(const AppExecFwk::AbilityInfo &abilityInfo, sptr<AbilityTransitionInfo> &info) const;

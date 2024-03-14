@@ -71,6 +71,7 @@ const std::string DMS_PROCESS_NAME = "distributedsched";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
+const char* WANT_PARAMS_ATTACHE_TO_PARENT = "ohos.ability.params.attachToParent";
 const std::u16string SYSTEM_ABILITY_TOKEN_CALLBACK = u"ohos.aafwk.ISystemAbilityTokenCallback";
 const std::string SHOW_ON_LOCK_SCREEN = "ShowOnLockScreen";
 const std::string DLP_INDEX = "ohos.dlp.params.index";
@@ -366,9 +367,11 @@ int AbilityRecord::LoadAbility()
     std::lock_guard guard(wantLock_);
     want_.SetParam(ABILITY_OWNER_USERID, ownerMissionUserId_);
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
+    want_.SetParam(WANT_PARAMS_ATTACHE_TO_PARENT, CheckNeedAttachToParent());
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token_, callerToken_, abilityInfo_, applicationInfo_, want_);
     want_.RemoveParam(ABILITY_OWNER_USERID);
+    want_.RemoveParam(WANT_PARAMS_ATTACHE_TO_PARENT);
 
     auto isAttachDebug = DelayedSingleton<AppScheduler>::GetInstance()->IsAttachDebug(abilityInfo_.bundleName);
     if (isAttachDebug) {
@@ -3419,6 +3422,16 @@ void AbilityRecord::SetRestartAppFlag(bool isRestartApp)
 bool AbilityRecord::GetRestartAppFlag() const
 {
     return isRestartApp_;
+}
+
+bool AbilityRecord::CheckNeedAttachToParent() const
+{
+    auto sessionInfo = GetSessionInfo();
+    if (sessionInfo && sessionInfo->processOptions &&
+        sessionInfo->processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_PARENT) {
+        return true;
+    }
+    return false;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

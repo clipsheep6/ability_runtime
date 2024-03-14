@@ -1855,6 +1855,36 @@ ProcessType AppRunningRecord::GetProcessType() const
     return processType_;
 }
 
+std::map<pid_t, std::weak_ptr<AppRunningRecord>> AppRunningRecord::GetChildAppRecordMap() const
+{
+    return childAppRecordMap_;
+}
+
+void AppRunningRecord::AddChildAppRecord(pid_t pid, std::shared_ptr<AppRunningRecord> appRecord)
+{
+    childAppRecordMap_[pid] = appRecord;
+}
+
+void AppRunningRecord::RemoveChildAppRecord(pid_t pid)
+{
+    childAppRecordMap_.erase(pid);
+}
+
+void AppRunningRecord::ClearChildAppRecordMap()
+{
+    childAppRecordMap_.clear();
+}
+
+void AppRunningRecord::SetParentAppRecord(std::shared_ptr<AppRunningRecord> appRecord)
+{
+    parentAppRecord_ = appRecord;
+}
+
+std::shared_ptr<AppRunningRecord> AppRunningRecord::GetParentAppRecord()
+{
+    return parentAppRecord_.lock();
+}
+
 int32_t AppRunningRecord::ChangeAppGcState(const int32_t state)
 {
     HILOG_DEBUG("called.");

@@ -724,12 +724,126 @@ HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0100, TestSize.Level1)
     std::string srcDeviceId = "123";
     std::string dstDeviceId = "ABC";
     int32_t missionId = 5;
-    sptr<IRemoteObject> callBack = nullptr;
+    sptr<IRemoteObject> callback = nullptr;
     WantParams wantParams;
-    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callBack, wantParams);
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
 
     EXPECT_EQ(result, ERR_INVALID_VALUE);
     GTEST_LOG_(INFO) << "ContinueMission_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0200
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0200 start";
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "ABC";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callback = nullptr;
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ContinueMission_0200 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0300
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0300, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0300 start";
+    std::string srcDeviceId = "123";
+    std::string dstDeviceId = "";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callback = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ContinueMission_0300 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0400
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0400, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0400 start";
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "ABC";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callback = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ContinueMission_0400 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0500
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0500, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0500 start";
+    std::string srcDeviceId = "";
+    std::string dstDeviceId = "";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callback = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ContinueMission_0500 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0600
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0600, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0600 start";
+    std::string srcDeviceId = "123";
+    std::string dstDeviceId = "";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callback = nullptr;
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ContinueMission_0600 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueMission_0700
+ * @tc.desc: ContinueMission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ContinueMission_0700, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueMission_0700 start";
+    std::string srcDeviceId = "123";
+    std::string dstDeviceId = "ABC";
+    int32_t missionId = 5;
+    sptr<IRemoteObject> callback = new (std::nothrow) OHOS::AAFwk::AbilityConnectCallback();
+    WantParams wantParams;
+    auto result = client_->ContinueMission(srcDeviceId, dstDeviceId, missionId, callback, wantParams);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "ContinueMission_0700 end";
 }
 
 /**
@@ -924,6 +1038,23 @@ HWTEST_F(AbilityManagerClientBranchTest, StartUserTest_0100, TestSize.Level1)
 
     EXPECT_EQ(result, ERR_OK);
     GTEST_LOG_(INFO) << "StartUserTest_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_FinishUserTest_0100
+ * @tc.desc: FinishUserTest
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, FinishUserTest_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "FinishUserTest_0100 start";
+    std::string msg = "msg";
+    int64_t resultCode = 0;
+    std::string bundleName = "bundleName_test";
+    auto result = client_->FinishUserTest(msg, resultCode, bundleName);
+
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "FinishUserTest_0100 end";
 }
 
 /**
@@ -2030,6 +2161,333 @@ HWTEST_F(AbilityManagerClientBranchTest, IsEmbeddedOpenAllowed_0100, TestSize.Le
     client_->IsEmbeddedOpenAllowed(nullptr, appId);
     EXPECT_TRUE(client_ != nullptr);
     GTEST_LOG_(INFO) << "IsEmbeddedOpenAllowed_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_AttachAbilityThread_0100
+ * @tc.desc: AttachAbilityThread
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_AttachAbilityThread_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AttachAbilityThread_0100 start";
+    sptr<IAbilityScheduler> scheduler = nullptr;
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->AttachAbilityThread(scheduler, token);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "AttachAbilityThread_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_AbilityTransitionDone_0100
+ * @tc.desc: AbilityTransitionDone
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_AbilityTransitionDone_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityTransitionDone_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    int state = 1;
+    PacMap saveData;
+    auto result = client_->AbilityTransitionDone(token, state, saveData);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "AbilityTransitionDone_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ChangeAbilityVisibility_0100
+ * @tc.desc: ChangeAbilityVisibility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_ChangeAbilityVisibility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ChangeAbilityVisibility_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    bool isShow = true;
+    auto result = client_->ChangeAbilityVisibility(token, isShow);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "ChangeAbilityVisibility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ChangeUIAbilityVisibilityBySCB_0100
+ * @tc.desc: ChangeUIAbilityVisibilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_ChangeUIAbilityVisibilityBySCB_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ChangeUIAbilityVisibilityBySCB_0100 start";
+    sptr<SessionInfo> sessionInfo = nullptr;
+    bool isShow = true;
+    auto result = client_->ChangeUIAbilityVisibilityBySCB(sessionInfo, isShow);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
+    GTEST_LOG_(INFO) << "ChangeUIAbilityVisibilityBySCB_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ChangeUIAbilityVisibilityBySCB_0200
+ * @tc.desc: ChangeUIAbilityVisibilityBySCB
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_ChangeUIAbilityVisibilityBySCB_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ChangeUIAbilityVisibilityBySCB_0200 start";
+    sptr<SessionInfo> sessionInfo(new SessionInfo());
+    bool isShow = true;
+    auto result = client_->ChangeUIAbilityVisibilityBySCB(sessionInfo, isShow);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "ChangeUIAbilityVisibilityBySCB_0200 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_TerminateAbility_0100
+ * @tc.desc: TerminateAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_TerminateAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "TerminateAbility_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    int resultCode = 1;
+    Want resultWant;
+    auto result = client_->TerminateAbility(token, resultCode, &resultWant);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "TerminateAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetAbilityManager_0100
+ * @tc.desc: GetAbilityManager
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityManager_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetAbilityManager_0100 start";
+    client_->GetAbilityManager();
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "GetAbilityManager_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ResetProxy_0100
+ * @tc.desc: ResetProxy
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_ResetProxy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ResetProxy_0100 start";
+    wptr<IRemoteObject> remote = nullptr;
+    client_->ResetProxy(remote);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "ResetProxy_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_AcquireDataAbility_0100
+ * @tc.desc: AcquireDataAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_AcquireDataAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AcquireDataAbility_0100 start";
+    const Uri uri("acquire data ability");
+    bool tryBind = true;
+    sptr<IRemoteObject> callerToken = nullptr;
+    auto result = client_->AcquireDataAbility(uri, tryBind, callerToken);
+    EXPECT_EQ(result, nullptr);
+    GTEST_LOG_(INFO) << "AcquireDataAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ScheduleRecoverAbility_0100
+ * @tc.desc: ScheduleRecoverAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, ScheduleRecoverAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ScheduleRecoverAbility_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    int32_t reason = 1;
+    Want want;
+    client_->ScheduleRecoverAbility(token, reason, &want);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "ScheduleRecoverAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RemoveDeathRecipient_0100
+ * @tc.desc: RemoveDeathRecipient
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_RemoveDeathRecipient_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RemoveDeathRecipient_0100 start";
+    client_->RemoveDeathRecipient();
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "RemoveDeathRecipient_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetTopAbility_0100
+ * @tc.desc: GetTopAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetTopAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetTopAbility_0100 start";
+    EXPECT_NE(client_, nullptr);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token;
+        auto result = client_->GetTopAbility(token);
+        EXPECT_EQ(ERR_OK, result);
+    }
+    GTEST_LOG_(INFO) << "GetTopAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetTopAbility_0200
+ * @tc.desc: GetTopAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetTopAbility_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetTopAbility_0200 start";
+    EXPECT_NE(client_, nullptr);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        bool isNeedLocalDeviceId = true;
+        auto result = client_->GetTopAbility(isNeedLocalDeviceId);
+        EXPECT_NE(client_, nullptr);
+    }
+    GTEST_LOG_(INFO) << "GetTopAbility_0200 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_ContinueAbility_0100
+ * @tc.desc: ContinueAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_ContinueAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "ContinueAbility_0100 start";
+    std::string deviceId = "123";
+    int32_t missionId = 1;
+    uint32_t versionCode = 1;
+    auto result = client_->ContinueAbility(deviceId, missionId, versionCode);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "ContinueAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StopServiceAbility_0100
+ * @tc.desc: StopServiceAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_StopServiceAbility_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StopServiceAbility_0100 start";
+    Want want;
+    sptr<IRemoteObject> token = nullptr;
+    auto result = client_->StopServiceAbility(want, token);
+    EXPECT_EQ(ERR_OK, result);
+    GTEST_LOG_(INFO) << "StopServiceAbility_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_DelegatorDoAbilityForeground_0100
+ * @tc.desc: DelegatorDoAbilityForeground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, DelegatorDoAbilityForeground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DelegatorDoAbilityForeground_0100 start";
+    EXPECT_NE(client_, nullptr);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token = nullptr;
+        auto result = client_->DelegatorDoAbilityForeground(token);
+        EXPECT_EQ(ERR_OK, result);
+    }
+    GTEST_LOG_(INFO) << "DelegatorDoAbilityForeground_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_DelegatorDoAbilityBackground_0100
+ * @tc.desc: DelegatorDoAbilityBackground
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, DelegatorDoAbilityBackground_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "DelegatorDoAbilityBackground_0100 start";
+    EXPECT_NE(client_, nullptr);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token = nullptr;
+        auto result = client_->DelegatorDoAbilityBackground(token);
+        EXPECT_EQ(ERR_OK, result);
+    }
+    GTEST_LOG_(INFO) << "DelegatorDoAbilityBackground_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_SetMissionContinueState_0100
+ * @tc.desc: SetMissionContinueState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, SetMissionContinueState_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "SetMissionContinueState_0100 start";
+    EXPECT_NE(client_, nullptr);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token = nullptr;
+        AAFwk::ContinueState state = AAFwk::ContinueState::CONTINUESTATE_ACTIVE;
+        auto result = client_->SetMissionContinueState(token, state);
+        EXPECT_EQ(ERR_OK, result);
+    }
+    GTEST_LOG_(INFO) << "SetMissionContinueState_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_VerifyPermission_0100
+ * @tc.desc: VerifyPermission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_VerifyPermission_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "VerifyPermission_0100 start";
+    std::string permission = "";
+    int pid = 1;
+    int uid = 1;
+    auto result = client_->VerifyPermission(permission, pid, uid);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "VerifyPermission_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_GetUIExtensionRootHostInfo_0100
+ * @tc.desc: GetUIExtensionRootHostInfo
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetUIExtensionRootHostInfo_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetUIExtensionRootHostInfo_0100 start";
+    sptr<IRemoteObject> token = nullptr;
+    UIExtensionHostInfo hostInfo;
+    int32_t userId = 1;
+    auto result = client_->GetUIExtensionRootHostInfo(token, hostInfo, userId);
+    EXPECT_EQ(result, ERR_OK);
+    GTEST_LOG_(INFO) << "GetUIExtensionRootHostInfo_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_RestartApp_0100
+ * @tc.desc: RestartApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_RestartApp_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RestartApp_0100 start";
+    AAFwk::Want want;
+    client_->RestartApp(want);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "RestartApp_0100 end";
 }
 }  // namespace AAFwk
 }  // namespace OHOS

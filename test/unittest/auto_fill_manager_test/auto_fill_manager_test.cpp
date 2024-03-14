@@ -97,5 +97,41 @@ HWTEST_F(AutoFillManagerTest, HandleRequestExecuteInner_0100, TestSize.Level1)
         manager.HandleRequestExecuteInner(autoFillType, GetUIContent(), viewdata, fillCallback, saveCallback);
     EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
+
+/**
+ * @tc.name: SetTimeOutEvent_0100
+ * @tc.desc: SetTimeOutEvent
+ */
+HWTEST_F(AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1";
+    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
+    manager.SetTimeOutEvent(1);
+    EXPECT_EQ(manager.eventId_, 0);
+}
+
+/**
+ * @tc.name: HandleTimeOut_0100
+ * @tc.desc: HandleTimeOut
+ */
+HWTEST_F(AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1";
+    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
+    manager.HandleTimeOut(1);
+    EXPECT_EQ(manager.eventId_, 0);
+}
+
+/**
+ * @tc.name: RemoveEvent_0100
+ * @tc.desc: RemoveEvent
+ */
+HWTEST_F(AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1";
+    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
+    manager.RemoveEvent(1);
+    EXPECT_EQ(manager.eventId_, 0);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

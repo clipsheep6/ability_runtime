@@ -273,6 +273,13 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     return false;
 }
 
+[[maybe_unused]] static void RemoveShowModeKey(AAFwk::Want &want)
+{
+    if (want.HasParameter(AAFwk::SCREEN_MODE_KEY)) {
+        want.RemoveParam(AAFwk::SCREEN_MODE_KEY);
+    }
+}
+
 inline int StartAppgallery(const int requestCode, const int32_t userId, const std::string &action)
 {
     Want want;

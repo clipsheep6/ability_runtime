@@ -282,6 +282,7 @@ private:
     void RestorePageStack(const Want &want);
     void GetPageStackFromWant(const Want &want, std::string &pageStack);
     void AbilityContinuationOrRecover(const Want &want);
+    void UpdateJsWindowStage(napi_value windowStage);
     inline bool GetInsightIntentExecutorInfo(const Want &want,
         const std::shared_ptr<InsightIntentExecuteParam> &executeParam,
         InsightIntentExecutorInfo& executeInfo);
