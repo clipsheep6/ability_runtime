@@ -824,6 +824,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     BindNativeFunction(env, object, "getUIExtensionHostWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
+    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
     return object;
 }
 
@@ -856,6 +857,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     BindNativeFunction(env, object, "getUIExtensionHostWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
+    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
     return object;
 }
 
