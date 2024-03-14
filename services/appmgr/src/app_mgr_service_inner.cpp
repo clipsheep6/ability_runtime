@@ -4062,6 +4062,9 @@ uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const Abil
     if (abilityInfo.applicationInfo.isSystemApp) {
         startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_NORMAL);
     }
+    if (abilityInfo.applicationInfo.tsanEnabled) {
+        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::TSANENABLED);
+    }
 
     return startFlags;
 }
