@@ -385,5 +385,12 @@ std::string JsAbilityStage::GetHapModuleProp(const std::string &propName) const
     HILOG_ERROR("name = %{public}s", propName.c_str());
     return std::string();
 }
+
+void JsAbilityStage::AutoStartup()
+{
+    HILOG_INFO("app startup");
+
+
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
