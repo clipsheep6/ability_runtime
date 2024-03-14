@@ -681,6 +681,14 @@ public:
         return isSpawned_.load();
     }
 
+    std::map<pid_t, std::weak_ptr<AppRunningRecord>> GetChildAppRecordMap() const;
+    void AddChildAppRecord(pid_t pid, std::shared_ptr<AppRunningRecord> appRecord);
+    void RemoveChildAppRecord(pid_t pid);
+    void ClearChildAppRecordMap();
+
+    void SetParentAppRecord(std::shared_ptr<AppRunningRecord> appRecord);
+    std::shared_ptr<AppRunningRecord> GetParentAppRecord();
+
     /**
      * @brief Notify NativeEngine GC of status change.
      *
@@ -839,6 +847,9 @@ private:
     bool isKilling_ = false;
     bool isContinuousTask_ = false;    // Only continuesTask processes can be set to true, please choose carefully
     std::atomic_bool isSpawned_ = false;
+
+    std::weak_ptr<AppRunningRecord> parentAppRecord_;
+    std::map<pid_t, std::weak_ptr<AppRunningRecord>> childAppRecordMap_;
 
     // render record
     std::map<int32_t, std::shared_ptr<RenderRecord>> renderRecordMap_;
