@@ -105,6 +105,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_path}/utils/global/time/include",
     "${ability_runtime_services_path}/abilitymgr/include",
     "${ability_runtime_napi_path}/inner/napi_common",
+    "${graphic_path}/frameworks/opengl_wrapper/src/EGL/include/private/EGL",
   ]
 
   configs = [
