@@ -442,24 +442,44 @@ void QuickFixManagerApplyTask::RemoveTimeoutTask()
 bool QuickFixManagerApplyTask::SetQuickFixInfo(const std::shared_ptr<AppExecFwk::QuickFixResult> &result)
 {
     auto resultJson = nlohmann::json::parse(result->ToString());
-    const auto &jsonObjectEnd = resultJson.end();
-    if ((resultJson.find(QUICK_FIX_BUNDLE_NAME) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_BUNDLE_VERSION_CODE) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_PATCH_VERSION_CODE) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_IS_SO_CONTAINED) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_TYPE) == jsonObjectEnd)
-        || (resultJson.find(QUICK_FIX_MODULE_NAME) == jsonObjectEnd)) {
-        HILOG_ERROR("Incomplete result.");
+    if (!resultJson.contains(QUICK_FIX_BUNDLE_NAME) || !resultJson.at(QUICK_FIX_BUNDLE_NAME).is_string()) {
+        HILOG_ERROR("Invalid bundleName.");
         return false;
     }
-
     bundleName_ = resultJson.at(QUICK_FIX_BUNDLE_NAME).get<std::string>();
-    bundleVersionCode_ = resultJson.at(QUICK_FIX_BUNDLE_VERSION_CODE).get<int>();
-    patchVersionCode_ = resultJson.at(QUICK_FIX_PATCH_VERSION_CODE).get<int>();
+
+    if (!resultJson.contains(QUICK_FIX_BUNDLE_VERSION_CODE) ||
+        !resultJson.at(QUICK_FIX_BUNDLE_VERSION_CODE).is_number()) {
+        HILOG_ERROR("Invalid bundle version code.");
+        return false;
+    }
+    bundleVersionCode_ = resultJson.at(QUICK_FIX_BUNDLE_VERSION_CODE).get<uint32_t>();
+
+    if (!resultJson.contains(QUICK_FIX_PATCH_VERSION_CODE) ||
+        !resultJson.at(QUICK_FIX_PATCH_VERSION_CODE).is_number()) {
+        HILOG_ERROR("Invalid patch version code.");
+        return false;
+    }
+    patchVersionCode_ = resultJson.at(QUICK_FIX_PATCH_VERSION_CODE).get<uint32_t>();
+
+    if (!resultJson.contains(QUICK_FIX_IS_SO_CONTAINED) || !resultJson.at(QUICK_FIX_IS_SO_CONTAINED).is_boolean()) {
+        HILOG_ERROR("Invalid so status.");
+        return false;
+    }
     isSoContained_ = resultJson.at(QUICK_FIX_IS_SO_CONTAINED).get<bool>();
+
+    if (!resultJson.contains(QUICK_FIX_TYPE) || !resultJson.at(QUICK_FIX_TYPE).is_number()) {
+        HILOG_ERROR("Invalid quickfix type.");
+        return false;
+    }
     type_ = static_cast<AppExecFwk::QuickFixType>(resultJson.at(QUICK_FIX_TYPE).get<int32_t>());
     if (type_ != AppExecFwk::QuickFixType::PATCH && type_ != AppExecFwk::QuickFixType::HOT_RELOAD) {
         HILOG_ERROR("Quick fix type is invalid.");
+        return false;
+    }
+
+    if (!resultJson.contains(QUICK_FIX_MODULE_NAME) || !resultJson.at(QUICK_FIX_MODULE_NAME).is_array()) {
+        HILOG_ERROR("Invalid moduleName.");
         return false;
     }
     moduleNames_ = resultJson.at(QUICK_FIX_MODULE_NAME).get<std::vector<std::string>>();

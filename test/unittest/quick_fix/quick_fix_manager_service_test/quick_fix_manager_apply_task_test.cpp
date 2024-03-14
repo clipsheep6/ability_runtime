@@ -205,5 +205,39 @@ HWTEST_F(QuickFixManagerApplyTaskTest, NotifyApplyStatus_0100, TestSize.Level1)
     applyTask->NotifyApplyStatus(QUICK_FIX_OK);
     HILOG_INFO("%{public}s end.", __func__);
 }
+
+/**
+ * @tc.name: SetQuickFixInfo_0400
+ * @tc.desc: Set quick fix info.
+ * @tc.type: FUNC
+ * @tc.require:
+ */
+HWTEST_F(QuickFixManagerApplyTaskTest, SetQuickFixInfo_0400, TestSize.Level1)
+{
+    HILOG_INFO("testcase start.");
+    auto applyTask = std::make_shared<QuickFixManagerApplyTask>(bundleQfMgr_, appMgr_,
+        quickFixMs_->eventHandler_, quickFixMs_);
+    ASSERT_NE(applyTask, nullptr);
+    auto quickFixRes = std::make_shared<AppExecFwk::DeployQuickFixResult>();
+    quickFixRes->resultCode = 0;
+    quickFixRes->bundleName = "com.ohos.quickfix";
+    quickFixRes->bundleVersionCode = 100000;
+    quickFixRes->patchVersionCode = 100001;
+    quickFixRes->isSoContained = true;
+    quickFixRes->type = AppExecFwk::QuickFixType::PATCH;
+    quickFixRes->moduleNames.emplace_back("entry");
+    quickFixRes->moduleNames.emplace_back("feature");
+    bool res = applyTask->SetQuickFixInfo(quickFixRes);
+    ASSERT_EQ(res, true);
+    EXPECT_EQ(applyTask->bundleName_, "com.ohos.quickfix");
+    EXPECT_EQ(applyTask->bundleVersionCode_, 100000);
+    EXPECT_EQ(applyTask->patchVersionCode_, 100001);
+    EXPECT_EQ(applyTask->isSoContained_, true);
+    EXPECT_EQ(applyTask->type_, AppExecFwk::QuickFixType::PATCH);
+    ASSERT_EQ(applyTask->moduleNames_.size(), 2);
+    EXPECT_EQ(applyTask->moduleNames_[0], "entry");
+    EXPECT_EQ(applyTask->moduleNames_[1], "feature");
+    HILOG_INFO("testcase end.");
+}
 } // namespace AppExecFwk
 } // namespace OHOS
