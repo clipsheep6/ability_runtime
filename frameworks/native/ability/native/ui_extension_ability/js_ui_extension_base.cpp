@@ -98,7 +98,9 @@ napi_value AttachUIExtensionBaseContext(napi_env env, void *value, void*)
 
 JsUIExtensionBase::JsUIExtensionBase(const std::unique_ptr<Runtime> &runtime)
     : jsRuntime_(static_cast<JsRuntime&>(*runtime))
-{}
+{
+    abilityResultListeners_ = std::make_shared<AbilityResultListeners>();
+}
 
 JsUIExtensionBase::~JsUIExtensionBase()
 {
@@ -449,8 +451,8 @@ bool JsUIExtensionBase::CallJsOnSessionCreate(const AAFwk::Want &want, const spt
         HILOG_ERROR("Failed to get want");
         return false;
     }
-    napi_value nativeContentSession =
-        JsUIExtensionContentSession::CreateJsUIExtensionContentSession(env, sessionInfo, uiWindow);
+    napi_value nativeContentSession = JsUIExtensionContentSession::CreateJsUIExtensionContentSession(
+        env, sessionInfo, uiWindow, context_, abilityResultListeners_);
     if (nativeContentSession == nullptr) {
         HILOG_ERROR("Failed to get contentSession");
         return false;
@@ -568,6 +570,9 @@ void JsUIExtensionBase::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInf
     uiWindowMap_.erase(componentId);
     foregroundWindows_.erase(componentId);
     contentSessions_.erase(componentId);
+    if (abilityResultListeners_) {
+        abilityResultListeners_->RemoveListener(componentId);
+    }
 }
 
 napi_value JsUIExtensionBase::CallObjectMethod(const char *name, napi_value const *argv, size_t argc)
@@ -682,6 +687,11 @@ void JsUIExtensionBase::OnAbilityResult(int32_t requestCode, int32_t resultCode,
         return;
     }
     context_->OnAbilityResult(requestCode, resultCode, resultData);
+    if (abilityResultListeners_ == nullptr) {
+        HILOG_WARN("abilityResultListensers is nullptr");
+        return;
+    }
+    abilityResultListeners_->OnAbilityResult(requestCode, resultCode, resultData);
 }
 
 void JsUIExtensionBase::SetAbilityInfo(const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo)

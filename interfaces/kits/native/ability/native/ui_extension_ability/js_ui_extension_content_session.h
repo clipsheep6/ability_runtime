@@ -19,7 +19,6 @@
 #include "native_engine/native_engine.h"
 #include "js_free_install_observer.h"
 #include "js_runtime_utils.h"
-#include "js_ui_extension.h"
 #include "session_info.h"
 #include "start_options.h"
 #include "window.h"
@@ -28,13 +27,32 @@ namespace OHOS {
 namespace AbilityRuntime {
 using RuntimeTask = std::function<void(int, const AAFwk::Want&, bool)>;
 
+class AbilityResultListener {
+public:
+    AbilityResultListener() = default;
+    virtual ~AbilityResultListener() = default;
+    virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;
+    virtual bool IsMatch(int requestCode) = 0;
+};
+
+class AbilityResultListeners {
+public:
+    AbilityResultListeners() = default;
+    virtual ~AbilityResultListeners() = default;
+    void AddListener(const uint64_t &uiExtensionComponentId, std::shared_ptr<AbilityResultListener> listener);
+    void RemoveListener(const uint64_t &uiExtensionComponentId);
+    void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData);
+private:
+    std::map<uint64_t, std::shared_ptr<AbilityResultListener>> listeners_;
+};
+
 class UISessionAbilityResultListener : public AbilityResultListener {
 public:
     UISessionAbilityResultListener() = default;
     virtual ~UISessionAbilityResultListener() = default;
-    virtual void OnAbilityResult(int requestCode, int resultCode, const Want &resultData);
+    virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData);
     virtual bool IsMatch(int requestCode);
-    void OnAbilityResultInner(int requestCode, int resultCode, const Want &resultData);
+    void OnAbilityResultInner(int requestCode, int resultCode, const AAFwk::Want &resultData);
     void SaveResultCallbacks(int requestCode, RuntimeTask&& task);
 private:
     std::map<int, RuntimeTask> resultCallbacks_;

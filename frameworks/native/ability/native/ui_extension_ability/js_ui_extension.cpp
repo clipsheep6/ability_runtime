@@ -103,33 +103,6 @@ napi_value AttachUIExtensionContext(napi_env env, void *value, void *extValue)
     return contextObj;
 }
 
-void AbilityResultListeners::AddListener(const uint64_t &uiExtensionComponentId,
-    std::shared_ptr<AbilityResultListener> listener)
-{
-    if (uiExtensionComponentId == 0) {
-        HILOG_ERROR("Invalid session.");
-        return;
-    }
-    listeners_[uiExtensionComponentId] = listener;
-}
-
-void AbilityResultListeners::RemoveListener(const uint64_t &uiExtensionComponentId)
-{
-    if (listeners_.find(uiExtensionComponentId) != listeners_.end()) {
-        listeners_.erase(uiExtensionComponentId);
-    }
-}
-
-void AbilityResultListeners::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
-{
-    for (auto item:listeners_) {
-        if (item.second && item.second->IsMatch(requestCode)) {
-            item.second->OnAbilityResult(requestCode, resultCode, resultData);
-            return;
-        }
-    }
-}
-
 JsUIExtension* JsUIExtension::Create(const std::unique_ptr<Runtime>& runtime)
 {
     return new (std::nothrow) JsUIExtension(static_cast<JsRuntime&>(*runtime));
