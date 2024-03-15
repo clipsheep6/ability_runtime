@@ -25,6 +25,7 @@
 #include "hitrace_meter.h"
 #include "os_account_manager_wrapper.h"
 #include "perf_profile.h"
+#include "parameters.h"
 #include "quick_fix_callback_with_record.h"
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
@@ -37,6 +38,7 @@ namespace AppExecFwk {
 namespace {
     constexpr int32_t QUICKFIX_UID = 5524;
     const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
+    constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 }
 using EventFwk::CommonEventSupport;
 
@@ -558,6 +560,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isTestProcess = (appRecord->GetUserTestInfo() != nullptr);
     info.startTimeMillis_ = appRecord->GetAppStartTime();
     info.isAbilityForegrounding = appRecord->GetAbilityForegroundingFlag();
+    info.isTestMode = info.isTestProcess && system::GetBoolParameter(DEVELOPER_MODE_STATE, false);
     info.extensionType_ = appRecord->GetExtensionType();
     info.processType_ = appRecord->GetProcessType();
 }
