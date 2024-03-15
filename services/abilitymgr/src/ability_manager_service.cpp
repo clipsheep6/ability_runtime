@@ -36,6 +36,7 @@
 #include "ability_interceptor.h"
 #include "ability_manager_constants.h"
 #include "ability_manager_errors.h"
+#include "ability_manager_radar.h"
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "app_utils.h"
@@ -527,6 +528,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
+    AAFWK::ContinueRadar::GetInstance().ClickIconStartAbility("StartAbilityWrap", ret);
     if (ret != ERR_OK) {
         eventInfo.errCode = ret;
         EventReport::SendAbilityEvent(EventName::START_ABILITY_ERROR, HiSysEventType::FAULT, eventInfo);
@@ -3574,6 +3576,7 @@ int AbilityManagerService::ContinueMission(const std::string &srcDeviceId, const
     const std::string &bundleName, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
     HILOG_INFO("amsServ %{public}s called.", __func__);
+    AAFWK::ContinueRadar::GetInstance().ClickIconContinue("ContinueMission");
     if (!PermissionVerification::GetInstance()->VerifyMissionPermission()) {
         HILOG_ERROR("%{public}s: Permission verification failed", __func__);
         return CHECK_PERMISSION_FAILED;
@@ -3633,6 +3636,7 @@ int AbilityManagerService::StartContinuation(const Want &want, const sptr<IRemot
     }
     DistributedClient dmsClient;
     auto result =  dmsClient.StartContinuation(want, missionId, appUid, status, accessToken);
+    AAFWK::ContinueRadar::GetInstance().SaveDataRemoteWant("StartContinuation", result);
     if (result != ERR_OK) {
         HILOG_ERROR("StartContinuation failed, result = %{public}d, notify caller", result);
         NotifyContinuationResult(missionId, result);
@@ -3644,6 +3648,7 @@ void AbilityManagerService::NotifyCompleteContinuation(const std::string &device
     int32_t sessionId, bool isSuccess)
 {
     HILOG_INFO("NotifyCompleteContinuation.");
+    AAFWK::ContinueRadar::GetInstance().ClickIconRecvOver("NotifyCompleteContinuation");
     DistributedClient dmsClient;
     dmsClient.NotifyCompleteContinuation(Str8ToStr16(deviceId), sessionId, isSuccess);
 }

@@ -22,6 +22,7 @@
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_collaborator_proxy.h"
 #include "ability_manager_errors.h"
+#include "ability_manager_radar.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "configuration.h"
@@ -1449,12 +1450,14 @@ int AbilityManagerStub::ContinueAbilityInner(MessageParcel &data, MessageParcel 
     int32_t missionId = data.ReadInt32();
     uint32_t versionCode = data.ReadUint32();
     int32_t result = ContinueAbility(deviceId, missionId, versionCode);
+    AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility", result);
     HILOG_INFO("ContinueAbilityInner result = %{public}d", result);
     return result;
 }
 
 int AbilityManagerStub::StartContinuationInner(MessageParcel &data, MessageParcel &reply)
 {
+    AAFWK::ContinueRadar::GetInstance().SaveDataRes("GetContentInfo");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("StartContinuationInner want readParcelable failed!");
