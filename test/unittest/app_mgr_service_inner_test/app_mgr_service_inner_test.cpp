@@ -21,6 +21,7 @@
 #include "remote_client_manager.h"
 #undef private
 #include "app_scheduler.h"
+#include "appspawn_util.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -3098,17 +3099,16 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
 {
     HILOG_INFO("BuildStartFlags_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
 
     AAFwk::Want want;
     AbilityInfo abilityInfo;
-    appMgrServiceInner->BuildStartFlags(want, abilityInfo);
+    AppspawnUtil::BuildStartFlags(want, abilityInfo);
 
     want.SetParam("coldStart", true);
     want.SetParam("ohos.dlp.params.index", 1);
     abilityInfo.extensionAbilityType = ExtensionAbilityType::BACKUP;
-    appMgrServiceInner->BuildStartFlags(want, abilityInfo);
+    uint32_t result = AppspawnUtil::BuildStartFlags(want, abilityInfo);
+    EXPECT_EQ(result, 7);
 
     HILOG_INFO("BuildStartFlags_001 end");
 }

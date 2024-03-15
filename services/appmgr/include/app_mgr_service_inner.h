@@ -1184,8 +1184,6 @@ private:
     int32_t ClearUpApplicationDataByUserId(const std::string &bundleName,
         int32_t callerUid, pid_t callerPid, const int userId, bool isBySelf = false);
 
-    uint32_t BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abilityInfo);
-
     bool CheckGetRunningInfoPermission() const;
 
     int32_t KillApplicationByBundleName(const std::string &bundleName);
