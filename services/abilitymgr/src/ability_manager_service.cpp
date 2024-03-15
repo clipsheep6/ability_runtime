@@ -2456,6 +2456,11 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     SetAutoFillElementName(extensionSessionInfo);
 
     if (extensionSessionInfo->want.HasParameter(AAFwk::SCREEN_MODE_KEY)) {
+        int32_t screenMode = extensionSessionInfo->want.GetIntParam(AAFwk::SCREEN_MODE_KEY, AAFwk::IDLE_SCREEN_MODE);
+        if (screenMode != AAFwk::EMBEDDED_FULL_SCREEN_MODE) {
+            HILOG_ERROR("Only support embedded pull-ups");
+            return ERR_INVALID_VALUE;
+        }
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
         AppExecFwk::ApplicationInfo appInfo;

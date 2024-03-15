@@ -690,7 +690,7 @@ std::unique_ptr<NativeReference> JsUIExtension::CreateAppWindowStage(sptr<Rosen:
         HILOG_ERROR("Failed to create jsWindowSatge object");
         return nullptr;
     }
-    return JsRuntime::LoadSystemModuleByEngine(env, "application.extensionWindow", &jsWindowStage, 1);
+    return JsRuntime::LoadSystemModuleByEngine(env, "application.embeddablewindowstage", &jsWindowStage, 1);
 }
 
 void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
