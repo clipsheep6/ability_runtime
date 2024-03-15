@@ -107,6 +107,10 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_napi_path}/inner/napi_common",
   ]
 
+  if (ability_runtime_graphics) {
+    include_dirs += [ "${graphic_path}/frameworks/opengl_wrapper/src/EGL" ]
+  }
+
   configs = [
     ":appkit_config",
     ":appkit_exception_config",
