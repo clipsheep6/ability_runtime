@@ -624,6 +624,11 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
 
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
         abilityStage->Init(stageContext);
+        
+        if (hapModuleInfo->moduleType == ModuleType::ENTRY){
+            abilityStage->AutoStartup();
+        }
+        
         Want want;
         if (abilityRecord->GetWant()) {
             HILOG_DEBUG("want is ok, transport to abilityStage");

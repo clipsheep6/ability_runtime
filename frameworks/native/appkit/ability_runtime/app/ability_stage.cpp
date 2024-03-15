@@ -111,5 +111,9 @@ void AbilityStage::OnMemoryLevel(int level)
 {
     HILOG_DEBUG("%{public}s called.", __func__);
 }
+void AutoStartup()
+{
+    HILOG_DEBUG("%{public}s called.", __func__);
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS
