@@ -22,6 +22,7 @@ config("dataobs_manager_public_config") {
     "${ability_runtime_path}/interfaces/kits/native/ability/native",
     "${ability_runtime_services_path}/dataobsmgr/include",
     "${ability_base_kits_path}/uri/include",
+    "//foundation/distributeddatamgr/kv_store/frameworks/common",
   ]
   cflags = []
   if (target_cpu == "arm") {
