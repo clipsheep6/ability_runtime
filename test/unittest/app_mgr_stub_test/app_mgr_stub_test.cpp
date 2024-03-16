@@ -497,5 +497,20 @@ HWTEST_F(AppMgrStubTest, HandleUpdateRenderState_0100, TestSize.Level1)
     auto res = mockAppMgrService_->HandleUpdateRenderState(data, reply);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/**
+ * @tc.name: HandleSignRestartAppFlag_0100
+ * @tc.desc: Test sign restart app flag success.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleSignRestartAppFlag_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    std::string bundleName = "testBundleName";
+    data.WriteString(bundleName);
+    auto res = mockAppMgrService_->HandleSignRestartAppFlag(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

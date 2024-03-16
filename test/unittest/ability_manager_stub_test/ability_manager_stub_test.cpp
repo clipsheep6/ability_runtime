@@ -2751,5 +2751,20 @@ HWTEST_F(AbilityManagerStubTest, GetUIExtensionRootHostInfo_0100, TestSize.Level
 
     HILOG_INFO("end");
 }
+
+/**
+ * @tc.name: RestartAppInner_0100
+ * @tc.desc: RestartAppInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RestartAppInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->RestartAppInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
+}
 } // namespace AAFwk
 } // namespace OHOS

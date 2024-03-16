@@ -489,5 +489,18 @@ HWTEST_F(AppMgrProxyTest, UpdateRenderState_0100, TestSize.Level1)
     auto res = appMgrProxy_->UpdateRenderState(renderPid, state);
     EXPECT_EQ(res, NO_ERROR);
 }
+
+/**
+ * @tc.name: SignRestartAppFlag_0100
+ * @tc.desc: Test SignRestartAppFlag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrProxyTest, SignRestartAppFlag_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mockAppMgrService_, SendRequest(_, _, _, _)).Times(1);
+    std::string bundleName;
+    auto res = appMgrProxy_->SignRestartAppFlag(bundleName);
+    EXPECT_EQ(res, NO_ERROR);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

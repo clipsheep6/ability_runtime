@@ -2679,5 +2679,21 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo
 
     HILOG_INFO("end");
 }
+
+/**
+ * @tc.name: AbilityManagerProxy_RestartApp_0100
+ * @tc.desc: RestartApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RestartApp_0100, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+
+    AAFwk::Want want;
+    proxy_->RestartApp(want);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP), mock_->code_);
+}
 } // namespace AAFwk
 } // namespace OHOS

@@ -1143,5 +1143,33 @@ HWTEST_F(AbilityManagerServiceThirdTest, IsEmbeddedOpenAllowedInner_001, TestSiz
     auto isAllowed = abilityMs->IsEmbeddedOpenAllowedInner(nullptr, appId, nullptr);
     EXPECT_FALSE(isAllowed);
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: RestartApp
+ * FunctionPoints: AbilityManagerService RestartApp
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, RestartApp_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    AAFwk::Want want;
+    int32_t res = abilityMs->RestartApp(want);
+    EXPECT_NE(res, ERR_OK);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: CheckRestartAppWant
+ * FunctionPoints: AbilityManagerService CheckRestartAppWant
+ */
+HWTEST_F(AbilityManagerServiceThirdTest, CheckRestartAppWant_001, TestSize.Level1)
+{
+    auto abilityMs = std::make_shared<AbilityManagerService>();
+    EXPECT_NE(abilityMs, nullptr);
+    AAFwk::Want want;
+    int32_t res = abilityMs->CheckRestartAppWant(want);
+    EXPECT_EQ(res, AAFwk::ERR_RESTART_APP_INCORRECT_ABILITY);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
