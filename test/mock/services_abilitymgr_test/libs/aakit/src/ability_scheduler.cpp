@@ -28,7 +28,7 @@ AbilityScheduler::~AbilityScheduler()
 void AbilityScheduler::ScheduleAbilityTransaction(const Want& want, const LifeCycleStateInfo& targetState,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_INFO("AbilityScheduler ScheduleAbilityTransaction %d", targetState.state);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityScheduler ScheduleAbilityTransaction %d", targetState.state);
     (void)want;
 }
 
@@ -37,7 +37,7 @@ void AbilityScheduler::ScheduleShareData(const int32_t &uniqueId)
 
 void AbilityScheduler::SendResult(int requestCode, int resultCode, const Want& resultWant)
 {
-    HILOG_INFO("AbilityScheduler SendResult %d resultCode %d", requestCode, resultCode);
+    TAG_LOGI(AAFwkTag::TEST, "AbilityScheduler SendResult %d resultCode %d", requestCode, resultCode);
     result_ = AbilityResult(requestCode, resultCode, resultWant);
 }
 

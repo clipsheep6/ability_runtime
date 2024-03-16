@@ -29,7 +29,7 @@ int MockTestObserverStub::OnRemoteRequest(
 
 void MockTestObserverStub::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("MockTestObserverStub::TestStatus is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockTestObserverStub::TestStatus is called");
 
     testStatusFlag = true;
 }

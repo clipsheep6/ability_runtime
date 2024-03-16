@@ -65,7 +65,7 @@ void AbilityManagerStubTest::WriteInterfaceToken(MessageParcel& data)
  */
 HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DumpSysStateInner_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerStub_DumpSysStateInner_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerStub_DumpSysStateInner_0100 start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -88,7 +88,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DumpSysStateInner_0100, Test
         data, reply, option);
     EXPECT_EQ(res, NO_ERROR);
 
-    HILOG_INFO("AbilityManagerStub_DumpSysStateInner_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerStub_DumpSysStateInner_0100 end");
 }  // namespace AAFwk
 
 /*
@@ -1449,7 +1449,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionToFrontInner_001,
  */
 HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionsToForegroundInner_001, TestSize.Level1)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::TEST, "%{public}s is called.", __func__);
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->MoveMissionsToForegroundInner(data, reply);
@@ -1466,7 +1466,7 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionsToForegroundInne
  */
 HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_MoveMissionsToBackgroundInner_001, TestSize.Level1)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::TEST, "%{public}s is called.", __func__);
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->MoveMissionsToBackgroundInner(data, reply);
@@ -2730,7 +2730,7 @@ HWTEST_F(AbilityManagerStubTest, QueryAllAutoStartupApplicationsInner_0100, Test
  */
 HWTEST_F(AbilityManagerStubTest, GetUIExtensionRootHostInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin");
+    TAG_LOGI(AAFwkTag::TEST, "begin");
 
     MessageParcel data;
     bool writeRet = data.WriteInterfaceToken(AbilityManagerStubImplMock::GetDescriptor());
@@ -2749,7 +2749,7 @@ HWTEST_F(AbilityManagerStubTest, GetUIExtensionRootHostInfo_0100, TestSize.Level
         static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO), data, reply, option);
     EXPECT_EQ(ret, NO_ERROR);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 } // namespace AAFwk
 } // namespace OHOS

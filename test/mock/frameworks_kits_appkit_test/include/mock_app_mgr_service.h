@@ -286,31 +286,31 @@ public:
 
     bool IsAttached()
     {
-        HILOG_INFO("MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
         return Attached_;
     }
 
     bool IsForegrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
         return Foregrounded_;
     }
 
     bool IsBackgrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
         return Backgrounded_;
     }
 
     bool IsTerminated()
     {
-        HILOG_INFO("MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
         return Terminated_;
     }
 
     void init()
     {
-        HILOG_INFO("MockAppMgrService::init called");
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::init called");
         Attached_ = false;
     }
 

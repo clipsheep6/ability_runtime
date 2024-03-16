@@ -72,22 +72,22 @@ sptr<AppExecFwk::IBundleMgr> UIExtensionInfoModuleTest::bundleMgr_ = nullptr;
 
 void UIExtensionInfoModuleTest::SetUpTestCase(void)
 {
-    HILOG_INFO("start.");
+    TAG_LOGI(AAFwkTag::TEST, "start.");
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
-        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        TAG_LOGE(AAFwkTag::TEST, "Failed to get SystemAbilityManager.");
         return;
     }
 
     auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::TEST, "Remote object is nullptr.");
         return;
     }
 
     sptr<AppExecFwk::IBundleMgr> bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObj);
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("Bundle mgr is nullptr.");
+        TAG_LOGE(AAFwkTag::TEST, "Bundle mgr is nullptr.");
         return;
     }
 
@@ -112,7 +112,7 @@ void UIExtensionInfoModuleTest::TearDown()
  */
 HWTEST_F(UIExtensionInfoModuleTest, QueryUIExtensionAbilityInfos_0100, TestSize.Level1)
 {
-    HILOG_INFO("start.");
+    TAG_LOGI(AAFwkTag::TEST, "start.");
     ASSERT_NE(bundleMgr_, nullptr);
 
     for (auto &type : UIExtensionUtils::UI_EXTENSION_SET) {
@@ -120,15 +120,17 @@ HWTEST_F(UIExtensionInfoModuleTest, QueryUIExtensionAbilityInfos_0100, TestSize.
         bool queryResult = bundleMgr_->QueryExtensionAbilityInfos(type, AppExecFwk::Constants::ALL_USERID,
             extensionInfos);
         for (auto &item : extensionInfos) {
-            HILOG_INFO("UIExtensionAbility: type: %{public}s, bundleName: %{public}s, moduleName: %{public}s, "
-                "abilityName: %{public}s.", ConvertToExtensionTypeName(type).c_str(),
-                item.bundleName.c_str(), item.moduleName.c_str(), item.name.c_str());
+            TAG_LOGI(AAFwkTag::TEST,
+                     "UIExtensionAbility: type: %{public}s, bundleName: %{public}s, moduleName: %{public}s, "
+                     "abilityName: %{public}s.",
+                     ConvertToExtensionTypeName(type).c_str(), item.bundleName.c_str(),
+                     item.moduleName.c_str(), item.name.c_str());
             EXPECT_EQ(item.type, type);
             // Get apl of bundle, and output xml format.
         }
     }
 
-    HILOG_INFO("finish.");
+    TAG_LOGI(AAFwkTag::TEST, "finish.");
 }
 } // namespace AAFwk
 } // namespace OHOS

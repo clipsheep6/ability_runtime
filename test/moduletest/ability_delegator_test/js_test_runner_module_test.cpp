@@ -100,7 +100,7 @@ void JsTestRunnerModuleTest::MakeMockObjects() const
  */
 HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Module_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Module_Test_0100 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
@@ -139,7 +139,7 @@ HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0100, Function | Med
  */
 HWTEST_F(JsTestRunnerModuleTest, Js_Test_Runner_Module_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Js_Test_Runner_Module_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Js_Test_Runner_Module_Test_0200 is called");
 
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;

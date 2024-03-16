@@ -27,39 +27,40 @@ AppMgrEventHandler::AppMgrEventHandler(
     const std::shared_ptr<AppExecFwk::EventRunner>& runner, const std::shared_ptr<AbilityManagerService>& server)
     : AppExecFwk::EventHandler(runner), server_(server)
 {
-    HILOG_INFO("AbilityEventHandler::AbilityEventHandler::instance created.");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityEventHandler::AbilityEventHandler::instance created.");
 }
 
 void AppMgrEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     if (event == nullptr) {
-        HILOG_ERROR("AMSEventHandler::ProcessEvent::parameter error");
+        TAG_LOGE(AAFwkTag::TEST, "AMSEventHandler::ProcessEvent::parameter error");
         return;
     }
-    HILOG_DEBUG("AMSEventHandler::ProcessEvent::inner event id obtained: %u.", event->GetInnerEventId());
+    TAG_LOGD(AAFwkTag::TEST, "AMSEventHandler::ProcessEvent::inner event id obtained: %u.",
+             event->GetInnerEventId());
     switch (event->GetInnerEventId()) {
         case AppManagerTestService::LOAD_ABILITY_MSG: {
-            HILOG_DEBUG("Load Ability msg.");
+            TAG_LOGD(AAFwkTag::TEST, "Load Ability msg.");
             ProcessLoadAbility(event);
             break;
         }
         case AppManagerTestService::SCHEDULE_ABILITY_MSG: {
-            HILOG_DEBUG("scheduler ability msg.");
+            TAG_LOGD(AAFwkTag::TEST, "scheduler ability msg.");
             ScheduleAbilityTransaction(event);
             break;
         }
         case AppManagerTestService::SCHEDULE_CONNECT_MSG: {
-            HILOG_DEBUG("scheduler connect msg.");
+            TAG_LOGD(AAFwkTag::TEST, "scheduler connect msg.");
             ScheduleConnectAbilityTransaction(event);
             break;
         }
         case AppManagerTestService::SCHEDULE_DISCONNECT_MSG: {
-            HILOG_DEBUG("scheduler disconnect msg.");
+            TAG_LOGD(AAFwkTag::TEST, "scheduler disconnect msg.");
             ScheduleDisconnectAbilityTransaction(event);
             break;
         }
         default: {
-            HILOG_DEBUG("unknown message.");
+            TAG_LOGD(AAFwkTag::TEST, "unknown message.");
             break;
         }
     }
@@ -67,18 +68,18 @@ void AppMgrEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& eve
 
 void AppMgrEventHandler::ProcessLoadAbility(const AppExecFwk::InnerEvent::Pointer& event)
 {
-    HILOG_DEBUG("process load ability.");
+    TAG_LOGD(AAFwkTag::TEST, "process load ability.");
     auto tokenPtr = event->GetUniqueObject<sptr<IRemoteObject>>().get();
     if (tokenPtr == nullptr) {
-        HILOG_ERROR("abilityToken unavailable.");
+        TAG_LOGE(AAFwkTag::TEST, "abilityToken unavailable.");
     } else {
         OHOS::sptr<IRemoteObject> token = *tokenPtr;
         std::shared_ptr<AbilityRecord> ability = Token::GetAbilityRecordByToken(token);
         if (ability == nullptr) {
-            HILOG_ERROR("ability unavailable.");
+            TAG_LOGE(AAFwkTag::TEST, "ability unavailable.");
             return;
         }
-        HILOG_DEBUG("attach ability %s thread.", ability->GetAbilityInfo().name.c_str());
+        TAG_LOGD(AAFwkTag::TEST, "attach ability %s thread.", ability->GetAbilityInfo().name.c_str());
         sptr<IAbilityScheduler> abilitySched = new AbilityScheduler();
         tokenMap_[abilitySched] = token;
         server_->AttachAbilityThread(abilitySched, token);
@@ -93,24 +94,24 @@ void AppMgrEventHandler::ScheduleAbilityTransaction(const AppExecFwk::InnerEvent
     auto abilityToken = tokenMap_[abilitySched];
 
     if (abilityToken == nullptr) {
-        HILOG_ERROR("abilityToken unavailable.");
+        TAG_LOGE(AAFwkTag::TEST, "abilityToken unavailable.");
         return;
     }
 
     std::shared_ptr<AbilityRecord> ability = Token::GetAbilityRecordByToken(abilityToken);
     if (ability == nullptr) {
-        HILOG_ERROR("ability unavailable.");
+        TAG_LOGE(AAFwkTag::TEST, "ability unavailable.");
         return;
     }
     AppExecFwk::AbilityInfo abilityinfo = ability->GetAbilityInfo();
 
     if (targetState == ACTIVE) {
-        HILOG_DEBUG("process schedule ability %s active.", abilityinfo.name.c_str());
+        TAG_LOGD(AAFwkTag::TEST, "process schedule ability %s active.", abilityinfo.name.c_str());
         if (std::string::npos != abilityinfo.name.find("BlockActive")) {
             usleep(BLOCK_TEST_TIME);
         }
     } else if (targetState == INACTIVE) {
-        HILOG_DEBUG("process schedule ability %s inactive.", abilityinfo.name.c_str());
+        TAG_LOGD(AAFwkTag::TEST, "process schedule ability %s inactive.", abilityinfo.name.c_str());
         if (std::string::npos != abilityinfo.name.find("BlockInActive")) {
             usleep(BLOCK_TEST_TIME);
         }
@@ -136,18 +137,18 @@ void AppMgrEventHandler::ScheduleDisconnectAbilityTransaction(const AppExecFwk::
     auto abilityToken = tokenMap_[abilitySched];
 
     if (abilityToken == nullptr) {
-        HILOG_ERROR("abilityToken unavailable.");
+        TAG_LOGE(AAFwkTag::TEST, "abilityToken unavailable.");
         return;
     }
 
     std::shared_ptr<AbilityRecord> ability = Token::GetAbilityRecordByToken(abilityToken);
     if (ability == nullptr) {
-        HILOG_ERROR("ability unavailable.");
+        TAG_LOGE(AAFwkTag::TEST, "ability unavailable.");
         return;
     }
     AppExecFwk::AbilityInfo abilityinfo = ability->GetAbilityInfo();
     if (std::string::npos == abilityinfo.name.find("Block")) {
-        HILOG_INFO("no block, so call disconnect done");
+        TAG_LOGI(AAFwkTag::TEST, "no block, so call disconnect done");
         server_->ScheduleDisconnectAbilityDone(abilityToken);
     }
     return;
@@ -163,7 +164,7 @@ void AppManagerTestService::Start()
 {
     eventLoop_ = AppExecFwk::EventRunner::Create("AppManagerTestService");
     if (eventLoop_.get() == nullptr) {
-        HILOG_ERROR("failed to create EventRunner");
+        TAG_LOGE(AAFwkTag::TEST, "failed to create EventRunner");
         return;
     }
     handler_ = std::make_shared<AppMgrEventHandler>(eventLoop_, DelayedSingleton<AbilityManagerService>::GetInstance());

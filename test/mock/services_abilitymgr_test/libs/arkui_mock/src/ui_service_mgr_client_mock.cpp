@@ -90,11 +90,11 @@ ErrCode UIServiceMgrClient::ShowDialog(const std::string& name, const std::strin
 {
     if (code_ == EVENT_WAITING_CODE) {
         appRunning_ = true;
-        HILOG_INFO("Waiting caller kill the process");
+        TAG_LOGI(AAFwkTag::TEST, "Waiting caller kill the process");
         return 0;
     }
     if (code_ == EVENT_CLOSE_CODE) {
-        HILOG_INFO("kill the process");
+        TAG_LOGI(AAFwkTag::TEST, "kill the process");
         kill(pid_, SIGKILL);
         appRunning_ = false;
     }

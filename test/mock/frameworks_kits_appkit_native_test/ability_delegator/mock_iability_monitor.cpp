@@ -35,49 +35,49 @@ MockIabilityMonitor::MockIabilityMonitor(const std::string& abilityName) : IAbil
 
 void MockIabilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnAbilityStart is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnAbilityStart is called");
     start_ = true;
 }
 
 void MockIabilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnAbilityForeground is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnAbilityForeground is called");
     foreground_ = true;
 }
 
 void MockIabilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnAbilityBackground is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnAbilityBackground is called");
     background_ = true;
 }
 
 void MockIabilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnAbilityStop is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnAbilityStop is called");
     stop_ = true;
 }
 
 void MockIabilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnWindowStageCreate is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnWindowStageCreate is called");
     windowStageCreate_ = true;
 }
 
 void MockIabilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnWindowStageRestore is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnWindowStageRestore is called");
     windowStageRestore_ = true;
 }
 
 void MockIabilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference>& abilityObj)
 {
-    HILOG_INFO("MockIabilityMonitor::OnWindowStageDestroy is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::OnWindowStageDestroy is called");
     windowStageDestroy_ = true;
 }
 
 bool MockIabilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty>& ability, bool isNotify)
 {
-    HILOG_INFO("MockIabilityMonitor::Match is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockIabilityMonitor::Match is called");
 
     bool ret = false;
 

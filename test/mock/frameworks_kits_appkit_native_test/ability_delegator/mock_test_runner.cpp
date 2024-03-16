@@ -23,13 +23,13 @@ bool MockTestRunner::runFlag_ = false;
 
 void MockTestRunner::Prepare()
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::TEST, "enter");
     prepareFlag_ = true;
 }
 
 void MockTestRunner::Run()
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::TEST, "enter");
     runFlag_ = true;
 }
 } // namespace AppExecFwk

@@ -67,7 +67,7 @@ void AbilityDelegatorRegistryModuleTest::TearDown()
 HWTEST_F(AbilityDelegatorRegistryModuleTest,
     Ability_Delegator_Registry_Module_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Registry_Module_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Registry_Module_Test_0100 is called");
 
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
