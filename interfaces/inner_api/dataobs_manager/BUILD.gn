@@ -50,6 +50,7 @@ ohos_shared_library("dataobs_manager") {
     "ability_base:zuri",
     "c_utils:utils",
     "hilog:libhilog",
+    "kv_store:distributeddata_inner",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]
