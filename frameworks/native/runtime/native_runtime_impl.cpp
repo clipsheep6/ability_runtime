@@ -151,11 +151,6 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
         InitWorkerModule(options, jsEnv);
         SetModuleLoadChecker(options.moduleCheckerDelegate, jsEnv);
         SetRequestAotCallback(jsEnv);
-
-        if (!InitLoop(jsEnv)) {
-            HILOG_ERROR("Initialize loop failed.");
-            return napi_status::napi_generic_failure;
-        }
     }
 
     preloaded_ = options.preload;
@@ -303,15 +298,6 @@ void NativeRuntimeImpl::SetRequestAotCallback(const std::shared_ptr<JsEnv::JsEnv
     };
 
     jsEnv->SetRequestAotCallback(callback);
-}
-
-bool NativeRuntimeImpl::InitLoop(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
-{
-    if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
-        return false;
-    }
-    return jsEnv->InitLoop();
 }
 
 void NativeRuntimeImpl::InitWorkerModule(const Options& options, const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
