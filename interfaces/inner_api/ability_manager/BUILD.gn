@@ -228,6 +228,16 @@ ohos_shared_library("ability_start_setting") {
 }
 
 ohos_shared_library("process_options") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
   include_dirs = [
     "include/",
     "${ability_runtime_services_path}/common/include",
