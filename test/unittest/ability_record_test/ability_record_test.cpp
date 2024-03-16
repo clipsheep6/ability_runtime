@@ -34,6 +34,7 @@
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "ui_extension_utils.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #define private public

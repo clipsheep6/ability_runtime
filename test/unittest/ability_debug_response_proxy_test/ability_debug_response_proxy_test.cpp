@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_debug_response_proxy.h"
 #include "mock_ability_debug_response_stub.h"

@@ -18,6 +18,7 @@
 
 #include "gmock/gmock.h"
 #include "ability_manager_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_proxy.h"
 

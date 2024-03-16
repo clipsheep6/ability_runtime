@@ -24,6 +24,7 @@
 #include "ability_handler.h"
 #include "ability_transaction_callback_info.h"
 #include "configuration.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
@@ -63,14 +64,14 @@ void AbilityExtensionTest::TearDown()
  */
 HWTEST_F(AbilityExtensionTest, SetCallingInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("SetCallingInfo start");
+    TAG_LOGI(AAFwkTag::TEST, "SetCallingInfo start");
 
     Extension extension;
     CallingInfo callingInfo;
     extension.SetCallingInfo(callingInfo);
     EXPECT_NE(extension.callingInfo_, nullptr);
 
-    HILOG_INFO("SetCallingInfo end");
+    TAG_LOGI(AAFwkTag::TEST, "SetCallingInfo end");
 }
 
 /**
@@ -81,7 +82,7 @@ HWTEST_F(AbilityExtensionTest, SetCallingInfo_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, GetCallingInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetCallingInfo start");
+    TAG_LOGI(AAFwkTag::TEST, "GetCallingInfo start");
 
     Extension extension;
     CallingInfo callingInfo;
@@ -89,7 +90,7 @@ HWTEST_F(AbilityExtensionTest, GetCallingInfo_0100, TestSize.Level1)
     auto result = extension.GetCallingInfo();
     EXPECT_NE(result, nullptr);
 
-    HILOG_INFO("GetCallingInfo end");
+    TAG_LOGI(AAFwkTag::TEST, "GetCallingInfo end");
 }
 
 /**
@@ -100,7 +101,7 @@ HWTEST_F(AbilityExtensionTest, GetCallingInfo_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, SetLastRequestWant_0100, TestSize.Level1)
 {
-    HILOG_INFO("SetLastRequestWant start");
+    TAG_LOGI(AAFwkTag::TEST, "SetLastRequestWant start");
 
     Extension extension;
     std::string deviceId;
@@ -117,7 +118,7 @@ HWTEST_F(AbilityExtensionTest, SetLastRequestWant_0100, TestSize.Level1)
     extension.SetLastRequestWant(want);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("SetLastRequestWant end");
+    TAG_LOGI(AAFwkTag::TEST, "SetLastRequestWant end");
 }
 
 /**
@@ -128,7 +129,7 @@ HWTEST_F(AbilityExtensionTest, SetLastRequestWant_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, SetLaunchWant_0100, TestSize.Level1)
 {
-    HILOG_INFO("SetLaunchWant start");
+    TAG_LOGI(AAFwkTag::TEST, "SetLaunchWant start");
 
     std::string deviceId;
     std::string bundleName = "ohos.test.bundle";
@@ -146,7 +147,7 @@ HWTEST_F(AbilityExtensionTest, SetLaunchWant_0100, TestSize.Level1)
     extension.SetLaunchWant(want);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("SetLaunchWant end");
+    TAG_LOGI(AAFwkTag::TEST, "SetLaunchWant end");
 }
 
 /**
@@ -157,7 +158,7 @@ HWTEST_F(AbilityExtensionTest, SetLaunchWant_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, Init_0100, TestSize.Level1)
 {
-    HILOG_INFO("Init start");
+    TAG_LOGI(AAFwkTag::TEST, "Init start");
 
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record = nullptr;
     std::shared_ptr<AppExecFwk::OHOSApplication> application = std::make_shared<AppExecFwk::OHOSApplication>();
@@ -168,7 +169,7 @@ HWTEST_F(AbilityExtensionTest, Init_0100, TestSize.Level1)
     extension.Init(record, application, handler, token);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Init end");
+    TAG_LOGI(AAFwkTag::TEST, "Init end");
 }
 
 /**
@@ -179,7 +180,7 @@ HWTEST_F(AbilityExtensionTest, Init_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, Init_0200, TestSize.Level1)
 {
-    HILOG_INFO("Init start");
+    TAG_LOGI(AAFwkTag::TEST, "Init start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -192,7 +193,7 @@ HWTEST_F(AbilityExtensionTest, Init_0200, TestSize.Level1)
     extension.Init(record, application, handler, token);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Init end");
+    TAG_LOGI(AAFwkTag::TEST, "Init end");
 }
 
 /**
@@ -203,7 +204,7 @@ HWTEST_F(AbilityExtensionTest, Init_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, Init_0300, TestSize.Level1)
 {
-    HILOG_INFO("Init start");
+    TAG_LOGI(AAFwkTag::TEST, "Init start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -216,7 +217,7 @@ HWTEST_F(AbilityExtensionTest, Init_0300, TestSize.Level1)
     extension.Init(record, application, handler, token);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Init end");
+    TAG_LOGI(AAFwkTag::TEST, "Init end");
 }
 
 /**
@@ -227,7 +228,7 @@ HWTEST_F(AbilityExtensionTest, Init_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, Init_0400, TestSize.Level1)
 {
-    HILOG_INFO("Init start");
+    TAG_LOGI(AAFwkTag::TEST, "Init start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -240,7 +241,7 @@ HWTEST_F(AbilityExtensionTest, Init_0400, TestSize.Level1)
     extension.Init(record, application, handler, token);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Init end");
+    TAG_LOGI(AAFwkTag::TEST, "Init end");
 }
 
 /**
@@ -251,7 +252,7 @@ HWTEST_F(AbilityExtensionTest, Init_0400, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, Init_0500, TestSize.Level1)
 {
-    HILOG_INFO("Init start");
+    TAG_LOGI(AAFwkTag::TEST, "Init start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -264,7 +265,7 @@ HWTEST_F(AbilityExtensionTest, Init_0500, TestSize.Level1)
     extension.Init(record, application, handler, token);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Init end");
+    TAG_LOGI(AAFwkTag::TEST, "Init end");
 }
 
 /**
@@ -275,7 +276,7 @@ HWTEST_F(AbilityExtensionTest, Init_0500, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnStart_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnStart start");
+    TAG_LOGI(AAFwkTag::TEST, "OnStart start");
 
     Extension extension;
     // Init extension
@@ -303,7 +304,7 @@ HWTEST_F(AbilityExtensionTest, OnStart_0100, TestSize.Level1)
     extension.OnStart(want);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnStart end");
+    TAG_LOGI(AAFwkTag::TEST, "OnStart end");
 }
 
 /**
@@ -314,7 +315,7 @@ HWTEST_F(AbilityExtensionTest, OnStart_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnStop_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnStop start");
+    TAG_LOGI(AAFwkTag::TEST, "OnStop start");
 
     Extension extension;
     // Init extension
@@ -330,7 +331,7 @@ HWTEST_F(AbilityExtensionTest, OnStop_0100, TestSize.Level1)
     extension.OnStop();
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnStop end");
+    TAG_LOGI(AAFwkTag::TEST, "OnStop end");
 }
 
 /**
@@ -341,7 +342,7 @@ HWTEST_F(AbilityExtensionTest, OnStop_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnConnect_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnConnect start");
+    TAG_LOGI(AAFwkTag::TEST, "OnConnect start");
 
     Extension extension;
     // Init extension
@@ -369,7 +370,7 @@ HWTEST_F(AbilityExtensionTest, OnConnect_0100, TestSize.Level1)
     extension.OnConnect(want);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnConnect end");
+    TAG_LOGI(AAFwkTag::TEST, "OnConnect end");
 }
 
 /**
@@ -380,7 +381,7 @@ HWTEST_F(AbilityExtensionTest, OnConnect_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnDisconnect_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnDisconnect start");
+    TAG_LOGI(AAFwkTag::TEST, "OnDisconnect start");
 
     Extension extension;
     // Init extension
@@ -408,7 +409,7 @@ HWTEST_F(AbilityExtensionTest, OnDisconnect_0100, TestSize.Level1)
     extension.OnDisconnect(want);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnDisconnect end");
+    TAG_LOGI(AAFwkTag::TEST, "OnDisconnect end");
 }
 
 /**
@@ -419,7 +420,7 @@ HWTEST_F(AbilityExtensionTest, OnDisconnect_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnDisconnect_0200, TestSize.Level1)
 {
-    HILOG_INFO("OnDisconnect start");
+    TAG_LOGI(AAFwkTag::TEST, "OnDisconnect start");
 
     Extension extension;
     // Init extension
@@ -449,7 +450,7 @@ HWTEST_F(AbilityExtensionTest, OnDisconnect_0200, TestSize.Level1)
     extension.OnDisconnect(want, &callbackInfo, isAsyncCallback);
     EXPECT_EQ(isAsyncCallback, false);
 
-    HILOG_INFO("OnDisconnect end");
+    TAG_LOGI(AAFwkTag::TEST, "OnDisconnect end");
 }
 
 /**
@@ -460,7 +461,7 @@ HWTEST_F(AbilityExtensionTest, OnDisconnect_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnCommand_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnCommand start");
+    TAG_LOGI(AAFwkTag::TEST, "OnCommand start");
 
     std::string deviceId;
     std::string bundleName = "ohos.test.bundle";
@@ -480,7 +481,7 @@ HWTEST_F(AbilityExtensionTest, OnCommand_0100, TestSize.Level1)
     extension.OnCommand(want, restart, startId);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnCommand end");
+    TAG_LOGI(AAFwkTag::TEST, "OnCommand end");
 }
 
 /**
@@ -491,7 +492,7 @@ HWTEST_F(AbilityExtensionTest, OnCommand_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnCommand_0200, TestSize.Level1)
 {
-    HILOG_INFO("OnCommand start");
+    TAG_LOGI(AAFwkTag::TEST, "OnCommand start");
 
     std::string deviceId;
     std::string bundleName = "ohos.test.bundle";
@@ -511,7 +512,7 @@ HWTEST_F(AbilityExtensionTest, OnCommand_0200, TestSize.Level1)
     extension.OnCommand(want, restart, startId);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnCommand end");
+    TAG_LOGI(AAFwkTag::TEST, "OnCommand end");
 }
 
 /**
@@ -522,7 +523,7 @@ HWTEST_F(AbilityExtensionTest, OnCommand_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnConfigurationUpdated_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnConfigurationUpdated start");
+    TAG_LOGI(AAFwkTag::TEST, "OnConfigurationUpdated start");
 
     AppExecFwk::Configuration configuration;
 
@@ -530,7 +531,7 @@ HWTEST_F(AbilityExtensionTest, OnConfigurationUpdated_0100, TestSize.Level1)
     extension.OnConfigurationUpdated(configuration);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnConfigurationUpdated end");
+    TAG_LOGI(AAFwkTag::TEST, "OnConfigurationUpdated end");
 }
 
 /**
@@ -541,14 +542,14 @@ HWTEST_F(AbilityExtensionTest, OnConfigurationUpdated_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, OnMemoryLevel_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnMemoryLevel start");
+    TAG_LOGI(AAFwkTag::TEST, "OnMemoryLevel start");
 
     Extension extension;
     int level = 0;
     extension.OnMemoryLevel(level);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnMemoryLevel end");
+    TAG_LOGI(AAFwkTag::TEST, "OnMemoryLevel end");
 }
 
 /**
@@ -559,7 +560,7 @@ HWTEST_F(AbilityExtensionTest, OnMemoryLevel_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionTest, Dump_0100, TestSize.Level1)
 {
-    HILOG_INFO("Dump start");
+    TAG_LOGI(AAFwkTag::TEST, "Dump start");
 
     std::vector<std::string> params;
     params.push_back("params1");
@@ -574,7 +575,7 @@ HWTEST_F(AbilityExtensionTest, Dump_0100, TestSize.Level1)
     extension.Dump(params, info);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Dump end");
+    TAG_LOGI(AAFwkTag::TEST, "Dump end");
 }
 
 } // namespace AbilityRuntime

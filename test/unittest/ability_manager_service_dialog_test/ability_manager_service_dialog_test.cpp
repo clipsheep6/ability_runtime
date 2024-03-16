@@ -24,6 +24,7 @@
 #undef private
 #undef protected
 #include "ability_manager_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "scene_board_judgement.h"
 
@@ -86,10 +87,10 @@ void AbilityMgrServiceDialogTest::TearDown() {}
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0100 start");
     auto ret = implicitStartProcessor_->ImplicitStartAbility(abilityRequest_, DEFAULT_USERID);
     EXPECT_EQ(ret, ERR_IMPLICIT_START_ABILITY_FAIL);
-    HILOG_INFO("AbilityMgrServiceDialog_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0100 end");
 }
 
 /*
@@ -99,11 +100,11 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0100, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0200, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0200 start");
     auto want = systemDialogScheduler_->GetTipsDialogWant(nullptr);
     EXPECT_EQ(want.GetElement().GetBundleName(), "com.ohos.amsdialog");
     EXPECT_EQ(want.GetElement().GetAbilityName(), "TipsDialog");
-    HILOG_INFO("AbilityMgrServiceDialog_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0200 end");
 }
 
 /*
@@ -113,7 +114,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0200, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0300 start");
     std::vector<DialogAppInfo> dialogAppInfos;
     Want targetWant;
     auto ret = systemDialogScheduler_->GetSelectorDialogWant(dialogAppInfos, targetWant, nullptr);
@@ -122,7 +123,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Lev
         EXPECT_EQ(targetWant.GetElement().GetAbilityName(), "SelectorDialog");
     }
     EXPECT_NE(systemDialogScheduler_, nullptr);
-    HILOG_INFO("AbilityMgrServiceDialog_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0300 end");
 }
 
 /*
@@ -132,11 +133,11 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0300, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0400, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0400 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0400 start");
     std::vector<DialogAppInfo> dialogAppInfos;
     auto params = systemDialogScheduler_->GetSelectorParams(dialogAppInfos);
     EXPECT_EQ(params.size(), 0);
-    HILOG_INFO("AbilityMgrServiceDialog_0400 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0400 end");
 }
 
 /*
@@ -146,7 +147,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0400, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0500 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0500 start");
     DialogAppInfo dialogAppInfo = {
         0, 0, "com.example.test", "MainAbility", "entry"
     };
@@ -154,7 +155,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Lev
     auto params = systemDialogScheduler_->GetSelectorParams(dialogAppInfos);
     nlohmann::json jsonObj = nlohmann::json::parse(params);
     EXPECT_EQ(jsonObj["hapList"].size(), 1);
-    HILOG_INFO("AbilityMgrServiceDialog_0500 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0500 end");
 }
 
 /*
@@ -164,12 +165,12 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0500, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0600, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0600 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0600 start");
     Want want;
     want.SetElementName("com.example.test", "");
     auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
     EXPECT_EQ(ret, true);
-    HILOG_INFO("AbilityMgrServiceDialog_0600 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0600 end");
 }
 
 /*
@@ -179,12 +180,12 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0600, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0700, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0700 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0700 start");
     Want want;
     want.SetElementName("com.example.test", "MainAbility");
     auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
     EXPECT_EQ(ret, false);
-    HILOG_INFO("AbilityMgrServiceDialog_0700 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0700 end");
 }
 
 /*
@@ -194,13 +195,13 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0700, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0800, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0800 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0800 start");
     Want want;
     want.SetElementName("com.example.test", "");
     want.SetAction("ohos.want.action.select");
     auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
     EXPECT_EQ(ret, false);
-    HILOG_INFO("AbilityMgrServiceDialog_0800 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0800 end");
 }
 
 /*
@@ -210,13 +211,13 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0800, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0900, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialog_0900 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0900 start");
     Want want;
     want.SetElementName("com.example.test", "");
     want.SetAction("ohos.want.action.viewData");
     auto ret = implicitStartProcessor_->IsImplicitStartAction(want);
     EXPECT_EQ(ret, true);
-    HILOG_INFO("AbilityMgrServiceDialog_0900 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialog_0900 end");
 }
 
 /*
@@ -226,14 +227,14 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialog_0900, TestSize.Lev
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1000, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1000 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1000 start");
     DialogPosition position;
     position.height = 0;
     const float densityPixels = 1.50;
     const int lineNums = 9;
     systemDialogScheduler_->DialogPortraitPositionAdaptive(position, densityPixels, lineNums);
     EXPECT_NE(position.height, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1000 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1000 end");
 }
 
 /*
@@ -243,14 +244,14 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1000, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1100 start");
     DialogPosition position;
     position.height = 0;
     const float densityPixels = 1.50;
     const int lineNums = 5;
     systemDialogScheduler_->DialogPortraitPositionAdaptive(position, densityPixels, lineNums);
     EXPECT_NE(position.height, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1100 end");
 }
 
 /*
@@ -260,14 +261,14 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1100, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1200, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1200 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1200 start");
     DialogPosition position;
     position.height = 0;
     const float densityPixels = 1.50;
     const int lineNums = 1;
     systemDialogScheduler_->DialogPortraitPositionAdaptive(position, densityPixels, lineNums);
     EXPECT_NE(position.height, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1200 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1200 end");
 }
 
 /*
@@ -277,14 +278,14 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1200, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1300, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1300 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1300 start");
     DialogPosition position;
     position.height = 0;
     const float densityPixels = 1.50;
     const int lineNums = 9;
     systemDialogScheduler_->DialogLandscapePositionAdaptive(position, densityPixels, lineNums);
     EXPECT_NE(position.height, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1300 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1300 end");
 }
 
 /*
@@ -294,14 +295,14 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1300, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1400, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1400 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1400 start");
     DialogPosition position;
     position.height = 0;
     const float densityPixels = 1.50;
     const int lineNums = 5;
     systemDialogScheduler_->DialogLandscapePositionAdaptive(position, densityPixels, lineNums);
     EXPECT_NE(position.height, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1400 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1400 end");
 }
 
 /*
@@ -311,14 +312,14 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1400, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1500, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1500 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1500 start");
     DialogPosition position;
     position.height = 0;
     const float densityPixels = 1.50;
     const int lineNums = 1;
     systemDialogScheduler_->DialogLandscapePositionAdaptive(position, densityPixels, lineNums);
     EXPECT_NE(position.height, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1500 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1500 end");
 }
 
 /*
@@ -328,7 +329,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1500, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1600, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1600 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1600 start");
     DialogPosition position;
     position.height = 0;
     position.offsetX = 0;
@@ -339,7 +340,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1600, TestSize
     systemDialogScheduler_->GetSelectorDialogPortraitPosition(position, height, width, lineNums, densityPixels);
     EXPECT_NE(position.height, 0);
     EXPECT_NE(position.offsetX, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1600 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1600 end");
 }
 
 /*
@@ -349,7 +350,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1600, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1700, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1700 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1700 start");
     DialogPosition position;
     position.height = 0;
     position.offsetX = 0;
@@ -360,7 +361,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1700, TestSize
     systemDialogScheduler_->GetSelectorDialogPortraitPosition(position, height, width, lineNums, densityPixels);
     EXPECT_EQ(position.oversizeHeight, true);
     EXPECT_NE(position.offsetX, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1700 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1700 end");
 }
 
 /*
@@ -370,7 +371,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1700, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1800, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1800 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1800 start");
     DialogPosition position;
     position.height = 0;
     position.offsetX = 0;
@@ -381,7 +382,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1800, TestSize
     systemDialogScheduler_->GetSelectorDialogLandscapePosition(position, height, width, lineNums, densityPixels);
     EXPECT_NE(position.height, 0);
     EXPECT_NE(position.offsetX, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1800 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1800 end");
 }
 
 /*
@@ -391,7 +392,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1800, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1900, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_1900 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1900 start");
     DialogPosition position;
     position.height = 1000;
     position.offsetX = 0;
@@ -402,7 +403,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1900, TestSize
     systemDialogScheduler_->GetSelectorDialogLandscapePosition(position, height, width, lineNums, densityPixels);
     EXPECT_TRUE(position.oversizeHeight);
     EXPECT_NE(position.offsetX, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_1900 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_1900 end");
 }
 
 /*
@@ -412,7 +413,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_1900, TestSize
  */
 HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_2000, TestSize.Level1)
 {
-    HILOG_INFO("AbilityMgrServiceDialogTest_2000 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_2000 start");
     DialogPosition position;
     position.height = 1000;
     position.offsetX = 0;
@@ -423,7 +424,7 @@ HWTEST_F(AbilityMgrServiceDialogTest, AbilityMgrServiceDialogTest_2000, TestSize
     systemDialogScheduler_->GetSelectorDialogLandscapePosition(position, height, width, lineNums, densityPixels);
     EXPECT_TRUE(position.oversizeHeight);
     EXPECT_NE(position.offsetX, 0);
-    HILOG_INFO("AbilityMgrServiceDialogTest_2000 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityMgrServiceDialogTest_2000 end");
 }
 } // namespace AAFwk
 } // namespace OHOS

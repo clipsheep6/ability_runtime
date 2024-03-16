@@ -26,6 +26,7 @@
 #include "ability_context.h"
 #include "ability_manager_interface.h"
 #include "ability_scheduler_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "iremote_stub.h"

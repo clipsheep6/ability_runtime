@@ -21,6 +21,7 @@
 #include "ability_util.h"
 #include "accesstoken_kit.h"
 #include "app_mgr_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -104,19 +105,19 @@ void UIExtensionStabilityTest::SetUpTestCase()
 {
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
-        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        TAG_LOGE(AAFwkTag::TEST, "Failed to get SystemAbilityManager.");
         return;
     }
 
     auto remoteObj = systemAbilityMgr->GetSystemAbility(APP_MGR_SERVICE_ID);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::TEST, "Remote object is nullptr.");
         return;
     }
 
     sptr<AppExecFwk::IAppMgr> appMgr = iface_cast<AppExecFwk::IAppMgr>(remoteObj);
     if (appMgr == nullptr) {
-        HILOG_ERROR("App mgr is nullptr.");
+        TAG_LOGE(AAFwkTag::TEST, "App mgr is nullptr.");
         return;
     }
 
@@ -139,7 +140,7 @@ void UIExtensionStabilityTest::RegisterApplicationStateObserver(const sptr<IAppl
     bundleNameList.push_back(USER_BUNDLE_NAME);
     auto ret = appMgr_->RegisterApplicationStateObserver(observer, bundleNameList);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Register failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Register failed.");
     }
 }
 
@@ -147,7 +148,7 @@ void UIExtensionStabilityTest::UnregisterApplicationStateObserver(const sptr<IAp
 {
     auto ret = appMgr_->UnregisterApplicationStateObserver(observer);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Unregister failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Unregister failed.");
     }
 }
 
@@ -216,7 +217,7 @@ void UIExtensionStabilityTest::WaitUntilAbilityBackground(
  */
 HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("TerminateUIExtensionAbility_0100 start.");
+    TAG_LOGI(AAFwkTag::TEST, "TerminateUIExtensionAbility_0100 start.");
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
 
     auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
@@ -237,7 +238,7 @@ HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Le
 
     UnregisterApplicationStateObserver(observer);
     EXPECT_TRUE(client != nullptr);
-    HILOG_INFO("TerminateUIExtensionAbility_0100 finish.");
+    TAG_LOGI(AAFwkTag::TEST, "TerminateUIExtensionAbility_0100 finish.");
 }
 
 /**
@@ -248,7 +249,7 @@ HWTEST_F(UIExtensionStabilityTest, TerminateUIExtensionAbility_0100, TestSize.Le
  */
 HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("MinimizeUIExtensionAbility_0100 start.");
+    TAG_LOGI(AAFwkTag::TEST, "MinimizeUIExtensionAbility_0100 start.");
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
 
     auto observer = sptr<UIExtensionConnectModuleTestObserver>::MakeSptr();
@@ -294,7 +295,7 @@ HWTEST_F(UIExtensionStabilityTest, MinimizeUIExtensionAbility_0100, TestSize.Lev
 
     UnregisterApplicationStateObserver(observer);
     EXPECT_TRUE(client != nullptr);
-    HILOG_INFO("MinimizeUIExtensionAbility_0100 finish.");
+    TAG_LOGI(AAFwkTag::TEST, "MinimizeUIExtensionAbility_0100 finish.");
 }
 } // namespace AAFwk
 } // namespace OHOS

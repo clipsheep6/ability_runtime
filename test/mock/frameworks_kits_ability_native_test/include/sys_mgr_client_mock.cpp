@@ -14,6 +14,7 @@
  */
 #include <gtest/gtest.h>
 #include "sys_mgr_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -36,7 +37,7 @@ sptr<IRemoteObject> SysMrgClient::GetSystemAbility(const int32_t systemAbilityId
         OHOS::sptr<ISystemAbilityManager> abilityManager =
             SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (abilityManager == nullptr) {
-            HILOG_ERROR("%s:fail to get Registry", __func__);
+            TAG_LOGE(AAFwkTag::TEST, "%s:fail to get Registry", __func__);
             return nullptr;
         }
         OHOS::sptr<OHOS::IRemoteObject> object = abilityManager->GetSystemAbility(systemAbilityId);

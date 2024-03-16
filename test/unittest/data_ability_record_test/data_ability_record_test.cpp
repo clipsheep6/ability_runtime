@@ -86,7 +86,7 @@ void DataAbilityRecordTest::TearDown(void)
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Flow_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_Flow_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Flow_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -100,7 +100,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Flow_001, TestSize.Level
     EXPECT_NE(dataAbilityRecord->GetAbilityRecord()->GetToken(), nullptr);
     EXPECT_EQ(dataAbilityRecord->GetRequest().appInfo.name, abilityRequest_.appInfo.name);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_Flow_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Flow_001 end.");
 }
 
 /*
@@ -113,13 +113,13 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Flow_001, TestSize.Level
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_StartLoading_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_ALREADY_EXISTS);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_StartLoading_001 end.");
 }
 
 /*
@@ -132,14 +132,14 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_001, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_StartLoading_002 start.");
 
     // clear app name
     abilityRequest_.appInfo.name = "";
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_INVALID_VALUE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_StartLoading_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_StartLoading_002 end.");
 }
 
 /*
@@ -152,7 +152,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_StartLoading_002, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_WaitForLoaded_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     ffrt::mutex mutex;
@@ -160,7 +160,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_001, TestS
 
     EXPECT_EQ(dataAbilityRecord->WaitForLoaded(mutex, timeout), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_WaitForLoaded_001 end.");
 }
 
 /*
@@ -173,7 +173,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_001, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_WaitForLoaded_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     ffrt::mutex mutex;
@@ -182,7 +182,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_002, TestS
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->WaitForLoaded(mutex, timeout), ERR_TIMED_OUT);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_WaitForLoaded_002 end.");
 }
 
 /*
@@ -195,7 +195,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_002, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_WaitForLoaded_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     ffrt::mutex mutex;
@@ -208,7 +208,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_003, TestS
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->WaitForLoaded(mutex, timeout), ERR_OK);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_WaitForLoaded_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_WaitForLoaded_003 end.");
 }
 
 /*
@@ -221,12 +221,12 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_WaitForLoaded_003, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_Attach_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Attach_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_Attach_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Attach_001 end.");
 }
 
 /*
@@ -239,13 +239,13 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_001, TestSize.Lev
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_Attach_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Attach_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->Attach(nullptr), ERR_INVALID_DATA);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_Attach_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Attach_002 end.");
 }
 
 /*
@@ -258,7 +258,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_002, TestSize.Lev
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_Attach_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Attach_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -267,7 +267,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_003, TestSize.Lev
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_Attach_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_Attach_003 end.");
 }
 
 /*
@@ -280,12 +280,12 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_Attach_003, TestSize.Lev
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_001 end.");
 }
 
 /*
@@ -298,13 +298,13 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_001, Te
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_002 end.");
 }
 
 /*
@@ -317,7 +317,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_002, Te
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
@@ -343,7 +343,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_003, Te
     abilityState_ = INACTIVE;
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_003 end.");
 }
 
 /*
@@ -356,7 +356,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_003, Te
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_004, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_004 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_004 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
@@ -368,7 +368,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_004, Te
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_OnTransitionDone_004 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_OnTransitionDone_004 end.");
 }
 
 /*
@@ -381,12 +381,12 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_OnTransitionDone_004, Te
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->AddClient(nullptr, true, false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_001 end.");
 }
 
 /*
@@ -399,14 +399,14 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_001, TestSize.
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->AddClient(abilityRecord_->GetToken(), true, false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_002 end.");
 }
 
 /*
@@ -419,7 +419,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_002, TestSize.
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -427,7 +427,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_003, TestSize.
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->AddClient(abilityRecord_->GetToken(), true, false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_003 end.");
 }
 
 /*
@@ -440,7 +440,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_003, TestSize.
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_004, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_004 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_004 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -450,7 +450,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_004, TestSize.
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->AddClient(abilityRecord_->GetToken(), true, false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_004 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_004 end.");
 }
 
 /*
@@ -463,7 +463,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_004, TestSize.
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_005, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_005 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_005 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -477,7 +477,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_005, TestSize.
     unsigned int count = 1;
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), count);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_AddClient_005 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_AddClient_005 end.");
 }
 
 /*
@@ -490,12 +490,12 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_AddClient_005, TestSize.
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     EXPECT_EQ(dataAbilityRecord->RemoveClient(nullptr, false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_001 end.");
 }
 
 /*
@@ -508,14 +508,14 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_001, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_002 end.");
 }
 
 /*
@@ -528,7 +528,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_002, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -536,7 +536,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_003, TestSi
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_003 end.");
 }
 
 /*
@@ -549,7 +549,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_003, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_004, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_004 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_004 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -559,7 +559,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_004, TestSi
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_004 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_004 end.");
 }
 
 /*
@@ -572,7 +572,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_004, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_005, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_005 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_005 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -584,7 +584,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_005, TestSi
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_OK);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_005 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_005 end.");
 }
 
 /*
@@ -597,7 +597,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_005, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_006, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_006 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_006 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -614,7 +614,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_006, TestSi
     count = 0;
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), count);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_006 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_006 end.");
 }
 
 /*
@@ -627,7 +627,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_006, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_007, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_007 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_007 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -654,7 +654,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_007, TestSi
     EXPECT_EQ(dataAbilityRecord->RemoveClient(abilityRecord_->GetToken(), false), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClient_007 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClient_007 end.");
 }
 
 /*
@@ -667,14 +667,14 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClient_007, TestSi
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_001 end.");
 }
 
 /*
@@ -687,7 +687,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_001, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -695,7 +695,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_002, TestS
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_002 end.");
 }
 
 /*
@@ -708,7 +708,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_002, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -718,7 +718,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_003, TestS
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_003 end.");
 }
 
 /*
@@ -731,7 +731,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_003, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_005, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_005 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_005 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -743,7 +743,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_005, TestS
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_OK);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_005 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_005 end.");
 }
 
 /*
@@ -756,7 +756,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_005, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_006, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_006 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_006 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -779,7 +779,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_006, TestS
     EXPECT_EQ(dataAbilityRecord->RemoveClients(client), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_RemoveClients_005 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_RemoveClients_005 end.");
 }
 
 /*
@@ -792,14 +792,14 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_RemoveClients_006, TestS
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_GetClientCount_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
 
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_GetClientCount_001 end.");
 }
 
 /*
@@ -812,7 +812,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_001, Test
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_GetClientCount_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -820,7 +820,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_002, Test
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_GetClientCount_002 end.");
 }
 
 /*
@@ -833,7 +833,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_002, Test
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_GetClientCount_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
     auto client = Token::GetAbilityRecordByToken(abilityRecord_->GetToken());
@@ -843,7 +843,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_003, Test
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->GetClientCount(abilityRecord_->GetToken()), (uint32_t)0);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_GetClientCount_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_GetClientCount_003 end.");
 }
 
 /*
@@ -857,13 +857,13 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_GetClientCount_003, Test
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses_001, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_001 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_001 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_001 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_001 end.");
 }
 
 /*
@@ -876,14 +876,14 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses_002, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_002 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_002 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
     EXPECT_EQ(dataAbilityRecord->StartLoading(), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_002 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_002 end.");
 }
 
 /*
@@ -896,7 +896,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses_003, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_003 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_003 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
@@ -905,7 +905,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
     EXPECT_EQ(dataAbilityRecord->Attach(abilitySchedulerMock_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_INVALID_STATE);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_003 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_003 end.");
 }
 
 /*
@@ -918,7 +918,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
  */
 HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses_004, TestSize.Level1)
 {
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_004 start.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_004 start.");
 
     auto dataAbilityRecord = std::make_shared<DataAbilityRecord>(abilityRequest_);
 
@@ -929,7 +929,7 @@ HWTEST_F(DataAbilityRecordTest, AaFwk_DataAbilityRecord_KillBoundClientProcesses
     EXPECT_EQ(dataAbilityRecord->OnTransitionDone(abilityState_), ERR_OK);
     EXPECT_EQ(dataAbilityRecord->KillBoundClientProcesses(), ERR_OK);
 
-    HILOG_INFO("AaFwk_DataAbilityRecord_KillBoundClientProcesses_004 end.");
+    TAG_LOGI(AAFwkTag::TEST, "AaFwk_DataAbilityRecord_KillBoundClientProcesses_004 end.");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -17,6 +17,7 @@
 #include "clean_cache_callback_interface.h"
 #include "ability_info.h"
 #include "application_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_config.h"
 
