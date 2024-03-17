@@ -1141,7 +1141,8 @@ public:
      * @brief Update session info.
      * @param sessionInfos The vector of session info.
      */
-    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) override;
+    virtual int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+        std::vector<int32_t> &sessionIds) override;
 
     /**
      * @brief Get host info of root caller.

@@ -9675,14 +9675,15 @@ int32_t AbilityManagerService::NotifyDebugAssertResult(uint64_t assertFaultSessi
     return ERR_OK;
 }
 
-void AbilityManagerService::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+int32_t AbilityManagerService::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+    std::vector<int32_t> &sessionIds)
 {
     if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
         HILOG_ERROR("Not sceneboard called, not allowed.");
-        return;
+        return ERR_WRONG_INTERFACE_CALL;
     }
     HILOG_INFO("The sceneboard is being restored.");
-    uiAbilityLifecycleManager_->UpdateSessionInfoBySCB(sessionInfos, userId);
+    return uiAbilityLifecycleManager_->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
 }
 
 bool AbilityManagerService::CheckSenderWantInfo(int32_t callerUid, const WantSenderInfo &wantSenderInfo)

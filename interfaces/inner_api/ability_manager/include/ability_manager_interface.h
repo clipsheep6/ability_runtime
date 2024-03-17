@@ -18,6 +18,7 @@
 
 #include <ipc_types.h>
 #include <iremote_broker.h>
+#include <list>
 #include <vector>
 
 #include "ability_connect_callback_interface.h"
@@ -1422,7 +1423,11 @@ public:
      * @brief Update session info.
      * @param sessionInfos The vector of session info.
      */
-    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) {}
+    virtual int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+        std::vector<int32_t> &sessionIds)
+    {
+        return 0;
+    }
 
     /**
      * @brief Get host info of root caller.

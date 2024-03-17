@@ -4742,32 +4742,33 @@ int32_t AbilityManagerProxy::NotifyDebugAssertResult(uint64_t assertFaultSession
     return reply.ReadInt32();
 }
 
-void AbilityManagerProxy::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+    std::vector<int32_t> &sessionIds)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write interface token failed.");
-        return;
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     auto size = static_cast<int32_t>(sessionInfos.size());
     int32_t threshold = 512;
     if (size > threshold) {
         HILOG_ERROR("Size of vector too large.");
-        return;
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteInt32(size)) {
         HILOG_ERROR("Write size failed.");
-        return;
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
-    for (int32_t i = 0; i < size; i++) {
-        if (!data.WriteParcelable(&sessionInfos[i])) {
+    for (const auto &info : sessionInfos) {
+        if (!data.WriteParcelable(&info)) {
             HILOG_ERROR("Write sessionInfo failed.");
-            return;
+            return ERR_NATIVE_IPC_PARCEL_FAILED;
         }
     }
     if (!data.WriteInt32(userId)) {
         HILOG_ERROR("Write userId failed.");
-        return;
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
 
     MessageParcel reply;
@@ -4775,7 +4776,18 @@ void AbilityManagerProxy::UpdateSessionInfoBySCB(const std::vector<SessionInfo> 
     auto ret = SendRequest(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO, data, reply, option);
     if (ret != NO_ERROR) {
         HILOG_ERROR("Send request failed with %{public}d", ret);
+        return ret;
     }
+    size = reply.ReadInt32();
+    if (size > threshold) {
+        HILOG_ERROR("Size of vector too large.");
+        return ERR_NATIVE_IPC_PARCEL_FAILED;
+    }
+    sessionIds.clear();
+    for (auto index = 0; index < size; index++) {
+        sessionIds.emplace_back(reply.ReadInt32());
+    }
+    return NO_ERROR;
 }
 
 ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, MessageParcel &data, MessageParcel &reply,
