@@ -1590,6 +1590,7 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
         uiAbilityLifecycleManager_->GetActiveAbilityList(bundleName, abilityLists, targetUserId);
     } else if (targetUserId == U0_USER_ID) {
         std::lock_guard lock(managersMutex_);
+        HILOG_INFO("called.");
         for (auto item: missionListManagers_) {
             if (item.second) {
                 std::vector<std::string> abilityList;
@@ -1599,6 +1600,7 @@ int32_t AbilityManagerService::ForceExitApp(const int32_t pid, Reason exitReason
                 }
             }
         }
+        HILOG_INFO("end.");
     } else {
         auto listManager = GetListManagerByUserId(targetUserId);
         if (listManager) {
@@ -3746,13 +3748,16 @@ void AbilityManagerService::DumpSysMissionListInner(
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
+        HILOG_INFO("called.");
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = missionListManagers_.find(userId);
         if (it == missionListManagers_.end()) {
             info.push_back("error: No user found.");
+            HILOG_INFO("error.");
             return;
         }
         targetManager = it->second;
+        HILOG_INFO("end.");
     } else {
         targetManager = currentMissionListManager_;
     }
@@ -3778,13 +3783,16 @@ void AbilityManagerService::DumpSysAbilityInner(
 {
     std::shared_ptr<MissionListManager> targetManager;
     if (isUserID) {
+        HILOG_INFO("called.");
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = missionListManagers_.find(userId);
         if (it == missionListManagers_.end()) {
             info.push_back("error: No user found.");
+            HILOG_INFO("error.");
             return;
         }
         targetManager = it->second;
+        HILOG_INFO("end.");
     } else {
         targetManager = currentMissionListManager_;
     }
@@ -3818,13 +3826,16 @@ void AbilityManagerService::DumpSysStateInner(
     std::shared_ptr<AbilityConnectManager> targetManager;
 
     if (isUserID) {
+        HILOG_INFO("called.");
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = connectManagers_.find(userId);
         if (it == connectManagers_.end()) {
             info.push_back("error: No user found.");
+            HILOG_INFO("error.");
             return;
         }
         targetManager = it->second;
+        HILOG_INFO("end.");
     } else {
         targetManager = connectManager_;
     }
@@ -3853,13 +3864,16 @@ void AbilityManagerService::DumpSysPendingInner(
 {
     std::shared_ptr<PendingWantManager> targetManager;
     if (isUserID) {
+        HILOG_INFO("called.");
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = pendingWantManagers_.find(userId);
         if (it == pendingWantManagers_.end()) {
             info.push_back("error: No user found.");
+            HILOG_INFO("error.");
             return;
         }
         targetManager = it->second;
+        HILOG_INFO("end.");
     } else {
         targetManager = pendingWantManager_;
     }
@@ -3929,13 +3943,16 @@ void AbilityManagerService::DataDumpSysStateInner(
 {
     std::shared_ptr<DataAbilityManager> targetManager;
     if (isUserID) {
+        HILOG_INFO("called.");
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
         auto it = dataAbilityManagers_.find(userId);
         if (it == dataAbilityManagers_.end()) {
             info.push_back("error: No user found.");
+            HILOG_INFO("error.");
             return;
         }
         targetManager = it->second;
+        HILOG_INFO("end.");
     } else {
         targetManager = dataAbilityManager_;
     }
@@ -4503,7 +4520,7 @@ int AbilityManagerService::GenerateAbilityRequest(
             HILOG_ERROR("collaborator: notify broker start ability failed");
             return ERR_COLLABORATOR_NOTIFY_FAILED;
         }
-        
+
         IN_PROCESS_CALL_WITHOUT_RET(bms->QueryAbilityInfo(request.want, abilityInfoFlag, userId, request.abilityInfo));
 
         if (request.want.GetBoolParam(KEY_VISIBLE_ID, false) && !request.abilityInfo.visible) {
@@ -4756,11 +4773,13 @@ int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t u
         uiAbilityLifecycleManager_->UninstallApp(bundleName, uid, targetUserId);
     } else if (targetUserId == U0_USER_ID) {
         std::lock_guard<ffrt::mutex> lock(managersMutex_);
+        HILOG_INFO("UninstallApp.");
         for (auto item: missionListManagers_) {
             if (item.second) {
                 item.second->UninstallApp(bundleName, uid);
             }
         }
+        HILOG_INFO("UninstallApp end.");
     } else {
         auto listManager = GetListManagerByUserId(targetUserId);
         if (listManager) {
@@ -4862,6 +4881,7 @@ void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId, bool isHa
 {
     HILOG_DEBUG("Handle load timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
         return;
@@ -4871,23 +4891,27 @@ void AbilityManagerService::HandleLoadTimeOut(int64_t abilityRecordId, bool isHa
             item.second->OnTimeOut(AbilityManagerService::LOAD_TIMEOUT_MSG, abilityRecordId, isHalf);
         }
     }
+    HILOG_INFO("end.");
 }
 
 void AbilityManagerService::HandleActiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle active timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->OnTimeOut(AbilityManagerService::ACTIVE_TIMEOUT_MSG, abilityRecordId);
         }
     }
+    HILOG_INFO("end.");
 }
 
 void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
 {
     HILOG_DEBUG("Handle inactive timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecordId);
@@ -4899,12 +4923,14 @@ void AbilityManagerService::HandleInactiveTimeOut(int64_t abilityRecordId)
             item.second->OnTimeOut(AbilityManagerService::INACTIVE_TIMEOUT_MSG, abilityRecordId);
         }
     }
+    HILOG_INFO("end.");
 }
 
 void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId, bool isHalf)
 {
     HILOG_DEBUG("Handle foreground timeout.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
         return;
@@ -4914,6 +4940,7 @@ void AbilityManagerService::HandleForegroundTimeOut(int64_t abilityRecordId, boo
             item.second->OnTimeOut(AbilityManagerService::FOREGROUND_TIMEOUT_MSG, abilityRecordId, isHalf);
         }
     }
+    HILOG_INFO("end.");
 }
 
 void AbilityManagerService::HandleShareDataTimeOut(int64_t uniqueId)
@@ -4986,8 +5013,9 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("VerificationAllToken.");
+    HILOG_INFO("VerificationAllToken.");
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("Got lock.");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         if (uiAbilityLifecycleManager_ != nullptr && uiAbilityLifecycleManager_->IsContainsAbility(token)) {
             return true;
@@ -4996,10 +5024,12 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchMissionListManagers");
         for (auto item: missionListManagers_) {
             if (item.second && item.second->GetAbilityRecordByToken(token)) {
+                HILOG_INFO("end.");
                 return true;
             }
 
             if (item.second && item.second->GetAbilityFromTerminateList(token)) {
+                HILOG_INFO("end.");
                 return true;
             }
         }
@@ -5009,6 +5039,7 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchDataAbilityManagers_");
         for (auto item: dataAbilityManagers_) {
             if (item.second && item.second->GetAbilityRecordByToken(token)) {
+                HILOG_INFO("end.");
                 return true;
             }
         }
@@ -5018,9 +5049,11 @@ bool AbilityManagerService::VerificationAllToken(const sptr<IRemoteObject> &toke
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "VerificationAllToken::SearchConnectManagers_");
         for (auto item: connectManagers_) {
             if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
+                HILOG_INFO("end.");
                 return true;
             }
             if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
+                HILOG_INFO("end.");
                 return true;
             }
         }
@@ -5038,20 +5071,24 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     }
 
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     for (auto& item: dataAbilityManagers_) {
         if (item.second && item.second->ContainsDataAbility(scheduler)) {
+            HILOG_INFO("find end.");
             return item.second;
         }
     }
-
+    HILOG_INFO("null end.");
     return nullptr;
 }
 
 std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     auto it = missionListManagers_.find(userId);
     if (it != missionListManagers_.end()) {
+        HILOG_INFO("find end.");
         return it->second;
     }
     HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
@@ -5061,8 +5098,10 @@ std::shared_ptr<MissionListManager> AbilityManagerService::GetListManagerByUserI
 std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerByUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     auto it = connectManagers_.find(userId);
     if (it != connectManagers_.end()) {
+        HILOG_INFO("find end.");
         return it->second;
     }
     HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
@@ -5072,8 +5111,10 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
 std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     auto it = dataAbilityManagers_.find(userId);
     if (it != dataAbilityManagers_.end()) {
+        HILOG_INFO("find end.");
         return it->second;
     }
     HILOG_ERROR("%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
@@ -5084,15 +5125,18 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     const sptr<IRemoteObject> &token)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     for (auto item: connectManagers_) {
         if (item.second && item.second->GetExtensionByTokenFromServiceMap(token)) {
+            HILOG_INFO("find end.");
             return item.second;
         }
         if (item.second && item.second->GetExtensionByTokenFromTerminatingMap(token)) {
+            HILOG_INFO("find end.");
             return item.second;
         }
     }
-
+    HILOG_INFO("null end.");
     return nullptr;
 }
 
@@ -5100,12 +5144,14 @@ std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManager
     const sptr<IRemoteObject> &token)
 {
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     for (auto item: dataAbilityManagers_) {
         if (item.second && item.second->GetAbilityRecordByToken(token)) {
+            HILOG_INFO("find end.");
             return item.second;
         }
     }
-
+    HILOG_INFO("null end.");
     return nullptr;
 }
 
@@ -5561,7 +5607,7 @@ int AbilityManagerService::GetProcessRunningInfosByUserId(
 
 void AbilityManagerService::ClearUserData(int32_t userId)
 {
-    HILOG_DEBUG("%{public}s", __func__);
+    HILOG_INFO("called.");
     std::unique_lock<ffrt::mutex> lock(managersMutex_);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         missionListManagers_.erase(userId);
@@ -5849,13 +5895,14 @@ void AbilityManagerService::StopFreezingScreen()
 
 void AbilityManagerService::UserStarted(int32_t userId)
 {
-    HILOG_INFO("%{public}s", __func__);
+    HILOG_INFO("called.");
     InitConnectManager(userId, false);
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitMissionListManager(userId, false);
     }
     InitDataAbilityManager(userId, false);
     InitPendWantManager(userId, false);
+    HILOG_INFO("end.");
 }
 
 void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId)
@@ -6808,7 +6855,7 @@ int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &to
         HILOG_ERROR("SetMissionContinueState failed to get missionId. State: %{public}d", state);
         return ERR_INVALID_VALUE;
     }
-   
+
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     if (!abilityRecord) {
         HILOG_ERROR("SetMissionContinueState: No such ability record. Mission id: %{public}d, state: %{public}d",
@@ -6831,7 +6878,7 @@ int AbilityManagerService::SetMissionContinueState(const sptr<IRemoteObject> &to
             missionId, state);
         return -1;
     }
- 
+
     auto setResult = missionListManager->SetMissionContinueState(token, missionId, state);
     if (setResult != ERR_OK) {
         HILOG_ERROR("missionListManager set failed, result: %{public}d, mission id: %{public}d, state: %{public}d",
@@ -6925,13 +6972,14 @@ sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
 
 void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    HILOG_INFO("called.");
     for (auto& item : missionListManagers_) {
         if (item.second) {
             item.second->CompleteFirstFrameDrawing(abilityToken);
         }
     }
+    HILOG_INFO("end.");
 }
 
 int32_t AbilityManagerService::ShowPickerDialog(
