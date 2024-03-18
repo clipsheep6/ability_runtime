@@ -1398,7 +1398,7 @@ HWTEST_F(AppMgrServiceTest, UnregisterAbilityForegroundStateObserver_0100, TestS
  */
 HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
 {
-    HILOG_DEBUG("StartChildProcess_001 called.");
+    TAG_LOGD(AAFwkTag::TEST, "StartChildProcess_001 called.");
     sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
     ASSERT_NE(appMgrService, nullptr);
 
@@ -1421,7 +1421,7 @@ HWTEST_F(AppMgrServiceTest, StartChildProcess_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceTest, GetChildProcessInfoForSelf_001, TestSize.Level1)
 {
-    HILOG_DEBUG("GetChildProcessInfoForSelf_001 called.");
+    TAG_LOGD(AAFwkTag::TEST, "GetChildProcessInfoForSelf_001 called.");
     sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
     ASSERT_NE(appMgrService, nullptr);
 
@@ -1444,7 +1444,7 @@ HWTEST_F(AppMgrServiceTest, GetChildProcessInfoForSelf_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceTest, AttachChildProcess_001, TestSize.Level1)
 {
-    HILOG_DEBUG("AttachChildProcess_001 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AttachChildProcess_001 called.");
     sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
     ASSERT_NE(appMgrService, nullptr);
 
@@ -1465,7 +1465,7 @@ HWTEST_F(AppMgrServiceTest, AttachChildProcess_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceTest, ExitChildProcessSafely_001, TestSize.Level1)
 {
-    HILOG_DEBUG("ExitChildProcessSafely_001 called.");
+    TAG_LOGD(AAFwkTag::TEST, "ExitChildProcessSafely_001 called.");
     sptr<AppMgrService> appMgrService = new (std::nothrow) AppMgrService();
     ASSERT_NE(appMgrService, nullptr);
 

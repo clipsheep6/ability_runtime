@@ -98,7 +98,7 @@ void IabilityMonitorModuleTest::MakeMockObjects() const
  */
 HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Iability_Monitor_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Iability_Monitor_Test_0100 is called");
 
     IAbilityMonitor iabilityMonitor(ABILITY_NAME);
     std::shared_ptr<ADelegatorAbilityProperty> property = std::make_shared<ADelegatorAbilityProperty>();
@@ -115,7 +115,7 @@ HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0100, Function | Mediu
  */
 HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Iability_Monitor_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Iability_Monitor_Test_0200 is called");
 
     IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
     std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
@@ -142,7 +142,7 @@ HWTEST_F(IabilityMonitorModuleTest, Iability_Monitor_Test_0200, Function | Mediu
  */
 HWTEST_F(IabilityMonitorModuleTest, MatchTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
     EXPECT_FALSE(stageMonitor.Match(nullptr));
 }
@@ -155,7 +155,7 @@ HWTEST_F(IabilityMonitorModuleTest, MatchTest_0100, TestSize.Level1)
  */
 HWTEST_F(IabilityMonitorModuleTest, MatchTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
     std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
     property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME;
@@ -171,7 +171,7 @@ HWTEST_F(IabilityMonitorModuleTest, MatchTest_0200, TestSize.Level1)
  */
 HWTEST_F(IabilityMonitorModuleTest, WaitForAbilityTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     IAbilityStageMonitor stageMonitor(ABILITY_STAGE_MODULE_NAME, ABILITY_STAGE_SOURCE_ENTRANCE);
 
     // wait for 100ms until timeout
@@ -189,17 +189,17 @@ std::shared_ptr<IAbilityStageMonitor> gt_iAbilityStageMonitor = nullptr;
 void IAbilityStageMonitorWaitTask()
 {
     ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     auto property = gt_iAbilityStageMonitor->WaitForAbilityStage();
     if (property == nullptr) {
-        HILOG_WARN("Wait for ability stage failed.");
+        TAG_LOGW(AAFwkTag::TEST, "Wait for ability stage failed.");
     }
 }
 
 void IAbilityStageMonitorMatchTask()
 {
     ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
     property->moduleName_ = PROPERTY_ABILITY_STAGE_MODULE_NAME;
     property->srcEntrance_ = PROPERTY_ABILITY_STAGE_SOURCE_ENTRANCE;
@@ -208,7 +208,7 @@ void IAbilityStageMonitorMatchTask()
 
 HWTEST_F(IabilityMonitorModuleTest, WaitForAbilityTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     gt_iAbilityStageMonitor = std::make_shared<IAbilityStageMonitor>(ABILITY_STAGE_MODULE_NAME,
         ABILITY_STAGE_SOURCE_ENTRANCE);
     SET_THREAD_NUM(1);

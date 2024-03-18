@@ -106,7 +106,7 @@ void QuickFixManagerModuleTest::TearDown()
  */
 HWTEST_F(QuickFixManagerModuleTest, ApplyQuickFix_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     std::vector<std::string> quickFixFiles;
     quickFixFiles.push_back("/data/storage/el2/base/entry1.hqf");
@@ -115,7 +115,7 @@ HWTEST_F(QuickFixManagerModuleTest, ApplyQuickFix_0100, TestSize.Level1)
     WaitUntilTaskDone(quickFixService_->eventHandler_);
     EXPECT_EQ(result, QUICK_FIX_OK);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -126,7 +126,7 @@ HWTEST_F(QuickFixManagerModuleTest, ApplyQuickFix_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     std::string bundleName = "com.ohos.quickfix";
     ApplicationQuickFixInfo quickFixInfo;
@@ -134,7 +134,7 @@ HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0100, TestSize.Level1
     auto result = quickFixClient_->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
     EXPECT_EQ(result, QUICK_FIX_GET_BUNDLE_INFO_FAILED);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -145,7 +145,7 @@ HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0100, TestSize.Level1
  */
 HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     std::string bundleName = "com.ohos.quickfix";
     ApplicationQuickFixInfo quickFixInfo;
@@ -154,7 +154,7 @@ HWTEST_F(QuickFixManagerModuleTest, GetApplyedQuickFixInfo_0200, TestSize.Level1
     auto result = quickFixClient_->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
     EXPECT_EQ(result, QUICK_FIX_CONNECT_FAILED);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

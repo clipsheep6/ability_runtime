@@ -73,7 +73,7 @@ void AbilityManagerProxyTest::SetUp()
  */
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DumpSysState_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerProxy_DumpSysState_0100 start");
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
@@ -87,7 +87,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DumpSysState_0100, TestSiz
     proxy_->DumpSysState(args, info, isClient, isUserID, USER_ID);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE), mock_->code_);
 
-    HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerProxy_DumpSysState_0100 end");
 }
 
 /*
@@ -2666,7 +2666,7 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
  */
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin");
+    TAG_LOGI(AAFwkTag::TEST, "begin");
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
@@ -2677,7 +2677,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo
     proxy_->GetUIExtensionRootHostInfo(token, hostInfo, USER_ID);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO), mock_->code_);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 
 /**

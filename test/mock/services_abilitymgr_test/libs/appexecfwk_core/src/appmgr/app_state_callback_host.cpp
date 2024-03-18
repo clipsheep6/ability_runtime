@@ -36,12 +36,12 @@ int AppStateCallbackHost::OnRemoteRequest(
 
 void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject>&, const AbilityState)
 {
-    HILOG_DEBUG("OnAbilityRequestDone called");
+    TAG_LOGD(AAFwkTag::TEST, "OnAbilityRequestDone called");
 }
 
 void AppStateCallbackHost::OnAppStateChanged(const AppProcessData&)
 {
-    HILOG_DEBUG("OnAppStateChanged called");
+    TAG_LOGD(AAFwkTag::TEST, "OnAppStateChanged called");
 }
 
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel& data, MessageParcel& reply)

@@ -24,7 +24,8 @@ const std::string TARGET_BUNDLE_NAME = "com.ohos.uiextensionprovider";
 
 void UIExtensionConnectModuleTestObserver::OnProcessCreated(const AppExecFwk::ProcessData &processData)
 {
-    HILOG_INFO("bundleName: %{public}s, abilityState: %{public}d", processData.bundleName.c_str(), processData.state);
+    TAG_LOGI(AAFwkTag::TEST, "bundleName: %{public}s, abilityState: %{public}d", processData.bundleName.c_str(),
+             processData.state);
     std::unique_lock<std::mutex> lock(observerMutex_);
     if (processData.bundleName == TARGET_BUNDLE_NAME) {
         processCreated_ = true;
@@ -34,7 +35,8 @@ void UIExtensionConnectModuleTestObserver::OnProcessCreated(const AppExecFwk::Pr
 
 void UIExtensionConnectModuleTestObserver::OnProcessStateChanged(const AppExecFwk::ProcessData &processData)
 {
-    HILOG_INFO("bundleName: %{public}s, abilityState: %{public}d", processData.bundleName.c_str(), processData.state);
+    TAG_LOGI(AAFwkTag::TEST, "bundleName: %{public}s, abilityState: %{public}d", processData.bundleName.c_str(),
+             processData.state);
     std::unique_lock<std::mutex> lock(observerMutex_);
     if (processData.bundleName == TARGET_BUNDLE_NAME) {
         if (processData.state == AppExecFwk::AppProcessState::APP_STATE_FOREGROUND) {
@@ -49,7 +51,8 @@ void UIExtensionConnectModuleTestObserver::OnProcessStateChanged(const AppExecFw
 
 void UIExtensionConnectModuleTestObserver::OnProcessDied(const AppExecFwk::ProcessData &processData)
 {
-    HILOG_INFO("bundleName: %{public}s, abilityState: %{public}d", processData.bundleName.c_str(), processData.state);
+    TAG_LOGI(AAFwkTag::TEST, "bundleName: %{public}s, abilityState: %{public}d", processData.bundleName.c_str(),
+             processData.state);
     std::unique_lock<std::mutex> lock(observerMutex_);
     if (processData.bundleName == TARGET_BUNDLE_NAME) {
         processDied_ = true;
@@ -59,14 +62,14 @@ void UIExtensionConnectModuleTestObserver::OnProcessDied(const AppExecFwk::Proce
 
 void UIExtensionConnectModuleTestObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("bundleName: %{public}s, abilityState: %{public}d", abilityStateData.bundleName.c_str(),
-        abilityStateData.abilityState);
+    TAG_LOGI(AAFwkTag::TEST, "bundleName: %{public}s, abilityState: %{public}d",
+             abilityStateData.bundleName.c_str(), abilityStateData.abilityState);
 }
 
 void UIExtensionConnectModuleTestObserver::OnExtensionStateChanged(const AppExecFwk::AbilityStateData &abilityStateData)
 {
-    HILOG_INFO("bundleName: %{public}s, abilityState: %{public}d", abilityStateData.bundleName.c_str(),
-        abilityStateData.abilityState);
+    TAG_LOGI(AAFwkTag::TEST, "bundleName: %{public}s, abilityState: %{public}d",
+             abilityStateData.bundleName.c_str(), abilityStateData.abilityState);
 }
 } // namespace AAFwk
 } // namespace OHOS

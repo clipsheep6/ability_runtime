@@ -90,6 +90,7 @@ ohos_unittest("application_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_services_path}/common/include",
     "${ability_runtime_test_path}/mock/common/include",
     "${resource_management_path}/frameworks/resmgr/include",
   ]

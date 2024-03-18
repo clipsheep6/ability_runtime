@@ -81,7 +81,7 @@ void AmsAppMgrClientTest::TearDown()
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_GetProcessRunningInfosByUserId_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_GetProcessRunningInfosByUserId_0100 start");
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
 
@@ -94,11 +94,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, 
     std::vector<RunningProcessInfo> info;
     int32_t userId = USER_ID;
     auto result = client_->GetProcessRunningInfosByUserId(info, userId);
-    HILOG_INFO("result = %{public}d", result);
+    TAG_LOGI(AAFwkTag::TEST, "result = %{public}d", result);
 
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    HILOG_INFO("AppMgrClient_GetProcessRunningInfosByUserId_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_GetProcessRunningInfosByUserId_0100 end");
 }
 
 /*
@@ -111,7 +111,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, 
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_001, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_001 start");
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
 
     AbilityInfo abilityInfo;
@@ -129,7 +129,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_001, TestSize.Level1)
         .WillOnce(Return(amsMgrScheduler));
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->LoadAbility(token_, preToken_, abilityInfo, appInfo, want));
-    HILOG_INFO("ams_app_mgr_client_test_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_001 end");
 }
 
 /*
@@ -142,14 +142,14 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_002, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_002 start");
     AbilityInfo abilityInfo;
     ApplicationInfo appInfo;
     Want want;
     EXPECT_EQ(
         AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->LoadAbility(token_, preToken_, abilityInfo,
             appInfo, want));
-    HILOG_INFO("ams_app_mgr_client_test_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_002 end");
 }
 
 /*
@@ -162,7 +162,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_003, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_003 start");
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
 
     sptr<IAmsMgr> amsMgrScheduler(new MockAmsMgrScheduler());
@@ -173,7 +173,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_003, TestSize.Level1)
     EXPECT_CALL(*(static_cast<MockAmsMgrScheduler*>(amsMgrScheduler.GetRefPtr())), TerminateAbility(_, _)).Times(1);
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->TerminateAbility(token_, false));
-    HILOG_INFO("ams_app_mgr_client_test_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_003 end");
 }
 
 /*
@@ -186,9 +186,9 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_003, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_004, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_004 start");
     EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->TerminateAbility(token_, false));
-    HILOG_INFO("ams_app_mgr_client_test_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_004 end");
 }
 
 /*
@@ -201,7 +201,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_004, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_005, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_005 start");
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
 
     sptr<IAmsMgr> amsMgrScheduler(new MockAmsMgrScheduler());
@@ -213,7 +213,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_005, TestSize.Level1)
 
     AbilityState state = AbilityState::ABILITY_STATE_CREATE;
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->UpdateAbilityState(token_, state));
-    HILOG_INFO("ams_app_mgr_client_test_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_005 end");
 }
 
 /*
@@ -226,10 +226,10 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_005, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_006, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_006 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_006 start");
     AbilityState state = AbilityState::ABILITY_STATE_CREATE;
     EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->UpdateAbilityState(token_, state));
-    HILOG_INFO("ams_app_mgr_client_test_006 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_006 end");
 }
 
 /*
@@ -242,7 +242,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_006, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_007, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_007 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_007 start");
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
     sptr<MockAppStateCallback> mockCallback(new MockAppStateCallback());
     sptr<IAppStateCallback> callback = iface_cast<IAppStateCallback>(mockCallback);
@@ -257,7 +257,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_007, TestSize.Level1)
     EXPECT_CALL(*mockCallback, OnAppStateChanged(_)).Times(1);
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->RegisterAppStateCallback(callback));
-    HILOG_INFO("ams_app_mgr_client_test_007 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_007 end");
 }
 
 /*
@@ -270,10 +270,10 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_007, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_008, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_008 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_008 start");
     sptr<IAppStateCallback> callback;
     EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->RegisterAppStateCallback(callback));
-    HILOG_INFO("ams_app_mgr_client_test_008 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_008 end");
 }
 
 /*
@@ -286,7 +286,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_008, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_009, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_008 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_008 start");
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
     sptr<IRemoteObject> token;
     sptr<IRemoteObject> preToken;
@@ -301,7 +301,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_009, TestSize.Level1)
         .WillOnce(Return(amsMgrScheduler));
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->AbilityBehaviorAnalysis(token, preToken, 1, 1, 1));
-    HILOG_INFO("ams_app_mgr_client_test_008 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_008 end");
 }
 
 /*
@@ -314,7 +314,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_009, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_010, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_008 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_008 start");
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
     sptr<IRemoteObject> token;
     sptr<IRemoteObject> preToken;
@@ -329,7 +329,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_010, TestSize.Level1)
         .WillOnce(Return(amsMgrScheduler));
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->KillApplication(""));
-    HILOG_INFO("ams_app_mgr_client_test_008 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_008 end");
 }
 
 /*
@@ -342,7 +342,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_010, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_011, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_011 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_011 start");
     sptr<IRemoteObject> token;
     sptr<IRemoteObject> preToken;
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
@@ -356,7 +356,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_011, TestSize.Level1)
         .WillOnce(Return(amsMgrScheduler));
 
     EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_READY, client_->KillApplication(""));
-    HILOG_INFO("ams_app_mgr_client_test_011 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_011 end");
 }
 
 /*
@@ -369,7 +369,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_011, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_012, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_012 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_012 start");
     sptr<IRemoteObject> token;
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
     sptr<IAmsMgr> amsMgrScheduler(new MockAmsMgrScheduler());
@@ -382,7 +382,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_012, TestSize.Level1)
         .WillOnce(Return(amsMgrScheduler));
 
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->KillProcessByAbilityToken(token));
-    HILOG_INFO("ams_app_mgr_client_test_012 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_012 end");
 }
 
 /*
@@ -395,7 +395,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_012, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_013, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_013 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_013 start");
     sptr<IRemoteObject> token;
     EXPECT_EQ(AppMgrResultCode::RESULT_OK, client_->ConnectAppMgrService());
     sptr<IAmsMgr> amsMgrScheduler(new MockAmsMgrScheduler());
@@ -408,7 +408,7 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_013, TestSize.Level1)
         .WillOnce(Return(nullptr));
 
     EXPECT_EQ(AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED, client_->KillProcessByAbilityToken(token));
-    HILOG_INFO("ams_app_mgr_client_test_013 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_013 end");
 }
 
 /*
@@ -458,11 +458,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_015, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_016, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_016 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_016 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_CRITICAL);
     EXPECT_EQ(ans, 0);
-    HILOG_INFO("ams_app_mgr_client_test_016 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_016 end");
 }
 
 /**
@@ -473,11 +473,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_016, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_017, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_017 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_017 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_LOW);
     EXPECT_EQ(ans, 0);
-    HILOG_INFO("ams_app_mgr_client_test_017 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_017 end");
 }
 
 /**
@@ -488,11 +488,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_017, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_018, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_018 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_018 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_MODERATE);
     EXPECT_EQ(ans, 0);
-    HILOG_INFO("ams_app_mgr_client_test_018 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_018 end");
 }
 
 /**
@@ -503,11 +503,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_018, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_019, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_019 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_019 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_CRITICAL);
     EXPECT_EQ(ans, 0);
-    HILOG_INFO("ams_app_mgr_client_test_019 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_019 end");
 }
 
 /**
@@ -518,11 +518,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_019, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_020, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_020 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_020 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_LOW);
     EXPECT_EQ(ans, 0);
-    HILOG_INFO("ams_app_mgr_client_test_020 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_020 end");
 }
 
 /**
@@ -533,11 +533,11 @@ HWTEST_F(AmsAppMgrClientTest, AppMgrClient_020, TestSize.Level1)
  */
 HWTEST_F(AmsAppMgrClientTest, AppMgrClient_021, TestSize.Level1)
 {
-    HILOG_INFO("ams_app_mgr_client_test_021 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_021 start");
     AppMgrClient* ret = new AppMgrClient();
     auto ans = ret->NotifyMemoryLevel(MemoryLevel::MEMORY_LEVEL_MODERATE);
     EXPECT_EQ(ans, 0);
-    HILOG_INFO("ams_app_mgr_client_test_021 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_app_mgr_client_test_021 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -104,19 +104,19 @@ void UIExtensionConnectModuleTest::SetUpTestCase(void)
 {
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
-        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        TAG_LOGE(AAFwkTag::TEST, "Failed to get SystemAbilityManager.");
         return;
     }
 
     auto remoteObj = systemAbilityMgr->GetSystemAbility(APP_MGR_SERVICE_ID);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::TEST, "Remote object is nullptr.");
         return;
     }
 
     sptr<AppExecFwk::IAppMgr> appMgr = iface_cast<AppExecFwk::IAppMgr>(remoteObj);
     if (appMgr == nullptr) {
-        HILOG_ERROR("App mgr is nullptr.");
+        TAG_LOGE(AAFwkTag::TEST, "App mgr is nullptr.");
         return;
     }
 
@@ -139,7 +139,7 @@ void UIExtensionConnectModuleTest::RegisterApplicationStateObserver(const sptr<I
     bundleNameList.push_back(USER_BUNDLE_NAME);
     auto ret = appMgr_->RegisterApplicationStateObserver(observer, bundleNameList);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Register failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Register failed.");
     }
 }
 
@@ -147,7 +147,7 @@ void UIExtensionConnectModuleTest::UnregisterApplicationStateObserver(const sptr
 {
     auto ret = appMgr_->UnregisterApplicationStateObserver(observer);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Unregister failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Unregister failed.");
     }
 }
 
@@ -239,7 +239,7 @@ void UIExtensionConnectModuleTest::WaitUntilAbilityBackground(
  */
 HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("ConnectUIExtensionAbility_0100 start.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0100 start.");
     Want want;
     sptr<IAbilityConnection> connect = nullptr;
     sptr<SessionInfo> sessionInfo = nullptr;
@@ -264,7 +264,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0100, TestSize.
     Want resultWant;
     ret = client_->TerminateAbility(token, resultCode, &resultWant);
     EXPECT_NE(ret, ERR_OK);
-    HILOG_INFO("ConnectUIExtensionAbility_0100 finish.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0100 finish.");
 }
 
 /**
@@ -275,7 +275,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0100, TestSize.
  */
 HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.Level1)
 {
-    HILOG_INFO("ConnectUIExtensionAbility_0200 start.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0200 start.");
     auto client_ = AbilityManagerClient::GetInstance();
     Want userWant;
     AppExecFwk::ElementName userElement("0", USER_BUNDLE_NAME, USER_ABILITY_NAME, USER_MODULE_NAME);
@@ -294,7 +294,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.
     Want resultWant;
     ret = client_->TerminateAbility(token, resultCode, &resultWant);
     EXPECT_NE(ret, ERR_OK);
-    HILOG_INFO("ConnectUIExtensionAbility_0200 finish.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0200 finish.");
 }
 
 /**
@@ -305,7 +305,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0200, TestSize.
  */
 HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0300, TestSize.Level1)
 {
-    HILOG_INFO("ConnectUIExtensionAbility_0300 start.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0300 start.");
     Want want;
     sptr<IAbilityConnection> connect = nullptr;
     sptr<SessionInfo> sessionInfo = nullptr;
@@ -315,7 +315,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0300, TestSize.
 
     auto ret = client_->DisconnectAbility(connect);
     EXPECT_NE(ret, ERR_OK);
-    HILOG_INFO("ConnectUIExtensionAbility_0300 finish.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0300 finish.");
 }
 
 /**
@@ -326,7 +326,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0300, TestSize.
  */
 HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0400, TestSize.Level1)
 {
-    HILOG_INFO("ConnectUIExtensionAbility_0400 start.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0400 start.");
     Want want;
     sptr<IAbilityConnection> connect = nullptr;
     sptr<SessionInfo> sessionInfo = nullptr;
@@ -357,7 +357,7 @@ HWTEST_F(UIExtensionConnectModuleTest, ConnectUIExtensionAbility_0400, TestSize.
     Want resultWant;
     ret = client_->TerminateAbility(token, resultCode, &resultWant);
     EXPECT_NE(ret, ERR_OK);
-    HILOG_INFO("ConnectUIExtensionAbility_0400 finish.");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectUIExtensionAbility_0400 finish.");
 }
 } // namespace AAFwk
 } // namespace OHOS

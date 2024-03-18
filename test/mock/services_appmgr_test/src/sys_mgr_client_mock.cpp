@@ -28,7 +28,7 @@ sptr<IRemoteObject> SysMrgClient::GetSystemAbility(const int32_t systemAbilityId
         OHOS::sptr<ISystemAbilityManager> systemAbilityManager =
             SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityManager == nullptr) {
-            HILOG_ERROR("%s:fail to get Registry", __func__);
+            TAG_LOGE(AAFwkTag::TEST, "%s:fail to get Registry", __func__);
             return nullptr;
         }
         OHOS::sptr<OHOS::IRemoteObject> object = systemAbilityManager->GetSystemAbility(systemAbilityId);

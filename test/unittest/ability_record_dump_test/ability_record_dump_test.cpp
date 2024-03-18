@@ -59,7 +59,7 @@ void AbilityRecordDumpTest::TearDown()
  */
 HWTEST_F(AbilityRecordDumpTest, AbilityRecordDump_DumpAbilityState_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityRecordDump_DumpAbilityState_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityRecordDump_DumpAbilityState_0100 start");
 
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -73,12 +73,12 @@ HWTEST_F(AbilityRecordDumpTest, AbilityRecordDump_DumpAbilityState_0100, TestSiz
     abilityRecord->DumpAbilityState(info, isClient, params);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 
-    HILOG_INFO("AbilityRecordDump_DumpAbilityState_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityRecordDump_DumpAbilityState_0100 end");
 }
 
 /**
@@ -89,7 +89,7 @@ HWTEST_F(AbilityRecordDumpTest, AbilityRecordDump_DumpAbilityState_0100, TestSiz
  */
 HWTEST_F(AbilityRecordDumpTest, AbilityRecordDump_DumpService_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityRecordDump_DumpService_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityRecordDump_DumpService_0100 start");
 
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -102,12 +102,12 @@ HWTEST_F(AbilityRecordDumpTest, AbilityRecordDump_DumpService_0100, TestSize.Lev
     abilityRecord->DumpService(info, isClient);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 
-    HILOG_INFO("AbilityRecordDump_DumpService_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityRecordDump_DumpService_0100 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

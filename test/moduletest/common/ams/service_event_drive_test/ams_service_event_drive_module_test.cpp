@@ -190,7 +190,7 @@ void AmsServiceEventDriveModuleTest::TearDown()
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_001, TestSize.Level2)
 {
-    HILOG_INFO("AmsServiceEventDrive_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_001 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -203,7 +203,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_001, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_BACK_TO_FORE, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_001 end");
 }
 
 /*
@@ -216,7 +216,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_001, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_002, TestSize.Level2)
 {
-    HILOG_INFO("AmsServiceEventDrive_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_002 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -229,7 +229,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_002, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_FORE_TO_BACK, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_002 end");
 }
 
 /*
@@ -242,7 +242,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_002, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_003 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -255,7 +255,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_003, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_BACK_TO_TER, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_003 end");
 }
 
 /*
@@ -268,7 +268,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_003, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_004, TestSize.Level2)
 {
-    HILOG_INFO("AmsServiceEventDrive_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_004 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -281,7 +281,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_004, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_FORE_TO_TER, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_004 end");
 }
 
 /*
@@ -294,7 +294,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_004, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_005, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_005 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -307,7 +307,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_005, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_TER_TO_FORE, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_005 end");
 }
 
 /*
@@ -320,7 +320,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_005, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_006, TestSize.Level2)
 {
-    HILOG_INFO("AmsServiceEventDrive_006 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_006 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -333,7 +333,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_006, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_TER_TO_BACK, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_006 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_006 end");
 }
 
 /*
@@ -346,7 +346,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_006, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_007, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_007 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_007 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -360,7 +360,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_007, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_BACK_TO_FORE, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_007 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_007 end");
 }
 
 /*
@@ -373,7 +373,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_007, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_008, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_008 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_008 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -387,7 +387,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_008, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_FORE_TO_BACK, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_008 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_008 end");
 }
 
 /*
@@ -400,7 +400,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_008, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_009, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_009 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_009 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -414,7 +414,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_009, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_TER_TO_BACK, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_009 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_009 end");
 }
 
 /*
@@ -427,7 +427,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_009, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_010, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_010 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_010 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -441,7 +441,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_010, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_BACK_TO_TER, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_010 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_010 end");
 }
 
 /*
@@ -454,7 +454,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_010, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_011, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_011 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_011 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -468,7 +468,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_011, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_FORE_TO_TER, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_011 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_011 end");
 }
 
 /*
@@ -481,7 +481,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_011, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_012, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_012 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_012 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -495,7 +495,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_012, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_TER_TO_FORE, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_012 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_012 end");
 }
 
 /*
@@ -508,7 +508,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_012, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_013, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_013 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_013 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -521,7 +521,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_013, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_TERMINATED, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_013 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_013 end");
 }
 
 /*
@@ -534,7 +534,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_013, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_014, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_014 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_014 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -547,7 +547,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_014, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_BACKGROUNDED, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_014 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_014 end");
 }
 
 /*
@@ -560,7 +560,7 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_014, TestSize.Leve
  */
 HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_015, TestSize.Level1)
 {
-    HILOG_INFO("AmsServiceEventDrive_015 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_015 start");
     std::shared_ptr<MockedAppMgrServiceInner> innerService = std::make_shared<MockedAppMgrServiceInner>();
     appMgrService_->SetInnerService(innerService);
     appMgrService_->OnStart();
@@ -573,5 +573,5 @@ HWTEST_F(AmsServiceEventDriveModuleTest, AmsServiceEventDrive_015, TestSize.Leve
     }
     innerService->Wait();
     EXPECT_EQ(AmsInnerState::STATE_APPLICATION_FOREGROUNDED, innerService->GetInnerServiceState());
-    HILOG_INFO("AmsServiceEventDrive_015 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsServiceEventDrive_015 end");
 }

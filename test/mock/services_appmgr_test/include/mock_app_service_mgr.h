@@ -30,7 +30,7 @@ public:
 
     virtual sptr<IRemoteObject> GetAppMgrService() const override
     {
-        HILOG_DEBUG("Mock MockAppServiceMgr GetAppMgrService called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock MockAppServiceMgr GetAppMgrService called");
         return new MockAppMgrService();
     }
 };

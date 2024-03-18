@@ -49,7 +49,7 @@ void AbilityRuntimeErrorUtilTest::SetUp()
     panda::RuntimeOption pandaOption;
     vm_ = panda::JSNApi::CreateJSVM(pandaOption);
     if (vm_ == nullptr) {
-        HILOG_ERROR("Create vm failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Create vm failed.");
         return;
     }
 

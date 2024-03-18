@@ -97,7 +97,7 @@ void MainThreadByMockBmsTest::MockBundleInstaller()
  */
 HWTEST_F(MainThreadByMockBmsTest, SetNativeLibPath_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     Configuration config;
     AppLaunchData launchData;
     ProcessInfo processInfo("test_quickfix", 9999);
@@ -111,7 +111,7 @@ HWTEST_F(MainThreadByMockBmsTest, SetNativeLibPath_0100, TestSize.Level1)
     mainThread_->HandleLaunchApplication(launchData, config);
     ASSERT_NE(mainThread_->application_, nullptr);
     EXPECT_NE(mainThread_->application_->abilityRuntimeContext_, nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**

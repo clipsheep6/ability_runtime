@@ -21,7 +21,7 @@ namespace AAFwk {
 void UIExtensionConnectModuleTestConnection::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
     const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
-    HILOG_INFO("element: %{public}s", element.GetURI().c_str());
+    TAG_LOGI(AAFwkTag::TEST, "element: %{public}s", element.GetURI().c_str());
     std::unique_lock<std::mutex> lock(connectMutex_);
     connectFinished_ = true;
     connectCondation_.notify_one();
@@ -30,7 +30,7 @@ void UIExtensionConnectModuleTestConnection::OnAbilityConnectDone(const AppExecF
 void UIExtensionConnectModuleTestConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
     int resultCode)
 {
-    HILOG_INFO("element: %{public}s", element.GetURI().c_str());
+    TAG_LOGI(AAFwkTag::TEST, "element: %{public}s", element.GetURI().c_str());
     std::unique_lock<std::mutex> lock(connectMutex_);
     disConnectFinished_ = true;
     connectCondation_.notify_one();
