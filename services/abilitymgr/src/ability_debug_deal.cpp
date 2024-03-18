@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_record.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -57,6 +58,20 @@ void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObjec
     }
 }
 
+void AbilityDebugDeal::OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
+{
+    HILOG_DEBUG("Called. %{public}s", isAssertDebug ? "start assert debug" : "stop assert debug");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    for (const auto &token : tokens) {
+        auto abilityRecord = Token::GetAbilityRecordByToken(token);
+        if (abilityRecord == nullptr) {
+            HILOG_ERROR("Ability record is nullptr.");
+            continue;
+        }
+        abilityRecord->SetAssertDebug(isAssertDebug);
+    }
+}
+
 void AbilityDebugResponse::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (tokens.empty()) {
@@ -85,6 +100,22 @@ void AbilityDebugResponse::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteO
         return;
     }
     deal->OnAbilitysDebugStoped(tokens);
+}
+
+void AbilityDebugResponse::OnAbilitysAssertDebugChange(
+    const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
+{
+    if (tokens.empty()) {
+        HILOG_WARN("Tokens is empty.");
+        return;
+    }
+
+    auto deal = abilityDebugDeal_.lock();
+    if (deal == nullptr) {
+        HILOG_ERROR("Ability debug deal object is nullptr.");
+        return;
+    }
+    deal->OnAbilitysAssertDebugChange(tokens, isAssertDebug);
 }
 } // namespace AAFwk
 } // namespace OHOS

@@ -1997,5 +1997,10 @@ bool AppRunningRecord::IsAssertionPause() const
 {
     return isAssertPause_;
 }
+
+bool AppRunningRecord::IsDebugging() const
+{
+    return isDebugApp_ || isAssertPause_;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
