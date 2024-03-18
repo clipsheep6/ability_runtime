@@ -30,19 +30,19 @@ IAbilityMonitor::IAbilityMonitor(const std::string &abilityName,
 bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ability, bool isNotify)
 {
     if (!ability) {
-       TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
         return false;
     }
 
     const auto &aName = ability->name_;
 
     if (abilityName_.empty() || aName.empty()) {
-       TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid name");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid name");
         return false;
     }
 
     if (abilityName_.compare(aName)) {
-       TAG_LOGW(AAFwkTag::DELEGATOR, "Different name");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Different name");
         return false;
     }
 
@@ -78,7 +78,7 @@ std::shared_ptr<ADelegatorAbilityProperty> IAbilityMonitor::WaitForAbility(const
 {
     auto realTime = timeoutMs;
     if (timeoutMs <= 0) {
-       TAG_LOGW(AAFwkTag::DELEGATOR, "Timeout should be a positive number");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Timeout should be a positive number");
         realTime = MAX_TIME_OUT;
     }
 
@@ -86,7 +86,7 @@ std::shared_ptr<ADelegatorAbilityProperty> IAbilityMonitor::WaitForAbility(const
 
     auto condition = [this] { return this->matchedAbility_ != nullptr; };
     if (!cvMatch_.wait_for(matchLock, realTime * 1ms, condition)) {
-       TAG_LOGW(AAFwkTag::DELEGATOR, "Wait ability timeout");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Wait ability timeout");
     }
 
     return matchedAbility_;
