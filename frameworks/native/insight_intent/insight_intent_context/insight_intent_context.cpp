@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,12 +24,12 @@ namespace AbilityRuntime {
 ErrCode InsightIntentContext::StartAbilityByInsightIntent(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbilityByInsightIntent(want, token_, intentId_);
     if (err != ERR_OK) {
-        HILOG_ERROR("failed to startAbility. ret=%{public}d", err);
+        TAG_LOGE(AAFwkTag::INTENT, "failed to startAbility. ret=%{public}d", err);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::INTENT, "end");
     return err;
 }
 } // namespace AbilityRuntime

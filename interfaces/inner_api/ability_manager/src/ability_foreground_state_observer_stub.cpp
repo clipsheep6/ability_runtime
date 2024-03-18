@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,11 +36,11 @@ AbilityForegroundStateObserverStub::~AbilityForegroundStateObserverStub()
 int32_t AbilityForegroundStateObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     std::u16string descriptor = AbilityForegroundStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("Local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -58,7 +58,7 @@ int32_t AbilityForegroundStateObserverStub::HandleOnAbilityStateChanged(MessageP
 {
     std::unique_ptr<AbilityStateData> abilityStateData(data.ReadParcelable<AbilityStateData>());
     if (abilityStateData == nullptr) {
-        HILOG_ERROR("abilityStateData is null.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityStateData is null.");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -72,7 +72,7 @@ AbilityForegroundStateObserverRecipient::AbilityForegroundStateObserverRecipient
 
 void AbilityForegroundStateObserverRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    HILOG_ERROR("Remote died.");
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote died.");
     if (handler_) {
         handler_(remote);
     }

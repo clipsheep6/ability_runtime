@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,27 +23,27 @@ namespace AAFwk {
 void QuickFixLoadCallback::OnLoadSystemAbilitySuccess(int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     if (systemAbilityId != QUICK_FIX_MGR_SERVICE_ID) {
-        HILOG_ERROR("System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::QUICKFIX, "System ability id %{public}d mismatch.", systemAbilityId);
         return;
     }
 
     if (remoteObject == nullptr) {
-        HILOG_ERROR("Object is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Object is nullptr.");
         return;
     }
 
-    HILOG_DEBUG("Load system ability %{public}d succeed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Load system ability %{public}d succeed.", systemAbilityId);
     QuickFixManagerClient::GetInstance()->OnLoadSystemAbilitySuccess(remoteObject);
 }
 
 void QuickFixLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     if (systemAbilityId != QUICK_FIX_MGR_SERVICE_ID) {
-        HILOG_ERROR("System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::QUICKFIX, "System ability id %{public}d mismatch.", systemAbilityId);
         return;
     }
 
-    HILOG_DEBUG("Load system ability %{public}d failed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Load system ability %{public}d failed.", systemAbilityId);
     QuickFixManagerClient::GetInstance()->OnLoadSystemAbilityFail();
 }
 }  // namespace AAFwk
