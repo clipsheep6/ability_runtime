@@ -28,7 +28,7 @@ namespace OHOS {
 namespace AAFwk {
 #define CHECK_POINTER_RETURN_NOT_CONNECTED(object)   \
     if (!object) {                                   \
-        TAG_LOGE(AAFwkTag::EXT, "proxy is nullptr.");\
+        TAG_LOGE(AAFwkTag::EXT, "proxy is nullptr."); \
         return ABILITY_SERVICE_NOT_CONNECTED;        \
     }
 
