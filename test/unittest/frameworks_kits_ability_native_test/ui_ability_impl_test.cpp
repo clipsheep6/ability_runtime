@@ -22,6 +22,7 @@
 #undef private
 #include "ability_handler.h"
 #include "context_deal.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "locale_config.h"
 #include "mock_ability_impl.h"

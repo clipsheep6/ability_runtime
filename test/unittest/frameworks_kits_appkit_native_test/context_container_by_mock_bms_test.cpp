@@ -20,6 +20,7 @@
 #include "ability_context.h"
 #include "context_container.h"
 #include "context_deal.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"

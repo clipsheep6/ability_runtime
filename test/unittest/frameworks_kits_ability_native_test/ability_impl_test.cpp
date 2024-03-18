@@ -22,6 +22,7 @@
 #undef protected
 #undef private
 #include "context_deal.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_page_ability.h"

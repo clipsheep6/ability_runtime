@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "child_process.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "runtime.h"
 
@@ -51,7 +52,7 @@ void ChildProcessTest::TearDown()
  */
 HWTEST_F(ChildProcessTest, ChildProcessCreate_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("ChildProcessCreate_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "ChildProcessCreate_0100 called.");
     std::unique_ptr<Runtime> runtime;
     auto process = ChildProcess::Create(runtime);
     EXPECT_TRUE(process != nullptr);
@@ -64,7 +65,7 @@ HWTEST_F(ChildProcessTest, ChildProcessCreate_0100, TestSize.Level0)
  */
 HWTEST_F(ChildProcessTest, ChildProcessInit_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("ChildProcessInit_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "ChildProcessInit_0100 called.");
     std::unique_ptr<Runtime> runtime;
     auto process = ChildProcess::Create(runtime);
     EXPECT_TRUE(process != nullptr);

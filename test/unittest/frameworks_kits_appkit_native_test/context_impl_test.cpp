@@ -25,6 +25,7 @@
 #include "application_context.h"
 #include "context.h"
 #include "hap_module_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
@@ -113,7 +114,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_002, Function | M
  */
 HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_003, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -127,7 +128,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_003, TestSize.Lev
     contextImpl->SetParentContext(parentContext);
     std::string bundleName = contextImpl->GetBundleName();
     EXPECT_EQ(bundleName, "com.test.parentcontext");
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -138,7 +139,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_ContextImpl_GetBundleName_003, TestSize.Lev
  */
 HWTEST_F(ContextImplTest, GetBundleCodeDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -161,7 +162,7 @@ HWTEST_F(ContextImplTest, GetBundleCodeDir_0100, TestSize.Level1)
     codeDir = contextImpl->GetBundleCodeDir();
     EXPECT_EQ(codeDir, "/data/bundles/testCodeDir");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -172,14 +173,14 @@ HWTEST_F(ContextImplTest, GetBundleCodeDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, IsUpdatingConfigurations_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto isUpdating = contextImpl->IsUpdatingConfigurations();
     EXPECT_EQ(isUpdating, false);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -190,14 +191,14 @@ HWTEST_F(ContextImplTest, IsUpdatingConfigurations_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, PrintDrawnCompleted_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto isComplete = contextImpl->PrintDrawnCompleted();
     EXPECT_EQ(isComplete, false);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -208,7 +209,7 @@ HWTEST_F(ContextImplTest, PrintDrawnCompleted_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetDatabaseDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -235,7 +236,7 @@ HWTEST_F(ContextImplTest, GetDatabaseDir_0100, TestSize.Level1)
     databaseDir = contextImpl->GetDatabaseDir();
     EXPECT_EQ(databaseDir, "/data/app/el2/0/database/com.test.database/test_moduleName");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -246,7 +247,7 @@ HWTEST_F(ContextImplTest, GetDatabaseDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetDatabaseDir_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -276,7 +277,7 @@ HWTEST_F(ContextImplTest, GetDatabaseDir_0200, TestSize.Level1)
     databaseDir = contextImpl->GetDatabaseDir();
     EXPECT_EQ(databaseDir, "/data/app/el3/0/database/com.test.database/test_moduleName");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -287,14 +288,14 @@ HWTEST_F(ContextImplTest, GetDatabaseDir_0200, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetPreferencesDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto preferenceDir = contextImpl->GetPreferencesDir();
     EXPECT_EQ(preferenceDir, "/data/storage/el2/base/preferences");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -305,14 +306,14 @@ HWTEST_F(ContextImplTest, GetPreferencesDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetTempDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto tempDir = contextImpl->GetTempDir();
     EXPECT_EQ(tempDir, "/data/storage/el2/base/temp");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -323,14 +324,14 @@ HWTEST_F(ContextImplTest, GetTempDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetResourceDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto resourceDir = contextImpl->GetResourceDir();
     EXPECT_EQ(resourceDir, "");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -341,14 +342,14 @@ HWTEST_F(ContextImplTest, GetResourceDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetFilesDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto filesDir = contextImpl->GetFilesDir();
     EXPECT_EQ(filesDir, "/data/storage/el2/base/files");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -359,7 +360,7 @@ HWTEST_F(ContextImplTest, GetFilesDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -383,7 +384,7 @@ HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
     distributedDir = contextImpl->GetDistributedFilesDir();
     EXPECT_EQ(distributedDir, "/mnt/hmdfs/0/device_view/local/data/");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -394,7 +395,7 @@ HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetBaseDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -421,7 +422,7 @@ HWTEST_F(ContextImplTest, GetBaseDir_0100, TestSize.Level1)
     baseDir = contextImpl->GetBaseDir();
     EXPECT_EQ(baseDir, "/data/app/el2/0/base/com.test.base/haps/test_moduleName");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -432,7 +433,7 @@ HWTEST_F(ContextImplTest, GetBaseDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, SwitchArea_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -444,7 +445,7 @@ HWTEST_F(ContextImplTest, SwitchArea_0100, TestSize.Level1)
     contextImpl->SwitchArea(0);
     contextImpl->SwitchArea(1);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -455,7 +456,7 @@ HWTEST_F(ContextImplTest, SwitchArea_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetAreaArea_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -480,7 +481,7 @@ HWTEST_F(ContextImplTest, GetAreaArea_0100, TestSize.Level1)
     mode = contextImpl->GetArea();
     EXPECT_EQ(mode, 1); // default is AbilityRuntime::ContextImpl::EL_DEFAULT
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -491,13 +492,13 @@ HWTEST_F(ContextImplTest, GetAreaArea_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetCurrentAccountId_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto accountId = contextImpl->GetCurrentAccountId();
     EXPECT_EQ(accountId, 0); // default account id
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -508,13 +509,13 @@ HWTEST_F(ContextImplTest, GetCurrentAccountId_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetCurrentActiveAccountId_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto accountId = contextImpl->GetCurrentActiveAccountId();
     EXPECT_EQ(accountId, 100); // default active account id is 100
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -830,7 +831,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_004, Functio
  */
 HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_005, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -844,7 +845,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_005, TestSiz
     contextImpl->SetParentContext(parentContext);
     EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -855,7 +856,7 @@ HWTEST_F(ContextImplTest, AppExecFwk_AppContext_InitResourceManager_005, TestSiz
  */
 HWTEST_F(ContextImplTest, GetBundleCodePath_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -875,7 +876,7 @@ HWTEST_F(ContextImplTest, GetBundleCodePath_0100, TestSize.Level1)
     contextImpl->SetParentContext(parentContext);
     EXPECT_EQ(contextImpl->GetBundleCodePath(), "");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -886,7 +887,7 @@ HWTEST_F(ContextImplTest, GetBundleCodePath_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, InitHapModuleInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -899,7 +900,7 @@ HWTEST_F(ContextImplTest, InitHapModuleInfo_0100, TestSize.Level1)
     contextImpl->InitHapModuleInfo(abilityInfo);
     EXPECT_NE(contextImpl->GetHapModuleInfo(), nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -910,7 +911,7 @@ HWTEST_F(ContextImplTest, InitHapModuleInfo_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, InitHapModuleInfo_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -918,7 +919,7 @@ HWTEST_F(ContextImplTest, InitHapModuleInfo_0200, TestSize.Level1)
     contextImpl->InitHapModuleInfo(nullptr);
     contextImpl->InitHapModuleInfo(abilityInfo);
     EXPECT_NE(contextImpl->GetHapModuleInfo(), nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -929,7 +930,7 @@ HWTEST_F(ContextImplTest, InitHapModuleInfo_0200, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, SetToken_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -939,7 +940,7 @@ HWTEST_F(ContextImplTest, SetToken_0100, TestSize.Level1)
     auto after = contextImpl->GetToken();
     EXPECT_EQ(token, after);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -950,7 +951,7 @@ HWTEST_F(ContextImplTest, SetToken_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetDeviceType_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -970,7 +971,7 @@ HWTEST_F(ContextImplTest, GetDeviceType_0100, TestSize.Level1)
     deviceType = contextImpl->GetDeviceType();
     EXPECT_EQ(deviceType, Global::Resource::DeviceType::DEVICE_PHONE);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -980,14 +981,14 @@ HWTEST_F(ContextImplTest, GetDeviceType_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetCacheDir_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
     auto cacheDir = contextImpl->GetCacheDir();
     EXPECT_EQ(cacheDir, "/data/storage/el2/base/cache");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -997,7 +998,7 @@ HWTEST_F(ContextImplTest, GetCacheDir_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetConfiguration_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
     auto configRet = contextImpl->GetConfiguration();
@@ -1012,7 +1013,7 @@ HWTEST_F(ContextImplTest, GetConfiguration_0100, TestSize.Level1)
     configRet = contextImpl->GetConfiguration();
     EXPECT_NE(configRet, nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1022,7 +1023,7 @@ HWTEST_F(ContextImplTest, GetConfiguration_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, IsCreateBySystemApp_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
     auto isSystemApp = contextImpl->IsCreateBySystemApp();
@@ -1031,7 +1032,7 @@ HWTEST_F(ContextImplTest, IsCreateBySystemApp_0100, TestSize.Level1)
     contextImpl->flags_ = CONTEXT_CREATE_BY_SYSTEM_APP;
     isSystemApp = contextImpl->IsCreateBySystemApp();
     EXPECT_EQ(isSystemApp, true);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1041,7 +1042,7 @@ HWTEST_F(ContextImplTest, IsCreateBySystemApp_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, SetResourceManager_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
     EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
@@ -1052,7 +1053,7 @@ HWTEST_F(ContextImplTest, SetResourceManager_0100, TestSize.Level1)
     contextImpl->SetResourceManager(resourceManager);
     EXPECT_NE(contextImpl->GetResourceManager(), nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1062,7 +1063,7 @@ HWTEST_F(ContextImplTest, SetResourceManager_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetResourceManager_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
     EXPECT_EQ(contextImpl->GetResourceManager(), nullptr);
@@ -1076,7 +1077,7 @@ HWTEST_F(ContextImplTest, GetResourceManager_0100, TestSize.Level1)
     parentContext->SetResourceManager(resourceManager);
     EXPECT_NE(contextImpl->GetResourceManager(), nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -1086,12 +1087,12 @@ HWTEST_F(ContextImplTest, GetResourceManager_0100, TestSize.Level1)
  */
 HWTEST_F(ContextImplTest, GetBundleManager_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
     contextImpl->GetBundleManager();
     EXPECT_NE(contextImpl->bundleMgr_, nullptr);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**

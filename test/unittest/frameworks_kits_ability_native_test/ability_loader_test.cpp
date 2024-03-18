@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "ability_loader.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "iremote_object.h"

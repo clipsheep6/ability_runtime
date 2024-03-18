@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "task_handler_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {

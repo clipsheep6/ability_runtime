@@ -28,6 +28,7 @@
 #include "mix_stack_dumper.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_runtime.h"
 #include "runtime.h"

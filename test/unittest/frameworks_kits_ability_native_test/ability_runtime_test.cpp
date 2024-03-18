@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 #define private public
 #define protected public
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "iservice_registry.h"

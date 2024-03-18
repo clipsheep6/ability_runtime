@@ -24,6 +24,7 @@
 #include "context_deal.h"
 #include "data_ability_predicates.h"
 #include "fa_ability_thread.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_impl.h"
 #include "mock_ability_lifecycle_callbacks.h"
