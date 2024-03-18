@@ -71,14 +71,14 @@ static SharedBundle CreateHsp(std::string bundle, std::string module, uint32_t v
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_001, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_001 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
 
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_001 end");
 }
 
 /*
@@ -91,14 +91,14 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_001, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_002, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_002 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
 
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_002 end");
 }
 
 /*
@@ -111,7 +111,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_002, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_003, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_003 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     // gids limit, max 64
@@ -202,7 +202,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_003, TestSize.Level1
         "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_003 end");
 }
 
 /*
@@ -215,13 +215,13 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_003, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_004, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_004 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "", "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_004 end");
 }
 
 /*
@@ -234,7 +234,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_004, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_005, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_005 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     std::string invalid =
@@ -246,7 +246,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_005, TestSize.Level1
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, invalid, "soPath" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_005 end");
 }
 
 /*
@@ -260,13 +260,13 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_005, TestSize.Level1
 
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_006, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_006 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_006 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "", "" };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_006 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_006 end");
 }
 
 /*
@@ -279,7 +279,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_006, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_007, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_007 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_007 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     std::string invalid =
@@ -291,7 +291,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_007, TestSize.Level1
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "processName", invalid };
     EXPECT_EQ(false, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_007 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_007 end");
 }
 
 /*
@@ -304,13 +304,13 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_007, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_008, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_008 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_008 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "processName", "soPath" };
     EXPECT_EQ(true, appSpawnMsgWrapper->AssembleMsg(params));
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_008 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_008 end");
 }
 
 /*
@@ -323,7 +323,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_008, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_009, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_009 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_009 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "processName", "soPath" };
@@ -332,7 +332,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_009, TestSize.Level1
     int32_t lhs = sizeof(AppSpawnMsg);
     EXPECT_EQ(lhs, appSpawnMsgWrapper->GetMsgLength());
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_009 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_009 end");
 }
 
 /*
@@ -345,7 +345,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_009, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_010, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_010 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_010 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10001}, "", "soPath" };
@@ -354,7 +354,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_010, TestSize.Level1
     int32_t lhs = 0;
     EXPECT_EQ(lhs, appSpawnMsgWrapper->GetMsgLength());
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_010 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_010 end");
 }
 
 /*
@@ -367,7 +367,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_010, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_011, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_011 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_011 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
@@ -378,7 +378,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_011, TestSize.Level1
     EXPECT_EQ(0, msg->extraInfo.totalLength);
     EXPECT_EQ("", appSpawnMsgWrapper->GetExtraInfoStr());
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_011 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_011 end");
 }
 
 /*
@@ -391,7 +391,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_011, TestSize.Level1
  */
 HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_012, TestSize.Level1)
 {
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_012 start");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_012 start");
 
     std::unique_ptr<AppSpawnMsgWrapper> appSpawnMsgWrapper = std::make_unique<AppSpawnMsgWrapper>();
     AppSpawnStartMsg params = { 10000, 10000, {10001, 10002}, "processName", "soPath" };
@@ -406,7 +406,7 @@ HWTEST(AmsServiceAppSpawnMsgWrapperTest, AppSpawnMsgWrapper_012, TestSize.Level1
     EXPECT_NE("", appSpawnMsgWrapper->GetExtraInfoStr());
     EXPECT_EQ(msg->extraInfo.totalLength, appSpawnMsgWrapper->GetExtraInfoStr().length() + 1);
 
-    HILOG_INFO("ams_service_app_spawn_msg_wrapper_012 end");
+    TAG_LOGI(AAFwkTag::TEST, "ams_service_app_spawn_msg_wrapper_012 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

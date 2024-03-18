@@ -95,7 +95,7 @@ sptr<IAppMgr> AmsMgrKillProcessTest::GetAppMgrProxy(void)
  */
 HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
 {
-    HILOG_INFO("AmsMgrKillProcessTest_KillProcess_0100");
+    TAG_LOGI(AAFwkTag::TEST, "AmsMgrKillProcessTest_KillProcess_0100");
 
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = GetAppMgrServiceInner();
@@ -115,7 +115,7 @@ HWTEST_F(AmsMgrKillProcessTest, KillProcess_0100, TestSize.Level0)
  */
 HWTEST_F(AmsMgrKillProcessTest, KillProcess_0200, TestSize.Level0)
 {
-    HILOG_INFO("AmsMgrKillProcessTest_KillProcess_0200");
+    TAG_LOGI(AAFwkTag::TEST, "AmsMgrKillProcessTest_KillProcess_0200");
 
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto proxy = GetAppMgrProxy();

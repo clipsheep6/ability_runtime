@@ -173,7 +173,7 @@ TestApplicationPreRecord AmsWorkFlowTest::CreateTestApplicationRecord(const std:
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_001 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -194,7 +194,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_001, TestSize.Level1)
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, appB.appRecord_->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_001 end");
 }
 
 /*
@@ -206,7 +206,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_001, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_002, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_002 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -221,7 +221,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_002, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_002 end");
 }
 
 /*
@@ -233,7 +233,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_002, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_003 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -259,7 +259,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_003, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_003 end");
 }
 
 /*
@@ -271,7 +271,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_003, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_004, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_004 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -302,7 +302,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_004, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_004 end");
 }
 
 /*
@@ -315,7 +315,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_004, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_005, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_005 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -343,7 +343,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_005, TestSize.Level1)
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, appB.appRecord_->GetState());
     EXPECT_EQ(appA.GetAbility(tokenA), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_005 end");
 }
 
 /*
@@ -355,7 +355,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_005, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_006, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_006 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_006 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -390,7 +390,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_006, TestSize.Level1)
     EXPECT_EQ(appA.GetAbility(tokenA), nullptr);
     EXPECT_EQ(appA.GetAbility(tokenB), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_006 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_006 end");
 }
 
 /*
@@ -403,7 +403,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_006, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, BackKey_007, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest BackKey_007 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_007 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -443,7 +443,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_007, TestSize.Level1)
     EXPECT_EQ(appA.GetAbility(tokenA), nullptr);
     EXPECT_EQ(appA.GetAbility(tokenB), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest BackKey_007 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest BackKey_007 end");
 }
 
 /*
@@ -455,7 +455,7 @@ HWTEST_F(AmsWorkFlowTest, BackKey_007, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOff_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_001 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -467,7 +467,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_001, TestSize.Level1)
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_001 end");
 }
 
 /*
@@ -479,7 +479,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_001, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOff_002, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_002 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -496,7 +496,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_002, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_002 end");
 }
 
 /*
@@ -508,7 +508,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_002, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOff_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_003 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -524,7 +524,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_003, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_BACKGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_003 end");
 }
 
 /*
@@ -536,7 +536,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_003, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOff_004, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_004 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -554,7 +554,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_004, TestSize.Level1)
 
     EXPECT_EQ(appA.GetAbility(tokenA), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_004 end");
 }
 
 /*
@@ -566,7 +566,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_004, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOff_005, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_005 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -591,7 +591,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_005, TestSize.Level1)
     EXPECT_EQ(appA.GetAbility(tokenA), nullptr);
     EXPECT_EQ(appA.GetAbility(tokenB), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_005 end");
 }
 
 /*
@@ -604,7 +604,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_005, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOff_006, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_006 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_006 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -628,7 +628,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_006, TestSize.Level1)
     EXPECT_EQ(appA.GetAbility(tokenA), nullptr);
     EXPECT_EQ(appA.GetAbility(tokenB), nullptr);
     EXPECT_EQ(ApplicationState::APP_STATE_TERMINATED, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOff_006 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOff_006 end");
 }
 
 /*
@@ -640,7 +640,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOff_006, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOn_001, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOn_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOn_001 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND);
@@ -652,7 +652,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_001, TestSize.Level1)
 
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOn_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOn_001 end");
 }
 
 /*
@@ -664,7 +664,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_001, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOn_002, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOn_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOn_002 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND);
@@ -680,7 +680,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_002, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_BACKGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOn_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOn_002 end");
 }
 
 /*
@@ -692,7 +692,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_002, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ScreenOn_003, TestSize.Level1)
 {
-    HILOG_INFO("AmsWorkFlowTest ScreenOn_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOn_003 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_BACKGROUND, ApplicationState::APP_STATE_BACKGROUND);
@@ -709,7 +709,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_003, TestSize.Level1)
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenA)->GetState());
     EXPECT_EQ(AbilityState::ABILITY_STATE_FOREGROUND, appA.GetAbility(tokenB)->GetState());
     EXPECT_EQ(ApplicationState::APP_STATE_FOREGROUND, appA.appRecord_->GetState());
-    HILOG_INFO("AmsWorkFlowTest ScreenOn_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "AmsWorkFlowTest ScreenOn_003 end");
 }
 
 /*
@@ -721,7 +721,7 @@ HWTEST_F(AmsWorkFlowTest, ScreenOn_003, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ChangeAbility_001, TestSize.Level1)
 {
-    HILOG_DEBUG("AmsWorkFlowTest ChangeAbility_001 start");
+    TAG_LOGD(AAFwkTag::TEST, "AmsWorkFlowTest ChangeAbility_001 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -754,7 +754,7 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_001, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ChangeAbility_002, TestSize.Level1)
 {
-    HILOG_DEBUG("AmsWorkFlowTest ChangeAbility_001 start");
+    TAG_LOGD(AAFwkTag::TEST, "AmsWorkFlowTest ChangeAbility_001 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -795,7 +795,7 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_002, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ChangeAbility_003, TestSize.Level1)
 {
-    HILOG_DEBUG("AmsWorkFlowTest ChangeAbility_001 start");
+    TAG_LOGD(AAFwkTag::TEST, "AmsWorkFlowTest ChangeAbility_001 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -839,7 +839,7 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_003, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ChangeAbility_004, TestSize.Level1)
 {
-    HILOG_DEBUG("AmsWorkFlowTest ChangeAbility_004 start");
+    TAG_LOGD(AAFwkTag::TEST, "AmsWorkFlowTest ChangeAbility_004 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);
@@ -892,7 +892,7 @@ HWTEST_F(AmsWorkFlowTest, ChangeAbility_004, TestSize.Level1)
  */
 HWTEST_F(AmsWorkFlowTest, ChangeAbility_005, TestSize.Level1)
 {
-    HILOG_DEBUG("AmsWorkFlowTest ChangeAbility_004 start");
+    TAG_LOGD(AAFwkTag::TEST, "AmsWorkFlowTest ChangeAbility_004 start");
     sptr<IRemoteObject> tokenA = new MockAbilityToken();
     TestApplicationPreRecord appA = CreateTestApplicationRecord(
         "A", tokenA, "A", AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND);

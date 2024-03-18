@@ -70,7 +70,7 @@ void ChildMainThreadTest::TearDown()
  */
 HWTEST_F(ChildMainThreadTest, Init_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("Init_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "Init_0100 called.");
     sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
     ASSERT_NE(thread, nullptr);
 
@@ -87,7 +87,7 @@ HWTEST_F(ChildMainThreadTest, Init_0100, TestSize.Level0)
  */
 HWTEST_F(ChildMainThreadTest, Attach_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("Attach_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "Attach_0100 called.");
     sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
     ASSERT_NE(thread, nullptr);
 
@@ -105,7 +105,7 @@ HWTEST_F(ChildMainThreadTest, Attach_0100, TestSize.Level0)
  */
 HWTEST_F(ChildMainThreadTest, ScheduleLoadJs_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("ScheduleLoadJs_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "ScheduleLoadJs_0100 called.");
     sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
     ASSERT_NE(thread, nullptr);
 
@@ -124,7 +124,7 @@ HWTEST_F(ChildMainThreadTest, ScheduleLoadJs_0100, TestSize.Level0)
  */
 HWTEST_F(ChildMainThreadTest, HandleLoadJs_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("HandleLoadJs_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "HandleLoadJs_0100 called.");
     sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
     ASSERT_NE(thread, nullptr);
 
@@ -158,7 +158,7 @@ HWTEST_F(ChildMainThreadTest, HandleLoadJs_0100, TestSize.Level0)
  */
 HWTEST_F(ChildMainThreadTest, ScheduleExitProcessSafely_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("ScheduleExitProcessSafely_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "ScheduleExitProcessSafely_0100 called.");
     sptr<ChildMainThread> thread = sptr<ChildMainThread>(new (std::nothrow) ChildMainThread());
     ASSERT_NE(thread, nullptr);
 

@@ -120,7 +120,7 @@ HWTEST_F(AppMgrStubTest, AppMgrStub_GetProcessRunningInfosByUserId_0100, TestSiz
  */
 HWTEST_F(AppMgrStubTest, HandleGetAppRunningStateByBundleName_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -136,7 +136,7 @@ HWTEST_F(AppMgrStubTest, HandleGetAppRunningStateByBundleName_0100, TestSize.Lev
         static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_STATE), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -147,7 +147,7 @@ HWTEST_F(AppMgrStubTest, HandleGetAppRunningStateByBundleName_0100, TestSize.Lev
  */
 HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -163,7 +163,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
         static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -174,7 +174,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyLoadRepairPatch_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -190,7 +190,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
         static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -201,7 +201,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyHotReloadPage_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -217,7 +217,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
         static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -228,7 +228,7 @@ HWTEST_F(AppMgrStubTest, HandleNotifyUnLoadRepairPatch_0100, TestSize.Level0)
  */
 HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -239,7 +239,7 @@ HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
         static_cast<uint32_t>(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -250,7 +250,7 @@ HWTEST_F(AppMgrStubTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -265,7 +265,7 @@ HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
         static_cast<uint32_t>(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -276,7 +276,7 @@ HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrStubTest, GetRunningProcessInformation_001, TestSize.Level0)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -293,7 +293,7 @@ HWTEST_F(AppMgrStubTest, GetRunningProcessInformation_001, TestSize.Level0)
         static_cast<uint32_t>(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**

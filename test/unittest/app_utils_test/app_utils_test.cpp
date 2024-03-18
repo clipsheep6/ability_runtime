@@ -51,10 +51,10 @@ void AppUtilsTest::TearDown()
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0100, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0100 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0100 called.");
     bool isInheritWindowSplitScreenMode = AAFwk::AppUtils::GetInstance().IsInheritWindowSplitScreenMode();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isInheritWindowSplitScreenMode == true);
     } else if (deviceType == "phone") {
@@ -71,10 +71,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0100, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0200, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0200 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0200 called.");
     bool isSupportAncoApp = AAFwk::AppUtils::GetInstance().IsSupportAncoApp();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isSupportAncoApp == false);
     } else if (deviceType == "phone") {
@@ -91,10 +91,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0200, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0300, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0300 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0300 called.");
     int32_t timeoutUnitTimeRatio = AAFwk::AppUtils::GetInstance().GetTimeoutUnitTimeRatio();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(timeoutUnitTimeRatio == 1);
     } else if (deviceType == "phone") {
@@ -111,10 +111,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0300, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0400, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0400 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0400 called.");
     bool isSelectorDialogDefaultPossion = AAFwk::AppUtils::GetInstance().IsSelectorDialogDefaultPossion();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isSelectorDialogDefaultPossion == true);
     } else if (deviceType == "phone") {
@@ -131,10 +131,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0400, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0500, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0500 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0500 called.");
     bool isStartSpecifiedProcess = AAFwk::AppUtils::GetInstance().IsStartSpecifiedProcess();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isStartSpecifiedProcess == false);
     } else if (deviceType == "phone") {
@@ -151,10 +151,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0500, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0600, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0600 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0600 called.");
     bool isUseMultiRenderProcess = AAFwk::AppUtils::GetInstance().IsUseMultiRenderProcess();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isUseMultiRenderProcess == true);
     } else if (deviceType == "phone") {
@@ -171,10 +171,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0600, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0700, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0700 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0700 called.");
     bool isLimitMaximumOfRenderProcess = AAFwk::AppUtils::GetInstance().IsLimitMaximumOfRenderProcess();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isLimitMaximumOfRenderProcess == true);
     } else if (deviceType == "phone") {
@@ -191,10 +191,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0700, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0800, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0800 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0800 called.");
     bool isGrantPersistUriPermission = AAFwk::AppUtils::GetInstance().IsGrantPersistUriPermission();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isGrantPersistUriPermission == false);
     } else if (deviceType == "phone") {
@@ -211,10 +211,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0800, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_0900, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_0900 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_0900 called.");
     bool isStartOptionsWithAnimation = AAFwk::AppUtils::GetInstance().IsStartOptionsWithAnimation();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isStartOptionsWithAnimation == false);
     } else if (deviceType == "phone") {
@@ -231,10 +231,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_0900, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_1000, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_1000 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_1000 called.");
     bool isMultiProcessModel = AAFwk::AppUtils::GetInstance().IsMultiProcessModel();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isMultiProcessModel == false);
     } else if (deviceType == "phone") {
@@ -251,10 +251,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_1000, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_1100, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_1100 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_1100 called.");
     bool isStartOptionsWithProcessOptions = AAFwk::AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(isStartOptionsWithProcessOptions == false);
     } else if (deviceType == "phone") {
@@ -271,10 +271,10 @@ HWTEST_F(AppUtilsTest, AppUtilsTest_1100, TestSize.Level0)
  */
 HWTEST_F(AppUtilsTest, AppUtilsTest_1200, TestSize.Level0)
 {
-    HILOG_INFO("AppUtilsTest_1200 called.");
+    TAG_LOGI(AAFwkTag::TEST, "AppUtilsTest_1200 called.");
     bool enableMoveUIAbilityToBackgroundApi = AAFwk::AppUtils::GetInstance().EnableMoveUIAbilityToBackgroundApi();
     std::string deviceType = OHOS::system::GetDeviceType();
-    HILOG_INFO("current deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGI(AAFwkTag::TEST, "current deviceType is %{public}s", deviceType.c_str());
     if (deviceType == "default") {
         EXPECT_TRUE(enableMoveUIAbilityToBackgroundApi == true);
     } else if (deviceType == "phone") {
