@@ -55,10 +55,10 @@ void ProxyAuthorizationUriConfig::LoadConfiguration()
 
 bool ProxyAuthorizationUriConfig::IsAuthorizationUriAllowed(uint32_t fromTokenId)
 {
-    Security::AccessToken::NativeTokenInfo nativeInfo;
-    auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(fromTokenId, nativeInfo);
+    std::string processName;
+    auto result = Security::AccessToken::AccessTokenKit::GetNativeTokenName(fromTokenId, processName);
     if (result == Security::AccessToken::AccessTokenKitRet::RET_SUCCESS &&
-        processNameAllowedList_.find(nativeInfo.processName) != processNameAllowedList_.end()) {
+        processNameAllowedList_.find(processName) != processNameAllowedList_.end()) {
         return true;
     }
 

@@ -637,9 +637,9 @@ void UriPermissionManagerStubImpl::HandleUriPermission(
 bool UriPermissionManagerStubImpl::IsFoundationCall()
 {
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::NativeTokenInfo nativeInfo;
-    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
-    HILOG_DEBUG("Caller process name : %{public}s", nativeInfo.processName.c_str());
+    std::string processName;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenName(callerTokenId, processName);
+    HILOG_DEBUG("Caller process name : %{public}s", processName.c_str());
     if (nativeInfo.processName == "foundation") {
         return true;
     }

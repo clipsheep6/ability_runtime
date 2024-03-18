@@ -452,9 +452,9 @@ void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
     }
 
     auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    Security::AccessToken::NativeTokenInfo nativeInfo;
-    Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerTokenId, nativeInfo);
-    if (nativeInfo.processName != "foundation") {
+    std::string processName;
+    Security::AccessToken::AccessTokenKit::GetNativeTokenName(callerTokenId, processName);
+    if (processName != "foundation") {
         HILOG_ERROR("caller is not foundation.");
         return;
     }

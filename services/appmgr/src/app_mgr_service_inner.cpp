@@ -2323,12 +2323,12 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
 
     auto callerAppRecord = GetAppRunningRecordByPid(appRecord->GetCallerPid());
     if (callerAppRecord == nullptr) {
-        Security::AccessToken::NativeTokenInfo nativeTokenInfo = {};
+        std::string processName;
         auto token = appRecord->GetCallerTokenId() == -1 ?
             static_cast<int>(IPCSkeleton::GetCallingTokenID()) : appRecord->GetCallerTokenId();
-        Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(token, nativeTokenInfo);
+        Security::AccessToken::AccessTokenKit::GetNativeTokenName(token, processName);
         eventInfo.callerBundleName = "";
-        eventInfo.callerProcessName = nativeTokenInfo.processName;
+        eventInfo.callerProcessName = processName;
     } else {
         if (callerAppRecord->GetBundleName().empty()) {
             eventInfo.callerBundleName = callerAppRecord->GetName();
