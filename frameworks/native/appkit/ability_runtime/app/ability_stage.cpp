@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,12 +42,12 @@ std::shared_ptr<AbilityStage> AbilityStage::Create(
 
 void AbilityStage::OnCreate(const AAFwk::Want &want) const
 {
-    HILOG_DEBUG("AbilityStage OnCreate come.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "AbilityStage OnCreate come.");
 }
 
 void AbilityStage::OnDestroy() const
 {
-    HILOG_DEBUG("AbilityStage::OnDestroy come");
+    TAG_LOGD(AAFwkTag::UIABILITY, "AbilityStage::OnDestroy come");
 }
 
 std::shared_ptr<Context> AbilityStage::GetContext() const
@@ -64,12 +64,12 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &abilityRecord)
 {
     if (token == nullptr) {
-        HILOG_ERROR("AbilityStage::AddAbility failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::UIABILITY, "AbilityStage::AddAbility failed, token is nullptr");
         return;
     }
 
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("AbilityStage::AddAbility failed, abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::UIABILITY, "AbilityStage::AddAbility failed, abilityRecord is nullptr");
         return;
     }
 
@@ -79,7 +79,7 @@ void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
 void AbilityStage::RemoveAbility(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        HILOG_ERROR("AbilityStage::RemoveAbility failed, token is nullptr");
+        TAG_LOGE(AAFwkTag::UIABILITY, "AbilityStage::RemoveAbility failed, token is nullptr");
         return;
     }
     abilityRecords_.erase(token);
@@ -92,24 +92,24 @@ bool AbilityStage::ContainsAbility() const
 
 std::string AbilityStage::OnAcceptWant(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("AbilityStage::OnAcceptWant come");
+    TAG_LOGD(AAFwkTag::UIABILITY, "AbilityStage::OnAcceptWant come");
     return "";
 }
 
 std::string AbilityStage::OnNewProcessRequest(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("AbilityStage::OnNewProcessRequest come");
+    TAG_LOGD(AAFwkTag::UIABILITY, "AbilityStage::OnNewProcessRequest come");
     return "";
 }
 
 void AbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::UIABILITY, "%{public}s called.", __func__);
 }
 
 void AbilityStage::OnMemoryLevel(int level)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::UIABILITY, "%{public}s called.", __func__);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

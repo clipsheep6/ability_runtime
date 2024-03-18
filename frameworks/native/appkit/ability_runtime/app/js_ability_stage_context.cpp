@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,26 +27,26 @@ namespace AbilityRuntime {
 void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<NativeReference> &jsContext,
     const std::shared_ptr<AppExecFwk::Configuration> &config)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called");
     if (!jsContext || !config) {
-        HILOG_ERROR("jsContext or config is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsContext or config is nullptr.");
         return;
     }
 
     napi_value object = jsContext->GetNapiValue();
     if (!CheckTypeForNapiValue(env, object, napi_object)) {
-        HILOG_ERROR("object is nullptr.");
+        TAG_LOGE(AAFwkTag::UIABILITY, "object is nullptr.");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, object, "onUpdateConfiguration", &method);
     if (!method) {
-        HILOG_ERROR("Failed to get onUpdateConfiguration from object");
+        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get onUpdateConfiguration from object");
         return;
     }
 
-    HILOG_DEBUG("call onUpdateConfiguration");
+    TAG_LOGD(AAFwkTag::UIABILITY, "call onUpdateConfiguration");
     napi_value argv[] = { CreateJsConfiguration(env, *config) };
     napi_call_function(env, object, method, 1, argv, nullptr);
 }
@@ -54,7 +54,7 @@ void JsAbilityStageContext::ConfigurationUpdated(napi_env env, std::shared_ptr<N
 napi_value CreateJsAbilityStageContext(napi_env env,
     std::shared_ptr<AbilityRuntime::Context> context, DetachCallback detach, NapiAttachCallback attach)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::UIABILITY, "called.");
     napi_value objValue = CreateJsBaseContext(env, context);
     if (context == nullptr) {
         return objValue;
