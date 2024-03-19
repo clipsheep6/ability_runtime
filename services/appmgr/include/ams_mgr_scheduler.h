@@ -249,6 +249,7 @@ private:
 private:
     std::shared_ptr<AppMgrServiceInner> amsMgrServiceInner_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> amsHandler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> loadAbilityHandler_;
     sptr<ISystemAbilityManager> systemAbilityMgr_;
 
     DISALLOW_COPY_AND_MOVE(AmsMgrScheduler);
