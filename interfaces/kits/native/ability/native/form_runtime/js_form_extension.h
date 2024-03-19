@@ -70,8 +70,6 @@ private:
 
     void BindContext(napi_env env, napi_value obj);
 
-    void GetSrcPath(std::string &srcPath);
-
     bool ConvertFromDataProxies(napi_env env, napi_value jsValue,
         std::vector<FormDataProxy> &formDataProxies);
 

@@ -167,8 +167,6 @@ private:
 
     void BindContext(napi_env env, napi_value obj);
 
-    void GetSrcPath(std::string &srcPath);
-
     napi_value CallOnConnect(const AAFwk::Want &want);
 
     napi_value CallOnDisconnect(const AAFwk::Want &want, bool withResult = false);
