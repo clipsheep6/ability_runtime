@@ -263,7 +263,6 @@ ohos_source_set("abilityms_test_source") {
 
   if (ability_runtime_graphics) {
     sources += [
-      "${ability_runtime_services_path}/abilitymgr/src/image_info.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/implicit_start_processor.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/inner_mission_info.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/mission.cpp",
@@ -440,7 +439,6 @@ group("unittest") {
     "frameworks_kits_ability_native_test:unittest",
     "frameworks_kits_appkit_native_test:unittest",
     "free_install_manager_test:unittest",
-    "image_info_test:unittest",
     "implicit_start_processor_test:unittest",
     "insight_intent:unittest",
     "js_auto_fill_extension_test:unittest",

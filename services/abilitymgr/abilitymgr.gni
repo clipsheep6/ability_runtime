@@ -60,7 +60,6 @@ abilityms_files = [
   "src/pending_want_common_event.cpp",
   "src/restart_app_manager.cpp",
   "src/ams_configuration_parameter.cpp",
-  "src/image_info.cpp",
   "src/insight_intent_utils.cpp",
   "src/insight_intent_profile.cpp",
   "src/window_focus_changed_listener.cpp",
