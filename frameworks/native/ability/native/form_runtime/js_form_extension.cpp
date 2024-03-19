@@ -346,27 +346,6 @@ napi_value JsFormExtension::CallObjectMethod(const char* name, const char *bakNa
     return handleEscape.Escape(result);
 }
 
-void JsFormExtension::GetSrcPath(std::string &srcPath)
-{
-    if (!Extension::abilityInfo_->isModuleJson) {
-        /* temporary compatibility api8 + config.json */
-        srcPath.append(Extension::abilityInfo_->package);
-        srcPath.append("/assets/js/");
-        if (!Extension::abilityInfo_->srcPath.empty()) {
-            srcPath.append(Extension::abilityInfo_->srcPath);
-        }
-        srcPath.append("/").append(Extension::abilityInfo_->name).append(".abc");
-        return;
-    }
-
-    if (!Extension::abilityInfo_->srcEntrance.empty()) {
-        srcPath.append(Extension::abilityInfo_->moduleName + "/");
-        srcPath.append(Extension::abilityInfo_->srcEntrance);
-        srcPath.erase(srcPath.rfind('.'));
-        srcPath.append(".abc");
-    }
-}
-
 void JsFormExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     FormExtension::OnConfigurationUpdated(configuration);
