@@ -741,7 +741,7 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    uint32_t pid = info.pid;
+    int32_t pid = static_cast<int32_t>(info.pid);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         auto priorityObject = pair.second->GetPriorityObject();
         return priorityObject && priorityObject->GetPid() == pid;
