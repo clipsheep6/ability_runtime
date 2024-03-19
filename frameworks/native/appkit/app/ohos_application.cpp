@@ -583,8 +583,8 @@ void OHOSApplication::SetAppEnv(const std::vector<AppEnvironment>& appEnvironmen
             TAG_LOGE(AAFwkTag::APPMGR, "appEnvironment: %{public}s set failed.", appEnvironment.name.c_str());
             return;
         }
-        TAG_LOGI(AAFwkTag::APPMGR, "appEnvironment set successfully: %{public}s = %{public}s.", appEnvironment.name.c_str(),
-                   appEnvironment.value.c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "appEnvironment set successfully: %{public}s = %{public}s.",
+            appEnvironment.name.c_str(), appEnvironment.value.c_str());
     }
     return;
 }

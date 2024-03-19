@@ -1087,7 +1087,8 @@ bool MainThread::InitResourceManager(std::shared_ptr<Global::Resource::ResourceM
     resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
 
     std::string deviceType = config.GetItem(AAFwk::GlobalConfigurationKey::DEVICE_TYPE);
-    TAG_LOGD(AAFwkTag::APPMGR, "deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(), ConvertDeviceType(deviceType));
+    TAG_LOGD(AAFwkTag::APPMGR, "deviceType is %{public}s <---->  %{public}d.", deviceType.c_str(),
+        ConvertDeviceType(deviceType));
     resConfig->SetDeviceType(ConvertDeviceType(deviceType));
     resourceManager->UpdateResConfig(*resConfig);
     return true;
@@ -1217,7 +1218,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
-        AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+        SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::DEBUG_LAUNCH_MODE, true);
         watchdog_->Stop();
         watchdog_.reset();
     }
