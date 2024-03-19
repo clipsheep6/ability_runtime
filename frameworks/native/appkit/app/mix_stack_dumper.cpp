@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -66,15 +66,15 @@ static bool HasNameSpace()
 
 bool MixStackDumper::Dump_SignalHandler(int sig, siginfo_t *si, void *context)
 {
-    HILOG_INFO("Dump_SignalHandler.");
+    TAG_LOGI(AAFwkTag::BASE, "Dump_SignalHandler.");
     bool ret = false;
     if (si->si_code != DUMP_TYPE_MIX) {
         return ret;
     }
 
-    HILOG_INFO("Received mix stack dump request.");
+    TAG_LOGI(AAFwkTag::BASE, "Received mix stack dump request.");
     if (signalHandler_.expired()) {
-        HILOG_WARN("signalHandler is expired.");
+        TAG_LOGW(AAFwkTag::BASE, "signalHandler is expired.");
         return ret;
     }
     auto handler = signalHandler_.lock();
@@ -137,7 +137,7 @@ void MixStackDumper::BuildJsNativeMixStack(int fd, std::vector<JsFrames>& jsFram
 
         if (IsJsNativePcEqual(jsFrames[jsIdx].nativePointer, nativeFrames[nativeIdx].pc,
             nativeFrames[nativeIdx].funcOffset)) {
-            HILOG_DEBUG("DfxMixStackDumper::BuildJsNativeMixStack pc register values matched.");
+            TAG_LOGD(AAFwkTag::BASE, "DfxMixStackDumper::BuildJsNativeMixStack pc register values matched.");
             mixStackStr += HiviewDFX::DfxFrameFormat::GetFrameStr(nativeFrames[nativeIdx]);
             mixStackStr += PrintJsFrame(jsFrames[jsIdx]);
             nativeIdx++;
@@ -193,7 +193,7 @@ void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
                          GetCurrentTimeStr().c_str(), pid, uid);
     }
     if (ret <= 0) {
-        HILOG_ERROR("snprintf_s process mix stack header failed.");
+        TAG_LOGE(AAFwkTag::BASE, "snprintf_s process mix stack header failed.");
         return;
     }
     Write(fd, std::string(headerBuf));
@@ -202,7 +202,7 @@ void MixStackDumper::PrintProcessHeader(int fd, pid_t pid, uid_t uid)
 bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
 {
     if (catcher_ == nullptr) {
-        HILOG_ERROR("No FrameCatcher? call init first.");
+        TAG_LOGE(AAFwkTag::BASE, "No FrameCatcher? call init first.");
         return false;
     }
 
@@ -235,7 +235,7 @@ bool MixStackDumper::DumpMixFrame(int fd, pid_t nstid, pid_t tid)
 
     Write(fd, GetThreadStackTraceLabel(tid));
     if (!hasNativeFrame && !hasJsFrame) {
-        HILOG_ERROR("Failed to unwind frames for %{public}d.", nstid);
+        TAG_LOGE(AAFwkTag::BASE, "Failed to unwind frames for %{public}d.", nstid);
         std::string wchan;
         ReadThreadWchan(wchan, tid, true);
         Write(fd, wchan);
@@ -256,7 +256,7 @@ void MixStackDumper::Init(pid_t pid)
 {
     catcher_ = std::make_unique<OHOS::HiviewDFX::DfxCatchFrameLocal>(pid);
     if (!catcher_->InitFrameCatcher()) {
-        HILOG_ERROR("Init DumpCatcher Failed.");
+        TAG_LOGE(AAFwkTag::BASE, "Init DumpCatcher Failed.");
     }
 }
 
@@ -274,13 +274,13 @@ void MixStackDumper::HandleMixDumpRequest()
     int resFd = -1;
     int dumpRes = OHOS::HiviewDFX::DumpErrorCode::DUMP_ESUCCESS;
     std::unique_lock<std::mutex> lock(g_mutex);
-    HILOG_INFO("Current process is ready to dump stack trace.");
+    TAG_LOGI(AAFwkTag::BASE, "Current process is ready to dump stack trace.");
     (void)GetProcStatus(g_procInfo);
     do {
         fd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_BUF);
         resFd = RequestPipeFd(GetPid(), FaultLoggerPipeType::PIPE_FD_WRITE_RES);
         if (fd < 0 || resFd < 0) {
-            HILOG_ERROR("request pid(%{public}d) pipe fd failed", GetPid());
+            TAG_LOGE(AAFwkTag::BASE, "request pid(%{public}d) pipe fd failed", GetPid());
             dumpRes = OHOS::HiviewDFX::DumpErrorCode::DUMP_EGETFD;
             break;
         }
@@ -296,7 +296,7 @@ void MixStackDumper::HandleMixDumpRequest()
     if (fd >= 0) {
         close(fd);
     }
-    HILOG_INFO("Finish dumping stack trace.");
+    TAG_LOGI(AAFwkTag::BASE, "Finish dumping stack trace.");
 }
 
 void MixStackDumper::Write(int fd, const std::string& outStr)

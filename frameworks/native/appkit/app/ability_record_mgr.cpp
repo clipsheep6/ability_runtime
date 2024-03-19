@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +36,7 @@ sptr<IRemoteObject> AbilityRecordMgr::GetToken() const
 void AbilityRecordMgr::SetToken(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        HILOG_ERROR("application is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "application is nullptr");
         return;
     }
     tokens_ = token;
@@ -51,12 +51,12 @@ void AbilityRecordMgr::SetToken(const sptr<IRemoteObject> &token)
 void AbilityRecordMgr::SetEventRunner(const std::shared_ptr<EventRunner> &eventRunner)
 {
     if (eventRunner == nullptr) {
-        HILOG_ERROR("eventRunner is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "eventRunner is nullptr");
         return;
     }
     sptr<IRemoteObject> token = GetToken();
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
         return;
     }
 
@@ -64,7 +64,7 @@ void AbilityRecordMgr::SetEventRunner(const std::shared_ptr<EventRunner> &eventR
     if (abilityInstance != nullptr) {
         abilityInstance->SetEventRunner(eventRunner);
     } else {
-        HILOG_WARN("ability record is not exists");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "ability record is not exists");
     }
 }
 
@@ -79,12 +79,12 @@ void AbilityRecordMgr::AddAbilityRecord(
     const sptr<IRemoteObject> &token, const std::shared_ptr<AbilityLocalRecord> &abilityRecord)
 {
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
         return;
     }
 
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr");
         return;
     }
 
@@ -100,7 +100,7 @@ void AbilityRecordMgr::AddAbilityRecord(
 void AbilityRecordMgr::RemoveAbilityRecord(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
         return;
     }
     abilityRecords_.erase(token);
@@ -126,7 +126,7 @@ int AbilityRecordMgr::GetRecordCount() const
 std::shared_ptr<AbilityLocalRecord> AbilityRecordMgr::GetAbilityItem(const sptr<IRemoteObject> &token) const
 {
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
         return nullptr;
     }
 
@@ -134,7 +134,7 @@ std::shared_ptr<AbilityLocalRecord> AbilityRecordMgr::GetAbilityItem(const sptr<
     if (iter != abilityRecords_.end()) {
         return iter->second;
     }
-    HILOG_WARN("the ability not found");
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "the ability not found");
     return nullptr;
 }
 

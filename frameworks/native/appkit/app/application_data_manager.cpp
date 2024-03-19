@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,13 +32,13 @@ ApplicationDataManager &ApplicationDataManager::GetInstance()
 
 void ApplicationDataManager::AddErrorObserver(const std::shared_ptr<IErrorObserver> &observer)
 {
-    HILOG_DEBUG("Add error observer come.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Add error observer come.");
     errorObserver_ = observer;
 }
 
 bool ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
 {
-    HILOG_DEBUG("Notify error observer come.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Notify error observer come.");
     if (errorObserver_) {
         errorObserver_->OnUnhandledException(errMsg);
         return true;
@@ -51,13 +51,13 @@ bool ApplicationDataManager::NotifyUnhandledException(const std::string &errMsg)
 
 void ApplicationDataManager::RemoveErrorObserver()
 {
-    HILOG_DEBUG("Remove error observer come.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Remove error observer come.");
     errorObserver_ = nullptr;
 }
 
 bool ApplicationDataManager::NotifyExceptionObject(const AppExecFwk::ErrorObject &errorObj)
 {
-    HILOG_DEBUG("Notify Exception error observer come.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Notify Exception error observer come.");
     if (errorObserver_) {
         errorObserver_->OnExceptionObject(errorObj);
         return true;
