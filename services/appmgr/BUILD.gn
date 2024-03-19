@@ -93,6 +93,8 @@ ohos_shared_library("libappms") {
     "${ability_runtime_services_path}/common:task_handler_wrap",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
