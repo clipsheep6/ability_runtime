@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -47,6 +47,48 @@ void AbilityDebugResponseProxy::OnAbilitysDebugStoped(const std::vector<sptr<IRe
 {
     HILOG_DEBUG("Called.");
     SendRequest(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED, tokens);
+}
+
+void AbilityDebugResponseProxy::OnAbilitysAssertDebugChange(
+    const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    if (tokens.size() <= CYCLE_LIMIT_MIN || tokens.size() > CYCLE_LIMIT_MAX ||
+        !data.WriteInt32(tokens.size())) {
+        HILOG_ERROR("Write data size failed.");
+        return;
+    }
+
+    for (const auto &item : tokens) {
+        if (!data.WriteRemoteObject(item)) {
+            HILOG_ERROR("Write token failed.");
+            return;
+        }
+    }
+
+    if (!data.WriteBool(isAssertDebug)) {
+        HILOG_ERROR("Write flag failed.");
+        return;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        HILOG_ERROR("Remote is nullptr.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = remote->SendRequest(static_cast<uint32_t>(Message::ON_ABILITYS_ASSERT_DEBUG), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+    }
 }
 
 void AbilityDebugResponseProxy::SendRequest(

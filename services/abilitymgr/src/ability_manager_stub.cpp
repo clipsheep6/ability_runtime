@@ -3115,17 +3115,30 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
         HILOG_ERROR("Size of vector too large.");
         return ERR_ENOUGH_DATA;
     }
-    std::vector<SessionInfo> sessionInfos;
+    std::list<SessionInfo> sessionInfos;
     for (auto i = 0; i < size; i++) {
         std::unique_ptr<SessionInfo> info(data.ReadParcelable<SessionInfo>());
         if (info == nullptr) {
             HILOG_ERROR("Read session info failed.");
-            return INNER_ERR;
+            return ERR_NATIVE_IPC_PARCEL_FAILED;
         }
         sessionInfos.emplace_back(*info);
     }
     int32_t userId = data.ReadInt32();
-    UpdateSessionInfoBySCB(sessionInfos, userId);
+    std::vector<int32_t> sessionIds;
+    auto result = UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
+    if (result != ERR_OK) {
+        return result;
+    }
+    size = static_cast<int32_t>(sessionIds.size());
+    if (size > threshold) {
+        HILOG_ERROR("Size of vector too large for sessionIds.");
+        return ERR_ENOUGH_DATA;
+    }
+    reply.WriteInt32(size);
+    for (auto index = 0; index < size; index++) {
+        reply.WriteInt32(sessionIds[index]);
+    }
     return ERR_OK;
 }
 

@@ -466,7 +466,8 @@ void AbilityRecord::ForegroundAbility(const Closure &task, sptr<SessionInfo> ses
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
         std::lock_guard guard(wantLock_);
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) && !isAttachDebug_) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) &&
+            !isAttachDebug_ && !isAssertDebug_) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
             handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout, false);
@@ -2446,7 +2447,7 @@ bool AbilityRecord::IsDebug() const
 {
     std::lock_guard guard(wantLock_);
     if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false) ||
-        !want_.GetStringParam(PERF_CMD).empty() || isAttachDebug_) {
+        !want_.GetStringParam(PERF_CMD).empty() || isAttachDebug_ || isAssertDebug_) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return true;
     }
@@ -3306,6 +3307,11 @@ bool AbilityRecord::GetLockedState()
 void AbilityRecord::SetAttachDebug(const bool isAttachDebug)
 {
     isAttachDebug_ = isAttachDebug;
+}
+
+void AbilityRecord::SetAssertDebug(bool isAssertDebug)
+{
+    isAssertDebug_ = isAssertDebug;
 }
 
 void AbilityRecord::AddAbilityWindowStateMap(uint64_t uiExtensionComponentId,

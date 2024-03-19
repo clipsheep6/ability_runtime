@@ -2112,10 +2112,11 @@ HWTEST_F(AbilityManagerClientBranchTest, RequestModalUIExtension_0100, TestSize.
 HWTEST_F(AbilityManagerClientBranchTest, UpdateSessionInfoBySCB_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 start";
-    std::vector<SessionInfo> sessionInfos;
+    std::list<SessionInfo> sessionInfos;
     int32_t userId = 1;
-    client_->UpdateSessionInfoBySCB(sessionInfos, userId);
-    EXPECT_TRUE(client_ != nullptr);
+    std::vector<int32_t> sessionIds;
+    auto result = client_->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
+    EXPECT_NE(result, ERR_OK);
     GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 end";
 }
 

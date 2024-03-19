@@ -590,6 +590,7 @@ public:
     const AAFwk::Want &GetNewProcessRequestWant() const;
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
+    bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);

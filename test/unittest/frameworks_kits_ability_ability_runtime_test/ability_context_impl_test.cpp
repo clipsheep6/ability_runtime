@@ -584,9 +584,10 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_StartAbility_0500, Functio
 {
     AAFwk::Want want;
     want.SetParam("ohos.extra.param.key.startupMode", 1);
+    want.SetFlags(Want::FLAG_ABILITY_CONTINUATION);
     int32_t requestCode = 1;
     auto ret = context_->StartAbility(want, requestCode);
-    EXPECT_EQ(ret, ERR_INVALID_VALUE);
+    EXPECT_EQ(ret, ERR_OK);
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -741,7 +741,7 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    uint32_t pid = info.pid;
+    int32_t pid = static_cast<int32_t>(info.pid);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         auto priorityObject = pair.second->GetPriorityObject();
         return priorityObject && priorityObject->GetPid() == pid;
@@ -1061,7 +1061,7 @@ std::vector<AppDebugInfo> AppRunningManager::GetAppDebugInfosByBundleName(
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != bundleName ||
-            (isDetachDebug && appRecord->IsDebugApp())) {
+            (isDetachDebug && (appRecord->IsDebugApp() || appRecord->IsAssertionPause()))) {
             continue;
         }
 
@@ -1072,7 +1072,7 @@ std::vector<AppDebugInfo> AppRunningManager::GetAppDebugInfosByBundleName(
             debugInfo.pid = priorityObject->GetPid();
         }
         debugInfo.uid = appRecord->GetUid();
-        debugInfo.isDebugStart = appRecord->IsDebugApp();
+        debugInfo.isDebugStart = (appRecord->IsDebugApp() || appRecord->IsAssertionPause());
         debugInfos.emplace_back(debugInfo);
     }
     return debugInfos;

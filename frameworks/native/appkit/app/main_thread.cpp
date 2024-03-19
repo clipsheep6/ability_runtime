@@ -33,6 +33,7 @@
 #include "app_recovery.h"
 #include "app_utils.h"
 #include "appfreeze_inner.h"
+#include "appfreeze_state.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "bundle_mgr_proxy.h"
@@ -1217,7 +1218,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
-        AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+        SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::DEBUG_LAUNCH_MODE, true);
         watchdog_->Stop();
         watchdog_.reset();
     }
@@ -3020,13 +3021,13 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
 void MainThread::AttachAppDebug()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ATTACH_DEBUG_MODE, true);
 }
 
 void MainThread::DetachAppDebug()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ATTACH_DEBUG_MODE, false);
 }
 
 bool MainThread::NotifyDeviceDisConnect()
@@ -3040,27 +3041,27 @@ bool MainThread::NotifyDeviceDisConnect()
 void MainThread::AssertFaultPauseMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, true);
 }
 
 void MainThread::AssertFaultResumeMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, false);
 }
 
 void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
 {
-    if (!isDebugApp) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Non-debug version application.");
-        return;
-    }
     if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Unsupport assert fault dialog.");
         return;
     }
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Developer Mode is false.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Developer Mode is false.");  
+        return;
+    }
+    if (!isDebugApp) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Non-debug version application.");
         return;
     }
     auto assertThread = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
@@ -3070,6 +3071,25 @@ void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
     }
     assertThread->InitAssertFaultTask(this, isDebugModule);
     assertThread_ = assertThread;
+}
+
+void MainThread::SetAppDebug(uint32_t modeFlag, bool isDebug)
+{
+    HILOG_DEBUG("Called.");
+    auto state = DelayedSingleton<AbilityRuntime::AppFreezeState>::GetInstance();
+    if (state == nullptr) {
+        HILOG_ERROR("Get app freeze state instance is nullptr.");
+        return;
+    }
+
+    if (!isDebug) {
+        HILOG_DEBUG("Call Cancel modeFlag is %{public}u.", modeFlag);
+        state->CancelAppFreezeState(modeFlag);
+        return;
+    }
+
+    HILOG_DEBUG("Call Set modeFlag is %{public}u.", modeFlag);
+    state->SetAppFreezeState(modeFlag);
 }
 
 void MainThread::HandleCancelAssertFaultTask()
