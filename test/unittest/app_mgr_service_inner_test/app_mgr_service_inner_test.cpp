@@ -4027,10 +4027,11 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0100, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0200, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
-    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+    EXPECT_EQ(ERR_OK, res);
 }
 
 /**
@@ -4053,10 +4054,11 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0100, TestSize.Le
  */
 HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0200, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
-    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+    EXPECT_EQ(ERR_OK, res);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

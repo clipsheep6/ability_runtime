@@ -22,6 +22,7 @@
 #include "hilog_wrapper.h"
 #include "mock_my_flag.h"
 #include "mock_permission_verification.h"
+#include "mock_sa_call.h"
 #include "nativetoken_kit.h"
 #include "parameters.h"
 #include "token_setproc.h"
@@ -528,7 +529,7 @@ HWTEST_F(AbilityAutoStartupServiceTest, GetAbilityInfo_001, TestSize.Level1)
 HWTEST_F(AbilityAutoStartupServiceTest, SetApplicationAutoStartupByEDM_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest SetApplicationAutoStartupByEDM_001 start";
-    SetNativeToken();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     MyFlag::flag_ = 1;
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     AutoStartupInfo info;
@@ -549,7 +550,7 @@ HWTEST_F(AbilityAutoStartupServiceTest, SetApplicationAutoStartupByEDM_001, Test
 HWTEST_F(AbilityAutoStartupServiceTest, CancelApplicationAutoStartupByEDM_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CancelApplicationAutoStartupByEDM_001 start";
-    SetNativeToken();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     MyFlag::flag_ = 1;
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     AutoStartupInfo info;
@@ -608,7 +609,7 @@ HWTEST_F(AbilityAutoStartupServiceTest, InnerApplicationAutoStartupByEDM_002, Te
 HWTEST_F(AbilityAutoStartupServiceTest, CheckPermissionForEDM_001, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AbilityAutoStartupServiceTest CheckPermissionForEDM_001 start";
-    SetNativeToken();
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     MyFlag::flag_ = 1;
     auto abilityAutoStartupService = std::make_shared<AbilityAutoStartupService>();
     auto result = abilityAutoStartupService->CheckPermissionForEDM();
