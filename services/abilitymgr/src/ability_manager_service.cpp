@@ -9763,8 +9763,8 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
     HILOG_DEBUG("Get ui extension host info.");
     CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
 
-    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall()) {
-        HILOG_ERROR("Not sa call.");
+    if (!AAFwk::PermissionVerification::GetInstance()->IsSACall() && !CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
+        HILOG_ERROR("Permission deny.");
         return ERR_PERMISSION_DENIED;
     }
 

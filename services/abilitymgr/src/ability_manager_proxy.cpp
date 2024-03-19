@@ -4863,7 +4863,7 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     }
 
     MessageParcel data;
-    if (!WriteInterfaceToken (data)) {
+    if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write remote object failed.");
         return INNER_ERR;
     }
