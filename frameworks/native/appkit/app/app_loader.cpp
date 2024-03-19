@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,7 +38,7 @@ ApplicationLoader &ApplicationLoader::GetInstance()
 void ApplicationLoader::RegisterApplication(const std::string &bundleName, const CreateApplication &createFunc)
 {
     applications_.emplace(bundleName, createFunc);
-    HILOG_DEBUG("ApplicationLoader::RegisterApplication:%{public}s", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::APPMGR, "ApplicationLoader::RegisterApplication:%{public}s", bundleName.c_str());
 }
 
 /**
@@ -49,7 +49,7 @@ OHOSApplication *ApplicationLoader::GetApplicationByName()
 {
     auto it = applications_.find("OHOSApplication");
     if (it == applications_.end()) {
-        HILOG_ERROR("ApplicationLoader::GetApplicationByName failed:OHOSApplication");
+        TAG_LOGE(AAFwkTag::APPMGR, "ApplicationLoader::GetApplicationByName failed:OHOSApplication");
     } else {
         return it->second();
     }

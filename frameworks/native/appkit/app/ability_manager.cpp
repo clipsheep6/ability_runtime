@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,20 +29,20 @@ AbilityManager &AbilityManager::GetInstance()
 
 void AbilityManager::StartAbility(const Want &want, int requestCode = -1)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%s failed, error : %d", __func__, error);
     }
 }
 
 int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%s, %d", __func__, __LINE__);
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
     if (appMgr_ == nullptr) {
-        HILOG_ERROR("%s, appMgr_ is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%s, appMgr_ is nullptr", __func__);
         return ERR_NULL_OBJECT;
     }
 
@@ -51,12 +51,12 @@ int32_t AbilityManager::ClearUpApplicationData(const std::string &bundleName)
 
 std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%s, %d", __func__, __LINE__);
     auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
     sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
     std::vector<RunningProcessInfo> info;
     if (appMgr_ == nullptr) {
-        HILOG_ERROR("%s, appMgr_ is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%s, appMgr_ is nullptr", __func__);
         return info;
     }
 
@@ -66,10 +66,10 @@ std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
 
 int AbilityManager::KillProcessesByBundleName(const std::string &bundleName)
 {
-    HILOG_DEBUG("%s, %d", __func__, __LINE__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%s, %d", __func__, __LINE__);
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->KillProcess(bundleName);
     if (error != ERR_OK) {
-        HILOG_ERROR("%s failed, error : %d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%s failed, error : %d", __func__, error);
         return error;
     }
     return ERR_OK;

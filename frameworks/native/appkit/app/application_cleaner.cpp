@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,13 +48,13 @@ static const int RESULT_ERR = -1;
 void ApplicationCleaner::RenameTempData()
 {
     if (context_ == nullptr) {
-        HILOG_ERROR("Context is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Context is null.");
         return;
     }
     std::vector<std::string> tempdir{};
     context_->GetAllTempDir(tempdir);
     if (tempdir.empty()) {
-        HILOG_ERROR("Get app temp path list is empty.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Get app temp path list is empty.");
         return;
     }
     int64_t now =
@@ -65,17 +65,17 @@ void ApplicationCleaner::RenameTempData()
     for (const auto &path : tempdir) {
         auto newPath = path + MARK_SYMBOL + stream.str();
         if (rename(path.c_str(), newPath.c_str()) != 0) {
-            HILOG_ERROR("Rename temp dir failed, msg is %{public}s", strerror(errno));
+            TAG_LOGE(AAFwkTag::APPMGR, "Rename temp dir failed, msg is %{public}s", strerror(errno));
         }
     }
 }
 
 void ApplicationCleaner::ClearTempData()
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called");
     auto cleanTemp = [self = shared_from_this()]() {
         if (self == nullptr || self->context_ == nullptr) {
-            HILOG_ERROR("Invalid shared pointer");
+            TAG_LOGE(AAFwkTag::APPMGR, "Invalid shared pointer");
             return;
         }
 
@@ -83,18 +83,18 @@ void ApplicationCleaner::ClearTempData()
         std::vector<std::string> temps;
 
         if (self->GetRootPath(rootDir) != RESULT_OK) {
-            HILOG_ERROR("Get root dir error.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Get root dir error.");
             return;
         }
 
         if (self->GetObsoleteBundleTempPath(rootDir, temps) != RESULT_OK) {
-            HILOG_ERROR("Get bundle temp file list is false.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Get bundle temp file list is false.");
             return;
         }
 
         for (const auto &temp : temps) {
             if (self->RemoveDir(temp) == false) {
-                HILOG_ERROR("Clean bundle data dir failed, path: %{private}s", temp.c_str());
+                TAG_LOGE(AAFwkTag::APPMGR, "Clean bundle data dir failed, path: %{private}s", temp.c_str());
             }
         }
     };
@@ -104,13 +104,13 @@ void ApplicationCleaner::ClearTempData()
 int ApplicationCleaner::GetRootPath(std::vector<std::string> &rootPath)
 {
     if (context_ == nullptr) {
-        HILOG_ERROR("Invalid context pointer");
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid context pointer");
         return RESULT_ERR;
     }
 
     auto instance = DelayedSingleton<AppExecFwk::OsAccountManagerWrapper>::GetInstance();
     if (instance == nullptr) {
-        HILOG_ERROR("Failed to get OsAccountManager instance.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to get OsAccountManager instance.");
         return RESULT_ERR;
     }
 
@@ -123,7 +123,7 @@ int ApplicationCleaner::GetRootPath(std::vector<std::string> &rootPath)
     auto baseDir = context_->GetBaseDir();
     auto infos = context_->GetApplicationInfo();
     if (infos == nullptr) {
-        HILOG_ERROR("Input param is invalid");
+        TAG_LOGE(AAFwkTag::APPMGR, "Input param is invalid");
         return RESULT_ERR;
     }
 
@@ -142,13 +142,13 @@ ErrCode ApplicationCleaner::GetObsoleteBundleTempPath(
     const std::vector<std::string> &rootPath, std::vector<std::string> &tempPath)
 {
     if (rootPath.empty()) {
-        HILOG_ERROR("Input param is invalid");
+        TAG_LOGE(AAFwkTag::APPMGR, "Input param is invalid");
         return RESULT_ERR;
     }
 
     for (const auto &dir : rootPath) {
         if (dir.empty()) {
-            HILOG_ERROR("Input param is invalid");
+            TAG_LOGE(AAFwkTag::APPMGR, "Input param is invalid");
             continue;
         }
         std::vector<std::string> temp;
@@ -162,14 +162,14 @@ void ApplicationCleaner::TraverseObsoleteTempDirectory(
     const std::string &currentPath, std::vector<std::string> &tempDirs)
 {
     if (currentPath.empty() || (currentPath.size() > PATH_MAX_SIZE)) {
-        HILOG_ERROR("Traverse temp directory current path invaild");
+        TAG_LOGE(AAFwkTag::APPMGR, "Traverse temp directory current path invaild");
         return;
     }
 
     std::string filePath = currentPath;
     DIR *dir = opendir(filePath.c_str());
     if (dir == nullptr) {
-        HILOG_ERROR("Open dir error. %{public}s", currentPath.c_str());
+        TAG_LOGE(AAFwkTag::APPMGR, "Open dir error. %{public}s", currentPath.c_str());
         return;
     }
     if (filePath.back() != FILE_SEPARATOR_CHAR) {
@@ -195,13 +195,13 @@ void ApplicationCleaner::TraverseObsoleteTempDirectory(
 
 bool ApplicationCleaner::RemoveDir(const std::string &tempPath)
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called");
     if (tempPath.empty()) {
         return false;
     }
     struct stat buf = {};
     if (stat(tempPath.c_str(), &buf) != 0) {
-        HILOG_ERROR("Failed to obtain file properties");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to obtain file properties");
         return false;
     }
 

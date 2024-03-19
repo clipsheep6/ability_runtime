@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +33,7 @@ ApplicationImpl::ApplicationImpl() : curState_(APP_STATE_CREATE), recordId_(0)
 void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &application)
 {
     if (application == nullptr) {
-        HILOG_ERROR("application is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "application is nullptr");
         return;
     }
     this->application_ = application;
@@ -47,14 +47,14 @@ void ApplicationImpl::SetApplication(const std::shared_ptr<OHOSApplication> &app
  */
 bool ApplicationImpl::PerformAppReady()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     application_->CleanUselessTempData();
     if (curState_ == APP_STATE_CREATE && application_ != nullptr) {
         application_->OnStart();
         curState_ = APP_STATE_READY;
         return true;
     }
-    HILOG_ERROR("curState is %{public}d", curState_);
+    TAG_LOGE(AAFwkTag::APPMGR, "curState is %{public}d", curState_);
     return false;
 }
 
@@ -66,13 +66,13 @@ bool ApplicationImpl::PerformAppReady()
  */
 bool ApplicationImpl::PerformForeground()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (((curState_ == APP_STATE_READY) || (curState_ == APP_STATE_BACKGROUND)) && application_ != nullptr) {
         application_->OnForeground();
         curState_ = APP_STATE_FOREGROUND;
         return true;
     }
-    HILOG_ERROR("curState is %{public}d", curState_);
+    TAG_LOGE(AAFwkTag::APPMGR, "curState is %{public}d", curState_);
     return false;
 }
 
@@ -84,13 +84,13 @@ bool ApplicationImpl::PerformForeground()
  */
 bool ApplicationImpl::PerformBackground()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (curState_ == APP_STATE_FOREGROUND && application_ != nullptr) {
         application_->OnBackground();
         curState_ = APP_STATE_BACKGROUND;
         return true;
     }
-    HILOG_ERROR("curState is %{public}d", curState_);
+    TAG_LOGE(AAFwkTag::APPMGR, "curState is %{public}d", curState_);
     return false;
 }
 
@@ -104,9 +104,9 @@ bool ApplicationImpl::PerformBackground()
  */
 bool ApplicationImpl::PerformTerminate(bool isLastProcess)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (application_ == nullptr) {
-        HILOG_ERROR("Application instance is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "Application instance is nullptr");
         return false;
     }
 
@@ -116,7 +116,7 @@ bool ApplicationImpl::PerformTerminate(bool isLastProcess)
         curState_ = APP_STATE_TERMINATED;
         return true;
     }
-    HILOG_ERROR("curState is %{public}d", curState_);
+    TAG_LOGE(AAFwkTag::APPMGR, "curState is %{public}d", curState_);
     return false;
 }
 
@@ -128,9 +128,9 @@ bool ApplicationImpl::PerformTerminate(bool isLastProcess)
  */
 void ApplicationImpl::PerformTerminateStrong()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (application_ == nullptr) {
-        HILOG_ERROR("invalid application_.");
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid application_.");
         return;
     }
     application_->OnTerminate();
@@ -144,7 +144,7 @@ void ApplicationImpl::PerformTerminateStrong()
  */
 void ApplicationImpl::PerformMemoryLevel(int level)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (application_ != nullptr) {
         application_->OnMemoryLevel(level);
     }
@@ -158,7 +158,7 @@ void ApplicationImpl::PerformMemoryLevel(int level)
  */
 void ApplicationImpl::PerformConfigurationUpdated(const Configuration &config)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (application_ != nullptr) {
         application_->OnConfigurationUpdated(config);
     }

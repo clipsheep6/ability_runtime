@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -63,35 +63,35 @@ std::vector<ExtensionPluginItem> ExtensionPluginInfo::GetExtensionPlugins()
 void ExtensionPluginInfo::ParseExtensions(const std::vector<std::string>& extensionFiles)
 {
     if (extensionFiles.empty()) {
-        HILOG_ERROR("no extension files.");
+        TAG_LOGE(AAFwkTag::EXT, "no extension files.");
         return;
     }
 
     for (auto& file : extensionFiles) {
-        HILOG_DEBUG("Begin load extension file:%{public}s", file.c_str());
+        TAG_LOGD(AAFwkTag::EXT, "Begin load extension file:%{public}s", file.c_str());
         std::map<std::string, std::string> params =
             AbilityRuntime::ExtensionModuleLoader::GetLoader(file.c_str()).GetParams();
         if (params.empty()) {
-            HILOG_ERROR("no extension params.");
+            TAG_LOGE(AAFwkTag::EXT, "no extension params.");
             continue;
         }
         // get extension name and type
         std::map<std::string, std::string>::iterator it = params.find(EXTENSION_PARAMS_TYPE);
         if (it == params.end()) {
-            HILOG_ERROR("no extension type.");
+            TAG_LOGE(AAFwkTag::EXT, "no extension type.");
             continue;
         }
         int32_t type = -1;
         try {
             type = static_cast<int32_t>(std::stoi(it->second));
         } catch (...) {
-            HILOG_WARN("stoi(%{public}s) failed", it->second.c_str());
+            TAG_LOGW(AAFwkTag::EXT, "stoi(%{public}s) failed", it->second.c_str());
             continue;
         }
 
         it = params.find(EXTENSION_PARAMS_NAME);
         if (it == params.end()) {
-            HILOG_ERROR("no extension name.");
+            TAG_LOGE(AAFwkTag::EXT, "no extension name.");
             continue;
         }
         std::string extensionName = it->second;
@@ -107,7 +107,8 @@ void ExtensionPluginInfo::ParseExtensions(const std::vector<std::string>& extens
             continue;
         }
         extensionPlugins_.emplace_back(item);
-        HILOG_DEBUG("Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
+        TAG_LOGD(
+            AAFwkTag::EXT, "Success load extension type: %{public}d, name:%{public}s", type, extensionName.c_str());
     }
 }
 
@@ -116,7 +117,7 @@ bool ExtensionPluginInfo::ScanExtensions(std::vector<std::string>& files)
     std::string dirPath = EXTENSION_LIB;
     DIR *dirp = opendir(dirPath.c_str());
     if (dirp == nullptr) {
-        HILOG_ERROR("ExtensionPluginInfo::ScanDir open dir:%{public}s fail", dirPath.c_str());
+        TAG_LOGE(AAFwkTag::EXT, "ExtensionPluginInfo::ScanDir open dir:%{public}s fail", dirPath.c_str());
         return false;
     }
 
@@ -138,25 +139,25 @@ bool ExtensionPluginInfo::ScanExtensions(std::vector<std::string>& files)
     }
 
     if (closedir(dirp) == -1) {
-        HILOG_WARN("close dir fail");
+        TAG_LOGW(AAFwkTag::EXT, "close dir fail");
     }
     return true;
 }
 
 bool ExtensionPluginInfo::CheckFileType(const std::string& fileName, const std::string& extensionName)
 {
-    HILOG_DEBUG("ExtensionPluginInfo::CheckFileType path is %{public}s, support suffix is %{public}s",
+    TAG_LOGD(AAFwkTag::EXT, "ExtensionPluginInfo::CheckFileType path is %{public}s, support suffix is %{public}s",
         fileName.c_str(),
         extensionName.c_str());
 
     if (fileName.empty()) {
-        HILOG_ERROR("the file name is empty.");
+        TAG_LOGE(AAFwkTag::EXT, "the file name is empty.");
         return false;
     }
 
     auto position = fileName.rfind('.');
     if (position == std::string::npos) {
-        HILOG_WARN("filename no extension name.");
+        TAG_LOGW(AAFwkTag::EXT, "filename no extension name.");
         return false;
     }
 

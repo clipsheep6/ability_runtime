@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -94,7 +94,7 @@ int AppfreezeInner::AppfreezeHandle(const FaultData& faultData, bool onlyMainThr
     }
     auto reportFreeze = [faultData, onlyMainThread]() {
         if (faultData.errorObject.name == "") {
-            HILOG_ERROR("name is nullptr, AppfreezeHandle failed.");
+            TAG_LOGE(AAFwkTag::APPDFR, "name is nullptr, AppfreezeHandle failed.");
             return;
         }
         AppExecFwk::AppfreezeInner::GetInstance()->AcquireStack(faultData, onlyMainThread);
@@ -200,12 +200,12 @@ int AppfreezeInner::NotifyANR(const FaultData& faultData)
         faultData.errorObject.name.c_str());
     auto applicationInfo = applicationInfo_.lock();
     if (applicationInfo == nullptr) {
-        HILOG_ERROR("reportEvent fail, applicationInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPDFR, "reportEvent fail, applicationInfo_ is nullptr.");
         return -1;
     }
 
     int32_t pid = static_cast<int32_t>(getpid());
-    HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
+    TAG_LOGI(AAFwkTag::APPDFR, "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s. success",
         faultData.errorObject.name.c_str(), pid, applicationInfo->bundleName.c_str());
 
     int ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);

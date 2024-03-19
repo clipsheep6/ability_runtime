@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,7 @@ OverlayEventSubscriber::OverlayEventSubscriber(const EventFwk::CommonEventSubscr
 
 void OverlayEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
-    HILOG_DEBUG("OnReceiveEvent begin.");
+    TAG_LOGD(AAFwkTag::BASE, "OnReceiveEvent begin.");
     if (callback_ != nullptr) {
         callback_(data);
     }
