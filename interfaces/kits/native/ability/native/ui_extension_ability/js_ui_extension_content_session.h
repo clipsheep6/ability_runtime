@@ -79,6 +79,7 @@ public:
     static napi_value StartAbility(napi_env env, napi_callback_info info);
     static napi_value StartAbilityAsCaller(napi_env env, napi_callback_info info);
     static napi_value GetUIExtensionHostWindowProxy(napi_env env, napi_callback_info info);
+    static napi_value GetUIExtensionWindowProxy(napi_env env, napi_callback_info info);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
     static napi_value TerminateSelf(napi_env env, napi_callback_info info);
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
@@ -94,6 +95,7 @@ protected:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetUIExtensionHostWindowProxy(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetUIExtensionWindowProxy(napi_env env, NapiCallbackInfo& info);
     napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
     napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
