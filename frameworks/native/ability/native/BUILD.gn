@@ -159,13 +159,14 @@ ohos_shared_library("abilitykit_utils") {
 
   public_configs = [ ":abilitykit_utils_public_config" ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_napi",
     "napi:ace_napi",
@@ -257,6 +258,8 @@ ohos_shared_library("abilitykit_native") {
     "${ability_runtime_services_path}/common:event_report",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
@@ -268,7 +271,6 @@ ohos_shared_library("abilitykit_native") {
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
@@ -384,11 +386,12 @@ ohos_shared_library("extensionkit_native") {
     "${ability_runtime_native_path}/ability:ability_context_native",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "napi:ace_napi",
@@ -427,12 +430,13 @@ ohos_shared_library("insight_intent_executor") {
     "${ability_runtime_native_path}/insight_intent/insight_intent_context:insightintentcontext",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -516,6 +520,8 @@ ohos_shared_library("uiabilitykit_native") {
     "${ability_runtime_services_path}/common:event_report",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
@@ -524,7 +530,6 @@ ohos_shared_library("uiabilitykit_native") {
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ets_runtime:libark_jsruntime",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -573,13 +578,14 @@ ohos_shared_library("ability_thread") {
     "${ability_runtime_path}/utils/global/freeze:freeze_util",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -627,11 +633,12 @@ ohos_shared_library("form_extension") {
       "${ability_runtime_native_path}/appkit:app_context",
     ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
     external_deps = [
       "ability_base:want",
       "c_utils:utils",
       "common_event_service:cesfwk_innerkits",
-      "eventhandler:libeventhandler",
       "form_fwk:fmskit_native",
       "form_fwk:form_manager",
       "form_fwk:formutil_napi",
@@ -698,12 +705,13 @@ ohos_shared_library("service_extension") {
     "${ability_runtime_native_path}/insight_intent/insight_intent_context:insightintentcontext",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -754,11 +762,12 @@ ohos_shared_library("continuation_ipc") {
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
     "resource_management:global_resmgr",
@@ -966,13 +975,14 @@ ohos_shared_library("ui_extension") {
     "${ability_runtime_native_path}/appkit:app_context_utils",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:want",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
@@ -1042,10 +1052,11 @@ ohos_shared_library("share_extension") {
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_napi",
@@ -1084,10 +1095,11 @@ ohos_shared_library("action_extension") {
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_napi",
@@ -1141,10 +1153,11 @@ ohos_shared_library("auto_startup_callback") {
 
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -1268,10 +1281,11 @@ ohos_shared_library("embedded_ui_extension") {
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:want",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_napi",
@@ -1355,6 +1369,8 @@ ohos_shared_library("auto_fill_extension") {
     "${ability_runtime_native_path}/appkit:app_context",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_base:base",
     "ability_base:view_data",
@@ -1363,7 +1379,6 @@ ohos_shared_library("auto_fill_extension") {
     "access_token:libtokenid_sdk",
     "ace_engine:ace_uicontent",
     "c_utils:utils",
-    "eventhandler:libeventhandler",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
