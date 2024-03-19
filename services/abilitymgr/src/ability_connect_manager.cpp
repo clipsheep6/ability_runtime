@@ -169,6 +169,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
 
     if (!isLoadedAbility) {
         HILOG_DEBUG("Target service has not been loaded.");
+        targetService->GrantUriPermissionForServiceExtension();
         LoadAbility(targetService);
         if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && isSingleton) {
             HILOG_DEBUG("Start uiextension in singleton mode.");
@@ -189,6 +190,7 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE) && !IsUIExtensionAbility(targetService)) {
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
+        targetService->GrantUriPermissionForServiceExtension();
         CommandAbility(targetService);
     } else if (IsUIExtensionAbility(targetService)) {
         DoForegroundUIExtension(targetService, abilityRequest);

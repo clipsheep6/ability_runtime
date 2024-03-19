@@ -515,6 +515,8 @@ public:
         std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
         uint32_t sceneFlag = 0);
 
+    void GrantUriPermissionForServiceExtension();
+
     void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool needExit = true,
         uint32_t sceneFlag = 0);
     void NotifyAnimationFromTerminatingAbility() const;

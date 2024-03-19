@@ -1595,6 +1595,17 @@ void AbilityRecord::DisconnectAbility()
     isConnected = false;
 }
 
+void AbilityRecord::GrantUriPermissionForServiceExtension()
+{
+    if (abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+        std::lock_guard guard(wantLock_);
+        auto callerTokenId = want_.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
+        auto callerName = want_.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        HILOG_INFO("CallerName is %{public}s, callerTokenId is %{public}u", callerName.c_str(), callerTokenId);
+        GrantUriPermission(want_, applicationInfo_.bundleName, false, callerTokenId);
+    }
+}
+
 void AbilityRecord::CommandAbility()
 {
     HILOG_DEBUG("startId_:%{public}d.", startId_);
@@ -2951,7 +2962,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        HILOG_WARN("Do not call uriPermissionMgr.");
+        HILOG_WARN("Do not call uriPermissionMgr, flag is %{public}i", want.GetFlags());
         return;
     }
     if (IsDmsCall(want)) {
