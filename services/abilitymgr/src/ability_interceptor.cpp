@@ -72,7 +72,8 @@ ErrCode CrowdTestInterceptor::DoProcess(const Want &want, int requestCode, int32
         HILOG_ERROR("Crowdtest expired.");
 #ifdef SUPPORT_GRAPHICS
         if (isForeground) {
-            int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(requestCode, userId, ACTION_MARKET_CROWDTEST));
+            int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(want.GetBundle(), requestCode, userId,
+                ACTION_MARKET_CROWDTEST));
             if (ret != ERR_OK) {
                 HILOG_ERROR("Crowdtest implicit start appgallery failed.");
                 return ret;

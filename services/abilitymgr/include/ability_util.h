@@ -42,7 +42,8 @@ constexpr const char* DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 constexpr const char* DLP_PARAMS_BUNDLE_NAME = "ohos.dlp.params.bundleName";
 constexpr const char* DLP_PARAMS_MODULE_NAME = "ohos.dlp.params.moduleName";
 constexpr const char* DLP_PARAMS_ABILITY_NAME = "ohos.dlp.params.abilityName";
-const std::string MARKET_BUNDLE_NAME = "com.huawei.hmos.appgallery";
+const std::string MARKET_BUNDLE_NAME = "com.huawei.hmsapp.appgallery";
+const std::string MARKET_CROWD_TEST_BUNDLE_PARAM = "crowd_test_bundle_name";
 const std::string BUNDLE_NAME_SELECTOR_DIALOG = "com.ohos.amsdialog";
 const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 // dlp White list
@@ -280,11 +281,22 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     }
 }
 
-inline int StartAppgallery(const int requestCode, const int32_t userId, const std::string &action)
+[[maybe_unused]] static int StartAppgallery(const std::string &bundleName, const int requestCode, const int32_t userId,
+    const std::string &action)
 {
+    std::string appGalleryBundleName;
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    if (bundleMgrHelper == nullptr || !bundleMgrHelper->QueryAppGalleryBundleName(appGalleryBundleName)) {
+        HILOG_ERROR("Get bundle manager helper failed or QueryAppGalleryBundleName failed.");
+        appGalleryBundleName = MARKET_BUNDLE_NAME;
+    }
+
+    HILOG_DEBUG("appGalleryBundleName:%{public}s", appGalleryBundleName.c_str());
+
     Want want;
-    want.SetElementName(MARKET_BUNDLE_NAME, "");
+    want.SetElementName(appGalleryBundleName, "");
     want.SetAction(action);
+    want.SetParam(MARKET_CROWD_TEST_BUNDLE_PARAM, bundleName);
     return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
 }
 }  // namespace AbilityUtil
