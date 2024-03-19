@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,7 @@ constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.A
 } // namespace
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
-    HILOG_DEBUG("Called, result code is %{public}d.", errCode);
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
 
@@ -42,7 +42,7 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
 
 void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 {
-    HILOG_DEBUG("Called, result code is %{public}d.", errCode);
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
 
@@ -53,7 +53,7 @@ void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 
 void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name, const std::string &message)
 {
-    HILOG_DEBUG("Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
         errCode, name.c_str(), message.c_str());
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
@@ -65,9 +65,9 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
 
 void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (wantParams.GetIntParam(WANT_PARAMS_AUTO_FILL_EVENT_KEY, 0) != AutoFill::AUTO_FILL_CANCEL_TIME_OUT) {
-        HILOG_ERROR("Event is invalid.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Event is invalid.");
         return;
     }
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
@@ -132,7 +132,7 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
 void AutoFillExtensionCallback::CloseModalUIExtension()
 {
     if (uiContent_ == nullptr) {
-        HILOG_DEBUG("uiContent_ is nullptr.");
+        TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "uiContent_ is nullptr.");
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);

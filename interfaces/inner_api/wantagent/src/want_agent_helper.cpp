@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,7 +99,7 @@ ErrCode WantAgentHelper::GetWantAgent(
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    HILOG_DEBUG("bundle:%{public}s; ability:%{public}s",
+    TAG_LOGD(AAFwkTag::WANT, "bundle:%{public}s; ability:%{public}s",
         wants[0]->GetElement().GetBundleName().c_str(),
         wants[0]->GetElement().GetAbilityName().c_str());
 
@@ -165,7 +165,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
         wantsInfo.want.SetParams(*paramsInfo.GetExtraInfo());
     }
 
-    HILOG_INFO("bundle:%{public}s; ability:%{public}s",
+    TAG_LOGI(AAFwkTag::WANT, "bundle:%{public}s; ability:%{public}s",
         wantsInfo.want.GetElement().GetBundleName().c_str(),
         wantsInfo.want.GetElement().GetAbilityName().c_str());
 
@@ -198,7 +198,7 @@ WantAgentConstant::OperationType WantAgentHelper::GetType(std::shared_ptr<WantAg
 ErrCode WantAgentHelper::TriggerWantAgent(std::shared_ptr<WantAgent> agent,
     const std::shared_ptr<CompletedCallback> &callback, const TriggerInfo &paramsInfo)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
     if (agent == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::TriggerWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
@@ -215,7 +215,7 @@ ErrCode WantAgentHelper::TriggerWantAgent(std::shared_ptr<WantAgent> agent,
 ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
     WantAgentConstant::OperationType type, const sptr<CompletedDispatcher> &callBack, const TriggerInfo &paramsInfo)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
     if (pendingWant == nullptr) {
         WANT_AGENT_LOGE("WantAgentHelper::Send invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;

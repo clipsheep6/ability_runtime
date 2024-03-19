@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -79,7 +79,7 @@ void ConnectServerManager::LoadConnectServerDebuggerSo()
     if (handlerConnectServerSo_ == nullptr) {
         handlerConnectServerSo_ = dlopen("libconnectserver_debugger.z.so", RTLD_LAZY);
         if (handlerConnectServerSo_ == nullptr) {
-            HILOG_ERROR("ConnectServerManager::StartConnectServer failed to open register library");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::StartConnectServer failed to open register library");
             return;
         }
     }
@@ -87,14 +87,14 @@ void ConnectServerManager::LoadConnectServerDebuggerSo()
 
 void ConnectServerManager::StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract)
 {
-    HILOG_DEBUG("ConnectServerManager::StartConnectServer Start connect server");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::StartConnectServer Start connect server");
     
     LoadConnectServerDebuggerSo();
     bundleName_ = bundleName;
     if (isLocalAbstract) {
         auto startServer = reinterpret_cast<StartServer>(dlsym(handlerConnectServerSo_, "StartServer"));
         if (startServer == nullptr) {
-            HILOG_ERROR("ConnectServerManager::StartServer failed to find symbol 'StartServer'");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::StartServer failed to find symbol 'StartServer'");
             return;
         }
         startServer(bundleName_);
@@ -103,7 +103,8 @@ void ConnectServerManager::StartConnectServer(const std::string& bundleName, int
     auto startServerForSocketPair =
         reinterpret_cast<StartServerForSocketPair>(dlsym(handlerConnectServerSo_, "StartServerForSocketPair"));
     if (startServerForSocketPair == nullptr) {
-        HILOG_ERROR("ConnectServerManager::StartServerForSocketPair failed to find symbol 'StartServer'");
+        TAG_LOGE(
+            AAFwkTag::JSRUNTIME, "ConnectServerManager::StartServerForSocketPair failed to find symbol 'StartServer'");
         return;
     }
     startServerForSocketPair(socketFd);
@@ -111,16 +112,16 @@ void ConnectServerManager::StartConnectServer(const std::string& bundleName, int
 
 void ConnectServerManager::StopConnectServer(bool isCloseSo)
 {
-    HILOG_DEBUG("ConnectServerManager::StopConnectServer Stop connect server");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::StopConnectServer Stop connect server");
     if (handlerConnectServerSo_ == nullptr) {
-        HILOG_ERROR("ConnectServerManager::StopConnectServer handlerConnectServerSo_ is nullptr");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::StopConnectServer handlerConnectServerSo_ is nullptr");
         return;
     }
     auto stopServer = reinterpret_cast<StopServer>(dlsym(handlerConnectServerSo_, "StopServer"));
     if (stopServer != nullptr) {
         stopServer(bundleName_);
     } else {
-        HILOG_ERROR("ConnectServerManager::StopConnectServer failed to find symbol 'StopServer'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::StopConnectServer failed to find symbol 'StopServer'");
     }
     if (isCloseSo) {
         dlclose(handlerConnectServerSo_);
@@ -135,7 +136,8 @@ bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, con
         std::lock_guard<std::mutex> lock(mutex_);
         auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, tid));
         if (!result.second) {
-            HILOG_WARN("ConnectServerManager::StoreInstanceMessage Instance %{public}d already added", instanceId);
+            TAG_LOGW(AAFwkTag::JSRUNTIME,
+                "ConnectServerManager::StoreInstanceMessage Instance %{public}d already added", instanceId);
             return false;
         }
     }
@@ -151,7 +153,7 @@ void ConnectServerManager::StoreDebuggerInfo(int tid, void* vm, const panda::JSN
     }
 
     if (!isConnected_) {
-        HILOG_WARN("ConnectServerManager::StoreDebuggerInfo not Connected");
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "ConnectServerManager::StoreDebuggerInfo not Connected");
         return;
     }
 
@@ -190,7 +192,8 @@ void ConnectServerManager::SetConnectedCallback()
     auto setConnectCallBack = reinterpret_cast<SetConnectCallback>(
         dlsym(handlerConnectServerSo_, "SetConnectCallback"));
     if (setConnectCallBack == nullptr) {
-        HILOG_ERROR("ConnectServerManager::SetConnectedCallback failed to find symbol 'SetConnectCallBack'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME,
+            "ConnectServerManager::SetConnectedCallback failed to find symbol 'SetConnectCallBack'");
         return;
     }
 
@@ -201,19 +204,20 @@ void ConnectServerManager::SetConnectedCallback()
 
 bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
 {
-    HILOG_INFO("ConnectServerManager::SendInstanceMessage Add instance to connect server");
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage Add instance to connect server");
     LoadConnectServerDebuggerSo();
 
     auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
     dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
     if (setSwitchCallBack == nullptr) {
-        HILOG_INFO("ConnectServerManager::SendInstanceMessage failed to find symbol 'setSwitchCallBack'");
+        TAG_LOGI(
+            AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage failed to find symbol 'setSwitchCallBack'");
         return false;
     }
  
     auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
     if (storeMessage == nullptr) {
-        HILOG_ERROR("ConnectServerManager::SendInstanceMessage failed to find symbol 'StoreMessage'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage failed to find symbol 'StoreMessage'");
         return false;
     }
     
@@ -233,23 +237,24 @@ bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::s
         std::lock_guard<std::mutex> lock(mutex_);
         auto result = instanceMap_.try_emplace(instanceId, std::make_pair(instanceName, tid));
         if (!result.second) {
-            HILOG_WARN("ConnectServerManager::AddInstance Instance %{public}d already added", instanceId);
+            TAG_LOGW(
+                AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance Instance %{public}d already added", instanceId);
             return false;
         }
     }
 
     if (!isConnected_) {
-        HILOG_WARN("ConnectServerManager::AddInstance not Connected");
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance not Connected");
         return false;
     }
 
-    HILOG_DEBUG("ConnectServerManager::AddInstance Add instance to connect server");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance Add instance to connect server");
     LoadConnectServerDebuggerSo();
 
     auto setSwitchCallBack = reinterpret_cast<SetSwitchCallBack>(
         dlsym(handlerConnectServerSo_, "SetSwitchCallBack"));
     if (setSwitchCallBack == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'setSwitchCallBack'");
         return false;
     }
     setSwitchCallBack([this](bool status) { setStatus_(status); },
@@ -260,7 +265,7 @@ bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::s
 
     auto storeMessage = reinterpret_cast<StoreMessage>(dlsym(handlerConnectServerSo_, "StoreMessage"));
     if (storeMessage == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'StoreMessage'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'StoreMessage'");
         return false;
     }
     storeMessage(instanceId, message);
@@ -268,7 +273,7 @@ bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::s
     // WaitForConnection() means the connection state of the connect server
     auto sendMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendMessage"));
     if (sendMessage == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'SendMessage'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'SendMessage'");
         return false;
     }
     // if connected, message will be sent immediately.
@@ -278,9 +283,9 @@ bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::s
 
 void ConnectServerManager::RemoveInstance(int32_t instanceId)
 {
-    HILOG_DEBUG("ConnectServerManager::RemoveInstance Remove instance to connect server");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance Remove instance to connect server");
     if (handlerConnectServerSo_ == nullptr) {
-        HILOG_ERROR("ConnectServerManager::RemoveInstance handlerConnectServerSo_ is nullptr");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance handlerConnectServerSo_ is nullptr");
         return;
     }
 
@@ -291,7 +296,8 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = instanceMap_.find(instanceId);
         if (it == instanceMap_.end()) {
-            HILOG_WARN("ConnectServerManager::RemoveInstance Instance %{public}d is not found", instanceId);
+            TAG_LOGW(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance Instance %{public}d is not found",
+                instanceId);
             return;
         }
 
@@ -302,7 +308,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
 
     auto waitForConnection = reinterpret_cast<WaitForConnection>(dlsym(handlerConnectServerSo_, "WaitForConnection"));
     if (waitForConnection == nullptr) {
-        HILOG_ERROR("ConnectServerManager::RemoveInstance failed to find symbol 'WaitForConnection'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance failed to find symbol 'WaitForConnection'");
         return;
     }
 
@@ -311,7 +317,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
 
     auto removeMessage = reinterpret_cast<RemoveMessage>(dlsym(handlerConnectServerSo_, "RemoveMessage"));
     if (removeMessage == nullptr) {
-        HILOG_ERROR("ConnectServerManager::RemoveInstance failed to find symbol 'RemoveMessage'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance failed to find symbol 'RemoveMessage'");
         return;
     }
     removeMessage(instanceId);
@@ -322,7 +328,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
 
     auto sendMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendMessage"));
     if (sendMessage == nullptr) {
-        HILOG_ERROR("ConnectServerManager::RemoveInstance failed to find symbol 'SendMessage'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance failed to find symbol 'SendMessage'");
         return;
     }
     sendMessage(message);
@@ -330,10 +336,10 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
 
 void ConnectServerManager::SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr)
 {
-    HILOG_INFO("ConnectServerManager SendInspector Start");
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager SendInspector Start");
     auto sendLayoutMessage = reinterpret_cast<SendMessage>(dlsym(handlerConnectServerSo_, "SendLayoutMessage"));
     if (sendLayoutMessage == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'sendLayoutMessage'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'sendLayoutMessage'");
         return;
     }
 
@@ -342,7 +348,7 @@ void ConnectServerManager::SendInspector(const std::string& jsonTreeStr, const s
     auto storeInspectorInfo = reinterpret_cast<StoreInspectorInfo>(
         dlsym(handlerConnectServerSo_, "StoreInspectorInfo"));
     if (storeInspectorInfo == nullptr) {
-        HILOG_ERROR("ConnectServerManager::AddInstance failed to find symbol 'StoreInspectorInfo'");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::AddInstance failed to find symbol 'StoreInspectorInfo'");
         return;
     }
     storeInspectorInfo(jsonTreeStr, jsonSnapshotStr);

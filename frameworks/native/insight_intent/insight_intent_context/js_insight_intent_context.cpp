@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,7 @@ constexpr static char CONTEXT_MODULE_NAME[] = "InsightIntentContext";
 
 void JsInsightIntentContext::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::INTENT, "enter");
     std::unique_ptr<JsInsightIntentContext>(static_cast<JsInsightIntentContext*>(data));
 }
 
@@ -41,10 +41,10 @@ napi_value JsInsightIntentContext::StartAbiity(napi_env env, napi_callback_info 
 
 napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (info.argc == 0) {
-        HILOG_ERROR("not enough args");
+        TAG_LOGE(AAFwkTag::INTENT, "not enough args");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
@@ -54,7 +54,7 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
 
     auto context = context_.lock();
     if (context == nullptr) {
-        HILOG_ERROR("invalid context");
+        TAG_LOGE(AAFwkTag::INTENT, "invalid context");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
@@ -62,7 +62,7 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
     // verify if bundleName is empty or invalid
     auto bundleNameFromWant = want.GetElement().GetBundleName();
     if (bundleNameFromWant.empty() || bundleNameFromWant != context->GetBundleName()) {
-        HILOG_ERROR("bundleName is empty or invalid");
+        TAG_LOGE(AAFwkTag::INTENT, "bundleName is empty or invalid");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
         return CreateJsUndefined(env);
     }
@@ -78,7 +78,7 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
     NapiAsyncTask::ExecuteCallback execute = [weak = context_, want, innerErrCode]() {
         auto context = weak.lock();
         if (!context) {
-            HILOG_ERROR("context is released");
+            TAG_LOGE(AAFwkTag::INTENT, "context is released");
             *innerErrCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
             return;
         }
@@ -87,7 +87,7 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
     // create complete task
     NapiAsyncTask::CompleteCallback complete = [innerErrCode](napi_env env, NapiAsyncTask& task, int32_t status) {
         if (*innerErrCode == ERR_OK) {
-            HILOG_DEBUG("StartAbility success.");
+            TAG_LOGD(AAFwkTag::INTENT, "StartAbility success.");
             task.Resolve(env, CreateJsUndefined(env));
         } else {
             task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrCode));
@@ -98,13 +98,13 @@ napi_value JsInsightIntentContext::OnStartAbility(napi_env env, NapiCallbackInfo
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JsInsightIntentContext::OnStartAbility", env,
         CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::INTENT, "end");
     return result;
 }
 
 napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<InsightIntentContext>& context)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     napi_value contextObj;
     napi_create_object(env, &contextObj);
 
@@ -112,7 +112,7 @@ napi_value CreateJsInsightIntentContext(napi_env env, const std::shared_ptr<Insi
     napi_wrap(env, contextObj, jsInsightIntentContext.release(), JsInsightIntentContext::Finalizer, nullptr, nullptr);
 
     BindNativeFunction(env, contextObj, "startAbility", CONTEXT_MODULE_NAME, JsInsightIntentContext::StartAbiity);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::INTENT, "end");
     return contextObj;
 }
 } // namespace AbilityRuntime

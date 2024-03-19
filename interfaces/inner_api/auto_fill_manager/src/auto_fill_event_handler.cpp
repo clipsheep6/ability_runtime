@@ -26,9 +26,9 @@ AutoFillEventHandler::AutoFillEventHandler(const std::shared_ptr<AppExecFwk::Eve
 
 void AutoFillEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (event == nullptr) {
-        HILOG_ERROR("Event is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Event is nullptr.");
         return;
     }
     AutoFillManager::GetInstance().HandleTimeOut(event->GetInnerEventId());
