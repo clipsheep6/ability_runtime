@@ -25,6 +25,8 @@ ohos_unittest("uncaught_exception_callback_test") {
     "//third_party/googletest:gtest_main",
   ]
 
+  public_external_deps = [ "eventhandler:libeventhandler" ]
+
   external_deps = [
     "ability_runtime:js_environment",
     "ability_runtime:runtime",
