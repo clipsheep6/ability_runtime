@@ -252,7 +252,6 @@ const std::string PERMISSIONMGR_ABILITY_NAME = "com.ohos.permissionmanager.Grant
 const std::string IS_CALL_BY_SCB = "isCallBySCB";
 const std::string SPECIFY_TOKEN_ID = "specifyTokenId";
 const std::string PROCESS_SUFFIX = "embeddable";
-const char* PARAM_START_OPTIONS_WITH_PROCESS_OPTION = "persist.sys.abilityms.start_options_with_process_option";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
@@ -2255,7 +2254,7 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
 
 int AbilityManagerService::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
-    bool isEnable = system::GetBoolParameter(PARAM_START_OPTIONS_WITH_PROCESS_OPTION, false);
+    bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         HILOG_ERROR("Capability not support.");
         return ERR_CAPABILITY_NOT_SUPPORT;
@@ -9077,7 +9076,7 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
     }
 
     HILOG_DEBUG("start ability in new process mode.");
-    bool isEnable = system::GetBoolParameter(PARAM_START_OPTIONS_WITH_PROCESS_OPTION, false);
+    bool isEnable = AppUtils::GetInstance().IsStartOptionsWithProcessOptions();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled() || !isEnable) {
         HILOG_ERROR("Not support process options.");
         return ERR_CAPABILITY_NOT_SUPPORT;
@@ -9875,8 +9874,7 @@ int32_t AbilityManagerService::SignRestartAppFlag(int32_t userId, const std::str
 
 bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
-    auto deviceType = OHOS::system::GetDeviceType();
-    if (deviceType != "phone") {
+    if (!AppUtils::GetInstance().IsLaunchEmbededUIAbility()) {
         HILOG_ERROR("device type is not allowd.");
         return false;
     }

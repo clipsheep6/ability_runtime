@@ -32,3 +32,4 @@ persist.sys.abilityms.start_options_with_animation = false
 persist.sys.abilityms.multi_process_model = false
 persist.sys.abilityms.start_options_with_process_option = false
 persist.sys.abilityms.move_ui_ability_to_background_api_enable = true
+persist.sys.abilityms.launch_embeded_ui_ability = false

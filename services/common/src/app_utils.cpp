@@ -39,6 +39,7 @@ const std::string MULTI_PROCESS_MODEL = "persist.sys.abilityms.multi_process_mod
 const std::string START_OPTIONS_WITH_PROCESS_OPTION = "persist.sys.abilityms.start_options_with_process_option";
 const std::string MOVE_UI_ABILITY_TO_BACKGROUND_API_ENABLE =
     "persist.sys.abilityms.move_ui_ability_to_background_api_enable";
+const std::string LAUNCH_EMBEDED_UI_ABILITY = "persist.sys.abilityms.launch_embeded_ui_ability";
 }
 AppUtils::~AppUtils() {}
 
@@ -192,6 +193,16 @@ bool AppUtils::EnableMoveUIAbilityToBackgroundApi()
     }
     HILOG_INFO("enableMoveUIAbilityToBackgroundApi_ is %{public}d", enableMoveUIAbilityToBackgroundApi_.value);
     return enableMoveUIAbilityToBackgroundApi_.value;
+}
+
+bool AppUtils::IsLaunchEmbededUIAbility()
+{
+    if (!isLaunchEmbededUIAbility_.isLoaded) {
+        isLaunchEmbededUIAbility_.value = system::GetBoolParameter(LAUNCH_EMBEDED_UI_ABILITY, false);
+        isLaunchEmbededUIAbility_.isLoaded = true;
+    }
+    HILOG_INFO("isLaunchEmbededUIAbility_ is %{public}d", isLaunchEmbededUIAbility_.value);
+    return isLaunchEmbededUIAbility_.value;
 }
 }  // namespace AAFwk
 }  // namespace OHOS
