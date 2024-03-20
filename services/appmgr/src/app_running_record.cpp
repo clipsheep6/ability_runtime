@@ -757,6 +757,10 @@ void AppRunningRecord::StateChangedNotifyObserver(
         abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
         abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
     }
+    auto applicationInfo = GetApplicationInfo();
+    if (applicationInfo && applicationInfo->bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        abilityStateData.isAtomicService = true;
+    }
 
     if (isAbility && ability->GetAbilityInfo()->type == AbilityType::EXTENSION) {
         HILOG_DEBUG("extension type, not notify any more.");

@@ -63,6 +63,9 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
     if (!parcel.WriteString(callerAbilityName)) {
         return false;
     }
+    if (!parcel.WriteBool(isAtomicService)) {
+        return false;
+    }
     return true;
 }
 
@@ -91,6 +94,7 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
     callerBundleName = parcel.ReadString();
 
     callerAbilityName = parcel.ReadString();
+    isAtomicService = parcel.ReadBool();
     return true;
 }
 
