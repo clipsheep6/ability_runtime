@@ -257,11 +257,6 @@ public:
         return true;
     }
 
-    int SendANRProcessID(int pid) override
-    {
-        return 0;
-    }
-
     int StartUserTest(const Want& want, const sptr<IRemoteObject>& observer) override
     {
         return 0;

@@ -1299,13 +1299,6 @@ ErrCode AbilityManagerClient::SetAbilityController(sptr<AppExecFwk::IAbilityCont
     return abms->SetAbilityController(abilityController, imAStabilityTest);
 }
 
-ErrCode AbilityManagerClient::SendANRProcessID(int pid)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->SendANRProcessID(pid);
-}
-
 void AbilityManagerClient::UpdateMissionSnapShot(sptr<IRemoteObject> token,
     std::shared_ptr<Media::PixelMap> pixelMap)
 {

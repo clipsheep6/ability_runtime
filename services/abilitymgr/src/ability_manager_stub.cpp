@@ -254,8 +254,6 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST)] =
         &AbilityManagerStub::IsRunningInStabilityTestInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID)] =
-        &AbilityManagerStub::SendANRProcessIDInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA)] =
         &AbilityManagerStub::AcquireShareDataInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SHARE_DATA_DONE)] =
@@ -2086,17 +2084,6 @@ int AbilityManagerStub::DoAbilityBackgroundInner(MessageParcel &data, MessagePar
     uint32_t flag = data.ReadUint32();
     auto result = DoAbilityBackground(token, flag);
     reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t pid = data.ReadInt32();
-    int32_t result = SendANRProcessID(pid);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("reply write failed.");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 

@@ -317,32 +317,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, SetAbilityController_001, TestSize.Leve
 
 /*
  * Feature: AbilityManagerService
- * Function: SendANRProcessID
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SendANRProcessID
- */
-HWTEST_F(AbilityManagerServiceFirstTest, SendANRProcessID_001, TestSize.Level1)
-{
-    HILOG_INFO("AbilityManagerServiceFirstTest SendANRProcessID_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    MyFlag::flag_ = 0;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), CHECK_PERMISSION_FAILED);
-
-    MyFlag::flag_ = 1;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), ERR_INVALID_VALUE);
-
-    MyFlag::flag_ = 2;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), ERR_INVALID_VALUE);
-
-    MyFlag::flag_ = 3;
-    EXPECT_EQ(abilityMs_->SendANRProcessID(100), ERR_INVALID_VALUE);
-
-    MyFlag::flag_ = 0;
-    HILOG_INFO("AbilityManagerServiceFirstTest SendANRProcessID_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: CheckStaticCfgPermission
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CheckStaticCfgPermission

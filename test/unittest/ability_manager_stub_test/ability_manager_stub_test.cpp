@@ -1956,22 +1956,6 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DoAbilityBackgroundInner_001
 
 /*
  * Feature: AbilityManagerService
- * Function: SendANRProcessIDInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SendANRProcessIDInner
- * EnvConditions: NA
- * CaseDescription: Verify the function SendANRProcessIDInner is normal flow.
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_SendANRProcessIDInner_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto res = stub_->SendANRProcessIDInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: RegisterObserver
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService RegisterObserver

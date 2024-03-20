@@ -7153,46 +7153,6 @@ int AbilityManagerService::SetAbilityController(const sptr<IAbilityController> &
     return ERR_OK;
 }
 
-int AbilityManagerService::SendANRProcessID(int pid)
-{
-    HILOG_INFO("SendANRProcessID come, pid is %{public}d", pid);
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    auto isShellCall = AAFwk::PermissionVerification::GetInstance()->IsShellCall();
-    if (!isSaCall && !isShellCall) {
-        HILOG_ERROR("%{public}s: Permission verification failed", __func__);
-        return CHECK_PERMISSION_FAILED;
-    }
-
-    AppExecFwk::ApplicationInfo appInfo;
-    bool debug;
-    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
-    if (appScheduler->GetApplicationInfoByProcessID(pid, appInfo, debug) == ERR_OK) {
-        std::lock_guard<ffrt::mutex> guard(globalLock_);
-        auto it = appRecoveryHistory_.find(appInfo.uid);
-        if (it != appRecoveryHistory_.end()) {
-            return ERR_OK;
-        }
-    }
-
-    if (debug) {
-        HILOG_ERROR("SendANRProcessID error, debug mode.");
-        return ERR_INVALID_VALUE;
-    }
-
-    auto sysDialog = DelayedSingleton<SystemDialogScheduler>::GetInstance();
-    if (!sysDialog) {
-        HILOG_ERROR("SystemDialogScheduler is nullptr.");
-        return ERR_INVALID_VALUE;
-    }
-
-    Want want;
-    if (!sysDialog->GetANRDialogWant(GetUserId(), pid, want)) {
-        HILOG_ERROR("GetANRDialogWant failed.");
-        return ERR_INVALID_VALUE;
-    }
-    return StartAbility(want);
-}
-
 bool AbilityManagerService::IsRunningInStabilityTest()
 {
     std::lock_guard<ffrt::mutex> guard(globalLock_);

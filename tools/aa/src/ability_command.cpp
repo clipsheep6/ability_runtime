@@ -146,7 +146,6 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"detach", std::bind(&AbilityManagerShellCommand::RunAsDetachDebugCommand, this)},
 #ifdef ABILITY_COMMAND_FOR_TEST
         {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
-        {"ApplicationNotResponding", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID, this)},
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
@@ -1883,44 +1882,6 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithOption(int32_t 
             result = OHOS::ERR_INVALID_VALUE;
             break;
         }
-    }
-    return result;
-}
-
-ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
-{
-    static sptr<IAbilityManager> abilityMs_;
-    std::string pid = "";
-    int option = -1;
-    ErrCode result = OHOS::ERR_OK;
-    option = getopt_long(argc_, argv_, SHORT_OPTIONS_APPLICATION_NOT_RESPONDING.c_str(),
-        LONG_OPTIONS_ApplicationNotResponding, nullptr);
-    HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
-    if (optind < 0 || optind > argc_) {
-        return OHOS::ERR_INVALID_VALUE;
-    }
-    if (option == -1) {
-        if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
-            HILOG_INFO("'aa %{public}s' %{public}s", HELP_ApplicationNotResponding.c_str(), cmd_.c_str());
-            result = OHOS::ERR_INVALID_VALUE;
-        }
-    } else if (option == '?') {
-        result = RunAsSendAppNotRespondingWithUnknownOption();
-    } else {
-        result = RunAsSendAppNotRespondingWithOption(option, pid);
-    }
-
-    if (result == OHOS::ERR_OK) {
-        HILOG_INFO("'aa pid = %{public}d'.", atoi(pid.c_str()));
-        abilityMs_ = GetAbilityManagerService();
-        if (abilityMs_ == nullptr) {
-            std::cout << "abilityMsObj is nullptr";
-        } else {
-            abilityMs_->SendANRProcessID(atoi(pid.c_str()));
-        }
-    } else {
-        resultReceiver_.append(HELP_ApplicationNotResponding + "\n");
-        result = OHOS::ERR_INVALID_VALUE;
     }
     return result;
 }

@@ -1128,13 +1128,6 @@ public:
 
     bool IsAbilityControllerStartById(int32_t missionId);
 
-    /**
-     * Send not response process ID to ability manager service.
-     * @param pid The not response process ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SendANRProcessID(int pid) override;
-
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.
