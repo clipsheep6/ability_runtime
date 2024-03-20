@@ -48,6 +48,7 @@ ohos_shared_library("insightintentcontext") {
     "napi:ace_napi",
   ]
 
+  innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

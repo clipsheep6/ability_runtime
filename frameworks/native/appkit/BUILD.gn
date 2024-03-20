@@ -464,6 +464,7 @@ ohos_shared_library("application_context_manager") {
 
   public_configs = [ ":application_context_manager_config" ]
 
+  innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

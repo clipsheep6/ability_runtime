@@ -440,6 +440,7 @@ ohos_shared_library("insight_intent_executor") {
     "napi:ace_napi",
   ]
 
+  innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -990,6 +991,7 @@ ohos_shared_library("ui_extension") {
     ]
   }
 
+  innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

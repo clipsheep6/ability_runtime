@@ -102,6 +102,7 @@ ohos_shared_library("task_handler_wrap") {
     "hilog:libhilog",
   ]
 
+  innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
@@ -121,6 +122,7 @@ ohos_shared_library("app_util") {
     external_deps += [ "window_manager:libwsutils" ]
   }
 
+  innerapi_tags = [ "platformsdk_indirect" ]
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }
