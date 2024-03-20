@@ -1258,6 +1258,8 @@ private:
         const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
     void HandleConfigurationChange(const Configuration &config);
+    bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
+    int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
@@ -1288,6 +1290,7 @@ private:
     mutable std::map<int64_t, std::string> killedPorcessMap_;
     std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
     std::vector<std::string> serviceExtensionWhiteList_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

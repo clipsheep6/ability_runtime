@@ -239,6 +239,7 @@ void AppMgrServiceInner::Init()
     ParseServiceExtMultiProcessWhiteList();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
+    dfxTaskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("dfx_freeze_task_queue");
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -4386,12 +4387,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
     std::string bundleName = appRecord->GetBundleName();
 
     if (faultData.faultType == FaultDataType::APP_FREEZE) {
-        if (faultData.timeoutMarkers != "" &&
-            !taskHandler_->CancelTask(faultData.timeoutMarkers)) {
-            return ERR_OK;
-        }
-
-        if (appRecord->IsDebugging()) {
+        if (CheckAppFault(appRecord, faultData)) {
             return ERR_OK;
         }
 
@@ -4415,7 +4411,46 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             "bundleName: %{public}s, faultData.forceExit==%{public}d, faultData.waitSaveState==%{public}d",
             faultData.errorObject.name.c_str(), faultData.faultType,
             callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
+    };
 
+    if (AppExecFwk::AppfreezeManager::GetInstance()->IsProcessDebug(pid, bundleName)) {
+        HILOG_WARN("heap dump, don't reportEvent and kill:%{public}s, pid:%{public}d, bundleName:%{public}s.",
+            faultData.errorObject.name.c_str(), pid, bundleName.c_str());
+        return ERR_OK;
+    }
+
+    if (!dfxTaskHandler_) {
+        HILOG_WARN("get dfx ffrt handler failed!");
+        return ERR_INVALID_VALUE;
+    }
+
+    dfxTaskHandler_->SubmitTask(notifyAppTask, "NotifyAppFaultTask");
+
+    if (appRecord->GetApplicationInfo()->asanEnabled) {
+        HILOG_INFO("FaultData %{public}s, pid == %{public}d is asan app, don't kill.", bundleName.c_str(), pid);
+        return ERR_OK;
+    }
+
+    KillFaultApp(pid, bundleName, faultData);
+
+    return ERR_OK;
+}
+
+bool AppMgrServiceInner::CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData)
+{
+    if (faultData.timeoutMarkers != "" && !taskHandler_->CancelTask(faultData.timeoutMarkers)) {
+        return true;
+    }
+
+    if (appRecord->IsDebugging()) {
+        return true;
+    }
+    return false;
+}
+
+int32_t AppMgrServiceInner::KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData)
+{
+    auto killAppTask = [pid, bundleName, faultData, innerService = shared_from_this()]() {
         if (faultData.forceExit && !faultData.waitSaveState) {
             HILOG_INFO("FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
                 bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
@@ -4423,13 +4458,9 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             return;
         }
     };
-
-    if (AppExecFwk::AppfreezeManager::GetInstance()->IsProcessDebug(pid, bundleName)) {
-        HILOG_WARN("heap dump, don't reportEvent and kill:%{public}s, pid:%{public}d, bundleName:%{public}s.",
-            faultData.errorObject.name.c_str(), pid, bundleName.c_str());
-    } else {
-        taskHandler_->SubmitTask(notifyAppTask, "notifyAppFaultTask");
-    }
+    constexpr int32_t waitTime = 2000;
+    // wait 2s before kill application
+    taskHandler_->SubmitTask(killAppTask, "killAppTask", waitTime);
     return ERR_OK;
 }
 
