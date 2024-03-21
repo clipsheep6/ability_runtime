@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "app_death_recipient.h"
 #include "app_mgr_service_inner.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -26,18 +26,18 @@ const std::string TASK_ON_REMOTE_DIED = "OnRemoteDiedTask";
 void AppDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
-        HILOG_ERROR("remote is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "remote is null");
         return;
     }
 
     auto handler = handler_.lock();
     if (!handler) {
-        HILOG_ERROR("handler is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is null");
         return;
     }
     auto serviceInner = appMgrServiceInner_.lock();
     if (!serviceInner) {
-        HILOG_ERROR("serviceInner is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "serviceInner is null");
         return;
     }
 

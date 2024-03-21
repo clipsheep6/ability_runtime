@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,15 +19,15 @@
 
 #include "app_running_status_proxy.h"
 #include "cpp/mutex.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 int32_t AppRunningStatusModule::RegisterListener(const sptr<AppRunningStatusListenerInterface> &listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (listener == nullptr || listener->AsObject() == nullptr) {
-        HILOG_ERROR("Listener is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Listener is null.");
         return ERR_INVALID_OPERATION;
     }
 
@@ -39,13 +39,13 @@ int32_t AppRunningStatusModule::RegisterListener(const sptr<AppRunningStatusList
         };
     auto itemFind = std::find_if(listeners_.begin(), listeners_.end(), findTask);
     if (itemFind != listeners_.end()) {
-        HILOG_DEBUG("Listener is already exist.");
+        TAG_LOGD(AAFwkTag::APPMGR, "Listener is already exist.");
         return ERR_OK;
     }
 
     sptr<ClientDeathRecipient> deathRecipient = new (std::nothrow) ClientDeathRecipient(shared_from_this());
     if (deathRecipient == nullptr) {
-        HILOG_ERROR("Death recipient is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Death recipient is null.");
         return ERR_NO_MEMORY;
     }
 
@@ -56,9 +56,9 @@ int32_t AppRunningStatusModule::RegisterListener(const sptr<AppRunningStatusList
 
 int32_t AppRunningStatusModule::UnregisterListener(const sptr<AppRunningStatusListenerInterface> &listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (listener == nullptr || listener->AsObject() == nullptr) {
-        HILOG_ERROR("Input param invalid.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Input param invalid.");
         return ERR_INVALID_VALUE;
     }
 
@@ -68,11 +68,11 @@ int32_t AppRunningStatusModule::UnregisterListener(const sptr<AppRunningStatusLi
 void AppRunningStatusModule::NotifyAppRunningStatusEvent(
     const std::string &bundle, int32_t uid, RunningStatus runningStatus)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<std::mutex> lock(listenerMutex_);
     for (const auto &item : listeners_) {
         if (item.first == nullptr) {
-            HILOG_WARN("Invalid listener.");
+            TAG_LOGW(AAFwkTag::APPMGR, "Invalid listener.");
             continue;
         }
 
@@ -87,10 +87,10 @@ AppRunningStatusModule::ClientDeathRecipient::ClientDeathRecipient(const std::we
 
 void AppRunningStatusModule::ClientDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appRunningStatus = weakPtr_.lock();
     if (appRunningStatus == nullptr) {
-        HILOG_ERROR("appRunningStatus is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningStatus is nullptr.");
         return;
     }
     appRunningStatus->RemoveListenerAndDeathRecipient(remote);
@@ -98,10 +98,10 @@ void AppRunningStatusModule::ClientDeathRecipient::OnRemoteDied(const wptr<IRemo
 
 int32_t AppRunningStatusModule::RemoveListenerAndDeathRecipient(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto listener = remote.promote();
     if (listener == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote object is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
@@ -113,7 +113,7 @@ int32_t AppRunningStatusModule::RemoveListenerAndDeathRecipient(const wptr<IRemo
         };
     auto itemFind = std::find_if(listeners_.begin(), listeners_.end(), findTask);
     if (itemFind == listeners_.end()) {
-        HILOG_ERROR("Listener is not exist.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Listener is not exist.");
         return ERR_INVALID_OPERATION;
     }
     auto storedListener = itemFind->first;
@@ -121,7 +121,7 @@ int32_t AppRunningStatusModule::RemoveListenerAndDeathRecipient(const wptr<IRemo
     listeners_.erase(itemFind);
 
     if (storedListener == nullptr || storedListener->AsObject() == nullptr) {
-        HILOG_ERROR("Invalid listener.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid listener.");
         return ERR_INVALID_OPERATION;
     }
 

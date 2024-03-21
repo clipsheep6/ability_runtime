@@ -15,7 +15,7 @@
 
 #include "render_state_observer_manager.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "iremote_object.h"
 
 namespace OHOS {
@@ -35,19 +35,19 @@ void RenderStateObserverManager::Init()
 
 int32_t RenderStateObserverManager::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
 {
-    HILOG_DEBUG("begin.");
+    TAG_LOGD(AAFwkTag::APPMGR, "begin.");
     if (observer == nullptr) {
-        HILOG_ERROR("the observer is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "the observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr.");
         return ERR_INVALID_VALUE;
     }
     auto task = [weak = weak_from_this(), observer]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr.");
             return;
         }
         self->HandleRegisterRenderStateObserver(observer);
@@ -68,34 +68,34 @@ void RenderStateObserverManager::HandleRegisterRenderStateObserver(const sptr<IR
                 }
             });
         if (deathRecipient_ == nullptr) {
-            HILOG_ERROR("New RenderStateObserverManager failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "New RenderStateObserverManager failed.");
         }
     }
 
     auto observerObj = observer->AsObject();
     if (!observerObj || !observerObj->AddDeathRecipient(deathRecipient_)) {
-        HILOG_ERROR("AddDeathRecipient failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AddDeathRecipient failed.");
     }
 
     observerList_.emplace_back(observer);
-    HILOG_DEBUG("observerList_ size:%{public}zu", observerList_.size());
+    TAG_LOGD(AAFwkTag::APPMGR, "observerList_ size:%{public}zu", observerList_.size());
 }
 
 int32_t RenderStateObserverManager::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
 {
-    HILOG_DEBUG("begin.");
+    TAG_LOGD(AAFwkTag::APPMGR, "begin.");
     if (observer == nullptr) {
-        HILOG_ERROR("the observer is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "the observer is nullptr.");
         return ERR_INVALID_VALUE;
     }
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr.");
         return ERR_INVALID_VALUE;
     }
     auto task = [weak = weak_from_this(), observer]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr.");
             return;
         }
         self->HandleUnregisterRenderStateObserver(observer);
@@ -112,22 +112,22 @@ void RenderStateObserverManager::HandleUnregisterRenderStateObserver(const sptr<
     });
     if (it != observerList_.end()) {
         observerList_.erase(it);
-        HILOG_INFO("observerList_ size:%{public}zu", observerList_.size());
+        TAG_LOGI(AAFwkTag::APPMGR, "observerList_ size:%{public}zu", observerList_.size());
         return;
     }
-    HILOG_ERROR("Observer not exist or has been removed.");
+    TAG_LOGE(AAFwkTag::APPMGR, "Observer not exist or has been removed.");
 }
 
 int32_t RenderStateObserverManager::OnRenderStateChanged(pid_t renderPid, int32_t state)
 {
     if (handler_ == nullptr) {
-        HILOG_ERROR("handler is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr.");
         return ERR_INVALID_VALUE;
     }
     auto task = [weak = weak_from_this(), renderPid, state]() {
         auto self = weak.lock();
         if (self == nullptr) {
-            HILOG_ERROR("self is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr.");
             return;
         }
         self->HandleOnRenderStateChanged(renderPid, state);
@@ -148,10 +148,10 @@ void RenderStateObserverManager::HandleOnRenderStateChanged(pid_t renderPid, int
 
 void RenderStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("OnObserverDied begin.");
+    TAG_LOGI(AAFwkTag::APPMGR, "OnObserverDied begin.");
     auto remoteObj = remote.promote();
     if (remoteObj == nullptr) {
-        HILOG_ERROR("observer is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer is nullptr.");
         return;
     }
     remoteObj->RemoveDeathRecipient(deathRecipient_);
@@ -168,7 +168,7 @@ RenderStateObserverRecipient::~RenderStateObserverRecipient()
 
 void RenderStateObserverRecipient::OnRemoteDied(const wptr<IRemoteObject> &__attribute__((unused)) remote)
 {
-    HILOG_ERROR("RenderStateObserverRecipient On remote died.");
+    TAG_LOGE(AAFwkTag::APPMGR, "RenderStateObserverRecipient On remote died.");
     if (handler_) {
         handler_(remote);
     }

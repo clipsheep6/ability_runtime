@@ -21,7 +21,7 @@
 
 #include "appexecfwk_errors.h"
 #include "common_event_support.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "os_account_manager_wrapper.h"
 #include "perf_profile.h"
@@ -51,12 +51,12 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
     const std::shared_ptr<ApplicationInfo> &appInfo, const std::string &processName, const BundleInfo &bundleInfo)
 {
     if (!appInfo) {
-        HILOG_ERROR("param error");
+        TAG_LOGE(AAFwkTag::APPMGR, "param error");
         return nullptr;
     }
 
     if (processName.empty()) {
-        HILOG_ERROR("processName error");
+        TAG_LOGE(AAFwkTag::APPMGR, "processName error");
         return nullptr;
     }
 
@@ -70,7 +70,8 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CreateAppRunningRecord(
     if (!bundleInfo.hapModuleInfos.empty()) {
         isStageBasedModel = bundleInfo.hapModuleInfos.back().isStageBasedModel;
     }
-    HILOG_DEBUG("Create AppRunningRecord, processName: %{public}s, StageBasedModel:%{public}d, recordId: %{public}d",
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "Create AppRunningRecord, processName: %{public}s, StageBasedModel:%{public}d, recordId: %{public}d",
         processName.c_str(), isStageBasedModel, recordId);
 
     appRecord->SetStageModelState(isStageBasedModel);
@@ -86,12 +87,13 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
     const std::string &specifiedProcessFlag)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("appName: %{public}s, processName: %{public}s, uid: %{public}d, specifiedProcessFlag: %{public}s",
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "appName: %{public}s, processName: %{public}s, uid: %{public}d, specifiedProcessFlag: %{public}s",
         appName.c_str(), processName.c_str(), uid, specifiedProcessFlag.c_str());
     std::regex rule("[a-zA-Z.]+[-_#]{1}");
     std::string signCode;
     auto jointUserId = bundleInfo.jointUserId;
-    HILOG_DEBUG("jointUserId : %{public}s", jointUserId.c_str());
+    TAG_LOGD(AAFwkTag::APPMGR, "jointUserId : %{public}s", jointUserId.c_str());
     ClipStringContent(rule, bundleInfo.appId, signCode);
 
     auto FindSameProcess = [signCode, specifiedProcessFlag, processName, jointUserId](const auto &pair) {
@@ -118,10 +120,11 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             appRecord->GetSpecifiedProcessFlag() == specifiedProcessFlag) &&
             !(appRecord->IsTerminating()) && !(appRecord->IsKilling()) && !(appRecord->GetRestartAppFlag())) {
             auto appInfoList = appRecord->GetAppInfoList();
-            HILOG_DEBUG("appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
+            TAG_LOGD(AAFwkTag::APPMGR,
+                "appInfoList: %{public}zu, processName: %{public}s, specifiedProcessFlag: %{public}s",
                 appInfoList.size(), appRecord->GetProcessName().c_str(), specifiedProcessFlag.c_str());
             auto isExist = [&appName, &uid](const std::shared_ptr<ApplicationInfo> &appInfo) {
-                HILOG_DEBUG("appInfo->name: %{public}s", appInfo->name.c_str());
+                TAG_LOGD(AAFwkTag::APPMGR, "appInfo->name: %{public}s", appInfo->name.c_str());
                 return appInfo->name == appName && appInfo->uid == uid;
             };
             auto appInfoIter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
@@ -305,14 +308,14 @@ bool AppRunningManager::ProcessExitByPid(pid_t pid)
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (remote == nullptr) {
-        HILOG_ERROR("remote is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "remote is null");
         return nullptr;
     }
     sptr<IRemoteObject> object = remote.promote();
     if (!object) {
-        HILOG_ERROR("object is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "object is null");
         return nullptr;
     }
     std::lock_guard<ffrt::mutex> guard(lock_);
@@ -324,17 +327,17 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
             return false;
         });
     if (iter == appRunningRecordMap_.end()) {
-        HILOG_ERROR("remote is not exist in the map.");
+        TAG_LOGE(AAFwkTag::APPMGR, "remote is not exist in the map.");
         return nullptr;
     }
     auto appRecord = iter->second;
     if (appRecord != nullptr) {
         appRecord->RemoveAppDeathRecipient();
         appRecord->SetApplicationClient(nullptr);
-        HILOG_INFO("processName: %{public}s.", appRecord->GetProcessName().c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "processName: %{public}s.", appRecord->GetProcessName().c_str());
         auto priorityObject = appRecord->GetPriorityObject();
         if (priorityObject != nullptr) {
-            HILOG_INFO("pid: %{public}d.", priorityObject->GetPid());
+            TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
         }
     }
     appRunningRecordMap_.erase(iter);
@@ -361,16 +364,16 @@ void AppRunningManager::ClearAppRunningRecordMap()
 
 void AppRunningManager::HandleTerminateTimeOut(int64_t eventId)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto abilityRecord = GetAbilityRunningRecord(eventId);
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr.");
         return;
     }
     auto abilityToken = abilityRecord->GetToken();
     auto appRecord = GetTerminatingAppRunningRecord(abilityToken);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return;
     }
     appRecord->AbilityTerminated(abilityToken);
@@ -391,7 +394,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetTerminatingAppRunningRec
 
 std::shared_ptr<AbilityRunningRecord> AppRunningManager::GetAbilityRunningRecord(const int64_t eventId)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (auto &item : appRunningRecordMap_) {
         if (item.second) {
@@ -406,7 +409,7 @@ std::shared_ptr<AbilityRunningRecord> AppRunningManager::GetAbilityRunningRecord
 
 std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecord(const int64_t eventId)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<ffrt::mutex> guard(lock_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
@@ -416,15 +419,15 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecord(const i
 
 void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "token is nullptr.");
         return;
     }
 
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return;
     }
 
@@ -448,13 +451,13 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
 void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
 {
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "token is nullptr.");
         return;
     }
 
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return;
     }
 
@@ -464,7 +467,7 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
     }
 
     if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
-        HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
 }
@@ -474,30 +477,30 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
 {
     auto appRecord = GetAppRunningRecordByAbilityToken(token);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return;
     }
 
     auto killProcess = [appRecord, token, inner = appMgrServiceInner]() {
         if (appRecord == nullptr || token == nullptr || inner == nullptr) {
-            HILOG_ERROR("Pointer parameter error.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Pointer parameter error.");
             return;
         }
         appRecord->RemoveTerminateAbilityTimeoutTask(token);
-        HILOG_DEBUG("The ability is the last, kill application");
+        TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last, kill application");
         auto priorityObject = appRecord->GetPriorityObject();
         if (priorityObject == nullptr) {
-            HILOG_ERROR("priorityObject is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "priorityObject is nullptr.");
             return;
         }
         auto pid = priorityObject->GetPid();
         if (pid < 0) {
-            HILOG_ERROR("Pid error.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Pid error.");
             return;
         }
         auto result = inner->KillProcessByPid(pid);
         if (result < 0) {
-            HILOG_WARN("Kill application directly failed, pid: %{public}d", pid);
+            TAG_LOGW(AAFwkTag::APPMGR, "Kill application directly failed, pid: %{public}d", pid);
         }
         inner->NotifyAppStatus(appRecord->GetBundleName(), CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
         };
@@ -516,7 +519,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     }
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
     if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
-        HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
+        TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {
             appRecord->PostTask("DELAY_KILL_PROCESS", AMSEventHandler::DELAY_KILL_PROCESS_TIMEOUT, killProcess);
@@ -545,7 +548,7 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     std::shared_ptr<AppRunningRecord> appRecord, AppExecFwk::RunningProcessInfo &info) const
 {
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return;
     }
 
@@ -570,7 +573,7 @@ void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
     std::lock_guard<ffrt::mutex> guard(lock_);
     auto appRecord = GetAppRunningRecordByPidInner(pid);
     if (appRecord == nullptr) {
-        HILOG_ERROR("appRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return;
     }
     appRecord->SetAbilityForegroundingFlag();
@@ -590,7 +593,7 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (!appRecord) {
-            HILOG_ERROR("appRecord is nullptr");
+            TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
             return;
         }
         auto state = appRecord->GetState();
@@ -605,24 +608,24 @@ void AppRunningManager::GetForegroundApplications(std::vector<AppStateData> &lis
             appData.extensionType = appRecord->GetExtensionType();
             appData.isFocused = appRecord->GetFocusFlag();
             list.push_back(appData);
-            HILOG_DEBUG("bundleName:%{public}s", appData.bundleName.c_str());
+            TAG_LOGD(AAFwkTag::APPMGR, "bundleName:%{public}s", appData.bundleName.c_str());
         }
     }
 }
 
 void AppRunningManager::HandleAddAbilityStageTimeOut(const int64_t eventId)
 {
-    HILOG_DEBUG("Handle add ability stage timeout.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Handle add ability stage timeout.");
     auto abilityRecord = GetAbilityRunningRecord(eventId);
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr.");
         return;
     }
 
     auto abilityToken = abilityRecord->GetToken();
     auto appRecord = GetTerminatingAppRunningRecord(abilityToken);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return;
     }
 
@@ -631,17 +634,17 @@ void AppRunningManager::HandleAddAbilityStageTimeOut(const int64_t eventId)
 
 void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId)
 {
-    HILOG_DEBUG("Handle receive multi instances timeout.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Handle receive multi instances timeout.");
     auto abilityRecord = GetAbilityRunningRecord(eventId);
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr");
         return;
     }
 
     auto abilityToken = abilityRecord->GetToken();
     auto appRecord = GetTerminatingAppRunningRecord(abilityToken);
     if (!appRecord) {
-        HILOG_ERROR("appRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
         return;
     }
 
@@ -651,16 +654,16 @@ void AppRunningManager::HandleStartSpecifiedAbilityTimeOut(const int64_t eventId
 int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    HILOG_DEBUG("current app size %{public}zu", appRunningRecordMap_.size());
+    TAG_LOGD(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningRecordMap_.size());
     int32_t result = ERR_OK;
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
-            HILOG_DEBUG("app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
+            TAG_LOGD(AAFwkTag::APPMGR, "app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
             continue;
         }
         if (appRecord && !isCollaboratorReserveType(appRecord)) {
-            HILOG_DEBUG("Notification app [%{public}s]", appRecord->GetName().c_str());
+            TAG_LOGD(AAFwkTag::APPMGR, "Notification app [%{public}s]", appRecord->GetName().c_str());
             result = appRecord->UpdateConfiguration(config);
         }
     }
@@ -672,7 +675,7 @@ bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunni
     std::string bundleName = appRecord->GetApplicationInfo()->name;
     bool isReserveType = bundleName == SHELL_ASSISTANT_BUNDLENAME;
     if (isReserveType) {
-        HILOG_INFO("isReserveType app [%{public}s]", appRecord->GetName().c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "isReserveType app [%{public}s]", appRecord->GetName().c_str());
     }
     return isReserveType;
 }
@@ -684,7 +687,7 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
     std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
     SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
     if (appSuspendState.empty()) {
-        HILOG_WARN("Get app state empty");
+        TAG_LOGW(AAFwkTag::APPMGR, "Get app state empty");
     }
     for (auto &[uid, pids] : appSuspendState) {
         for (auto &[pid, isFrozen] : pids) {
@@ -698,12 +701,12 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (!appRecord) {
-            HILOG_ERROR("appRecord null");
+            TAG_LOGE(AAFwkTag::APPMGR, "appRecord null");
             continue;
         }
         auto priorityObject = appRecord->GetPriorityObject();
         if (!priorityObject) {
-            HILOG_WARN("priorityObject null");
+            TAG_LOGW(AAFwkTag::APPMGR, "priorityObject null");
             continue;
         }
         auto pid = priorityObject->GetPid();
@@ -719,18 +722,18 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
     std::shared_ptr<AppRunningRecord> appRecord;
     {
         std::lock_guard<ffrt::mutex> guard(lock_);
-        HILOG_INFO("current app size %{public}zu", appRunningRecordMap_.size());
+        TAG_LOGI(AAFwkTag::APPMGR, "current app size %{public}zu", appRunningRecordMap_.size());
         auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
             auto priorityObject = pair.second->GetPriorityObject();
             return priorityObject && priorityObject->GetPid() == pid;
         });
         if (iter == appRunningRecordMap_.end()) {
-            HILOG_ERROR("No matching application was found.");
+            TAG_LOGE(AAFwkTag::APPMGR, "No matching application was found.");
             return ERR_INVALID_VALUE;
         }
         appRecord = iter->second;
         if (appRecord == nullptr) {
-            HILOG_ERROR("appRecord is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
             return ERR_INVALID_VALUE;
         }
     }
@@ -747,12 +750,12 @@ int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &in
         return priorityObject && priorityObject->GetPid() == pid;
     });
     if (iter == appRunningRecordMap_.end()) {
-        HILOG_ERROR("No matching application was found.");
+        TAG_LOGE(AAFwkTag::APPMGR, "No matching application was found.");
         return ERR_INVALID_VALUE;
     }
     std::shared_ptr<AppRunningRecord> appRecord = iter->second;
     if (appRecord == nullptr) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return ERR_INVALID_VALUE;
     }
     appRecord->ScheduleJsHeapMemory(info);
@@ -781,12 +784,12 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByRender
 std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
-        HILOG_ERROR("remote is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "remote is null");
         return nullptr;
     }
     sptr<IRemoteObject> object = remote.promote();
     if (!object) {
-        HILOG_ERROR("promote failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "promote failed.");
         return nullptr;
     }
 
@@ -826,15 +829,15 @@ std::shared_ptr<RenderRecord> AppRunningManager::OnRemoteRenderDied(const wptr<I
 bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundleName)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("Process of [%{public}s] is running, processName: %{public}s.",
+            TAG_LOGD(AAFwkTag::APPMGR, "Process of [%{public}s] is running, processName: %{public}s.",
                 bundleName.c_str(), appRecord->GetProcessName().c_str());
             if (IPCSkeleton::GetCallingUid() == QUICKFIX_UID && appRecord->GetPriorityObject() != nullptr) {
-                HILOG_INFO("pid: %{public}d.", appRecord->GetPriorityObject()->GetPid());
+                TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", appRecord->GetPriorityObject()->GetPid());
             }
             return true;
         }
@@ -845,13 +848,13 @@ bool AppRunningManager::GetAppRunningStateByBundleName(const std::string &bundle
 int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool loadSucceed = false;
     auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
     if (callbackByRecord == nullptr) {
-        HILOG_ERROR("Failed to create callback record.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to create callback record.");
         return ERR_INVALID_VALUE;
     }
 
@@ -859,7 +862,7 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             auto recordId = appRecord->GetRecordId();
-            HILOG_DEBUG("Notify application [%{public}s] load patch, record id %{public}d.",
+            TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] load patch, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
             result = appRecord->NotifyLoadRepairPatch(bundleName, callbackByRecord, recordId);
@@ -876,13 +879,13 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
 int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool reloadPageSucceed = false;
     auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
     if (callbackByRecord == nullptr) {
-        HILOG_ERROR("Failed to create callback record.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to create callback record.");
         return ERR_INVALID_VALUE;
     }
 
@@ -890,7 +893,7 @@ int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, co
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             auto recordId = appRecord->GetRecordId();
-            HILOG_DEBUG("Notify application [%{public}s] reload page, record id %{public}d.",
+            TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] reload page, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
             result = appRecord->NotifyHotReloadPage(callback, recordId);
@@ -908,13 +911,13 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
     const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t result = ERR_OK;
     bool unLoadSucceed = false;
     auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
     if (callbackByRecord == nullptr) {
-        HILOG_ERROR("Failed to create callback record.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to create callback record.");
         return ERR_INVALID_VALUE;
     }
 
@@ -922,7 +925,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
         const auto &appRecord = item.second;
         if (appRecord && appRecord->GetBundleName() == bundleName) {
             auto recordId = appRecord->GetRecordId();
-            HILOG_DEBUG("Notify application [%{public}s] unload patch, record id %{public}d.",
+            TAG_LOGD(AAFwkTag::APPMGR, "Notify application [%{public}s] unload patch, record id %{public}d.",
                 appRecord->GetProcessName().c_str(), recordId);
             callbackByRecord->AddRecordId(recordId);
             result = appRecord->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
@@ -938,7 +941,7 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
 
 bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     if (AAFwk::UIExtensionUtils::IsUIExtension(foregroundingRecord.GetExtensionType())
         || AAFwk::UIExtensionUtils::IsWindowExtension(foregroundingRecord.GetExtensionType())) {
@@ -962,12 +965,12 @@ bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &for
 
 bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr) {
-            HILOG_ERROR("appRecord is nullptr");
+            TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr");
             return false;
         }
         if (AAFwk::UIExtensionUtils::IsUIExtension(appRecord->GetExtensionType())
@@ -986,11 +989,11 @@ bool AppRunningManager::IsApplicationBackground(const std::string &bundleName)
 void AppRunningManager::OnWindowVisibilityChanged(
     const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::set<int32_t> pids;
     for (const auto &info : windowVisibilityInfos) {
         if (info == nullptr) {
-            HILOG_ERROR("Window visibility info is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Window visibility info is nullptr.");
             continue;
         }
         if (pids.find(info->pid_) != pids.end()) {
@@ -998,10 +1001,10 @@ void AppRunningManager::OnWindowVisibilityChanged(
         }
         auto appRecord = GetAppRunningRecordByPid(info->pid_);
         if (appRecord == nullptr) {
-            HILOG_ERROR("App running record is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "App running record is nullptr.");
             return;
         }
-        HILOG_DEBUG("The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
+        TAG_LOGD(AAFwkTag::APPMGR, "The visibility of %{public}s was changed.", appRecord->GetBundleName().c_str());
         appRecord->OnWindowVisibilityChanged(windowVisibilityInfos);
         pids.emplace(info->pid_);
     }
@@ -1009,7 +1012,7 @@ void AppRunningManager::OnWindowVisibilityChanged(
 
 bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focusedRecord)
 {
-    HILOG_DEBUG("check focus function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "check focus function called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -1025,7 +1028,7 @@ bool AppRunningManager::IsApplicationFirstFocused(const AppRunningRecord &focuse
 
 bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
 {
-    HILOG_DEBUG("check is application unfocused.");
+    TAG_LOGD(AAFwkTag::APPMGR, "check is application unfocused.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -1038,7 +1041,7 @@ bool AppRunningManager::IsApplicationUnfocused(const std::string &bundleName)
 
 void AppRunningManager::SetAttachAppDebug(const std::string &bundleName, const bool &isAttachDebug)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -1046,7 +1049,7 @@ void AppRunningManager::SetAttachAppDebug(const std::string &bundleName, const b
             continue;
         }
         if (appRecord->GetBundleName() == bundleName) {
-            HILOG_DEBUG("The application: %{public}s will be set debug mode.", bundleName.c_str());
+            TAG_LOGD(AAFwkTag::APPMGR, "The application: %{public}s will be set debug mode.", bundleName.c_str());
             appRecord->SetAttachDebug(isAttachDebug);
         }
     }
@@ -1055,7 +1058,7 @@ void AppRunningManager::SetAttachAppDebug(const std::string &bundleName, const b
 std::vector<AppDebugInfo> AppRunningManager::GetAppDebugInfosByBundleName(
     const std::string &bundleName, const bool &isDetachDebug)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     std::vector<AppDebugInfo> debugInfos;
     for (const auto &item : appRunningRecordMap_) {
@@ -1081,7 +1084,7 @@ std::vector<AppDebugInfo> AppRunningManager::GetAppDebugInfosByBundleName(
 void AppRunningManager::GetAbilityTokensByBundleName(
     const std::string &bundleName, std::vector<sptr<IRemoteObject>> &abilityTokens)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
@@ -1110,14 +1113,14 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::GetAppRunningRecordByChildP
 
 std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_ERROR("On child process remote died.");
+    TAG_LOGE(AAFwkTag::APPMGR, "On child process remote died.");
     if (remote == nullptr) {
-        HILOG_ERROR("remote is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "remote is null");
         return nullptr;
     }
     sptr<IRemoteObject> object = remote.promote();
     if (!object) {
-        HILOG_ERROR("promote failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "promote failed.");
         return nullptr;
     }
 
@@ -1155,40 +1158,40 @@ std::shared_ptr<ChildProcessRecord> AppRunningManager::OnChildProcessRemoteDied(
 
 int32_t AppRunningManager::SignRestartAppFlag(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     for (const auto &item : appRunningRecordMap_) {
         const auto &appRecord = item.second;
         if (appRecord == nullptr || appRecord->GetBundleName() != bundleName) {
             continue;
         }
-        HILOG_DEBUG("sign");
+        TAG_LOGD(AAFwkTag::APPMGR, "sign");
         appRecord->SetRestartAppFlag(true);
         return ERR_OK;
     }
-    HILOG_ERROR("Not find apprecord.");
+    TAG_LOGE(AAFwkTag::APPMGR, "Not find apprecord.");
     return ERR_INVALID_VALUE;
 }
 
 int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<ffrt::mutex> guard(lock_);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
         auto priorityObject = pair.second ? pair.second->GetPriorityObject() : nullptr;
         return priorityObject && priorityObject->GetPid() == pid;
     });
     if (iter == appRunningRecordMap_.end()) {
-        HILOG_ERROR("No matching application was found.");
+        TAG_LOGE(AAFwkTag::APPMGR, "No matching application was found.");
         return ERR_INVALID_VALUE;
     }
     std::shared_ptr<AppRunningRecord> appRecord = iter->second;
     if (appRecord == nullptr) {
-        HILOG_ERROR("appRecord is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return ERR_INVALID_VALUE;
     }
     appRunningUniqueId = std::to_string(appRecord->GetRecordId());
-    HILOG_DEBUG("appRunningUniqueId = %{public}s.", appRunningUniqueId.c_str());
+    TAG_LOGD(AAFwkTag::APPMGR, "appRunningUniqueId = %{public}s.", appRunningUniqueId.c_str());
     return ERR_OK;
 }
 }  // namespace AppExecFwk

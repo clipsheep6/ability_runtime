@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "app_mgr_service_event_handler.h"
 
 #include "app_mgr_service_inner.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -24,19 +24,19 @@ AMSEventHandler::AMSEventHandler(const std::shared_ptr<AAFwk::TaskHandlerWrap> &
     const std::weak_ptr<AppMgrServiceInner> &appMgr)
     : AAFwk::EventHandlerWrap(taskHandler), appMgr_(appMgr)
 {
-    HILOG_INFO("instance created");
+    TAG_LOGI(AAFwkTag::APPMGR, "instance created");
 }
 
 AMSEventHandler::~AMSEventHandler()
 {
-    HILOG_INFO("instance destroyed");
+    TAG_LOGI(AAFwkTag::APPMGR, "instance destroyed");
 }
 
 void AMSEventHandler::ProcessEvent(const AAFwk::EventWrap &event)
 {
     auto appManager = appMgr_.lock();
     if (!appManager) {
-        HILOG_ERROR("app manager is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "app manager is nullptr");
         return;
     }
     appManager->HandleTimeOut(event);

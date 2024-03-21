@@ -40,7 +40,7 @@ enum class AAFwkLogTag : uint32_t {
     ABILITY,
     TEST,
     AA_TOOL,
-    SIM,
+    ABILITY_SIM,
 
     APPDFR = DEFAULT + 0x10,    // 0xD001310
     APPMGR,
@@ -64,6 +64,7 @@ enum class AAFwkLogTag : uint32_t {
     ATOMIC_SERVICE,
     ABILITYMGR,
     ECOLOGICAL_RULE,
+    DATA_ABILITY,
 
     EXT = DEFAULT + 0x40,       // 0xD001340
     AUTOFILL_EXT,
@@ -72,17 +73,30 @@ enum class AAFwkLogTag : uint32_t {
     SHARE_EXT,
     UI_EXT,
     ACTION_EXT,
+    EMBEDDED_EXT,
+
+    WANTAGENT = DEFAULT + 0x50, // 0xD001350
+    AUTOFILLMGR,
+    EXTMGR,
+    SER_ROUTER,
+    AUTO_STARTUP,
+    RECOVERY,
+    PROCESSMGR,
+    CONTINUATION,
+    DISTRIBUTED,
+    FREE_INSTALL,
 
     END = 256,               // N.B. never use it
 };
 
 const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
-    { AAFwkLogTag::DEFAULT, "AAFwk" },
-    { AAFwkLogTag::ABILITY, "AAFwkAbility" },
-    { AAFwkLogTag::TEST,    "AAFwkTest" },
-    { AAFwkLogTag::AA_TOOL, "AAFwkAATool" },
-    { AAFwkLogTag::SIM,     "AAFwkSimulator" },
+    { AAFwkLogTag::DEFAULT,     "AAFwk" },
+    { AAFwkLogTag::ABILITY,     "AAFwkAbility" },
+    { AAFwkLogTag::TEST,        "AAFwkTest" },
+    { AAFwkLogTag::AA_TOOL,     "AAFwkAATool" },
+    { AAFwkLogTag::ABILITY_SIM, "AAFwkAbilitySimulator" },
 
+    { AAFwkLogTag::APPDFR,     "AAFwkAppDfr"},
     { AAFwkLogTag::APPMGR,     "AAFwkAppMgr" },
     { AAFwkLogTag::DBOBSMGR,   "AAFwkDbObsMgr" },
     { AAFwkLogTag::DIALOG,     "AAFwkDialog" },
@@ -93,25 +107,44 @@ const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
     { AAFwkLogTag::JSRUNTIME, "AAFwkJsRuntime" },
     { AAFwkLogTag::FA,        "AAFwkFA" },
     { AAFwkLogTag::INTENT,    "AAFwkIntent" },
+    { AAFwkLogTag::JSNAPI,    "AAFwkJsNapi" },
 
-    { AAFwkLogTag::DELEGATOR,  "AAFwkDelegator" },
-    { AAFwkLogTag::CONTEXT,    "AAFwkContext" },
-    { AAFwkLogTag::UIABILITY,  "AAFwkUIAbility" },
-    { AAFwkLogTag::WANT,       "AAFwkWant" },
-    { AAFwkLogTag::MISSION,    "AAFwkMission" },
-    { AAFwkLogTag::ABILITYMGR, "AAFwkAbilityMgr" },
+    { AAFwkLogTag::DELEGATOR,       "AAFwkDelegator" },
+    { AAFwkLogTag::CONTEXT,         "AAFwkContext" },
+    { AAFwkLogTag::UIABILITY,       "AAFwkUIAbility" },
+    { AAFwkLogTag::WANT,            "AAFwkWant" },
+    { AAFwkLogTag::MISSION,         "AAFwkMission" },
+    { AAFwkLogTag::CONNECTION,      "AAFwkConnection" },
+    { AAFwkLogTag::ATOMIC_SERVICE,  "AAFwkAtomicService" },
+    { AAFwkLogTag::ABILITYMGR,      "AAFwkAbilityMgr" },
+    { AAFwkLogTag::ECOLOGICAL_RULE, "AAFwkEcologicalRule" },
+    { AAFwkLogTag::DATA_ABILITY,    "AAFwkDataAbility" },
 
     { AAFwkLogTag::EXT,          "AAFwkExt" },
     { AAFwkLogTag::AUTOFILL_EXT, "AAFwkAutoFillExt" },
     { AAFwkLogTag::SERVICE_EXT,  "AAFwkServiceExt" },
     { AAFwkLogTag::FORM_EXT,     "AAFwkFormExt" },
+    { AAFwkLogTag::SHARE_EXT,    "AAFwkShareExt" },
     { AAFwkLogTag::UI_EXT,       "AAFwkUIExt" },
+    { AAFwkLogTag::ACTION_EXT,   "AAFwkActionExt" },
+    { AAFwkLogTag::EMBEDDED_EXT, "AAFwkEmbeddedExt" },
+
+    { AAFwkLogTag::WANTAGENT,    "AAFwkWantAgent" },
+    { AAFwkLogTag::AUTOFILLMGR,  "AAFwkAutoFillMgr" },
+    { AAFwkLogTag::EXTMGR,       "AAFwkExtMgr" },
+    { AAFwkLogTag::SER_ROUTER,   "AAFwkServiceRouter" },
+    { AAFwkLogTag::AUTO_STARTUP, "AAFwkAutoStartup" },
+    { AAFwkLogTag::RECOVERY,     "AAFwkRecovery" },
+    { AAFwkLogTag::PROCESSMGR,   "AAFwkProcessMgr" },
+    { AAFwkLogTag::CONTINUATION, "AAFwkContinuation" },
+    { AAFwkLogTag::DISTRIBUTED,  "AAFwkDistributed" },
+    { AAFwkLogTag::FREE_INSTALL, "AAFwkFreeInstall" },
 };
 
 static inline const char* GetTagInfoFromDomainId(AAFwkLogTag tag)
 {
     if (DOMAIN_MAP.find(tag) == DOMAIN_MAP.end()) {
-        tag = AAFwkLogTag::BASE;
+        tag = AAFwkLogTag::DEFAULT;
     }
     return DOMAIN_MAP.at(tag);
 }
