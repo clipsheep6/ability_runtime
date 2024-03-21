@@ -1092,5 +1092,19 @@ int32_t AppMgrService::SignRestartAppFlag(const std::string &bundleName)
     }
     return appMgrServiceInner_->SignRestartAppFlag(bundleName);
 }
+
+int32_t AppMgrService::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+{
+    if (!IsReady()) {
+        HILOG_ERROR("Not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        HILOG_ERROR("Not SA call.");
+        return ERR_PERMISSION_DENIED;
+    }
+    return appMgrServiceInner_->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

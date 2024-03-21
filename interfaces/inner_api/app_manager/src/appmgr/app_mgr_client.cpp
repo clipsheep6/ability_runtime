@@ -992,5 +992,15 @@ int32_t AppMgrClient::UpdateRenderState(pid_t renderPid, int32_t state)
     }
     return service->UpdateRenderState(renderPid, state);
 }
+
+int32_t AppMgrClient::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        HILOG_ERROR("Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

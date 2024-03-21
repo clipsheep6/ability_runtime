@@ -5564,5 +5564,15 @@ int32_t AppMgrServiceInner::SignRestartAppFlag(const std::string &bundleName)
     }
     return appRunningManager_->SignRestartAppFlag(bundleName);
 }
+
+int32_t AppMgrServiceInner::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+{
+    HILOG_DEBUG("call.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+    return appRunningManager_->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

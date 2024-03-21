@@ -1307,6 +1307,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
+    applicationContext->SetAppRunningUniqueIdByPid(std::to_string(appLaunchData.GetRecordId()));
     application_->SetApplicationContext(applicationContext);
 
 #ifdef SUPPORT_GRAPHICS

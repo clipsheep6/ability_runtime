@@ -1169,5 +1169,27 @@ int32_t AppRunningManager::SignRestartAppFlag(const std::string &bundleName)
     HILOG_ERROR("Not find apprecord.");
     return ERR_INVALID_VALUE;
 }
+
+int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+{
+    HILOG_DEBUG("Called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {
+        auto priorityObject = pair.second ? pair.second->GetPriorityObject() : nullptr;
+        return priorityObject && priorityObject->GetPid() == pid;
+    });
+    if (iter == appRunningRecordMap_.end()) {
+        HILOG_ERROR("No matching application was found.");
+        return ERR_INVALID_VALUE;
+    }
+    std::shared_ptr<AppRunningRecord> appRecord = iter->second;
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    appRunningUniqueId = std::to_string(appRecord->GetRecordId());
+    HILOG_DEBUG("appRunningUniqueId = %{public}s.", appRunningUniqueId.c_str());
+    return ERR_OK;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

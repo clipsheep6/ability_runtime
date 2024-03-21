@@ -631,6 +631,8 @@ public:
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
 
     int32_t UpdateRenderState(pid_t renderPid, int32_t state);
+
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

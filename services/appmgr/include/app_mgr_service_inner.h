@@ -940,6 +940,7 @@ public:
 
     void SetAppAssertionPauseState(int32_t pid, bool flag);
 
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
