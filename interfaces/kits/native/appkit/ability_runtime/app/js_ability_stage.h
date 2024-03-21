@@ -46,6 +46,8 @@ public:
 
     void OnMemoryLevel(int32_t level) override;
 
+    int32_t RunAutoStartupTask(bool &waitingForStartup) override;
+
 private:
     napi_value CallObjectMethod(const char* name, napi_value const * argv = nullptr, size_t argc = 0);
 
@@ -54,6 +56,10 @@ private:
     std::string GetHapModuleProp(const std::string &propName) const;
 
     static bool UseCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo);
+
+    int32_t RunAutoStartupTaskInner(bool &waitingForStartup);
+
+    int32_t RegisterStartupTaskFromProfile();
 
     JsRuntime& jsRuntime_;
     std::shared_ptr<NativeReference> jsAbilityStageObj_;
