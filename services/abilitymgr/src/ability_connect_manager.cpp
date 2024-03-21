@@ -106,9 +106,16 @@ int AbilityConnectManager::TerminateAbilityInner(const sptr<IRemoteObject> &toke
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
     HILOG_DEBUG("Terminate ability, ability is %{public}s.", element.c_str());
-    if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsConnectListEmpty()) {
-        HILOG_INFO("There exist connection, don't terminate.");
-        return ERR_OK;
+    if (IsUIExtensionAbility(abilityRecord)) {
+        if (!abilityRecord->IsConnectListEmpty()) {
+            HILOG_INFO("There exist connection, don't terminate.");
+            return ERR_OK;
+        } else {
+            HILOG_INFO("current ability is active");
+            DoBackgroundAbilityWindow(abilityRecord, abilityRecord->GetSessionInfo());
+            MoveToTerminatingMap(abilityRecord);
+            return ERR_OK;
+        }
     }
     MoveToTerminatingMap(abilityRecord);
     return TerminateAbilityLocked(token);
@@ -716,9 +723,13 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     std::shared_ptr<AbilityRecord> abilityRecord;
     if (targetState == AbilityState::INACTIVE
-        || targetState == AbilityState::FOREGROUND
-        || targetState == AbilityState::BACKGROUND) {
+        || targetState == AbilityState::FOREGROUND) {
         abilityRecord = GetExtensionFromServiceMapInner(token);
+    } else if (targetState == AbilityState::BACKGROUND) {
+        abilityRecord = GetExtensionFromServiceMapInner(token);
+        if (abilityRecord == nullptr) {
+            abilityRecord = GetExtensionFromTerminatingMapInner(token);
+        }
     } else if (targetState == AbilityState::INITIAL) {
         abilityRecord = GetExtensionFromTerminatingMapInner(token);
     } else {
@@ -726,7 +737,7 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     }
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
     std::string element = abilityRecord->GetURI();
-    HILOG_DEBUG("Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
+    HILOG_INFO("Ability: %{public}s, state: %{public}s", element.c_str(), abilityState.c_str());
 
     switch (targetState) {
         case AbilityState::INACTIVE: {
@@ -2321,12 +2332,13 @@ void AbilityConnectManager::CompleteBackground(const std::shared_ptr<AbilityReco
         HILOG_ERROR("Ability state is %{public}d, it can't complete background.", abilityRecord->GetAbilityState());
         return;
     }
-
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
     // send application state to AppMS.
     // notify AppMS to update application state.
     DelayedSingleton<AppScheduler>::GetInstance()->MoveToBackground(abilityRecord->GetToken());
     CompleteStartServiceReq(abilityRecord->GetURI());
+    // Abilities ahead of the one started were put in terminate list, we need to terminate them.
+    TerminateAbilityLocked(abilityRecord->GetToken());
 }
 
 void AbilityConnectManager::PrintTimeOutLog(const std::shared_ptr<AbilityRecord> &ability, uint32_t msgId)
