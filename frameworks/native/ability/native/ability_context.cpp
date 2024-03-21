@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,7 @@
 #include "accesstoken_kit.h"
 #include "authorization_result.h"
 #include "bundle_constants.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "iservice_registry.h"
 #include "os_account_manager_wrapper.h"
 #include "resource_manager.h"
@@ -47,28 +47,29 @@ const std::string CALLBACK_KEY = "ohos.ability.params.callback";
 
 ErrCode AbilityContext::StartAbility(const AAFwk::Want &want, int requestCode)
 {
-    HILOG_DEBUG("AbilityContext::StartAbility called, requestCode = %{public}d", requestCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "AbilityContext::StartAbility called, requestCode = %{public}d", requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("AbilityContext::StartAbility AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::StartAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, token_, requestCode);
-    HILOG_DEBUG("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
     return err;
 }
 
 ErrCode AbilityContext::StartAbility(const Want &want, int requestCode, const AbilityStartSetting &abilityStartSetting)
 {
-    HILOG_DEBUG("AbilityContext::StartAbility with start setting called, requestCode = %{public}d", requestCode);
+    TAG_LOGD(AAFwkTag::CONTEXT, "AbilityContext::StartAbility with start setting called, requestCode = %{public}d",
+        requestCode);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("AbilityContext::StartAbility AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::StartAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err =
         AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, abilityStartSetting, token_, requestCode);
-    HILOG_DEBUG("%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s. End calling ams->StartAbility. ret=%{public}d", __func__, err);
     return err;
 }
 
@@ -76,43 +77,45 @@ ErrCode AbilityContext::TerminateAbility()
 {
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("AbilityContext::TerminateAbility info == nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::TerminateAbility info == nullptr");
         return ERR_NULL_OBJECT;
     }
 
     ErrCode err = ERR_OK;
     switch (info->type) {
         case AppExecFwk::AbilityType::PAGE:
-            HILOG_DEBUG("Terminate ability begin, type is page, ability is %{public}s.", info->name.c_str());
+            TAG_LOGD(AAFwkTag::CONTEXT, "Terminate ability begin, type is page, ability is %{public}s.",
+                info->name.c_str());
             if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
                 auto sessionToken = GetSessionToken();
                 if (sessionToken == nullptr) {
-                    HILOG_ERROR("sessionToken is nullptr.");
+                    TAG_LOGE(AAFwkTag::CONTEXT, "sessionToken is nullptr.");
                     return ERR_INVALID_VALUE;
                 }
                 sptr<AAFwk::SessionInfo> sessionInfo = new AAFwk::SessionInfo();
                 sessionInfo->want = resultWant_;
                 sessionInfo->resultCode = resultCode_;
-                HILOG_INFO("FA TerminateAbility resultCode is %{public}d", sessionInfo->resultCode);
+                TAG_LOGI(AAFwkTag::CONTEXT, "FA TerminateAbility resultCode is %{public}d", sessionInfo->resultCode);
                 auto ifaceSessionToken = iface_cast<Rosen::ISession>(sessionToken);
                 auto err = ifaceSessionToken->TerminateSession(sessionInfo);
-                HILOG_INFO("FA TerminateAbility. ret=%{public}d", err);
+                TAG_LOGI(AAFwkTag::CONTEXT, "FA TerminateAbility. ret=%{public}d", err);
                 return static_cast<int32_t>(err);
             } else {
                 err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, resultCode_, &resultWant_);
             }
             break;
         case AppExecFwk::AbilityType::SERVICE:
-            HILOG_DEBUG("Terminate ability begin, type is service, ability is %{public}s.", info->name.c_str());
+            TAG_LOGD(AAFwkTag::CONTEXT, "Terminate ability begin, type is service, ability is %{public}s.",
+                info->name.c_str());
             err = AAFwk::AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
             break;
         default:
-            HILOG_ERROR("AbilityContext::TerminateAbility info type error is %{public}d", info->type);
+            TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::TerminateAbility info type error is %{public}d", info->type);
             break;
     }
 
     if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContext::TerminateAbility is failed %{public}d", err);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::TerminateAbility is failed %{public}d", err);
     }
     return err;
 }
@@ -124,10 +127,10 @@ std::string AbilityContext::GetCallingBundle()
 
 std::shared_ptr<ElementName> AbilityContext::GetElementName()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s begin.", __func__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("AbilityContext::GetElementName info == nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::GetElementName info == nullptr");
         return nullptr;
     }
 
@@ -136,19 +139,19 @@ std::shared_ptr<ElementName> AbilityContext::GetElementName()
     elementName->SetBundleName(info->bundleName);
     elementName->SetDeviceID(info->deviceId);
     elementName->SetModuleName(info->moduleName);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end.", __func__);
     return elementName;
 }
 
 std::shared_ptr<ElementName> AbilityContext::GetCallingAbility()
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s begin.", __func__);
     std::shared_ptr<ElementName> elementName = std::make_shared<ElementName>();
     elementName->SetAbilityName(callingAbilityName_);
     elementName->SetBundleName(callingBundleName_);
     elementName->SetDeviceID(callingDeviceId_);
     elementName->SetModuleName(callingModuleName_);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end.", __func__);
     return elementName;
 }
 
@@ -159,24 +162,24 @@ bool AbilityContext::ConnectAbility(const Want &want, const sptr<AAFwk::IAbility
 
     std::shared_ptr<AbilityInfo> abilityInfo = GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("AbilityContext::ConnectAbility info == nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::ConnectAbility info == nullptr");
         return false;
     }
 
-    HILOG_INFO("Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
+    TAG_LOGI(AAFwkTag::CONTEXT, "Connect ability begin, ability:%{public}s.", abilityInfo->name.c_str());
 
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("AbilityContext::ConnectAbility AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::ConnectAbility AbilityType = %{public}d", type);
         return false;
     }
 
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->ConnectAbility(want, conn, token_);
-    HILOG_DEBUG("%{public}s end ConnectAbility, ret=%{public}d", __func__, ret);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end ConnectAbility, ret=%{public}d", __func__, ret);
     bool value = ((ret == ERR_OK) ? true : false);
     if (!value) {
-        HILOG_ERROR("AbilityContext::ConnectAbility ErrorCode = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::ConnectAbility ErrorCode = %{public}d", ret);
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end.", __func__);
     return value;
 }
 
@@ -184,33 +187,34 @@ ErrCode AbilityContext::DisconnectAbility(const sptr<AAFwk::IAbilityConnection> 
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
-    HILOG_INFO("Disconnect ability begin, caller:%{public}s.", info == nullptr ? "" : info->name.c_str());
+    TAG_LOGI(AAFwkTag::CONTEXT, "Disconnect ability begin, caller:%{public}s.",
+        info == nullptr ? "" : info->name.c_str());
 
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("AbilityContext::DisconnectAbility AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::DisconnectAbility AbilityType = %{public}d", type);
         return ERR_INVALID_VALUE;
     }
 
     ErrCode ret = AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(conn);
     if (ret != ERR_OK) {
-        HILOG_ERROR("AbilityContext::DisconnectAbility error, ret=%{public}d.", ret);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::DisconnectAbility error, ret=%{public}d.", ret);
     }
     return ret;
 }
 
 bool AbilityContext::StopAbility(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s begin.", __func__);
     AppExecFwk::AbilityType type = GetAbilityInfoType();
     if (type != AppExecFwk::AbilityType::PAGE && type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("AbilityContext::StopAbility AbilityType = %{public}d", type);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::StopAbility AbilityType = %{public}d", type);
         return false;
     }
 
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->StopServiceAbility(want, token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("AbilityContext::StopAbility is failed %{public}d", err);
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::StopAbility is failed %{public}d", err);
         return false;
     }
 
@@ -226,7 +230,7 @@ AppExecFwk::AbilityType AbilityContext::GetAbilityInfoType()
 {
     std::shared_ptr<AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("AbilityContext::GetAbilityInfoType info == nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::GetAbilityInfoType info == nullptr");
         return AppExecFwk::AbilityType::UNKNOWN;
     }
 
@@ -237,15 +241,15 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
 {
     std::shared_ptr<Context> appContext = GetApplicationContext();
     if (appContext == nullptr) {
-        HILOG_ERROR("AbilityContext::GetResourceManager appContext is nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::GetResourceManager appContext is nullptr");
         return nullptr;
     }
 
-    HILOG_DEBUG("%{public}s begin appContext->GetResourceManager.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s begin appContext->GetResourceManager.", __func__);
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager = appContext->GetResourceManager();
-    HILOG_DEBUG("%{public}s end appContext->GetResourceManager.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end appContext->GetResourceManager.", __func__);
     if (resourceManager == nullptr) {
-        HILOG_ERROR("AbilityContext::GetResourceManager resourceManager is nullptr");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::GetResourceManager resourceManager is nullptr");
         return nullptr;
     }
     return resourceManager;
@@ -253,13 +257,13 @@ std::shared_ptr<Global::Resource::ResourceManager> AbilityContext::GetResourceMa
 
 int AbilityContext::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    HILOG_INFO("%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
+    TAG_LOGI(AAFwkTag::CONTEXT, "%{public}s begin. permission=%{public}s, pid=%{public}d, uid=%{public}d",
         __func__,
         permission.c_str(),
         pid,
         uid);
     ErrCode err = AAFwk::AbilityManagerClient::GetInstance()->VerifyPermission(permission, pid, uid);
-    HILOG_DEBUG("End calling VerifyPermission. ret=%{public}d", err);
+    TAG_LOGD(AAFwkTag::CONTEXT, "End calling VerifyPermission. ret=%{public}d", err);
     if (err != ERR_OK) {
         return AppExecFwk::Constants::PERMISSION_NOT_GRANTED;
     }
@@ -271,18 +275,18 @@ void AbilityContext::GetPermissionDes(const std::string &permissionName, std::st
     Security::AccessToken::PermissionDef permissionDef;
     int32_t ret = Security::AccessToken::AccessTokenKit::GetDefPermission(permissionName, permissionDef);
     if (ret == Security::AccessToken::AccessTokenKitRet::RET_SUCCESS) {
-        HILOG_DEBUG("GetPermissionDes %{public}s: RET_SUCCESS", permissionName.c_str());
+        TAG_LOGD(AAFwkTag::CONTEXT, "GetPermissionDes %{public}s: RET_SUCCESS", permissionName.c_str());
         des = permissionDef.description;
     }
-    HILOG_DEBUG("%{public}s end GetPermissionDef.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end GetPermissionDef.", __func__);
 }
 
 void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permissions,
     std::vector<int> &permissionsState, PermissionRequestTask &&task)
 {
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s begin.", __func__);
     if (permissions.size() == 0) {
-        HILOG_ERROR("AbilityContext::RequestPermissionsFromUser permissions is empty");
+        TAG_LOGE(AAFwkTag::CONTEXT, "AbilityContext::RequestPermissionsFromUser permissions is empty");
         return;
     }
 
@@ -294,7 +298,7 @@ void AbilityContext::RequestPermissionsFromUser(std::vector<std::string> &permis
     sptr<IRemoteObject> remoteObject = new AbilityRuntime::AuthorizationResult(std::move(task));
     want.SetParam(CALLBACK_KEY, remoteObject);
     StartAbility(want, -1);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end.", __func__);
 }
 
 void AbilityContext::SetCallingContext(const std::string &deviceId, const std::string &bundleName,
@@ -311,7 +315,7 @@ void AbilityContext::StartAbilities(const std::vector<AAFwk::Want> &wants)
     for (auto want : wants) {
         StartAbility(want, ABILITY_CONTEXT_DEFAULT_REQUEST_CODE);
     }
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::CONTEXT, "%{public}s end.", __func__);
 }
 
 sptr<IRemoteObject> AbilityContext::GetSessionToken()

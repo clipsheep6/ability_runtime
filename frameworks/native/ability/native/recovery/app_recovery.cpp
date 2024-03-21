@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,7 @@
 #include "context/application_context.h"
 #include "directory_ex.h"
 #include "file_ex.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 #include "js_ui_ability.h"
@@ -73,12 +73,12 @@ static bool BlockMainThreadLocked()
     action.sa_handler = SigQuitHandler;
     action.sa_flags = 0;
     if (sigaction(SIGQUIT, &action, nullptr) != 0) {
-        HILOG_ERROR("AppRecovery Failed to register signal");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Failed to register signal");
         return false;
     }
 
     if (syscall(SYS_tgkill, getpid(), getpid(), SIGQUIT) != 0) {
-        HILOG_ERROR("Failed to send SIGQUIT to main thread, errno(%d).", errno);
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to send SIGQUIT to main thread, errno(%d).", errno);
         return false;
     }
     int left = 1000000; // 1s
@@ -116,12 +116,12 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
     const std::shared_ptr<AbilityInfo>& abilityInfo, const sptr<IRemoteObject>& token)
 {
     if (!isEnable_) {
-        HILOG_ERROR("AppRecovery not enabled.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery not enabled.");
         return false;
     }
 
     if (!abilityRecoverys_.empty() && !abilityInfo->recoverable) {
-        HILOG_ERROR("AppRecovery abilityRecoverys is not empty but ability recoverable is false.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery abilityRecoverys is not empty but ability recoverable is false.");
         return false;
     }
     ability_ = ability;
@@ -136,7 +136,7 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
             AppRecovery::GetInstance().DeleteInValidMissionFiles();
         };
         if (!handler->PostTask(task, "AppRecovery:AddAbility", DELAY_TIME)) {
-            HILOG_ERROR("Failed to DeleteInValidMissionFiles.");
+            TAG_LOGE(AAFwkTag::RECOVERY, "Failed to DeleteInValidMissionFiles.");
         }
     }
     return true;
@@ -145,48 +145,48 @@ bool AppRecovery::AddAbility(std::shared_ptr<AbilityRuntime::UIAbility> ability,
 bool AppRecovery::RemoveAbility(const sptr<IRemoteObject>& tokenId)
 {
     if (!isEnable_) {
-        HILOG_ERROR("AppRecovery not enabled. not removeAbility");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery not enabled. not removeAbility");
         return false;
     }
 
     if (!tokenId) {
-        HILOG_ERROR("AppRecovery removeAbility tokenId is null.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery removeAbility tokenId is null.");
         return false;
     }
-    HILOG_DEBUG("AppRecovery removeAbility start");
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery removeAbility start");
     auto itr = std::find_if(abilityRecoverys_.begin(), abilityRecoverys_.end(),
         [&tokenId](std::shared_ptr<AbilityRecovery> &abilityRecovery) {
         return (abilityRecovery && abilityRecovery->GetToken() == tokenId);
     });
     if (itr != abilityRecoverys_.end()) {
         abilityRecoverys_.erase(itr);
-        HILOG_DEBUG("AppRecovery removeAbility done");
+        TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery removeAbility done");
     }
     return true;
 }
 
 bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 {
-    HILOG_DEBUG("AppRecovery ScheduleSaveAppState begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery ScheduleSaveAppState begin");
     if (!isEnable_) {
-        HILOG_ERROR("AppRecovery ScheduleSaveAppState. is not enabled");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleSaveAppState. is not enabled");
         return false;
     }
 
     if (!ShouldSaveAppState(reason)) {
-        HILOG_ERROR("AppRecovery ts not save ability state");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ts not save ability state");
         return false;
     }
 
     if (reason == StateReason::APP_FREEZE) {
         auto abilityPtr = ability_.lock();
         if (!abilityPtr || !abilityPtr->GetAbilityContext()) {
-            HILOG_ERROR("AppRecovery ScheduleSaveAppState ability or context is nullptr");
+            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleSaveAppState ability or context is nullptr");
             return false;
         }
         std::lock_guard<std::mutex> lock(g_mutex);
         if (!BlockMainThreadLocked()) {
-            HILOG_ERROR("AppRecovery Failed to block main thread, skip save state when appfreeze");
+            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Failed to block main thread, skip save state when appfreeze");
             return false;
         }
         OHOS::AbilityRuntime::JsUIAbility& jsAbility = static_cast<AbilityRuntime::JsUIAbility&>(*abilityPtr);
@@ -199,7 +199,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 
     auto handler = mainHandler_.lock();
     if (handler == nullptr) {
-        HILOG_ERROR("ScheduleSaveAppState. main handler is not exist");
+        TAG_LOGE(AAFwkTag::RECOVERY, "ScheduleSaveAppState. main handler is not exist");
         return false;
     }
 
@@ -207,7 +207,7 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
         AppRecovery::GetInstance().DoSaveAppState(reason, ability);
     };
     if (!handler->PostTask(task, "AppRecovery:SaveAppState")) {
-        HILOG_ERROR("Failed to schedule save app state.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to schedule save app state.");
         return false;
     }
 
@@ -216,9 +216,9 @@ bool AppRecovery::ScheduleSaveAppState(StateReason reason, uintptr_t ability)
 
 void AppRecovery::SetRestartWant(std::shared_ptr<AAFwk::Want> want)
 {
-    HILOG_DEBUG("AppRecovery SetRestartWant begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery SetRestartWant begin");
     if (!isEnable_) {
-        HILOG_ERROR("AppRecovery SetRestartWant not enabled");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery SetRestartWant not enabled");
         return;
     }
     want_ = want;
@@ -227,17 +227,17 @@ void AppRecovery::SetRestartWant(std::shared_ptr<AAFwk::Want> want)
 bool AppRecovery::ScheduleRecoverApp(StateReason reason)
 {
     if (!isEnable_) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp. is not enabled");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp. is not enabled");
         return false;
     }
 
     if (!ShouldRecoverApp(reason)) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp. is not recover app");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp. is not recover app");
         return false;
     }
 
     if (abilityRecoverys_.empty()) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp ability is nullptr");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp ability is nullptr");
         return false;
     }
 
@@ -248,7 +248,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
 
     auto handler = mainHandler_.lock();
     if (handler == nullptr) {
-        HILOG_ERROR("AppRecovery ScheduleRecoverApp main handler is not exist");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery ScheduleRecoverApp main handler is not exist");
         return false;
     }
 
@@ -261,7 +261,7 @@ bool AppRecovery::ScheduleRecoverApp(StateReason reason)
         AppRecovery::GetInstance().DoRecoverApp(reason);
     };
     if (!handler->PostTask(task, "AppRecovery:RecoverApp")) {
-        HILOG_ERROR("Failed to schedule save app state.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "Failed to schedule save app state.");
     }
 
     return true;
@@ -280,9 +280,9 @@ bool AppRecovery::TryRecoverApp(StateReason reason)
 
 void AppRecovery::DoRecoverApp(StateReason reason)
 {
-    HILOG_DEBUG("AppRecovery DoRecoverApp begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DoRecoverApp begin");
     if (abilityRecoverys_.empty()) {
-        HILOG_ERROR("AppRecovery no ability exist! ");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery no ability exist! ");
         return;
     }
     AAFwk::Want *want = nullptr;
@@ -303,15 +303,15 @@ void AppRecovery::DoRecoverApp(StateReason reason)
             break;
         }
     }
-    HILOG_WARN("AppRecovery no foreground ability, not DoRecoverApp!");
+    TAG_LOGW(AAFwkTag::RECOVERY, "AppRecovery no foreground ability, not DoRecoverApp!");
 }
 
 void AppRecovery::DoSaveAppState(StateReason reason, uintptr_t ability)
 {
-    HILOG_DEBUG("AppRecovery DoSaveAppState begin");
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DoSaveAppState begin");
     auto appInfo = applicationInfo_.lock();
     if (appInfo == nullptr || abilityRecoverys_.empty()) {
-        HILOG_ERROR("AppRecovery Application or ability info is not exist.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery Application or ability info is not exist.");
         return;
     }
 
@@ -319,12 +319,12 @@ void AppRecovery::DoSaveAppState(StateReason reason, uintptr_t ability)
     for (auto& abilityRecoveryRecord : abilityRecoverys_) {
         if (!onlySaveTargetAbility) {
             abilityRecoveryRecord->ScheduleSaveAbilityState(reason);
-            HILOG_DEBUG("AppRecovery not onlySaveTargetAbility ScheduleSaveAbilityState");
+            TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery not onlySaveTargetAbility ScheduleSaveAbilityState");
             continue;
         }
         if (abilityRecoveryRecord->IsSameAbility(ability)) {
             abilityRecoveryRecord->ScheduleSaveAbilityState(reason);
-            HILOG_DEBUG("AppRecovery IsSameAbility ScheduleSaveAbilityState");
+            TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery IsSameAbility ScheduleSaveAbilityState");
             break;
         }
     }
@@ -410,35 +410,35 @@ void AppRecovery::DeleteInValidMissionFiles()
     }
 
     std::string fileDir = context->GetFilesDir();
-    HILOG_DEBUG("AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir: %{public}s", fileDir.c_str());
     if (fileDir.empty() || !OHOS::FileExists(fileDir)) {
-        HILOG_DEBUG("AppRecovery DeleteInValidMissionFiles fileDir is empty or fileDir is not exists.");
+        TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles fileDir is empty or fileDir is not exists.");
         return;
     }
     std::vector<int32_t> missionIds;
     std::vector<MissionValidResult> results;
 
     if (!GetMissionIds(fileDir, missionIds)) {
-        HILOG_ERROR("AppRecovery get mssion file id error.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery get mssion file id error.");
         return;
     }
     if (missionIds.empty()) {
-        HILOG_DEBUG("AppRecovery no mission file, no need delete it.");
+        TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery no mission file, no need delete it.");
         return;
     }
     std::shared_ptr<AAFwk::AbilityManagerClient> abilityMgr = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityMgr == nullptr) {
-        HILOG_ERROR("AppRecovery DeleteInValidMissionFiles. abilityMgr client is not exist.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles. abilityMgr client is not exist.");
         return;
     }
     abilityMgr->IsValidMissionIds(missionIds, results);
     if (results.empty()) {
-        HILOG_ERROR("AppRecovery DeleteInValidMissionFiles. results is empty.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery DeleteInValidMissionFiles. results is empty.");
         return;
     }
     for (auto& item : results) {
-        HILOG_INFO("AppRecovery missionResult: missionId: %{public}d, isValid: %{public}d", item.missionId,
-            item.isValid);
+        TAG_LOGI(AAFwkTag::RECOVERY, "AppRecovery missionResult: missionId: %{public}d, isValid: %{public}d",
+            item.missionId, item.isValid);
         if (!item.isValid) {
             DeleteInValidMissionFileById(fileDir, item.missionId);
         }
@@ -451,22 +451,22 @@ void AppRecovery::DeleteInValidMissionFileById(std::string fileDir, int32_t miss
     std::string file = fileDir + "/" + fileName;
     bool ret = OHOS::RemoveFile(file);
     if (!ret) {
-        HILOG_ERROR("AppRecovery delete the file: %{public}s failed", file.c_str());
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s failed", file.c_str());
     }
-    HILOG_DEBUG("AppRecovery delete the file: %{public}s done", file.c_str());
+    TAG_LOGD(AAFwkTag::RECOVERY, "AppRecovery delete the file: %{public}s done", file.c_str());
 }
 
 bool AppRecovery::GetMissionIds(std::string path, std::vector<int32_t> &missionIds)
 {
     DIR *dir = opendir(path.c_str());
     if (dir == nullptr) {
-        HILOG_ERROR("AppRecovery GetMissionIds open dir error.");
+        TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery GetMissionIds open dir error.");
         return false;
     }
     struct dirent *ptr;
     while ((ptr = readdir(dir)) != nullptr) {
         if (ptr == nullptr) {
-            HILOG_ERROR("AppRecovery GetMissionIds read dir error.");
+            TAG_LOGE(AAFwkTag::RECOVERY, "AppRecovery GetMissionIds read dir error.");
             return false;
         }
         if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) {

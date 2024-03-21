@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 #include "ability_impl_factory.h"
 #include "data_ability_impl.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "new_ability_impl.h"
 #ifdef SUPPORT_GRAPHICS
 #include "page_ability_impl.h"
@@ -31,12 +31,13 @@ AbilityImplFactory::~AbilityImplFactory() {}
 std::shared_ptr<AbilityImpl> AbilityImplFactory::MakeAbilityImplObject(const std::shared_ptr<AbilityInfo> &info)
 {
     if (info == nullptr) {
-        HILOG_ERROR("AbilityImplFactory::MakeAbilityImplObject is error nullptr == info ");
+        TAG_LOGE(AAFwkTag::ABILITY, "AbilityImplFactory::MakeAbilityImplObject is error nullptr == info ");
         return nullptr;
     }
 
     std::shared_ptr<AbilityImpl> abilityImpl = nullptr;
-    HILOG_DEBUG("AbilityImplFactory::MakeAbilityImplObject type:%{public}d, isStageBasedModel:%{public}d", info->type,
+    TAG_LOGD(AAFwkTag::ABILITY,
+        "AbilityImplFactory::MakeAbilityImplObject type:%{public}d, isStageBasedModel:%{public}d", info->type,
         info->isStageBasedModel);
     switch (info->type) {
 #ifdef SUPPORT_GRAPHICS
@@ -55,7 +56,7 @@ std::shared_ptr<AbilityImpl> AbilityImplFactory::MakeAbilityImplObject(const std
             abilityImpl = std::make_shared<DataAbilityImpl>();
             break;
         default:
-            HILOG_ERROR("AbilityImplFactory::MakeAbilityImplObject is error");
+            TAG_LOGE(AAFwkTag::ABILITY, "AbilityImplFactory::MakeAbilityImplObject is error");
             break;
     }
 
