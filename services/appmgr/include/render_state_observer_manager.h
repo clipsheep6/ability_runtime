@@ -17,7 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_RENDER_STATE_OBSERVER_MANAGER_H
 
 #include <vector>
-#include "cpp/mutex.h"
+#include "app_running_record.h"
 #include "irender_state_observer.h"
 #include "singleton.h"
 #include "task_handler_wrap.h"
@@ -30,12 +30,12 @@ public:
     void Init();
     int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
-    int32_t OnRenderStateChanged(pid_t renderPid, int32_t state);
+    int32_t OnRenderStateChanged(const std::shared_ptr<RenderRecord> renderRecord, int32_t state);
 private:
     void OnObserverDied(const wptr<IRemoteObject> &remote);
     void HandleRegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
     void HandleUnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
-    void HandleOnRenderStateChanged(pid_t renderPid, int32_t state);
+    void HandleOnRenderStateChanged(const std::shared_ptr<RenderRecord> renderRecord, int32_t state);
 
     sptr<IRemoteObject::DeathRecipient> deathRecipient_;
     std::vector<sptr<IRenderStateObserver>> observerList_;
