@@ -178,6 +178,7 @@ constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewDat
 constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
+const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
@@ -1808,6 +1809,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
                 return result;
             }
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+            (const_cast<Want &>(newWant)).SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
             return systemUIExtension->CreateModalUIExtension(newWant) ?
                 ERR_ECOLOGICAL_CONTROL_STATUS : INNER_ERR;
         }
@@ -2262,7 +2264,7 @@ int AbilityManagerService::RequestModalUIExtensionInner(Want want)
 
     HILOG_DEBUG("Window Modal System Create UIExtension is called!");
     WantParams &parameters = const_cast<WantParams &>(want.GetParams());
-    parameters.SetParam("ability.want.params.modalType", AAFwk::Integer::Box(1));
+    parameters.SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
     want.SetParams(parameters);
     auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
     return connection->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
@@ -9488,6 +9490,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     auto connection = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
     if (callerToken == nullptr) {
         HILOG_DEBUG("create modal ui extension for system");
+        (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
         return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
     auto callerRecord = Token::GetAbilityRecordByToken(callerToken);
@@ -9500,6 +9503,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
     if (ret != ERR_OK || token == nullptr) {
         HILOG_DEBUG("create modal ui extension for system");
+        (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
         return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
     }
 
@@ -9508,6 +9512,7 @@ int AbilityManagerService::CreateModalDialog(const Want &replaceWant, sptr<IRemo
         return callerRecord->CreateModalUIExtension(replaceWant);
     }
     HILOG_DEBUG("create modal ui extension for system");
+    (const_cast<Want &>(replaceWant)).SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
     return connection->CreateModalUIExtension(replaceWant) ? ERR_OK : INNER_ERR;
 }
 
@@ -9633,6 +9638,7 @@ int32_t AbilityManagerService::RequestAssertFaultDialog(
     want.SetParam(ASSERT_FAULT_DETAIL, wantParams.GetStringParam(ASSERT_FAULT_DETAIL));
 
     auto connection = std::make_shared<ModalSystemAssertUIExtension>();
+    want.SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
     if (connection == nullptr || !IN_PROCESS_CALL(connection->CreateModalUIExtension(want))) {
         HILOG_ERROR("Connection is nullptr or create modal ui extension failed.");
         return ERR_INVALID_VALUE;

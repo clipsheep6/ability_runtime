@@ -58,6 +58,7 @@ const std::string INTERCEPT_BUNDLE_NAME = "intercept_bundleName";
 const std::string INTERCEPT_ABILITY_NAME = "intercept_abilityName";
 const std::string INTERCEPT_MODULE_NAME = "intercept_moduleName";
 const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
+const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
 #define RETURN_BY_ISEDM(object)                 \
     if (object) {                               \
@@ -377,6 +378,7 @@ ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
         auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+        (const_cast<Want &>(want)).SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
         return systemUIExtension->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
     } else {
         return abilityRecord->CreateModalUIExtension(want);
