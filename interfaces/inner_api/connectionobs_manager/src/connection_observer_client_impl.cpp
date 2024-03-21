@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,7 @@ namespace AbilityRuntime {
 int32_t ConnectionObserverClientImpl::RegisterObserver(const std::shared_ptr<ConnectionObserver> &observer)
 {
     if (!observer) {
-        HILOG_ERROR("ConnectionObserverClientImpl::RegisterObserver invalid observer.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "ConnectionObserverClientImpl::RegisterObserver invalid observer.");
         return ERR_INVALID_OBSERVER;
     }
 
@@ -34,7 +34,7 @@ int32_t ConnectionObserverClientImpl::RegisterObserver(const std::shared_ptr<Con
 
     std::lock_guard<std::mutex> guard(observerLock_);
     if (!RegisterObserverToServiceLocked(proxy)) {
-        HILOG_ERROR("register to service failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "register to service failed.");
         return ERR_REGISTER_FAILED;
     }
 
@@ -44,7 +44,7 @@ int32_t ConnectionObserverClientImpl::RegisterObserver(const std::shared_ptr<Con
 int32_t ConnectionObserverClientImpl::UnregisterObserver(const std::shared_ptr<ConnectionObserver> &observer)
 {
     if (!observer) {
-        HILOG_ERROR("unregister, observer is invalid.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "unregister, observer is invalid.");
         return ERR_INVALID_OBSERVER;
     }
 
@@ -63,7 +63,7 @@ int32_t ConnectionObserverClientImpl::GetDlpConnectionInfos(std::vector<DlpConne
 {
     auto proxy = GetServiceProxy();
     if (!proxy) {
-        HILOG_ERROR("GetDlpConnectionInfos, observer is invalid.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "GetDlpConnectionInfos, observer is invalid.");
         return ERR_NO_PROXY;
     }
 
@@ -74,7 +74,7 @@ int32_t ConnectionObserverClientImpl::GetConnectionData(std::vector<ConnectionDa
 {
     auto proxy = GetServiceProxy();
     if (!proxy) {
-        HILOG_ERROR("GetConnectionData, observer is invalid.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "GetConnectionData, observer is invalid.");
         return ERR_NO_PROXY;
     }
 
@@ -132,7 +132,7 @@ bool ConnectionObserverClientImpl::RegisterObserverToServiceLocked(const std::sh
     }
 
     if (!proxy) {
-        HILOG_ERROR("fail to get service.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail to get service.");
         return false;
     }
 
@@ -141,7 +141,7 @@ bool ConnectionObserverClientImpl::RegisterObserverToServiceLocked(const std::sh
     }
 
     if (proxy->RegisterObserver(observer_) != ERR_OK) {
-        HILOG_ERROR("register connection observer failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "register connection observer failed.");
         return false;
     }
     isRegistered_ = true;
@@ -159,7 +159,7 @@ void ConnectionObserverClientImpl::UnregisterFromServiceLocked(const std::shared
     }
 
     if (proxy->UnregisterObserver(observer_) != ERR_OK) {
-        HILOG_ERROR("unregister connection observer failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "unregister connection observer failed.");
         return;
     }
     isRegistered_ = false;
@@ -168,7 +168,7 @@ void ConnectionObserverClientImpl::UnregisterFromServiceLocked(const std::shared
 int32_t ConnectionObserverClientImpl::AddObserversLocked(const std::shared_ptr<ConnectionObserver> &observer)
 {
     if (userObservers_.find(observer) != userObservers_.end()) {
-        HILOG_ERROR("observer was already registered.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "observer was already registered.");
         return ERR_OBSERVER_ALREADY_REGISTERED;
     }
     userObservers_.emplace(observer);
@@ -178,7 +178,7 @@ int32_t ConnectionObserverClientImpl::AddObserversLocked(const std::shared_ptr<C
 int32_t ConnectionObserverClientImpl::RemoveObserversLocked(const std::shared_ptr<ConnectionObserver> &observer)
 {
     if (userObservers_.find(observer) == userObservers_.end()) {
-        HILOG_ERROR("unregister no such observer.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "unregister no such observer.");
         return ERR_OBSERVER_NOT_REGISTERED;
     }
     userObservers_.erase(observer);
@@ -201,28 +201,28 @@ void ConnectionObserverClientImpl::ConnectLocked()
     }
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        HILOG_ERROR("Fail to get system ability registry.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Fail to get system ability registry.");
         return;
     }
     sptr<IRemoteObject> remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Fail to connect ability manager service.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Fail to connect ability manager service.");
         return;
     }
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(
         new (std::nothrow) ServiceDeathRecipient(shared_from_this()));
     if (deathRecipient_ == nullptr) {
-        HILOG_ERROR("Failed to create AbilityMgrDeathRecipient!");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Failed to create AbilityMgrDeathRecipient!");
         return;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
-        HILOG_ERROR("Add death recipient to AbilityManagerService failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Add death recipient to AbilityManagerService failed.");
         return;
     }
 
     serviceAdapter_ = std::make_shared<ServiceProxyAdapter>(remoteObj);
-    HILOG_INFO("Connect ability manager service success.");
+    TAG_LOGI(AAFwkTag::CONNECTION, "Connect ability manager service success.");
 }
 
 void ConnectionObserverClientImpl::HandleRemoteDied(const wptr<IRemoteObject> &remote)
@@ -277,10 +277,10 @@ std::unordered_set<std::shared_ptr<ConnectionObserver>> ConnectionObserverClient
 
 void ConnectionObserverClientImpl::ServiceDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_INFO("ServiceDeathRecipient handle remote abilityms died.");
+    TAG_LOGI(AAFwkTag::CONNECTION, "ServiceDeathRecipient handle remote abilityms died.");
     auto owner = owner_.lock();
     if (!owner) {
-        HILOG_ERROR("ServiceDeathRecipient handle remote abilityms died.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "ServiceDeathRecipient handle remote abilityms died.");
         return;
     }
     owner->HandleRemoteDied(remote);

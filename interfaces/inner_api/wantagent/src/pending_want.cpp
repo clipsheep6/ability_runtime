@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -273,7 +273,7 @@ ErrCode PendingWant::Send(int resultCode, const std::shared_ptr<Want> &want,
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
     const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
     int result = SendAndReturnResult(resultCode, want, onCompleted, requiredPermission, options, target);
     if (result != 0) {
         WANT_AGENT_LOGE("PendingWant::SendAndReturnResult failed.");
@@ -286,7 +286,7 @@ int PendingWant::SendAndReturnResult(int resultCode, const std::shared_ptr<Want>
     const sptr<CompletedDispatcher> &onCompleted, const std::string &requiredPermission,
     const std::shared_ptr<WantParams> &options, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
     SenderInfo senderInfo;
     senderInfo.resolvedType = want != nullptr ? want->GetType() : "";
     if (want != nullptr) {
@@ -343,7 +343,7 @@ void PendingWant::CancelReceiver::PerformReceive(const AAFwk::Want &want, int re
 
 void PendingWant::CancelReceiver::Send(const int32_t resultCode)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
 
     if (outerInstance_.lock() != nullptr) {
         outerInstance_.lock()->NotifyCancelListeners(resultCode);
@@ -353,7 +353,7 @@ void PendingWant::CancelReceiver::Send(const int32_t resultCode)
 void PendingWant::RegisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
 
     if (cancelListener == nullptr) {
         WANT_AGENT_LOGE("PendingWant::RegisterCancelListener invalid input param.");
@@ -372,7 +372,7 @@ void PendingWant::RegisterCancelListener(
 
 void PendingWant::NotifyCancelListeners(int32_t resultCode)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
 
     std::vector<std::shared_ptr<CancelListener>> cancelListeners;
     {
@@ -389,7 +389,7 @@ void PendingWant::NotifyCancelListeners(int32_t resultCode)
 void PendingWant::UnregisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const sptr<AAFwk::IWantSender> &target)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANT, "call");
 
     if (cancelListener == nullptr) {
         WANT_AGENT_LOGE("PendingWant::UnregisterCancelListener invalid input param.");

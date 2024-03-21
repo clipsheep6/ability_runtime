@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,39 +28,39 @@ WindowManagerServiceHandlerProxy::WindowManagerServiceHandlerProxy(const sptr<IR
 void WindowManagerServiceHandlerProxy::NotifyWindowTransition(sptr<AbilityTransitionInfo> fromInfo,
     sptr<AbilityTransitionInfo> toInfo, bool& animaEnabled)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
     if (!data.WriteParcelable(fromInfo.GetRefPtr())) {
-        HILOG_ERROR("Write fromInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write fromInfo failed.");
         return;
     }
     if (!data.WriteParcelable(toInfo.GetRefPtr())) {
-        HILOG_ERROR("Write toInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write toInfo failed.");
         return;
     }
     if (!data.WriteBool(animaEnabled)) {
-        HILOG_ERROR("Write animaEnabled failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write animaEnabled failed.");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_NOTIFY_WINDOW_TRANSITION, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
     }
     animaEnabled = reply.ReadBool();
 }
 
 int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& abilityToken)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
@@ -68,91 +68,91 @@ int32_t WindowManagerServiceHandlerProxy::GetFocusWindow(sptr<IRemoteObject>& ab
     MessageOption option;
     int error = SendTransactCmd(WMSCmd::ON_GET_FOCUS_ABILITY, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
         return ERR_AAFWK_PARCEL_FAIL;
     }
     auto ret = reply.ReadInt32();
     if (ret == 0 && reply.ReadBool()) {
         abilityToken = reply.ReadRemoteObject();
     }
-    HILOG_DEBUG("ending");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ending");
     return ret;
 }
 
 void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info,
     std::shared_ptr<Media::PixelMap> pixelMap, uint32_t bgColor)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Failed to write interface token.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write interface token.");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        HILOG_ERROR("Write info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write info failed.");
         return;
     }
     if (!data.WriteParcelable(pixelMap.get())) {
-        HILOG_ERROR("Write pixelMap failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write pixelMap failed.");
         return;
     }
     if (!data.WriteUint32(bgColor)) {
-        HILOG_ERROR("Failed to write bgColor.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write bgColor.");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_COLD_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
     }
 }
 
 void WindowManagerServiceHandlerProxy::StartingWindow(sptr<AbilityTransitionInfo> info,
     std::shared_ptr<Media::PixelMap> pixelMap)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        HILOG_ERROR("Write info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write info failed.");
         return;
     }
     if (!data.WriteParcelable(pixelMap.get())) {
-        HILOG_ERROR("Failed to write pixelMap.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write pixelMap.");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_HOT_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
     }
 }
 
 void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> abilityToken)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
     if (!abilityToken) {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write false.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write false.");
             return;
         }
     } else {
         if (!data.WriteBool(true)) {
-            HILOG_ERROR("Write true failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write true failed.");
             return;
         }
         if (!data.WriteRemoteObject(abilityToken)) {
-            HILOG_ERROR("Write abilityToken failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write abilityToken failed.");
             return;
         }
     }
@@ -160,56 +160,56 @@ void WindowManagerServiceHandlerProxy::CancelStartingWindow(sptr<IRemoteObject> 
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_CANCEL_STARTING_WINDOW, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
     }
 }
 
 void WindowManagerServiceHandlerProxy::NotifyAnimationAbilityDied(sptr<AbilityTransitionInfo> info)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
     if (!data.WriteParcelable(info.GetRefPtr())) {
-        HILOG_ERROR("Failed to write info.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write info.");
         return;
     }
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     int error = SendTransactCmd(WMSCmd::ON_NOTIFY_ANIMATION_ABILITY_DIED, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
     }
 }
 
 int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::vector<int32_t>& missionIds,
     int32_t topMissionId)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
     if (!data.WriteInt32Vector(missionIds)) {
-        HILOG_ERROR("Write missionIds failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write missionIds failed");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
     if (!data.WriteInt32(topMissionId)) {
-        HILOG_ERROR("Failed to write TopMissionId");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write TopMissionId");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
     int error = SendTransactCmd(WMSCmd::ON_MOVE_MISSINONS_TO_FOREGROUND, data, reply, option);
     if (error != ERR_NONE) {
-        HILOG_ERROR("SendoRequest failed, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendoRequest failed, error: %{public}d", error);
         return ERR_AAFWK_PARCEL_FAIL;
     }
     return reply.ReadInt32();
@@ -218,28 +218,28 @@ int32_t WindowManagerServiceHandlerProxy::MoveMissionsToForeground(const std::ve
 int32_t WindowManagerServiceHandlerProxy::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
     std::vector<int32_t>& result)
 {
-    HILOG_DEBUG("%{public}s is called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!data.WriteInterfaceToken(IWindowManagerServiceHandler::GetDescriptor())) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
     if (!data.WriteInt32Vector(missionIds)) {
-        HILOG_ERROR("Write missionIds failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write missionIds failed");
         return ERR_AAFWK_PARCEL_FAIL;
     }
 
     int error = SendTransactCmd(WMSCmd::ON_MOVE_MISSIONS_TO_BACKGROUND, data, reply, option);
     if (error != ERR_NONE) {
-        HILOG_ERROR("SendoRequest failed, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendoRequest failed, error: %{public}d", error);
         return ERR_AAFWK_PARCEL_FAIL;
     }
     if (!reply.ReadInt32Vector(&result)) {
-        HILOG_ERROR("Read hide result failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Read hide result failed");
         return ERR_AAFWK_PARCEL_FAIL;
     };
     return reply.ReadInt32();
@@ -250,13 +250,13 @@ int32_t WindowManagerServiceHandlerProxy::SendTransactCmd(uint32_t code, Message
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != ERR_OK) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return ERR_OK;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +36,7 @@ int ConnectionObserverStub::OnRemoteRequest(
     std::u16string descriptor = ConnectionObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("ConnectionObserverStub Local descriptor is not equal to remote.");
+        TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverStub Local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -52,7 +52,7 @@ int ConnectionObserverStub::OnExtensionConnectedInner(MessageParcel &data, Messa
 {
     std::unique_ptr<ConnectionData> connectionData(data.ReadParcelable<ConnectionData>());
     if (!connectionData) {
-        HILOG_ERROR("OnExensionConnected ReadParcelable<ConnectionData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnExensionConnected ReadParcelable<ConnectionData> failed");
         return ERR_INVALID_VALUE;
     }
 
@@ -64,7 +64,7 @@ int ConnectionObserverStub::OnExtensionDisconnectedInner(MessageParcel &data, Me
 {
     std::unique_ptr<ConnectionData> connectionData(data.ReadParcelable<ConnectionData>());
     if (!connectionData) {
-        HILOG_ERROR("OnExtensionDisconnected ReadParcelable<ConnectionData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnExtensionDisconnected ReadParcelable<ConnectionData> failed");
         return ERR_INVALID_VALUE;
     }
 
@@ -76,7 +76,7 @@ int ConnectionObserverStub::OnDlpAbilityOpenedInner(MessageParcel &data, Message
 {
     std::unique_ptr<DlpStateData> dlpData(data.ReadParcelable<DlpStateData>());
     if (!dlpData) {
-        HILOG_ERROR("OnDlpAbilityOpened ReadParcelable<DlpStateData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityOpened ReadParcelable<DlpStateData> failed");
         return ERR_INVALID_VALUE;
     }
 
@@ -88,7 +88,7 @@ int ConnectionObserverStub::OnDlpAbilityClosedInner(MessageParcel &data, Message
 {
     std::unique_ptr<DlpStateData> dlpData(data.ReadParcelable<DlpStateData>());
     if (!dlpData) {
-        HILOG_ERROR("OnDlpAbilityClosed ReadParcelable<DlpStateData> failed");
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityClosed ReadParcelable<DlpStateData> failed");
         return ERR_INVALID_VALUE;
     }
 

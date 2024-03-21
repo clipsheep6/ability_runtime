@@ -40,7 +40,7 @@ AutoFillManager &AutoFillManager::GetInstance()
 
 AutoFillManager::~AutoFillManager()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (eventHandler_ != nullptr) {
         eventHandler_.reset();
     }
@@ -52,9 +52,9 @@ int32_t AutoFillManager::RequestAutoFill(
     const AbilityBase::ViewData &viewdata,
     const std::shared_ptr<IFillRequestCallback> &fillCallback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (uiContent == nullptr || fillCallback == nullptr) {
-        HILOG_ERROR("UIContent or fillCallback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIContent or fillCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
     return HandleRequestExecuteInner(autoFillType, uiContent, viewdata, fillCallback, nullptr);
@@ -65,9 +65,9 @@ int32_t AutoFillManager::RequestAutoSave(
     const AbilityBase::ViewData &viewdata,
     const std::shared_ptr<ISaveRequestCallback> &saveCallback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (uiContent == nullptr || saveCallback == nullptr) {
-        HILOG_ERROR("UIContent or save callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIContent or save callback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
     return HandleRequestExecuteInner(
@@ -82,7 +82,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     const std::shared_ptr<ISaveRequestCallback> &saveCallback)
 {
     if (uiContent == nullptr || (fillCallback == nullptr && saveCallback == nullptr)) {
-        HILOG_ERROR("UIContent or fillCallback&saveCallback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIContent or fillCallback&saveCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
     {
@@ -115,7 +115,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     config.isAsyncModalBinding = true;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
-        HILOG_ERROR("Create modal ui extension is failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Create modal ui extension is failed.");
         RemoveEvent(eventId_);
         return AutoFill::AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED;
     }
@@ -129,10 +129,10 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
 
 void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     auto runner = AppExecFwk::EventRunner::Create(AUTO_FILL_MANAGER_THREAD);
     if (eventHandler_ == nullptr) {
-        HILOG_DEBUG("Eventhandler is nullptr.");
+        TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Eventhandler is nullptr.");
         eventHandler_ = std::make_shared<AutoFillEventHandler>(runner);
     }
     eventHandler_->SendEvent(eventId, AUTO_FILL_REQUEST_TIME_OUT_VALUE);
@@ -140,9 +140,9 @@ void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 
 void AutoFillManager::RemoveEvent(uint32_t eventId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (eventHandler_ == nullptr) {
-        HILOG_ERROR("Eventhandler is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Eventhandler is nullptr.");
         return;
     }
     eventHandler_->RemoveEvent(eventId);
@@ -156,16 +156,16 @@ void AutoFillManager::RemoveEvent(uint32_t eventId)
 
 void AutoFillManager::HandleTimeOut(uint32_t eventId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     std::lock_guard<std::mutex> lock(mutexLock_);
     auto ret = extensionCallbacks_.find(eventId);
     if (ret == extensionCallbacks_.end()) {
-        HILOG_WARN("Event id is not find.");
+        TAG_LOGW(AAFwkTag::AUTOFILL_EXT, "Event id is not find.");
         return;
     }
     auto extensionCallback = ret->second.lock();
     if (extensionCallback == nullptr) {
-        HILOG_ERROR("Extension callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Extension callback is nullptr.");
         return;
     }
     extensionCallback->HandleTimeOut();

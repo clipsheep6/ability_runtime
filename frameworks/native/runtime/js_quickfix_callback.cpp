@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,10 +29,10 @@ namespace {
 bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patchFileName,
                                     void **patchBuffer, size_t &patchSize)
 {
-    HILOG_DEBUG("baseFileName: %{private}s", baseFileName.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "baseFileName: %{private}s", baseFileName.c_str());
     auto position = baseFileName.find(".abc");
     if (position == std::string::npos) {
-        HILOG_ERROR("invalid baseFileName!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "invalid baseFileName!");
         return false;
     }
     int baseFileNameLen = static_cast<int>(baseFileName.length());
@@ -40,11 +40,11 @@ bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patch
     int suffixLen = strlen(MERGE_ABC_PATH);
     int moduleLen = baseFileNameLen - prefixLen - suffixLen;
     if (moduleLen < 0) {
-        HILOG_ERROR("invalid baseFileName!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "invalid baseFileName!");
         return false;
     }
     std::string moduleName = baseFileName.substr(prefixLen, moduleLen);
-    HILOG_DEBUG("moduleName: %{private}s", moduleName.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "moduleName: %{private}s", moduleName.c_str());
 
     auto it = moduleAndHqfPath_.find(moduleName);
     if (it == moduleAndHqfPath_.end()) {
@@ -53,14 +53,15 @@ bool JsQuickfixCallback::operator()(std::string baseFileName, std::string &patch
 
     std::string hqfFile = it->second;
     std::string resolvedHqfFile(AbilityBase::GetLoadPath(hqfFile));
-    HILOG_DEBUG("hqfFile: %{private}s, resolvedHqfFile: %{private}s", hqfFile.c_str(), resolvedHqfFile.c_str());
-    
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "hqfFile: %{private}s, resolvedHqfFile: %{private}s", hqfFile.c_str(),
+        resolvedHqfFile.c_str());
+
     if (!JsRuntime::GetFileBuffer(resolvedHqfFile, patchFileName, newpatchBuffer_)) {
-        HILOG_ERROR("GetFileBuffer failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetFileBuffer failed");
         return false;
     }
     *patchBuffer = newpatchBuffer_.data();
-    HILOG_DEBUG("patchFileName: %{private}s", patchFileName.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "patchFileName: %{private}s", patchFileName.c_str());
     patchSize = newpatchBuffer_.size();
     return true;
 }

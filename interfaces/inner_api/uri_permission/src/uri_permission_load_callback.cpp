@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,27 +24,27 @@ void UriPermissionLoadCallback::OnLoadSystemAbilitySuccess(
     int32_t systemAbilityId, const sptr<IRemoteObject> &remoteObject)
 {
     if (systemAbilityId != URI_PERMISSION_MGR_SERVICE_ID) {
-        HILOG_ERROR("System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "System ability id %{public}d mismatch.", systemAbilityId);
         return;
     }
 
     if (remoteObject == nullptr) {
-        HILOG_ERROR("Object is nullptr.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Object is nullptr.");
         return;
     }
 
-    HILOG_DEBUG("Load system ability %{public}d succeed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Load system ability %{public}d succeed.", systemAbilityId);
     UriPermissionManagerClient::GetInstance().OnLoadSystemAbilitySuccess(remoteObject);
 }
 
 void UriPermissionLoadCallback::OnLoadSystemAbilityFail(int32_t systemAbilityId)
 {
     if (systemAbilityId != URI_PERMISSION_MGR_SERVICE_ID) {
-        HILOG_ERROR("System ability id %{public}d mismatch.", systemAbilityId);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "System ability id %{public}d mismatch.", systemAbilityId);
         return;
     }
 
-    HILOG_DEBUG("Load system ability %{public}d failed.", systemAbilityId);
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Load system ability %{public}d failed.", systemAbilityId);
     UriPermissionManagerClient::GetInstance().OnLoadSystemAbilityFail();
 }
 }  // namespace AAFwk
