@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 #include "extension_ability_thread.h"
 #include "fa_ability_thread.h"
 #include "ui_ability_thread.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 
 namespace OHOS {
@@ -31,14 +31,14 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityRecord is nullptr");
         return;
     }
     std::shared_ptr<AbilityInfo> abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo is nullptr");
         return;
     }
 
@@ -51,11 +51,11 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
         thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     }
     if (thread == nullptr) {
-        HILOG_ERROR("thread is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "thread is nullptr");
         return;
     }
     thread->Attach(application, abilityRecord, mainRunner, stageContext);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &application,
@@ -63,15 +63,15 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
     const std::shared_ptr<AbilityRuntime::Context> &stageContext)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityRecord is nullptr");
         return;
     }
 
     std::shared_ptr<AbilityInfo> abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo is nullptr");
         return;
     }
 
@@ -84,214 +84,214 @@ void AbilityThread::AbilityThreadMain(const std::shared_ptr<OHOSApplication> &ap
         thread = new (std::nothrow) AbilityRuntime::FAAbilityThread();
     }
     if (thread == nullptr) {
-        HILOG_ERROR("thread is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "thread is nullptr");
         return;
     }
     thread->Attach(application, abilityRecord, stageContext);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void AbilityThread::ScheduleAbilityTransaction(
     const Want &want, const LifeCycleStateInfo &targetState, sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::ScheduleShareData(const int32_t &requestCode)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::ScheduleConnectAbility(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::ScheduleDisconnectAbility(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::ScheduleCommandAbility(const Want &want, bool restart, int startId)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::ScheduleCommandAbilityWindow(
     const Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 bool AbilityThread::SchedulePrepareTerminateAbility()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return false;
 }
 
 void AbilityThread::ScheduleSaveAbilityState()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::ScheduleRestoreAbilityState(const PacMap &state)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::SendResult(int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 std::vector<std::string> AbilityThread::GetFileTypes(const Uri &uri, const std::string &mimeTypeFilter)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     std::vector<std::string> types;
     return types;
 }
 
 int AbilityThread::OpenFile(const Uri &uri, const std::string &mode)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 int AbilityThread::OpenRawFile(const Uri &uri, const std::string &mode)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 int AbilityThread::Insert(const Uri &uri, const NativeRdb::ValuesBucket &value)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 std::shared_ptr<AppExecFwk::PacMap> AbilityThread::Call(
     const Uri &uri, const std::string &method, const std::string &arg, const AppExecFwk::PacMap &pacMap)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return nullptr;
 }
 
 int AbilityThread::Update(
     const Uri &uri, const NativeRdb::ValuesBucket &value, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 int AbilityThread::Delete(const Uri &uri, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 std::shared_ptr<NativeRdb::AbsSharedResultSet> AbilityThread::Query(
     const Uri &uri, std::vector<std::string> &columns, const NativeRdb::DataAbilityPredicates &predicates)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return nullptr;
 }
 
 std::string AbilityThread::GetType(const Uri &uri)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return "";
 }
 
 bool AbilityThread::Reload(const Uri &uri, const PacMap &extras)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return false;
 }
 
 int AbilityThread::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 void AbilityThread::ContinueAbility(const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::NotifyContinuationResult(int32_t result)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 Uri AbilityThread::NormalizeUri(const Uri &uri)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return uri;
 }
 
 Uri AbilityThread::DenormalizeUri(const Uri &uri)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return uri;
 }
 
 bool AbilityThread::ScheduleRegisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return false;
 }
 
 bool AbilityThread::ScheduleUnregisterObserver(const Uri &uri, const sptr<AAFwk::IDataAbilityObserver> &dataObserver)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return false;
 }
 
 bool AbilityThread::ScheduleNotifyChange(const Uri &uri)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return false;
 }
 
 void AbilityThread::DumpAbilityInfo(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::CallRequest()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void AbilityThread::OnExecuteIntent(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 std::vector<std::shared_ptr<AppExecFwk::DataAbilityResult>> AbilityThread::ExecuteBatch(
     const std::vector<std::shared_ptr<AppExecFwk::DataAbilityOperation>> &operations)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     return results;
 }
 
 int AbilityThread::CreateModalUIExtension(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return ERR_INVALID_VALUE;
 }
 
 void AbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AbilityThread::BlockAbility()
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (abilityHandler_) {
         auto task = []() {
             while (1) {
@@ -299,7 +299,7 @@ int AbilityThread::BlockAbility()
             }
         };
         abilityHandler_->PostTask(task, "AbilityThread:BlockAbility");
-        HILOG_DEBUG("end");
+        TAG_LOGD(AAFwkTag::ABILITY, "end");
         return ERR_OK;
     }
     return ERR_NO_INIT;

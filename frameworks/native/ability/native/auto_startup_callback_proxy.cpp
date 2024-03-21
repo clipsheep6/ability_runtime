@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "auto_startup_callback_proxy.h"
 
 #include "ability_manager_errors.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 
@@ -29,18 +29,18 @@ void AutoStartupCallBackProxy::OnAutoStartupOn(const AutoStartupInfo &info)
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(AutoStartupCallBackProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write AutoStartupInfo failed.");
         return;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_ON, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Send request error: %{public}d.", ret);
     }
 }
 
@@ -50,18 +50,18 @@ void AutoStartupCallBackProxy::OnAutoStartupOff(const AutoStartupInfo &info)
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(AutoStartupCallBackProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Write AutoStartupInfo failed.");
         return;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::ON_AUTO_STARTUP_OFF, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Send request error: %{public}d.", ret);
     }
 }
 
@@ -70,7 +70,7 @@ ErrCode AutoStartupCallBackProxy::SendRequest(
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Remote is nullptr.");
         return INNER_ERR;
     }
 

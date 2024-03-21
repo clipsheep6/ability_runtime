@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 #include "ability_manager_ipc_interface_code.h"
 #include "auto_startup_info.h"
 #include "event_handler.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
 
@@ -49,7 +49,7 @@ int AutoStartupCallBackStub::OnRemoteRequest(
     std::u16string autoStartUpCallBackDescriptor = AutoStartupCallBackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (autoStartUpCallBackDescriptor != remoteDescriptor) {
-        HILOG_ERROR("Local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -60,7 +60,7 @@ int AutoStartupCallBackStub::OnRemoteRequest(
             return (this->*requestFunc)(data, reply);
         }
     }
-    HILOG_WARN("Default case, need check.");
+    TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -68,7 +68,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOnInner(MessageParcel &data, Messa
 {
     sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
     if (info == nullptr) {
-        HILOG_ERROR("Failed to read parcelable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to read parcelable.");
         return ERR_INVALID_VALUE;
     }
 
@@ -78,7 +78,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOnInner(MessageParcel &data, Messa
     handler->PostSyncTask([weak, info]() {
         auto autoStartUpCallBackStub = weak.promote();
         if (autoStartUpCallBackStub == nullptr) {
-            HILOG_ERROR("autoStartUpCallBackStub is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "autoStartUpCallBackStub is nullptr.");
             return;
         }
         autoStartUpCallBackStub->OnAutoStartupOn(*info);
@@ -91,7 +91,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOffInner(MessageParcel &data, Mess
 {
     sptr<AutoStartupInfo> info = data.ReadParcelable<AutoStartupInfo>();
     if (info == nullptr) {
-        HILOG_ERROR("Failed to read parcelable.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to read parcelable.");
         return ERR_INVALID_VALUE;
     }
 
@@ -101,7 +101,7 @@ int32_t AutoStartupCallBackStub::OnAutoStartupOffInner(MessageParcel &data, Mess
     handler->PostSyncTask([weak, info]() {
         auto autoStartUpCallBackStub = weak.promote();
         if (autoStartUpCallBackStub == nullptr) {
-            HILOG_ERROR("autoStartUpCallBackStub is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "autoStartUpCallBackStub is nullptr.");
             return;
         }
         autoStartUpCallBackStub->OnAutoStartupOff(*info);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +18,7 @@
 #include <dlfcn.h>
 
 #include "accesstoken_kit.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "permission_list_state.h"
 
 using OHOS::Security::AccessToken::AccessTokenKit;
@@ -65,9 +65,9 @@ AbilityProcess::~AbilityProcess()
 
 ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, CallbackInfo callback)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
         return ERR_NULL_OBJECT;
     }
 #ifdef SUPPORT_GRAPHICS
@@ -77,16 +77,16 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         windowMode == AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY) {
         param.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, windowMode);
     }
-    HILOG_INFO("window mode is %{public}d", windowMode);
+    TAG_LOGI(AAFwkTag::ABILITY, "window mode is %{public}d", windowMode);
 #endif
     ErrCode err = ERR_OK;
     if (param.forResultOption == true) {
         if (param.setting == nullptr) {
-            HILOG_INFO("param.setting == nullptr call StartAbilityForResult.");
+            TAG_LOGI(AAFwkTag::ABILITY, "param.setting == nullptr call StartAbilityForResult.");
             param.want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
             err = ability->StartAbilityForResult(param.want, param.requestCode);
         } else {
-            HILOG_INFO("param.setting != nullptr call StartAbilityForResult.");
+            TAG_LOGI(AAFwkTag::ABILITY, "param.setting != nullptr call StartAbilityForResult.");
             err = ability->StartAbilityForResult(param.want, param.requestCode, *(param.setting));
         }
 
@@ -95,9 +95,9 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         std::map<int, CallbackInfo> map;
         auto it = abilityResultMap_.find(ability);
         if (it == abilityResultMap_.end()) {
-            HILOG_INFO("ability is not in the abilityResultMap_");
+            TAG_LOGI(AAFwkTag::ABILITY, "ability is not in the abilityResultMap_");
         } else {
-            HILOG_INFO("ability is in the abilityResultMap_");
+            TAG_LOGI(AAFwkTag::ABILITY, "ability is in the abilityResultMap_");
             map = it->second;
         }
         callback.errCode = err;
@@ -105,14 +105,14 @@ ErrCode AbilityProcess::StartAbility(Ability *ability, CallAbilityParam param, C
         abilityResultMap_[ability] = map;
     } else {
         if (param.setting == nullptr) {
-            HILOG_INFO("param.setting == nullptr call StartAbility.");
+            TAG_LOGI(AAFwkTag::ABILITY, "param.setting == nullptr call StartAbility.");
             err = ability->StartAbility(param.want);
         } else {
-            HILOG_INFO("param.setting != nullptr call StartAbility.");
+            TAG_LOGI(AAFwkTag::ABILITY, "param.setting != nullptr call StartAbility.");
             err = ability->StartAbility(param.want, *(param.setting));
         }
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return err;
 }
 
@@ -124,9 +124,9 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
     std::map<int, CallbackInfo> map;
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        HILOG_INFO("ability is not in the abilityResultMap_");
+        TAG_LOGI(AAFwkTag::ABILITY, "ability is not in the abilityResultMap_");
     } else {
-        HILOG_INFO("ability is in the abilityResultMap_");
+        TAG_LOGI(AAFwkTag::ABILITY, "ability is in the abilityResultMap_");
         map = it->second;
     }
     callback.errCode = errCode;
@@ -136,20 +136,20 @@ void AbilityProcess::AddAbilityResultCallback(Ability *ability, CallAbilityParam
 
 void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
 
     std::lock_guard<std::mutex> lock_l(mutex_);
 
     auto it = abilityResultMap_.find(ability);
     if (it == abilityResultMap_.end()) {
-        HILOG_ERROR("ability is not in the abilityResultMap");
+        TAG_LOGE(AAFwkTag::ABILITY, "ability is not in the abilityResultMap");
         return;
     }
     std::map<int, CallbackInfo> map = it->second;
 
     auto callback = map.find(requestCode);
     if (callback == map.end()) {
-        HILOG_ERROR("requestCode: %{public}d is not in the map", requestCode);
+        TAG_LOGE(AAFwkTag::ABILITY, "requestCode: %{public}d is not in the map", requestCode);
         return;
     }
     CallbackInfo callbackInfo = callback->second;
@@ -158,7 +158,7 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     if (g_handle == nullptr) {
         g_handle = dlopen(SHARED_LIBRARY_FEATURE_ABILITY, RTLD_LAZY);
         if (g_handle == nullptr) {
-            HILOG_ERROR("dlopen failed %{public}s. %{public}s",
+            TAG_LOGE(AAFwkTag::ABILITY, "dlopen failed %{public}s. %{public}s",
                 SHARED_LIBRARY_FEATURE_ABILITY,
                 dlerror());
             return;
@@ -168,7 +168,7 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     // get function
     auto func = reinterpret_cast<NAPICallOnAbilityResult>(dlsym(g_handle, FUNC_CALL_ON_ABILITY_RESULT));
     if (func == nullptr) {
-        HILOG_ERROR("dlsym failed %{public}s. %{public}s", FUNC_CALL_ON_ABILITY_RESULT, dlerror());
+        TAG_LOGE(AAFwkTag::ABILITY, "dlsym failed %{public}s. %{public}s", FUNC_CALL_ON_ABILITY_RESULT, dlerror());
         dlclose(g_handle);
         g_handle = nullptr;
         return;
@@ -178,48 +178,48 @@ void AbilityProcess::OnAbilityResult(Ability *ability, int requestCode, int resu
     map.erase(requestCode);
 
     abilityResultMap_[ability] = map;
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void AbilityProcess::RequestPermissionsFromUser(
     Ability *ability, CallAbilityPermissionParam &param, CallbackInfo callbackInfo)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "begin");
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "ability is nullptr");
         return;
     }
 
     std::vector<PermissionListState> permList;
     for (auto permission : param.permission_list) {
-        HILOG_DEBUG("permission: %{public}s.", permission.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "permission: %{public}s.", permission.c_str());
         PermissionListState permState;
         permState.permissionName = permission;
         permState.state = Security::AccessToken::SETTING_OPER;
         permList.emplace_back(permState);
     }
-    HILOG_DEBUG("permList size: %{public}zu, permissions size: %{public}zu.",
+    TAG_LOGD(AAFwkTag::ABILITY, "permList size: %{public}zu, permissions size: %{public}zu.",
         permList.size(), param.permission_list.size());
 
     Security::AccessToken::PermissionGrantInfo grantInfo;
     auto ret = AccessTokenKit::GetSelfPermissionsState(permList, grantInfo);
     if (permList.size() != param.permission_list.size()) {
-        HILOG_ERROR("Returned permList size: %{public}zu.", permList.size());
+        TAG_LOGE(AAFwkTag::ABILITY, "Returned permList size: %{public}zu.", permList.size());
         return;
     }
 
     std::vector<int> permissionsState;
     for (auto permState : permList) {
-        HILOG_DEBUG("permissions: %{public}s. permissionsState: %{public}u",
+        TAG_LOGD(AAFwkTag::ABILITY, "permissions: %{public}s. permissionsState: %{public}u",
             permState.permissionName.c_str(), permState.state);
         permissionsState.emplace_back(permState.state);
     }
-    HILOG_DEBUG("permissions size: %{public}zu. permissionsState size: %{public}zu",
+    TAG_LOGD(AAFwkTag::ABILITY, "permissions size: %{public}zu. permissionsState size: %{public}zu",
         param.permission_list.size(), permissionsState.size());
 
     auto requestCode = param.requestCode;
     if (ret != TypePermissionOper::DYNAMIC_OPER) {
-        HILOG_DEBUG("No dynamic popup required.");
+        TAG_LOGD(AAFwkTag::ABILITY, "No dynamic popup required.");
         (void)CaullFunc(requestCode, param.permission_list, permissionsState, callbackInfo);
         return;
     }
@@ -227,11 +227,11 @@ void AbilityProcess::RequestPermissionsFromUser(
     auto task = [self = GetInstance(), requestCode, callbackInfo]
         (const std::vector<std::string> &permissions, const std::vector<int> &grantResults) mutable {
         if (!self) {
-            HILOG_ERROR("self is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY, "self is nullptr.");
             return;
         }
         if (!self->CaullFunc(requestCode, permissions, grantResults, callbackInfo)) {
-            HILOG_ERROR("call function failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "call function failed.");
             return;
         }
     };
@@ -247,7 +247,7 @@ bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &
     if (g_handle == nullptr) {
         g_handle = dlopen(SHARED_LIBRARY_FEATURE_ABILITY, RTLD_LAZY);
         if (g_handle == nullptr) {
-            HILOG_ERROR("dlopen failed %{public}s. %{public}s",
+            TAG_LOGE(AAFwkTag::ABILITY, "dlopen failed %{public}s. %{public}s",
                 SHARED_LIBRARY_FEATURE_ABILITY, dlerror());
             return false;
         }
@@ -257,7 +257,7 @@ bool AbilityProcess::CaullFunc(int requestCode, const std::vector<std::string> &
     auto func = reinterpret_cast<NAPICallOnRequestPermissionsFromUserResult>(
         dlsym(g_handle, FUNC_CALL_ON_REQUEST_PERMISSIONS_FROM_USERRESULT));
     if (func == nullptr) {
-        HILOG_ERROR("dlsym failed %{public}s. %{public}s",
+        TAG_LOGE(AAFwkTag::ABILITY, "dlsym failed %{public}s. %{public}s",
             FUNC_CALL_ON_REQUEST_PERMISSIONS_FROM_USERRESULT, dlerror());
         dlclose(g_handle);
         g_handle = nullptr;
