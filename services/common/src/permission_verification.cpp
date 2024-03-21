@@ -96,9 +96,9 @@ bool PermissionVerification::CheckSpecificSystemAbilityAccessPermission(const st
         return false;
     }
     auto callerToken = GetCallingTokenID();
-    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
-    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
-    if (result != ERR_OK || nativeTokenInfo.processName != processName) {
+    std::string nativeTokenName;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenName(callerToken, nativeTokenName);
+    if (result != ERR_OK || nativeTokenName != processName) {
         HILOG_ERROR("Check process name failed.");
         return false;
     }
@@ -113,10 +113,10 @@ bool PermissionVerification::CheckObserverCallerPermission() const
         return false;
     }
     auto callerToken = GetCallingTokenID();
-    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
-    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(callerToken, nativeTokenInfo);
+    std::string processName;
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenName(callerToken, processName);
     if (result != ERR_OK ||
-        OBSERVER_NATIVE_CALLER.find(nativeTokenInfo.processName) == OBSERVER_NATIVE_CALLER.end()) {
+        OBSERVER_NATIVE_CALLER.find(processName) == OBSERVER_NATIVE_CALLER.end()) {
         HILOG_ERROR("Check native token failed.");
         return false;
     }

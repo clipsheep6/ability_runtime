@@ -1920,9 +1920,9 @@ bool AbilityRecord::IsSystemAbilityCall(const sptr<IRemoteObject> &callerToken, 
         HILOG_INFO("Is not native call.");
         return false;
     }
-    AccessToken::NativeTokenInfo nativeTokenInfo;
-    int32_t result = AccessToken::AccessTokenKit::GetNativeTokenInfo(tokenId, nativeTokenInfo);
-    if (result == ERR_OK && nativeTokenInfo.processName == DMS_PROCESS_NAME) {
+    std::string processName;
+    int32_t result = AccessToken::AccessTokenKit::GetNativeTokenName(tokenId, processName);
+    if (result == ERR_OK && processName == DMS_PROCESS_NAME) {
         HILOG_INFO("Is system ability call.");
         return true;
     }
@@ -3113,9 +3113,9 @@ bool AbilityRecord::IsDmsCall(Want &want)
         HILOG_INFO("Is not native call.");
         return false;
     }
-    AccessToken::NativeTokenInfo nativeTokenInfo;
-    int32_t result = AccessToken::AccessTokenKit::GetNativeTokenInfo(fromTokenId, nativeTokenInfo);
-    if (result == ERR_OK && nativeTokenInfo.processName == DMS_PROCESS_NAME) {
+    std::string processName;
+    int32_t result = AccessToken::AccessTokenKit::GetNativeTokenName(fromTokenId, processName);
+    if (result == ERR_OK && processName == DMS_PROCESS_NAME) {
         HILOG_INFO("Is dms ability call.");
         return true;
     }

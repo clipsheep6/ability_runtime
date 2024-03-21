@@ -9693,12 +9693,12 @@ bool AbilityManagerService::CheckSenderWantInfo(int32_t callerUid, const WantSen
 
 bool AbilityManagerService::CheckCallerIsDmsProcess()
 {
-    Security::AccessToken::NativeTokenInfo nativeTokenInfo;
+    std::string processName;
     uint32_t accessToken = IPCSkeleton::GetCallingTokenID();
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(accessToken);
-    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenInfo(accessToken, nativeTokenInfo);
+    int32_t result = Security::AccessToken::AccessTokenKit::GetNativeTokenName(accessToken, processName);
     if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-        result != ERR_OK || nativeTokenInfo.processName != DMS_PROCESS_NAME) {
+        result != ERR_OK || processName != DMS_PROCESS_NAME) {
         HILOG_ERROR("caller is not dms");
         return false;
     }
