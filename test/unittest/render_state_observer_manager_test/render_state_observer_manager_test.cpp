@@ -32,7 +32,7 @@ class MockRenderStateObserver : public RenderStateObserverStub {
 public:
     MockRenderStateObserver() = default;
     virtual ~MockRenderStateObserver() = default;
-    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
+    void OnRenderStateChanged(const RenderStateData &renderStateData) override
     {
         onRenderStateChangedResult = 1;
     }

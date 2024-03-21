@@ -15,6 +15,7 @@
 
 #include "render_state_observer_stub.h"
 
+#include "appexecfwk_errors.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -34,10 +35,13 @@ RenderStateObserverStub::~RenderStateObserverStub()
 
 int32_t RenderStateObserverStub::OnRenderStateChangedInner(MessageParcel &data, MessageParcel &reply)
 {
-    pid_t renderPid = data.ReadInt32();
-    int32_t state = data.ReadInt32();
+    std::unique_ptr<RenderStateData> renderStateData(data.ReadParcelable<RenderStateData>());
+    if (renderStateData == nullptr) {
+        HILOG_ERROR("renderStateData is null");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
 
-    OnRenderStateChanged(renderPid, state);
+    OnRenderStateChanged(*renderStateData);
     return NO_ERROR;
 }
 

@@ -13,24 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_IRENDER_STATE_OBSERVER_H
-#define OHOS_ABILITY_RUNTIME_IRENDER_STATE_OBSERVER_H
+#ifndef OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H
+#define OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H
 
-#include "iremote_broker.h"
-#include "render_state_data.h"
+#include "iremote_object.h"
+#include "parcel.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-class IRenderStateObserver : public IRemoteBroker {
-public:
-    DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.IRenderStateObserver");
+struct RenderStateData : public Parcelable {
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static RenderStateData *Unmarshalling(Parcel &parcel);
 
-    virtual void OnRenderStateChanged(const RenderStateData &renderStateData) = 0;
-
-    enum {
-        ON_RENDER_STATE_CHANGED = 0,
-    };
+    int32_t pid = 0;
+    int32_t uid = 0;
+    int32_t hostPid = -1;
+    int32_t hostUid = -1;
+    int32_t state = 0;
 };
-}  // namespace AppExecFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_IRENDER_STATE_OBSERVER_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H

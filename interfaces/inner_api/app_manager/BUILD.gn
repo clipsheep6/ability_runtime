@@ -101,6 +101,7 @@ ohos_shared_library("app_manager") {
     "src/appmgr/render_process_info.cpp",
     "src/appmgr/render_scheduler_host.cpp",
     "src/appmgr/render_scheduler_proxy.cpp",
+    "src/appmgr/render_state_data.cpp",
     "src/appmgr/render_state_observer_proxy.cpp",
     "src/appmgr/render_state_observer_stub.cpp",
     "src/appmgr/running_process_info.cpp",
