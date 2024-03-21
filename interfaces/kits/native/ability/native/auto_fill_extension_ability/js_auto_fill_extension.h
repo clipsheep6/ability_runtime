@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -108,6 +108,13 @@ public:
      */
     void OnBackground() override;
 
+    /**
+     * @brief Used to create an update request.
+     *
+     * @param wantParams Indicates the view data of the update request.
+     */
+    void UpdateRequest(const AAFwk::WantParams &wantParams);
+
 private:
     virtual void BindContext(napi_env env, napi_value obj);
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
@@ -122,6 +129,7 @@ private:
     bool HandleAutoFillCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo);
     void CallJsOnRequest(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
         const sptr<Rosen::Window> &uiWindow);
+    void RegisterTransferComponentDataListener(const sptr<Rosen::Window> &uiWindow);
 
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;

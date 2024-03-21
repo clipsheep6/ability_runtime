@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "auto_fill_custom_config.h"
 #include "auto_fill_event_handler.h"
 #include "auto_fill_extension_callback.h"
 #include "fill_request_callback_interface.h"
@@ -28,6 +29,28 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace AutoFill {
+enum class AutoFillCommand {
+    NONE,
+    FILL,
+    SAVE,
+    UPDATE,
+    RESIZE,
+    INPUT,
+    RELOAD_IN_MODAL
+};
+
+/**
+ * @struct AutoFillRequest
+ * AutoFillRequest is used to define the auto fill request parameter structure.
+ */
+struct AutoFillRequest {
+    AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
+    AutoFillCommand autoFillCommand = AutoFillCommand::NONE;
+    AbilityBase::ViewData viewData;
+    AutoFillCustomConfig config;
+};
+}
 class AutoFillManager {
 public:
     AutoFillManager() = default;
@@ -36,29 +59,40 @@ public:
     static AutoFillManager &GetInstance();
 
     int32_t RequestAutoFill(
-        const AbilityBase::AutoFillType &autoFillType,
         Ace::UIContent *uiContent,
-        const AbilityBase::ViewData &viewdata,
-        const std::shared_ptr<IFillRequestCallback> &fillCallback);
+        const AutoFill::AutoFillRequest &request,
+        const std::shared_ptr<IFillRequestCallback> &fillCallback, bool &isPopup);
 
     int32_t RequestAutoSave(
         Ace::UIContent *uiContent,
-        const AbilityBase::ViewData &viewdata,
+        const AutoFill::AutoFillRequest &request,
         const std::shared_ptr<ISaveRequestCallback> &saveCallback);
 
+    void UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, const AbilityBase::ViewData &viewData);
+    void SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
+        const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy);
+    void RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent);
     void HandleTimeOut(uint32_t eventId);
     void RemoveEvent(uint32_t eventId);
 private:
-    void SetTimeOutEvent(uint32_t eventId);
     int32_t HandleRequestExecuteInner(
-        const AbilityBase::AutoFillType &autoFillType,
         Ace::UIContent *uiContent,
-        const AbilityBase::ViewData &viewdata,
+        const AutoFill::AutoFillRequest &request,
         const std::shared_ptr<IFillRequestCallback> &fillCallback,
-        const std::shared_ptr<ISaveRequestCallback> &saveCallback);
+        const std::shared_ptr<ISaveRequestCallback> &saveCallback, bool &isPopup);
+    int32_t CreateAutoFillExtension(Ace::UIContent *uiContent,
+        const AutoFill::AutoFillRequest &request,
+        const Ace::ModalUIExtensionCallbacks &callback,
+        const AutoFill::AutoFillWindowType autoFillWindowType,
+        bool isSmartAutoFill);
+    void SetTimeOutEvent(uint32_t eventId);
+    AutoFill::AutoFillWindowType ConvertAutoFillWindowType(const AutoFill::AutoFillRequest &request,
+        bool &isSmartAutoFill);
 
-    std::mutex mutexLock_;
+    std::mutex extensionCallbacksMutex_;
+    std::mutex modalProxyMapMutex_;
     std::map<uint32_t, std::weak_ptr<AutoFillExtensionCallback>> extensionCallbacks_;
+    std::map<Ace::UIContent *, std::shared_ptr<Ace::ModalUIExtensionProxy>> modalUIExtensionProxyMap_;
     uint32_t eventId_ = 0;
     std::shared_ptr<AutoFillEventHandler> eventHandler_;
 };

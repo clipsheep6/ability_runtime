@@ -27,6 +27,7 @@ ohos_unittest("auto_fill_manager_test") {
     "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_event_handler.cpp",
     "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_extension_callback.cpp",
     "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_manager.cpp",
+    "${ability_runtime_innerkits_path}/auto_fill_manager/src/auto_fill_manager_util.cpp",
     "auto_fill_manager_test.cpp",
   ]
 
