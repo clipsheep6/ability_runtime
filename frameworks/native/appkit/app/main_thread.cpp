@@ -626,7 +626,8 @@ void MainThread::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
         return;
     }
     if (info.needSnapshot == true) {
-        runtime->DumpHeapSnapshot(info.tid, info.needGc);
+        HILOG_INFO("Dump ScheduleJsHeapMemory. info->fds=%{public}s", info.fds.c_str());
+        runtime->DumpHeapSnapshot(info.tid, info.needGc, info.fds);
     } else {
         if (info.needGc == true) {
             runtime->ForceFullGC(info.tid);

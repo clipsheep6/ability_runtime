@@ -18,6 +18,7 @@
 
 #include "parcel.h"
 #include "iremote_object.h"
+#include "string"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -26,6 +27,7 @@ struct JsHeapDumpInfo : public Parcelable {
     uint32_t tid;
     bool needGc;
     bool needSnapshot;
+    std::string fds;
     virtual bool Marshalling(Parcel &parcel) const override;
     static JsHeapDumpInfo *Unmarshalling(Parcel &parcel);
 };
