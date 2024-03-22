@@ -89,6 +89,10 @@ public:
     virtual void OnMemoryLevel(int level) override;
 
     void SetExtensionCommon(const std::shared_ptr<ExtensionCommon> &common);
+
+protected:
+    virtual void GetSrcPathBase(std::string &srcPath) const;    
+
 private:
     std::shared_ptr<C> context_ = nullptr;
     std::shared_ptr<ExtensionCommon> extensionCommon_ = nullptr;
