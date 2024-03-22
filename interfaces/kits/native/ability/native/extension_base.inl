@@ -111,5 +111,27 @@ void ExtensionBase<C>::SetExtensionCommon(const std::shared_ptr<ExtensionCommon>
 {
     extensionCommon_ = common;
 }
+
+template<class C>
+void ExtensionBase<C>::GetSrcPathBase(std::string &srcPath) const
+{
+    if (!Extension::abilityInfo_->isModuleJson) {
+        /* temporary compatibility api8 + config.json */
+        srcPath.append(Extension::abilityInfo_->package);
+        srcPath.append("/assets/js/");
+        if (!Extension::abilityInfo_->srcPath.empty()) {
+            srcPath.append(Extension::abilityInfo_->srcPath);
+        }
+        srcPath.append("/").append(Extension::abilityInfo_->name).append(".abc");
+        return;
+    }
+
+    if (!Extension::abilityInfo_->srcEntrance.empty()) {
+        srcPath.append(Extension::abilityInfo_->moduleName + "/");
+        srcPath.append(Extension::abilityInfo_->srcEntrance);
+        srcPath.erase(srcPath.rfind('.'));
+        srcPath.append(".abc");
+    }
+}
 }
 }
