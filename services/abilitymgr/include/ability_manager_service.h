@@ -942,7 +942,7 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType,
         bool checkSystemCaller = true);
 
-    int RequestModalUIExtensionInner(const Want &want);
+    int RequestModalUIExtensionInner(Want want);
 
     int StartAbilityForOptionWrap(
         const Want &want,

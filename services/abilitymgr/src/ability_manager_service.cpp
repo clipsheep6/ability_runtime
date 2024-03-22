@@ -85,6 +85,7 @@
 #include "start_ability_utils.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
+#include "int_wrapper.h"
 #include "system_ability_definition.h"
 #include "system_ability_token_callback.h"
 #include "extension_record_manager.h"
@@ -2215,7 +2216,7 @@ int AbilityManagerService::RequestModalUIExtension(const Want &want)
     return RequestModalUIExtensionInner(want);
 }
 
-int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
+int AbilityManagerService::RequestModalUIExtensionInner(Want want)
 {
     sptr<IRemoteObject> token = nullptr;
     int ret = IN_PROCESS_CALL(GetTopAbility(token));
@@ -2249,6 +2250,9 @@ int AbilityManagerService::RequestModalUIExtensionInner(const Want &want)
     }
 
     HILOG_DEBUG("Window Modal System Create UIExtension is called!");
+    WantParams &parameters = const_cast<WantParams &>(want.GetParams());
+    parameters.SetParam("ability.want.params.modalType", AAFwk::Integer::Box(1));
+    want.SetParams(parameters);
     auto connection = std::make_shared<Rosen::ModalSystemUiExtension>();
     return connection->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
 }
