@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -782,6 +782,92 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AttachAppDebug_001, TestSize.Level1)
     std::string bundleName = "bundleName";
     auto resultCode = appMgrClient->AttachAppDebug(bundleName);
     EXPECT_EQ(resultCode, ERR_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_SetAppWaitingDebug_001
+ * @tc.desc: Set app waiting debug by bundleName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_SetAppWaitingDebug_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::string bundleName = "bundleName";
+    auto resultCode = appMgrClient->SetAppWaitingDebug(bundleName, false);
+    EXPECT_EQ(resultCode, ERR_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_CancelAppWaitingDebug_001
+ * @tc.desc: Cancel app waiting debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_CancelAppWaitingDebug_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    auto resultCode = appMgrClient->CancelAppWaitingDebug();
+    EXPECT_EQ(resultCode, ERR_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_GetWaitingDebugApp_001
+ * @tc.desc: Get waiting debug app info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_GetWaitingDebugApp_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+    std::vector<std::string> debugInfoList;
+    auto resultCode = appMgrClient->GetWaitingDebugApp(debugInfoList);
+    EXPECT_EQ(resultCode, ERR_OK);
+}
+
+/**
+ * @tc.name: AppMgrClient_IsWaitingDebugApp_001
+ * @tc.desc: Determine if it is a waiting app.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_IsWaitingDebugApp_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::string bundleName = "bundleName";
+    auto resultCode = appMgrClient->IsWaitingDebugApp(bundleName);
+    EXPECT_EQ(resultCode, false);
+}
+
+/**
+ * @tc.name: AppMgrClient_ClearNonPersistWaitingDebugFlag_001
+ * @tc.desc: Cancel app waiting debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_ClearNonPersistWaitingDebugFlag_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    appMgrClient->ClearNonPersistWaitingDebugFlag();
 }
 
 /**

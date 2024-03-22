@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -906,6 +906,95 @@ HWTEST_F(AmsMgrSchedulerTest, AttachAppDebug_001, TestSize.Level0)
     amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
     res = amsMgrScheduler->AttachAppDebug(bundleName);
     EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: SetAppWaitingDebug_001
+ * @tc.desc: Test the state of SetAppWaitingDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, SetAppWaitingDebug_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    std::string bundleName = "test";
+    int32_t res = amsMgrScheduler->SetAppWaitingDebug(bundleName, false);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->SetAppWaitingDebug(bundleName, false);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: CancelAppWaitingDebug_001
+ * @tc.desc: Test the state of CancelAppWaitingDebug
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, CancelAppWaitingDebug_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    int32_t res = amsMgrScheduler->CancelAppWaitingDebug();
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->CancelAppWaitingDebug();
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: GetWaitingDebugApp_001
+ * @tc.desc: Test the state of GetWaitingDebugApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, GetWaitingDebugApp_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    std::vector<std::string> debugInfoList;
+    int32_t res = amsMgrScheduler->GetWaitingDebugApp(debugInfoList);
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->GetWaitingDebugApp(debugInfoList);
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/**
+ * @tc.name: IsWaitingDebugApp_001
+ * @tc.desc: Test the state of IsWaitingDebugApp
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, IsWaitingDebugApp_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    std::string bundleName = "test";
+    bool res = amsMgrScheduler->IsWaitingDebugApp(bundleName);
+    EXPECT_EQ(res, false);
+
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    res = amsMgrScheduler->IsWaitingDebugApp(bundleName);
+    EXPECT_EQ(res, false);
+}
+
+/**
+ * @tc.name: ClearNonPersistWaitingDebugFlag_001
+ * @tc.desc: Test the state of ClearNonPersistWaitingDebugFlag
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, ClearNonPersistWaitingDebugFlag_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    amsMgrScheduler->ClearNonPersistWaitingDebugFlag();
 }
 
 /**

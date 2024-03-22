@@ -3616,6 +3616,45 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterAbilityDebugResponse_001, TestSize.Leve
 }
 
 /**
+ * @tc.name: IsWaitingDebugApp_001
+ * @tc.desc: Test function IsWaitingDebugApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, IsWaitingDebugApp_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName("test");
+    auto result = appMgrServiceInner->IsWaitingDebugApp(bundleName);
+    EXPECT_EQ(result, false);
+}
+
+/**
+ * @tc.name: ClearNonPersistWaitingDebugFlag_001
+ * @tc.desc: Test function ClearNonPersistWaitingDebugFlag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, ClearNonPersistWaitingDebugFlag_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    appMgrServiceInner->ClearNonPersistWaitingDebugFlag();
+}
+
+/**
+ * @tc.name: InitAppWaitingDebugList_001
+ * @tc.desc: Test function InitAppWaitingDebugList.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, InitAppWaitingDebugList_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    appMgrServiceInner->InitAppWaitingDebugList();
+    EXPECT_EQ(appMgrServiceInner->isInitAppWaitingDebugListExecuted_, true);
+}
+
+/**
  * @tc.name: NotifyAbilitysDebugChange_001
  * @tc.desc: Test the status of NotifyAbilitysDebugChange.
  * @tc.type: FUNC

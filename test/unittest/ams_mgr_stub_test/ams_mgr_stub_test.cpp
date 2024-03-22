@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -189,6 +189,104 @@ HWTEST_F(AmsMgrStubTest, HandleAttachAppDebug_0200, TestSize.Level1)
     auto result = mockAmsMgrScheduler_->OnRemoteRequest(
         static_cast<uint32_t>(IAmsMgr::Message::ATTACH_APP_DEBUG), data, reply, option);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: HandleSetAppWaitingDebug_0100
+ * @tc.desc: Handle set app waiting debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, HandleSetAppWaitingDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, SetAppWaitingDebug(_, _)).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    WriteInterfaceToken(data);
+    data.WriteString(STRING_BUNDLE_NAME);
+    data.WriteBool(false);
+
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::SET_APP_WAITING_DEBUG), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleCancelAppWaitingDebug_0100
+ * @tc.desc: Handle cancel app waiting debug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, HandleCancelAppWaitingDebug_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, CancelAppWaitingDebug()).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    WriteInterfaceToken(data);
+
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::CANCEL_APP_WAITING_DEBUG), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleGetWaitingDebugApp_0100
+ * @tc.desc: Handle get waiting debug app.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, HandleGetWaitingDebugApp_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, GetWaitingDebugApp(_)).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    WriteInterfaceToken(data);
+
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::GET_WAITING_DEBUG_APP), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleIsWaitingDebugApp_0100
+ * @tc.desc: Handle get waiting debug app.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, HandleIsWaitingDebugApp_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, IsWaitingDebugApp(_)).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    WriteInterfaceToken(data);
+    data.WriteString(STRING_BUNDLE_NAME);
+
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::IS_WAITING_DEBUG_APP), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleClearNonPersistWaitingDebugFlag_0100
+ * @tc.desc: Handle clear non persist waiting debug flag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, HandleClearNonPersistWaitingDebugFlag_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    EXPECT_CALL(*mockAmsMgrScheduler_, ClearNonPersistWaitingDebugFlag()).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    WriteInterfaceToken(data);
+
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
 }
 
 /**
