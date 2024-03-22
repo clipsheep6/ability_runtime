@@ -183,7 +183,7 @@ constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
 const std::unordered_set<std::string> WHITE_LIST_ASS_WAKEUP_SET = { BUNDLE_NAME_SETTINGSDATA };
 const std::unordered_set<std::string> COMMON_PICKER_TYPE = {
-    "share", "action","navigation","finance"
+    "share", "action", "navigation", "finance"
 };
 std::atomic<bool> g_isDmsAlive = false;
 
