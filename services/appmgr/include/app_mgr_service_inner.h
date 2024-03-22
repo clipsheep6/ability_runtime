@@ -681,10 +681,11 @@ public:
      * KillProcessByPid, Kill process by PID.
      *
      * @param pid_t, the app record pid.
+     * @param reason, the reason why the process is killed, default to "foundation"
      *
      * @return ERR_OK, return back success，others fail.
      */
-    int32_t KillProcessByPid(const pid_t pid) const;
+    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation") const;
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
 

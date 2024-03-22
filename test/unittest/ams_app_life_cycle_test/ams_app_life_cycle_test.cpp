@@ -1446,12 +1446,12 @@ HWTEST_F(AmsAppLifeCycleTest, KillProcessByPid001, TestSize.Level1)
     pid_t pid = fork();
 
     if (pid > 0) {
-        int32_t ret = serviceInner_->KillProcessByPid(pid);
+        int32_t ret = serviceInner_->KillProcessByPid(pid, "KillProcessByPid001");
         EXPECT_EQ(ERR_OK, ret);
     }
 
     if (pid == 0) {
-        int32_t ret = serviceInner_->KillProcessByPid(pid);
+        int32_t ret = serviceInner_->KillProcessByPid(pid, "KillProcessByPid001");
         EXPECT_EQ(-1, ret);
     }
 }
@@ -1465,7 +1465,7 @@ HWTEST_F(AmsAppLifeCycleTest, KillProcessByPid001, TestSize.Level1)
  */
 HWTEST_F(AmsAppLifeCycleTest, KillProcessByPid002, TestSize.Level1)
 {
-    int32_t ret = serviceInner_->KillProcessByPid(-1);
+    int32_t ret = serviceInner_->KillProcessByPid(-1, "KillProcessByPid002");
     EXPECT_EQ(-1, ret);
 }
 

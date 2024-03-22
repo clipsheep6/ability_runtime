@@ -498,7 +498,7 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
             TAG_LOGE(AAFwkTag::APPMGR, "Pid error.");
             return;
         }
-        auto result = inner->KillProcessByPid(pid);
+        auto result = inner->KillProcessByPid(pid, "TerminateAbility");
         if (result < 0) {
             TAG_LOGW(AAFwkTag::APPMGR, "Kill application directly failed, pid: %{public}d", pid);
         }

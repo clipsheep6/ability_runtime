@@ -169,6 +169,7 @@ const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 const char* WANT_PARAMS_ATTACHE_TO_PARENT = "ohos.ability.params.attachToParent";
+const std::string KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
@@ -918,7 +919,7 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         return result;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        result = KillProcessByPid(*iter);
+        result = KillProcessByPid(*iter, "KillApplicationByUid");
         if (result < 0) {
             HILOG_ERROR("KillApplication failed for bundleName:%{public}s pid:%{public}d", bundleName.c_str(), *iter);
             return result;
@@ -1004,7 +1005,7 @@ int32_t AppMgrServiceInner::KillApplicationByBundleName(const std::string &bundl
         return result;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        result = KillProcessByPid(*iter);
+        result = KillProcessByPid(*iter, "KillApplicationByBundleName");
         if (result < 0) {
             HILOG_ERROR("KillApplicationSelf is failed for bundleName:%{public}s, pid: %{public}d",
                 bundleName.c_str(), *iter);
@@ -1073,7 +1074,7 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
         return result;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        result = KillProcessByPid(*iter);
+        result = KillProcessByPid(*iter, "KillApplicationByUserIdLocked");
         if (result < 0) {
             HILOG_ERROR("KillApplication is fail bundleName: %{public}s pid: %{public}d", bundleName.c_str(), *iter);
             return result;
@@ -1359,8 +1360,9 @@ void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningReco
     }
 }
 
-int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
+int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason) const
 {
+    std::string killReason = KILL_PROCESS_REASON_PREFIX + reason;
     int32_t ret = -1;
     if (pid > 0) {
         HILOG_INFO("kill pid %{public}d", pid);
@@ -1387,6 +1389,11 @@ int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid) const
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+        EVENT_KEY_PID, std::to_string(eventInfo.pid),
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_MESSAGE, killReason);
     return ret;
 }
 
@@ -1736,7 +1743,7 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
         pids.push_back(pid);
         appRecord->ScheduleProcessSecurityExit();
         if (!WaitForRemoteProcessExit(pids, SystemTimeMillisecond())) {
-            int32_t result = KillProcessByPid(pid);
+            int32_t result = KillProcessByPid(pid, "KillProcessByAbilityToken");
             if (result < 0) {
                 HILOG_ERROR("KillProcessByAbilityToken kill process is fail");
                 return;
@@ -1763,7 +1770,7 @@ void AppMgrServiceInner::KillProcessesByUserId(int32_t userId)
         return;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        auto result = KillProcessByPid(*iter);
+        auto result = KillProcessByPid(*iter, "KillProcessesByUserId");
         if (result < 0) {
             HILOG_ERROR("KillProcessByPid is failed. pid: %{public}d", *iter);
             return;
@@ -2409,7 +2416,7 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     pids.push_back(appTaskInfo->GetPid());
     appRecord->ScheduleProcessSecurityExit();
     if (!WaitForRemoteProcessExit(pids, startTime)) {
-        int32_t result = KillProcessByPid(appTaskInfo->GetPid());
+        int32_t result = KillProcessByPid(appTaskInfo->GetPid(), "RemoveAppFromRecentList");
         if (result < 0) {
             HILOG_ERROR("RemoveAppFromRecentList kill process is fail");
             return;
@@ -2437,7 +2444,7 @@ void AppMgrServiceInner::ClearRecentAppList()
         return;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
-        int32_t result = KillProcessByPid(*iter);
+        int32_t result = KillProcessByPid(*iter, "ClearRecentAppList");
         if (result < 0) {
             HILOG_ERROR("ClearRecentAppList kill process is fail");
             return;
@@ -2627,7 +2634,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     if (pid > 0) {
         auto timeoutTask = [pid, innerService = shared_from_this()]() {
             HILOG_INFO("KillProcessByPid %{public}d", pid);
-            int32_t result = innerService->KillProcessByPid(pid);
+            int32_t result = innerService->KillProcessByPid(pid, "TerminateApplication");
             innerService->SendProcessExitEvent(pid);
             if (result < 0) {
                 HILOG_ERROR("KillProcessByPid kill process is fail");
@@ -3492,7 +3499,7 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
 
     auto timeoutTask = [pid, innerService = shared_from_this()]() {
         HILOG_INFO("KillProcessByPid %{public}d", pid);
-        int32_t result = innerService->KillProcessByPid(pid);
+        int32_t result = innerService->KillProcessByPid(pid, "KillApplicationByRecord");
         if (result < 0) {
             HILOG_ERROR("Kill application by app record failed, pid: %{public}d", pid);
             return;
@@ -4342,14 +4349,14 @@ void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bu
     HILOG_INFO("AppRecovery NotifyApp to kill is: bundleName: %{public}s, faultType: %{public}d, pid: %{public}d",
         bundleName.c_str(), faultType, pid);
     if (faultType != FaultDataType::APP_FREEZE) {
-        KillProcessByPid(pid);
+        KillProcessByPid(pid, "AppRecoveryNotifyApp");
         return;
     }
 
     std::string timeOutName = "waitSaveTask" + std::to_string(pid) + bundleName;
     if (markers == "appRecovery") {
         if (taskHandler_->CancelTask(timeOutName)) {
-            KillProcessByPid(pid);
+            KillProcessByPid(pid, "AppRecoveryNotifyApp");
         }
         return;
     }
@@ -4367,7 +4374,7 @@ void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bu
         if (bundleName == name) {
             HILOG_INFO("waitSaveTask timeout %{public}s,pid == %{public}d is going to exit due to AppRecovery.",
                 bundleName.c_str(), pid);
-            innerService->KillProcessByPid(pid);
+            innerService->KillProcessByPid(pid, "AppRecoveryNotifyApp");
         }
     };
     constexpr int32_t timeOut = 2000;
@@ -4454,7 +4461,7 @@ int32_t AppMgrServiceInner::KillFaultApp(int32_t pid, const std::string &bundleN
         if (faultData.forceExit && !faultData.waitSaveState) {
             HILOG_INFO("FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
                 bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
-            innerService->KillProcessByPid(pid);
+            innerService->KillProcessByPid(pid, "NotifyAppFault");
             return;
         }
     };
@@ -4738,7 +4745,7 @@ void AppMgrServiceInner::KillRenderProcess(const std::shared_ptr<AppRunningRecor
             auto renderRecord = iter.second;
             if (renderRecord && renderRecord->GetPid() > 0) {
                 HILOG_DEBUG("Kill render process when host died.");
-                KillProcessByPid(renderRecord->GetPid());
+                KillProcessByPid(renderRecord->GetPid(), "KillRenderProcess");
                 {
                     std::lock_guard lock(renderUidSetLock_);
                     renderUidSet_.erase(renderRecord->GetUid());
@@ -5296,7 +5303,7 @@ void AppMgrServiceInner::KillChildProcess(const std::shared_ptr<AppRunningRecord
         auto childRecord = iter.second;
         if (childRecord && childRecord->GetPid() > 0) {
             HILOG_DEBUG("Kill child process when host died.");
-            KillProcessByPid(childRecord->GetPid());
+            KillProcessByPid(childRecord->GetPid(), "KillChildProcess");
         }
     }
 }
@@ -5328,7 +5335,7 @@ void AppMgrServiceInner::ExitChildProcessSafelyByChildPid(const pid_t pid)
         return;
     }
     childRecord->RegisterDeathRecipient();
-    int32_t result = KillProcessByPid(pid);
+    int32_t result = KillProcessByPid(pid, "ExitChildProcessSafelyByChildPid");
     if (result < 0) {
         HILOG_ERROR("KillChildProcessByPid kill process is fail.");
         return;
@@ -5365,7 +5372,7 @@ void AppMgrServiceInner::KillAttachedChildProcess(const std::shared_ptr<AppRunni
         front->ClearChildAppRecordMap();
     }
     for (const auto& pid : pids) {
-        KillProcessByPid(pid);
+        KillProcessByPid(pid, "KillAttachedChildProcess");
     }
 }
 

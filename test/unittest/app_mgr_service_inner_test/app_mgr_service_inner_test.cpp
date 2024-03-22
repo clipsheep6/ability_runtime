@@ -1041,10 +1041,10 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
-    int result = appMgrServiceInner->KillProcessByPid(0);
+    int result = appMgrServiceInner->KillProcessByPid(0, "KillProcessByPid_001");
     EXPECT_EQ(result, -1);
 
-    result = appMgrServiceInner->KillProcessByPid(1);
+    result = appMgrServiceInner->KillProcessByPid(1, "KillProcessByPid_001");
     EXPECT_EQ(result, 0);
 
     HILOG_INFO("KillProcessByPid_001 end");
@@ -1071,7 +1071,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
     appRecord->priorityObject_ = priorityObject;
     appRunningManager->appRunningRecordMap_.emplace(recordId_, appRecord);
 
-    int result = appMgrServiceInner->KillProcessByPid(pid);
+    int result = appMgrServiceInner->KillProcessByPid(pid, "KillProcessByPid_002");
     EXPECT_EQ(result, -1);
 
     HILOG_INFO("KillProcessByPid_002 end");
