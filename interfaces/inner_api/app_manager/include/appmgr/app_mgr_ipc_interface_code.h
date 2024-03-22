@@ -90,6 +90,7 @@ enum class AppMgrInterfaceCode {
     UPDATE_RENDER_STATUS = 64,
     SIGN_RESTART_APP_FLAG = 65,
     DUMP_JSHEAP_MEMORY_PROCESS = 66,
+    GET_APP_RUNNING_UNIQUE_ID_BY_PID = 67,
 };
 } // AppExecFwk
 } // OHOS

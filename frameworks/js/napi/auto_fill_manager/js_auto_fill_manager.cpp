@@ -99,9 +99,10 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
         return;
     }
     if (uiContent->CheckNeedAutoSave()) {
-        AbilityBase::ViewData viewData;
-        uiContent->DumpViewData(viewData);
-        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, viewData, saveRequestCallback);
+        AutoFill::AutoFillRequest request;
+        uiContent->DumpViewData(request.viewData, request.autoFillType);
+        request.autoFillCommand = AutoFill::AutoFillCommand::SAVE;
+        auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback);
         if (ret != ERR_OK) {
             HILOG_ERROR("Request auto save error[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
@@ -141,6 +142,44 @@ napi_value CreateJsAutoFillType(napi_env env)
     napi_set_named_property(env, objValue, "PASSWORD", CreateJsValue(env, AbilityBase::AutoFillType::PASSWORD));
     napi_set_named_property(env, objValue, "USER_NAME", CreateJsValue(env, AbilityBase::AutoFillType::USER_NAME));
     napi_set_named_property(env, objValue, "NEW_PASSWORD", CreateJsValue(env, AbilityBase::AutoFillType::NEW_PASSWORD));
+    napi_set_named_property(env, objValue, "FULL_STREET_ADDRESS",
+        CreateJsValue(env, AbilityBase::AutoFillType::FULL_STREET_ADDRESS));
+    napi_set_named_property(env, objValue, "HOUSE_NUMBER", CreateJsValue(env, AbilityBase::AutoFillType::HOUSE_NUMBER));
+    napi_set_named_property(env, objValue, "DISTRICT_ADDRESS",
+        CreateJsValue(env, AbilityBase::AutoFillType::DISTRICT_ADDRESS));
+    napi_set_named_property(env, objValue, "CITY_ADDRESS", CreateJsValue(env, AbilityBase::AutoFillType::CITY_ADDRESS));
+    napi_set_named_property(env, objValue, "PROVINCE_ADDRESS",
+        CreateJsValue(env, AbilityBase::AutoFillType::PROVINCE_ADDRESS));
+    napi_set_named_property(env, objValue, "COUNTRY_ADDRESS",
+        CreateJsValue(env, AbilityBase::AutoFillType::COUNTRY_ADDRESS));
+    napi_set_named_property(env, objValue, "PERSON_FULL_NAME",
+        CreateJsValue(env, AbilityBase::AutoFillType::PERSON_FULL_NAME));
+    napi_set_named_property(env, objValue, "PERSON_LAST_NAME",
+        CreateJsValue(env, AbilityBase::AutoFillType::PERSON_LAST_NAME));
+    napi_set_named_property(env, objValue, "PERSON_FIRST_NAME",
+        CreateJsValue(env, AbilityBase::AutoFillType::PERSON_FIRST_NAME));
+    napi_set_named_property(env, objValue, "PHONE_NUMBER", CreateJsValue(env, AbilityBase::AutoFillType::PHONE_NUMBER));
+    napi_set_named_property(env, objValue, "PHONE_COUNTRY_CODE",
+        CreateJsValue(env, AbilityBase::AutoFillType::PHONE_COUNTRY_CODE));
+    napi_set_named_property(env, objValue, "FULL_PHONE_NUMBER",
+        CreateJsValue(env, AbilityBase::AutoFillType::FULL_PHONE_NUMBER));
+    napi_set_named_property(env, objValue, "EMAIL_ADDRESS",
+        CreateJsValue(env, AbilityBase::AutoFillType::EMAIL_ADDRESS));
+    napi_set_named_property(env, objValue, "BANK_CARD_NUMBER",
+        CreateJsValue(env, AbilityBase::AutoFillType::BANK_CARD_NUMBER));
+    napi_set_named_property(env, objValue, "ID_CARD_NUMBER",
+        CreateJsValue(env, AbilityBase::AutoFillType::ID_CARD_NUMBER));
+    napi_set_named_property(env, objValue, "PRECISE_TIME", CreateJsValue(env, AbilityBase::AutoFillType::PRECISE_TIME));
+    napi_set_named_property(env, objValue, "HOUR_AND_MINUTE",
+        CreateJsValue(env, AbilityBase::AutoFillType::HOUR_AND_MINUTE));
+    napi_set_named_property(env, objValue, "DATE", CreateJsValue(env, AbilityBase::AutoFillType::DATE));
+    napi_set_named_property(env, objValue, "MONTH", CreateJsValue(env, AbilityBase::AutoFillType::MONTH));
+    napi_set_named_property(env, objValue, "YEAR", CreateJsValue(env, AbilityBase::AutoFillType::YEAR));
+    napi_set_named_property(env, objValue, "NICKNAME", CreateJsValue(env, AbilityBase::AutoFillType::NICKNAME));
+    napi_set_named_property(env, objValue, "DETAIL_INFO_WITHOUT_STREET",
+        CreateJsValue(env, AbilityBase::AutoFillType::DETAIL_INFO_WITHOUT_STREET));
+    napi_set_named_property(env, objValue, "FORMAT_ADDRESS",
+        CreateJsValue(env, AbilityBase::AutoFillType::FORMAT_ADDRESS));
     return objValue;
 }
 

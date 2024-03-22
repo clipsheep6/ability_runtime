@@ -22,6 +22,7 @@
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_collaborator_proxy.h"
 #include "ability_manager_errors.h"
+#include "ability_manager_radar.h"
 #include "ability_scheduler_proxy.h"
 #include "ability_scheduler_stub.h"
 #include "configuration.h"
@@ -253,8 +254,6 @@ void AbilityManagerStub::SecondStepInit()
         &AbilityManagerStub::GetMissionSnapshotInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST)] =
         &AbilityManagerStub::IsRunningInStabilityTestInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID)] =
-        &AbilityManagerStub::SendANRProcessIDInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA)] =
         &AbilityManagerStub::AcquireShareDataInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SHARE_DATA_DONE)] =
@@ -1449,12 +1448,14 @@ int AbilityManagerStub::ContinueAbilityInner(MessageParcel &data, MessageParcel 
     int32_t missionId = data.ReadInt32();
     uint32_t versionCode = data.ReadUint32();
     int32_t result = ContinueAbility(deviceId, missionId, versionCode);
+    AAFWK::ContinueRadar::GetInstance().SaveDataContinue("ContinueAbility", result);
     HILOG_INFO("ContinueAbilityInner result = %{public}d", result);
     return result;
 }
 
 int AbilityManagerStub::StartContinuationInner(MessageParcel &data, MessageParcel &reply)
 {
+    AAFWK::ContinueRadar::GetInstance().SaveDataRes("GetContentInfo");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
         HILOG_ERROR("StartContinuationInner want readParcelable failed!");
@@ -2083,17 +2084,6 @@ int AbilityManagerStub::DoAbilityBackgroundInner(MessageParcel &data, MessagePar
     uint32_t flag = data.ReadUint32();
     auto result = DoAbilityBackground(token, flag);
     reply.WriteInt32(result);
-    return NO_ERROR;
-}
-
-int AbilityManagerStub::SendANRProcessIDInner(MessageParcel &data, MessageParcel &reply)
-{
-    int32_t pid = data.ReadInt32();
-    int32_t result = SendANRProcessID(pid);
-    if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("reply write failed.");
-        return ERR_INVALID_VALUE;
-    }
     return NO_ERROR;
 }
 
@@ -3112,17 +3102,30 @@ int32_t AbilityManagerStub::UpdateSessionInfoBySCBInner(MessageParcel &data, Mes
         HILOG_ERROR("Size of vector too large.");
         return ERR_ENOUGH_DATA;
     }
-    std::vector<SessionInfo> sessionInfos;
+    std::list<SessionInfo> sessionInfos;
     for (auto i = 0; i < size; i++) {
         std::unique_ptr<SessionInfo> info(data.ReadParcelable<SessionInfo>());
         if (info == nullptr) {
             HILOG_ERROR("Read session info failed.");
-            return INNER_ERR;
+            return ERR_NATIVE_IPC_PARCEL_FAILED;
         }
         sessionInfos.emplace_back(*info);
     }
     int32_t userId = data.ReadInt32();
-    UpdateSessionInfoBySCB(sessionInfos, userId);
+    std::vector<int32_t> sessionIds;
+    auto result = UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
+    if (result != ERR_OK) {
+        return result;
+    }
+    size = static_cast<int32_t>(sessionIds.size());
+    if (size > threshold) {
+        HILOG_ERROR("Size of vector too large for sessionIds.");
+        return ERR_ENOUGH_DATA;
+    }
+    reply.WriteInt32(size);
+    for (auto index = 0; index < size; index++) {
+        reply.WriteInt32(sessionIds[index]);
+    }
     return ERR_OK;
 }
 

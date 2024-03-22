@@ -43,6 +43,7 @@ namespace AAFwk {
 namespace {
 constexpr int32_t DEFAULT_USER_ID = 0;
 constexpr int32_t ERR_OK = 0;
+const char* CLOUND_DOCS_URI_MARK = "?networkid=";
 }
 
 void UriPermissionManagerStubImpl::Init()
@@ -561,7 +562,7 @@ int32_t UriPermissionManagerStubImpl::GetCurrentAccountId() const
 int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId)
 {
-    HILOG_DEBUG("Called, uriVec size is %{public}zu", uriVec.size());
+    HILOG_INFO("UriVec size is %{public}zu, targetBundleName is %{public}s", uriVec.size(), targetBundleName.c_str());
     auto checkResult = CheckRule(flag);
     if (checkResult != ERR_OK) {
         return checkResult;
@@ -584,7 +585,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
         } else {
             policyInfo.mode |= READ_MODE;
         }
-        if (authority == "docs") {
+        if (authority == "docs" && uri.ToString().find(CLOUND_DOCS_URI_MARK) == std::string::npos) {
             docsVec.emplace_back(policyInfo);
         } else {
             otherVec.emplace_back(uri_inner);

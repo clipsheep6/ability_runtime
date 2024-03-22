@@ -16,6 +16,7 @@
 #include "app_scheduler.h"
 #include "assert_fault_callback_death_mgr.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {
@@ -36,6 +37,7 @@ AssertFaultCallbackDeathMgr::~AssertFaultCallbackDeathMgr()
 void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &remote)
 {
     HILOG_DEBUG("Called.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (remote == nullptr) {
         HILOG_ERROR("Params remote is nullptr.");
         return;
@@ -62,12 +64,13 @@ void AssertFaultCallbackDeathMgr::AddAssertFaultCallback(sptr<IRemoteObject> &re
         HILOG_ERROR("Get app scheduler instance is nullptr.");
         return;
     }
-    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(callerPid, false));
+    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(callerPid, true));
 }
 
 void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteObject> &remote)
 {
     HILOG_DEBUG("Called.");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto callback = remote.promote();
     if (callback == nullptr) {
         HILOG_ERROR("Invalid dead remote object.");
@@ -92,27 +95,32 @@ void AssertFaultCallbackDeathMgr::RemoveAssertFaultCallback(const wptr<IRemoteOb
 void AssertFaultCallbackDeathMgr::CallAssertFaultCallback(uint64_t assertFaultSessionId, AAFwk::UserStatus status)
 {
     HILOG_DEBUG("Called.");
-    std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
-    auto iter = assertFaultSessionDailogs_.find(assertFaultSessionId);
-    if (iter == assertFaultSessionDailogs_.end()) {
-        HILOG_ERROR("Not find assert fault session by id.");
-        return;
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    DeathItem item;
+    {
+        std::unique_lock<std::mutex> lock(assertFaultSessionMutex_);
+        auto iter = assertFaultSessionDailogs_.find(assertFaultSessionId);
+        if (iter == assertFaultSessionDailogs_.end()) {
+            HILOG_ERROR("Not find assert fault session by id.");
+            return;
+        }
+
+        item = iter->second;
     }
 
-    sptr<AssertFaultProxy> callback = iface_cast<AssertFaultProxy>(iter->second.iremote_);
+    RemoveAssertFaultCallback(item.iremote_);
+    sptr<AssertFaultProxy> callback = iface_cast<AssertFaultProxy>(item.iremote_);
     if (callback == nullptr) {
         HILOG_ERROR("Convert assert fault proxy failed, callback is nullptr.");
         return;
     }
-
     callback->NotifyDebugAssertResult(status);
-    auto pid = iter->second.pid_;
     auto appScheduler = DelayedSingleton<AAFwk::AppScheduler>::GetInstance();
     if (appScheduler == nullptr) {
         HILOG_ERROR("Get app scheduler instance is nullptr.");
         return;
     }
-    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(pid, false));
+    IN_PROCESS_CALL_WITHOUT_RET(appScheduler->SetAppAssertionPauseState(item.pid_, false));
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

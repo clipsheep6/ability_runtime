@@ -525,5 +525,17 @@ void ApplicationContext::RegisterAppConfigUpdateObserver(AppConfigUpdateCallback
 {
     appConfigChangeCallback_ = appConfigChangeCallback;
 }
+
+std::string ApplicationContext::GetAppRunningUniqueIdByPid() const
+{
+    HILOG_DEBUG("GetAppRunningUniqueIdByPid is %{public}s.", appRunningUniqueId_.c_str());
+    return appRunningUniqueId_;
+}
+
+void ApplicationContext::SetAppRunningUniqueIdByPid(const std::string &appRunningUniqueId)
+{
+    HILOG_DEBUG("SetAppRunningUniqueIdByPid is %{public}s.", appRunningUniqueId.c_str());
+    appRunningUniqueId_ = appRunningUniqueId;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

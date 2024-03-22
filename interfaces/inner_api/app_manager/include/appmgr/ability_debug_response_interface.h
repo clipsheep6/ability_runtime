@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,9 +36,17 @@ public:
      */
     virtual void OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens) = 0;
 
+    /**
+     * @brief Change ability assert debug flag.
+     * @param tokens The token of ability records.
+     * @param isAssertDebug Assert debug flag.
+     */
+    virtual void OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug) = 0;
+
     enum class Message {
         ON_ABILITYS_DEBUG_STARTED = 0,
         ON_ABILITYS_DEBUG_STOPED,
+        ON_ABILITYS_ASSERT_DEBUG,
     };
 };
 } // namespace AppExecFwk

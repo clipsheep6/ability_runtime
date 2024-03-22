@@ -34,6 +34,7 @@
 #include "appfreeze_manager.h"
 #include "application_state_observer_stub.h"
 #include "appspawn_mount_permission.h"
+#include "appspawn_util.h"
 #include "bundle_constants.h"
 #include "common_event.h"
 #include "common_event_manager.h"
@@ -152,6 +153,7 @@ constexpr char EVENT_KEY_MESSAGE[] = "MSG";
 
 // Developer mode param
 constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
+constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
 
 // Msg length is less than 48 characters
 const std::string EVENT_MESSAGE_TERMINATE_ABILITY_TIMEOUT = "Terminate Ability TimeOut!";
@@ -237,6 +239,7 @@ void AppMgrServiceInner::Init()
     ParseServiceExtMultiProcessWhiteList();
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
+    dfxTaskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("dfx_freeze_task_queue");
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -364,7 +367,7 @@ void AppMgrServiceInner::LoadAbility(const sptr<IRemoteObject> &token, const spt
             HILOG_DEBUG("req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
                 appInfo->name.c_str(), appRecord->GetCallerPid(), callRecord->GetBundleName().c_str());
         }
-        uint32_t startFlags = (want == nullptr) ? 0 : BuildStartFlags(*want, *abilityInfo);
+        uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag);
@@ -1330,6 +1333,9 @@ void AppMgrServiceInner::GetRunningProcess(const std::shared_ptr<AppRunningRecor
     appRecord->GetBundleNames(info.bundleNames);
     info.processType_ = appRecord->GetProcessType();
     info.extensionType_ = appRecord->GetExtensionType();
+    if (appRecord->GetUserTestInfo() != nullptr && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        info.isTestMode = true;
+    }
 }
 
 void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord,
@@ -3083,10 +3089,7 @@ int AppMgrServiceInner::StartEmptyProcess(const AAFwk::Want &want, const sptr<IR
     appRecord->SetUserTestInfo(testRecord);
 
     int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
-    uint32_t startFlags = 0x0;
-    if (info.applicationInfo.debug) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
-    }
+    uint32_t startFlags = AppspawnUtil::BuildStartFlags(want, info.applicationInfo);
     StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, info, appInfo->bundleName,
         bundleIndex, appExistFlag);
 
@@ -3225,7 +3228,7 @@ void AppMgrServiceInner::StartSpecifiedAbility(const AAFwk::Want &want, const Ap
         appRecord->SetEventHandler(eventHandler_);
         appRecord->SendEventForSpecifiedAbility(AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT_MSG,
             AMSEventHandler::START_PROCESS_SPECIFIED_ABILITY_TIMEOUT);
-        uint32_t startFlags = BuildStartFlags(want, abilityInfo);
+        uint32_t startFlags = AppspawnUtil::BuildStartFlags(want, abilityInfo);
         int32_t bundleIndex = want.GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(appInfo->name, processName, startFlags, appRecord, appInfo->uid, bundleInfo, appInfo->bundleName,
             bundleIndex, appExistFlag);
@@ -4032,40 +4035,6 @@ void AppMgrServiceInner::OnRenderRemoteDied(const wptr<IRemoteObject> &remote)
     }
 }
 
-uint32_t AppMgrServiceInner::BuildStartFlags(const AAFwk::Want &want, const AbilityInfo &abilityInfo)
-{
-    uint32_t startFlags = 0x0;
-    if (want.GetBoolParam("coldStart", false)) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::COLD_START);
-    }
-
-    if (want.GetIntParam(DLP_PARAMS_INDEX, 0) != 0) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DLP_MANAGER);
-    }
-
-    if (abilityInfo.extensionAbilityType == ExtensionAbilityType::BACKUP) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::BACKUP_EXTENSION);
-    }
-
-    if (abilityInfo.applicationInfo.debug) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::DEBUGGABLE);
-    }
-    if (abilityInfo.applicationInfo.asanEnabled) {
-	    startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::ASANENABLED);
-    }
-    if (want.GetBoolParam("nativeDebug", false)) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NATIVEDEBUG);
-    }
-    if (abilityInfo.applicationInfo.gwpAsanEnabled) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_FORCE);
-    }
-    if (abilityInfo.applicationInfo.isSystemApp) {
-        startFlags = startFlags | (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::GWP_ENABLED_NORMAL);
-    }
-
-    return startFlags;
-}
-
 void AppMgrServiceInner::AddWatchParameter()
 {
     HILOG_INFO("%{public}s called.", __func__);
@@ -4418,12 +4387,7 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
     std::string bundleName = appRecord->GetBundleName();
 
     if (faultData.faultType == FaultDataType::APP_FREEZE) {
-        if (faultData.timeoutMarkers != "" &&
-            !taskHandler_->CancelTask(faultData.timeoutMarkers)) {
-            return ERR_OK;
-        }
-
-        if (appRecord->IsDebugApp() || appRecord->IsAssertionPause()) {
+        if (CheckAppFault(appRecord, faultData)) {
             return ERR_OK;
         }
 
@@ -4447,7 +4411,46 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             "bundleName: %{public}s, faultData.forceExit==%{public}d, faultData.waitSaveState==%{public}d",
             faultData.errorObject.name.c_str(), faultData.faultType,
             callerUid, pid, bundleName.c_str(), faultData.forceExit, faultData.waitSaveState);
+    };
 
+    if (AppExecFwk::AppfreezeManager::GetInstance()->IsProcessDebug(pid, bundleName)) {
+        HILOG_WARN("heap dump, don't reportEvent and kill:%{public}s, pid:%{public}d, bundleName:%{public}s.",
+            faultData.errorObject.name.c_str(), pid, bundleName.c_str());
+        return ERR_OK;
+    }
+
+    if (!dfxTaskHandler_) {
+        HILOG_WARN("get dfx ffrt handler failed!");
+        return ERR_INVALID_VALUE;
+    }
+
+    dfxTaskHandler_->SubmitTask(notifyAppTask, "NotifyAppFaultTask");
+
+    if (appRecord->GetApplicationInfo()->asanEnabled) {
+        HILOG_INFO("FaultData %{public}s, pid == %{public}d is asan app, don't kill.", bundleName.c_str(), pid);
+        return ERR_OK;
+    }
+
+    KillFaultApp(pid, bundleName, faultData);
+
+    return ERR_OK;
+}
+
+bool AppMgrServiceInner::CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData)
+{
+    if (faultData.timeoutMarkers != "" && !taskHandler_->CancelTask(faultData.timeoutMarkers)) {
+        return true;
+    }
+
+    if (appRecord->IsDebugging()) {
+        return true;
+    }
+    return false;
+}
+
+int32_t AppMgrServiceInner::KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData)
+{
+    auto killAppTask = [pid, bundleName, faultData, innerService = shared_from_this()]() {
         if (faultData.forceExit && !faultData.waitSaveState) {
             HILOG_INFO("FaultData %{public}s,pid == %{public}d is going to exit due to %{public}s.",
                 bundleName.c_str(), pid, innerService->FaultTypeToString(faultData.faultType).c_str());
@@ -4455,13 +4458,9 @@ int32_t AppMgrServiceInner::NotifyAppFault(const FaultData &faultData)
             return;
         }
     };
-
-    if (AppExecFwk::AppfreezeManager::GetInstance()->IsProcessDebug(pid, bundleName)) {
-        HILOG_WARN("heap dump, don't reportEvent and kill:%{public}s, pid:%{public}d, bundleName:%{public}s.",
-            faultData.errorObject.name.c_str(), pid, bundleName.c_str());
-    } else {
-        taskHandler_->SubmitTask(notifyAppTask, "notifyAppFaultTask");
-    }
+    constexpr int32_t waitTime = 2000;
+    // wait 2s before kill application
+    taskHandler_->SubmitTask(killAppTask, "killAppTask", waitTime);
     return ERR_OK;
 }
 
@@ -4518,7 +4517,7 @@ int32_t AppMgrServiceInner::NotifyAppFaultBySA(const AppFaultDataBySA &faultData
         }
         const int64_t timeout = 11000;
         if (faultData.faultType == FaultDataType::APP_FREEZE) {
-            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugApp()) {
+            if (!AppExecFwk::AppfreezeManager::GetInstance()->IsHandleAppfreeze(bundleName) || record->IsDebugging()) {
                 return ERR_OK;
             }
             auto timeoutNotifyApp = std::bind(&AppMgrServiceInner::TimeoutNotifyApp, this,
@@ -4918,6 +4917,27 @@ int32_t AppMgrServiceInner::NotifyAbilitysDebugChange(const std::string &bundleN
     if (!tokens.empty()) {
         isAppDebug ? abilityDebugResponse_->OnAbilitysDebugStarted(tokens) :
             abilityDebugResponse_->OnAbilitysDebugStoped(tokens);
+    }
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::NotifyAbilitysAssertDebugChange(
+    const std::shared_ptr<AppRunningRecord> &appRecord, bool isAssertDebug)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    if (appRecord == nullptr || abilityDebugResponse_ == nullptr) {
+        HILOG_ERROR("Record or abilityDebugResponse is nullptr.");
+        return ERR_NO_INIT;
+    }
+
+    std::vector<sptr<IRemoteObject>> abilityTokens;
+    auto abilities = appRecord->GetAbilities();
+    for (const auto &token : abilities) {
+        abilityTokens.emplace_back(token.first);
+    }
+
+    if (!abilityTokens.empty()) {
+        abilityDebugResponse_->OnAbilitysAssertDebugChange(abilityTokens, isAssertDebug);
     }
     return ERR_OK;
 }
@@ -5486,7 +5506,17 @@ int32_t AppMgrServiceInner::UnregisterRenderStateObserver(const sptr<IRenderStat
 
 void AppMgrServiceInner::SetAppAssertionPauseState(int32_t pid, bool flag)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     HILOG_DEBUG("Called.");
+    if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
+        HILOG_ERROR("Product of assert fault dialog is not enabled.");
+        return;
+    }
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer Mode is false.");
+        return;
+    }
+
     auto callerUid = IPCSkeleton::GetCallingUid();
     if (callerUid != FOUNDATION_UID) {
         HILOG_ERROR("Caller is not foundation.");
@@ -5498,6 +5528,14 @@ void AppMgrServiceInner::SetAppAssertionPauseState(int32_t pid, bool flag)
         return;
     }
     appRecord->SetAssertionPauseFlag(flag);
+    auto isDebugStart = appRecord->IsDebugApp() || appRecord->isAttachDebug();
+    if (!isDebugStart) {
+        std::vector<AppDebugInfo> debugInfos;
+        debugInfos.emplace_back(MakeAppDebugInfo(appRecord, flag));
+        flag ? appDebugManager_->StartDebug(debugInfos) : appDebugManager_->StopDebug(debugInfos);
+    }
+
+    NotifyAbilitysAssertDebugChange(appRecord, flag);
 }
 
 int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
@@ -5525,6 +5563,16 @@ int32_t AppMgrServiceInner::SignRestartAppFlag(const std::string &bundleName)
         return ERR_NO_INIT;
     }
     return appRunningManager_->SignRestartAppFlag(bundleName);
+}
+
+int32_t AppMgrServiceInner::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+{
+    HILOG_DEBUG("call.");
+    if (!appRunningManager_) {
+        HILOG_ERROR("appRunningManager_ is nullptr");
+        return ERR_NO_INIT;
+    }
+    return appRunningManager_->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

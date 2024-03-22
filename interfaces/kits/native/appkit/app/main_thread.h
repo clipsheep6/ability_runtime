@@ -644,6 +644,7 @@ private:
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
+    void SetAppDebug(uint32_t modeFlag, bool isDebug);
     
     /**
      * @brief Whether MainThread is started by ChildProcessManager.

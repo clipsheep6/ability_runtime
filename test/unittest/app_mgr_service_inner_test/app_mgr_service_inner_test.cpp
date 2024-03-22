@@ -21,6 +21,7 @@
 #include "remote_client_manager.h"
 #undef private
 #include "app_scheduler.h"
+#include "appspawn_util.h"
 #include "event_handler.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
@@ -3098,17 +3099,16 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
 HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
 {
     HILOG_INFO("BuildStartFlags_001 start");
-    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
-    EXPECT_NE(appMgrServiceInner, nullptr);
 
     AAFwk::Want want;
     AbilityInfo abilityInfo;
-    appMgrServiceInner->BuildStartFlags(want, abilityInfo);
+    AppspawnUtil::BuildStartFlags(want, abilityInfo);
 
     want.SetParam("coldStart", true);
     want.SetParam("ohos.dlp.params.index", 1);
     abilityInfo.extensionAbilityType = ExtensionAbilityType::BACKUP;
-    appMgrServiceInner->BuildStartFlags(want, abilityInfo);
+    uint32_t result = AppspawnUtil::BuildStartFlags(want, abilityInfo);
+    EXPECT_EQ(result, 7);
 
     HILOG_INFO("BuildStartFlags_001 end");
 }
@@ -4027,10 +4027,11 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0100, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0200, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
-    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+    EXPECT_EQ(ERR_OK, res);
 }
 
 /**
@@ -4053,10 +4054,11 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0100, TestSize.Le
  */
 HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0200, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     sptr<IRenderStateObserver> observer = new (std::nothrow) RenderStateObserverMock();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
-    EXPECT_EQ(ERR_PERMISSION_DENIED, res);
+    EXPECT_EQ(ERR_OK, res);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

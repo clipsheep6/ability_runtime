@@ -218,11 +218,6 @@ public:
 
     void CompleteFirstFrameDrawing(const sptr<IRemoteObject>& abilityToken) override {}
 
-    virtual int SendANRProcessID(int pid)
-    {
-        return 0;
-    }
-
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override
     {

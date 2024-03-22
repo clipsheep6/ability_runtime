@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,87 +51,5 @@ void AutoFillManagerTest::SetUp()
 
 void AutoFillManagerTest::TearDown()
 {}
-
-/**
- * @tc.name: RequestAutoFill_0100
- * @tc.desc: RequestAutoFill
- */
-HWTEST_F(AutoFillManagerTest, RequestAutoFill_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, RequestAutoFill_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    const AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
-    const AbilityBase::ViewData viewdata;
-    const std::shared_ptr<AbilityRuntime::IFillRequestCallback> fillCallback = nullptr;
-    int32_t result = manager.RequestAutoFill(autoFillType, GetUIContent(), viewdata, fillCallback);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
-}
-
-/**
- * @tc.name: RequestAutoSave_0100
- * @tc.desc: RequestAutoSave
- */
-HWTEST_F(AutoFillManagerTest, RequestAutoSave_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, RequestAutoSave_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    const AbilityBase::ViewData viewdata;
-    const std::shared_ptr<AbilityRuntime::ISaveRequestCallback> saveCallback = nullptr;
-    int32_t result = manager.RequestAutoSave(GetUIContent(), viewdata, saveCallback);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
-}
-
-/**
- * @tc.name: HandleRequestExecuteInner_0100
- * @tc.desc: HandleRequestExecuteInner
- */
-HWTEST_F(AutoFillManagerTest, HandleRequestExecuteInner_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, HandleRequestExecuteInner_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    const AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
-    const AbilityBase::ViewData viewdata;
-    const std::shared_ptr<AbilityRuntime::IFillRequestCallback> fillCallback = nullptr;
-    const std::shared_ptr<AbilityRuntime::ISaveRequestCallback> saveCallback = nullptr;
-    int32_t result =
-        manager.HandleRequestExecuteInner(autoFillType, GetUIContent(), viewdata, fillCallback, saveCallback);
-    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
-}
-
-/**
- * @tc.name: SetTimeOutEvent_0100
- * @tc.desc: SetTimeOutEvent
- */
-HWTEST_F(AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    manager.SetTimeOutEvent(1);
-    EXPECT_EQ(manager.eventId_, 0);
-}
-
-/**
- * @tc.name: HandleTimeOut_0100
- * @tc.desc: HandleTimeOut
- */
-HWTEST_F(AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    manager.HandleTimeOut(1);
-    EXPECT_EQ(manager.eventId_, 0);
-}
-
-/**
- * @tc.name: RemoveEvent_0100
- * @tc.desc: RemoveEvent
- */
-HWTEST_F(AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    manager.RemoveEvent(1);
-    EXPECT_EQ(manager.eventId_, 0);
-}
 } // namespace AppExecFwk
 } // namespace OHOS

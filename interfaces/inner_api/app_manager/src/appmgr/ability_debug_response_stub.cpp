@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -78,6 +78,28 @@ int32_t AbilityDebugResponseStub::HandleOnAbilitysDebugStoped(MessageParcel &dat
         tokens.push_back(token);
     }
     OnAbilitysDebugStoped(tokens);
+    return NO_ERROR;
+}
+
+int32_t AbilityDebugResponseStub::HandleOnAbilitysAssertDebugChange(MessageParcel &data, MessageParcel &reply)
+{
+    auto tokenSize = data.ReadInt32();
+    if (tokenSize <= CYCLE_LIMIT_MIN || tokenSize > CYCLE_LIMIT_MAX) {
+        HILOG_ERROR("Token size exceeds limit.");
+        return ERR_INVALID_DATA;
+    }
+
+    std::vector<sptr<IRemoteObject>> tokens;
+    for (int32_t index = 0; index < tokenSize; index++) {
+        auto token = data.ReadRemoteObject();
+        if (token == nullptr) {
+            HILOG_ERROR("Token is nullptr.");
+            return ERR_INVALID_DATA;
+        }
+        tokens.push_back(token);
+    }
+    auto isAssertDebug = data.ReadBool();
+    OnAbilitysAssertDebugChange(tokens, isAssertDebug);
     return NO_ERROR;
 }
 

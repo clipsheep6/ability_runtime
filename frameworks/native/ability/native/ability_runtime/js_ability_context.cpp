@@ -78,6 +78,26 @@ void RemoveConnection(int64_t connectId)
     }
 }
 
+int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want)
+{
+    if (connection == nullptr) {
+        HILOG_ERROR("connection null");
+        return -1;
+    }
+    int64_t connectId = g_serialNumber;
+    ConnectionKey key;
+    key.id = g_serialNumber;
+    key.want = want;
+    connection->SetConnectionId(key.id);
+    g_connects.emplace(key, connection);
+    if (g_serialNumber < INT32_MAX) {
+        g_serialNumber++;
+    } else {
+        g_serialNumber = 0;
+    }
+    return connectId;
+}
+
 class StartAbilityByCallParameters {
 public:
     int err = 0;
@@ -1007,18 +1027,7 @@ napi_value JsAbilityContext::OnConnectAbility(napi_env env, NapiCallbackInfo& in
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_ONE]);
-    int64_t connectId = g_serialNumber;
-    ConnectionKey key;
-    key.id = g_serialNumber;
-    key.want = want;
-    connection->SetConnectionId(key.id);
-    g_connects.emplace(key, connection);
-    if (g_serialNumber < INT32_MAX) {
-        g_serialNumber++;
-    } else {
-        g_serialNumber = 0;
-    }
-
+    int64_t connectId = InsertConnection(connection, want);
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, connection, connectId](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
@@ -1051,7 +1060,12 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
-
+    auto selfToken = IPCSkeleton::GetSelfTokenID();
+    if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
+        HILOG_ERROR("This application is not system-app, can not use system-api");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
+        return CreateJsUndefined(env);
+    }
     // unwrap want
     AAFwk::Want want;
     OHOS::AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want);
@@ -1069,17 +1083,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
     // unwarp connection
     sptr<JSAbilityConnection> connection = new JSAbilityConnection(env);
     connection->SetJsConnectionObject(info.argv[INDEX_TWO]);
-    int64_t connectId = g_serialNumber;
-    ConnectionKey key;
-    key.id = g_serialNumber;
-    key.want = want;
-    connection->SetConnectionId(key.id);
-    g_connects.emplace(key, connection);
-    if (g_serialNumber < INT32_MAX) {
-        g_serialNumber++;
-    } else {
-        g_serialNumber = 0;
-    }
+    int64_t connectId = InsertConnection(connection, want);
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_, want, accountId, connection, connectId](
             napi_env env, NapiAsyncTask& task, int32_t status) {

@@ -19,9 +19,12 @@
 #include "js_env_logger.h"
 #include "native_engine/native_engine.h"
 #include "ui_content.h"
+#include "unwinder.h"
 
 namespace OHOS {
 namespace JsEnv {
+constexpr int32_t INDEX_EIGHT = 8;
+
 std::string NapiUncaughtExceptionCallback::GetNativeStrFromJsTaggedObj(napi_value obj, const char* key)
 {
     if (obj == nullptr) {
@@ -82,10 +85,6 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
             error = reinterpret_cast<NativeEngine*>(env_)->GetSourceCodeInfo(fuc, errorPos);
         }
     }
-    if (sourceMapOperator_ == nullptr) {
-        JSENV_LOG_E("sourceMapOperator_ is empty");
-        return;
-    }
     summary += error + "Stacktrace:\n" + errorStack;
     std::string str = Ace::UIContent::GetCurrentUIStackInfo();
     if (!str.empty()) {
@@ -94,6 +93,16 @@ void NapiUncaughtExceptionCallback::operator()(napi_value obj)
     if (uncaughtTask_) {
         uncaughtTask_(summary, errorObj);
     }
+}
+
+std::string NapiUncaughtExceptionCallback::GetNativeStack()
+{
+    auto unwinder = std::make_shared<HiviewDFX::Unwinder>();
+    if (!unwinder->UnwindLocal(false, DEFAULT_MAX_FRAME_NUM, INDEX_EIGHT)) {
+        JSENV_LOG_E("Feiled to unwind locak");
+    }
+    auto frames = unwinder->GetFrames();
+    return HiviewDFX::Unwinder::GetFramesStr(frames);
 }
 } // namespace JsEnv
 } // namespace OHOS

@@ -274,11 +274,6 @@ public:
         return true;
     }
 
-    int SendANRProcessID(int pid) override
-    {
-        return 0;
-    }
-
     int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override
     {
         return 0;

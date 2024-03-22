@@ -21,6 +21,13 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr double FONT_SIZE_MIN_SCALE = 0.0;
+constexpr double FONT_SIZE_MAX_SCALE = 3.2;
+constexpr double FONT_WEIGHT_MIN_SCALE = 0.0;
+constexpr double FONT_WEIGHT_MAX_SCALE = 1.25;
+}
+
 EXTERN_C_START
 
 bool InnerWrapConfigurationString(
@@ -68,6 +75,14 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
     jsValue = WrapBoolToJS(env, hasPointerDevice == "true" ? true : false);
     SetPropertyValueByPropertyName(env, jsObject, "hasPointerDevice", jsValue);
 
+    std::string fontSizeScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE);
+    jsValue = WrapDoubleToJS(env, fontSizeScale != "" ? std::stod(fontSizeScale) : 1.0);
+    SetPropertyValueByPropertyName(env, jsObject, "fontSizeScale", jsValue);
+    
+    std::string fontWeightScale = configuration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE);
+    jsValue = WrapDoubleToJS(env, fontWeightScale != "" ? std::stod(fontWeightScale) : 1.0);
+    SetPropertyValueByPropertyName(env, jsObject, "fontWeightScale", jsValue);
+
     return jsObject;
 }
 
@@ -98,6 +113,30 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
         }
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, GetColorModeStr(colormode))) {
             HILOG_ERROR("colorMode parsing failed");
+            return false;
+        }
+    }
+
+    double fontSizeScale = 0.0;
+    if (UnwrapDoubleByPropertyName(env, param, "fontSizeScale", fontSizeScale)) {
+        HILOG_DEBUG("The parsed fontSizeScale part %{public}lf", fontSizeScale);
+        if (fontSizeScale < FONT_SIZE_MIN_SCALE || fontSizeScale > FONT_SIZE_MAX_SCALE) {
+            HILOG_ERROR("invalid fontSizeScale");
+            return false;
+        }
+        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE, std::to_string(fontSizeScale))) {
+            return false;
+        }
+    }
+
+    double fontWeightScale = 0.0;
+    if (UnwrapDoubleByPropertyName(env, param, "fontWeightScale", fontWeightScale)) {
+        HILOG_DEBUG("The parsed fontWeightScale part %{public}lf", fontWeightScale);
+        if (fontWeightScale < FONT_WEIGHT_MIN_SCALE || fontWeightScale > FONT_WEIGHT_MAX_SCALE) {
+            HILOG_ERROR("invalid fontWeightScale");
+            return false;
+        }
+        if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE, std::to_string(fontWeightScale))) {
             return false;
         }
     }

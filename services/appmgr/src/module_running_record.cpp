@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "module_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "app_running_record.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "ui_extension_utils.h"
 
@@ -32,7 +32,7 @@ ModuleRunningRecord::ModuleRunningRecord(
 
 ModuleRunningRecord::~ModuleRunningRecord()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
 
 void ModuleRunningRecord::Init(const HapModuleInfo &info)
@@ -55,7 +55,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
     const sptr<IRemoteObject> &token) const
 {
     if (!token) {
-        HILOG_ERROR("token is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "token is null");
         return nullptr;
     }
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
@@ -69,13 +69,13 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want)
 {
-    HILOG_DEBUG("Add ability.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Add ability.");
     if (!token || !abilityInfo) {
-        HILOG_ERROR("Param abilityInfo or token is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "Param abilityInfo or token is null");
         return nullptr;
     }
     if (GetAbilityRunningRecordByToken(token)) {
-        HILOG_ERROR("AbilityRecord already exists and no need to add");
+        TAG_LOGE(AAFwkTag::APPMGR, "AbilityRecord already exists and no need to add");
         return nullptr;
     }
     auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
@@ -94,7 +94,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr
 bool ModuleRunningRecord::IsLastAbilityRecord(const sptr<IRemoteObject> &token)
 {
     if (!token) {
-        HILOG_ERROR("token is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "token is nullptr");
         return false;
     }
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
@@ -127,7 +127,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
     const sptr<IRemoteObject> &token) const
 {
     if (!token) {
-        HILOG_ERROR("GetAbilityByTerminateLists error, token is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "GetAbilityByTerminateLists error, token is null");
         return nullptr;
     }
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
@@ -140,7 +140,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityByTerminate
 
 std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningRecord(const int64_t eventId) const
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     const auto &iter = std::find_if(abilities_.begin(), abilities_.end(), [eventId](const auto &pair) {
         return pair.second->GetEventId() == eventId;
@@ -162,13 +162,14 @@ void ModuleRunningRecord::OnAbilityStateChanged(
     const std::shared_ptr<AbilityRunningRecord> &ability, const AbilityState state)
 {
     if (!ability) {
-        HILOG_ERROR("ability is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "ability is null");
         return;
     }
     AbilityState oldState = ability->GetState();
     ability->SetState(state);
-    HILOG_INFO("Ability state change from %{public}d to %{public}d. bundle: %{public}s, ability: %{public}s.",
-        oldState, state, ability->GetAbilityInfo()->bundleName.c_str(), ability->GetName().c_str());
+    TAG_LOGI(AAFwkTag::APPMGR,
+        "Ability state change from %{public}d to %{public}d. bundle: %{public}s, ability: %{public}s.", oldState, state,
+        ability->GetAbilityInfo()->bundleName.c_str(), ability->GetName().c_str());
     auto serviceInner = appMgrServiceInner_.lock();
     if (serviceInner) {
         serviceInner->OnAbilityStateChanged(ability, state);
@@ -178,37 +179,37 @@ void ModuleRunningRecord::OnAbilityStateChanged(
 void ModuleRunningRecord::LaunchAbility(const std::shared_ptr<AbilityRunningRecord> &ability)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!ability || !ability->GetToken()) {
-        HILOG_ERROR("null abilityRecord or abilityToken");
+        TAG_LOGE(AAFwkTag::APPMGR, "null abilityRecord or abilityToken");
         return;
     }
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     const auto &iter = abilities_.find(ability->GetToken());
     if (iter != abilities_.end() && appLifeCycleDeal_->GetApplicationClient()) {
-        HILOG_DEBUG("Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
+        TAG_LOGD(AAFwkTag::APPMGR, "Schedule launch ability, name is %{public}s.", ability->GetName().c_str());
         appLifeCycleDeal_->LaunchAbility(ability);
         ability->SetState(AbilityState::ABILITY_STATE_READY);
     } else {
-        HILOG_ERROR("Can not find ability or get appThread.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Can not find ability or get appThread.");
     }
 }
 
 void ModuleRunningRecord::LaunchPendingAbilities()
 {
-    HILOG_DEBUG("Launch pending abilities.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Launch pending abilities.");
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     if (abilities_.empty()) {
-        HILOG_ERROR("abilities_ is empty");
+        TAG_LOGE(AAFwkTag::APPMGR, "abilities_ is empty");
         return;
     }
 
     for (const auto &item : abilities_) {
         const auto &ability = item.second;
-        HILOG_DEBUG("state : %{public}d", ability->GetState());
+        TAG_LOGD(AAFwkTag::APPMGR, "state : %{public}d", ability->GetState());
         if (ability->GetState() == AbilityState::ABILITY_STATE_CREATE && ability->GetToken() &&
             appLifeCycleDeal_->GetApplicationClient()) {
-            HILOG_DEBUG("name is %{public}s.", ability->GetName().c_str());
+            TAG_LOGD(AAFwkTag::APPMGR, "name is %{public}s.", ability->GetName().c_str());
             appLifeCycleDeal_->LaunchAbility(ability);
             ability->SetState(AbilityState::ABILITY_STATE_READY);
         }
@@ -218,10 +219,10 @@ void ModuleRunningRecord::LaunchPendingAbilities()
 void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecord> &appRecord,
     const sptr<IRemoteObject> &token, const bool isForce)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto abilityRecord = GetAbilityRunningRecordByToken(token);
     if (!abilityRecord) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr");
         return;
     }
 
@@ -236,7 +237,7 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
         auto curAbilityType = abilityRecord->GetAbilityInfo()->type;
         if (curAbilityState != AbilityState::ABILITY_STATE_BACKGROUND &&
             curAbilityType == AppExecFwk::AbilityType::PAGE) {
-            HILOG_ERROR("current state(%{public}d) error", static_cast<int32_t>(curAbilityState));
+            TAG_LOGE(AAFwkTag::APPMGR, "current state(%{public}d) error", static_cast<int32_t>(curAbilityState));
             return;
         }
     }
@@ -248,22 +249,22 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
         }
         appLifeCycleDeal_->ScheduleCleanAbility(token);
     } else {
-        HILOG_WARN("appLifeCycleDeal_ is null");
+        TAG_LOGW(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         auto serviceInner = appMgrServiceInner_.lock();
         if (serviceInner) {
             serviceInner->TerminateApplication(appRecord);
         }
     }
 
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
 void ModuleRunningRecord::SendEvent(
     uint32_t msg, int64_t timeOut, const std::shared_ptr<AbilityRunningRecord> &abilityRecord)
 {
-    HILOG_DEBUG("Send event");
+    TAG_LOGD(AAFwkTag::APPMGR, "Send event");
     if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "eventHandler_ is nullptr");
         return;
     }
 
@@ -274,9 +275,9 @@ void ModuleRunningRecord::SendEvent(
 
 void ModuleRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!token) {
-        HILOG_ERROR("token is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "token is null");
         return;
     }
 
@@ -290,11 +291,11 @@ bool ModuleRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteOb
 {
     auto abilityRecord = GetAbilityByTerminateLists(token);
     if (!abilityRecord) {
-        HILOG_ERROR("ModuleRunningRecord::AbilityTerminated can not find ability record");
+        TAG_LOGE(AAFwkTag::APPMGR, "ModuleRunningRecord::AbilityTerminated can not find ability record");
         return false;
     }
     if (!eventHandler_) {
-        HILOG_ERROR("eventHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "eventHandler_ is nullptr");
         return false;
     }
     eventHandler_->RemoveEvent(AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG, abilityRecord->GetEventId());
@@ -303,12 +304,12 @@ bool ModuleRunningRecord::RemoveTerminateAbilityTimeoutTask(const sptr<IRemoteOb
 
 bool ModuleRunningRecord::IsAbilitiesBackgrounded()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<ffrt::mutex> lock(abilitiesMutex_);
     for (const auto &iter : abilities_) {
         const auto &ability = iter.second;
         if (ability == nullptr) {
-            HILOG_ERROR("Ability is nullptr.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Ability is nullptr.");
             continue;
         }
         const auto &abilityInfo = ability->GetAbilityInfo();

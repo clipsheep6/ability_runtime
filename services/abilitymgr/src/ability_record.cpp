@@ -466,7 +466,8 @@ void AbilityRecord::ForegroundAbility(const Closure &task, sptr<SessionInfo> ses
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler && task) {
         std::lock_guard guard(wantLock_);
-        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) && !isAttachDebug_) {
+        if (!want_.GetBoolParam(DEBUG_APP, false) && !want_.GetBoolParam(NATIVE_DEBUG, false) &&
+            !isAttachDebug_ && !isAssertDebug_) {
             int foregroundTimeout =
                 AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * FOREGROUND_TIMEOUT_MULTIPLE;
             handler->SubmitTask(task, "foreground_" + std::to_string(recordId_), foregroundTimeout, false);
@@ -1594,6 +1595,17 @@ void AbilityRecord::DisconnectAbility()
     isConnected = false;
 }
 
+void AbilityRecord::GrantUriPermissionForServiceExtension()
+{
+    if (abilityInfo_.extensionAbilityType == AppExecFwk::ExtensionAbilityType::SERVICE) {
+        std::lock_guard guard(wantLock_);
+        auto callerTokenId = want_.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, 0);
+        auto callerName = want_.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+        HILOG_INFO("CallerName is %{public}s, callerTokenId is %{public}u", callerName.c_str(), callerTokenId);
+        GrantUriPermission(want_, applicationInfo_.bundleName, false, callerTokenId);
+    }
+}
+
 void AbilityRecord::CommandAbility()
 {
     HILOG_DEBUG("startId_:%{public}d.", startId_);
@@ -2446,7 +2458,7 @@ bool AbilityRecord::IsDebug() const
 {
     std::lock_guard guard(wantLock_);
     if (want_.GetBoolParam(DEBUG_APP, false) || want_.GetBoolParam(NATIVE_DEBUG, false) ||
-        !want_.GetStringParam(PERF_CMD).empty() || isAttachDebug_) {
+        !want_.GetStringParam(PERF_CMD).empty() || isAttachDebug_ || isAssertDebug_) {
         HILOG_INFO("Is debug mode, no need to handle time out.");
         return true;
     }
@@ -2950,7 +2962,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
     }
 
     if ((want.GetFlags() & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        HILOG_WARN("Do not call uriPermissionMgr.");
+        HILOG_WARN("Do not call uriPermissionMgr, flag is %{public}i", want.GetFlags());
         return;
     }
     if (IsDmsCall(want)) {
@@ -3306,6 +3318,11 @@ bool AbilityRecord::GetLockedState()
 void AbilityRecord::SetAttachDebug(const bool isAttachDebug)
 {
     isAttachDebug_ = isAttachDebug;
+}
+
+void AbilityRecord::SetAssertDebug(bool isAssertDebug)
+{
+    isAssertDebug_ = isAssertDebug;
 }
 
 void AbilityRecord::AddAbilityWindowStateMap(uint64_t uiExtensionComponentId,

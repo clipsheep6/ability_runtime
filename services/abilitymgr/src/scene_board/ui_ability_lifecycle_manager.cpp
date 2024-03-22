@@ -2119,16 +2119,9 @@ int UIAbilityLifecycleManager::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> 
     return ERR_OK;
 }
 
-void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+int32_t UIAbilityLifecycleManager::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+    std::vector<int32_t> &sessionIds)
 {
-    auto SearchFunc = [] (const std::vector<SessionInfo> &sessionInfos, int32_t sessionId) -> sptr<IRemoteObject> {
-        for (const auto& info : sessionInfos) {
-            if (info.persistentId == sessionId) {
-                return info.sessionToken;
-            }
-        }
-        return nullptr;
-    };
     std::unordered_set<std::shared_ptr<AbilityRecord>> abilitySet;
     {
         std::lock_guard<ffrt::mutex> guard(sessionLock_);
@@ -2136,24 +2129,47 @@ void UIAbilityLifecycleManager::UpdateSessionInfoBySCB(const std::vector<Session
             if (abilityRecord->GetOwnerMissionUserId() != userId) {
                 continue;
             }
-            auto searchRet = SearchFunc(sessionInfos, sessionId);
-            if (searchRet != nullptr) {
-                abilityRecord->UpdateSessionInfo(searchRet);
-            } else {
+            bool isFind = false;
+            for (auto iter = sessionInfos.begin(); iter != sessionInfos.end(); iter++) {
+                if (iter->persistentId == sessionId) {
+                    abilityRecord->UpdateSessionInfo(iter->sessionToken);
+                    sessionInfos.erase(iter);
+                    isFind = true;
+                    break;
+                }
+            }
+            if (!isFind) {
                 abilitySet.emplace(abilityRecord);
             }
         }
     }
-    for (auto ability : abilitySet) {
-        CloseUIAbility(ability, -1, nullptr, false);
+    for (const auto &info : sessionInfos) {
+        sessionIds.emplace_back(info.persistentId);
+    }
+
+    auto closeTask = [ self = shared_from_this(), abilitySet]() {
+        HILOG_INFO("The abilities need to be closed.");
+        if (self == nullptr) {
+            HILOG_ERROR("The manager is nullptr.");
+            return;
+        }
+        for (auto ability : abilitySet) {
+            self->CloseUIAbility(ability, -1, nullptr, false);
+        }
+    };
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (taskHandler != nullptr) {
+        taskHandler->SubmitTask(closeTask, TaskQoS::USER_INTERACTIVE);
     }
     HILOG_INFO("The end of updating session info.");
+    return ERR_OK;
 }
 
 void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName)
 {
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    for (auto &[sessionId, abilityRecord] : sessionAbilityMap_) {
+    auto tempSessionAbilityMap = sessionAbilityMap_;
+    for (auto &[sessionId, abilityRecord] : tempSessionAbilityMap) {
         if (abilityRecord == nullptr || abilityRecord->GetApplicationInfo().bundleName != bundleName) {
             continue;
         }

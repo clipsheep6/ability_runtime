@@ -33,6 +33,7 @@
 #include "app_recovery.h"
 #include "app_utils.h"
 #include "appfreeze_inner.h"
+#include "appfreeze_state.h"
 #include "application_data_manager.h"
 #include "application_env_impl.h"
 #include "bundle_mgr_proxy.h"
@@ -54,6 +55,7 @@
 #include "locale_config.h"
 #include "ace_forward_compatibility.h"
 #include "form_constants.h"
+#include "include/private/EGL/cache.h"
 #ifdef SUPPORT_APP_PREFERRED_LANGUAGE
 #include "preferred_language.h"
 #endif
@@ -1210,7 +1212,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     }
 
     if (appLaunchData.GetDebugApp() && watchdog_ != nullptr && !watchdog_->IsStopWatchdog()) {
-        AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+        SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::DEBUG_LAUNCH_MODE, true);
         watchdog_->Stop();
         watchdog_.reset();
     }
@@ -1305,7 +1307,13 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
+    applicationContext->SetAppRunningUniqueIdByPid(std::to_string(appLaunchData.GetRecordId()));
     application_->SetApplicationContext(applicationContext);
+
+#ifdef SUPPORT_GRAPHICS
+    HILOG_INFO("HandleLaunchApplication cacheDir: %{public}s", applicationContext->GetCacheDir().c_str());
+    OHOS::EglSetCacheDir(applicationContext->GetCacheDir());
+#endif
 
     HspList hspList;
     ErrCode ret = bundleMgrHelper->GetBaseSharedBundleInfos(appInfo.bundleName, hspList,
@@ -3006,13 +3014,13 @@ int32_t MainThread::ChangeAppGcState(int32_t state)
 void MainThread::AttachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ATTACH_DEBUG_MODE, true);
 }
 
 void MainThread::DetachAppDebug()
 {
     HILOG_DEBUG("Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ATTACH_DEBUG_MODE, false);
 }
 
 bool MainThread::NotifyDeviceDisConnect()
@@ -3026,27 +3034,27 @@ bool MainThread::NotifyDeviceDisConnect()
 void MainThread::AssertFaultPauseMainThreadDetection()
 {
     HILOG_DEBUG("Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(true);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, true);
 }
 
 void MainThread::AssertFaultResumeMainThreadDetection()
 {
     HILOG_DEBUG("Called.");
-    AppExecFwk::AppfreezeInner::GetInstance()->SetAppDebug(false);
+    SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, false);
 }
 
 void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
 {
-    if (!isDebugApp) {
-        HILOG_ERROR("Non-debug version application.");
-        return;
-    }
     if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {
         HILOG_ERROR("Unsupport assert fault dialog.");
         return;
     }
     if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
         HILOG_ERROR("Developer Mode is false.");
+        return;
+    }
+    if (!isDebugApp) {
+        HILOG_ERROR("Non-debug version application.");
         return;
     }
     auto assertThread = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
@@ -3056,6 +3064,25 @@ void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
     }
     assertThread->InitAssertFaultTask(this, isDebugModule);
     assertThread_ = assertThread;
+}
+
+void MainThread::SetAppDebug(uint32_t modeFlag, bool isDebug)
+{
+    HILOG_DEBUG("Called.");
+    auto state = DelayedSingleton<AbilityRuntime::AppFreezeState>::GetInstance();
+    if (state == nullptr) {
+        HILOG_ERROR("Get app freeze state instance is nullptr.");
+        return;
+    }
+
+    if (!isDebug) {
+        HILOG_DEBUG("Call Cancel modeFlag is %{public}u.", modeFlag);
+        state->CancelAppFreezeState(modeFlag);
+        return;
+    }
+
+    HILOG_DEBUG("Call Set modeFlag is %{public}u.", modeFlag);
+    state->SetAppFreezeState(modeFlag);
 }
 
 void MainThread::HandleCancelAssertFaultTask()

@@ -61,6 +61,33 @@ do {                                                                            
     }                                                                                   \
 } while (0)
 
+void AbilityResultListeners::AddListener(const uint64_t &uiExtensionComponentId,
+    std::shared_ptr<AbilityResultListener> listener)
+{
+    if (uiExtensionComponentId == 0) {
+        HILOG_ERROR("Invalid session.");
+        return;
+    }
+    listeners_[uiExtensionComponentId] = listener;
+}
+
+void AbilityResultListeners::RemoveListener(const uint64_t &uiExtensionComponentId)
+{
+    if (listeners_.find(uiExtensionComponentId) != listeners_.end()) {
+        listeners_.erase(uiExtensionComponentId);
+    }
+}
+
+void AbilityResultListeners::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
+{
+    for (auto item:listeners_) {
+        if (item.second && item.second->IsMatch(requestCode)) {
+            item.second->OnAbilityResult(requestCode, resultCode, resultData);
+            return;
+        }
+    }
+}
+
 void UISessionAbilityResultListener::OnAbilityResult(int requestCode, int resultCode, const Want &resultData)
 {
     HILOG_DEBUG("begin.");
@@ -136,6 +163,11 @@ napi_value JsUIExtensionContentSession::StartAbilityAsCaller(napi_env env, napi_
 napi_value JsUIExtensionContentSession::GetUIExtensionHostWindowProxy(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnGetUIExtensionHostWindowProxy);
+}
+
+napi_value JsUIExtensionContentSession::GetUIExtensionWindowProxy(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnGetUIExtensionWindowProxy);
 }
 
 napi_value JsUIExtensionContentSession::StartAbilityForResult(napi_env env, napi_callback_info info)
@@ -241,7 +273,38 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionHostWindowProxy(napi_env
 {
     HILOG_DEBUG("OnGetUIExtensionHostWindowProxy is called");
     CHECK_IS_SYSTEM_APP;
-    napi_value jsExtensionWindow = Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_);
+    if (sessionInfo_ == nullptr) {
+        HILOG_ERROR("Invalid session info");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    
+    napi_value jsExtensionWindow =
+        Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
+    if (jsExtensionWindow == nullptr) {
+        HILOG_ERROR("Failed to create jsExtensionWindow object.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    auto value = JsRuntime::LoadSystemModuleByEngine(env, "application.extensionWindow", &jsExtensionWindow, 1);
+    if (value == nullptr) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    return value->GetNapiValue();
+}
+
+napi_value JsUIExtensionContentSession::OnGetUIExtensionWindowProxy(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+    if (sessionInfo_ == nullptr) {
+        HILOG_ERROR("Invalid session info");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+
+    napi_value jsExtensionWindow =
+        Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
     if (jsExtensionWindow == nullptr) {
         HILOG_ERROR("Failed to create jsExtensionWindow object.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
@@ -824,7 +887,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     BindNativeFunction(env, object, "getUIExtensionHostWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
-    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
+    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionWindowProxy);
     return object;
 }
 
@@ -857,7 +920,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     BindNativeFunction(env, object, "getUIExtensionHostWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
-    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
+    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionWindowProxy);
     return object;
 }
 

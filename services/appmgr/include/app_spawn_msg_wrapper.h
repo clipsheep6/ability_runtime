@@ -71,6 +71,7 @@ struct StartFlags {
     static const int NO_SANDBOX = 7;
     static const int GWP_ENABLED_FORCE = 10;
     static const int GWP_ENABLED_NORMAL = 11;
+    static const int TSANENABLED = 12;
 };
 
 union AppSpawnPidMsg {

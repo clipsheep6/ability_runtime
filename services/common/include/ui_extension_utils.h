@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,7 +48,10 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
     AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
-    AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_NAVIGATION,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
+    AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART
 };
 const int EDM_SA_UID = 3057;
 

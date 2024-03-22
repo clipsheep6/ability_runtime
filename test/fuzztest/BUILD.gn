@@ -105,7 +105,6 @@ group("fuzztest") {
     "abilitystubreleasedataability_fuzzer:fuzztest",
     "abilitystubreportdrawncompleted_fuzzer:fuzztest",
     "abilitystubrequestdialogservice_fuzzer:fuzztest",
-    "abilitystubsendanrprocessid_fuzzer:fuzztest",
     "abilitystubsendresulttoability_fuzzer:fuzztest",
     "abilitystubsendwantsender_fuzzer:fuzztest",
     "abilitystubsetabilitycontroller_fuzzer:fuzztest",

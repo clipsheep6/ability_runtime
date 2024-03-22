@@ -73,6 +73,27 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
 }
 
+void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy)
+{
+    HILOG_DEBUG("Called.");
+    if (modalUIExtensionProxy == nullptr || uiContent_ == nullptr) {
+        HILOG_ERROR("Proxy or uiContent_ is nullptr.");
+        return;
+    }
+    AutoFillManager::GetInstance().SetAutoFillExtensionProxy(uiContent_, modalUIExtensionProxy);
+}
+
+void AutoFillExtensionCallback::onDestroy()
+{
+    HILOG_DEBUG("Called.");
+    AutoFillManager::GetInstance().RemoveEvent(eventId_);
+    if (uiContent_ != nullptr && autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
+        AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
+    }
+    uiContent_ = nullptr;
+    SendAutoFillFailed(AutoFill::AUTO_FILL_CANCEL);
+}
+
 void AutoFillExtensionCallback::SetFillRequestCallback(const std::shared_ptr<IFillRequestCallback> &callback)
 {
     fillCallback_ = callback;
@@ -98,6 +119,11 @@ void AutoFillExtensionCallback::SetEventId(uint32_t eventId)
     eventId_ = eventId;
 }
 
+void AutoFillExtensionCallback::SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType)
+{
+    autoFillWindowType_ = autoFillWindowType;
+}
+
 void AutoFillExtensionCallback::HandleTimeOut()
 {
     CloseModalUIExtension();
@@ -111,10 +137,12 @@ void AutoFillExtensionCallback::SendAutoFillSucess(const AAFwk::Want &want)
         AbilityBase::ViewData viewData;
         viewData.FromJsonString(dataStr.c_str());
         fillCallback_->OnFillRequestSuccess(viewData);
+        fillCallback_ = nullptr;
     }
 
     if (saveCallback_ != nullptr) {
         saveCallback_->OnSaveRequestSuccess();
+        saveCallback_ = nullptr;
     }
 }
 
@@ -122,10 +150,12 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
 {
     if (fillCallback_ != nullptr) {
         fillCallback_->OnFillRequestFailed(errCode);
+        fillCallback_ = nullptr;
     }
 
     if (saveCallback_ != nullptr) {
         saveCallback_->OnSaveRequestFailed();
+        saveCallback_ = nullptr;
     }
 }
 
@@ -135,7 +165,13 @@ void AutoFillExtensionCallback::CloseModalUIExtension()
         HILOG_DEBUG("uiContent_ is nullptr.");
         return;
     }
-    uiContent_->CloseModalUIExtension(sessionId_);
+
+    if (autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
+        AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
+        uiContent_->DestroyCustomPopupUIExtension(sessionId_);
+    } else if (autoFillWindowType_ == AutoFill::AutoFillWindowType::MODAL_WINDOW) {
+        uiContent_->CloseModalUIExtension(sessionId_);
+    }
     uiContent_ = nullptr;
 }
 } // namespace AbilityRuntime

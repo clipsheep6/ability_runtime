@@ -1299,13 +1299,6 @@ ErrCode AbilityManagerClient::SetAbilityController(sptr<AppExecFwk::IAbilityCont
     return abms->SetAbilityController(abilityController, imAStabilityTest);
 }
 
-ErrCode AbilityManagerClient::SendANRProcessID(int pid)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->SendANRProcessID(pid);
-}
-
 void AbilityManagerClient::UpdateMissionSnapShot(sptr<IRemoteObject> token,
     std::shared_ptr<Media::PixelMap> pixelMap)
 {
@@ -1738,12 +1731,13 @@ int32_t AbilityManagerClient::NotifyDebugAssertResult(uint64_t assertFaultSessio
     return abms->NotifyDebugAssertResult(assertFaultSessionId, userStatus);
 }
 
-void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+int32_t AbilityManagerClient::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+    std::vector<int32_t> &sessionIds)
 {
     HILOG_DEBUG("Called.");
     auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    abms->UpdateSessionInfoBySCB(sessionInfos, userId);
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
 }
 
 ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,

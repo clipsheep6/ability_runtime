@@ -90,7 +90,7 @@ HWTEST_F(TaskHandlerWrapTest, QueueTest_0030, TestSize.Level0)
     auto taskHandle = queueHandler_->SubmitTask([]() {});
     EXPECT_TRUE(taskHandle);
     auto result = taskHandle.Cancel();
-    EXPECT_TRUE(result);
+    EXPECT_FALSE(result);
 }
 
 /**

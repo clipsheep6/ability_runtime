@@ -170,6 +170,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUpdateRenderState;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG)] =
         &AppMgrStub::HandleSignRestartAppFlag;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID)] =
+        &AppMgrStub::HandleGetAppRunningUniqueIdByPid;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1106,6 +1108,23 @@ int32_t AppMgrStub::HandleSignRestartAppFlag(MessageParcel &data, MessageParcel 
     auto ret = SignRestartAppFlag(bundleName);
     if (!reply.WriteInt32(ret)) {
         HILOG_ERROR("Write ret error.");
+        return IPC_STUB_ERR;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetAppRunningUniqueIdByPid(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    int32_t pid = data.ReadInt32();
+    std::string appRunningUniqueId;
+    int32_t result = GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result error.");
+        return IPC_STUB_ERR;
+    }
+    if (result == ERR_OK && !reply.WriteString(appRunningUniqueId)) {
+        HILOG_ERROR("GetAppRunningUniqueIdByPid err or Write appRunningUniqueId error.");
         return IPC_STUB_ERR;
     }
     return NO_ERROR;

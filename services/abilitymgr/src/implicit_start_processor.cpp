@@ -282,7 +282,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
         auto skillUri =  abilityInfos.front().skillUri;
         for (const auto& iter : skillUri) {
             if (iter.isMatch) {
-                request.want.SetParam("targetLinkFeature", iter.linkFeature);
+                request.want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
             }
         }
     }

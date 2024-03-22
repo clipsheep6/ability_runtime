@@ -624,6 +624,13 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
 
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
         abilityStage->Init(stageContext);
+        bool waitingForStartup = false;
+        int32_t result = abilityStage->RunAutoStartupTask(waitingForStartup);
+        if (result == ERR_OK && waitingForStartup) {
+            HILOG_INFO("waiting for startup");
+            return nullptr;
+        }
+
         Want want;
         if (abilityRecord->GetWant()) {
             HILOG_DEBUG("want is ok, transport to abilityStage");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,18 +15,18 @@
 
 #include "quick_fix_callback_with_record.h"
 
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 QuickFixCallbackWithRecord::~QuickFixCallbackWithRecord()
 {
-    HILOG_DEBUG("destroyed.");
+    TAG_LOGD(AAFwkTag::APPMGR, "destroyed.");
 }
 
 void QuickFixCallbackWithRecord::OnLoadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     ProcessCallback(resultCode, recordId);
     if (IsRecordListEmpty() && callback_ != nullptr) {
         callback_->OnLoadPatchDone(finalResult.load(), recordId);
@@ -35,7 +35,7 @@ void QuickFixCallbackWithRecord::OnLoadPatchDone(int32_t resultCode, int32_t rec
 
 void QuickFixCallbackWithRecord::OnUnloadPatchDone(int32_t resultCode, int32_t recordId)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     ProcessCallback(resultCode, recordId);
     if (IsRecordListEmpty() && callback_ != nullptr) {
         callback_->OnUnloadPatchDone(finalResult.load(), recordId);
@@ -44,7 +44,7 @@ void QuickFixCallbackWithRecord::OnUnloadPatchDone(int32_t resultCode, int32_t r
 
 void QuickFixCallbackWithRecord::OnReloadPageDone(int32_t resultCode, int32_t recordId)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     ProcessCallback(resultCode, recordId);
     if (IsRecordListEmpty() && callback_ != nullptr) {
         callback_->OnReloadPageDone(finalResult.load(), recordId);
@@ -54,7 +54,7 @@ void QuickFixCallbackWithRecord::OnReloadPageDone(int32_t resultCode, int32_t re
 void QuickFixCallbackWithRecord::ProcessCallback(int32_t resultCode, int32_t recordId)
 {
     if (!IsRecordExist(recordId)) {
-        HILOG_DEBUG("Record id %{public}d didn't exist.", recordId);
+        TAG_LOGD(AAFwkTag::APPMGR, "Record id %{public}d didn't exist.", recordId);
         return;
     }
     RemoveRecordId(recordId);
