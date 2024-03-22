@@ -111,7 +111,7 @@ protected:
         const AAFwk::WantParams& wantParams);
     static void CallReceiveDataCallbackForResult(napi_env env, std::weak_ptr<CallbackWrapper> weakCallback,
         const AAFwk::WantParams& wantParams, AAFwk::WantParams& retWantParams);
-    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
         bool isAbilityResult = false);
     NapiAsyncTask::ExecuteCallback StartAbilityExecuteCallback(AAFwk::Want& want, size_t& unwrapArgc,
         napi_env env, NapiCallbackInfo& info, std::shared_ptr<int> &innerErrorCode);
