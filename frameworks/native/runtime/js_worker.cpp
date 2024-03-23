@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,6 +37,7 @@
 #include "foundation/communication/ipc/interfaces/innerkits/ipc_core/include/iremote_object.h"
 #include "singleton.h"
 #include "system_ability_definition.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
@@ -69,16 +70,16 @@ std::mutex g_mutex;
 
 void InitWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (nativeEngine == nullptr) {
-        HILOG_ERROR("Input nativeEngine is nullptr");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Input nativeEngine is nullptr");
         return;
     }
 
     napi_value globalObj = nullptr;
     napi_get_global(reinterpret_cast<napi_env>(nativeEngine), &globalObj);
     if (globalObj == nullptr) {
-        HILOG_ERROR("Failed to get global object");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get global object");
         return;
     }
 
@@ -88,7 +89,7 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
     auto arkNativeEngine = static_cast<ArkNativeEngine*>(nativeEngine);
     // load jsfwk
     if (g_jsFramework && !arkNativeEngine->ExecuteJsBin("/system/etc/strip.native.min.abc")) {
-        HILOG_ERROR("Failed to load js framework!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to load js framework!");
     }
 
     if (g_debugMode) {
@@ -109,9 +110,9 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
 
 void OffWorkerFunc(NativeEngine* nativeEngine)
 {
-    HILOG_DEBUG("OffWorkerFunc called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "OffWorkerFunc called");
     if (nativeEngine == nullptr) {
-        HILOG_ERROR("Input nativeEngine is nullptr");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Input nativeEngine is nullptr");
         return;
     }
 
@@ -139,10 +140,10 @@ std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
     // 1.1 end with file name
     // 1.2 end with file name and file type
     if (index == std::string::npos) {
-        HILOG_DEBUG("uri end without file type");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "uri end without file type");
         normalizedFilePath = fileName + ".abc";
     } else {
-        HILOG_DEBUG("uri end with file type");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "uri end with file type");
         normalizedFilePath = fileName.substr(0, index) + ".abc";
     }
     return normalizedFilePath;
@@ -150,7 +151,7 @@ std::string AssetHelper::NormalizedFileName(const std::string& fileName) const
 
 AssetHelper::~AssetHelper()
 {
-    HILOG_DEBUG("destroyed.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "destroyed.");
     if (fd_ != -1) {
         close(fd_);
         fd_ = -1;
@@ -161,11 +162,11 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
     bool& useSecureMem, bool isRestricted)
 {
     if (uri.empty() || buff == nullptr || buffSize == nullptr || workerInfo_ == nullptr) {
-        HILOG_ERROR("Input params invalid.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Input params invalid.");
         return;
     }
 
-    HILOG_DEBUG("RegisterAssetFunc called, uri: %{private}s", uri.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "RegisterAssetFunc called, uri: %{private}s", uri.c_str());
     std::string realPath;
     std::string filePath;
     useSecureMem = false;
@@ -178,23 +179,23 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
         // 1.2 start with ../
         // 1.3 start with @namespace [not support]
         // 1.4 start with modulename
-        HILOG_DEBUG("The application is packaged using jsbundle mode.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "The application is packaged using jsbundle mode.");
         if (uri.find_first_of("/") == 0) {
-            HILOG_DEBUG("uri start with /modulename");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with /modulename");
             realPath = uri.substr(1);
         } else if (uri.find("../") == 0 && !workerInfo_->isStageModel) {
-            HILOG_DEBUG("uri start with ../");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with ../");
             realPath = uri.substr(PATH_THREE);
         } else if (uri.find_first_of("@") == 0) {
-            HILOG_DEBUG("uri start with @namespace");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with @namespace");
             realPath = uri.substr(uri.find_first_of("/") + 1);
         } else {
-            HILOG_DEBUG("uri start with modulename");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with modulename");
             realPath = uri;
         }
 
         filePath = NormalizedFileName(realPath);
-        HILOG_INFO("filePath %{private}s", filePath.c_str());
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "filePath %{private}s", filePath.c_str());
 
         if (!workerInfo_->isStageModel) {
             GetAmi(ami, filePath);
@@ -202,22 +203,22 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
             ami = workerInfo_->codePath + filePath;
         }
 
-        HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
             if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
-                HILOG_ERROR("Get buffer by ami failed.");
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by ami failed.");
             }
         } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
-            HILOG_ERROR("Get buffer by filepath failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by filepath failed.");
         }
     } else {
         // 2.1 start with @bundle:bundlename/modulename
         // 2.2 start with /modulename
         // 2.3 start with @namespace
         // 2.4 start with modulename
-        HILOG_DEBUG("The application is packaged using esmodule mode.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "The application is packaged using esmodule mode.");
         if (uri.find(BUNDLE_NAME_FLAG) == 0) {
-            HILOG_DEBUG("uri start with @bundle:");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with @bundle:");
             size_t fileNamePos = uri.find_last_of("/");
             realPath = uri.substr(fileNamePos + 1);
             if (realPath.find_last_of(".") != std::string::npos) {
@@ -225,66 +226,67 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
             } else {
                 ami = uri;
             }
-            HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
             return;
         } else if (uri.find_first_of("/") == 0) {
-            HILOG_DEBUG("uri start with /modulename");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with /modulename");
             realPath = uri.substr(1);
         } else if (uri.find_first_of("@") == 0) {
-            HILOG_DEBUG("uri start with @namespace");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with @namespace");
             realPath = workerInfo_->moduleName + uri;
         } else {
-            HILOG_DEBUG("uri start with modulename");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "uri start with modulename");
             realPath = uri;
         }
 
         filePath = NormalizedFileName(realPath);
         ami = workerInfo_->codePath + filePath;
-        HILOG_DEBUG("Get asset, ami: %{private}s", ami.c_str());
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
             if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
-                HILOG_ERROR("Get buffer by ami failed.");
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by ami failed.");
             }
         } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
-            HILOG_ERROR("Get buffer by filepath failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by filepath failed.");
         }
     }
 }
 
 bool AssetHelper::GetSafeData(const std::string& ami, uint8_t** buff, size_t* buffSize)
 {
-    HILOG_DEBUG("Use secure mem.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Use secure mem.");
     std::string resolvedPath;
     resolvedPath.reserve(PATH_MAX);
     resolvedPath.resize(PATH_MAX - 1);
     if (realpath(ami.c_str(), &(resolvedPath[0])) == nullptr) {
-        HILOG_ERROR("Realpath file %{private}s caught error: %{public}d.", ami.c_str(), errno);
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Realpath file %{private}s caught error: %{public}d.", ami.c_str(), errno);
         return false;
     }
 
     int fd = open(resolvedPath.c_str(), O_RDONLY);
     if (fd < 0) {
-        HILOG_ERROR("Open file %{private}s caught error: %{public}d.", resolvedPath.c_str(), errno);
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Open file %{private}s caught error: %{public}d.", resolvedPath.c_str(), errno);
         return false;
     }
 
     struct stat statbuf;
     if (fstat(fd, &statbuf) < 0) {
-        HILOG_ERROR("Get fstat of file %{private}s caught error: %{public}d.", resolvedPath.c_str(), errno);
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get fstat of file %{private}s caught error: %{public}d.", resolvedPath.c_str(),
+            errno);
         close(fd);
         return false;
     }
 
     std::unique_ptr<FileMapper> fileMapper = std::make_unique<FileMapper>();
     if (fileMapper == nullptr) {
-        HILOG_ERROR("Create file mapper failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Create file mapper failed.");
         close(fd);
         return false;
     }
 
     auto result = fileMapper->CreateFileMapper(resolvedPath, false, fd, 0, statbuf.st_size, FileMapperType::SAFE_ABC);
     if (!result) {
-        HILOG_ERROR("Create file %{private}s mapper failed.", resolvedPath.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Create file %{private}s mapper failed.", resolvedPath.c_str());
         close(fd);
         return false;
     }
@@ -307,30 +309,30 @@ bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* bu
 
     char path[PATH_MAX];
     if (realpath(ami.c_str(), path) == nullptr) {
-        HILOG_ERROR("Realpath file %{private}s caught error: %{public}d.", ami.c_str(), errno);
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Realpath file %{private}s caught error: %{public}d.", ami.c_str(), errno);
         return false;
     }
 
     std::ifstream stream(path, std::ios::binary | std::ios::ate);
     if (!stream.is_open()) {
-        HILOG_ERROR("Failed to open file %{private}s.", ami.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to open file %{private}s.", ami.c_str());
         return false;
     }
 
     auto fileLen = stream.tellg();
     if (!workerInfo_->isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
-        HILOG_ERROR("File is too large.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "File is too large.");
         return false;
     }
 
     if (fileLen <= 0) {
-        HILOG_ERROR("Invalid file length.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid file length.");
         return false;
     }
 
     auto temp = std::make_unique<uint8_t[]>(fileLen);
     if (temp == nullptr) {
-        HILOG_ERROR("Alloc mem failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Alloc mem failed.");
         return false;
     }
 
@@ -347,7 +349,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
 {
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "The bundleMgrHelper is nullptr.");
         return false;
     }
 
@@ -355,11 +357,11 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
     auto getInfoResult = bundleMgrHelper->GetBundleInfoForSelf(
         static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE), bundleInfo);
     if (getInfoResult != 0) {
-        HILOG_ERROR("GetBundleInfoForSelf failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetBundleInfoForSelf failed.");
         return false;
     }
     if (bundleInfo.hapModuleInfos.size() == 0) {
-        HILOG_ERROR("Get hapModuleInfo of bundleInfo failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get hapModuleInfo of bundleInfo failed.");
         return false;
     }
 
@@ -375,12 +377,12 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
             }
         }
     }
-    HILOG_DEBUG("HapPath: %{private}s", newHapPath.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "HapPath: %{private}s", newHapPath.c_str());
     bool newCreate = false;
     std::string loadPath = ExtractorUtil::GetLoadFilePath(newHapPath);
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (extractor == nullptr) {
-        HILOG_ERROR("LoadPath %{private}s GetExtractor failed", loadPath.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadPath %{private}s GetExtractor failed", loadPath.c_str());
         return false;
     }
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;
@@ -390,22 +392,22 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
         bool flag = false;
         for (const auto& basePath : workerInfo_->assetBasePathStr) {
             realfilePath = basePath + filePath;
-            HILOG_DEBUG("realfilePath: %{private}s", realfilePath.c_str());
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "realfilePath: %{private}s", realfilePath.c_str());
             if (extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
                 flag = true;
                 break;
             }
         }
         if (!flag) {
-            HILOG_ERROR("ExtractToBufByName error");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "ExtractToBufByName error");
             return flag;
         }
     } else {
         realfilePath = filePath.substr(pos + 1);
-        HILOG_DEBUG("realfilePath: %{private}s", realfilePath.c_str());
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "realfilePath: %{private}s", realfilePath.c_str());
         bool apiSatisfy = workerInfo_->apiTargetVersion == 0 || workerInfo_->apiTargetVersion > API8;
         if (workerInfo_->isStageModel && !isRestricted && apiSatisfy && !extractor->IsHapCompress(realfilePath)) {
-            HILOG_DEBUG("Use secure mem.");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "Use secure mem.");
             auto safeData = extractor->GetSafeData(realfilePath);
             if (safeData != nullptr) {
                 *buff = safeData->GetDataPtr();
@@ -415,13 +417,13 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
             }
         }
         if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
-            HILOG_ERROR("get mergeAbc fileBuffer failed");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "get mergeAbc fileBuffer failed");
             return false;
         }
     }
 
     if (!workerInfo_->isDebugVersion && fileLen > ASSET_FILE_MAX_SIZE) {
-        HILOG_ERROR("ReadFilePathData failed, file is too large");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "ReadFilePathData failed, file is too large");
         return false;
     }
 
@@ -440,13 +442,13 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate);
     if (extractor == nullptr) {
-        HILOG_ERROR("loadPath %{private}s GetExtractor failed", loadPath.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "loadPath %{private}s GetExtractor failed", loadPath.c_str());
         return;
     }
     std::vector<std::string> files;
     for (const auto& basePath : workerInfo_->assetBasePathStr) {
         std::string assetPath = basePath + path;
-        HILOG_INFO("assetPath: %{private}s", assetPath.c_str());
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "assetPath: %{private}s", assetPath.c_str());
         bool res = extractor->IsDirExist(assetPath);
         if (!res) {
             continue;
@@ -470,10 +472,10 @@ void AssetHelper::GetAmi(std::string& ami, const std::string& filePath)
         }
     }
 
-    HILOG_INFO("targetFilePath %{public}s", targetFilePath.c_str());
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "targetFilePath %{public}s", targetFilePath.c_str());
 
     if (!flag) {
-        HILOG_ERROR("get targetFilePath failed!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "get targetFilePath failed!");
         return;
     }
 

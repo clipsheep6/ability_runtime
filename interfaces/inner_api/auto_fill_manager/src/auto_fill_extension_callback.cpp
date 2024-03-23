@@ -16,6 +16,7 @@
 
 #include "auto_fill_error.h"
 #include "auto_fill_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "view_data.h"
 
@@ -27,7 +28,7 @@ constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.A
 } // namespace
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
-    HILOG_DEBUG("Called, result code is %{public}d.", errCode);
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
 
@@ -42,7 +43,7 @@ void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &wan
 
 void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 {
-    HILOG_DEBUG("Called, result code is %{public}d.", errCode);
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, result code is %{public}d.", errCode);
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
 
@@ -53,7 +54,7 @@ void AutoFillExtensionCallback::OnRelease(int32_t errCode)
 
 void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name, const std::string &message)
 {
-    HILOG_DEBUG("Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called, errcode is %{public}d, name is %{public}s, message is %{public}s",
         errCode, name.c_str(), message.c_str());
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     CloseModalUIExtension();
@@ -65,9 +66,9 @@ void AutoFillExtensionCallback::OnError(int32_t errCode, const std::string &name
 
 void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (wantParams.GetIntParam(WANT_PARAMS_AUTO_FILL_EVENT_KEY, 0) != AutoFill::AUTO_FILL_CANCEL_TIME_OUT) {
-        HILOG_ERROR("Event is invalid.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Event is invalid.");
         return;
     }
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
@@ -75,9 +76,9 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
 
 void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (modalUIExtensionProxy == nullptr || uiContent_ == nullptr) {
-        HILOG_ERROR("Proxy or uiContent_ is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Proxy or uiContent_ is nullptr.");
         return;
     }
     AutoFillManager::GetInstance().SetAutoFillExtensionProxy(uiContent_, modalUIExtensionProxy);
@@ -85,7 +86,7 @@ void AutoFillExtensionCallback::onRemoteReady(const std::shared_ptr<Ace::ModalUI
 
 void AutoFillExtensionCallback::onDestroy()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     AutoFillManager::GetInstance().RemoveEvent(eventId_);
     if (uiContent_ != nullptr && autoFillWindowType_ == AutoFill::AutoFillWindowType::POPUP_WINDOW) {
         AutoFillManager::GetInstance().RemoveAutoFillExtensionProxy(uiContent_);
@@ -162,7 +163,7 @@ void AutoFillExtensionCallback::SendAutoFillFailed(int32_t errCode)
 void AutoFillExtensionCallback::CloseModalUIExtension()
 {
     if (uiContent_ == nullptr) {
-        HILOG_DEBUG("uiContent_ is nullptr.");
+        TAG_LOGD(AAFwkTag::AUTOFILLMGR, "uiContent_ is nullptr.");
         return;
     }
 

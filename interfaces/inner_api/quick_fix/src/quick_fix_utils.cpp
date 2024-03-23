@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "quick_fix_utils.h"
 
 #include "bundle_mgr_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -28,13 +29,13 @@ sptr<IRemoteObject> QuickFixUtil::GetRemoteObjectOfSystemAbility(const int32_t s
 {
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemAbilityMgr == nullptr) {
-        HILOG_ERROR("Failed to get SystemAbilityManager.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Failed to get SystemAbilityManager.");
         return nullptr;
     }
 
     auto remoteObj = systemAbilityMgr->GetSystemAbility(systemAbilityId);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "Remote object is nullptr.");
         return nullptr;
     }
 
@@ -48,20 +49,20 @@ sptr<AppExecFwk::IAppMgr> QuickFixUtil::GetAppManagerProxy()
 
 sptr<AppExecFwk::IQuickFixManager> QuickFixUtil::GetBundleQuickFixMgrProxy()
 {
-    HILOG_DEBUG("Function called.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Function called.");
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleMgrHelper is nullptr.");
         return nullptr;
     }
 
     auto bundleQuickFixMgr = bundleMgrHelper->GetQuickFixManagerProxy();
     if (bundleQuickFixMgr == nullptr) {
-        HILOG_ERROR("The bundleQuickFixMgr is nullptr.");
+        TAG_LOGE(AAFwkTag::QUICKFIX, "The bundleQuickFixMgr is nullptr.");
         return nullptr;
     }
 
-    HILOG_DEBUG("Function finished.");
+    TAG_LOGD(AAFwkTag::QUICKFIX, "Function finished.");
     return bundleQuickFixMgr;
 }
 } // namespace AAFwk

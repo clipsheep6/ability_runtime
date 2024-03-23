@@ -18,6 +18,7 @@
 #include "auto_fill_error.h"
 #include "auto_fill_manager_util.h"
 #include "extension_ability_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "parameters.h"
@@ -45,7 +46,7 @@ AutoFillManager &AutoFillManager::GetInstance()
 
 AutoFillManager::~AutoFillManager()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (eventHandler_ != nullptr) {
         eventHandler_.reset();
     }
@@ -56,14 +57,14 @@ int32_t AutoFillManager::RequestAutoFill(
     const AutoFill::AutoFillRequest &request,
     const std::shared_ptr<IFillRequestCallback> &fillCallback, bool &isPopup)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (uiContent == nullptr || fillCallback == nullptr) {
-        HILOG_ERROR("UIContent or fillCallback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or fillCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
 
     if (request.autoFillType == AbilityBase::AutoFillType::UNSPECIFIED) {
-        HILOG_ERROR("Auto fill type is invalid.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Auto fill type is invalid.");
         return AutoFill::AUTO_FILL_TYPE_INVALID;
     }
     return HandleRequestExecuteInner(uiContent, request, fillCallback, nullptr, isPopup);
@@ -74,9 +75,9 @@ int32_t AutoFillManager::RequestAutoSave(
     const AutoFill::AutoFillRequest &request,
     const std::shared_ptr<ISaveRequestCallback> &saveCallback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (uiContent == nullptr || saveCallback == nullptr) {
-        HILOG_ERROR("UIContent or saveCallback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or save callback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
     bool isPopup = false;
@@ -90,7 +91,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     const std::shared_ptr<ISaveRequestCallback> &saveCallback, bool &isPopup)
 {
     if (uiContent == nullptr || (fillCallback == nullptr && saveCallback == nullptr)) {
-        HILOG_ERROR("UIContent or fillCallback&saveCallback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or fillCallback&saveCallback is nullptr.");
         return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
     }
     {
@@ -121,7 +122,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
     isPopup = autoFillWindowType == AutoFill::AutoFillWindowType::POPUP_WINDOW ? true : false;
     auto sessionId = CreateAutoFillExtension(uiContent, request, callback, autoFillWindowType, isSmartAutoFill);
     if (sessionId == AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID) {
-        HILOG_ERROR("Create ui extension is failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Create ui extension is failed.");
         RemoveEvent(eventId_);
         return AutoFill::AUTO_FILL_CREATE_MODULE_UI_EXTENSION_FAILED;
     }
@@ -136,9 +137,9 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
 
 void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, const AbilityBase::ViewData &viewData)
 {
-    HILOG_DEBUG("Called.");
+    HILOG_DEBUG(AAFwkTag::AUTOFILLMGR, "Called.");
     if (uiContent == nullptr) {
-        HILOG_ERROR("UIContent is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
         return;
     }
 
@@ -147,7 +148,7 @@ void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, co
         std::lock_guard<std::mutex> lock(modalProxyMapMutex_);
         auto it = modalUIExtensionProxyMap_.find(uiContent);
         if (it == modalUIExtensionProxyMap_.end()) {
-            HILOG_ERROR("Content is not in map.");
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is not in map.");
             return;
         }
         modalUIExtensionProxy = it->second;
@@ -165,9 +166,9 @@ void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, co
 void AutoFillManager::SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
     const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (uiContent == nullptr || modalUIExtensionProxy == nullptr) {
-        HILOG_ERROR("UIContent or proxy is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent or proxy is nullptr.");
         return;
     }
 
@@ -181,9 +182,9 @@ void AutoFillManager::SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
 
 void AutoFillManager::RemoveAutoFillExtensionProxy(Ace::UIContent *uiContent)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (uiContent == nullptr) {
-        HILOG_ERROR("Content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
         return;
     }
     std::lock_guard<std::mutex> lock(modalProxyMapMutex_);
@@ -201,7 +202,7 @@ int32_t AutoFillManager::CreateAutoFillExtension(Ace::UIContent *uiContent,
 {
     int32_t sessionId = AUTO_FILL_UI_EXTENSION_SESSION_ID_INVALID;
     if (uiContent == nullptr) {
-        HILOG_ERROR("Content is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Content is nullptr.");
         return sessionId;
     }
 
@@ -249,10 +250,10 @@ AutoFill::AutoFillWindowType AutoFillManager::ConvertAutoFillWindowType(const Au
 
 void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     auto runner = AppExecFwk::EventRunner::Create(AUTO_FILL_MANAGER_THREAD);
     if (eventHandler_ == nullptr) {
-        HILOG_DEBUG("Eventhandler is nullptr.");
+        TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Eventhandler is nullptr.");
         eventHandler_ = std::make_shared<AutoFillEventHandler>(runner);
     }
     eventHandler_->SendEvent(eventId, AUTO_FILL_REQUEST_TIME_OUT_VALUE);
@@ -260,14 +261,14 @@ void AutoFillManager::SetTimeOutEvent(uint32_t eventId)
 
 void AutoFillManager::RemoveEvent(uint32_t eventId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (eventHandler_ == nullptr) {
-        HILOG_ERROR("Eventhandler is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Eventhandler is nullptr.");
         return;
     }
     eventHandler_->RemoveEvent(eventId);
 
-    std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
+    std::lock_guard<std::mutex> lock(mutexLock_);
     auto ret = extensionCallbacks_.find(eventId);
     if (ret != extensionCallbacks_.end()) {
         extensionCallbacks_.erase(ret);
@@ -276,16 +277,16 @@ void AutoFillManager::RemoveEvent(uint32_t eventId)
 
 void AutoFillManager::HandleTimeOut(uint32_t eventId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     auto ret = extensionCallbacks_.find(eventId);
     if (ret == extensionCallbacks_.end()) {
-        HILOG_WARN("Event id is not find.");
+        TAG_LOGW(AAFwkTag::AUTOFILLMGR, "Event id is not find.");
         return;
     }
     auto extensionCallback = ret->second.lock();
     if (extensionCallback == nullptr) {
-        HILOG_ERROR("Extension callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Extension callback is nullptr.");
         return;
     }
     extensionCallback->HandleTimeOut();
