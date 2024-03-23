@@ -137,7 +137,7 @@ int32_t AutoFillManager::HandleRequestExecuteInner(
 
 void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, const AbilityBase::ViewData &viewData)
 {
-    HILOG_DEBUG(AAFwkTag::AUTOFILLMGR, "Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (uiContent == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
         return;
