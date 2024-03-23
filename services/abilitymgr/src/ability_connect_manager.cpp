@@ -879,7 +879,7 @@ int AbilityConnectManager::ScheduleDisconnectAbilityDoneLocked(const sptr<IRemot
         } else {
             HILOG_DEBUG("Service ability has no any connection, and not started, need terminate.");
             RemoveUIExtensionAbilityRecord(abilityRecord);
-            if (!IsSceneBoard(abilityRecord)) {
+            if (!abilityRecord->IsSceneBoard()) {
                 TerminateRecord(abilityRecord);
             }
         }
@@ -1598,7 +1598,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
     }
     IN_PROCESS_CALL_WITHOUT_RET(abilityRecord->RevokeUriPermission());
     abilityRecord->RemoveAbilityDeathRecipient();
-    if (IsSceneBoard(abilityRecord)) {
+    if (abilityRecord->IsSceneBoard()) {
         HILOG_INFO("To kill processes because scb exit.");
         KillProcessesByUserId();
     }
@@ -1732,10 +1732,10 @@ void AbilityConnectManager::HandleCallBackDiedTask(const sptr<IRemoteObject> &co
 void AbilityConnectManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord, int32_t currentUserId)
 {
     CHECK_POINTER(abilityRecord);
-    HILOG_DEBUG("On ability died: %{public}s.", abilityRecord->GetURI().c_str());
+    HILOG_INFO("On ability died: %{public}s.", abilityRecord->GetURI().c_str());
     if (abilityRecord->GetAbilityInfo().type != AbilityType::SERVICE &&
         abilityRecord->GetAbilityInfo().type != AbilityType::EXTENSION) {
-        HILOG_DEBUG("Ability type is not service.");
+        HILOG_WARN("Ability type is not service.");
         return;
     }
     if (taskHandler_) {
@@ -1865,16 +1865,6 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         RemoveConnectionRecordFromMap(connectRecord);
     }
 
-    if (abilityRecord->IsTerminating()) {
-        HILOG_INFO("Handle extension DiedByTerminating.");
-        RemoveServiceAbility(abilityRecord);
-        if (IsAbilityNeedKeepAlive(abilityRecord)) {
-            HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
-            RestartAbility(abilityRecord, currentUserId);
-        }
-        return;
-    }
-
     if (IsUIExtensionAbility(abilityRecord)) {
         HandleUIExtensionDied(abilityRecord);
     }
@@ -1889,7 +1879,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
 
     if (IsAbilityNeedKeepAlive(abilityRecord)) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
-        if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
+        if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
         }
@@ -2173,7 +2163,7 @@ void AbilityConnectManager::PauseExtensions()
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         auto targetExtension = it->second;
         if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
-            (IsLauncher(targetExtension) || IsSceneBoard(targetExtension))) {
+            (IsLauncher(targetExtension) || targetExtension->IsSceneBoard())) {
             terminatingExtensionMap_.emplace(it->first, it->second);
             serviceMap_.erase(it++);
             HILOG_INFO("terminate ability:%{public}s.", targetExtension->GetAbilityInfo().name.c_str());
@@ -2191,7 +2181,7 @@ void AbilityConnectManager::RemoveLauncherDeathRecipient()
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         auto targetExtension = it->second;
         if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
-            (IsLauncher(targetExtension) || IsSceneBoard(targetExtension))) {
+            (IsLauncher(targetExtension) || targetExtension->IsSceneBoard())) {
             targetExtension->RemoveAbilityDeathRecipient();
             break;
         } else {
@@ -2208,16 +2198,6 @@ bool AbilityConnectManager::IsLauncher(std::shared_ptr<AbilityRecord> serviceExt
     }
     return serviceExtension->GetAbilityInfo().name == AbilityConfig::LAUNCHER_ABILITY_NAME &&
         serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::LAUNCHER_BUNDLE_NAME;
-}
-
-bool AbilityConnectManager::IsSceneBoard(std::shared_ptr<AbilityRecord> serviceExtension) const
-{
-    if (serviceExtension == nullptr) {
-        HILOG_ERROR("param is nullptr");
-        return false;
-    }
-    return serviceExtension->GetAbilityInfo().name == AbilityConfig::SCENEBOARD_ABILITY_NAME &&
-        serviceExtension->GetAbilityInfo().bundleName == AbilityConfig::SCENEBOARD_BUNDLE_NAME;
 }
 
 void AbilityConnectManager::KillProcessesByUserId() const
