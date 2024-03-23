@@ -58,6 +58,7 @@ struct AppSpawnStartMsg {
     uint32_t mountPermissionFlags;
     std::map<std::string, std::string> appEnv; // environment variable to be set to the process
     std::string ownerId;
+    std::string accountId;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
