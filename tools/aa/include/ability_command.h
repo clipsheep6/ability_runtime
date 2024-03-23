@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -140,6 +140,15 @@ const std::string HELP_MSG_DETACH_APP_DEBUG =
     "  -h, --help                                             list available commands\n"
     "  -b <bundle-name>                                       let application exit debug mode by bundle name\n";
 
+const std::string HELP_MSG_APPDEBUG_APP_DEBUG =
+    "usage: aa appdebug <options>\n"
+    "options list:\n"
+    "  -h, --help                                  list available commands\n"
+    "  -b <bundle-name>                            let application set wait debug mode by bundle name with options\n"
+    "                  [-p, --persist]             option: persist flag\n"
+    "  -c, --cancel                                let application cancel wait debug\n"
+    "  -g, --get                                   get wait debug mode application bundle name and persist flag\n";
+
 const std::string HELP_MSG_FORCE_STOP = "usage: aa force-stop <bundle-name>\n";
 const std::string HELP_MSG_BLOCK_ABILITY = "usage: aa block-ability <abilityrecordid>\n";
 const std::string HELP_MSG_FORCE_TIMEOUT =
@@ -218,6 +227,9 @@ private:
     ErrCode RunAsStopService();
     ErrCode RunAsDumpsysCommand();
     ErrCode RunAsForceStop();
+    void SwitchOptionForAppDebug(int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
+    void ParseAppDebugParameter(std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet);
+    ErrCode RunAsAppDebugDebugCommand();
     ErrCode RunAsProcessCommand();
     ErrCode RunAsAttachDebugCommand();
     ErrCode RunAsDetachDebugCommand();

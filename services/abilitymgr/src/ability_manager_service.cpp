@@ -5418,6 +5418,7 @@ int AbilityManagerService::GenerateAbilityRequest(
         request.startRecent = true;
     }
 
+    SetDebugAppByWaitingDebugFlag(want, request.want, request.appInfo.bundleName, request.appInfo.debug);
     return ERR_OK;
 }
 
@@ -5479,6 +5480,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     HILOG_DEBUG("GenerateExtensionAbilityRequest, moduleName: %{public}s.", request.abilityInfo.moduleName.c_str());
     request.want.SetModuleName(request.abilityInfo.moduleName);
 
+    SetDebugAppByWaitingDebugFlag(want, request.want, request.appInfo.bundleName, request.appInfo.debug);
     return ERR_OK;
 }
 
@@ -9803,6 +9805,18 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
         return ret;
     }
     return ERR_OK;
+}
+
+void AbilityManagerService::SetDebugAppByWaitingDebugFlag(
+    const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp)
+{
+    bool isWaitingDebugApp =
+        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName);
+    if (isWaitingDebugApp && isDebugApp && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        (const_cast<Want &>(want)).SetParam(DEBUG_APP, true);
+        requestWant.SetParam(DEBUG_APP, true);
+        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag();
+    }
 }
 
 int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)

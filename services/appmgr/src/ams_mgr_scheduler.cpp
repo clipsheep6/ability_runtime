@@ -420,6 +420,51 @@ int32_t AmsMgrScheduler::DetachAppDebug(const std::string &bundleName)
     return amsMgrServiceInner_->DetachAppDebug(bundleName);
 }
 
+int32_t AmsMgrScheduler::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->SetAppWaitingDebug(bundleName, isPersist);
+}
+
+int32_t AmsMgrScheduler::CancelAppWaitingDebug()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->CancelAppWaitingDebug();
+}
+
+int32_t AmsMgrScheduler::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->GetWaitingDebugApp(debugInfoList);
+}
+
+bool AmsMgrScheduler::IsWaitingDebugApp(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return false;
+    }
+    return amsMgrServiceInner_->IsWaitingDebugApp(bundleName);
+}
+
+void AmsMgrScheduler::ClearNonPersistWaitingDebugFlag()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->ClearNonPersistWaitingDebugFlag();
+}
+
 int32_t AmsMgrScheduler::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
 {
     if (!IsReady()) {

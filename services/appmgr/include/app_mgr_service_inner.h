@@ -827,6 +827,38 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName);
 
     /**
+     * @brief Set app waiting debug mode.
+     * @param bundleName The application bundle name.
+     * @param isPersist The persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetAppWaitingDebug(const std::string &bundleName, bool isPersist);
+
+    /**
+     * @brief Cancel app waiting debug mode.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelAppWaitingDebug();
+
+    /**
+     * @brief Get waiting debug mode application.
+     * @param bundleNameList The application bundle name list.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetWaitingDebugApp(std::vector<std::string> &bundleNameList);
+
+    /**
+     * @brief Determine whether it is a waiting debug application based on the bundle name.
+     * @return Returns true if it is a waiting debug application, otherwise it returns false.
+     */
+    bool IsWaitingDebugApp(const std::string &bundleName);
+
+    /**
+     * @brief Clear non persist waiting debug flag.
+     */
+    void ClearNonPersistWaitingDebugFlag();
+
+    /**
      * @brief Registering ability debug mode response.
      * @param response Response for ability debug object.
      * @return Returns ERR_OK on success, others on failure.
@@ -1260,6 +1292,7 @@ private:
     void SendReStartProcessEvent(const AAFwk::EventInfo &eventInfo,
         const std::shared_ptr<AppRunningRecord> &appRecord);
     void SendAppLaunchEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
+    void InitAppWaitingDebugList();
     void HandleConfigurationChange(const Configuration &config);
     bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
     int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
@@ -1282,6 +1315,9 @@ private:
     sptr<WindowVisibilityChangedListener> windowVisibilityChangedListener_;
     std::vector<std::shared_ptr<AppRunningRecord>> restartResedentTaskList_;
     std::map<std::string, std::vector<BaseSharedBundleInfo>> runningSharedBundleList_;
+    std::map<std::string, bool> waitingDebugBundleList_;
+    ffrt::mutex waitingDebugLock_;
+    bool isInitAppWaitingDebugListExecuted_ = false;
     std::unordered_set<int32_t> renderUidSet_;
     std::string supportIsolationMode_ {"false"};
     std::string supportServiceExtMultiProcess_ {"false"};

@@ -71,6 +71,11 @@ private:
     int32_t HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleCancelAppWaitingDebug(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply);
     int32_t HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply);

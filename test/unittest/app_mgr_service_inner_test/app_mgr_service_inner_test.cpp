@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -3599,6 +3599,47 @@ HWTEST_F(AppMgrServiceInnerTest, DetachAppDebug_002, TestSize.Level0)
     appMgrServiceInner->appDebugManager_ = std::make_shared<AppDebugManager>();
     auto result = appMgrServiceInner->DetachAppDebug(bundleName);
     EXPECT_EQ(result, ERR_NO_INIT);
+}
+
+/**
+ * @tc.name: SetAppWaitingDebug_001
+ * @tc.desc: Test function SetAppWaitingDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetAppWaitingDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName("test");
+    auto result = appMgrServiceInner->SetAppWaitingDebug(bundleName, false);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CancelAppWaitingDebug_001
+ * @tc.desc: Test function CancelAppWaitingDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, CancelAppWaitingDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    auto result = appMgrServiceInner->CancelAppWaitingDebug();
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: GetWaitingDebugApp_001
+ * @tc.desc: Test function GetWaitingDebugApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetWaitingDebugApp_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::vector<std::string> debugInfoList;
+    auto result = appMgrServiceInner->GetWaitingDebugApp(debugInfoList);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**

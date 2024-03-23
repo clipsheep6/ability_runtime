@@ -26,6 +26,7 @@
 #include "ability_manager_errors.h"
 #include "ability_window_configuration.h"
 #include "accesstoken_kit.h"
+#include "app_config_data_manager.h"
 #include "app_mem_info.h"
 #include "app_mgr_service.h"
 #include "app_process_data.h"
@@ -4918,6 +4919,147 @@ int32_t AppMgrServiceInner::DetachAppDebug(const std::string &bundleName)
 
     NotifyAbilitysDebugChange(bundleName, false);
     return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    HILOG_DEBUG("Called, bundle name is %{public}s, persist flag is %{public}d.", bundleName.c_str(), isPersist);
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer mode is false.");
+        return AAFwk::ERR_NOT_DEVELOPER_MODE;
+    }
+
+    if (bundleName.empty()) {
+        HILOG_ERROR("The bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    InitAppWaitingDebugList();
+
+    bool isClear = false;
+    {
+        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        if (!waitingDebugBundleList_.empty()) {
+            waitingDebugBundleList_.clear();
+            isClear = true;
+        }
+    }
+    if (isClear) {
+        DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->ClearAppWaitingDebugInfo();
+    }
+
+    {
+        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        waitingDebugBundleList_.try_emplace(bundleName, isPersist);
+    }
+    if (isPersist) {
+        return DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->SetAppWaitingDebugInfo(
+            bundleName);
+    }
+    return ERR_OK;
+}
+
+int32_t AppMgrServiceInner::CancelAppWaitingDebug()
+{
+    HILOG_DEBUG("Called.");
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer mode is false.");
+        return AAFwk::ERR_NOT_DEVELOPER_MODE;
+    }
+
+    {
+        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        waitingDebugBundleList_.clear();
+    }
+    return DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->ClearAppWaitingDebugInfo();
+}
+
+int32_t AppMgrServiceInner::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    HILOG_DEBUG("Called.");
+    if (!system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        HILOG_ERROR("Developer mode is false.");
+        return AAFwk::ERR_NOT_DEVELOPER_MODE;
+    }
+
+    InitAppWaitingDebugList();
+
+    std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+    if (waitingDebugBundleList_.empty()) {
+        HILOG_DEBUG("The waiting debug bundle list is empty.");
+        return ERR_OK;
+    }
+
+    for (const auto &item : waitingDebugBundleList_) {
+        std::string debugBundleInfo;
+        debugBundleInfo.append("bundle name : ").append(item.first).append(", persist : ")
+            .append(item.second ? "true" : "false");
+        debugInfoList.emplace_back(debugBundleInfo);
+    }
+    return ERR_OK;
+}
+
+void AppMgrServiceInner::InitAppWaitingDebugList()
+{
+    HILOG_DEBUG("Called.");
+    {
+        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        if (isInitAppWaitingDebugListExecuted_) {
+            HILOG_DEBUG("No need to initialize again.");
+            return;
+        }
+        isInitAppWaitingDebugListExecuted_ = true;
+    }
+
+    std::vector<std::string> bundleNameList;
+    DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->GetAppWaitingDebugList(bundleNameList);
+    if (!bundleNameList.empty()) {
+        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        for (const auto &item : bundleNameList) {
+            waitingDebugBundleList_.try_emplace(item, true);
+        }
+    }
+}
+
+bool AppMgrServiceInner::IsWaitingDebugApp(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    InitAppWaitingDebugList();
+
+    std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+    if (waitingDebugBundleList_.empty()) {
+        HILOG_DEBUG("The waiting debug bundle list is empty.");
+        return false;
+    }
+
+    for (const auto &item : waitingDebugBundleList_) {
+        if (item.first == bundleName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void AppMgrServiceInner::ClearNonPersistWaitingDebugFlag()
+{
+    HILOG_DEBUG("Called.");
+    bool isClear = false;
+    {
+        std::lock_guard<ffrt::mutex> lock(waitingDebugLock_);
+        for (const auto &item : waitingDebugBundleList_) {
+            if (!item.second) {
+                isClear = true;
+                break;
+            }
+        }
+        if (isClear) {
+            waitingDebugBundleList_.clear();
+        }
+    }
+
+    if (isClear) {
+        DelayedSingleton<AbilityRuntime::AppConfigDataManager>::GetInstance()->ClearAppWaitingDebugInfo();
+    }
 }
 
 int32_t AppMgrServiceInner::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)

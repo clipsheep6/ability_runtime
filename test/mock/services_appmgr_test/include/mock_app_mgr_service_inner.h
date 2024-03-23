@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -64,6 +64,11 @@ public:
     MOCK_METHOD3(GetBundleNameByPid, int32_t(const int pid, std::string &bundleName, int32_t &uid));
     MOCK_METHOD3(StartChildProcess, int32_t(const pid_t hostPid, const std::string &srcEntry, pid_t &childPid));
     MOCK_METHOD1(GetChildProcessInfoForSelf, int32_t(ChildProcessInfo &info));
+    MOCK_METHOD2(SetAppWaitingDebug, int32_t(const std::string &bundleName, bool isPersist));
+    MOCK_METHOD0(CancelAppWaitingDebug, int32_t());
+    MOCK_METHOD1(GetWaitingDebugApp, int32_t(std::vector<std::string> &debugInfoList));
+    MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
+    MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
     void StartSpecifiedAbility(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
     {}
 

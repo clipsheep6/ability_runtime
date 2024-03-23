@@ -830,6 +830,51 @@ int32_t AppMgrClient::DetachAppDebug(const std::string &bundleName)
     return amsService_->DetachAppDebug(bundleName);
 }
 
+int32_t AppMgrClient::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->SetAppWaitingDebug(bundleName, isPersist);
+}
+
+int32_t AppMgrClient::CancelAppWaitingDebug()
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->CancelAppWaitingDebug();
+}
+
+int32_t AppMgrClient::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->GetWaitingDebugApp(debugInfoList);
+}
+
+bool AppMgrClient::IsWaitingDebugApp(const std::string &bundleName)
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return false;
+    }
+    return amsService_->IsWaitingDebugApp(bundleName);
+}
+
+void AppMgrClient::ClearNonPersistWaitingDebugFlag()
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return;
+    }
+    amsService_->ClearNonPersistWaitingDebugFlag();
+}
+
 int32_t AppMgrClient::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
 {
     if (!IsAmsServiceReady()) {

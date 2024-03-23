@@ -23,6 +23,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr int32_t MAX_APP_DEBUG_COUNT = 100;
+}
 AmsMgrProxy::AmsMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAmsMgr>(impl)
 {}
 
@@ -780,6 +783,133 @@ int32_t AmsMgrProxy::DetachAppDebug(const std::string &bundleName)
         return ret;
     }
     return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (bundleName.empty() || !data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteBool(isPersist)) {
+        HILOG_ERROR("Write persist flag failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::SET_APP_WAITING_DEBUG), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::CancelAppWaitingDebug()
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::CANCEL_APP_WAITING_DEBUG), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AmsMgrProxy::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::GET_WAITING_DEBUG_APP), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        return ret;
+    }
+
+    auto resultCode = reply.ReadInt32();
+    if (resultCode != ERR_OK) {
+        HILOG_ERROR("Reply error is %{public}d.", resultCode);
+        return resultCode;
+    }
+
+    auto infoSize = reply.ReadInt32();
+    if (infoSize > MAX_APP_DEBUG_COUNT) {
+        HILOG_ERROR("Max app debug count is %{public}d.", infoSize);
+        return ERR_INVALID_DATA;
+    }
+
+    if (!reply.ReadStringVector(&debugInfoList)) {
+        HILOG_ERROR("Fail to read string vector debug info list.");
+        return ERR_INVALID_DATA;
+    }
+
+    return NO_ERROR;
+}
+
+bool AmsMgrProxy::IsWaitingDebugApp(const std::string &bundleName)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return false;
+    }
+
+    if (bundleName.empty() || !data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return false;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = SendTransactCmd(static_cast<uint32_t>(IAmsMgr::Message::IS_WAITING_DEBUG_APP), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request failed, error code is %{public}d.", ret);
+        return false;
+    }
+    return reply.ReadBool();
+}
+
+void AmsMgrProxy::ClearNonPersistWaitingDebugFlag()
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return;
+    }
+
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    auto ret = SendTransactCmd(
+        static_cast<uint32_t>(IAmsMgr::Message::CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG), data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_WARN("Send request is failed, error code is %{public}d.", ret);
+    }
 }
 
 int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
