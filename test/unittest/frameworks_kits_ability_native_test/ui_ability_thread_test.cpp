@@ -780,7 +780,7 @@ HWTEST_F(UIAbilityThreadTest, AbilityRuntime_BuildAbilityContext_0100, Function 
     EXPECT_NE(abilityInfo, nullptr);
     EXPECT_NE(application, nullptr);
     EXPECT_NE(token, nullptr);
-    abilitythread->BuildAbilityContext(abilityInfo, application, token, nullptr);
+    abilitythread->BuildAbilityContext(abilityInfo, application, token, nullptr, 0);
     GTEST_LOG_(INFO) << "AbilityRuntime_BuildAbilityContext_0100 end";
 }
 

@@ -166,7 +166,7 @@ public:
     virtual void OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want &resultData) = 0;
 
     virtual ErrCode RequestModalUIExtension(const AAFwk::Want& want) = 0;
-    
+
     virtual ErrCode OpenAtomicService(AAFwk::Want& want, const AAFwk::StartOptions &options, int requestCode,
         RuntimeTask &&task) = 0;
 
@@ -279,6 +279,8 @@ public:
     virtual void RegisterAbilityCallback(std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback) = 0;
 
     virtual void SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) = 0;
+    virtual void SetAbilityRecordId(int32_t abilityRecordId) = 0;
+    virtual int32_t GetAbilityRecordId() = 0;
 
     /**
      * @brief Requests dialogService from the system.

@@ -385,18 +385,18 @@ HWTEST_F(AppMgrServiceInnerTest, LoadAbility_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
+    appMgrServiceInner->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr, 0);
 
     auto appMgrServiceInner1 = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner1, nullptr);
 
     appMgrServiceInner1->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner1->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
+    appMgrServiceInner1->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr, 0);
 
     auto appMgrServiceInner2 = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner2, nullptr);
 
-    appMgrServiceInner2->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
+    appMgrServiceInner2->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr, 0);
     HILOG_INFO("LoadAbility_001 end");
 }
 
@@ -1144,56 +1144,56 @@ HWTEST_F(AppMgrServiceInnerTest, CreateAppRunningRecord_001, TestSize.Level0)
     std::string processName = "test_processName";
 
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(nullptr, nullptr,
-        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr);
+        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr);
+        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, nullptr, "", bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, nullptr, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, "", bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_NE(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_NE(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_NE(appRecord, nullptr);
 
     std::shared_ptr<AppRunningRecord> appRecord1 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        nullptr, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        nullptr, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_EQ(appRecord1, nullptr);
 
     std::shared_ptr<AppRunningRecord> appRecord2 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord2, nullptr);
 
     want = std::make_shared<Want>();
     const std::string COLD_START = "coldStart";
     want->SetParam(COLD_START, true);
     std::shared_ptr<AppRunningRecord> appRecord3 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord3, nullptr);
 
     want->SetParam(COLD_START, false);
     std::shared_ptr<AppRunningRecord> appRecord4 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord4, nullptr);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     std::shared_ptr<AppRunningRecord> appRecord5 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_EQ(appRecord5, nullptr);
 
     HILOG_INFO("CreateAppRunningRecord_001 end");
@@ -1246,13 +1246,13 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, nullptr, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, nullptr, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
 
     OHOS::sptr<IRemoteObject> token1 = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AppRunningRecord> appRecord1 = appMgrServiceInner->CreateAppRunningRecord(token1, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord1, nullptr);
 
     appMgrServiceInner->UpdateAbilityState(token1, AbilityState::ABILITY_STATE_READY);
@@ -1278,7 +1278,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
     OHOS::sptr<IRemoteObject> token2 = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     abilityInfo_->type = AbilityType::SERVICE;
     std::shared_ptr<AppRunningRecord> appRecord2 = appMgrServiceInner->CreateAppRunningRecord(token2, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord2, nullptr);
     appMgrServiceInner->UpdateAbilityState(token2, AbilityState::ABILITY_STATE_CREATE);
 
@@ -1324,7 +1324,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateExtensionState_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->UpdateExtensionState(token, ExtensionState::EXTENSION_STATE_CREATE);
 
@@ -1485,7 +1485,7 @@ HWTEST_F(AppMgrServiceInnerTest, AbilityBehaviorAnalysis_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->AbilityBehaviorAnalysis(token, nullptr, 0, 0, 0);
 
@@ -1517,7 +1517,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByAbilityToken_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
@@ -1562,27 +1562,27 @@ HWTEST_F(AppMgrServiceInnerTest, StartAbility_001, TestSize.Level0)
     HapModuleInfo hapModuleInfo;
     std::shared_ptr<AAFwk::Want> want;
     std::shared_ptr<AppRunningRecord> appRecord;
-    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, nullptr, hapModuleInfo, nullptr);
-    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, nullptr);
-    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, nullptr, hapModuleInfo, nullptr, 0);
+    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, nullptr, 0);
+    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     OHOS::sptr<IRemoteObject> preToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want);
-    appMgrServiceInner->StartAbility(nullptr, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
-    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want, 0);
+    appMgrServiceInner->StartAbility(nullptr, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
+    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     BundleInfo bundleInfo;
     std::string processName = "test_processName";
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want);
-    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want, 0);
+    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     abilityInfo_->applicationInfo.name = "hiservcie";
     abilityInfo_->applicationInfo.bundleName = "com.ix.hiservcie";
-    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     HILOG_INFO("StartAbility_001 end");
 }
@@ -1630,7 +1630,7 @@ HWTEST_F(AppMgrServiceInnerTest, AbilityTerminated_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->AbilityTerminated(token);
 
@@ -1708,7 +1708,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAbilityStateChanged_001, TestSize.Level0)
 
     sptr<IRemoteObject> token = new MockAbilityToken();
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
-        std::make_shared<AbilityRunningRecord>(abilityInfo_, token);
+        std::make_shared<AbilityRunningRecord>(abilityInfo_, token, 0);
     appMgrServiceInner->OnAbilityStateChanged(abilityRunningRecord, AbilityState::ABILITY_STATE_CREATE);
 
     sptr<MockAppStateCallback> mockCallback(new MockAppStateCallback());
@@ -2476,7 +2476,7 @@ HWTEST_F(AppMgrServiceInnerTest, FinishUserTest_001, TestSize.Level0)
     sptr<IRemoteObject> token = new MockAbilityToken();
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     pid = appRecord->GetPriorityObject()->GetPid();
     appMgrServiceInner->FinishUserTest(msg, 0, bundleName, pid);

@@ -66,8 +66,8 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::GetAbilityRunningReco
     return nullptr;
 }
 
-std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<AAFwk::Want> &want)
+std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(sptr<IRemoteObject> token,
+    std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Add ability.");
     if (!token || !abilityInfo) {
@@ -78,7 +78,7 @@ std::shared_ptr<AbilityRunningRecord> ModuleRunningRecord::AddAbility(const sptr
         TAG_LOGE(AAFwkTag::APPMGR, "AbilityRecord already exists and no need to add");
         return nullptr;
     }
-    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token, abilityRecordId);
     abilityRecord->SetWant(want);
     if (appInfo_) {
         abilityRecord->SetIsSingleUser(appInfo_->singleton);

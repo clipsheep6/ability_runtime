@@ -124,7 +124,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_001, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -153,7 +153,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_002, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, nullptr, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, nullptr, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -183,14 +183,14 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_003, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecordFirst = moduleRecord->GetAbilityRunningRecordByToken(token);
     EXPECT_TRUE(abilityRunningRecordFirst != nullptr);
     EXPECT_EQ(abilityRunningRecordFirst, appRunningRecord->GetAbilityRunningRecordByToken(token));
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecordSecond = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -219,7 +219,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_001, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -262,7 +262,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_002, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -296,7 +296,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_003, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -336,7 +336,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_004, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
@@ -375,12 +375,12 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_005, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
 
-    appRunningRecord->AddModule(appInfo, anotherAbilityInfo, anotherToken, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, anotherAbilityInfo, anotherToken, hapModuleInfo, nullptr, 0);
     moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto anotherAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(anotherToken);
@@ -420,12 +420,12 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_006, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
 
-    appRunningRecord->AddModule(appInfo, anotherAbilityInfo, anotherToken, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, anotherAbilityInfo, anotherToken, hapModuleInfo, nullptr, 0);
     moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto anotherAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(anotherToken);
@@ -470,12 +470,12 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_007, TestSize.L
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
 
-    appRunningRecord->AddModule(appInfo, anotherAbilityInfo, anotherToken, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, anotherAbilityInfo, anotherToken, hapModuleInfo, nullptr, 0);
     moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto anotherAbilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(anotherToken);
@@ -511,7 +511,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, IsSameState_001, TestSize.Level1)
     abilityInfo->name = GetTestAbilityName();
     sptr<IRemoteObject> token = new MockAbilityToken();
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
-        std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+        std::make_shared<AbilityRunningRecord>(abilityInfo, token, 0);
 
     abilityRunningRecord->SetState(AbilityState::ABILITY_STATE_FOREGROUND);
     EXPECT_EQ(false, abilityRunningRecord->IsSameState(AbilityState::ABILITY_STATE_BACKGROUND));
@@ -542,7 +542,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, SetGetAbilityRecord_001, TestSize.Level1)
     auto appInfo = std::make_shared<ApplicationInfo>();
     appInfo->name = GetTestAppName();
 
-    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr);
+    appRunningRecord->AddModule(appInfo, abilityInfo, token, hapModuleInfo, nullptr, 0);
     auto moduleRecord = appRunningRecord->GetModuleRecordByModuleName(appInfo->bundleName, hapModuleInfo.moduleName);
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);

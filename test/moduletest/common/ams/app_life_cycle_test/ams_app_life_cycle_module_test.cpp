@@ -177,10 +177,10 @@ std::shared_ptr<AppRunningRecord> AmsAppLifeCycleModuleTest::StartProcessAndLoad
     if (!testProcessInfo.isStart) {
         StartAppProcess(testProcessInfo.pid);
     } else {
-        EXPECT_CALL(*mockAppScheduler, ScheduleLaunchAbility(_, _, _)).Times(1);
+        EXPECT_CALL(*mockAppScheduler, ScheduleLaunchAbility(_, _, _, _)).Times(1);
     }
 
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -211,7 +211,7 @@ void AmsAppLifeCycleModuleTest::ChangeAbilityStateAfterAppStart(
     const sptr<MockAppScheduler>& mockAppScheduler, const pid_t& pid) const
 {
     EXPECT_CALL(*mockAppScheduler, ScheduleLaunchApplication(_, _)).Times(1);
-    EXPECT_CALL(*mockAppScheduler, ScheduleLaunchAbility(_, _, _)).Times(1);
+    EXPECT_CALL(*mockAppScheduler, ScheduleLaunchAbility(_, _, _, _)).Times(1);
 
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
     serviceInner_->AttachApplication(pid, client);
@@ -358,7 +358,7 @@ void AmsAppLifeCycleModuleTest::CreateAppRecentList(const int32_t appNum)
         EXPECT_CALL(*mockAppStateCallbackStub_, OnAppStateChanged(_)).Times(1);
 
         serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));
-        serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+        serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     }
     return;
 }
@@ -1033,7 +1033,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, AbilityBehaviorAnalysis_01, TestSize.Level1)
     serviceInner_->SetBundleManager(bundleMgr.GetRefPtr());
 
     StartAppProcess(pid);
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -1089,7 +1089,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, AbilityBehaviorAnalysis_02, TestSize.Level1)
     serviceInner_->SetBundleManager(bundleMgr.GetRefPtr());
 
     StartAppProcess(pid);
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -1145,7 +1145,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, AbilityBehaviorAnalysis_03, TestSize.Level1)
     serviceInner_->SetBundleManager(bundleMgr.GetRefPtr());
 
     StartAppProcess(pid);
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -1201,7 +1201,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, AbilityBehaviorAnalysis_04, TestSize.Level1)
     serviceInner_->SetBundleManager(bundleMgr.GetRefPtr());
 
     StartAppProcess(pid);
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -1257,7 +1257,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, AbilityBehaviorAnalysis_05, TestSize.Level1)
     serviceInner_->SetBundleManager(bundleMgr.GetRefPtr());
 
     StartAppProcess(pid);
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));
@@ -1315,7 +1315,7 @@ HWTEST_F(AmsAppLifeCycleModuleTest, AbilityBehaviorAnalysis_06, TestSize.Level1)
     serviceInner_->SetBundleManager(bundleMgr.GetRefPtr());
 
     StartAppProcess(pid);
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     BundleInfo bundleInfo;
     HapModuleInfo hapModuleInfo;
     EXPECT_TRUE(serviceInner_->GetBundleAndHapInfo(*abilityInfo, appInfo, bundleInfo, hapModuleInfo));

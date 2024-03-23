@@ -230,7 +230,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_004, TestSize.Level1)
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = nullptr;
     EXPECT_NE((int)ERR_OK,
         DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-            token, pretoken, record->GetAbilityInfo(), record->GetApplicationInfo(), record->GetWant()));
+            token, pretoken, record->GetAbilityInfo(), record->GetApplicationInfo(), record->GetWant(), 0));
 }
 
 /*
@@ -243,7 +243,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_oprator_004, TestSize.Level1)
  */
 HWTEST_F(AppSchedulerTest, AppScheduler_LoadAbility_001, TestSize.Level1)
 {
-    EXPECT_CALL(*clientMock_, LoadAbility(_, _, _, _, _)).Times(1)
+    EXPECT_CALL(*clientMock_, LoadAbility(_, _, _, _, _, _)).Times(1)
         .WillOnce(Return(AppMgrResultCode::ERROR_SERVICE_NOT_READY));
     sptr<IRemoteObject> token;
     sptr<IRemoteObject> preToken;
@@ -252,7 +252,7 @@ HWTEST_F(AppSchedulerTest, AppScheduler_LoadAbility_001, TestSize.Level1)
     Want want;
     DelayedSingleton<AppScheduler>::GetInstance()->appMgrClient_ = std::move(clientMock_);
     int res = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-        token, preToken, abilityInfo, applicationInfo, want);
+        token, preToken, abilityInfo, applicationInfo, want, 0);
     EXPECT_EQ(res, INNER_ERR);
 }
 

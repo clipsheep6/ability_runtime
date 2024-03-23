@@ -369,7 +369,7 @@ int AbilityRecord::LoadAbility()
     want_.SetParam("ohos.ability.launch.reason", static_cast<int>(lifeCycleStateInfo_.launchParam.launchReason));
     want_.SetParam(WANT_PARAMS_ATTACHE_TO_PARENT, CheckNeedAttachToParent());
     auto result = DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
-        token_, callerToken_, abilityInfo_, applicationInfo_, want_);
+        token_, callerToken_, abilityInfo_, applicationInfo_, want_, recordId_);
     want_.RemoveParam(ABILITY_OWNER_USERID);
     want_.RemoveParam(WANT_PARAMS_ATTACHE_TO_PARENT);
 

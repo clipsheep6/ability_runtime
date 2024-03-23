@@ -199,7 +199,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_AddChildProcessRecord_0100, Test
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
-    
+
     auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
@@ -221,7 +221,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_RemoveChildProcessRecord_0100, T
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
-    
+
     auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
@@ -244,7 +244,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordByPid_0100,
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
-    
+
     auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
@@ -288,7 +288,7 @@ HWTEST_F(AppRunningRecordTest, GetSplitModeAndFloatingMode_001, TestSize.Level1)
 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     sptr<IRemoteObject> token = nullptr;
-    std::shared_ptr<AbilityRunningRecord> abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token, 0);
 
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
     want->SetParam(AAFwk::Want::PARAM_RESV_WINDOW_MODE,

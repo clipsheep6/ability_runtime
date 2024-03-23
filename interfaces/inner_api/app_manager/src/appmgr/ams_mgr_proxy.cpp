@@ -34,10 +34,27 @@ bool AmsMgrProxy::WriteInterfaceToken(MessageParcel &data)
     }
     return true;
 }
+namespace {
+bool WriteTokenObject(MessageParcel &data, sptr<IRemoteObject> token)
+{
+    if (token) {
+        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
+            HILOG_ERROR("Failed to write flag or token");
+            return false;
+        }
+    } else {
+        if (!data.WriteBool(false)) {
+            HILOG_ERROR("Failed to write flag");
+            return false;
+        }
+    }
+    return true;
+}
+}
 
 void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-    const std::shared_ptr<AAFwk::Want> &want)
+    const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
     HILOG_DEBUG("start");
     if (!abilityInfo || !appInfo) {
@@ -52,34 +69,21 @@ void AmsMgrProxy::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemo
         return;
     }
 
-    if (token) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("Failed to write flag and token");
-            return;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
-            return;
-        }
+    if (!WriteTokenObject(data, token)) {
+        return;
     }
-
-    if (preToken) {
-        if (!data.WriteBool(true) || !data.WriteRemoteObject(preToken)) {
-            HILOG_ERROR("Failed to write flag and preToken");
-            return;
-        }
-    } else {
-        if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
-            return;
-        }
+    if (!WriteTokenObject(data, preToken)) {
+        return;
     }
 
     data.WriteParcelable(abilityInfo.get());
     data.WriteParcelable(appInfo.get());
     if (!data.WriteParcelable(want.get())) {
         HILOG_ERROR("Write data want failed.");
+        return;
+    }
+    if (!data.WriteInt32(abilityRecordId)) {
+        HILOG_ERROR("Write data abilityRecordId failed.");
         return;
     }
 
@@ -786,7 +790,7 @@ int32_t AmsMgrProxy::RegisterAbilityDebugResponse(const sptr<IAbilityDebugRespon
         HILOG_ERROR("Write interface token failed.");
         return ERR_INVALID_DATA;
     }
-    
+
     if (response == nullptr || !data.WriteRemoteObject(response->AsObject())) {
         HILOG_ERROR("Failed to write remote object.");
         return ERR_INVALID_DATA;

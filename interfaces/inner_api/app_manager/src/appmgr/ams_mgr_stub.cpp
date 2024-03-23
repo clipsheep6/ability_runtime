@@ -153,8 +153,9 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("ReadParcelable want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
+    int32_t abilityRecordId = data.ReadInt32();
 
-    LoadAbility(token, preToke, abilityInfo, appInfo, want);
+    LoadAbility(token, preToke, abilityInfo, appInfo, want, abilityRecordId);
     return NO_ERROR;
 }
 

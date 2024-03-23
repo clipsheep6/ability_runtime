@@ -404,7 +404,7 @@ HWTEST_F(MainThreadTest, GetMainHandler_0100, TestSize.Level1)
     AbilityInfo info;
     sptr<IRemoteObject> Token = nullptr;
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
-    mainThread_->ScheduleLaunchAbility(info, Token, want);
+    mainThread_->ScheduleLaunchAbility(info, Token, want, 0);
     mainThread_->ScheduleCleanAbility(Token);
     Profile profile;
     mainThread_->ScheduleProfileChanged(profile);
@@ -1837,7 +1837,7 @@ HWTEST_F(MainThreadTest, PostTask_0100, TestSize.Level1)
     AbilityInfo abilityInfo = {};
     sptr<IRemoteObject> token = nullptr;
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
-    mainThread_->ScheduleLaunchAbility(abilityInfo, token, want);
+    mainThread_->ScheduleLaunchAbility(abilityInfo, token, want, 0);
     mainThread_->ScheduleCleanAbility(token);
     Profile profile = {};
     mainThread_->ScheduleProfileChanged(profile);
