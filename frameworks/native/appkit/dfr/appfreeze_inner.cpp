@@ -120,6 +120,17 @@ bool AppfreezeInner::IsExitApp(const std::string& name)
     return false;
 }
 
+void AppfreezeInner::SendProcessKillEvent(const std::string& killReason)
+{
+    auto applicationInfo = applicationInfo_.lock();
+    if (applicationInfo != nullptr) {
+        int32_t pid = static_cast<int32_t>(getpid());
+        HiSysEventWrite(HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+            HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_PID, pid,
+            EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE, killReason);
+    }
+}
+
 int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
 {
     HITRACE_METER_FMT(HITRACE_TAG_APP, "AppfreezeInner::AcquireStack name:%s", info.errorObject.name.c_str());
@@ -160,6 +171,7 @@ int AppfreezeInner::AcquireStack(const FaultData& info, bool onlyMainThread)
             faultData.waitSaveState = AppRecovery::GetInstance().IsEnabled();
             AAFwk::ExitReason exitReason = {REASON_APP_FREEZE, "Kill Reason:" + faultData.errorObject.name};
             AbilityManagerClient::GetInstance()->RecordAppExitReason(exitReason);
+            SendProcessKillEvent("Kill Reason:" + faultData.errorObject.name);
         }
         NotifyANR(faultData);
         if (isExit) {
