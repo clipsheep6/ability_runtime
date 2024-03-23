@@ -526,6 +526,7 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
         CHECK_CALLER_IS_SYSTEM_APP;
     }
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
@@ -539,6 +540,14 @@ int AbilityManagerService::StartAbility(const Want &want, int32_t userId, int re
 
 int AbilityManagerService::StartAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
     int32_t userId, int requestCode)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    return StartAbilityByFreeInstall(want, callerToken, userId, requestCode);
+}
+
+int32_t AbilityManagerService::StartAbilityByFreeInstall(const Want &want, sptr<IRemoteObject> callerToken,
+    int32_t userId, int32_t requestCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     bool startWithAccount = want.GetBoolParam(START_ABILITY_TYPE, false);
@@ -583,6 +592,7 @@ int AbilityManagerService::StartAbilityWithSpecifyTokenIdInner(const Want &want,
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     InsightIntentExecuteParam::RemoveInsightIntent(const_cast<Want &>(want));
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     auto flags = want.GetFlags();
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
@@ -700,6 +710,7 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const sptr<IRe
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
     auto flags = want.GetFlags();
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     if ((flags & Want::FLAG_ABILITY_CONTINUATION) == Want::FLAG_ABILITY_CONTINUATION) {
@@ -830,7 +841,6 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
-    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
     if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
@@ -1284,6 +1294,7 @@ int AbilityManagerService::StartAbilityForResultAsCaller(
     HILOG_DEBUG("Called.");
     CHECK_CALLER_IS_SYSTEM_APP;
 
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     AAFwk::Want newWant = want;
     CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
     auto asCallerSourceToken = connectManager_->GetUIExtensionSourceToken(callerToken);
@@ -5349,7 +5360,7 @@ int AbilityManagerService::GenerateAbilityRequest(
         HILOG_ERROR("Get app info failed.");
         return RESOLVE_APP_ERR;
     }
-    if (request.want.GetIntParam(SCREEN_MODE_KEY, ScreenMode::IDLE_SCREEN_MODE) == ScreenMode::JUMP_SCREEN_MODE &&
+    if (want.GetIntParam(AAFwk::SCREEN_MODE_KEY, ScreenMode::IDLE_SCREEN_MODE) == ScreenMode::JUMP_SCREEN_MODE &&
         (request.abilityInfo.applicationInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE ||
         request.abilityInfo.launchMode != AppExecFwk::LaunchMode::SINGLETON)) {
         HILOG_ERROR("The interface of starting atomicService can start only atomicService.");
@@ -9252,6 +9263,7 @@ int32_t AbilityManagerService::StartAbilityWithInsightIntent(const Want &want, i
         (const_cast<Want &>(want)).RemoveParam(START_ABILITY_TYPE);
         CHECK_CALLER_IS_SYSTEM_APP;
     }
+    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     EventInfo eventInfo = BuildEventInfo(want, userId);
     EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     int32_t ret = StartAbilityWrap(want, nullptr, requestCode, userId);
@@ -9902,6 +9914,7 @@ bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> calle
         return false;
     }
     launchWant.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
+    launchWant.SetParam("send_to_erms_targetBundleType", static_cast<int32_t>(appInfo.bundleType));
     auto erms = std::make_shared<EcologicalRuleInterceptor>();
     auto queryRet = erms->DoProcess(launchWant, 0, GetUserId(), true, callerToken);
     if (queryRet == ERR_OK) {

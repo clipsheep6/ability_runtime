@@ -1995,12 +1995,13 @@ napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackIn
     want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
     napi_value result = nullptr;
     AddFreeInstallObserver(env, want, nullptr, &result, true);
-    auto uasyncTask = CreateAsyncTaskWithLastParam(env, nullptr, nullptr, nullptr, nullptr);
-    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
-    RuntimeTask task = [env, asyncTask, element = want.GetElement(), flags = want.GetFlags(), startTime,
-        &observer = freeInstallObserver_](
+    RuntimeTask task = [env, element = want.GetElement(), startTime, &observer = freeInstallObserver_](
         int resultCode, const AAFwk::Want& want, bool isInner) {
         HILOG_DEBUG("OnOpenAtomicService async callback is begin");
+        if (observer == nullptr) {
+            HILOG_WARN("observer is nullptr.");
+            return;
+        }
         HandleScope handleScope(env);
         std::string bundleName = element.GetBundleName();
         std::string abilityName = element.GetAbilityName();
@@ -2010,19 +2011,17 @@ napi_value JsAbilityContext::OpenAtomicServiceInner(napi_env env, NapiCallbackIn
             isInner = true;
             resultCode = ERR_INVALID_VALUE;
         }
-        if ((flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
-            observer != nullptr) {
-            isInner ? observer->OnInstallFinished(bundleName, abilityName, startTime, resultCode) :
-                observer->OnInstallFinished(bundleName, abilityName, startTime, abilityResult);
+        if (isInner) {
+            observer->OnInstallFinished(bundleName, abilityName, startTime, resultCode);
         } else {
-            isInner ? asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode)) :
-                asyncTask->Resolve(env, abilityResult);
+            observer->OnInstallFinished(bundleName, abilityName, startTime, abilityResult);
         }
     };
     auto context = context_.lock();
     if (context == nullptr) {
-        HILOG_WARN("context is released");
-        asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+        HILOG_ERROR("context is released");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+        return CreateJsUndefined(env);
     } else {
         want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
         curRequestCode_ = (curRequestCode_ == INT_MAX) ? 0 : (curRequestCode_ + 1);

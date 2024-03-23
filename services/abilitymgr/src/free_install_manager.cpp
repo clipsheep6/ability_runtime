@@ -279,8 +279,8 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
                 newWant.SetFlags(want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
                 auto identity = IPCSkeleton::ResetCallingIdentity();
                 IPCSkeleton::SetCallingIdentity((*it).identity);
-                int result = AbilityManagerClient::GetInstance()->StartAbility(newWant, (*it).callerToken,
-                    (*it).requestCode, (*it).userId);
+                auto result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityByFreeInstall(newWant,
+                    (*it).callerToken, (*it).userId, (*it).requestCode);
                 IPCSkeleton::SetCallingIdentity(identity);
                 HILOG_INFO("The result of StartAbility is %{public}d.", result);
                 DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(

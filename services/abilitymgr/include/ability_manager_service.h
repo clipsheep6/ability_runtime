@@ -917,6 +917,9 @@ public:
     int32_t GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
 
+    int32_t StartAbilityByFreeInstall(const Want &want, sptr<IRemoteObject> callerToken, int32_t userId,
+        int32_t requestCode);
+
     int StartAbilityWrap(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
