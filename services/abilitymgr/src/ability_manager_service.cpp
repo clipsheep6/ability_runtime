@@ -841,6 +841,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
+    AbilityUtil::RemoveWindowModeKey(const_cast<Want &>(want));
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
     if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
@@ -1079,7 +1080,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
         HILOG_ERROR("Developer Mode is false.");
         return ERR_NOT_DEVELOPER_MODE;
     }
-    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
     startParams.userId = userId;
@@ -1278,7 +1279,7 @@ int AbilityManagerService::StartAbilityAsCaller(const Want &want, const StartOpt
     HILOG_DEBUG("Start ability as caller with startOptions.");
     CHECK_CALLER_IS_SYSTEM_APP;
 
-    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     AAFwk::Want newWant = want;
     if (asCallerSoureToken != nullptr) {
         HILOG_DEBUG("start as caller, UpdateCallerInfo");
@@ -1412,7 +1413,6 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
         } else {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
         }
-        abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
         if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
             if (startOptions.windowLeftUsed_) {
                 abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
@@ -1439,7 +1439,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
             HILOG_DEBUG("do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(abilityRequest.want, callerToken);
         }
-        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId);
+        result = implicitStartProcessor_->ImplicitStartAbility(abilityRequest, validUserId,
+            startOptions.GetWindowMode());
         if (result != ERR_OK) {
             HILOG_ERROR("implicit start ability error.");
             eventInfo.errCode = result;
@@ -1519,7 +1520,8 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
     } else {
         abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID, startOptions.GetDisplayID());
     }
-    abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_MODE, startOptions.GetWindowMode());
+    AbilityUtil::ProcessWindowMode(abilityRequest.want, abilityInfo.applicationInfo.accessTokenId,
+        startOptions.GetWindowMode());
     if (AppUtils::GetInstance().IsStartOptionsWithAnimation()) {
         if (startOptions.windowLeftUsed_) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_LEFT, startOptions.GetWindowLeft());
@@ -6307,7 +6309,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         return CHECK_PERMISSION_FAILED;
     }
 
-    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     StartAbilityInfoWrap threadLocalInfo(want, GetUserId(),
         StartAbilityUtils::GetAppIndex(want, callerToken));
     auto result = interceptorExecuter_ == nullptr ? ERR_INVALID_VALUE :
@@ -9291,7 +9293,7 @@ int32_t AbilityManagerService::StartAbilityByCallWithInsightIntent(const Want &w
         return ERR_INVALID_VALUE;
     }
 
-    AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
+    AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
     AbilityRequest abilityRequest;
     abilityRequest.callType = AbilityCallType::CALL_REQUEST_TYPE;
     abilityRequest.callerUid = IPCSkeleton::GetCallingUid();

@@ -74,7 +74,7 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
     return false;
 }
 
-int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId)
+int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode)
 {
     HILOG_INFO("implicit start ability by type: %{public}d", request.callType);
     auto sysDialogScheduler = DelayedSingleton<SystemDialogScheduler>::GetInstance();
@@ -88,6 +88,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         HILOG_ERROR("generate ability request by action failed.");
         return ret;
     }
+    AbilityUtil::ProcessWindowMode(request.want, request.abilityInfo.applicationInfo.accessTokenId, windowMode);
 
     auto identity = IPCSkeleton::ResetCallingIdentity();
     auto startAbilityTask = [imp = shared_from_this(), request, userId, identity]
