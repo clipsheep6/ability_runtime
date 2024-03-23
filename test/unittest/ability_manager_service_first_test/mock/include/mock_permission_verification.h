@@ -93,6 +93,11 @@ struct VerificationInfo {
     bool JudgeCallerIsAllowedToUseSystemAPI() const;
 
     bool VerifyPrepareTerminatePermission() const;
+
+    inline bool IsSystemAppCall() const
+    {
+        return true;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS
