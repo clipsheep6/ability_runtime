@@ -20,7 +20,7 @@
 
 #define private public
 #include "ability_event_handler.h"
-#include "ability_interceptor_executer.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "ability_running_info.h"
 #include "ability_scheduler_proxy.h"
 #include "ams_configuration_parameter.h"
@@ -108,7 +108,10 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
             return false;
         }
     }
-    abilityInterceptorExecuter->DoProcess(*want, intParam, int32Param, boolParam);
+    
+    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(
+        *want, intParam, int32Param, boolParam, nullptr);
+    abilityInterceptorExecuter->DoProcess(interceptorParam);
 
     // fuzz for AbilityRunningInfo
     auto abilityRunningInfo = std::make_shared<AbilityRunningInfo>();

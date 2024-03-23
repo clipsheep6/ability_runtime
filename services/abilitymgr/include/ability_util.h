@@ -299,6 +299,14 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     want.SetParam(MARKET_CROWD_TEST_BUNDLE_PARAM, bundleName);
     return AbilityManagerClient::GetInstance()->StartAbility(want, requestCode, userId);
 }
+
+inline ErrCode EdmErrorType(bool isEdm)
+{
+    if (isEdm) {
+        return ERR_EDM_APP_CONTROLLED;
+    }
+    return ERR_APP_CONTROLLED;
+}
 }  // namespace AbilityUtil
 }  // namespace AAFwk
 }  // namespace OHOS
