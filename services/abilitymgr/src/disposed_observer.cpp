@@ -22,6 +22,10 @@
 #include "want.h"
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+}
+
 DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
     const std::shared_ptr<DisposedRuleInterceptor> &interceptor)
     : disposedRule_(disposedRule), interceptor_(interceptor)
@@ -36,7 +40,9 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
         auto abilityRecord = Token::GetAbilityRecordByToken(token_);
         if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
-            bool ret = systemUIExtension->CreateModalUIExtension(*disposedRule_.want);
+            Want want = *disposedRule_.want;
+            want.SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
+            bool ret = systemUIExtension->CreateModalUIExtension(want);
             if (!ret) {
                 HILOG_ERROR("failed to start system UIExtension");
             }
@@ -59,7 +65,9 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_EXTENSION) {
         if (!token_) {
             auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
-            bool ret = systemUIExtension->CreateModalUIExtension(*disposedRule_.want);
+            Want want = *disposedRule_.want;
+            want.SetParam(UIEXTENSION_MODAL_TYPE, AAFwk::Integer::Box(1));
+            bool ret = systemUIExtension->CreateModalUIExtension(want);
             if (!ret) {
                 interceptor_->UnregisterObserver(pageStateData.bundleName);
                 HILOG_ERROR("failed to start system UIExtension");
