@@ -268,7 +268,7 @@ void AutoFillManager::RemoveEvent(uint32_t eventId)
     }
     eventHandler_->RemoveEvent(eventId);
 
-    std::lock_guard<std::mutex> lock(mutexLock_);
+    std::lock_guard<std::mutex> lock(extensionCallbacksMutex_);
     auto ret = extensionCallbacks_.find(eventId);
     if (ret != extensionCallbacks_.end()) {
         extensionCallbacks_.erase(ret);
