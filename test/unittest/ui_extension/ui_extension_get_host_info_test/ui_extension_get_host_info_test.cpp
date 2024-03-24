@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_manager_client.h"
 #include "mock_ability_token.h"
@@ -54,13 +55,13 @@ void UIExtensionGetHostInfoTest::TearDown()
  */
 HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     sptr<IRemoteObject> token = sptr<AppExecFwk::MockAbilityToken>::MakeSptr();
     EXPECT_NE(token, nullptr);
     UIExtensionHostInfo hostInfo;
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
     EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 
 /**
@@ -71,11 +72,11 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0100, TestSize.L
  */
 HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0200, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     UIExtensionHostInfo hostInfo;
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(nullptr, hostInfo);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 
 /**
@@ -86,7 +87,7 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0200, TestSize.L
  */
 HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0300, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     auto currentID = GetSelfTokenID();
     AppExecFwk::MockNativeToken::SetNativeToken();
 
@@ -98,10 +99,10 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0300, TestSize.L
     ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
     // cause top ability isn't a uiextension ability.
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("Get host info uri: %{public}s", hostInfo.elementName_.GetURI().c_str());
+    TAG_LOGI(AAFwkTag::TEST, "Get host info uri: %{public}s", hostInfo.elementName_.GetURI().c_str());
 
     SetSelfTokenID(currentID);
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 
 /**
@@ -112,7 +113,7 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0300, TestSize.L
  */
 HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0400, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     auto currentID = GetSelfTokenID();
     AppExecFwk::MockNativeToken::SetNativeToken();
 
@@ -122,10 +123,10 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0400, TestSize.L
     UIExtensionHostInfo hostInfo;
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("Get host info uri: %{public}s", hostInfo.elementName_.GetURI().c_str());
+    TAG_LOGI(AAFwkTag::TEST, "Get host info uri: %{public}s", hostInfo.elementName_.GetURI().c_str());
 
     SetSelfTokenID(currentID);
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 } // namespace AAFwk
 } // namespace OHOS

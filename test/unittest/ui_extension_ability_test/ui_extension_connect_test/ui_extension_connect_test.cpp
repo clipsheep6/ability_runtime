@@ -17,6 +17,7 @@
 
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "session_info.h"
 #include "want.h"
@@ -40,13 +41,13 @@ private:
 void UIExtensionConnectTestConnection::OnAbilityConnectDone(const AppExecFwk::ElementName& element,
     const sptr<IRemoteObject>& remoteObject, int resultCode)
 {
-    HILOG_INFO("element: %{public}s", element.GetURI().c_str());
+    TAG_LOGI(AAFwkTag::TEST, "element: %{public}s", element.GetURI().c_str());
 }
 
 void UIExtensionConnectTestConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName& element,
     int resultCode)
 {
-    HILOG_INFO("element: %{public}s", element.GetURI().c_str());
+    TAG_LOGI(AAFwkTag::TEST, "element: %{public}s", element.GetURI().c_str());
 }
 
 class UIExtensionConnectTest : public testing::Test {
@@ -77,7 +78,7 @@ void UIExtensionConnectTest::TearDown()
  */
 HWTEST_F(UIExtensionConnectTest, PermissionCheck_0100, TestSize.Level1)
 {
-    HILOG_INFO("start.");
+    TAG_LOGI(AAFwkTag::TEST, "start.");
     Want providerWant;
     AppExecFwk::ElementName providerElement("0", "com.ohos.uiextensionprovider", "UIExtensionProvider", "entry");
     providerWant.SetElement(providerElement);
@@ -95,7 +96,7 @@ HWTEST_F(UIExtensionConnectTest, PermissionCheck_0100, TestSize.Level1)
         DEFAULT_INVAL_VALUE, connectInfo);
     EXPECT_NE(ret, ERR_OK);
 
-    HILOG_INFO("finish.");
+    TAG_LOGI(AAFwkTag::TEST, "finish.");
 }
 } // namespace AAFwk
 } // namespace OHOS

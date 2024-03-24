@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "quick_fix_error_utils.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -51,7 +52,7 @@ void QuickFixErrorUtilsTest::TearDown()
  */
 HWTEST_F(QuickFixErrorUtilsTest, GetErrorCode_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     int32_t errCode;
 
     // external error code
@@ -66,7 +67,7 @@ HWTEST_F(QuickFixErrorUtilsTest, GetErrorCode_0100, TestSize.Level1)
     errCode = QuickFixErrorUtil::GetErrorCode(1000); // 1000 is not a defined error code in quick fix
     EXPECT_EQ(errCode, ERR_QUICKFIX_INTERNAL_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -77,7 +78,7 @@ HWTEST_F(QuickFixErrorUtilsTest, GetErrorCode_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixErrorUtilsTest, GetErrorMessage_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     std::string errMsg;
 
     // external error code
@@ -92,7 +93,7 @@ HWTEST_F(QuickFixErrorUtilsTest, GetErrorMessage_0100, TestSize.Level1)
     errMsg = QuickFixErrorUtil::GetErrorMessage(1000); // 1000 is not a defined error code in quick fix
     EXPECT_EQ(errMsg, "Internal error.");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AAFwk
 } // namespace OHOS
