@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "iremote_broker.h"
 #include "iremote_object.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -52,16 +53,16 @@ AbilityExperienceRule *AbilityExperienceRule::Unmarshalling(Parcel &in)
 bool AbilityExperienceRule::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteBool(isAllow)) {
-        HILOG_ERROR("write isAllow failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write isAllow failed");
         return false;
     }
 
     if (!parcel.WriteString(sceneCode)) {
-        HILOG_ERROR("write sceneCode failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write sceneCode failed");
         return false;
     }
     if (!parcel.WriteParcelable(replaceWant)) {
-        HILOG_ERROR("write replaceWant failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write replaceWant failed");
         return false;
     }
 
@@ -70,7 +71,7 @@ bool AbilityExperienceRule::Marshalling(Parcel &parcel) const
 
 bool AbilityCallerInfo::ReadFromParcel(Parcel &parcel)
 {
-    HILOG_DEBUG("read from parcel");
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "read from parcel");
     return true;
 }
 
@@ -78,39 +79,39 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
 {
     auto *info = new (std::nothrow) AbilityCallerInfo();
     if (info == nullptr) {
-        HILOG_ERROR("new callerInfo failed, return nullptr");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "new callerInfo failed, return nullptr");
         return nullptr;
     }
 
     info->packageName = in.ReadString();
-    HILOG_DEBUG("read packageName result: %{public}s", info->packageName.c_str());
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "read packageName result: %{public}s", info->packageName.c_str());
 
     if (!in.ReadInt32(info->uid)) {
-        HILOG_ERROR("read uid failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read uid failed");
         delete info;
         return nullptr;
     }
 
     if (!in.ReadInt32(info->pid)) {
-        HILOG_ERROR("read pid failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read pid failed");
         delete info;
         return nullptr;
     }
 
     if (!in.ReadInt32(info->callerAppType)) {
-        HILOG_ERROR("read callerAppType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read callerAppType failed");
         delete info;
         return nullptr;
     }
 
     if (!in.ReadInt32(info->targetAppType)) {
-        HILOG_ERROR("read targetAppType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read targetAppType failed");
         delete info;
         return nullptr;
     }
 
     if (!in.ReadInt32(info->callerModelType)) {
-        HILOG_ERROR("read callerModelType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read callerModelType failed");
         delete info;
         return nullptr;
     }
@@ -119,13 +120,13 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
     info->targetLinkFeature = in.ReadString();
 
     if (!in.ReadInt32(info->targetLinkType)) {
-        HILOG_ERROR("read targetLinkType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read targetLinkType failed");
         delete info;
         return nullptr;
     }
 
     if (!in.ReadInt32(info->callerAbilityType)) {
-        HILOG_ERROR("read callerAbilityType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read callerAbilityType failed");
         delete info;
         return nullptr;
     }
@@ -136,52 +137,52 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
 bool AbilityCallerInfo::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString(packageName)) {
-        HILOG_ERROR("write packageName failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write packageName failed");
         return false;
     }
 
     if (!parcel.WriteInt32(uid)) {
-        HILOG_ERROR("write uid failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write uid failed");
         return false;
     }
 
     if (!parcel.WriteInt32(pid)) {
-        HILOG_ERROR("write pid failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write pid failed");
         return false;
     }
 
     if (!parcel.WriteInt32(callerAppType)) {
-        HILOG_ERROR("write callerAppType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerAppType failed");
         return false;
     }
 
     if (!parcel.WriteInt32(targetAppType)) {
-        HILOG_ERROR("write targetAppType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write targetAppType failed");
         return false;
     }
 
     if (!parcel.WriteInt32(callerModelType)) {
-        HILOG_ERROR("write callerModelType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerModelType failed");
         return false;
     }
 
     if (!parcel.WriteString(targetAppDistType)) {
-        HILOG_ERROR("write targetAppDistType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write targetAppDistType failed");
         return false;
     }
 
     if (!parcel.WriteString(targetLinkFeature)) {
-        HILOG_ERROR("write targetLinkFeature failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write targetLinkFeature failed");
         return false;
     }
 
     if (!parcel.WriteInt32(targetLinkType)) {
-        HILOG_ERROR("write targetLinkType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write targetLinkType failed");
         return false;
     }
 
     if (!parcel.WriteInt32(callerAbilityType)) {
-        HILOG_ERROR("write callerAbilityType failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerAbilityType failed");
         return false;
     }
     return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <parameter.h>
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,19 +27,19 @@ AbilityEventHandler::AbilityEventHandler(
     const std::shared_ptr<TaskHandlerWrap> &taskHandler, const std::weak_ptr<AbilityManagerService> &server)
     : EventHandlerWrap(taskHandler), server_(server)
 {
-    HILOG_INFO("Constructors.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Constructors.");
 }
 
 void AbilityEventHandler::ProcessEvent(const EventWrap &event)
 {
-    HILOG_DEBUG("Event id obtained: %{public}u.", event.GetEventId());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Event id obtained: %{public}u.", event.GetEventId());
     // check libc.hook_mode
     const int bufferLen = 128;
     char paramOutBuf[bufferLen] = {0};
     const char *hook_mode = "startup:";
     int ret = GetParameter("libc.hook_mode", "", paramOutBuf, bufferLen);
     if (ret > 0 && strncmp(paramOutBuf, hook_mode, strlen(hook_mode)) == 0) {
-        HILOG_DEBUG("Hook_mode: no process time out");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Hook_mode: no process time out");
         return;
     }
     switch (event.GetEventId()) {
@@ -51,7 +52,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
             break;
         }
         case AbilityManagerService::INACTIVE_TIMEOUT_MSG: {
-            HILOG_DEBUG("Inactive timeout.");
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Inactive timeout.");
             // inactivate pre ability immediately in case blocking next ability start
             ProcessInactiveTimeOut(event.GetParam());
             break;
@@ -65,7 +66,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
             break;
         }
         default: {
-            HILOG_WARN("Unsupported timeout message.");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "Unsupported timeout message.");
             break;
         }
     }
@@ -73,7 +74,7 @@ void AbilityEventHandler::ProcessEvent(const EventWrap &event)
 
 void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     if (event.GetRunCount() == 0) {
@@ -91,7 +92,7 @@ void AbilityEventHandler::ProcessLoadTimeOut(const EventWrap &event)
 
 void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleActiveTimeOut(abilityRecordId);
@@ -99,7 +100,7 @@ void AbilityEventHandler::ProcessActiveTimeOut(int64_t abilityRecordId)
 
 void AbilityEventHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleInactiveTimeOut(abilityRecordId);
@@ -107,7 +108,7 @@ void AbilityEventHandler::ProcessInactiveTimeOut(int64_t abilityRecordId)
 
 void AbilityEventHandler::ProcessForegroundTimeOut(const EventWrap &event)
 {
-    HILOG_INFO("Foreground timeout.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Foreground timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     if (event.GetRunCount() == 0) {
@@ -125,7 +126,7 @@ void AbilityEventHandler::ProcessForegroundTimeOut(const EventWrap &event)
 
 void AbilityEventHandler::ProcessShareDataTimeOut(int64_t uniqueId)
 {
-    HILOG_INFO("ShareData timeout.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ShareData timeout.");
     auto server = server_.lock();
     CHECK_POINTER(server);
     server->HandleShareDataTimeOut(uniqueId);
