@@ -326,7 +326,7 @@ ErrCode AbilityManagerClient::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("Start UIAbility by SCB: %{public}s.", sessionInfo.want.GetElement().GetURI().c_str());
+    HILOG_INFO("Start UIAbility by SCB: %{public}s.", sessionInfo->want.GetElement().GetURI().c_str());
     return abms->StartUIAbilityBySCB(sessionInfo);
 }
 
