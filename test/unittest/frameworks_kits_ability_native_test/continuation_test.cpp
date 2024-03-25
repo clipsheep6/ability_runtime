@@ -22,6 +22,7 @@
 #include "ability_impl.h"
 #include "abs_shared_result_set.h"
 #include "bool_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "context_deal.h"
 #include "continuation_manager.h"

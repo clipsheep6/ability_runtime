@@ -16,6 +16,7 @@
 #include <dlfcn.h>
 #include <gtest/gtest.h>
 #include "form_extension_module_loader.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -59,7 +60,7 @@ void FormExtensionModuleLoaderTest::TearDown()
  */
 HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0100, TestSize.Level1)
 {
-    HILOG_INFO("start");
+    TAG_LOGI(AAFwkTag::TEST, "start");
     void *handle = dlopen(FORM_EXTENSION_MODULE_LIB_PATH, RTLD_LAZY);
     if (handle != nullptr) {
         auto object = reinterpret_cast<FormExtensionModuleLoader*>(
@@ -67,7 +68,7 @@ HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0100, TestSize
         EXPECT_NE(object, nullptr);
         dlclose(handle);
     }
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 
 /**
@@ -78,11 +79,11 @@ HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0100, TestSize
  */
 HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0200, TestSize.Level1)
 {
-    HILOG_INFO("start");
+    TAG_LOGI(AAFwkTag::TEST, "start");
     std::unique_ptr<Runtime> runtime;
     auto extension = FormExtensionModuleLoader::GetInstance().Create(runtime);
     EXPECT_NE(extension, nullptr);
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 
 /**
@@ -93,7 +94,7 @@ HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0200, TestSize
  */
 HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0300, TestSize.Level1)
 {
-    HILOG_INFO("start");
+    TAG_LOGI(AAFwkTag::TEST, "start");
     auto params = FormExtensionModuleLoader::GetInstance().GetParams();
 
     std::string key = "type";
@@ -107,7 +108,7 @@ HWTEST_F(FormExtensionModuleLoaderTest, FormExtensionModuleLoader_0300, TestSize
     if (iter != params.end()) {
         EXPECT_STREQ(iter->second.c_str(), "FormExtension");
     }
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

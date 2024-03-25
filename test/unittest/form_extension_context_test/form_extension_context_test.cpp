@@ -23,6 +23,7 @@
 #include "app_utils.h"
 #include "form_mgr.h"
 #include "form_mgr_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_connection.h"
 

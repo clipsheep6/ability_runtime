@@ -17,6 +17,7 @@
 
 #include "context_deal.h"
 #include "fa_ability_thread.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_service_ability.h"

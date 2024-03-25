@@ -22,6 +22,7 @@
 #undef private
 
 #include "ability_local_record.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_bundle_installer_service.h"
@@ -95,7 +96,7 @@ void BmsContextImplTest::MockBundleInstaller()
  */
 HWTEST_F(BmsContextImplTest, CreateBundleContext_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     MockBundleInstaller();
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
@@ -118,7 +119,7 @@ HWTEST_F(BmsContextImplTest, CreateBundleContext_0100, TestSize.Level1)
     context = contextImpl->CreateBundleContext("");
     EXPECT_EQ(context, nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -129,7 +130,7 @@ HWTEST_F(BmsContextImplTest, CreateBundleContext_0100, TestSize.Level1)
  */
 HWTEST_F(BmsContextImplTest, CreateModuleContext_002, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
     EXPECT_NE(contextImpl, nullptr);
 
@@ -148,7 +149,7 @@ HWTEST_F(BmsContextImplTest, CreateModuleContext_002, TestSize.Level1)
     moduleContext = contextImpl->CreateModuleContext("test_contextImpl", "test_moduleName");
     EXPECT_NE(moduleContext, nullptr);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

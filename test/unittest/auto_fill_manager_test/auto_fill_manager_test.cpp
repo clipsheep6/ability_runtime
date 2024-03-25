@@ -20,6 +20,7 @@
 #include "auto_fill_error.h"
 #include "auto_fill_extension_callback.h"
 #include "extension_ability_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ui_content.h"
 #undef private

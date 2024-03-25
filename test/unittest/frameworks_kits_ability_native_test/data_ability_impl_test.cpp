@@ -18,6 +18,7 @@
 #define protected public
 #include "ability_loader.h"
 #include "data_ability_impl.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_data_ability.h"

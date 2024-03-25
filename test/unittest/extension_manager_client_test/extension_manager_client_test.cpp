@@ -20,6 +20,7 @@
 #undef private
 #include "ability_manager_client.h"
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing::ext;
