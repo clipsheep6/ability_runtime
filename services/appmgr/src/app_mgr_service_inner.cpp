@@ -2230,7 +2230,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
         appRunningManager_->RemoveAppRunningRecordById(appRecord->GetRecordId());
         return;
     }
-    HILOG_INFO("pid: %{public}d, processName: %{public}s.", pid, processName.c_str());
+    HILOG_INFO("Start process success, pid: %{public}d, processName: %{public}s.", pid, processName.c_str());
     SetRunningSharedBundleList(bundleName, hspList);
     appRecord->GetPriorityObject()->SetPid(pid);
     appRecord->SetUid(startMsg.uid);
