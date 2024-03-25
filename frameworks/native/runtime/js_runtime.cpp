@@ -91,6 +91,13 @@ const std::string NAMESPACE = "namespace";
 const std::string TARGET_OHM = "targetohm";
 const std::string SINCE_VERSION = "sinceVersion";
 
+const std::string PACKAGE_NAME = "packageName";
+const std::string BUNDLE_NAME = "bundleName";
+const std::string MODULE_NAME = "moduleName";
+const std::string VERSION = "version";
+const std::string ENTRY_PATH = "entryPath";
+const std::string IS_SO = "isSO";
+
 static auto PermissionCheckFunc = []() {
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
 
@@ -718,6 +725,8 @@ bool JsRuntime::Initialize(const Options& options)
                 });
             std::vector<panda::HmsMap> systemKitsMap = GetSystemKitsMap(apiTargetVersion_);
             panda::JSNApi::SetHmsModuleList(vm, systemKitsMap);
+            panda::JSNApi::SetpkgContextInfoList(GetPkgContextInfoListMap(options.pkgContextInfoJsonStringMap));
+            panda::JSNApi::SetPkgNameList(options.packageNameList);
         }
     }
 
@@ -1520,6 +1529,75 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     }
     HILOG_DEBUG("The size of the map is %{public}zu", systemKitsMap.size());
     return systemKitsMap;
+}
+
+std::map<std::string, std::vector<std::vector<std::string>>> JsRuntime::GetPkgContextInfoListMap(
+    std::map<std::string, std::string> contextInfoMap)
+{
+    std::map<std::string, std::vector<std::vector<std::string>>> pkgContextInfoMap;
+    for (auto it = contextInfoMap.begin(); it != contextInfoMap.end(); it++) {
+        std::vector<std::vector<std::string>> pkgContextInfoList;
+        auto jsonObject = nlohmann::json::parse(it->second);
+        if (jsonObject.is_discarded()) {
+            HILOG_ERROR("json discarded error");
+            continue;
+        }
+        for (nlohmann::json::iterator it = jsonObject.begin(); it != jsonObject.end(); it++) {
+            std::vector<std::string> items;
+            items.emplace_back(it.key());
+            nlohmann::json itemObject = it.value();
+            items.emplace_back(PACKAGE_NAME);
+            if (itemObject[PACKAGE_NAME].is_null() || !itemObject[PACKAGE_NAME].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[PACKAGE_NAME].get<std::string>());
+            }
+
+            items.emplace_back(BUNDLE_NAME);
+            if (itemObject[BUNDLE_NAME].is_null() || !itemObject[BUNDLE_NAME].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[BUNDLE_NAME].get<std::string>());
+            }
+
+            items.emplace_back(MODULE_NAME);
+            if (itemObject[MODULE_NAME].is_null() || !itemObject[MODULE_NAME].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[MODULE_NAME].get<std::string>());
+            }
+
+            items.emplace_back(VERSION);
+            if (itemObject[VERSION].is_null() || !itemObject[VERSION].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[VERSION].get<std::string>());
+            }
+
+            items.emplace_back(ENTRY_PATH);
+            if (itemObject[ENTRY_PATH].is_null() || !itemObject[ENTRY_PATH].is_string()) {
+                items.emplace_back("");
+            } else {
+                items.emplace_back(itemObject[ENTRY_PATH].get<std::string>());
+            }
+
+            items.emplace_back(IS_SO);
+            if (itemObject[IS_SO].is_null() || !itemObject[IS_SO].is_boolean()) {
+                items.emplace_back("");
+            } else {
+                bool isSo = itemObject[IS_SO].get<bool>();
+                if (isSo) {
+                    items.emplace_back("true");
+                } else {
+                    items.emplace_back("false");
+                }
+            }
+            pkgContextInfoList.emplace_back(items);
+        }
+        pkgContextInfoMap[it->first] = pkgContextInfoList;
+    }
+
+    return pkgContextInfoMap;
 }
 
 void JsRuntime::SetChildOptions(const Options& options)
