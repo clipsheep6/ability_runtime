@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_APP_GALLERY_ENABLE_UTIL_H
 
 #include <string>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parameters.h"
 
@@ -27,7 +28,7 @@ const std::string ENABLE_APP_GALLERY_SELECTOR_UTIL = "abilitymanagerservice.supp
 
 inline bool IsEnableAppGallerySelector()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     std::string ret = OHOS::system::GetParameter(ENABLE_APP_GALLERY_SELECTOR_UTIL, "true");
     if (ret == "true") {
         return true;
