@@ -50,6 +50,7 @@
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "freeze_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
@@ -2334,7 +2335,7 @@ void MainThread::ForceFullGC()
 void MainThread::Start()
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGI(AAFwkTag::APPMGR, "App main thread create, pid:%{public}d.", getpid());
 
     if (AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
         ChildProcessInfo info;
