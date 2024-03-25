@@ -143,7 +143,8 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular);
+        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular,
+                                                                      options.isDebugVersion);
         InitSourceMap(operatorObj, jsEnv);
         if (!options.isUnique) {
             InitTimerModule(jsEnv);

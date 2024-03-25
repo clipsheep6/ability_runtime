@@ -19,6 +19,7 @@
 #include "uri_permission_load_callback.h"
 #undef private
 #include "ability_manager_errors.h"
+#include "mock_sa_call.h"
 #include "want.h"
 using namespace testing;
 using namespace testing::ext;
@@ -108,6 +109,7 @@ HWTEST_F(UriPermissionManagerTest, LoadUriPermService_001, TestSize.Level1)
  */
 HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_002, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
     std::string bundleName = "com.example.test";

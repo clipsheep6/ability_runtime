@@ -110,14 +110,18 @@ public:
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
 
+    std::string GetAppRunningUniqueIdByPid() const;
+    void SetAppRunningUniqueIdByPid(const std::string &appRunningUniqueId);
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
     static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
     std::recursive_mutex callbackLock_;
+    std::recursive_mutex envCallbacksLock_;
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
+    std::string appRunningUniqueId_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

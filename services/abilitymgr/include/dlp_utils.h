@@ -17,10 +17,12 @@
 #define OHOS_ABILITY_RUNTIME_DLP_UTILS_H
 
 #include "ability_record.h"
+#include "bundle_mgr_helper.h"
 #ifdef WITH_DLP
 #include "dlp_permission_kit.h"
 #endif // WITH_DLP
 #include "hilog_wrapper.h"
+#include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
 #include "want.h"
@@ -94,6 +96,25 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
         return false;
     }
 #endif // WITH_DLP
+    return true;
+}
+
+static bool CheckCallerIsDlpManager(const std::shared_ptr<AppExecFwk::BundleMgrHelper> &bundleManager)
+{
+    if (!bundleManager) {
+        return false;
+    }
+
+    std::string bundleName;
+    auto callerUid = IPCSkeleton::GetCallingUid();
+    if (IN_PROCESS_CALL(bundleManager->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
+        HILOG_WARN("Get Bundle Name failed.");
+        return false;
+    }
+    if (bundleName != "com.ohos.dlpmanager") {
+        HILOG_WARN("Wrong Caller.");
+        return false;
+    }
     return true;
 }
 }  // namespace DlpUtils

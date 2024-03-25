@@ -21,9 +21,11 @@
 #include "js_context_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "js_startup_task.h"
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
+#include "startup_manager.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -324,6 +326,45 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     napi_value argv[] = { jsLevel };
     CallObjectMethod("onMemoryLevel", argv, ArraySize(argv));
     TAG_LOGD(AAFwkTag::UIABILITY, "end");
+}
+
+int32_t JsAbilityStage::RunAutoStartupTask(bool &waitingForStartup)
+{
+    HILOG_DEBUG("called");
+    waitingForStartup = false;
+    return ERR_OK;
+}
+
+int32_t JsAbilityStage::RunAutoStartupTaskInner(bool &waitingForStartup)
+{
+    int32_t result = RegisterStartupTaskFromProfile();
+    if (result != ERR_OK) {
+        waitingForStartup = false;
+        return result;
+    }
+    std::shared_ptr<StartupTaskManager> startupTaskManager = nullptr;
+    result = DelayedSingleton<StartupManager>::GetInstance()->BuildAutoStartupTaskManager(startupTaskManager);
+    if (result != ERR_OK) {
+        waitingForStartup = false;
+        return result;
+    }
+    startupTaskManager->Prepare();
+    startupTaskManager->Run();
+    waitingForStartup = true;
+    return ERR_OK;
+}
+
+int32_t JsAbilityStage::RegisterStartupTaskFromProfile()
+{
+    // GetProfileInfoFromResourceManager
+    // AnalyzeProfileInfoAndRegisterStartupTask
+    // register test
+    std::shared_ptr<NativeReference> jsStartupTaskObj = nullptr;
+    std::shared_ptr<JsStartupTask> task = std::make_shared<JsStartupTask>("test", jsRuntime_, jsStartupTaskObj,
+        shellContextRef_);
+    task->Init();
+    DelayedSingleton<StartupManager>::GetInstance()->RegisterStartupTask("test", task);
+    return ERR_OK;
 }
 
 napi_value JsAbilityStage::CallObjectMethod(const char* name, napi_value const * argv, size_t argc)

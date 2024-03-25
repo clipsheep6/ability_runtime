@@ -59,6 +59,8 @@ struct AbilityStateData : public Parcelable {
     bool isFocused = false;
     std::string callerBundleName;
     std::string callerAbilityName;
+    bool isAtomicService = false;
+    int32_t abilityRecordId = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

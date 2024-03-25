@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -515,6 +515,8 @@ public:
         std::shared_ptr<StartOptions> &startOptions, const std::shared_ptr<AbilityRecord> &callerAbility,
         uint32_t sceneFlag = 0);
 
+    void GrantUriPermissionForServiceExtension();
+
     void ProcessForegroundAbility(const std::shared_ptr<AbilityRecord> &callerAbility, bool needExit = true,
         uint32_t sceneFlag = 0);
     void NotifyAnimationFromTerminatingAbility() const;
@@ -929,6 +931,7 @@ public:
     bool GetLockedState();
 
     void SetAttachDebug(const bool isAttachDebug);
+    void SetAssertDebug(bool isAssertDebug);
     int32_t CreateModalUIExtension(const Want &want);
 
     AppExecFwk::ElementName GetElementName() const;
@@ -979,7 +982,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void RemoveAppStateObserver();
+    void RemoveAppStateObserver(bool force = false);
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall(Want &want);
@@ -1016,6 +1019,8 @@ private:
     void NotifyMissionBindPid();
 
     void DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const;
+
+    void DumpUIExtensionPid(std::vector<std::string> &info, bool isUIExtension) const;
 
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
@@ -1176,6 +1181,7 @@ private:
     std::string missionAffinity_ = "";
     bool lockedState_ = false;
     bool isAttachDebug_ = false;
+    bool isAssertDebug_ = false;
     bool isAppAutoStartup_ = false;
     bool isConnected = false;
     std::atomic_bool backgroundAbilityWindowDelayed_ = false;

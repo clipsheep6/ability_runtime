@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "app_lifecycle_deal.h"
 
 #include "freeze_util.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "time_util.h"
 
@@ -28,13 +28,13 @@ AppLifeCycleDeal::AppLifeCycleDeal()
 
 AppLifeCycleDeal::~AppLifeCycleDeal()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
 
 void AppLifeCycleDeal::LaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto appThread = GetApplicationClient();
     if (appThread) {
         appThread->ScheduleLaunchApplication(launchData, config);
@@ -45,7 +45,7 @@ void AppLifeCycleDeal::UpdateApplicationInfoInstalled(const ApplicationInfo &app
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -56,7 +56,7 @@ void AppLifeCycleDeal::AddAbilityStage(const HapModuleInfo &abilityStage)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -69,7 +69,7 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
     if (appThread && ability) {
         auto abilityInfo = ability->GetAbilityInfo();
         if (abilityInfo == nullptr) {
-            HILOG_WARN("abilityInfo null.");
+            TAG_LOGW(AAFwkTag::APPMGR, "abilityInfo null.");
             return;
         }
         if (abilityInfo->type == AbilityType::PAGE) {
@@ -78,11 +78,11 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
                 "; AppLifeCycleDeal::LaunchAbility; the LoadAbility lifecycle.";
             FreezeUtil::GetInstance().AddLifecycleEvent(flow, entry);
         }
-        HILOG_DEBUG("Launch ability.");
+        TAG_LOGD(AAFwkTag::APPMGR, "Launch ability.");
         appThread->ScheduleLaunchAbility(*abilityInfo, ability->GetToken(),
-            ability->GetWant());
+            ability->GetWant(), ability->GetAbilityRecordId());
     } else {
-        HILOG_WARN("LoadLifecycle.");
+        TAG_LOGW(AAFwkTag::APPMGR, "LoadLifecycle.");
     }
 }
 
@@ -90,7 +90,7 @@ void AppLifeCycleDeal::ScheduleTerminate(bool isLastProcess)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -101,7 +101,7 @@ void AppLifeCycleDeal::ScheduleForegroundRunning()
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -112,7 +112,7 @@ void AppLifeCycleDeal::ScheduleBackgroundRunning()
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -123,7 +123,7 @@ void AppLifeCycleDeal::ScheduleTrimMemory(int32_t timeLevel)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -134,7 +134,7 @@ void AppLifeCycleDeal::ScheduleMemoryLevel(int32_t Level)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -145,7 +145,7 @@ void AppLifeCycleDeal::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -156,7 +156,7 @@ void AppLifeCycleDeal::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &in
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -167,7 +167,7 @@ void AppLifeCycleDeal::LowMemoryWarning()
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -178,7 +178,7 @@ void AppLifeCycleDeal::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
     appThread->ScheduleCleanAbility(token);
@@ -188,7 +188,7 @@ void AppLifeCycleDeal::ScheduleProcessSecurityExit()
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -211,7 +211,7 @@ void AppLifeCycleDeal::ScheduleAcceptWant(const AAFwk::Want &want, const std::st
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -222,7 +222,7 @@ void AppLifeCycleDeal::ScheduleNewProcessRequest(const AAFwk::Want &want, const 
 {
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return;
     }
 
@@ -231,10 +231,10 @@ void AppLifeCycleDeal::ScheduleNewProcessRequest(const AAFwk::Want &want, const 
 
 int32_t AppLifeCycleDeal::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
     auto appThread = GetApplicationClient();
     if (!appThread) {
-        HILOG_ERROR("appThread is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr");
         return ERR_INVALID_VALUE;
     }
     appThread->ScheduleConfigurationUpdated(config);
@@ -245,10 +245,10 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, c
     const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
@@ -257,10 +257,10 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, c
 int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleNotifyHotReloadPage(callback, recordId);
@@ -270,10 +270,10 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
     const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
@@ -281,10 +281,10 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
 
 int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleNotifyAppFault(faultData);
@@ -292,10 +292,10 @@ int32_t AppLifeCycleDeal::NotifyAppFault(const FaultData &faultData)
 
 int32_t AppLifeCycleDeal::ChangeAppGcState(int32_t state)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleChangeAppGcState(state);
@@ -303,10 +303,10 @@ int32_t AppLifeCycleDeal::ChangeAppGcState(int32_t state)
 
 int32_t AppLifeCycleDeal::AttachAppDebug()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     appThread->AttachAppDebug();
@@ -315,10 +315,10 @@ int32_t AppLifeCycleDeal::AttachAppDebug()
 
 int32_t AppLifeCycleDeal::DetachAppDebug()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("appThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     appThread->DetachAppDebug();

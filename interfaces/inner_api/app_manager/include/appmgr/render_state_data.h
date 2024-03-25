@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,30 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_IMAGE_INFO_H
-#define OHOS_ABILITY_RUNTIME_IMAGE_INFO_H
-
-#include <string>
+#ifndef OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H
+#define OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H
 
 #include "parcel.h"
 
 namespace OHOS {
-namespace AAFwk {
-/**
- * @struct ImageInfo
- * ImageInfo is used to save information about sanpshot.
- */
-struct ImageInfo : public Parcelable {
-    uint32_t width;
-    uint32_t height;
-    uint32_t format;
-    uint32_t size;
-    int32_t shmKey;
-
+namespace AppExecFwk {
+struct RenderStateData : public Parcelable {
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
-    static ImageInfo *Unmarshalling(Parcel &parcel);
+    static RenderStateData *Unmarshalling(Parcel &parcel);
+
+    int32_t pid = 0;
+    int32_t uid = 0;
+    int32_t hostPid = -1;
+    int32_t hostUid = -1;
+    int32_t state = 0;
 };
-}  // namespace AAFwk
-}  // namespace OHOS
-#endif  // OHOS_ABILITY_RUNTIME_IMAGE_INFO_H
+} // namespace AppExecFwk
+} // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H

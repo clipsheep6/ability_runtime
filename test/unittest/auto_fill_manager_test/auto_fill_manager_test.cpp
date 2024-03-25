@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "auto_fill_extension_callback.h"
 #include "extension_ability_info.h"
 #include "hilog_wrapper.h"
+#include "mock_ui_content.h"
 #undef private
 
 using namespace testing;
@@ -28,6 +29,9 @@ using namespace testing::ext;
 
 namespace OHOS {
 namespace AAFwk {
+namespace {
+const int32_t EVENT_ID = 1;
+}  // namespace
 class AutoFillManagerTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -38,6 +42,11 @@ public:
     {
         return nullptr;
     }
+};
+
+class MockModalUIExtensionProxy : public Ace::ModalUIExtensionProxy {
+public:
+    MOCK_METHOD1(SendData, void(const AAFwk::WantParams &params));
 };
 
 void AutoFillManagerTest::SetUpTestCase(void)
@@ -52,86 +61,206 @@ void AutoFillManagerTest::SetUp()
 void AutoFillManagerTest::TearDown()
 {}
 
-/**
- * @tc.name: RequestAutoFill_0100
- * @tc.desc: RequestAutoFill
+/*
+ * Feature: AutoFillManager
+ * Function: RequestAutoFill
+ * SubFunction: NA
+ * FunctionPoints:Calling to the RequestAutoFill function parameter is invalid.
+ * EnvConditions: NA
+ * CaseDescription: Verify the parameter UIContent or fillCallback is nullptr.
  */
 HWTEST_F(AutoFillManagerTest, RequestAutoFill_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, RequestAutoFill_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    const AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
-    const AbilityBase::ViewData viewdata;
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    const AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
     const std::shared_ptr<AbilityRuntime::IFillRequestCallback> fillCallback = nullptr;
-    int32_t result = manager.RequestAutoFill(autoFillType, GetUIContent(), viewdata, fillCallback);
+    bool isPopup = false;
+    int32_t result = manager.RequestAutoFill(GetUIContent(), autoFillRequest, fillCallback, isPopup);
     EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
 
-/**
- * @tc.name: RequestAutoSave_0100
- * @tc.desc: RequestAutoSave
+/*
+ * Feature: AutoFillManager
+ * Function: RequestAutoSave
+ * SubFunction: NA
+ * FunctionPoints:Calling to the RequestAutoSave function parameter is invalid.
+ * EnvConditions: NA
+ * CaseDescription: Verify the parameter UIContent or saveCallback is nullptr.
  */
 HWTEST_F(AutoFillManagerTest, RequestAutoSave_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, RequestAutoSave_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    const AbilityBase::ViewData viewdata;
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    const AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
     const std::shared_ptr<AbilityRuntime::ISaveRequestCallback> saveCallback = nullptr;
-    int32_t result = manager.RequestAutoSave(GetUIContent(), viewdata, saveCallback);
+    int32_t result = manager.RequestAutoSave(GetUIContent(), autoFillRequest, saveCallback);
     EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
 
-/**
- * @tc.name: HandleRequestExecuteInner_0100
- * @tc.desc: HandleRequestExecuteInner
+/*
+ * Feature: AutoFillManager
+ * Function: HandleRequestExecuteInner
+ * SubFunction: NA
+ * FunctionPoints:Calling to the HandleRequestExecuteInner function parameter is invalid.
+ * EnvConditions: NA
+ * CaseDescription: Verify the parameter UIContent or fillCallback or saveCallback is nullptr.
  */
 HWTEST_F(AutoFillManagerTest, HandleRequestExecuteInner_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, HandleRequestExecuteInner_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
     const AbilityBase::AutoFillType autoFillType = AbilityBase::AutoFillType::UNSPECIFIED;
-    const AbilityBase::ViewData viewdata;
+    const AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
     const std::shared_ptr<AbilityRuntime::IFillRequestCallback> fillCallback = nullptr;
     const std::shared_ptr<AbilityRuntime::ISaveRequestCallback> saveCallback = nullptr;
+    bool isPopup = false;
     int32_t result =
-        manager.HandleRequestExecuteInner(autoFillType, GetUIContent(), viewdata, fillCallback, saveCallback);
+        manager.HandleRequestExecuteInner(GetUIContent(), autoFillRequest, fillCallback, saveCallback, isPopup);
     EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
 }
 
-/**
- * @tc.name: SetTimeOutEvent_0100
- * @tc.desc: SetTimeOutEvent
+/*
+ * Feature: AutoFillManager
+ * Function: SetTimeOutEvent
+ * SubFunction: NA
+ * FunctionPoints:Calling SetTimeOutEvent can create an eventHandler_ object.
+ * EnvConditions: NA
+ * CaseDescription: Verify create eventHandler_ after calling SetTimeOutEvent, which is not empty.
  */
 HWTEST_F(AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    manager.SetTimeOutEvent(1);
-    EXPECT_EQ(manager.eventId_, 0);
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.eventHandler_, nullptr);
+    manager.SetTimeOutEvent(EVENT_ID);
+    EXPECT_NE(manager.eventHandler_, nullptr);
+    if (manager.eventHandler_ != nullptr) {
+        manager.eventHandler_.reset();
+    }
 }
 
-/**
- * @tc.name: HandleTimeOut_0100
- * @tc.desc: HandleTimeOut
+/*
+ * Feature: AutoFillManager
+ * Function: RemoveEvent
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify only after calling SetTimeOutEvent can effectively call RemoveEvent.
+ */
+HWTEST_F(AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, SetTimeOutEvent_0100, TestSize.Level1";
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.eventHandler_, nullptr);
+    manager.SetTimeOutEvent(EVENT_ID);
+    EXPECT_NE(manager.eventHandler_, nullptr);
+    manager.RemoveEvent(EVENT_ID);
+    EXPECT_NE(manager.eventHandler_, nullptr);
+    if (manager.eventHandler_ != nullptr) {
+        manager.eventHandler_.reset();
+    }
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: RemoveEvent
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify directly calling remove is invalid.
+ */
+HWTEST_F(AutoFillManagerTest, RemoveEvent_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveEvent_0200, TestSize.Level1";
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.eventHandler_, nullptr);
+    manager.RemoveEvent(EVENT_ID);
+    EXPECT_EQ(manager.eventHandler_, nullptr);
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: UpdateCustomPopupUIExtension
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify if the UpdateCustomPopupUIExtension is valid.
+ */
+HWTEST_F(AutoFillManagerTest, UpdateCustomPopupUIExtension_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, UpdateCustomPopupUIExtension_0100, TestSize.Level1";
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
+    auto modalUIExtensionProxy = std::make_shared<MockModalUIExtensionProxy>();
+    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
+    manager.modalUIExtensionProxyMap_.emplace(uiContent.get(), modalUIExtensionProxy);
+    const AbilityBase::ViewData viewdata;
+    EXPECT_CALL(*modalUIExtensionProxy, SendData(_)).Times(1);
+    manager.UpdateCustomPopupUIExtension(uiContent.get(), viewdata);
+    manager.modalUIExtensionProxyMap_.clear();
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: SetAutoFillExtensionProxy
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify if the SetAutoFillExtensionProxy is valid.
+ */
+HWTEST_F(AutoFillManagerTest, SetAutoFillExtensionProxy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, SetAutoFillExtensionProxy_0100, TestSize.Level1";
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
+    auto modalUIExtensionProxy = std::make_shared<MockModalUIExtensionProxy>();
+    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
+    manager.SetAutoFillExtensionProxy(uiContent.get(), modalUIExtensionProxy);
+    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 1);
+    manager.modalUIExtensionProxyMap_.clear();
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: RemoveAutoFillExtensionProxy
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify if the RemoveAutoFillExtensionProxy is valid.
+ */
+HWTEST_F(AutoFillManagerTest, RemoveAutoFillExtensionProxy_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveAutoFillExtensionProxy_0100, TestSize.Level1";
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
+    auto modalUIExtensionProxy = std::make_shared<MockModalUIExtensionProxy>();
+    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
+    manager.modalUIExtensionProxyMap_.emplace(uiContent.get(), modalUIExtensionProxy);
+    manager.RemoveAutoFillExtensionProxy(uiContent.get());
+    EXPECT_EQ(manager.modalUIExtensionProxyMap_.size(), 0);
+    manager.modalUIExtensionProxyMap_.clear();
+}
+
+/*
+ * Feature: AutoFillManager
+ * Function: HandleTimeOut
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify if the processing timeout is valid.
  */
 HWTEST_F(AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    manager.HandleTimeOut(1);
-    EXPECT_EQ(manager.eventId_, 0);
-}
-
-/**
- * @tc.name: RemoveEvent_0100
- * @tc.desc: RemoveEvent
- */
-HWTEST_F(AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "AutoFillManagerTest, RemoveEvent_0100, TestSize.Level1";
-    auto& manager = AbilityRuntime::AutoFillManager::GetInstance();
-    manager.RemoveEvent(1);
-    EXPECT_EQ(manager.eventId_, 0);
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
+    auto extensionCallback = std::make_shared<AbilityRuntime::AutoFillExtensionCallback>();
+    uint32_t eventId = 0;
+    manager.extensionCallbacks_.emplace(eventId, extensionCallback);
+    manager.HandleTimeOut(eventId);
+    EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
+    manager.extensionCallbacks_.clear();
 }
 } // namespace AppExecFwk
 } // namespace OHOS

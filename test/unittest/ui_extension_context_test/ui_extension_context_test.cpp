@@ -22,6 +22,7 @@
 #undef private
 #undef protected
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "want.h"
 #include "mock_window.h"
@@ -58,7 +59,7 @@ void UIExtensionContextTest::TearDown()
  */
 HWTEST_F(UIExtensionContextTest, StartAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("StartAbility_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbility_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     AAFwk::Want want;
@@ -66,7 +67,7 @@ HWTEST_F(UIExtensionContextTest, StartAbility_0100, TestSize.Level1)
     want.SetElement(element);
     EXPECT_TRUE(context->StartAbility(want) != ERR_OK);
 
-    HILOG_INFO("StartAbility_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbility_0100 end");
 }
 
 /**
@@ -76,7 +77,7 @@ HWTEST_F(UIExtensionContextTest, StartAbility_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, StartAbility_0200, TestSize.Level1)
 {
-    HILOG_INFO("StartAbility_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbility_0200 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     AAFwk::Want want;
@@ -85,7 +86,7 @@ HWTEST_F(UIExtensionContextTest, StartAbility_0200, TestSize.Level1)
     want.SetElement(element);
     EXPECT_TRUE(context->StartAbility(want, startOptions) != ERR_OK);
 
-    HILOG_INFO("StartAbility_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbility_0200 end");
 }
 
 /**
@@ -95,13 +96,13 @@ HWTEST_F(UIExtensionContextTest, StartAbility_0200, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, TerminateSelf_0100, TestSize.Level1)
 {
-    HILOG_INFO("TerminateSelf_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "TerminateSelf_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     auto ret = context->TerminateSelf();
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
-    HILOG_INFO("TerminateSelf_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "TerminateSelf_0100 end");
 }
 
 /**
@@ -111,7 +112,7 @@ HWTEST_F(UIExtensionContextTest, TerminateSelf_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, ConnectAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("ConnectAbility_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectAbility_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     AAFwk::Want want;
@@ -119,7 +120,7 @@ HWTEST_F(UIExtensionContextTest, ConnectAbility_0100, TestSize.Level1)
     auto ret = context->ConnectAbility(want, connectCallback);
     EXPECT_NE(ret, 0);
 
-    HILOG_INFO("ConnectAbility_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectAbility_0100 end");
 }
 
 /**
@@ -129,7 +130,7 @@ HWTEST_F(UIExtensionContextTest, ConnectAbility_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, DisconnectAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("DisconnectAbility_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "DisconnectAbility_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     AAFwk::Want want;
@@ -137,7 +138,7 @@ HWTEST_F(UIExtensionContextTest, DisconnectAbility_0100, TestSize.Level1)
     auto ret = context->DisconnectAbility(want, connectCallback);
     EXPECT_NE(ret, 0);
 
-    HILOG_INFO("DisconnectAbility_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "DisconnectAbility_0100 end");
 }
 
 /**
@@ -147,7 +148,7 @@ HWTEST_F(UIExtensionContextTest, DisconnectAbility_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, StartAbilityForResult_0100, TestSize.Level1)
 {
-    HILOG_INFO("StartAbilityForResult_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResult_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     AAFwk::Want want;
@@ -158,7 +159,7 @@ HWTEST_F(UIExtensionContextTest, StartAbilityForResult_0100, TestSize.Level1)
     auto ret = context->StartAbilityForResult(want, startOptions, requestCode, std::move(task));
     EXPECT_NE(ret, ERR_OK);
 
-    HILOG_INFO("StartAbilityForResult_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResult_0100 end");
 }
 
 /**
@@ -168,7 +169,7 @@ HWTEST_F(UIExtensionContextTest, StartAbilityForResult_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, StartAbilityForResult_0200, TestSize.Level1)
 {
-    HILOG_INFO("StartAbilityForResult_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResult_0200 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     AAFwk::Want want;
@@ -178,7 +179,7 @@ HWTEST_F(UIExtensionContextTest, StartAbilityForResult_0200, TestSize.Level1)
     auto ret = context->StartAbilityForResult(want, requestCode, std::move(task));
     EXPECT_NE(ret, ERR_OK);
 
-    HILOG_INFO("StartAbilityForResult_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbilityForResult_0200 end");
 }
 
 /**
@@ -188,7 +189,7 @@ HWTEST_F(UIExtensionContextTest, StartAbilityForResult_0200, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, OnAbilityResult_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnAbilityResult_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "OnAbilityResult_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     int32_t code = 2;
@@ -198,7 +199,7 @@ HWTEST_F(UIExtensionContextTest, OnAbilityResult_0100, TestSize.Level1)
     auto count = context->resultCallbacks_.size();
     EXPECT_EQ(count, 0);
 
-    HILOG_INFO("OnAbilityResult_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "OnAbilityResult_0100 end");
 }
 
 /**
@@ -208,13 +209,13 @@ HWTEST_F(UIExtensionContextTest, OnAbilityResult_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, GenerateCurRequestCode_0100, TestSize.Level1)
 {
-    HILOG_INFO("GenerateCurRequestCode_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "GenerateCurRequestCode_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     auto result = context->GenerateCurRequestCode();
     EXPECT_FALSE(result = 0);
 
-    HILOG_INFO("GenerateCurRequestCode_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "GenerateCurRequestCode_0100 end");
 }
 
 
@@ -225,14 +226,14 @@ HWTEST_F(UIExtensionContextTest, GenerateCurRequestCode_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, GetWidow_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetWidow_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetWidow_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     sptr<MockWindow> window(new (std::nothrow) MockWindow());
     context->SetWindow(window);
     EXPECT_TRUE(context->GetWindow() != nullptr);
 
-    HILOG_INFO("GetWidow_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetWidow_0100 end");
 }
 
 /**
@@ -242,7 +243,7 @@ HWTEST_F(UIExtensionContextTest, GetWidow_0100, TestSize.Level1)
  */
 HWTEST_F(UIExtensionContextTest, GetUIContent_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetUIContent_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetUIContent_0100 start");
 
     auto context = std::make_shared<UIExtensionContext>();
     sptr<MockWindow> window(new (std::nothrow) MockWindow());
@@ -250,7 +251,7 @@ HWTEST_F(UIExtensionContextTest, GetUIContent_0100, TestSize.Level1)
     Ace::UIContent* content = context->GetUIContent();
     EXPECT_TRUE(content == nullptr);
 
-    HILOG_INFO("GetUIContent_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetUIContent_0100 end");
 }
 
 } // namespace AbilityRuntime

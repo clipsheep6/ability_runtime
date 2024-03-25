@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #define private public
 #include "pending_want_manager.h"
@@ -59,7 +60,7 @@ void PendingWantManagerDumpTest::TearDown()
  */
 HWTEST_F(PendingWantManagerDumpTest, PendingWantManagerDump_DumpByRecordId_0100, TestSize.Level1)
 {
-    HILOG_INFO("PendingWantManagerDump_DumpByRecordId_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWantManagerDump_DumpByRecordId_0100 start");
 
     auto pendingManager = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager, nullptr);
@@ -77,12 +78,12 @@ HWTEST_F(PendingWantManagerDumpTest, PendingWantManagerDump_DumpByRecordId_0100,
     pendingManager->DumpByRecordId(info, args);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 
-    HILOG_INFO("PendingWantManagerDump_DumpByRecordId_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWantManagerDump_DumpByRecordId_0100 end");
 }
 
 /**
@@ -93,7 +94,7 @@ HWTEST_F(PendingWantManagerDumpTest, PendingWantManagerDump_DumpByRecordId_0100,
  */
 HWTEST_F(PendingWantManagerDumpTest, PendingWantManagerDump_Dump_0100, TestSize.Level1)
 {
-    HILOG_INFO("PendingWantManagerDump_Dump_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWantManagerDump_Dump_0100 start");
 
     auto pendingManager = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager, nullptr);
@@ -102,7 +103,7 @@ HWTEST_F(PendingWantManagerDumpTest, PendingWantManagerDump_Dump_0100, TestSize.
     pendingManager->Dump(info);
     EXPECT_EQ(info.size(), SIZE_ONE);
 
-    HILOG_INFO("PendingWantManagerDump_Dump_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWantManagerDump_Dump_0100 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

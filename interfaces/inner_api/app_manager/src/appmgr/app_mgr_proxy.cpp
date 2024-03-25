@@ -1734,5 +1734,32 @@ int32_t AppMgrProxy::SignRestartAppFlag(const std::string &bundleName)
     }
     return reply.ReadInt32();
 }
+
+int32_t AppMgrProxy::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+{
+    HILOG_DEBUG("Called.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return IPC_PROXY_ERR;
+    }
+    if (!data.WriteInt32(pid)) {
+        HILOG_ERROR("parcel WriteInt32 failed");
+        return IPC_PROXY_ERR;
+    }
+    auto ret = SendRequest(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID, data, reply, option);
+    if (ret != NO_ERROR) {
+        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    auto result = reply.ReadInt32();
+    if (result == ERR_OK) {
+        appRunningUniqueId = reply.ReadString();
+        HILOG_DEBUG("appRunningUniqueId = %{public}s", appRunningUniqueId.c_str());
+    }
+    return result;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

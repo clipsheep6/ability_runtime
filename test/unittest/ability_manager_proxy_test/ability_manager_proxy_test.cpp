@@ -1870,25 +1870,6 @@ HWTEST_F(AbilityManagerProxyTest, MoveUIAbilityToBackground_0100, TestSize.Level
     EXPECT_EQ(res, NO_ERROR);
 }
 
-/*
- * Feature: AbilityManagerService
- * Function: SendANRProcessID
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SendANRProcessID
- * EnvConditions: NA
- * CaseDescription: Verify the normal process of SendANRProcessID
- */
-HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_SendANRProcessID_001, TestSize.Level1)
-{
-    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
-        .Times(1)
-        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
-    int pid = 0;
-    auto res = proxy_->SendANRProcessID(pid);
-    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID), mock_->code_);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
 /**
  * @tc.number: ReportDrawnCompleted_001
  * @tc.name: ReportDrawnCompleted

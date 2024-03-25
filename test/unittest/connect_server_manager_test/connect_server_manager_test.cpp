@@ -22,6 +22,7 @@
 #include "connect_server_manager.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 using namespace testing::ext;
 using namespace testing;
@@ -47,11 +48,11 @@ public:
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0100 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0100 is start");
     std::shared_ptr<ConnectServerManager> connectServerManager = std::make_shared<ConnectServerManager>();
     EXPECT_TRUE(connectServerManager != nullptr);
     connectServerManager.reset();
-    HILOG_INFO("ConnectServerManagerTest_0100 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0100 is end");
 }
 
 /*
@@ -61,13 +62,13 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0100, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0200 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0200 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     const std::string bundleName = "StartServer";
     uint32_t socketFd = 0;
     connectServerManager.StartConnectServer(bundleName, socketFd, true);
     EXPECT_TRUE(connectServerManager.bundleName_ == "StartServer");
-    HILOG_INFO("ConnectServerManagerTest_0200 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0200 is end");
 }
 
 /*
@@ -77,7 +78,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0200, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0300, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0300 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0300 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     connectServerManager.StopConnectServer();
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
@@ -89,7 +90,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0300, TestSize.Level
     connectServerManager.handlerConnectServerSo_ = dptr;
     connectServerManager.StopConnectServer();
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
-    HILOG_INFO("ConnectServerManagerTest_0300 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0300 is end");
 }
 
 /*
@@ -99,7 +100,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0300, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0400 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0400 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     auto createTest = [] (int32_t val) {};
     auto setTest = [] (bool flag) {};
@@ -111,7 +112,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
     char *dptr = data;
     connectServerManager.handlerConnectServerSo_ = dptr;
     EXPECT_FALSE(connectServerManager.AddInstance(gettid(), ONE, instanceName));
-    HILOG_INFO("ConnectServerManagerTest_0400 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0400 is end");
 }
 
 /*
@@ -121,7 +122,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0400, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0500 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0500 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     connectServerManager.handlerConnectServerSo_ = nullptr;
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
@@ -136,7 +137,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
     connectServerManager.RemoveInstance(ONE);
     EXPECT_TRUE(connectServerManager.handlerConnectServerSo_);
     connectServerManager.RemoveInstance(ONE);
-    HILOG_INFO("ConnectServerManagerTest_0500 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0500 is end");
 }
 
 /*
@@ -146,14 +147,14 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0500, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0600, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0600 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0600 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     const std::string jsonTreeStr = "jsonTreeStr";
     const std::string jsonSnapshotStr = "jsonSnapshotStr";
     connectServerManager.handlerConnectServerSo_ = nullptr;
     EXPECT_FALSE(connectServerManager.handlerConnectServerSo_);
     connectServerManager.SendInspector(jsonTreeStr, jsonSnapshotStr);
-    HILOG_INFO("ConnectServerManagerTest_0600 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0600 is end");
 }
 
 /*
@@ -163,7 +164,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0600, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0700 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0700 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     auto createTest = [] (int32_t val) {};
     auto setTest = [] (bool flag) {};
@@ -174,7 +175,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level
     uint32_t socketFd = 0;
     connectServerManager.StartConnectServer(bundleName, socketFd, true);
     EXPECT_FALSE(connectServerManager.AddInstance(gettid(), TWO, instanceName));
-    HILOG_INFO("ConnectServerManagerTest_0700 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0700 is end");
 }
 
 /*
@@ -184,7 +185,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0700, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0800, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0800 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0800 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
@@ -193,7 +194,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0800, TestSize.Level
     connectServerManager.StartConnectServer(bundleName, socketFd, true);
     connectServerManager.RemoveInstance(TWO);
     EXPECT_TRUE(connectServerManager.instanceMap_.find(TWO) == connectServerManager.instanceMap_.end());
-    HILOG_INFO("ConnectServerManagerTest_0800 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0800 is end");
 }
 
 /*
@@ -203,7 +204,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0800, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0900, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_0900 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0900 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     const std::string instanceName = "test02";
     connectServerManager.handlerConnectServerSo_ = nullptr;
@@ -214,7 +215,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0900, TestSize.Level
     const std::string jsonSnapshotStr = "jsonSnapshotStr";
     connectServerManager.SendInspector(jsonTreeStr, jsonSnapshotStr);
     EXPECT_TRUE(connectServerManager.handlerConnectServerSo_ != nullptr);
-    HILOG_INFO("ConnectServerManagerTest_0900 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_0900 is end");
 }
 
 /*
@@ -224,7 +225,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_0900, TestSize.Level
  */
 HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_1000, TestSize.Level1)
 {
-    HILOG_INFO("ConnectServerManagerTest_1000 is start");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_1000 is start");
     ConnectServerManager &connectServerManager = AbilityRuntime::ConnectServerManager::Get();
     connectServerManager.SetLayoutInspectorCallback(nullptr, nullptr);
     auto resulftSetTest = connectServerManager.GetLayoutInspectorCallback();
@@ -235,7 +236,7 @@ HWTEST_F(ConnectServerManagerTest, ConnectServerManagerTest_1000, TestSize.Level
     connectServerManager.SetLayoutInspectorCallback(createTest, setTest);
     resulftSetTest = connectServerManager.GetLayoutInspectorCallback();
     EXPECT_TRUE(resulftSetTest != nullptr);
-    HILOG_INFO("ConnectServerManagerTest_1000 is end");
+    TAG_LOGI(AAFwkTag::TEST, "ConnectServerManagerTest_1000 is end");
 }
 } // namespace AAFwk
 } // namespace OHOS

@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "want.h"
 #include "want_params_wrapper.h"
@@ -65,7 +66,7 @@ void InsightIntentExecuteParamTest::TearDown()
  */
 HWTEST_F(InsightIntentExecuteParamTest, GenerateFromWant_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     WantParams wantParams;
     wantParams.SetParam(AppExecFwk::INSIGHT_INTENT_EXECUTE_PARAM_NAME, AAFwk::String::Box(TEST_INSIGHT_INTENT_NANE));
     wantParams.SetParam(AppExecFwk::INSIGHT_INTENT_EXECUTE_PARAM_ID, AAFwk::String::Box("1"));
@@ -101,7 +102,7 @@ HWTEST_F(InsightIntentExecuteParamTest, GenerateFromWant_0100, TestSize.Level1)
     EXPECT_EQ(insightIntentParamGot->GetIntParam(Want::PARAM_RESV_CALLER_PID, 0), 1002);
     EXPECT_EQ(insightIntentParamGot->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME), TEST_CALLER_BUNDLE_NANE);
 
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 
 /**
@@ -112,7 +113,7 @@ HWTEST_F(InsightIntentExecuteParamTest, GenerateFromWant_0100, TestSize.Level1)
  */
 HWTEST_F(InsightIntentExecuteParamTest, UpdateInsightIntentCallerInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     WantParams wantParams;
     wantParams.SetParam(Want::PARAM_RESV_CALLER_TOKEN, Integer::Box(1000));
     wantParams.SetParam(Want::PARAM_RESV_CALLER_UID, Integer::Box(1001));
@@ -128,7 +129,7 @@ HWTEST_F(InsightIntentExecuteParamTest, UpdateInsightIntentCallerInfo_0100, Test
     EXPECT_EQ(insightIntentParam.GetIntParam(Want::PARAM_RESV_CALLER_PID, 0), 1002);
     EXPECT_EQ(insightIntentParam.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME), TEST_CALLER_BUNDLE_NANE);
 
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 } // namespace AAFwk
 } // namespace OHOS

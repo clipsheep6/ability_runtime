@@ -32,7 +32,7 @@ class MockRenderStateObserver : public RenderStateObserverStub {
 public:
     MockRenderStateObserver() = default;
     virtual ~MockRenderStateObserver() = default;
-    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
+    void OnRenderStateChanged(const RenderStateData &renderStateData) override
     {
         onRenderStateChangedResult = 1;
     }
@@ -125,9 +125,8 @@ HWTEST_F(RenderStateObserverManagerTest, OnRenderStateChanged_0100, TestSize.Lev
     manager->Init();
     sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
     manager->RegisterRenderStateObserver(observer);
-    pid_t renderPid = 0;
-    int32_t state = 0;
-    int res = manager->OnRenderStateChanged(renderPid, state);
+    std::shared_ptr<RenderRecord> renderRecord;
+    int res = manager->OnRenderStateChanged(renderRecord, 0);
     EXPECT_EQ(res, ERR_OK);
     EXPECT_EQ(onRenderStateChangedResult, 1);
 }
@@ -141,9 +140,8 @@ HWTEST_F(RenderStateObserverManagerTest, OnRenderStateChanged_0200, TestSize.Lev
 {
     auto manager = std::make_shared<RenderStateObserverManager>();
     manager->Init();
-    pid_t renderPid = 0;
-    int32_t state = 0;
-    int res = manager->OnRenderStateChanged(renderPid, state);
+    std::shared_ptr<RenderRecord> renderRecord;
+    int res = manager->OnRenderStateChanged(renderRecord, 0);
     EXPECT_EQ(res, ERR_OK);
     EXPECT_EQ(onRenderStateChangedResult, 0);
 }
@@ -160,9 +158,8 @@ HWTEST_F(RenderStateObserverManagerTest, OnObserverDied_0100, TestSize.Level1)
     sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
     manager->RegisterRenderStateObserver(observer);
     manager->OnObserverDied(observer);
-    pid_t renderPid = 0;
-    int32_t state = 0;
-    int res = manager->OnRenderStateChanged(renderPid, state);
+    std::shared_ptr<RenderRecord> renderRecord;
+    int res = manager->OnRenderStateChanged(renderRecord, 0);
     EXPECT_EQ(res, ERR_OK);
     EXPECT_EQ(onRenderStateChangedResult, 0);
 }

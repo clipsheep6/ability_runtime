@@ -125,11 +125,6 @@ int MockAbilityDelegatorStub::RegisterSnapshotHandler(const sptr<ISnapshotHandle
     return 0;
 }
 
-int MockAbilityDelegatorStub::SendANRProcessID(int pid)
-{
-    return 0;
-}
-
 int32_t MockAbilityDelegatorStub::ReportDrawnCompleted(const sptr<IRemoteObject>& callerToken)
 {
     return 0;
@@ -334,11 +329,6 @@ int MockAbilityDelegatorStub2::GetMissionSnapshot(const std::string& deviceId, i
 }
 
 int MockAbilityDelegatorStub2::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler)
-{
-    return 0;
-}
-
-int MockAbilityDelegatorStub2::SendANRProcessID(int pid)
 {
     return 0;
 }

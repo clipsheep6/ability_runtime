@@ -20,6 +20,7 @@
 #include "ipc_types.h"
 #include "app_mgr_proxy.h"
 #include "app_record_id.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_application.h"
 #include "mock_app_mgr_service.h"
@@ -65,7 +66,7 @@ void AmsIpcAppMgrInterfaceTest::TearDown()
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_001, TestSize.Level1)
 {
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_001 start");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_001 start");
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
     sptr<MockApplication> app(new MockApplication());
@@ -74,7 +75,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_001, TestSize.Level1)
         .WillOnce(InvokeWithoutArgs(mockAppMgr.GetRefPtr(), &MockAppMgrService::Post));
     appMgrClient->AttachApplication(app);
     mockAppMgr->Wait();
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_001 end");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_001 end");
 }
 
 /*
@@ -86,7 +87,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_001, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_002, TestSize.Level1)
 {
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_002 start");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_002 start");
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
 
@@ -95,7 +96,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_002, TestSize.Level1)
     auto recordId = AppRecordId::Create();
     appMgrClient->ApplicationForegrounded(recordId);
     mockAppMgr->Wait();
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_002 end");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_002 end");
 }
 
 /*
@@ -107,7 +108,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_002, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_003, TestSize.Level1)
 {
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_003 start");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_003 start");
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
 
@@ -116,7 +117,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_003, TestSize.Level1)
     auto recordId = AppRecordId::Create();
     appMgrClient->ApplicationBackgrounded(recordId);
     mockAppMgr->Wait();
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_003 end");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_003 end");
 }
 
 /*
@@ -128,7 +129,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_003, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_004, TestSize.Level1)
 {
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_004 start");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_004 start");
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
 
@@ -137,7 +138,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_004, TestSize.Level1)
     auto recordId = AppRecordId::Create();
     appMgrClient->ApplicationTerminated(recordId);
     mockAppMgr->Wait();
-    HILOG_DEBUG("AppMgrIpcInterfaceTest_AppMgr_004 end");
+    TAG_LOGD(AAFwkTag::TEST, "AppMgrIpcInterfaceTest_AppMgr_004 end");
 }
 
 /*
@@ -149,7 +150,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, Interface_004, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, ClearUpApplicationData_008, TestSize.Level1)
 {
-    HILOG_DEBUG("ClearUpApplicationData_008 start");
+    TAG_LOGD(AAFwkTag::TEST, "ClearUpApplicationData_008 start");
 
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
@@ -158,7 +159,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, ClearUpApplicationData_008, TestSize.Level1)
 
     appMgrClient->ClearUpApplicationData("PROCESS");
 
-    HILOG_DEBUG("ClearUpApplicationData_008 end");
+    TAG_LOGD(AAFwkTag::TEST, "ClearUpApplicationData_008 end");
 }
 
 /*
@@ -170,7 +171,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, ClearUpApplicationData_008, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, GetAllRunningProcesses_010, TestSize.Level1)
 {
-    HILOG_DEBUG("GetAllRunningProcesses_009 start");
+    TAG_LOGD(AAFwkTag::TEST, "GetAllRunningProcesses_009 start");
 
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
     sptr<IAppMgr> appMgrClient = iface_cast<IAppMgr>(mockAppMgr);
@@ -185,7 +186,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, GetAllRunningProcesses_010, TestSize.Level1)
     ret = appMgrClient->GetAllRunningProcesses(runningProcessInfo);
     EXPECT_EQ(ret, OHOS::ERR_NONE);
 
-    HILOG_DEBUG("GetAllRunningProcesses_009 end");
+    TAG_LOGD(AAFwkTag::TEST, "GetAllRunningProcesses_009 end");
 }
 
 /*
@@ -196,7 +197,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, GetAllRunningProcesses_010, TestSize.Level1)
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, RegisterApplicationStateObserver_001, TestSize.Level0)
 {
-    HILOG_DEBUG("RegisterApplicationStateObserver_001 start");
+    TAG_LOGD(AAFwkTag::TEST, "RegisterApplicationStateObserver_001 start");
 
     sptr<IApplicationStateObserver> observer = new ApplicationStateObserverStub();
     std::vector<std::string> bundleNameList;
@@ -209,7 +210,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, RegisterApplicationStateObserver_001, TestSi
 
     EXPECT_EQ(OHOS::NO_ERROR, err);
 
-    HILOG_DEBUG("RegisterApplicationStateObserver_001 end");
+    TAG_LOGD(AAFwkTag::TEST, "RegisterApplicationStateObserver_001 end");
 }
 
 /*
@@ -221,7 +222,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, RegisterApplicationStateObserver_001, TestSi
  */
 HWTEST_F(AmsIpcAppMgrInterfaceTest, UnregisterApplicationStateObserver_001, TestSize.Level0)
 {
-    HILOG_DEBUG("UnregisterApplicationStateObserver_001 start");
+    TAG_LOGD(AAFwkTag::TEST, "UnregisterApplicationStateObserver_001 start");
 
     sptr<IApplicationStateObserver> observer = new ApplicationStateObserverStub();
     sptr<MockAppMgrService> mockAppMgr(new MockAppMgrService());
@@ -233,7 +234,7 @@ HWTEST_F(AmsIpcAppMgrInterfaceTest, UnregisterApplicationStateObserver_001, Test
 
     EXPECT_EQ(OHOS::NO_ERROR, err);
 
-    HILOG_DEBUG("UnregisterApplicationStateObserver_001 end");
+    TAG_LOGD(AAFwkTag::TEST, "UnregisterApplicationStateObserver_001 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

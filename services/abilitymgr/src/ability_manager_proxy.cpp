@@ -3613,28 +3613,6 @@ int AbilityManagerProxy::DoAbilityBackground(const sptr<IRemoteObject> &token, u
     return reply.ReadInt32();
 }
 
-int AbilityManagerProxy::SendANRProcessID(int pid)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    MessageOption option;
-    if (!WriteInterfaceToken(data)) {
-        return INNER_ERR;
-    }
-    if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("pid WriteInt32 fail.");
-        return ERR_INVALID_VALUE;
-    }
-
-    auto error = SendRequest(AbilityManagerInterfaceCode::SEND_APP_NOT_RESPONSE_PROCESS_ID,
-        data, reply, option);
-    if (error != NO_ERROR) {
-        HILOG_ERROR("SendANRProcessID error: %d", error);
-        return error;
-    }
-    return reply.ReadInt32();
-}
-
 int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
     if (!token) {
@@ -4863,7 +4841,7 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     }
 
     MessageParcel data;
-    if (!WriteInterfaceToken (data)) {
+    if (!WriteInterfaceToken(data)) {
         HILOG_ERROR("Write remote object failed.");
         return INNER_ERR;
     }

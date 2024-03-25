@@ -29,10 +29,10 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockAppMgrService : public AppMgrStub {
 public:
-    MOCK_METHOD5(LoadAbility,
+    MOCK_METHOD6(LoadAbility,
         void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
             const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
-            const std::shared_ptr<AAFwk::Want>& want));
+            const std::shared_ptr<AAFwk::Want>& want, int32_t abilityRecordId));
     MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool isClearMissionFlag));
     MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
@@ -81,7 +81,7 @@ public:
     MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
-    
+
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
         GTEST_LOG_(INFO) << "MockAppMgrService::AttachApplication called";
@@ -254,7 +254,7 @@ public:
         const std::shared_ptr<AAFwk::Want>& want)
     {
         if (Appthread_ != nullptr) {
-            Appthread_->ScheduleLaunchAbility(abilityinf, token, want);
+            Appthread_->ScheduleLaunchAbility(abilityinf, token, want, 0);
         }
     }
 

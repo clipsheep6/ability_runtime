@@ -187,7 +187,8 @@ int32_t AppSchedulerHost::HandleScheduleLaunchAbility(MessageParcel &data, Messa
     }
 
     std::shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
-    ScheduleLaunchAbility(*abilityInfo, token, want);
+    auto abilityRecordId = data.ReadInt32();
+    ScheduleLaunchAbility(*abilityInfo, token, want, abilityRecordId);
     return NO_ERROR;
 }
 

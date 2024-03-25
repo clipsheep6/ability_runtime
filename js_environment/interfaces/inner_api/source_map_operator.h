@@ -29,8 +29,8 @@ enum InitStatus { NOT_EXECUTED, EXECUTED_SUCCESSFULLY };
 }
 class SourceMapOperator {
 public:
-    SourceMapOperator(const std::string bundleName, bool isModular)
-        : bundleName_(bundleName), isModular_(isModular), initStatus_(NOT_EXECUTED) {}
+    SourceMapOperator(const std::string bundleName, bool isModular, bool isDebugVersion)
+        : bundleName_(bundleName), isModular_(isModular), isDebugVersion_(isDebugVersion), initStatus_(NOT_EXECUTED) {}
 
     ~SourceMapOperator() = default;
 
@@ -53,7 +53,11 @@ public:
             JSENV_LOG_E("sourceMapObj_ is nullptr");
             return "";
         }
-        return sourceMapObj_->TranslateBySourceMap(stackStr);
+        if (isDebugVersion_) {
+            return sourceMapObj_->TranslateBySourceMap(stackStr);
+        } else {
+            return NOT_FOUNDMAP + stackStr;
+        }
     }
 
     bool TranslateUrlPositionBySourceMap(std::string& url, int& line, int& column)
@@ -73,6 +77,7 @@ public:
 private:
     const std::string bundleName_;
     bool isModular_ = false;
+    bool isDebugVersion_ = false;
     std::shared_ptr<SourceMap> sourceMapObj_;
     InitStatus initStatus_;
 };

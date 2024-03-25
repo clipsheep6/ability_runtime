@@ -29,6 +29,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+constexpr int32_t MAX_APP_DEBUG_COUNT = 100;
+}
 AmsMgrStub::AmsMgrStub()
 {
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::LOAD_ABILITY)] = &AmsMgrStub::HandleLoadAbility;
@@ -93,6 +96,16 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleAttachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::DETACH_APP_DEBUG)] =
         &AmsMgrStub::HandleDetachAppDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::SET_APP_WAITING_DEBUG)] =
+        &AmsMgrStub::HandleSetAppWaitingDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CANCEL_APP_WAITING_DEBUG)] =
+        &AmsMgrStub::HandleCancelAppWaitingDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::GET_WAITING_DEBUG_APP)] =
+        &AmsMgrStub::HandleGetWaitingDebugApp;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_WAITING_DEBUG_APP)] =
+        &AmsMgrStub::HandleIsWaitingDebugApp;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG)] =
+        &AmsMgrStub::HandleClearNonPersistWaitingDebugFlag;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::REGISTER_ABILITY_DEBUG_RESPONSE)] =
         &AmsMgrStub::HandleRegisterAbilityDebugResponse;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_ATTACH_DEBUG)] =
@@ -153,8 +166,9 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
         HILOG_ERROR("ReadParcelable want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
+    int32_t abilityRecordId = data.ReadInt32();
 
-    LoadAbility(token, preToke, abilityInfo, appInfo, want);
+    LoadAbility(token, preToke, abilityInfo, appInfo, want, abilityRecordId);
     return NO_ERROR;
 }
 
@@ -473,6 +487,86 @@ int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &rep
         HILOG_ERROR("Fail to write result.");
         return ERR_INVALID_VALUE;
     }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleSetAppWaitingDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+    auto isPersist = data.ReadBool();
+    auto result = SetAppWaitingDebug(bundleName, isPersist);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleCancelAppWaitingDebug(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto result = CancelAppWaitingDebug();
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleGetWaitingDebugApp(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    std::vector<std::string> debugInfoList;
+    auto result = GetWaitingDebugApp(debugInfoList);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t listSize = static_cast<int32_t>(debugInfoList.size());
+    if (listSize > MAX_APP_DEBUG_COUNT) {
+        HILOG_ERROR("Max app debug count is %{public}d.", listSize);
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteInt32(listSize)) {
+        HILOG_ERROR("Fail to write list size.");
+        return ERR_INVALID_VALUE;
+    }
+
+    if (!reply.WriteStringVector(debugInfoList)) {
+        HILOG_ERROR("Fail to write string vector debug info list.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleIsWaitingDebugApp(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    auto bundleName = data.ReadString();
+    if (bundleName.empty()) {
+        HILOG_ERROR("Bundle name is empty.");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto result = IsWaitingDebugApp(bundleName);
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    ClearNonPersistWaitingDebugFlag();
     return NO_ERROR;
 }
 

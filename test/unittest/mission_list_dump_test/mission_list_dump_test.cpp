@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #define private public
 #include "mission_list.h"
@@ -78,9 +79,9 @@ HWTEST_F(MissionListDumpTest, MissionListDump_DumpList_0100, TestSize.Level0)
     missionList->DumpList(info, isClient);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 }
 
@@ -114,9 +115,9 @@ HWTEST_F(MissionListDumpTest, MissionListDump_DumpStateByRecordId_0100, TestSize
     missionList->DumpStateByRecordId(info, isClient, abilityRecordId, params);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 }
 }  // namespace AAFwk

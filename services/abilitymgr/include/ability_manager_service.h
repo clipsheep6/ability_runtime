@@ -30,7 +30,6 @@
 #include "ability_connect_manager.h"
 #include "ability_debug_deal.h"
 #include "ability_event_handler.h"
-#include "ability_interceptor_executer.h"
 #include "ability_manager_event_subscriber.h"
 #include "ability_manager_stub.h"
 #include "ams_configuration_parameter.h"
@@ -49,6 +48,7 @@
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
 #include "iacquire_share_data_callback_interface.h"
+#include "interceptor/ability_interceptor_executer.h"
 #include "iremote_object.h"
 #include "mission_list_manager.h"
 #include "parameter.h"
@@ -917,6 +917,9 @@ public:
     int32_t GetShareDataPairAndReturnData(std::shared_ptr<AbilityRecord> abilityRecord,
         const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam);
 
+    int32_t StartAbilityByFreeInstall(const Want &want, sptr<IRemoteObject> callerToken, int32_t userId,
+        int32_t requestCode);
+
     int StartAbilityWrap(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
@@ -942,7 +945,7 @@ public:
         AppExecFwk::ExtensionAbilityType extensionType,
         bool checkSystemCaller = true);
 
-    int RequestModalUIExtensionInner(const Want &want);
+    int RequestModalUIExtensionInner(Want want);
 
     int StartAbilityForOptionWrap(
         const Want &want,
@@ -1127,13 +1130,6 @@ public:
     bool IsAbilityControllerForeground(const std::string &bundleName);
 
     bool IsAbilityControllerStartById(int32_t missionId);
-
-    /**
-     * Send not response process ID to ability manager service.
-     * @param pid The not response process ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SendANRProcessID(int pid) override;
 
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
@@ -1991,12 +1987,16 @@ private:
 
     void WaitBootAnimationStart();
 
+    void SetDebugAppByWaitingDebugFlag(
+        const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp);
+
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);
 
     bool IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> callerToken, const std::string &appId,
         std::shared_ptr<AbilityRecord> callerAbility);
     int32_t CheckDebugAssertPermission();
+    std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
         int32_t userId, int requestCode);
@@ -2092,6 +2092,7 @@ private:
     ffrt::mutex collaboratorMapLock_;
     std::unordered_map<int32_t, sptr<IAbilityManagerCollaborator>> collaboratorMap_;
 
+    ffrt::mutex abilityDebugDealLock_;
     std::shared_ptr<AbilityDebugDeal> abilityDebugDeal_;
     std::shared_ptr<AppExitReasonHelper> appExitReasonHelper_;
 };

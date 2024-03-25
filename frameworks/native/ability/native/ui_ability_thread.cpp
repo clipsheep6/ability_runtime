@@ -90,13 +90,13 @@ std::shared_ptr<AppExecFwk::ContextDeal> UIAbilityThread::CreateAndInitContextDe
         HILOG_ERROR("ContextDeal is nullptr.");
         return contextDeal;
     }
-	
+
     auto abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo == nullptr) {
         HILOG_ERROR("ContextDeal is nullptr.");
         return nullptr;
     }
-	
+
     contextDeal->SetAbilityInfo(abilityInfo);
     contextDeal->SetApplicationInfo(application->GetApplicationInfo());
     abilityObject->SetProcessInfo(application->GetProcessInfo());
@@ -137,6 +137,7 @@ void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
         HILOG_ERROR("Ability is nullptr.");
         return;
     }
+    ability->SetAbilityRecordId(abilityRecord->GetAbilityRecordId());
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -148,8 +149,8 @@ void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
     ability->AttachBaseContext(contextDeal);
 
     // new hap requires
-    ability->AttachAbilityContext(
-        BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
+    ability->AttachAbilityContext(BuildAbilityContext(abilityRecord->GetAbilityInfo(),
+        application, token_, stageContext, abilityRecord->GetAbilityRecordId()));
 
     AttachInner(application, abilityRecord, stageContext);
 }
@@ -209,7 +210,7 @@ void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
         HILOG_ERROR("Ability is nullptr.");
         return;
     }
-
+    ability->SetAbilityRecordId(abilityRecord->GetAbilityRecordId());
     currentAbility_.reset(ability);
     token_ = abilityRecord->GetToken();
     abilityRecord->SetEventHandler(abilityHandler_);
@@ -221,8 +222,8 @@ void UIAbilityThread::Attach(const std::shared_ptr<AppExecFwk::OHOSApplication> 
     ability->AttachBaseContext(contextDeal);
 
     // new hap requires
-    ability->AttachAbilityContext(
-        BuildAbilityContext(abilityRecord->GetAbilityInfo(), application, token_, stageContext));
+    ability->AttachAbilityContext(BuildAbilityContext(abilityRecord->GetAbilityInfo(),
+        application, token_, stageContext, abilityRecord->GetAbilityRecordId()));
 
     AttachInner(application, abilityRecord, stageContext);
     HILOG_DEBUG("End.");
@@ -505,7 +506,7 @@ void UIAbilityThread::NotifyMemoryLevel(int32_t level)
 std::shared_ptr<AbilityContext> UIAbilityThread::BuildAbilityContext(
     const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
     const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<Context> &stageContext)
+    const std::shared_ptr<Context> &stageContext, int32_t abilityRecordId)
 {
     auto abilityContextImpl = std::make_shared<AbilityContextImpl>();
     if (abilityContextImpl == nullptr) {
@@ -516,6 +517,7 @@ std::shared_ptr<AbilityContext> UIAbilityThread::BuildAbilityContext(
     abilityContextImpl->SetToken(token);
     abilityContextImpl->SetAbilityInfo(abilityInfo);
     abilityContextImpl->SetConfiguration(application->GetConfiguration());
+    abilityContextImpl->SetAbilityRecordId(abilityRecordId);
     return abilityContextImpl;
 }
 

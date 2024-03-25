@@ -726,7 +726,8 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular);
+        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular,
+                                                                      options.isDebugVersion);
         InitSourceMap(operatorObj);
 
         if (options.isUnique) {

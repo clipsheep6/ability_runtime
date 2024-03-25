@@ -28,7 +28,8 @@ namespace OHOS {
 namespace AppExecFwk {
 class AbilityRunningRecord {
 public:
-    AbilityRunningRecord(const std::shared_ptr<AbilityInfo> &info, const sptr<IRemoteObject> &token);
+    AbilityRunningRecord(std::shared_ptr<AbilityInfo> info, sptr<IRemoteObject> token,
+        int32_t abilityRecordId);
     virtual ~AbilityRunningRecord();
 
     /**
@@ -74,6 +75,10 @@ public:
      * @return Returns the ability token.
      */
     const sptr<IRemoteObject> &GetToken() const;
+    int32_t GetAbilityRecordId() const
+    {
+        return abilityRecordId_;
+    }
 
     /**
      * @brief Setting id for ability record.
@@ -202,6 +207,7 @@ private:
     std::shared_ptr<AbilityInfo> info_;
     std::shared_ptr<AAFwk::Want> want_ = nullptr;
     sptr<IRemoteObject> token_;
+    int32_t abilityRecordId_ = 0;
     sptr<IRemoteObject> preToken_;
     int32_t ownerUserId_ = -1;
     bool isSingleUser_ = false;

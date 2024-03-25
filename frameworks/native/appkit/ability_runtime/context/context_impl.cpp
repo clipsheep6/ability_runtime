@@ -1055,13 +1055,15 @@ int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std:
         return errCode;
     }
 
-    auto overlayMgrProxy = bundleMgr_->GetOverlayManagerProxy();
-    if (overlayMgrProxy ==  nullptr) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "GetOverlayManagerProxy failed.");
-        return ERR_INVALID_VALUE;
+    if (overlayMgrProxy_ == nullptr) {
+        overlayMgrProxy_ = bundleMgr_->GetOverlayManagerProxy();
+        if (overlayMgrProxy_ ==  nullptr) {
+            HILOG_ERROR("GetOverlayManagerProxy failed.");
+            return ERR_INVALID_VALUE;
+        }
     }
 
-    auto ret = overlayMgrProxy->GetTargetOverlayModuleInfo(moduleName, overlayModuleInfos);
+    auto ret = overlayMgrProxy_->GetTargetOverlayModuleInfo(moduleName, overlayModuleInfos);
     if (ret != ERR_OK) {
         TAG_LOGD(AAFwkTag::CONTEXT, "GetOverlayModuleInfo form bms failed.");
         return ret;

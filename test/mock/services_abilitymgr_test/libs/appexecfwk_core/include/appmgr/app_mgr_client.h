@@ -42,8 +42,8 @@ public:
      * @param appInfo, Application information.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
-        const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want);
+    virtual AppMgrResultCode LoadAbility(sptr<IRemoteObject>& token, sptr<IRemoteObject> preToken,
+        const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want, int32_t);
 
     /**
      * Terminate ability.

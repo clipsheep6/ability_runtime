@@ -189,6 +189,8 @@ public:
     }
 
     void SetWeakSessionToken(const wptr<IRemoteObject>& sessionToken) override;
+    void SetAbilityRecordId(int32_t abilityRecordId) override;
+    int32_t GetAbilityRecordId() override;
 
     void SetTerminating(bool state) override
     {
@@ -200,7 +202,7 @@ public:
     ErrCode ReportDrawnCompleted() override;
 
     ErrCode GetMissionId(int32_t &missionId) override;
-    
+
     /**
      * @brief Set mission continue state of this ability.
      *
@@ -284,6 +286,7 @@ private:
     std::weak_ptr<AppExecFwk::IAbilityCallback> abilityCallback_;
     bool isTerminating_ = false;
     int32_t missionId_ = -1;
+    int32_t abilityRecordId_ = 0;
     std::mutex sessionTokenMutex_;
     wptr<IRemoteObject> sessionToken_;
     std::mutex uiExtensionMutex_;

@@ -807,14 +807,6 @@ public:
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) override;
 
     /**
-     * Send not response process ID to ability manager service.
-     *
-     * @param pid The not response process ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SendANRProcessID(int pid) override;
-
-    /**
      * Get mission id by ability token.
      *
      * @param token The token of ability.

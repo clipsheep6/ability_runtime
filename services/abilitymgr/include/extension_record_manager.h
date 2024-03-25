@@ -57,6 +57,13 @@ public:
      */
     void RemoveExtensionRecord(const int32_t extensionRecordId);
 
+    /**
+     * @brief Add extension record to terminate list by id
+     *
+     * @param extensionRecordId extension record id.
+     */
+    void AddExtensionRecordToTerminatedList(const int32_t extensionRecordId);
+
     static bool IsBelongToManager(const AppExecFwk::AbilityInfo &abilityInfo);
 
     bool IsFocused(int32_t extensionRecordId, const sptr<IRemoteObject>& focusToken);
@@ -74,12 +81,20 @@ public:
 
     int32_t GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token, UIExtensionHostInfo &hostInfo);
 
+    void LoadTimeout(int32_t extensionRecordId);
+    void ForegroundTimeout(int32_t extensionRecordId);
+    void BackgroundTimeout(int32_t extensionRecordId);
+    void TerminateTimeout(int32_t extensionRecordId);
+private:
+    inline std::shared_ptr<ExtensionRecord> GetExtensionRecordById(int32_t extensionRecordId);
+
 private:
     int32_t userId_;
     static std::atomic_int32_t extensionRecordId_;
     std::mutex mutex_;
     std::set<int32_t> extensionRecordIdSet_;
     ExtensionAbilityRecordMap extensionRecords_;
+    ExtensionAbilityRecordMap terminateRecords_;
 
     sptr<IRemoteObject> GetRootCallerTokenLocked(int32_t extensionRecordId);
 

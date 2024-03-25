@@ -1195,22 +1195,6 @@ HWTEST_F(AbilityManagerClientBranchTest, FreeInstallAbilityFromRemote_0100, Test
     GTEST_LOG_(INFO) << "FreeInstallAbilityFromRemote_0100 end";
 }
 
-
-/**
- * @tc.name: AbilityManagerClient_SendANRProcessID_0100
- * @tc.desc: SendANRProcessID
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, SendANRProcessID_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "SendANRProcessID_0100 start";
-    int pid = 0;
-    auto result = client_->SendANRProcessID(pid);
-
-    EXPECT_EQ(ERR_OK, result);
-    GTEST_LOG_(INFO) << "SendANRProcessID_0100 end";
-}
-
 /**
  * @tc.name: AbilityManagerClient_OnRemoteDied_0100
  * @tc.desc: OnRemoteDied

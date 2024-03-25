@@ -21,6 +21,7 @@
 #include "ability_delegator_args.h"
 #undef private
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "want.h"
 
@@ -85,7 +86,7 @@ void AbilityDelegatorArgsTest::TearDown()
  */
 HWTEST_F(AbilityDelegatorArgsTest, Ability_Delegator_Args_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Args_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Args_Test_0100 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_MODULE_NAME, VALUE_TEST_MODULE_NAME);
@@ -119,7 +120,7 @@ HWTEST_F(AbilityDelegatorArgsTest, Ability_Delegator_Args_Test_0100, Function | 
  */
 HWTEST_F(AbilityDelegatorArgsTest, Ability_Delegator_Args_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Args_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Args_Test_0200 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_MODULE_NAME, VALUE_TEST_MODULE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -151,7 +152,7 @@ HWTEST_F(AbilityDelegatorArgsTest, Ability_Delegator_Args_Test_0200, Function | 
  */
 HWTEST_F(AbilityDelegatorArgsTest, GetTestParamTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_MODULE_NAME, VALUE_TEST_MODULE_NAME);

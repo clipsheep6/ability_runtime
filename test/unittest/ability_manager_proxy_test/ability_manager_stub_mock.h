@@ -311,11 +311,6 @@ public:
         return true;
     }
 
-    int SendANRProcessID(int pid) override
-    {
-        return 0;
-    }
-
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
     MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,

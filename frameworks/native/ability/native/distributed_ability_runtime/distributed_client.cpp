@@ -153,7 +153,15 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
     PARCEL_WRITE_HELPER(data, RemoteObject, callback);
     PARCEL_WRITE_HELPER(data, Parcelable, &wantParams);
     MessageParcel reply;
-    PARCEL_TRANSACT_SYNC_RET_INT(remote, CONTINUE_MISSION_OF_BUNDLENAME, data, reply);
+    MessageOption option = {MessageOption::TF_ASYNC};
+    HILOG_INFO("dmsClient %{public}s SendRequest async begin.", __func__);
+    int32_t result = remote->SendRequest(CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
+    if (result != ERR_NONE) {
+        HILOG_ERROR("SendRequest async failed, result = %{public}d", result);
+        return result;
+    }
+    HILOG_INFO("dmsClient %{public}s SendRequest async end.", __func__);
+    return ERR_OK;
 }
 
 int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
@@ -206,7 +214,7 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
-    MessageOption option = {MessageOption::TF_ASYNC};
+    MessageOption option;
     int32_t result = remote->SendRequest(NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
     if (result != ERR_NONE) {
         HILOG_ERROR("SendRequest failed, result = %{public}d", result);

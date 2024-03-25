@@ -327,6 +327,17 @@ sptr<IRemoteObject> AbilityContextImpl::GetSessionToken()
     return sessionToken_.promote();
 }
 
+void AbilityContextImpl::SetAbilityRecordId(int32_t abilityRecordId)
+{
+    HILOG_INFO("abilityRecordId: %{public}d.", abilityRecordId);
+    abilityRecordId_ = abilityRecordId;
+}
+
+int32_t AbilityContextImpl::GetAbilityRecordId()
+{
+    return abilityRecordId_;
+}
+
 void AbilityContextImpl::OnAbilityResult(int requestCode, int resultCode, const AAFwk::Want& resultData)
 {
     HILOG_DEBUG("Start calling OnAbilityResult.");

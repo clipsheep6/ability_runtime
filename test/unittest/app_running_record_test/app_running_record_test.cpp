@@ -27,6 +27,7 @@
 #include "want_params.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 
@@ -195,11 +196,11 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_AbilityTerminated_0100, TestSize
  */
 HWTEST_F(AppRunningRecordTest, AppRunningRecord_AddChildProcessRecord_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningRecord_AddChildProcessRecord_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningRecord_AddChildProcessRecord_0100 called.");
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
-    
+
     auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
@@ -217,11 +218,11 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_AddChildProcessRecord_0100, Test
  */
 HWTEST_F(AppRunningRecordTest, AppRunningRecord_RemoveChildProcessRecord_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningRecord_RemoveChildProcessRecord_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningRecord_RemoveChildProcessRecord_0100 called.");
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
-    
+
     auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
@@ -240,11 +241,11 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_RemoveChildProcessRecord_0100, T
  */
 HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordByPid_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningRecord_GetChildProcessRecordByPid_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningRecord_GetChildProcessRecordByPid_0100 called.");
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
-    
+
     auto childRecord = std::make_shared<ChildProcessRecord>(101, "./ets/AProcess.ts", appRecord);
     pid_t childPid = 201;
     childRecord->pid_ = childPid;
@@ -261,7 +262,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordByPid_0100,
  */
 HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetChildProcessRecordMap_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningRecord_GetChildProcessRecordMap_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningRecord_GetChildProcessRecordMap_0100 called.");
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
@@ -288,7 +289,7 @@ HWTEST_F(AppRunningRecordTest, GetSplitModeAndFloatingMode_001, TestSize.Level1)
 
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
     sptr<IRemoteObject> token = nullptr;
-    std::shared_ptr<AbilityRunningRecord> abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token);
+    auto abilityRecord = std::make_shared<AbilityRunningRecord>(abilityInfo, token, 0);
 
     std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
     want->SetParam(AAFwk::Want::PARAM_RESV_WINDOW_MODE,
@@ -314,7 +315,7 @@ HWTEST_F(AppRunningRecordTest, GetSplitModeAndFloatingMode_001, TestSize.Level1)
  */
 HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetAssignTokenId_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningRecord_GetAssignTokenId_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningRecord_GetAssignTokenId_0100 called.");
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);
@@ -330,7 +331,7 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetAssignTokenId_0100, TestSize.
  */
 HWTEST_F(AppRunningRecordTest, AppRunningRecord_SetAssignTokenId_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningRecord_GetAssignTokenId_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningRecord_GetAssignTokenId_0100 called.");
     std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     EXPECT_NE(appRecord, nullptr);

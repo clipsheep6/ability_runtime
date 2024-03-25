@@ -165,6 +165,11 @@ napi_value JsUIExtensionContentSession::GetUIExtensionHostWindowProxy(napi_env e
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnGetUIExtensionHostWindowProxy);
 }
 
+napi_value JsUIExtensionContentSession::GetUIExtensionWindowProxy(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnGetUIExtensionWindowProxy);
+}
+
 napi_value JsUIExtensionContentSession::StartAbilityForResult(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContentSession, OnStartAbilityForResult);
@@ -253,9 +258,9 @@ napi_value JsUIExtensionContentSession::OnStartAbility(napi_env env, NapiCallbac
     napi_value lastParam = (info.argc > unwrapArgc) ? info.argv[unwrapArgc] : nullptr;
     napi_value result = nullptr;
     if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-        AddFreeInstallObserver(env, want, lastParam);
+        AddFreeInstallObserver(env, want, lastParam, &result);
         NapiAsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", env,
-            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
+            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, nullptr));
     } else {
         NapiAsyncTask::Schedule("JsUIExtensionContentSession::OnStartAbility", env,
             CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
@@ -274,6 +279,30 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionHostWindowProxy(napi_env
         return CreateJsUndefined(env);
     }
     
+    napi_value jsExtensionWindow =
+        Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
+    if (jsExtensionWindow == nullptr) {
+        HILOG_ERROR("Failed to create jsExtensionWindow object.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    auto value = JsRuntime::LoadSystemModuleByEngine(env, "application.extensionWindow", &jsExtensionWindow, 1);
+    if (value == nullptr) {
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+    return value->GetNapiValue();
+}
+
+napi_value JsUIExtensionContentSession::OnGetUIExtensionWindowProxy(napi_env env, NapiCallbackInfo& info)
+{
+    HILOG_DEBUG("called");
+    if (sessionInfo_ == nullptr) {
+        HILOG_ERROR("Invalid session info");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
+        return CreateJsUndefined(env);
+    }
+
     napi_value jsExtensionWindow =
         Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
     if (jsExtensionWindow == nullptr) {
@@ -410,14 +439,16 @@ napi_value JsUIExtensionContentSession::OnStartAbilityForResult(napi_env env, Na
 
     napi_value lastParam = info.argc > unwrapArgc ? info.argv[unwrapArgc] : nullptr;
     napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask;
     if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
         std::string startTime = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::
             system_clock::now().time_since_epoch()).count());
         want.SetParam(Want::PARAM_RESV_START_TIME, startTime);
-        AddFreeInstallObserver(env, want, lastParam, true);
+        AddFreeInstallObserver(env, want, lastParam, &result, true);
+        uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, nullptr);
+    } else {
+        uasyncTask = CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     }
-    std::unique_ptr<NapiAsyncTask> uasyncTask =
-        CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     if (asyncTask == nullptr) {
         HILOG_ERROR("asyncTask is nullptr");
@@ -439,26 +470,26 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
         HILOG_ERROR("asyncTask is nullptr");
         return;
     }
-    RuntimeTask task = [env, asyncTask, &observer = freeInstallObserver_](int resultCode,
-        const AAFwk::Want& want, bool isInner) {
+    std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
+    RuntimeTask task = [env, asyncTask, element = want.GetElement(), flags = want.GetFlags(), startTime,
+        &observer = freeInstallObserver_](int resultCode, const AAFwk::Want& want, bool isInner) {
         HILOG_DEBUG("OnStartAbilityForResult async callback is enter");
+        std::string bundleName = element.GetBundleName();
+        std::string abilityName = element.GetAbilityName();
         napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
         if (abilityResult == nullptr) {
             HILOG_WARN("wrap abilityResult wrong");
-            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            isInner = true;
+            resultCode = ERR_INVALID_VALUE;
+        }
+        bool freeInstallEnable = (flags & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
+            observer != nullptr;
+        if (freeInstallEnable) {
+            isInner ? observer->OnInstallFinished(bundleName, abilityName, startTime, resultCode) :
+                observer->OnInstallFinished(bundleName, abilityName, startTime, abilityResult);
         } else {
-            if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND &&
-                resultCode != 0 && observer != nullptr) {
-                std::string bundleName = want.GetElement().GetBundleName();
-                std::string abilityName = want.GetElement().GetAbilityName();
-                std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-                observer->OnInstallFinished(bundleName, abilityName, startTime,
-                    static_cast<int>(GetJsErrorCodeByNativeError(resultCode)));
-            } else if (isInner) {
-                asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
-            } else {
+            isInner ? asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode)) :
                 asyncTask->ResolveWithNoError(env, abilityResult);
-            }
         }
     };
     auto context = context_.lock();
@@ -858,7 +889,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     BindNativeFunction(env, object, "getUIExtensionHostWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
-    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
+    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionWindowProxy);
     return object;
 }
 
@@ -891,7 +922,7 @@ napi_value JsUIExtensionContentSession::CreateJsUIExtensionContentSession(napi_e
     BindNativeFunction(env, object, "startAbilityByType", moduleName, StartAbilityByType);
     BindNativeFunction(env, object, "startAbilityAsCaller", moduleName, StartAbilityAsCaller);
     BindNativeFunction(env, object, "getUIExtensionHostWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
-    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionHostWindowProxy);
+    BindNativeFunction(env, object, "getUIExtensionWindowProxy", moduleName, GetUIExtensionWindowProxy);
     return object;
 }
 
@@ -966,7 +997,7 @@ void JsUIExtensionContentSession::CallReceiveDataCallbackForResult(napi_env env,
 }
 
 void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
-    const AAFwk::Want &want, napi_value callback, bool isAbilityResult)
+    const AAFwk::Want &want, napi_value callback, napi_value* result, bool isAbilityResult)
 {
     // adapter free install async return install and start result
     int ret = 0;
@@ -984,7 +1015,7 @@ void JsUIExtensionContentSession::AddFreeInstallObserver(napi_env env,
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
         freeInstallObserver_->AddJsObserverObject(
-            bundleName, abilityName, startTime, callback, isAbilityResult);
+            bundleName, abilityName, startTime, callback, result, isAbilityResult);
     }
 }
 }  // namespace AbilityRuntime

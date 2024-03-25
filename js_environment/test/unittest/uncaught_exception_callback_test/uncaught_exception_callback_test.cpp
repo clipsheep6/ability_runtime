@@ -208,5 +208,11 @@ HWTEST_F(NapiUncaughtExceptionCallbackTest, NapiUncaughtExceptionCallbackTest_04
     NapiUncaughtExceptionCallback callback(task, nullptr, env);
     callback(object);
 }
+
+HWTEST_F(NapiUncaughtExceptionCallbackTest, GetNativeStackTest_0100, TestSize.Level1)
+{
+    std::string nativeStack = NapiUncaughtExceptionCallback::GetNativeStack();
+    EXPECT_TRUE(!nativeStack.empty());
+}
 } // namespace AppExecFwk
 } // namespace OHOS

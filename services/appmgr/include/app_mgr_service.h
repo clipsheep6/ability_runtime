@@ -459,6 +459,7 @@ public:
 
     int32_t SignRestartAppFlag(const std::string &bundleName) override;
 
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId) override;
 private:
     /**
      * Init, Initialize application services.

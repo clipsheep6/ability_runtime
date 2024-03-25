@@ -112,8 +112,10 @@ config("abilityms_config") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  cflags +=
-      [ "-DKEY_AUTO_FILL_ABILITY=\"${ability_runtime_auto_fill_ability}\"" ]
+  cflags += [
+    "-DKEY_AUTO_FILL_ABILITY=\"${ability_runtime_auto_fill_ability}\"",
+    "-DKEY_SMART_AUTO_FILL_ABILITY=\"${ability_runtime_smart_auto_fill_ability}\"",
+  ]
 }
 
 ohos_shared_library("abilityms") {

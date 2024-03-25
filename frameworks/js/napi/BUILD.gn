@@ -43,6 +43,7 @@ group("napi_packages") {
     "${ability_runtime_napi_path}/app/js_app_manager:appmanager",
     "${ability_runtime_napi_path}/app/recovery:apprecovery_napi",
     "${ability_runtime_napi_path}/app/test_runner:testrunner_napi",
+    "${ability_runtime_napi_path}/app_startup/startup_task_executor:startuptaskexecutor_napi",
     "${ability_runtime_napi_path}/application_context_constant:contextconstant_napi",
     "${ability_runtime_napi_path}/auto_fill_extension_ability:autofillextensionability_napi",
     "${ability_runtime_napi_path}/auto_fill_extension_context:autofillextensioncontext_napi",

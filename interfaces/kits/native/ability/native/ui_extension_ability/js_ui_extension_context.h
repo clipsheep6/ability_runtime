@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "ui_extension_context.h"
+#include "js_free_install_observer.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
@@ -55,12 +56,15 @@ protected:
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
+    sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
     friend class JsEmbeddableUIAbilityContext;
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
     napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         const AAFwk::StartOptions &options, size_t unwrapArgc);
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
+        bool isAbilityResult = false);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {

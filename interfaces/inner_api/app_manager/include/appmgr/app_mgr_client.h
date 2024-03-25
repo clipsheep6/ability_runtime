@@ -61,8 +61,9 @@ public:
      * @param want Want.
      * @return Returns RESULT_OK on success, others on failure.
      */
-    virtual AppMgrResultCode LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-        const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want);
+    virtual AppMgrResultCode LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+        const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want,
+        int32_t abilityRecordId);
 
     /**
      * Terminate ability.
@@ -543,6 +544,38 @@ public:
     int32_t DetachAppDebug(const std::string &bundleName);
 
     /**
+     * @brief Set app waiting debug mode.
+     * @param bundleName The application bundle name.
+     * @param isPersist The persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t SetAppWaitingDebug(const std::string &bundleName, bool isPersist);
+
+    /**
+     * @brief Cancel app waiting debug mode.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t CancelAppWaitingDebug();
+
+    /**
+     * @brief Get waiting debug mode application.
+     * @param debugInfoList The debug bundle info list, including bundle name and persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t GetWaitingDebugApp(std::vector<std::string> &debugInfoList);
+
+    /**
+     * @brief Determine whether it is a waiting debug application based on the bundle name.
+     * @return Returns true if it is a waiting debug application, otherwise it returns false.
+     */
+    bool IsWaitingDebugApp(const std::string &bundleName);
+
+    /**
+     * @brief Clear non persist waiting debug flag.
+     */
+    void ClearNonPersistWaitingDebugFlag();
+
+    /**
      * @brief Registering ability Debug Mode response.
      * @param abilityResponse Response of ability debug object.
      * @return Returns ERR_OK on success, others on failure.
@@ -631,6 +664,8 @@ public:
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
 
     int32_t UpdateRenderState(pid_t renderPid, int32_t state);
+
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 private:
     void SetServiceManager(std::unique_ptr<AppServiceManager> serviceMgr);
     /**

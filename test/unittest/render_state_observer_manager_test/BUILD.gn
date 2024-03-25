@@ -39,10 +39,13 @@ ohos_unittest("render_state_observer_manager_test") {
   ]
 
   external_deps = [
+    "appspawn:appspawn_socket_client",
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "window_manager:libwm",
+    "window_manager:libwsutils",
   ]
 }
 

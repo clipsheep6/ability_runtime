@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -116,6 +116,15 @@ constexpr struct option LONG_OPTIONS_PROCESS[] = {
     {"debug", required_argument, nullptr, 'D'},
     {nullptr, 0, nullptr, 0},
 };
+const std::string SHORT_OPTIONS_APPDEBUG = "hb:p::c::g";
+constexpr struct option LONG_OPTIONS_APPDEBUG[] = {
+    { "help", no_argument, nullptr, 'h' },
+    { "bundlename", required_argument, nullptr, 'b' },
+    { "persist", no_argument, nullptr, 'p' },
+    { "cancel", no_argument, nullptr, 'c' },
+    { "get", no_argument, nullptr, 'g' },
+    { nullptr, 0, nullptr, 0 },
+};
 const std::string SHORT_OPTIONS_ATTACH = "hb:";
 constexpr struct option LONG_OPTIONS_ATTACH[] = {
     {"help", no_argument, nullptr, 'h'},
@@ -144,9 +153,9 @@ ErrCode AbilityManagerShellCommand::CreateCommandMap()
         {"process", std::bind(&AbilityManagerShellCommand::RunAsProcessCommand, this)},
         {"attach", std::bind(&AbilityManagerShellCommand::RunAsAttachDebugCommand, this)},
         {"detach", std::bind(&AbilityManagerShellCommand::RunAsDetachDebugCommand, this)},
+        {"appdebug", std::bind(&AbilityManagerShellCommand::RunAsAppDebugDebugCommand, this)},
 #ifdef ABILITY_COMMAND_FOR_TEST
         {"force-timeout", std::bind(&AbilityManagerShellCommand::RunForceTimeoutForTest, this)},
-        {"ApplicationNotResponding", std::bind(&AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID, this)},
         {"block-ability", std::bind(&AbilityManagerShellCommand::RunAsBlockAbilityCommand, this)},
         {"block-ams-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAmsServiceCommand, this)},
         {"block-app-service", std::bind(&AbilityManagerShellCommand::RunAsBlockAppServiceCommand, this)},
@@ -744,6 +753,113 @@ ErrCode AbilityManagerShellCommand::RunAsDetachDebugCommand()
     HILOG_DEBUG("%{public}s result = %{public}d", STRING_DETACH_APP_DEBUG_NG.c_str(), result);
     resultReceiver_.append(STRING_DETACH_APP_DEBUG_NG + "\n");
     return result;
+}
+
+void AbilityManagerShellCommand::SwitchOptionForAppDebug(
+    int32_t option, std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet)
+{
+    switch (option) {
+        case 'h': { // 'aa appdebug -h' or 'aa appdebug --help'
+            HILOG_DEBUG("'aa %{public}s -h' with no argument.", cmd_.c_str());
+            resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG);
+            break;
+        }
+        case 'b': { // 'aa appdebug -b bundlename'
+            HILOG_DEBUG("'aa %{public}s -b' bundle name.", cmd_.c_str());
+            bundleName = optarg;
+            break;
+        }
+        case 'p': { // 'aa appdebug -p persist'
+            HILOG_DEBUG("'aa %{public}s -p' persist.", cmd_.c_str());
+            isPersist = true;
+            break;
+        }
+        case 'c': { // 'aa appdebug -c cancel'
+            HILOG_DEBUG("'aa %{public}s -c' cancel.", cmd_.c_str());
+            isCancel = true;
+            break;
+        }
+        case 'g': { // 'aa appdebug -g get'
+            HILOG_DEBUG("'aa %{public}s -g' get.", cmd_.c_str());
+            isGet = true;
+            break;
+        }
+        case '?': {
+            std::string unknownOption = "";
+            std::string unknownOptionMsg = GetUnknownOptionMsg(unknownOption);
+            HILOG_DEBUG("'aa appdebug' with an unknown option.");
+            resultReceiver_.append(unknownOptionMsg);
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+void AbilityManagerShellCommand::ParseAppDebugParameter(
+    std::string &bundleName, bool &isPersist, bool &isCancel, bool &isGet)
+{
+    int32_t option = -1;
+    int32_t counter = 0;
+    while (true) {
+        counter++;
+        option = getopt_long(argc_, argv_, SHORT_OPTIONS_APPDEBUG.c_str(), LONG_OPTIONS_APPDEBUG, nullptr);
+
+        if (optind < 0 || optind > argc_) {
+            break;
+        }
+
+        if (option == -1) {
+            if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
+                HILOG_ERROR("'aa %{public}s' %{public}s", HELP_MSG_NO_OPTION.c_str(), cmd_.c_str());
+                resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
+            }
+            break;
+        }
+
+        SwitchOptionForAppDebug(option, bundleName, isPersist, isCancel, isGet);
+    }
+}
+
+ErrCode AbilityManagerShellCommand::RunAsAppDebugDebugCommand()
+{
+    HILOG_DEBUG("Called.");
+    std::string bundleName;
+    bool isPersist = false;
+    bool isCancel = false;
+    bool isGet = false;
+    ParseAppDebugParameter(bundleName, isPersist, isCancel, isGet);
+
+    int32_t result = OHOS::ERR_OK;
+    std::vector<std::string> debugInfoList;
+    if (isGet) {
+        result = DelayedSingleton<AppMgrClient>::GetInstance()->GetWaitingDebugApp(debugInfoList);
+    } else if (isCancel) {
+        result = DelayedSingleton<AppMgrClient>::GetInstance()->CancelAppWaitingDebug();
+    } else if (!bundleName.empty()) {
+        result = DelayedSingleton<AppMgrClient>::GetInstance()->SetAppWaitingDebug(bundleName, isPersist);
+    } else if (bundleName.empty() && isPersist) {
+        resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG);
+        return OHOS::ERR_OK;
+    } else {
+        return OHOS::ERR_OK;
+    }
+
+    if (result != OHOS::ERR_OK) {
+        HILOG_INFO("%{public}s result is %{public}d", STRING_BLOCK_APP_SERVICE_NG.c_str(), result);
+        resultReceiver_ = STRING_BLOCK_APP_SERVICE_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(result));
+        return result;
+    }
+
+    resultReceiver_ = STRING_BLOCK_APP_SERVICE_OK + "\n";
+    if (isGet && !debugInfoList.empty()) {
+        for (auto it : debugInfoList) {
+            resultReceiver_ += it + "\n";
+        }
+    }
+    return OHOS::ERR_OK;
 }
 
 ErrCode AbilityManagerShellCommand::RunAsProcessCommand()
@@ -1883,44 +1999,6 @@ ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingWithOption(int32_t 
             result = OHOS::ERR_INVALID_VALUE;
             break;
         }
-    }
-    return result;
-}
-
-ErrCode AbilityManagerShellCommand::RunAsSendAppNotRespondingProcessID()
-{
-    static sptr<IAbilityManager> abilityMs_;
-    std::string pid = "";
-    int option = -1;
-    ErrCode result = OHOS::ERR_OK;
-    option = getopt_long(argc_, argv_, SHORT_OPTIONS_APPLICATION_NOT_RESPONDING.c_str(),
-        LONG_OPTIONS_ApplicationNotResponding, nullptr);
-    HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
-    if (optind < 0 || optind > argc_) {
-        return OHOS::ERR_INVALID_VALUE;
-    }
-    if (option == -1) {
-        if (strcmp(argv_[optind], cmd_.c_str()) == 0) {
-            HILOG_INFO("'aa %{public}s' %{public}s", HELP_ApplicationNotResponding.c_str(), cmd_.c_str());
-            result = OHOS::ERR_INVALID_VALUE;
-        }
-    } else if (option == '?') {
-        result = RunAsSendAppNotRespondingWithUnknownOption();
-    } else {
-        result = RunAsSendAppNotRespondingWithOption(option, pid);
-    }
-
-    if (result == OHOS::ERR_OK) {
-        HILOG_INFO("'aa pid = %{public}d'.", atoi(pid.c_str()));
-        abilityMs_ = GetAbilityManagerService();
-        if (abilityMs_ == nullptr) {
-            std::cout << "abilityMsObj is nullptr";
-        } else {
-            abilityMs_->SendANRProcessID(atoi(pid.c_str()));
-        }
-    } else {
-        resultReceiver_.append(HELP_ApplicationNotResponding + "\n");
-        result = OHOS::ERR_INVALID_VALUE;
     }
     return result;
 }

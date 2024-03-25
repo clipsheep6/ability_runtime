@@ -53,6 +53,7 @@
 #include "short_wrapper.h"
 #include "string_wrapper.h"
 #include "array_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing::ext;
@@ -962,7 +963,7 @@ HWTEST_F(PendingWantTest, PendingWant_5400, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_5500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_5500 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5500 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -982,7 +983,7 @@ HWTEST_F(PendingWantTest, PendingWant_5500, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetAbilities(nullptr, requestCode, wants, flags, wParams, pendingWant);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-    HILOG_INFO("PendingWant_5500 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5500 end.");
 }
 
 /*
@@ -992,7 +993,7 @@ HWTEST_F(PendingWantTest, PendingWant_5500, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_5600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_5600 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5600 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1012,7 +1013,7 @@ HWTEST_F(PendingWantTest, PendingWant_5600, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetAbilities(GetAppContext(), requestCode, wants, flags, wParams, pendingWant);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_5600 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5600 end.");
 }
 
 /*
@@ -1022,7 +1023,7 @@ HWTEST_F(PendingWantTest, PendingWant_5600, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_5700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_5700 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5700 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1042,7 +1043,7 @@ HWTEST_F(PendingWantTest, PendingWant_5700, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetAbilities(GetAppContext(), requestCode, wants, flags, wParams, pendingWant);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_5700 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5700 end.");
 }
 
 /*
@@ -1052,7 +1053,7 @@ HWTEST_F(PendingWantTest, PendingWant_5700, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_5800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_5800 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5800 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1066,7 +1067,7 @@ HWTEST_F(PendingWantTest, PendingWant_5800, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetAbility(nullptr, requestCode, want, flags, wParams, pendingWant);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-    HILOG_INFO("PendingWant_5800 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5800 end.");
 }
 
 /*
@@ -1076,7 +1077,7 @@ HWTEST_F(PendingWantTest, PendingWant_5800, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_5900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_5900 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5900 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1090,7 +1091,7 @@ HWTEST_F(PendingWantTest, PendingWant_5900, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetAbility(GetAppContext(), requestCode, want, flags, wParams, pendingWant);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_5900 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_5900 end.");
 }
 
 /*
@@ -1100,7 +1101,7 @@ HWTEST_F(PendingWantTest, PendingWant_5900, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6000 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6000 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1110,7 +1111,7 @@ HWTEST_F(PendingWantTest, PendingWant_6000, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetCommonEvent(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-    HILOG_INFO("PendingWant_6000 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6000 end.");
 }
 
 /*
@@ -1120,7 +1121,7 @@ HWTEST_F(PendingWantTest, PendingWant_6000, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6100 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6100 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1130,7 +1131,7 @@ HWTEST_F(PendingWantTest, PendingWant_6100, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetCommonEvent(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_6100 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6100 end.");
 }
 
 /*
@@ -1140,7 +1141,7 @@ HWTEST_F(PendingWantTest, PendingWant_6100, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6200 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6200 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1150,7 +1151,7 @@ HWTEST_F(PendingWantTest, PendingWant_6200, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetService(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-    HILOG_INFO("PendingWant_6200 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6200 end.");
 }
 
 /*
@@ -1160,7 +1161,7 @@ HWTEST_F(PendingWantTest, PendingWant_6200, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6300 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6300 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1170,7 +1171,7 @@ HWTEST_F(PendingWantTest, PendingWant_6300, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetService(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-    HILOG_INFO("PendingWant_6300 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6300 end.");
 }
 
 /*
@@ -1180,7 +1181,7 @@ HWTEST_F(PendingWantTest, PendingWant_6300, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6400 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6400 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1190,7 +1191,7 @@ HWTEST_F(PendingWantTest, PendingWant_6400, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetService(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_6400 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6400 end.");
 }
 
 /*
@@ -1200,7 +1201,7 @@ HWTEST_F(PendingWantTest, PendingWant_6400, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6500 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6500 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1210,7 +1211,7 @@ HWTEST_F(PendingWantTest, PendingWant_6500, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetForegroundService(GetAppContext(), requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_6500 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6500 start.");
 }
 
 /*
@@ -1220,7 +1221,7 @@ HWTEST_F(PendingWantTest, PendingWant_6500, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6600 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6600 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1230,7 +1231,7 @@ HWTEST_F(PendingWantTest, PendingWant_6600, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant;
     ErrCode err = PendingWant::GetForegroundService(nullptr, requestCode, want, flags, pendingWant);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
-    HILOG_INFO("PendingWant_6500 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6500 end.");
 }
 
 /*
@@ -1240,13 +1241,13 @@ HWTEST_F(PendingWantTest, PendingWant_6600, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6700 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6700 start.");
     sptr<AAFwk::IWantSender> target = nullptr;
     std::shared_ptr<PendingWant> pendingWant = std::make_shared<PendingWant>();
     ErrCode err = pendingWant->Cancel(target);
     ErrCode err1 = WantAgentClient::GetInstance().CancelWantSender(target);
     EXPECT_EQ(err, err1);
-    HILOG_INFO("PendingWant_6700 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6700 end.");
 }
 
 /*
@@ -1256,7 +1257,7 @@ HWTEST_F(PendingWantTest, PendingWant_6700, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6800 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6800 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1272,7 +1273,7 @@ HWTEST_F(PendingWantTest, PendingWant_6800, Function | MediumTest | Level1)
     sptr<AAFwk::IWantSender> target(nullptr);
     std::shared_ptr<PendingWant> pendingWant2 = std::make_shared<PendingWant>(target);
     EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
-    HILOG_INFO("PendingWant_6800 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6800 end.");
 }
 
 /*
@@ -1282,7 +1283,7 @@ HWTEST_F(PendingWantTest, PendingWant_6800, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_6900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_6900 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6900 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want = std::make_shared<Want>();
     ElementName element("device", "bundleName", "abilityName");
@@ -1298,7 +1299,7 @@ HWTEST_F(PendingWantTest, PendingWant_6900, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant2 = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want, flags, type, pendingWant2);
     EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), ERR_OK);
-    HILOG_INFO("PendingWant_6900 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_6900 end.");
 }
 
 /*
@@ -1308,7 +1309,7 @@ HWTEST_F(PendingWantTest, PendingWant_6900, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_7000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_7000 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_7000 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want1 = std::make_shared<Want>();
     ElementName element1("ohos_device", "bundleName", "abilityName");
@@ -1327,7 +1328,7 @@ HWTEST_F(PendingWantTest, PendingWant_7000, Function | MediumTest | Level1)
     std::shared_ptr<PendingWant> pendingWant2 = nullptr;
     PendingWant::BuildServicePendingWant(context, requestCode, want2, flags, type, pendingWant2);
     EXPECT_EQ(pendingWant->IsEquals(pendingWant, pendingWant2), NOTEQ);
-    HILOG_INFO("PendingWant_7000 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_7000 end.");
 }
 
 /*
@@ -1337,12 +1338,12 @@ HWTEST_F(PendingWantTest, PendingWant_7000, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_7100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_7100 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_7100 start.");
     PendingWant pendingWant(nullptr);
     std::string bundleName;
     ErrCode err = pendingWant.GetBundleName(nullptr, bundleName);
     EXPECT_EQ(err, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT);
-    HILOG_INFO("PendingWant_7100 end.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_7100 end.");
 }
 
 /*
@@ -1352,7 +1353,7 @@ HWTEST_F(PendingWantTest, PendingWant_7100, Function | MediumTest | Level1)
  */
 HWTEST_F(PendingWantTest, PendingWant_7200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("PendingWant_7200 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_7200 start.");
     int requestCode = 10;
     std::shared_ptr<Want> want1 = std::make_shared<Want>();
     ElementName element1("ohos_device", "bundleName", "abilityName");
@@ -1368,7 +1369,7 @@ HWTEST_F(PendingWantTest, PendingWant_7200, Function | MediumTest | Level1)
     std::string bundleName;
     ErrCode err = pendingWant->GetBundleName(pendingWant->GetTarget(), bundleName);
     EXPECT_EQ(err, ERR_OK);
-    HILOG_INFO("PendingWant_7200 start.");
+    TAG_LOGI(AAFwkTag::TEST, "PendingWant_7200 start.");
 }
 
 /*

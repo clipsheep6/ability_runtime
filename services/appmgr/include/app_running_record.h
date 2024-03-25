@@ -291,9 +291,9 @@ public:
      */
     sptr<IAppScheduler> GetApplicationClient() const;
 
-    void AddModule(const std::shared_ptr<ApplicationInfo> &appInfo, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const sptr<IRemoteObject> &token, const HapModuleInfo &hapModuleInfo,
-        const std::shared_ptr<AAFwk::Want> &want);
+    void AddModule(std::shared_ptr<ApplicationInfo> appInfo, std::shared_ptr<AbilityInfo> abilityInfo,
+        sptr<IRemoteObject> token, const HapModuleInfo &hapModuleInfo,
+        std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     void AddModules(const std::shared_ptr<ApplicationInfo> &appInfo, const std::vector<HapModuleInfo> &moduleInfos);
 
@@ -590,6 +590,7 @@ public:
     const AAFwk::Want &GetNewProcessRequestWant() const;
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
+    bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);

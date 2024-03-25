@@ -111,5 +111,12 @@ void AbilityStage::OnMemoryLevel(int level)
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "%{public}s called.", __func__);
 }
+
+int32_t AbilityStage::RunAutoStartupTask(bool &waitingForStartup)
+{
+    HILOG_DEBUG("called");
+    waitingForStartup = false;
+    return ERR_OK;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

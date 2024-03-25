@@ -2168,7 +2168,8 @@ int32_t UIAbilityLifecycleManager::UpdateSessionInfoBySCB(std::list<SessionInfo>
 void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName)
 {
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
-    for (auto &[sessionId, abilityRecord] : sessionAbilityMap_) {
+    auto tempSessionAbilityMap = sessionAbilityMap_;
+    for (auto &[sessionId, abilityRecord] : tempSessionAbilityMap) {
         if (abilityRecord == nullptr || abilityRecord->GetApplicationInfo().bundleName != bundleName) {
             continue;
         }
