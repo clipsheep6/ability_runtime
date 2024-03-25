@@ -19,6 +19,7 @@
 #include "iservice_registry.h"
 #undef private
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
@@ -197,13 +198,13 @@ sptr<IRemoteObject> AppDeathRecipientTest::GetApp(int32_t pid, int size)
 
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
 {
-    HILOG_INFO("AppDeathRecipient_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_001 start");
     appDeathRecipientObject_->SetTaskHandler(handler_);
     EXPECT_TRUE(appDeathRecipientObject_->handler_.lock() != nullptr);
 
     appDeathRecipientObject_->SetAppMgrServiceInner(appMgrServiceInner_);
     EXPECT_TRUE(appDeathRecipientObject_->appMgrServiceInner_.lock() != nullptr);
-    HILOG_INFO("AppDeathRecipient_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_001 end");
 }
 
 /*
@@ -216,7 +217,7 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
  */
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
 {
-    HILOG_INFO("AppDeathRecipient_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_002 start");
     MockBundleInstallerAndSA();
     pid_t pid1 = 24;
     pid_t pid2 = 25;
@@ -229,7 +230,7 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
 
     WaitUntilTaskFinished(handler_);
     EXPECT_EQ(1, static_cast<int>(appDeathRecipientObject_->appMgrServiceInner_.lock()->GetRecentAppList().size()));
-    HILOG_INFO("AppDeathRecipient_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_002 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

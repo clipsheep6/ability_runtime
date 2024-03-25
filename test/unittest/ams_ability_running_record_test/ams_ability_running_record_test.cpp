@@ -18,6 +18,7 @@
 #include "ability_running_record.h"
 #include "app_running_record.h"
 #include "app_scheduler_host.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_token.h"
 #include "mock_application.h"
@@ -113,7 +114,7 @@ std::shared_ptr<AppRunningRecord> AmsAbilityRunningRecordTest::GetTestAppRunning
  */
 HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_001, TestSize.Level1)
 {
-    HILOG_DEBUG("CreateAbilityRunningRecord_001 start.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateAbilityRunningRecord_001 start.");
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     auto appRunningRecord = GetTestAppRunningRecord();
@@ -131,7 +132,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_001, TestSize.L
 
     EXPECT_TRUE(abilityRunningRecord != nullptr);
     EXPECT_EQ(abilityRunningRecord, appRunningRecord->GetAbilityRunningRecordByToken(token));
-    HILOG_DEBUG("CreateAbilityRunningRecord_001 end.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateAbilityRunningRecord_001 end.");
 }
 
 /*
@@ -144,7 +145,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_001, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_002, TestSize.Level1)
 {
-    HILOG_DEBUG("CreateAbilityRunningRecord_002 start.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateAbilityRunningRecord_002 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     sptr<IRemoteObject> token = new MockAbilityToken();
     HapModuleInfo hapModuleInfo;
@@ -158,7 +159,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_002, TestSize.L
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecord = moduleRecord->GetAbilityRunningRecordByToken(token);
     EXPECT_TRUE(abilityRunningRecord == nullptr);
-    HILOG_DEBUG("CreateAbilityRunningRecord_002 end.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateAbilityRunningRecord_002 end.");
 }
 
 /*
@@ -171,7 +172,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_002, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_003, TestSize.Level1)
 {
-    HILOG_DEBUG("CreateAbilityRunningRecord_003 start.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateAbilityRunningRecord_003 start.");
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
     auto appRunningRecord = GetTestAppRunningRecord();
@@ -195,7 +196,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_003, TestSize.L
     EXPECT_TRUE(moduleRecord);
     auto abilityRunningRecordSecond = moduleRecord->GetAbilityRunningRecordByToken(token);
     EXPECT_TRUE(abilityRunningRecordSecond == abilityRunningRecordFirst);
-    HILOG_DEBUG("CreateAbilityRunningRecord_003 end.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateAbilityRunningRecord_003 end.");
 }
 
 /*
@@ -208,7 +209,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, CreateAbilityRunningRecord_003, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_001, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_001 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_001 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -237,7 +238,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_001, TestSize.L
     EXPECT_CALL(*mockedAppClient_, ScheduleBackgroundApplication()).Times(1);
     appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_BACKGROUND);
     EXPECT_EQ(abilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_BACKGROUND) << "execute fail!";
-    HILOG_DEBUG("UpdateAbilityRunningRecord_001 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_001 end.");
 }
 
 /*
@@ -250,7 +251,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_001, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_002, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_002 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_002 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -272,7 +273,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_002, TestSize.L
     appRunningRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_END);
     EXPECT_EQ(abilityRunningRecord->GetState(), state);
     EXPECT_NE(abilityRunningRecord->GetState(), AbilityState::ABILITY_STATE_END);
-    HILOG_DEBUG("UpdateAbilityRunningRecord_002 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_002 end.");
 }
 
 /*
@@ -285,7 +286,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_002, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_003, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_003 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_003 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -306,7 +307,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_003, TestSize.L
 
     appRunningRecord->UpdateAbilityState(nullptr, AbilityState::ABILITY_STATE_FOREGROUND);
     EXPECT_EQ(abilityRunningRecord->GetState(), state);
-    HILOG_DEBUG("UpdateAbilityRunningRecord_003 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_003 end.");
 }
 
 /*
@@ -320,7 +321,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_003, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_004, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_004 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_004 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -346,7 +347,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_004, TestSize.L
     EXPECT_TRUE(appRunningRecord->GetAbilityRunningRecordByToken(token2) == nullptr);
     appRunningRecord->UpdateAbilityState(token2, AbilityState::ABILITY_STATE_FOREGROUND);
     EXPECT_EQ(abilityRunningRecord->GetState(), state);
-    HILOG_DEBUG("UpdateAbilityRunningRecord_004 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_004 end.");
 }
 
 /*
@@ -360,7 +361,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_004, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_005, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_005 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_005 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -392,7 +393,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_005, TestSize.L
 
     EXPECT_CALL(*mockedAppClient_, ScheduleForegroundApplication()).Times(1);
     appRunningRecord->UpdateAbilityState(anotherToken, AbilityState::ABILITY_STATE_FOREGROUND);
-    HILOG_DEBUG("UpdateAbilityRunningRecord_005 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_005 end.");
 }
 
 /*
@@ -406,7 +407,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_005, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_006, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_006 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_006 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -442,7 +443,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_006, TestSize.L
     for (auto iter = abilities.begin(); iter != abilities.end(); iter++) {
         appRunningRecord->UpdateAbilityState(iter->second->GetToken(), AbilityState::ABILITY_STATE_BACKGROUND);
     }
-    HILOG_DEBUG("UpdateAbilityRunningRecord_006 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_006 end.");
 }
 
 /*
@@ -456,7 +457,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_006, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_007, TestSize.Level1)
 {
-    HILOG_DEBUG("UpdateAbilityRunningRecord_007 start.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_007 start.");
     auto appRunningRecord = GetTestAppRunningRecord();
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -492,7 +493,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_007, TestSize.L
         appRunningRecord->TerminateAbility(iter->second->GetToken(), false);
         appRunningRecord->AbilityTerminated(iter->second->GetToken());
     }
-    HILOG_DEBUG("UpdateAbilityRunningRecord_007 end.");
+    TAG_LOGD(AAFwkTag::TEST, "UpdateAbilityRunningRecord_007 end.");
 }
 
 /*
@@ -505,7 +506,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, UpdateAbilityRunningRecord_007, TestSize.L
  */
 HWTEST_F(AmsAbilityRunningRecordTest, IsSameState_001, TestSize.Level1)
 {
-    HILOG_DEBUG("IsSameState_001 start.");
+    TAG_LOGD(AAFwkTag::TEST, "IsSameState_001 start.");
 
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -517,7 +518,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, IsSameState_001, TestSize.Level1)
     EXPECT_EQ(false, abilityRunningRecord->IsSameState(AbilityState::ABILITY_STATE_BACKGROUND));
     EXPECT_EQ(true, abilityRunningRecord->IsSameState(AbilityState::ABILITY_STATE_FOREGROUND));
 
-    HILOG_DEBUG("IsSameState_001 end.");
+    TAG_LOGD(AAFwkTag::TEST, "IsSameState_001 end.");
 }
 
 /*
@@ -530,7 +531,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, IsSameState_001, TestSize.Level1)
  */
 HWTEST_F(AmsAbilityRunningRecordTest, SetGetAbilityRecord_001, TestSize.Level1)
 {
-    HILOG_DEBUG("SetGetAbilityRecord_001 start.");
+    TAG_LOGD(AAFwkTag::TEST, "SetGetAbilityRecord_001 start.");
 
     auto abilityInfo = std::make_shared<AbilityInfo>();
     abilityInfo->name = GetTestAbilityName();
@@ -559,7 +560,7 @@ HWTEST_F(AmsAbilityRunningRecordTest, SetGetAbilityRecord_001, TestSize.Level1)
     EXPECT_EQ(1, testRecord->GetPerceptibility());
     EXPECT_EQ(1, testRecord->GetConnectionState());
 
-    HILOG_DEBUG("SetGetAbilityRecord_001 end.");
+    TAG_LOGD(AAFwkTag::TEST, "SetGetAbilityRecord_001 end.");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

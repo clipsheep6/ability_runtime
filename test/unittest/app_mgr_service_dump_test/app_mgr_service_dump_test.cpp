@@ -18,6 +18,7 @@
 #define private public
 #include "app_mgr_service.h"
 #undef private
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_native_token.h"
 #include "mock_sa_call.h"
@@ -61,7 +62,7 @@ void AppMgrServiceDumpTest::TearDown()
  */
 HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrServiceDump_GetProcessRunningInfosByUserId_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_GetProcessRunningInfosByUserId_0100 start");
 
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
@@ -71,7 +72,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
     auto result = appMgrServiceInner->GetProcessRunningInfosByUserId(info, USER_ID);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("AppMgrServiceDump_GetProcessRunningInfosByUserId_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_GetProcessRunningInfosByUserId_0100 end");
 }
 
 /**
@@ -82,7 +83,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
  */
 HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId_0200, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrServiceDump_GetProcessRunningInfosByUserId_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_GetProcessRunningInfosByUserId_0200 start");
 
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrService = std::make_shared<AppMgrService>();
@@ -96,7 +97,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
     auto result = appMgrService->GetProcessRunningInfosByUserId(info, USER_ID);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("AppMgrServiceDump_GetProcessRunningInfosByUserId_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_GetProcessRunningInfosByUserId_0200 end");
 }
 
 /*
@@ -106,7 +107,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_GetProcessRunningInfosByUserId
  */
 HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrServiceDump_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0100 start");
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
@@ -122,7 +123,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0100, TestSize.Level1)
     auto result = appMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("AppMgrServiceDump_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0100 end");
 }
 
 /*
@@ -132,7 +133,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0100, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0200, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrServiceDump_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0200 start");
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
@@ -144,7 +145,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0200, TestSize.Level1)
     auto result = appMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_APPEXECFWK_HIDUMP_ERROR);
 
-    HILOG_INFO("AppMgrServiceDump_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0200 end");
 }
 
 /*
@@ -154,7 +155,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0200, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0300, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrServiceDump_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0300 start");
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
@@ -168,7 +169,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0300, TestSize.Level1)
     auto result = appMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("AppMgrServiceDump_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0300 end");
 }
 
 /*
@@ -178,7 +179,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0300, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0400, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrServiceDump_0400 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0400 start");
 
     auto appMgrService = std::make_shared<AppMgrService>();
     EXPECT_NE(appMgrService, nullptr);
@@ -194,7 +195,7 @@ HWTEST_F(AppMgrServiceDumpTest, AppMgrServiceDump_0400, TestSize.Level1)
     auto result = appMgrService->Dump(fd, args);
     EXPECT_EQ(result, ERR_OK);
 
-    HILOG_INFO("AppMgrServiceDump_0400 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrServiceDump_0400 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
