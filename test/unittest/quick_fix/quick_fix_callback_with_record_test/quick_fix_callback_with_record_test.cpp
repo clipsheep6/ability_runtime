@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "quick_fix_callback_with_record.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -30,7 +31,7 @@ public:
 
     void OnLoadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
         loadPatchDone_ = true;
         loadPatchResult_ = resultCode;
         loadPatchTimes_++;
@@ -38,7 +39,7 @@ public:
 
     void OnUnloadPatchDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
         unloadPatchDone_ = true;
         unloadPatchResult_ = resultCode;
         unloadPatchTimes_++;
@@ -46,7 +47,7 @@ public:
 
     void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        HILOG_DEBUG("function called.");
+        TAG_LOGD(AAFwkTag::TEST, "function called.");
         reloadPageDone_ = true;
         reloadPageResult_ = resultCode;
         reloadPageTimes_++;
@@ -91,7 +92,7 @@ void QuickFixCallbackWithRecordTest::TearDown()
  */
 HWTEST_F(QuickFixCallbackWithRecordTest, OnLoadPatchDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     sptr<QuickFixCallbackImpl> callback = new QuickFixCallbackImpl();
     sptr<QuickFixCallbackWithRecord> callbackByRecord = new QuickFixCallbackWithRecord(callback);
     std::list<int32_t> recordIds{ 0, 1, 2 };
@@ -107,7 +108,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, OnLoadPatchDone_0100, TestSize.Level1)
     EXPECT_EQ(callback->loadPatchDone_, true);
     EXPECT_EQ(callback->loadPatchResult_, 0);
     EXPECT_EQ(callback->loadPatchTimes_, 1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -118,7 +119,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, OnLoadPatchDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackWithRecordTest, OnUnloadPatchDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     sptr<QuickFixCallbackImpl> callback = new QuickFixCallbackImpl();
     sptr<QuickFixCallbackWithRecord> callbackByRecord = new QuickFixCallbackWithRecord(callback);
     std::list<int32_t> recordIds{ 0 };
@@ -134,7 +135,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, OnUnloadPatchDone_0100, TestSize.Level1
     EXPECT_EQ(callback->unloadPatchDone_, true);
     EXPECT_EQ(callback->unloadPatchResult_, -1);
     EXPECT_EQ(callback->unloadPatchTimes_, 1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -145,7 +146,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, OnUnloadPatchDone_0100, TestSize.Level1
  */
 HWTEST_F(QuickFixCallbackWithRecordTest, OnReloadPageDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     sptr<QuickFixCallbackImpl> callback = new QuickFixCallbackImpl();
     sptr<QuickFixCallbackWithRecord> callbackByRecord = new QuickFixCallbackWithRecord(callback);
     std::list<int32_t> recordIds{ 0, 1 };
@@ -165,7 +166,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, OnReloadPageDone_0100, TestSize.Level1)
     EXPECT_EQ(callback->reloadPageDone_, true);
     EXPECT_EQ(callback->reloadPageResult_, -1);
     EXPECT_EQ(callback->reloadPageTimes_, 1);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -176,7 +177,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, OnReloadPageDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackWithRecordTest, AddRecordId_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     sptr<QuickFixCallbackImpl> callback = new QuickFixCallbackImpl();
     sptr<QuickFixCallbackWithRecord> callbackByRecord = new QuickFixCallbackWithRecord(callback);
@@ -190,7 +191,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, AddRecordId_0100, TestSize.Level1)
     EXPECT_EQ(callback->unloadPatchTimes_, 0);
     EXPECT_EQ(callback->reloadPageDone_, false);
     EXPECT_EQ(callback->reloadPageTimes_, 0);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -201,7 +202,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, AddRecordId_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackWithRecordTest, AddRecordId_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     sptr<QuickFixCallbackImpl> callback = new QuickFixCallbackImpl();
     sptr<QuickFixCallbackWithRecord> callbackByRecord = new QuickFixCallbackWithRecord(callback);
@@ -220,7 +221,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, AddRecordId_0200, TestSize.Level1)
     EXPECT_EQ(callback->unloadPatchTimes_, 0);
     EXPECT_EQ(callback->reloadPageDone_, false);
     EXPECT_EQ(callback->reloadPageTimes_, 0);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -231,7 +232,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, AddRecordId_0200, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackWithRecordTest, RemoveRecordId_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     sptr<QuickFixCallbackImpl> callback = new QuickFixCallbackImpl();
     sptr<QuickFixCallbackWithRecord> callbackByRecord = new QuickFixCallbackWithRecord(callback);
     std::list<int32_t> recordIds{ 0, 1, 2 };
@@ -258,7 +259,7 @@ HWTEST_F(QuickFixCallbackWithRecordTest, RemoveRecordId_0100, TestSize.Level1)
     EXPECT_EQ(callback->unloadPatchTimes_, 0);
     EXPECT_EQ(callback->reloadPageDone_, false);
     EXPECT_EQ(callback->reloadPageTimes_, 0);
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

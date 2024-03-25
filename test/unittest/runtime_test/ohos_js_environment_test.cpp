@@ -19,6 +19,7 @@
 #include <cstdarg>
 #include <string>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 
@@ -60,7 +61,7 @@ HWTEST_F(OHOSJsEnvironmentTest, PostTask_0100, TestSize.Level0)
 
     std::string taskName = "task001";
     auto task = [name = taskName]() {
-        HILOG_INFO("%{public}s called.", name.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "%{public}s called.", name.c_str());
     };
     int64_t delayTime = 1000;
     jsEnvImpl->PostTask(task, taskName, delayTime);
@@ -89,7 +90,7 @@ HWTEST_F(OHOSJsEnvironmentTest, PostSyncTask_0100, TestSize.Level0)
     std::string taskName = "syncTask001";
     bool taskExecuted = false;
     auto task = [taskName, &taskExecuted]() {
-        HILOG_INFO("%{public}s called.", taskName.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "%{public}s called.", taskName.c_str());
         taskExecuted = true;
     };
     jsEnvImpl->PostSyncTask(task, taskName);
