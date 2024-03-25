@@ -171,6 +171,5 @@ HWTEST_F(UIExtensionRecordTest, TerminateTimeout_0100, TestSize.Level1)
     EXPECT_EQ(UIExtensionRecord::ErrorCode::TERMINATE_TIMEOUT, mockSession->timeoutCode_);
     HILOG_INFO("End.");
 }
-
 } // namespace AbilityRuntime
 } // namespace OHOS

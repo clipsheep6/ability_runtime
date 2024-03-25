@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -438,7 +438,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_DumpUIExtensionPid_001, TestSize.Lev
     bool isUIExtension = true;
     abilityRecord_->DumpUIExtensionPid(info, isUIExtension);
     std::string processInfo;
-    for(auto item: info) {
+    for (auto item : info) {
         processInfo += item;
     }
     EXPECT_NE(processInfo.npos, processInfo.find("      pid: "));
@@ -458,7 +458,7 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_DumpUIExtensionPid_002, TestSize.Lev
     bool isUIExtension = false;
     abilityRecord_->DumpUIExtensionPid(info, isUIExtension);
     std::string processInfo;
-    for(auto item: info) {
+    for (auto item : info) {
         processInfo += item;
     }
     EXPECT_EQ(processInfo.npos, processInfo.find("      pid: "));

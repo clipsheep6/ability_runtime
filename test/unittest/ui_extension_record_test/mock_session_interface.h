@@ -55,7 +55,6 @@ public:
     {
         return Rosen::WSError::WS_OK;
     }
-
     void NotifyExtensionTimeout(int32_t errorCode) override
     {
         timeoutCode_ = errorCode;

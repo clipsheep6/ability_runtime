@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,17 +34,13 @@ public:
     void TearDown() override;
 };
 
-void ExtensionRecordManagerTest::SetUpTestCase()
-{}
+void ExtensionRecordManagerTest::SetUpTestCase() {}
 
-void ExtensionRecordManagerTest::TearDownTestCase()
-{}
+void ExtensionRecordManagerTest::TearDownTestCase() {}
 
-void ExtensionRecordManagerTest::SetUp()
-{}
+void ExtensionRecordManagerTest::SetUp() {}
 
-void ExtensionRecordManagerTest::TearDown()
-{}
+void ExtensionRecordManagerTest::TearDown() {}
 
 /**
  * @tc.name: RemoveExtensionRecord_0100
@@ -138,5 +134,5 @@ HWTEST_F(ExtensionRecordManagerTest, TerminateTimeout_0100, TestSize.Level1)
     EXPECT_TRUE(extensionRecordMgr->extensionRecords_.empty());
     EXPECT_TRUE(extensionRecordMgr->terminateRecords_.empty());
 }
-}  // namespace AbilityRuntime
-}  // namespace OHOS
+} // namespace AbilityRuntime
+} // namespace OHOS
