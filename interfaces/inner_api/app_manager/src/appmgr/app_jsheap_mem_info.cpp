@@ -41,12 +41,13 @@ bool JsHeapDumpInfo::WriteFileDescriptor(Parcel& parcel, int fd) const
 
 bool JsHeapDumpInfo::Marshalling(Parcel& parcel) const
 {
-    if (!WriteFileDescriptor(parcel, fds)) {
-        HILOG_ERROR("Dump WriteFileDescriptor fail");
+    auto msgParcel = static_cast<MessageParcel*>(&parcel);
+    if(msgParcel==nullptr){
+        HILOG_ERROR("Dump Marshalling msgParcel==nullptr");
         return false;
     }
     return (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
-        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot));
+        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot)) && msgParcel->WriteFileDescriptor(fds);
 }
 
 JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
@@ -60,18 +61,12 @@ JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
     info->tid = parcel.ReadUint32();
     info->needGc = parcel.ReadBool();
     info->needSnapshot = parcel.ReadBool();
-
-    sptr<IPCFileDescriptor> descriptor = parcel.ReadObject<IPCFileDescriptor>();
-    if (descriptor == nullptr) {
-        HILOG_ERROR("descriptor nullptr");
+    auto msgParcel = static_cast<MessageParcel*>(&parcel);
+    if(msgParcel==nullptr){
+        HILOG_ERROR("Dump Unmarshalling msgParcel==nullptr");
         return nullptr;
     }
-    int fd = descriptor->GetFd();
-    if (fd < 0) {
-        HILOG_ERROR("fd < 0");
-        return nullptr;
-    }
-    info->fds = dup(fd);
+    info->fds = msgParcel->ReadFileDescriptor();
     HILOG_INFO("Dump JsHeapDumpInfo::Unmarshalling. info->fds=%{public}d", info->fds);
     return info;
 }
