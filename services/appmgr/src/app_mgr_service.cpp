@@ -379,6 +379,14 @@ int32_t AppMgrService::NotifyMemoryLevel(int32_t level)
     return appMgrServiceInner_->NotifyMemoryLevel(level);
 }
 
+int32_t AppMgrService::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyProcMemoryLevel(procLevelMap);
+}
+
 int32_t AppMgrService::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
     if (!IsReady()) {

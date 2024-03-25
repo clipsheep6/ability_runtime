@@ -325,6 +325,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level);
 
     /**
+     * NotifyProcMemoryLevel, Notify applications background the current memory level.
+     *
+     * @param procLevelMap , <pid_t, MemoryLevel>.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap);
+
+    /**
      * DumpHeapMemory, get the application's memory info.
      * Get the application's memory allocation info.
      *

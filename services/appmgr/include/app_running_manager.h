@@ -23,6 +23,7 @@
 #include "ability_info.h"
 #include "app_debug_listener_interface.h"
 #include "app_malloc_info.h"
+#include "app_mem_info.h"
 #include "app_running_record.h"
 #include "app_state_data.h"
 #include "application_info.h"
@@ -153,6 +154,14 @@ public:
     * @return Returns ERR_OK on success, others on failure.
     */
     int32_t NotifyMemoryLevel(int32_t level);
+
+    /**
+     * Notify applications the current memory level.
+     *
+     * @param  procLevelMap , <pid_t, MemoryLevel>.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap);
 
     /*
     * Get the application's memory allocation info.
