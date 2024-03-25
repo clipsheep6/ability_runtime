@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "shell_cmd_result.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing::ext;
@@ -58,7 +59,7 @@ void ShellCmdResultTest::TearDown()
  */
 HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Shell_Cmd_Result_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Shell_Cmd_Result_Test_0100 is called");
     ShellCmdResult shellCmd(EXITCODE, SHELLCOMMANDDRESULT);
 
     EXPECT_EQ(shellCmd.GetExitCode(), EXITCODE);
@@ -72,7 +73,7 @@ HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0100, Function | MediumTest |
  */
 HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Shell_Cmd_Result_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Shell_Cmd_Result_Test_0200 is called");
     ShellCmdResult shellCmd(EXITCODE, SHELLCOMMANDDRESULT);
     shellCmd.SetExitCode(CHANGEEXITCODE);
 
@@ -86,7 +87,7 @@ HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0200, Function | MediumTest |
  */
 HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Shell_Cmd_Result_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Shell_Cmd_Result_Test_0300 is called");
     ShellCmdResult shellCmd(EXITCODE, SHELLCOMMANDDRESULT);
     shellCmd.SetStdResult(CHANGESHELLCOMMANDDRESULT);
 
@@ -101,7 +102,7 @@ HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0300, Function | MediumTest |
  */
 HWTEST_F(ShellCmdResultTest, Shell_Cmd_Result_Test_0400, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ShellCmdResult shellCmd(EXITCODE, SHELLCOMMANDDRESULT);
     shellCmd.SetExitCode(EXITCODE);
     shellCmd.SetStdResult(SHELLCOMMANDDRESULT);

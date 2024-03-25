@@ -20,6 +20,7 @@
 #include "configuration.h"
 #include "configuration_convertor.h"
 #include "configuration_utils.h"
+#include "hilog_tag_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #include "window_scene.h"
@@ -57,20 +58,20 @@ void ConfigurationTest::InitResourceManager(std::shared_ptr<Global::Resource::Re
 {
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        HILOG_ERROR("res config is invalid.");
+        TAG_LOGE(AAFwkTag::TEST, "res config is invalid.");
         return;
     }
 
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag("zh", status);
-    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
-        locale.getScript(), locale.getCountry());
+    TAG_LOGI(AAFwkTag::TEST, "language: %{public}s, script: %{public}s, region: %{public}s",
+             locale.getLanguage(), locale.getScript(), locale.getCountry());
     resConfig->SetLocaleInfo(locale);
 #endif
     Global::Resource::RState updateRet = resourceManager->UpdateResConfig(*resConfig);
     if (updateRet != Global::Resource::RState::SUCCESS) {
-        HILOG_ERROR("Init locale failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Init locale failed.");
     }
 }
 
@@ -499,8 +500,8 @@ HWTEST_F(ConfigurationTest, UpdateConfigToResMgr_001, TestSize.Level1)
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag("zh", status);
     EXPECT_EQ(status, U_ZERO_ERROR);
-    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
-        locale.getScript(), locale.getCountry());
+    TAG_LOGI(AAFwkTag::TEST, "language: %{public}s, script: %{public}s, region: %{public}s",
+             locale.getLanguage(), locale.getScript(), locale.getCountry());
     resConfig->SetLocaleInfo(locale);
 #endif
     resConfig->SetColorMode(ConvertColorMode("light"));
@@ -521,8 +522,8 @@ HWTEST_F(ConfigurationTest, UpdateConfigToResMgr_001, TestSize.Level1)
 #ifdef SUPPORT_GRAPHICS
     const icu::Locale *localeInfo = updatedResConfig->GetLocaleInfo();
     ASSERT_NE(localeInfo, nullptr);
-    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", localeInfo->getLanguage(),
-        localeInfo->getScript(), localeInfo->getCountry());
+    TAG_LOGI(AAFwkTag::TEST, "language: %{public}s, script: %{public}s, region: %{public}s",
+             localeInfo->getLanguage(), localeInfo->getScript(), localeInfo->getCountry());
     EXPECT_EQ(strcmp(localeInfo->getLanguage(), "en"), 0);
 #endif
     EXPECT_EQ(updatedResConfig->GetColorMode(), ConvertColorMode("dark"));

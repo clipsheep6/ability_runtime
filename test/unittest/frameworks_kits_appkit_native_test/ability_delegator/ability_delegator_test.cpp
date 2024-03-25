@@ -28,6 +28,7 @@
 #include "ability_delegator_infos.h"
 #include "ability_delegator_registry.h"
 #include "app_loader.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "mock_ability_delegator_stub.h"
@@ -187,7 +188,7 @@ void AbilityDelegatorTest2::MakeMockObjects() const
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0100 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -227,7 +228,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0100, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0200 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -262,7 +263,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0200, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0300 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -292,7 +293,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0300, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0400 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -324,7 +325,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0400, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0500 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -362,7 +363,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0500, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0600 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -395,7 +396,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0600, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_070, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0700 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -446,7 +447,7 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_070, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0800 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0800 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -478,7 +479,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0800, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_0900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_0900 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_0900 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -510,7 +511,7 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_0900, Function | MediumTe
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1000 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1000 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -540,7 +541,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1000, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1100 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -572,7 +573,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1100, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_1200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1200 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -604,7 +605,7 @@ HWTEST_F(AbilityDelegatorTest2, Ability_Delegator_Test_1200, Function | MediumTe
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1300 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -634,7 +635,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1300, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1400 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -664,7 +665,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1400, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1500 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -695,7 +696,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1500, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1600 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -727,7 +728,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1600, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1700 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -760,7 +761,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1700, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1800 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1800 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -793,7 +794,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1800, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_1900 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_1900 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -832,7 +833,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1900, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2000 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2000 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -870,7 +871,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2000, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2100 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -903,7 +904,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2100, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2200 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -943,7 +944,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2200, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_23400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2300 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -976,7 +977,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_23400, Function | MediumTe
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2400 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1016,7 +1017,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2400, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2500 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1049,7 +1050,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2500, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2600 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1089,7 +1090,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2600, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2700 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1122,7 +1123,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2700, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2800 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2800 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1162,7 +1163,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2800, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_2900 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_2900 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1195,7 +1196,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_2900, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3000 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3000 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1235,7 +1236,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3000, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3100 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1274,7 +1275,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3100, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3200 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1314,7 +1315,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3200, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3300 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1353,7 +1354,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3300, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3400 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1393,7 +1394,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3400, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3500 is called");
     MockAbilityDelegatorStub::finishFlag_ = false;
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
@@ -1438,7 +1439,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3500, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3600 is called");
     MockAbilityDelegatorStub2::finishFlag_ = false;
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
@@ -1484,7 +1485,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3600, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3700 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1515,7 +1516,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3700, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3800 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3800 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1546,7 +1547,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3800, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_3900 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_3900 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1577,7 +1578,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_3900, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_4000 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_4000 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1608,7 +1609,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4000, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_4100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_4100 is called");
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
     paras.emplace(KEY_TEST_RUNNER_CLASS, VALUE_TEST_RUNNER_CLASS);
@@ -1639,7 +1640,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4100, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_4200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_4200 is called");
     MockTestRunner::prepareFlag_ = false;
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
@@ -1672,7 +1673,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4200, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_4300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_4300 is called");
     MockTestRunner::prepareFlag_ = false;
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
@@ -1706,7 +1707,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4300, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_4400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_4400 is called");
     MockTestRunner::runFlag_ = false;
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
@@ -1739,7 +1740,7 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4400, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Delegator_Test_4500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Delegator_Test_4500 is called");
     MockTestRunner::runFlag_ = false;
     std::map<std::string, std::string> paras;
     paras.emplace(KEY_TEST_BUNDLE_NAME, VALUE_TEST_BUNDLE_NAME);
@@ -1774,12 +1775,12 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_4500, Function | MediumTes
  */
 HWTEST_F(AbilityDelegatorTest, RegisterClearFuncTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     // Register clear function.
     auto clearFunc = [](const std::shared_ptr<ADelegatorAbilityProperty> &property) {
-        HILOG_INFO("Clear function is called");
+        TAG_LOGI(AAFwkTag::TEST, "Clear function is called");
     };
     commonDelegator_->RegisterClearFunc(clearFunc);
 
@@ -1798,7 +1799,7 @@ HWTEST_F(AbilityDelegatorTest, RegisterClearFuncTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, FindPropertyByNameTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     auto result = commonDelegator_->FindPropertyByName("");
@@ -1824,7 +1825,7 @@ HWTEST_F(AbilityDelegatorTest, FindPropertyByNameTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, InputParamTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     // Process ability properties when ability is invalid.
@@ -1856,7 +1857,7 @@ HWTEST_F(AbilityDelegatorTest, InputParamTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, AbilityMonitorEmptyTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     auto token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
@@ -1881,7 +1882,7 @@ HWTEST_F(AbilityDelegatorTest, AbilityMonitorEmptyTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, GetThreadNameTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
     auto result = commonDelegator_->GetThreadName();
     EXPECT_EQ(result, "");
@@ -1895,7 +1896,7 @@ HWTEST_F(AbilityDelegatorTest, GetThreadNameTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, StartAbilityTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
     AbilityDelegatorRegistry::RegisterInstance(commonDelegator_, delegatorArgs_);
 
@@ -1913,7 +1914,7 @@ HWTEST_F(AbilityDelegatorTest, StartAbilityTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, WaitAbilityMonitorTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
     auto property = commonDelegator_->WaitAbilityMonitor(nullptr);
     EXPECT_EQ(property, nullptr);
@@ -1930,17 +1931,17 @@ std::shared_ptr<IAbilityMonitor> gt_iAbilityMonitor = nullptr;
 void IAbilityMonitorWaitTask()
 {
     ASSERT_NE(gt_iAbilityMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     auto property = AbilityDelegatorTest::commonDelegator_->WaitAbilityMonitor(gt_iAbilityMonitor);
     if (property == nullptr) {
-        HILOG_WARN("Wait for ability failed.");
+        TAG_LOGW(AAFwkTag::TEST, "Wait for ability failed.");
     }
 }
 
 void IAbilityMonitorMatchTask()
 {
     ASSERT_NE(gt_iAbilityMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     auto token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
     std::shared_ptr<ADelegatorAbilityProperty> proterty = std::make_shared<ADelegatorAbilityProperty>();
     proterty->token_ = token;
@@ -1950,7 +1951,7 @@ void IAbilityMonitorMatchTask()
 
 HWTEST_F(AbilityDelegatorTest, WaitAbilityMonitorTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     gt_iAbilityMonitor = std::make_shared<IAbilityMonitor>(ABILITY_NAME);
@@ -1969,7 +1970,7 @@ HWTEST_F(AbilityDelegatorTest, WaitAbilityMonitorTest_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, WaitAbilityStageMonitorTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
     auto property = commonDelegator_->WaitAbilityStageMonitor(nullptr);
     EXPECT_EQ(property, nullptr);
@@ -1986,17 +1987,17 @@ std::shared_ptr<IAbilityStageMonitor> gt_iAbilityStageMonitor = nullptr;
 void IAbilityStageMonitorWaitTask()
 {
     ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     auto property = AbilityDelegatorTest::commonDelegator_->WaitAbilityStageMonitor(gt_iAbilityStageMonitor);
     if (property == nullptr) {
-        HILOG_WARN("Wait for ability failed.");
+        TAG_LOGW(AAFwkTag::TEST, "Wait for ability failed.");
     }
 }
 
 void IAbilityStageMonitorMatchTask()
 {
     ASSERT_NE(gt_iAbilityStageMonitor, nullptr);
-    HILOG_INFO("Running in thread %{public}d", gettid());
+    TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
     std::shared_ptr<DelegatorAbilityStageProperty> property = std::make_shared<DelegatorAbilityStageProperty>();
     property->moduleName_ = ABILITY_STAGE_MONITOR_MODULE_NAME;
     property->srcEntrance_ = ABILITY_STAGE_MONITOR_SRC_ENTRANCE;
@@ -2005,7 +2006,7 @@ void IAbilityStageMonitorMatchTask()
 
 HWTEST_F(AbilityDelegatorTest, WaitAbilityStageMonitorTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     gt_iAbilityStageMonitor = std::make_shared<IAbilityStageMonitor>(ABILITY_STAGE_MONITOR_MODULE_NAME,
@@ -2025,7 +2026,7 @@ HWTEST_F(AbilityDelegatorTest, WaitAbilityStageMonitorTest_0200, TestSize.Level1
  */
 HWTEST_F(AbilityDelegatorTest, PostPerformStageStartTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
     auto property = std::make_shared<DelegatorAbilityStageProperty>();
     property->moduleName_ = ABILITY_STAGE_MONITOR_MODULE_NAME;
@@ -2041,7 +2042,7 @@ HWTEST_F(AbilityDelegatorTest, PostPerformStageStartTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityDelegatorTest, PostPerformStageStartTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("test start.");
+    TAG_LOGI(AAFwkTag::TEST, "test start.");
     ASSERT_NE(commonDelegator_, nullptr);
 
     auto stageMonitor = std::make_shared<IAbilityStageMonitor>(ABILITY_STAGE_MONITOR_MODULE_NAME,
