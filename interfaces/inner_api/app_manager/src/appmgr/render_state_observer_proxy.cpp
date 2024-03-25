@@ -36,7 +36,7 @@ bool RenderStateObserverProxy::WriteInterfaceToken(MessageParcel &data)
     return true;
 }
 
-void RenderStateObserverProxy::OnRenderStateChanged(pid_t renderPid, int32_t state)
+void RenderStateObserverProxy::OnRenderStateChanged(const RenderStateData &renderStateData)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -45,8 +45,8 @@ void RenderStateObserverProxy::OnRenderStateChanged(pid_t renderPid, int32_t sta
         return;
     }
 
-    if (!data.WriteInt32(renderPid) || !data.WriteInt32(state)) {
-        HILOG_ERROR("params is wrong.");
+    if (!data.WriteParcelable(&renderStateData)) {
+        HILOG_ERROR("Failed to write renderStateData");
         return;
     }
 

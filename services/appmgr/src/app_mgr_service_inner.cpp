@@ -5715,12 +5715,13 @@ int32_t AppMgrServiceInner::UpdateRenderState(pid_t renderPid, int32_t state)
         return ERR_INVALID_VALUE;
     }
 
-    if (appRecord->GetRenderRecordByPid(renderPid) == nullptr) {
+    auto renderRecord = appRecord->GetRenderRecordByPid(renderPid);
+    if (renderRecord == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "renderPid:%{pubclic}d not exist.", renderPid);
         return ERR_INVALID_VALUE;
     }
     return DelayedSingleton<RenderStateObserverManager>::GetInstance()->OnRenderStateChanged(
-        renderPid, state);
+        renderRecord, state);
 }
 
 int32_t AppMgrServiceInner::SignRestartAppFlag(const std::string &bundleName)

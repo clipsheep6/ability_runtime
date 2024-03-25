@@ -26,8 +26,7 @@ public:
     explicit RenderStateObserverProxy(const sptr<IRemoteObject> &impl);
     virtual ~RenderStateObserverProxy() = default;
 
-    virtual void OnRenderStateChanged(pid_t renderPid, int32_t state) override;
-
+    virtual void OnRenderStateChanged(const RenderStateData &renderStateData) override;
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     static inline BrokerDelegator<RenderStateObserverProxy> delegator_;

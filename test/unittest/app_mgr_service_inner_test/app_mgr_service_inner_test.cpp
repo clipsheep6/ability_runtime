@@ -67,7 +67,7 @@ class RenderStateObserverMock : public RenderStateObserverStub {
 public:
     RenderStateObserverMock() = default;
     virtual ~RenderStateObserverMock() = default;
-    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
+    void OnRenderStateChanged(const RenderStateData &renderStateData) override
     {}
 };
 

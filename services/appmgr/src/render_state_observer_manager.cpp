@@ -118,32 +118,54 @@ void RenderStateObserverManager::HandleUnregisterRenderStateObserver(const sptr<
     TAG_LOGE(AAFwkTag::APPMGR, "Observer not exist or has been removed.");
 }
 
-int32_t RenderStateObserverManager::OnRenderStateChanged(pid_t renderPid, int32_t state)
+int32_t RenderStateObserverManager::OnRenderStateChanged(const std::shared_ptr<RenderRecord> &renderRecord,
+    int32_t state)
 {
     if (handler_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "handler is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    auto task = [weak = weak_from_this(), renderPid, state]() {
+    auto task = [weak = weak_from_this(), renderRecord, state]() {
         auto self = weak.lock();
         if (self == nullptr) {
             TAG_LOGE(AAFwkTag::APPMGR, "self is nullptr.");
             return;
         }
-        self->HandleOnRenderStateChanged(renderPid, state);
+        self->HandleOnRenderStateChanged(renderRecord, state);
     };
     handler_->SubmitTask(task);
     return ERR_OK;
 }
 
-void RenderStateObserverManager::HandleOnRenderStateChanged(pid_t renderPid, int32_t state)
+void RenderStateObserverManager::HandleOnRenderStateChanged(const std::shared_ptr<RenderRecord> &renderRecord,
+    int32_t state)
 {
+    if (renderRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "renderRecord is nullptr");
+        return;
+    }
+    RenderStateData data = WrapRenderStateData(renderRecord, state);
+    TAG_LOGD(AAFwkTag::APPMGR,
+        "pid:%{public}d, hostPid:%{public}d, uid:%{public}d, hostUid:%{public}d, state:%{public}d",
+        data.pid, data.hostPid, data.uid, data.hostUid, data.state);
     for (auto it = observerList_.begin(); it != observerList_.end(); ++it) {
         if ((*it) == nullptr) {
             continue;
         }
-        (*it)->OnRenderStateChanged(renderPid, state);
+        (*it)->OnRenderStateChanged(data);
     }
+}
+
+RenderStateData RenderStateObserverManager::WrapRenderStateData(const std::shared_ptr<RenderRecord> &renderRecord,
+    int32_t state)
+{
+    RenderStateData renderStateData;
+    renderStateData.pid = renderRecord->GetPid();
+    renderStateData.uid = renderRecord->GetUid();
+    renderStateData.hostPid = renderRecord->GetHostPid();
+    renderStateData.hostUid = renderRecord->GetHostUid();
+    renderStateData.state = state;
+    return renderStateData;
 }
 
 void RenderStateObserverManager::OnObserverDied(const wptr<IRemoteObject> &remote)
