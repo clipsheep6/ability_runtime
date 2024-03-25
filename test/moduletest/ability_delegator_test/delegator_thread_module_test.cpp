@@ -19,6 +19,7 @@
 #include "delegator_thread.h"
 #undef private
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing::ext;
@@ -52,7 +53,7 @@ void DelegatorThreadModuleTest::TearDown()
 namespace {
 void CallBackModuleFunc()
 {
-    HILOG_INFO("CallBackModuleFunc is called");
+    TAG_LOGI(AAFwkTag::TEST, "CallBackModuleFunc is called");
     callbackModuleFlag = true;
 }
 }
@@ -64,7 +65,7 @@ void CallBackModuleFunc()
  */
 HWTEST_F(DelegatorThreadModuleTest, Delegator_Thread_Module_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Delegator_Thread_Module_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Delegator_Thread_Module_Test_0100 is called");
 
     callbackModuleFlag = false;
     DelegatorThread threadObj(true);
@@ -79,7 +80,7 @@ HWTEST_F(DelegatorThreadModuleTest, Delegator_Thread_Module_Test_0100, Function 
  */
 HWTEST_F(DelegatorThreadModuleTest, Delegator_Thread_Module_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Delegator_Thread_Module_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Delegator_Thread_Module_Test_0200 is called");
 
     DelegatorThread threadObj(false);
     EXPECT_EQ(threadObj.GetThreadName(), "");

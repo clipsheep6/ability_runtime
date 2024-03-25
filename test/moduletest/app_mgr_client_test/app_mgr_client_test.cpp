@@ -17,6 +17,7 @@
 
 #include "app_mgr_client.h"
 #include "configuration.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_configuration_observer.h"
 #include "mock_native_token.h"
@@ -62,7 +63,7 @@ void AppMgrClientTest::TearDown()
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_GetProcessRunningInfosByUserId_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_GetProcessRunningInfosByUserId_0100 start");
 
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrClient = std::make_unique<AppMgrClient>();
@@ -75,9 +76,9 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, Tes
     result = appMgrClient->GetProcessRunningInfosByUserId(info, USER_ID);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
 
-    HILOG_INFO("AppMgrClient_GetProcessRunningInfosByUserId_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_GetProcessRunningInfosByUserId_0100 end");
 }
 
 /**
@@ -88,7 +89,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetProcessRunningInfosByUserId_0100, Tes
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_GetConfiguration_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_GetConfiguration_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_GetConfiguration_0100 start");
 
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
@@ -100,7 +101,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetConfiguration_0100, TestSize.Level1)
     result = appMgrClient->GetConfiguration(config);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    HILOG_INFO("AppMgrClient_GetConfiguration_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_GetConfiguration_0100 end");
 }
 
 /**
@@ -111,7 +112,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_GetConfiguration_0100, TestSize.Level1)
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_RegisterConfigurationObserver_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_RegisterConfigurationObserver_0100 start");
 
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
@@ -132,7 +133,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0100, Test
     result = appMgrClient->UnregisterConfigurationObserver(observer);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    HILOG_INFO("AppMgrClient_RegisterConfigurationObserver_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_RegisterConfigurationObserver_0100 end");
 }
 
 /**
@@ -143,7 +144,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0100, Test
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0200, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_RegisterConfigurationObserver_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_RegisterConfigurationObserver_0200 start");
 
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
@@ -170,7 +171,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0200, Test
     result = appMgrClient->UnregisterConfigurationObserver(observerOther);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    HILOG_INFO("AppMgrClient_RegisterConfigurationObserver_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_RegisterConfigurationObserver_0200 end");
 }
 
 /**
@@ -181,7 +182,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_RegisterConfigurationObserver_0200, Test
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterConfigurationObserver_0100, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_UnregisterConfigurationObserver_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_UnregisterConfigurationObserver_0100 start");
 
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
@@ -207,7 +208,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterConfigurationObserver_0100, Te
     configurationOther.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, "en_US");
     appMgrClient->UpdateConfiguration(configurationOther);
 
-    HILOG_INFO("AppMgrClient_UnregisterConfigurationObserver_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_UnregisterConfigurationObserver_0100 end");
 }
 
 /**
@@ -218,7 +219,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterConfigurationObserver_0100, Te
  */
 HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterConfigurationObserver_0200, TestSize.Level1)
 {
-    HILOG_INFO("AppMgrClient_UnregisterConfigurationObserver_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_UnregisterConfigurationObserver_0200 start");
 
     auto appMgrClient = std::make_unique<AppMgrClient>();
     EXPECT_NE(appMgrClient, nullptr);
@@ -252,7 +253,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterConfigurationObserver_0200, Te
     result = appMgrClient->UnregisterConfigurationObserver(observerOther);
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
 
-    HILOG_INFO("AppMgrClient_UnregisterConfigurationObserver_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppMgrClient_UnregisterConfigurationObserver_0200 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -24,6 +24,7 @@
 #include "ability_handler.h"
 #include "ability_transaction_callback_info.h"
 #include "configuration.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_ability_token.h"
@@ -65,7 +66,7 @@ void AbilityExtensionBaseTest::TearDown()
  */
 HWTEST_F(AbilityExtensionBaseTest, Init_0100, TestSize.Level1)
 {
-    HILOG_INFO("Init start");
+    TAG_LOGI(AAFwkTag::TEST, "Init start");
 
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record = nullptr;
     std::shared_ptr<AppExecFwk::OHOSApplication> application = std::make_shared<AppExecFwk::OHOSApplication>();
@@ -82,7 +83,7 @@ HWTEST_F(AbilityExtensionBaseTest, Init_0100, TestSize.Level1)
     extensionBase.Init(record, application, handler, token);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("Init end");
+    TAG_LOGI(AAFwkTag::TEST, "Init end");
 }
 
 /**
@@ -92,7 +93,7 @@ HWTEST_F(AbilityExtensionBaseTest, Init_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionBaseTest, CreateAndInitContext_0100, TestSize.Level1)
 {
-    HILOG_INFO("CreateAndInitContext start");
+    TAG_LOGI(AAFwkTag::TEST, "CreateAndInitContext start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     info->name = "ExtensionBaseTest";
@@ -114,7 +115,7 @@ HWTEST_F(AbilityExtensionBaseTest, CreateAndInitContext_0100, TestSize.Level1)
     EXPECT_STREQ(context->GetAbilityInfo()->name.c_str(), "ExtensionBaseTest");
     EXPECT_TRUE(true);
 
-    HILOG_INFO("CreateAndInitContext end");
+    TAG_LOGI(AAFwkTag::TEST, "CreateAndInitContext end");
 }
 
 /**
@@ -124,7 +125,7 @@ HWTEST_F(AbilityExtensionBaseTest, CreateAndInitContext_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionBaseTest, GetContext_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetContext start");
+    TAG_LOGI(AAFwkTag::TEST, "GetContext start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     info->name = "ExtensionBaseTest";
@@ -146,7 +147,7 @@ HWTEST_F(AbilityExtensionBaseTest, GetContext_0100, TestSize.Level1)
     EXPECT_STREQ(context->GetAbilityInfo()->name.c_str(), "ExtensionBaseTest");
     EXPECT_TRUE(true);
 
-    HILOG_INFO("GetContext end");
+    TAG_LOGI(AAFwkTag::TEST, "GetContext end");
 }
 
 /**
@@ -156,7 +157,7 @@ HWTEST_F(AbilityExtensionBaseTest, GetContext_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionBaseTest, OnConfigurationUpdated_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnConfigurationUpdated start");
+    TAG_LOGI(AAFwkTag::TEST, "OnConfigurationUpdated start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -179,7 +180,7 @@ HWTEST_F(AbilityExtensionBaseTest, OnConfigurationUpdated_0100, TestSize.Level1)
     extensionBase.OnConfigurationUpdated(configuration);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnConfigurationUpdated end");
+    TAG_LOGI(AAFwkTag::TEST, "OnConfigurationUpdated end");
 }
 
 /**
@@ -189,7 +190,7 @@ HWTEST_F(AbilityExtensionBaseTest, OnConfigurationUpdated_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionBaseTest, OnMemoryLevel_0100, TestSize.Level1)
 {
-    HILOG_INFO("OnMemoryLevel start");
+    TAG_LOGI(AAFwkTag::TEST, "OnMemoryLevel start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -211,7 +212,7 @@ HWTEST_F(AbilityExtensionBaseTest, OnMemoryLevel_0100, TestSize.Level1)
     extensionBase.OnMemoryLevel(level);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("OnMemoryLevel end");
+    TAG_LOGI(AAFwkTag::TEST, "OnMemoryLevel end");
 }
 
 /**
@@ -221,7 +222,7 @@ HWTEST_F(AbilityExtensionBaseTest, OnMemoryLevel_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionBaseTest, SetExtensionCommon_0100, TestSize.Level1)
 {
-    HILOG_INFO("SetExtensionCommon start");
+    TAG_LOGI(AAFwkTag::TEST, "SetExtensionCommon start");
 
     std::shared_ptr<AppExecFwk::AbilityInfo> info = std::make_shared<AppExecFwk::AbilityInfo>();
     std::shared_ptr<AppExecFwk::AbilityLocalRecord> record =
@@ -247,7 +248,7 @@ HWTEST_F(AbilityExtensionBaseTest, SetExtensionCommon_0100, TestSize.Level1)
     EXPECT_NE(extensionBase.extensionCommon_, nullptr);
     EXPECT_TRUE(true);
 
-    HILOG_INFO("SetExtensionCommon end");
+    TAG_LOGI(AAFwkTag::TEST, "SetExtensionCommon end");
 }
 
 }  // namespace AbilityRuntime
