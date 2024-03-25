@@ -58,11 +58,13 @@ const std::string TRACE_ATOMIC_SERVICE = "StartAtomicService";
 constexpr int32_t CALLER_TIME_OUT = 10; // 10s
 namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
+std::mutex gConnectsLock_;
 int64_t g_serialNumber = 0;
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
 {
+    std::lock_guard<std::mutex> lock(gConnectsLock_);
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
@@ -80,6 +82,7 @@ void RemoveConnection(int64_t connectId)
 
 int64_t InsertConnection(sptr<JSAbilityConnection> connection, const AAFwk::Want &want)
 {
+    std::lock_guard<std::mutex> lock(gConnectsLock_);
     if (connection == nullptr) {
         HILOG_ERROR("connection null");
         return -1;
@@ -1115,7 +1118,7 @@ napi_value JsAbilityContext::OnConnectAbilityWithAccount(napi_env env, NapiCallb
 
 napi_value JsAbilityContext::OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
 {
-    // only support one or two params
+    std::lock_guard<std::mutex> lock(gConnectsLock_);
     if (info.argc < ARGC_ONE) {
         HILOG_ERROR("Not enough params");
         ThrowTooFewParametersError(env);
@@ -1598,6 +1601,7 @@ void JSAbilityConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName 
 void JSAbilityConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
+    std::lock_guard<std::mutex> lock(gConnectsLock_);
     HILOG_DEBUG("resultCode:%{public}d", resultCode);
     if (jsConnectionObject_ == nullptr) {
         HILOG_ERROR("jsConnectionObject_ nullptr");

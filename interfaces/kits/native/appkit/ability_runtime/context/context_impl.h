@@ -432,6 +432,7 @@ private:
 
     std::mutex bundleManagerMutex_;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgr_;
+    sptr<AppExecFwk::IOverlayManager> overlayMgrProxy_ = nullptr;
 
     // True: need to get a new fms remote object,
     // False: no need to get a new fms remote object.
