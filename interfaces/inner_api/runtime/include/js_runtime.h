@@ -85,7 +85,7 @@ public:
     void DestroyHeapProfiler() override;
     void ForceFullGC() override;
     void ForceFullGC(uint32_t tid) override;
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::string fds) override;
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, uint32_t fds) override;
     void AllowCrossThreadExecution() override;
     void GetHeapPrepare() override;
     bool BuildJsStackInfoList(uint32_t tid, std::vector<JsFrames>& jsFrames) override;

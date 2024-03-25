@@ -1144,11 +1144,11 @@ void JsRuntime::DumpHeapSnapshot(bool isPrivate)
     nativeEngine->DumpHeapSnapshot(true, DumpFormat::JSON, isPrivate, false);
 }
 
-void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::string fds)
+void JsRuntime::DumpHeapSnapshot(uint32_t tid, bool isFullGC, uint32_t fds)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    HILOG_INFO("Dump DumpHeapSnapshot. info->fds=%{public}s", fds.c_str());
+    HILOG_INFO("Dump DumpHeapSnapshot. info->fds=%{public}d", fds);
     DFXJSNApi::DumpHeapSnapshot(vm, 0, true, false, false, isFullGC, tid, fds);
 }
 
