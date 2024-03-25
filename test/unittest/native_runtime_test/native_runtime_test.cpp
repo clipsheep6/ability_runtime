@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_environment.h"
@@ -49,7 +50,7 @@ void NativeRuntimeImplTest::TearDown() {}
  */
 HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_001, TestSize.Level1)
 {
-    HILOG_INFO("NativeRuntimeImplTest_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NativeRuntimeImplTest_001 start");
     Options options;
     std::shared_ptr<OHOS::JsEnv::JsEnvironment> jsEnv = nullptr;
     auto err = NativeRuntimeImpl::GetNativeRuntimeImpl().CreateJsEnv(options, jsEnv);
@@ -57,7 +58,7 @@ HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_001, TestSize.Level1)
 
     err = NativeRuntimeImpl::GetNativeRuntimeImpl().RemoveJsEnv(reinterpret_cast<napi_env>(jsEnv->GetNativeEngine()));
     EXPECT_EQ(err, napi_status::napi_ok);
-    HILOG_INFO("NativeRuntimeImplTest_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NativeRuntimeImplTest_001 end");
 }
 
 /**
@@ -67,7 +68,7 @@ HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_001, TestSize.Level1)
  */
 HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_002, TestSize.Level1)
 {
-    HILOG_INFO("NativeRuntimeImplTest_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "NativeRuntimeImplTest_002 start");
     Options options;
     std::shared_ptr<OHOS::JsEnv::JsEnvironment> jsEnv = nullptr;
     auto err = NativeRuntimeImpl::GetNativeRuntimeImpl().CreateJsEnv(options, jsEnv);
@@ -82,7 +83,7 @@ HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_002, TestSize.Level1)
 
     err = NativeRuntimeImpl::GetNativeRuntimeImpl().RemoveJsEnv(reinterpret_cast<napi_env>(jsEnv2->GetNativeEngine()));
     EXPECT_EQ(err, napi_status::napi_destroy_ark_runtime_env_not_exist);
-    HILOG_INFO("NativeRuntimeImplTest_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "NativeRuntimeImplTest_002 end");
 }
 
 /**
@@ -92,7 +93,7 @@ HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_002, TestSize.Level1)
  */
 HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_003, TestSize.Level1)
 {
-    HILOG_INFO("NativeRuntimeImplTest_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "NativeRuntimeImplTest_003 start");
     Options options;
     std::shared_ptr<OHOS::JsEnv::JsEnvironment> jsEnv = nullptr;
     auto err = NativeRuntimeImpl::GetNativeRuntimeImpl().CreateJsEnv(options, jsEnv);
@@ -104,7 +105,7 @@ HWTEST_F(NativeRuntimeImplTest, NativeRuntimeImplTest_003, TestSize.Level1)
 
     err = NativeRuntimeImpl::GetNativeRuntimeImpl().RemoveJsEnv(env);
     EXPECT_EQ(err, napi_status::napi_ok);
-    HILOG_INFO("NativeRuntimeImplTest_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "NativeRuntimeImplTest_003 end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

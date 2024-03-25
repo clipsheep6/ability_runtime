@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #define private public
 #include "mission_list_manager.h"
@@ -62,7 +63,7 @@ void MissionListManagerDumpTest::TearDown()
  */
 HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionList_0100, TestSize.Level1)
 {
-    HILOG_INFO("MissionListManager_DumpMissionList_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListManager_DumpMissionList_0100 start");
 
     auto missionListManager = std::make_shared<MissionListManager>(USER_ID);
     EXPECT_NE(missionListManager, nullptr);
@@ -74,12 +75,12 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionList_0100, Te
     missionListManager->DumpMissionList(info, isClient, args);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 
-    HILOG_INFO("MissionListManager_DumpMissionList_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListManager_DumpMissionList_0100 end");
 }
 
 /**
@@ -90,7 +91,7 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionList_0100, Te
  */
 HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionListByRecordId_0100, TestSize.Level1)
 {
-    HILOG_INFO("MissionListManager_DumpMissionListByRecordId_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListManager_DumpMissionListByRecordId_0100 start");
 
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -119,12 +120,12 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionListByRecordI
     missionListManager->DumpMissionListByRecordId(info, isClient, abilityRecordId, params);
     EXPECT_GT(info.size(), SIZE_ONE);
 
-    HILOG_INFO("info.size() = %{public}zu", info.size());
+    TAG_LOGI(AAFwkTag::TEST, "info.size() = %{public}zu", info.size());
     for (auto item : info) {
-        HILOG_INFO("item = %{public}s", item.c_str());
+        TAG_LOGI(AAFwkTag::TEST, "item = %{public}s", item.c_str());
     }
 
-    HILOG_INFO("MissionListManager_DumpMissionListByRecordId_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListManager_DumpMissionListByRecordId_0100 end");
 }
 
 /**
@@ -135,7 +136,7 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_DumpMissionListByRecordI
  */
 HWTEST_F(MissionListManagerDumpTest, MissionListManager_OnAppStateChanged_0100, TestSize.Level1)
 {
-    HILOG_INFO("MissionListManager_OnAppStateChanged_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListManager_OnAppStateChanged_0100 start");
 
     Want want;
     OHOS::AppExecFwk::AbilityInfo abilityInfo;
@@ -157,7 +158,7 @@ HWTEST_F(MissionListManagerDumpTest, MissionListManager_OnAppStateChanged_0100, 
     EXPECT_NE(abilityRecord, nullptr);
     EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
 
-    HILOG_INFO("MissionListManager_OnAppStateChanged_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "MissionListManager_OnAppStateChanged_0100 end");
 }
 }  // namespace AAFwk
 }  // namespace OHOS

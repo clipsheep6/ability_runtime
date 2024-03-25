@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #define private public
 #include "mock_quick_fix_callback_stub.h"
@@ -63,7 +64,7 @@ void QuickFixCallbackProxyTest::TearDown()
  */
 HWTEST_F(QuickFixCallbackProxyTest, OnLoadPatchDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockCallbackService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -76,7 +77,7 @@ HWTEST_F(QuickFixCallbackProxyTest, OnLoadPatchDone_0100, TestSize.Level1)
     EXPECT_EQ(mockCallbackService_->code_,
         static_cast<uint32_t>(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_LOAD_PATCH));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -87,7 +88,7 @@ HWTEST_F(QuickFixCallbackProxyTest, OnLoadPatchDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackProxyTest, OnUnloadPatchDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockCallbackService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -100,7 +101,7 @@ HWTEST_F(QuickFixCallbackProxyTest, OnUnloadPatchDone_0100, TestSize.Level1)
     EXPECT_EQ(mockCallbackService_->code_,
         static_cast<uint32_t>(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_UNLOAD_PATCH));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -111,7 +112,7 @@ HWTEST_F(QuickFixCallbackProxyTest, OnUnloadPatchDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackProxyTest, OnReloadPageDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     EXPECT_CALL(*mockCallbackService_, SendRequest(_, _, _, _))
         .Times(1)
@@ -124,7 +125,7 @@ HWTEST_F(QuickFixCallbackProxyTest, OnReloadPageDone_0100, TestSize.Level1)
     EXPECT_EQ(mockCallbackService_->code_,
         static_cast<uint32_t>(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_RELOAD_PAGE));
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

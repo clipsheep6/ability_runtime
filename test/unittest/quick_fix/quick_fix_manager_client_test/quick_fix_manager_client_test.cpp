@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_bundle_manager.h"
 #include "mock_quick_fix_manager_stub.h"
@@ -72,7 +73,7 @@ void QuickFixManagerClientTest::TearDown()
  */
 HWTEST_F(QuickFixManagerClientTest, ApplyQuickFix_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     quickFixClient_->quickFixMgr_ = mockQuickFixMgrService_;
     EXPECT_CALL(*mockQuickFixMgrService_, ApplyQuickFix(_, _)).Times(1);
@@ -82,7 +83,7 @@ HWTEST_F(QuickFixManagerClientTest, ApplyQuickFix_0100, TestSize.Level1)
     auto ret = quickFixClient_->ApplyQuickFix(quickfixFiles, isDebug);
     EXPECT_EQ(ret, QUICK_FIX_OK);
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 
 /**
@@ -93,7 +94,7 @@ HWTEST_F(QuickFixManagerClientTest, ApplyQuickFix_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerClientTest, GetApplyedQuickFixInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     quickFixClient_->quickFixMgr_ = mockQuickFixMgrService_;
     EXPECT_CALL(*mockQuickFixMgrService_, GetApplyedQuickFixInfo(_, _)).Times(1);
@@ -103,7 +104,7 @@ HWTEST_F(QuickFixManagerClientTest, GetApplyedQuickFixInfo_0100, TestSize.Level1
     auto ret = quickFixClient_->GetApplyedQuickFixInfo(bundleName, quickFixInfo);
     EXPECT_EQ(ret, QUICK_FIX_OK);
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 
 /**
@@ -114,12 +115,12 @@ HWTEST_F(QuickFixManagerClientTest, GetApplyedQuickFixInfo_0100, TestSize.Level1
  */
 HWTEST_F(QuickFixManagerClientTest, GetQuickFixMgrProxy_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     auto quickFixMgr = quickFixClient_->GetQuickFixMgrProxy();
     EXPECT_EQ(quickFixMgr, nullptr);
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 
 /**
@@ -130,7 +131,7 @@ HWTEST_F(QuickFixManagerClientTest, GetQuickFixMgrProxy_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerClientTest, LoadSystemAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     auto ret = quickFixClient_->LoadQuickFixMgrService();
     EXPECT_EQ(ret, false);
@@ -138,7 +139,7 @@ HWTEST_F(QuickFixManagerClientTest, LoadSystemAbility_0100, TestSize.Level1)
     quickFixClient_->OnLoadSystemAbilitySuccess(mockQuickFixMgrService_);
     quickFixClient_->OnLoadSystemAbilityFail();
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 
 /**
@@ -148,7 +149,7 @@ HWTEST_F(QuickFixManagerClientTest, LoadSystemAbility_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerClientTest, RevokeQuickFix_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     std::string bundleName = "test.bundle.name";
     quickFixClient_->quickFixMgr_ = mockQuickFixMgrService_;
@@ -156,7 +157,7 @@ HWTEST_F(QuickFixManagerClientTest, RevokeQuickFix_0100, TestSize.Level1)
     auto ret = quickFixClient_->RevokeQuickFix(bundleName);
     EXPECT_EQ(ret, QUICK_FIX_OK);
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 
 /**
@@ -166,14 +167,14 @@ HWTEST_F(QuickFixManagerClientTest, RevokeQuickFix_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerClientTest, RevokeQuickFix_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start", __func__);
 
     std::string bundleName = "test.bundle.name";
     quickFixClient_->quickFixMgr_ = nullptr;
     auto ret = quickFixClient_->RevokeQuickFix(bundleName);
     EXPECT_EQ(ret, QUICK_FIX_CONNECT_FAILED);
 
-    HILOG_INFO("%{public}s end", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

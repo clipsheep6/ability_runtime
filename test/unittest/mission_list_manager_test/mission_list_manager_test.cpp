@@ -19,6 +19,7 @@
 #include "ability_config.h"
 #include "ability_info.h"
 #include "ability_manager_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mission.h"
 #include "mission_info_mgr.h"
@@ -498,7 +499,7 @@ HWTEST_F(MissionListManagerTest, CancelStartingWindow_001, TestSize.Level1)
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
             (abilityRecord->GetScheduler() == nullptr ||
                 abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING)) {
-            HILOG_INFO("PostCancelStartingWindowColdTask, call windowHandler CancelStartingWindow.");
+            TAG_LOGI(AAFwkTag::TEST, "PostCancelStartingWindowColdTask, call windowHandler CancelStartingWindow.");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
         }
@@ -530,7 +531,7 @@ HWTEST_F(MissionListManagerTest, CancelStartingWindow_002, TestSize.Level1)
     auto task = [windowHandler, abilityRecord] {
         if (windowHandler && abilityRecord && abilityRecord->IsStartingWindow() &&
             abilityRecord->GetAbilityState() != AbilityState::FOREGROUNDING) {
-            HILOG_INFO("PostCancelStartingWindowHotTask, call windowHandler CancelStartingWindow.");
+            TAG_LOGI(AAFwkTag::TEST, "PostCancelStartingWindowHotTask, call windowHandler CancelStartingWindow.");
             windowHandler->CancelStartingWindow(abilityRecord->GetToken());
             abilityRecord->SetStartingWindow(false);
         }
@@ -5090,7 +5091,7 @@ HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_002, TestSize.Level1)
  */
 HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_003, TestSize.Level1)
 {
-    HILOG_INFO("CompleteFirstFrameDrawing_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "CompleteFirstFrameDrawing_003 start");
     int userId = 3;
     auto missionListManager = std::make_shared<MissionListManager>(userId);
     std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
