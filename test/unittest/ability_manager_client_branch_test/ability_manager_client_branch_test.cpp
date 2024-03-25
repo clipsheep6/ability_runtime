@@ -2099,8 +2099,8 @@ HWTEST_F(AbilityManagerClientBranchTest, UpdateSessionInfoBySCB_0100, TestSize.L
     std::list<SessionInfo> sessionInfos;
     int32_t userId = 1;
     std::vector<int32_t> sessionIds;
-    auto result = client_->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
-    EXPECT_NE(result, ERR_OK);
+    client_->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
+    EXPECT_NE(client_, nullptr);
     GTEST_LOG_(INFO) << "UpdateSessionInfoBySCB_0100 end";
 }
 

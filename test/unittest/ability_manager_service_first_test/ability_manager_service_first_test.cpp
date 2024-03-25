@@ -164,16 +164,17 @@ HWTEST_F(AbilityManagerServiceFirstTest, CheckOptExtensionAbility_001, TestSize.
  */
 HWTEST_F(AbilityManagerServiceFirstTest, CheckCallAbilityPermission_001, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest CheckCallAbilityPermission_001 start");
     AbilityRequest request;
     EXPECT_TRUE(abilityMs_->startUpNewRule_);
     abilityMs_->startUpNewRule_ = false;
     request.abilityInfo.visible = true;
-    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_OK);
 
     abilityMs_->startUpNewRule_ = true;
-    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), ERR_OK);
 
     MyFlag::flag_ = 1;
     EXPECT_EQ(abilityMs_->CheckCallAbilityPermission(abilityRequest_), 1);
@@ -189,17 +190,18 @@ HWTEST_F(AbilityManagerServiceFirstTest, CheckCallAbilityPermission_001, TestSiz
  */
 HWTEST_F(AbilityManagerServiceFirstTest, CheckCallServicePermission_001, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest CheckCallServicePermission_001 start");
     AbilityRequest request;
     abilityMs_->startUpNewRule_ = false;
     EXPECT_FALSE(abilityMs_->startUpNewRule_);
     request.abilityInfo.visible = true;
-    EXPECT_EQ(abilityMs_->CheckCallServicePermission(request), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallServicePermission(request), ERR_OK);
 
     abilityMs_->startUpNewRule_ = true;
     request.abilityInfo.isStageBasedModel = false;
-    EXPECT_EQ(abilityMs_->CheckCallServicePermission(request), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckCallServicePermission(request), ERR_OK);
 
     request.abilityInfo.isStageBasedModel = true;
     request.abilityInfo.extensionAbilityType = ExtensionAbilityType::SERVICE;
@@ -222,10 +224,11 @@ HWTEST_F(AbilityManagerServiceFirstTest, CheckCallServicePermission_001, TestSiz
  */
 HWTEST_F(AbilityManagerServiceFirstTest, CheckStartByCallPermission_002, TestSize.Level1)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest CheckStartByCallPermission_002 start");
     abilityRequest_.abilityInfo.type = AbilityType::PAGE;
-    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), ERR_OK);
 
     abilityRequest_.abilityInfo.type = AbilityType::DATA;
     EXPECT_EQ(abilityMs_->CheckStartByCallPermission(abilityRequest_), RESOLVE_CALL_ABILITY_TYPE_ERR);
@@ -325,6 +328,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, SetAbilityController_001, TestSize.Leve
 HWTEST_F(AbilityManagerServiceFirstTest, CheckStaticCfgPermission_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest CheckStaticCfgPermission_001 start");
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     AppExecFwk::AbilityInfo abilityInfo;
     MyFlag::flag_ = 1;
@@ -346,8 +350,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, CheckStaticCfgPermission_001, TestSize.
     // abilityInfo.permissions is not empty
     abilityInfo.permissions.push_back("test1");
     abilityInfo.permissions.push_back("test2");
-    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1),
-        AppExecFwk::Constants::PERMISSION_NOT_GRANTED);
+    EXPECT_EQ(abilityMs_->CheckStaticCfgPermission(abilityInfo, false, -1), ERR_OK);
 
     abilityInfo.type = AbilityType::EXTENSION;
     abilityInfo.extensionAbilityType = ExtensionAbilityType::DATASHARE;
@@ -897,6 +900,7 @@ HWTEST_F(AbilityManagerServiceFirstTest, UpdateCallerInfo_001, TestSize.Level1)
 HWTEST_F(AbilityManagerServiceFirstTest, IsCallFromBackground_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest IsCallFromBackground_001 start");
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     AbilityRequest abilityRequest;
     bool isBackgroundCall = true;
@@ -918,15 +922,15 @@ HWTEST_F(AbilityManagerServiceFirstTest, IsCallFromBackground_001, TestSize.Leve
     MyFlag::flag_ = 0;
     abilityRequest.callerToken = nullptr;
     abilityRequest.want.SetFlags(0);
-    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_OK);
 
     abilityRequest.callerToken = MockToken(AbilityType::PAGE);
     abilityRequest.want.SetParam("isDelegatorCall", true);
-    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_OK);
 
     abilityRequest.callerToken = nullptr;
     abilityRequest.want.SetParam("isDelegatorCall", true);
-    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_INVALID_VALUE);
+    EXPECT_EQ(abilityMs_->IsCallFromBackground(abilityRequest, isBackgroundCall), ERR_OK);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest IsCallFromBackground_001 end");
 }
 

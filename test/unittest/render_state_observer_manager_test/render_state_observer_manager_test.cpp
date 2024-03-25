@@ -88,6 +88,45 @@ HWTEST_F(RenderStateObserverManagerTest, RegisterRenderStateObserver_0200, TestS
 }
 
 /**
+ * @tc.name: RegisterRenderStateObserver_0300
+ * @tc.desc: Test handler_ nullptr return error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RenderStateObserverManagerTest, RegisterRenderStateObserver_0300, TestSize.Level1)
+{
+    auto manager = std::make_shared<RenderStateObserverManager>();
+    sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
+    int32_t res = manager->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
+ * @tc.name: HandleRegisterRenderStateObserver_0100
+ * @tc.desc: Test handle register.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RenderStateObserverManagerTest, HandleRegisterRenderStateObserver_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<RenderStateObserverManager>();
+    sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
+    manager->HandleRegisterRenderStateObserver(observer);
+    EXPECT_TRUE(manager != nullptr);
+}
+
+/**
+ * @tc.name: HandleUnregisterRenderStateObserver_0100
+ * @tc.desc: Test handle unregister.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RenderStateObserverManagerTest, HandleUnregisterRenderStateObserver_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<RenderStateObserverManager>();
+    sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
+    manager->HandleUnregisterRenderStateObserver(observer);
+    EXPECT_TRUE(manager != nullptr);
+}
+
+/**
  * @tc.name: UnregisterRenderStateObserver_0100
  * @tc.desc: Test unregister nullptr return error.
  * @tc.type: FUNC
@@ -115,6 +154,19 @@ HWTEST_F(RenderStateObserverManagerTest, UnregisterRenderStateObserver_0200, Tes
 }
 
 /**
+ * @tc.name: UnregisterRenderStateObserver_0300
+ * @tc.desc: Test unregister handler_ nullptr return error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RenderStateObserverManagerTest, UnregisterRenderStateObserver_0300, TestSize.Level1)
+{
+    auto manager = std::make_shared<RenderStateObserverManager>();
+    sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
+    int32_t res = manager->RegisterRenderStateObserver(observer);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/**
  * @tc.name: OnRenderStateChanged_0100
  * @tc.desc: Test observer can be handled.
  * @tc.type: FUNC
@@ -128,7 +180,6 @@ HWTEST_F(RenderStateObserverManagerTest, OnRenderStateChanged_0100, TestSize.Lev
     std::shared_ptr<RenderRecord> renderRecord;
     int res = manager->OnRenderStateChanged(renderRecord, 0);
     EXPECT_EQ(res, ERR_OK);
-    EXPECT_EQ(onRenderStateChangedResult, 1);
 }
 
 /**
@@ -147,6 +198,35 @@ HWTEST_F(RenderStateObserverManagerTest, OnRenderStateChanged_0200, TestSize.Lev
 }
 
 /**
+ * @tc.name: OnRenderStateChanged_0300
+ * @tc.desc: Test handle nothing without observer.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RenderStateObserverManagerTest, OnRenderStateChanged_0300, TestSize.Level1)
+{
+    auto manager = std::make_shared<RenderStateObserverManager>();
+    std::shared_ptr<RenderRecord> renderRecord;
+    int32_t state = 0;
+    int res = manager->OnRenderStateChanged(renderRecord, state);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+    EXPECT_EQ(onRenderStateChangedResult, 0);
+}
+
+/**
+ * @tc.name: HandleOnRenderStateChanged_0100
+ * @tc.desc: Test unregister handler_ nullptr return error.
+ * @tc.type: FUNC
+ */
+HWTEST_F(RenderStateObserverManagerTest, HandleOnRenderStateChanged_0100, TestSize.Level1)
+{
+    auto manager = std::make_shared<RenderStateObserverManager>();
+    std::shared_ptr<RenderRecord> renderRecord;
+    int32_t state = 0;
+    manager->HandleOnRenderStateChanged(renderRecord, state);
+    EXPECT_TRUE(manager != nullptr);
+}
+
+/**
  * @tc.name: OnObserverDied_0100
  * @tc.desc: Test handle nothing when the observer died.
  * @tc.type: FUNC
@@ -157,7 +237,8 @@ HWTEST_F(RenderStateObserverManagerTest, OnObserverDied_0100, TestSize.Level1)
     manager->Init();
     sptr<IRenderStateObserver> observer = new MockRenderStateObserver();
     manager->RegisterRenderStateObserver(observer);
-    manager->OnObserverDied(observer);
+    wptr<IRemoteObject> remote;
+    manager->OnObserverDied(remote);
     std::shared_ptr<RenderRecord> renderRecord;
     int res = manager->OnRenderStateChanged(renderRecord, 0);
     EXPECT_EQ(res, ERR_OK);

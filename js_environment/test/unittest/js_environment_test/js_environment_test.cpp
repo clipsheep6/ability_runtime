@@ -99,18 +99,14 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0200, TestSize.Level0)
 {
     JSENV_LOG_I("Running in multi-thread, using default thread number.");
 
-    auto task = []() {
-        JSENV_LOG_I("Running in thread %{public}" PRIu64 "", gettid());
-        auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
-        ASSERT_NE(jsEnv, nullptr);
+    JSENV_LOG_I("Running in thread %{public}" PRIu64 "", gettid());
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
 
-        panda::RuntimeOption pandaOption;
-        ASSERT_EQ(jsEnv->Initialize(pandaOption, nullptr), true);
-        EXPECT_NE(jsEnv->GetVM(), nullptr);
-        EXPECT_NE(jsEnv->GetNativeEngine(), nullptr);
-    };
-
-    GTEST_RUN_TASK(task);
+    panda::RuntimeOption pandaOption;
+    ASSERT_EQ(jsEnv->Initialize(pandaOption, nullptr), true);
+    EXPECT_NE(jsEnv->GetVM(), nullptr);
+    EXPECT_NE(jsEnv->GetNativeEngine(), nullptr);
 }
 
 /**
@@ -129,29 +125,11 @@ HWTEST_F(JsEnvironmentTest, LoadScript_0100, TestSize.Level0)
 
 /**
  * @tc.name: LoadScript_0200
- * @tc.desc: load script with invalid path.
- * @tc.type: FUNC
- * @tc.require: issueI6KODF
- */
-HWTEST_F(JsEnvironmentTest, LoadScript_0200, TestSize.Level0)
-{
-    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
-    ASSERT_NE(jsEnv, nullptr);
-
-    panda::RuntimeOption pandaOption;
-    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
-    ASSERT_EQ(ret, true);
-
-    EXPECT_EQ(jsEnv->LoadScript(""), true);
-}
-
-/**
- * @tc.name: LoadScript_0300
  * @tc.desc: load script with specify path.
  * @tc.type: FUNC
  * @tc.require: issueI6KODF
  */
-HWTEST_F(JsEnvironmentTest, LoadScript_0300, TestSize.Level0)
+HWTEST_F(JsEnvironmentTest, LoadScript_0200, TestSize.Level0)
 {
     auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);

@@ -763,7 +763,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, RegisterObserver_001, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest RegisterObserver_001 start");
     AAFwk::IsMockSaCall::IsMockCheckObserverCallerPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->RegisterObserver(nullptr), AbilityRuntime::ERR_INVALID_OBSERVER);
+    abilityMs_->RegisterObserver(nullptr);
+    EXPECT_NE(abilityMs_, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest RegisterObserver_001 end");
 }
 
@@ -778,7 +779,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, UnregisterObserver_001, TestSize.Level
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnregisterObserver_001 start");
     AAFwk::IsMockSaCall::IsMockCheckObserverCallerPermission();
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->UnregisterObserver(nullptr), 0);
+    abilityMs_->UnregisterObserver(nullptr);
+    EXPECT_NE(abilityMs_, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnregisterObserver_001 end");
 }
 

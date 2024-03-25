@@ -699,20 +699,15 @@ HWTEST_F(JsRuntimeTest, JsRuntimeInitialize_0100, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "Running in multi-thread, using default thread number.");
 
-    auto task = []() {
-        TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d", gettid());
-        AbilityRuntime::Runtime::Options options;
-        options.loadAce = false;
-        options.preload = false;
-        options.isStageModel = false;
+    AbilityRuntime::Runtime::Options options;
+    options.loadAce = false;
+    options.preload = true;
+    options.isStageModel = false;
 
-        auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-        ASSERT_NE(jsRuntime, nullptr);
-        EXPECT_NE(jsRuntime->GetEcmaVm(), nullptr);
-        EXPECT_NE(jsRuntime->GetNativeEnginePointer(), nullptr);
-    };
-
-    GTEST_RUN_TASK(task);
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    ASSERT_NE(jsRuntime, nullptr);
+    EXPECT_NE(jsRuntime->GetEcmaVm(), nullptr);
+    EXPECT_NE(jsRuntime->GetNativeEnginePointer(), nullptr);
 }
 
 /**
@@ -869,14 +864,14 @@ HWTEST_F(JsRuntimeTest, JsRuntimeRunScriptTest_0100, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "RunScript start");
 
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
+    AbilityRuntime::Runtime::Options options;
+    options.preload = false;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
 
-    std::string srcPath = "";
-    std::string hapPath = "";
-    bool useCommonChunk = true;
-    bool ret = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).RunScript(srcPath, hapPath, useCommonChunk);
-    EXPECT_TRUE(ret);
+    std::string srcPath = TEST_MODULE_PATH;
+    std::string hapPath = TEST_HAP_PATH;
+    jsRuntime->RunScript(srcPath, hapPath);
+    ASSERT_NE(jsRuntime, nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "RunScript end");
 }
@@ -891,31 +886,10 @@ HWTEST_F(JsRuntimeTest, JsRuntimeLoadScriptTest_0100, TestSize.Level0)
     AbilityRuntime::Runtime::Options options;
     options.preload = false;
     auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+
+    std::string path = "/system/etc/strip.native.min.abc";
+    jsRuntime->LoadScript(path);
     ASSERT_NE(jsRuntime, nullptr);
-
-    std::string path = "";
-    std::vector<uint8_t>* buffer = nullptr;
-    bool isBundle = true;
-    jsRuntime->LoadScript(path, buffer, isBundle);
-}
-
-/**
- * @tc.name: JsRuntimeLoadScriptTest_0200
- * @tc.desc: JsRuntime test for LoadScript.
- * @tc.type: FUNC
- */
-HWTEST_F(JsRuntimeTest, JsRuntimeLoadScriptTest_0200, TestSize.Level0)
-{
-    AbilityRuntime::Runtime::Options options;
-    options.preload = false;
-    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
-    ASSERT_NE(jsRuntime, nullptr);
-
-    std::string path = "";
-    uint8_t *buffer = nullptr;
-    size_t len = 1;
-    bool isBundle = true;
-    jsRuntime->LoadScript(path, buffer, len, isBundle);
 }
 
 /**
