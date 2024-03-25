@@ -401,6 +401,7 @@ group("unittest") {
     "atomic_service_status_callback_stub_test:unittest",
     "authorization_result_test:unittest",
     "auto_fill_manager_test:unittest",
+    "auto_fill_manager_util_test:unittest",
     "auto_startup_callback_proxy_test:unittest",
     "auto_startup_callback_stub_test:unittest",
     "auto_startup_info_test:unittest",
