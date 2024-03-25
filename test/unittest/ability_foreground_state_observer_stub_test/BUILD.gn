@@ -20,6 +20,7 @@ ohos_unittest("ability_foreground_state_observer_stub_test") {
   module_out_path = module_output_path
 
   include_dirs = [
+    "${ability_runtime_services_path}/common/include",
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr/",
     "${ability_runtime_test_path}/unittest/ability_foreground_state_observer_stub_test/",
     "//foundation/filemanagement/user_file_service/utils/",

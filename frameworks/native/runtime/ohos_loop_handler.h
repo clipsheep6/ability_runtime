@@ -18,6 +18,7 @@
 
 #include <sys/epoll.h>
 #include "event_handler.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "native_engine/native_engine.h"
 
