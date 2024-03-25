@@ -423,5 +423,45 @@ HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_IsNeedToCallRequest_002, TestSize.Le
 
     EXPECT_EQ(true, abilityRecord_->IsNeedToCallRequest());
 }
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpUIExtensionPid
+ * SubFunction: DumpUIExtensionPid
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DumpUIExtensionPid is called properly
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_DumpUIExtensionPid_001, TestSize.Level1)
+{
+    std::vector<std::string> info;
+    bool isUIExtension = true;
+    abilityRecord_->DumpUIExtensionPid(info, isUIExtension);
+    std::string processInfo;
+    for(auto item: info) {
+        processInfo += item;
+    }
+    EXPECT_NE(processInfo.npos, processInfo.find("      pid: "));
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: DumpUIExtensionPid
+ * SubFunction: DumpUIExtensionPid
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify that the DumpUIExtensionPid is called properly
+ */
+HWTEST_F(AbilityRecordTest, AaFwk_AbilityMS_DumpUIExtensionPid_002, TestSize.Level1)
+{
+    std::vector<std::string> info;
+    bool isUIExtension = false;
+    abilityRecord_->DumpUIExtensionPid(info, isUIExtension);
+    std::string processInfo;
+    for(auto item: info) {
+        processInfo += item;
+    }
+    EXPECT_EQ(processInfo.npos, processInfo.find("      pid: "));
+}
 }  // namespace AAFwk
 }  // namespace OHOS
