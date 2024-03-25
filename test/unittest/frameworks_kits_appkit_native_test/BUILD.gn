@@ -343,32 +343,6 @@ ohos_unittest("ability_start_setting_test") {
   ]
 }
 
-ohos_unittest("mix_stack_dumper_test") {
-  module_out_path = module_output_path
-
-  include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
-    "${ability_runtime_test_path}/mock/frameworks_kits_runtime_test/",
-  ]
-
-  sources = [ "mix_stack_dumper_test.cpp" ]
-
-  deps = [
-    "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/googletest:gtest_main",
-  ]
-
-  external_deps = [
-    "ability_runtime:abilitykit_native",
-    "ability_runtime:runtime",
-    "common_event_service:cesfwk_innerkits",
-    "eventhandler:libeventhandler",
-    "faultloggerd:libbacktrace_local",
-    "hilog:libhilog",
-    "napi:ace_napi",
-  ]
-}
-
 ohos_unittest("ability_stage_test") {
   module_out_path = module_output_path
   sources = [
@@ -576,7 +550,6 @@ group("unittest") {
     ":context_container_test",
     ":context_deal_test",
     ":form_extension_context_test",
-    ":mix_stack_dumper_test",
   ]
 
   deps += [ "ability_delegator:unittest" ]

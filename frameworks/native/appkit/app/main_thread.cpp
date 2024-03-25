@@ -64,7 +64,6 @@
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "js_runtime.h"
-#include "mix_stack_dumper.h"
 #include "ohos_application.h"
 #include "overlay_module_info.h"
 #include "parameters.h"
@@ -100,7 +99,6 @@ using namespace OHOS::AbilityBase::Constants;
 std::weak_ptr<OHOSApplication> MainThread::applicationForDump_;
 std::shared_ptr<EventHandler> MainThread::signalHandler_ = nullptr;
 std::shared_ptr<MainThread::MainHandler> MainThread::mainHandler_ = nullptr;
-static std::shared_ptr<MixStackDumper> mixStackDumper_ = nullptr;
 const std::string PERFCMD_PROFILE = "profile";
 const std::string PERFCMD_DUMPHEAP = "dumpheap";
 namespace {
@@ -1291,10 +1289,6 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     LoadAppLibrary();
 
     applicationForDump_ = application_;
-    mixStackDumper_ = std::make_shared<MixStackDumper>();
-    if (!mixStackDumper_->IsInstalled()) {
-        mixStackDumper_->InstallDumpHandler(application_, signalHandler_);
-    }
 
     if (isStageBased) {
         AppRecovery::GetInstance().InitApplicationInfo(GetMainHandler(), GetApplicationInfo());

@@ -25,7 +25,6 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "hisysevent.h"
-#include "mix_stack_dumper.h"
 #include "parameter.h"
 #include "xcollie/watchdog.h"
 #include "time_util.h"

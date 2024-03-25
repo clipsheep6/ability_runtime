@@ -23,7 +23,6 @@
 #include "appfreeze_inner.h"
 #include "hisysevent.h"
 #include "hilog_wrapper.h"
-#include "mix_stack_dumper.h"
 #include "xcollie/watchdog.h"
 
 namespace OHOS {

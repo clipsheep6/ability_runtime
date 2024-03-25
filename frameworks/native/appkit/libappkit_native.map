@@ -24,7 +24,6 @@
       *GetDataPath*;
       *MainHandlerDumper*;
       *MainThread*;
-      *MixStackDumper*;
       *OHOSApplication*;
       *Watchdog*;
     };
