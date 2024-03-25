@@ -316,7 +316,7 @@ int AbilityConnectManager::TerminateAbilityLocked(const sptr<IRemoteObject> &tok
         connectManager->HandleStopTimeoutTask(abilityRecord);
     };
     abilityRecord->Terminate(timeoutTask);
-    RemoveUIExtensionAbilityRecord(abilityRecord);
+    AddUIExtensionAbilityRecordToTerminatedList(abilityRecord);
 
     return ERR_OK;
 }
@@ -1270,6 +1270,12 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
     HILOG_DEBUG("Complete connect or load ability timeout.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType) &&
+        uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
+        HILOG_DEBUG("Start load timeout.");
+        uiExtensionAbilityRecordMgr_->LoadTimeout(abilityRecord->GetUIExtensionAbilityId());
+    }
+    PrintTimeOutLog(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
     auto connectingList = abilityRecord->GetConnectingRecordList();
     for (auto &connectRecord : connectingList) {
         if (connectRecord == nullptr) {
@@ -1353,6 +1359,12 @@ void AbilityConnectManager::HandleStopTimeoutTask(const std::shared_ptr<AbilityR
     HILOG_DEBUG("Complete stop ability timeout start.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType) &&
+        uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
+        HILOG_DEBUG("Start terminate timeout.");
+        uiExtensionAbilityRecordMgr_->TerminateTimeout(abilityRecord->GetUIExtensionAbilityId());
+    }
+    PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
     TerminateDone(abilityRecord);
 }
 
@@ -1603,6 +1615,7 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
         KillProcessesByUserId();
     }
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
+    RemoveUIExtensionAbilityRecord(abilityRecord);
     RemoveServiceAbility(abilityRecord);
 }
 
@@ -2261,6 +2274,12 @@ void AbilityConnectManager::MoveToBackground(const std::shared_ptr<AbilityRecord
             HILOG_WARN("mgr is invalid.");
             return;
         }
+        CHECK_POINTER(abilityRecord);
+        if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType) &&
+            selfObj->uiExtensionAbilityRecordMgr_ != nullptr && selfObj->IsCallerValid(abilityRecord)) {
+            HILOG_DEBUG("Start background timeout.");
+            selfObj->uiExtensionAbilityRecordMgr_->BackgroundTimeout(abilityRecord->GetUIExtensionAbilityId());
+        }
         HILOG_ERROR("move to background timeout.");
         selfObj->PrintTimeOutLog(abilityRecord, AbilityManagerService::BACKGROUND_TIMEOUT_MSG);
         selfObj->CompleteBackground(abilityRecord);
@@ -2295,6 +2314,11 @@ void AbilityConnectManager::HandleForegroundTimeoutTask(const std::shared_ptr<Ab
     if (abilityRecord == nullptr) {
         HILOG_ERROR("abilityRecord is nullptr");
         return;
+    }
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType) &&
+        uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
+        HILOG_DEBUG("Start foreground timeout.");
+        uiExtensionAbilityRecordMgr_->ForegroundTimeout(abilityRecord->GetUIExtensionAbilityId());
     }
     abilityRecord->SetAbilityState(AbilityState::BACKGROUND);
     abilityRecord->DoBackgroundAbilityWindowDelayed(false);
@@ -2396,6 +2420,7 @@ void AbilityConnectManager::MoveToTerminatingMap(const std::shared_ptr<AbilityRe
 void AbilityConnectManager::AddUIExtWindowDeathRecipient(const sptr<IRemoteObject> &session)
 {
     CHECK_POINTER(session);
+    std::unique_lock<ffrt::mutex> lock(uiExtRecipientMapMutex_);
     auto it = uiExtRecipientMap_.find(session);
     if (it != uiExtRecipientMap_.end()) {
         HILOG_ERROR("This death recipient has been added.");
@@ -2419,6 +2444,7 @@ void AbilityConnectManager::AddUIExtWindowDeathRecipient(const sptr<IRemoteObjec
 void AbilityConnectManager::RemoveUIExtWindowDeathRecipient(const sptr<IRemoteObject> &session)
 {
     CHECK_POINTER(session);
+    std::unique_lock<ffrt::mutex> lock(uiExtRecipientMapMutex_);
     auto it = uiExtRecipientMap_.find(session);
     if (it != uiExtRecipientMap_.end() && it->first != nullptr) {
         it->first->RemoveDeathRecipient(it->second);
@@ -2624,6 +2650,30 @@ void AbilityConnectManager::RemoveUIExtensionAbilityRecord(const std::shared_ptr
     CHECK_POINTER(abilityRecord);
     CHECK_POINTER(uiExtensionAbilityRecordMgr_);
     uiExtensionAbilityRecordMgr_->RemoveExtensionRecord(abilityRecord->GetUIExtensionAbilityId());
+}
+
+void AbilityConnectManager::AddUIExtensionAbilityRecordToTerminatedList(
+    const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    CHECK_POINTER(abilityRecord);
+    CHECK_POINTER(uiExtensionAbilityRecordMgr_);
+    uiExtensionAbilityRecordMgr_->AddExtensionRecordToTerminatedList(abilityRecord->GetUIExtensionAbilityId());
+}
+
+bool AbilityConnectManager::IsCallerValid(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    CHECK_POINTER_AND_RETURN_LOG(abilityRecord, false, "Invalid caller for UIExtension");
+    auto sessionInfo = abilityRecord->GetSessionInfo();
+    CHECK_POINTER_AND_RETURN_LOG(sessionInfo, false, "Invalid caller for UIExtension");
+    CHECK_POINTER_AND_RETURN_LOG(sessionInfo->sessionToken, false, "Invalid caller for UIExtension");
+    std::unique_lock<ffrt::mutex> lock(uiExtRecipientMapMutex_);
+    if (uiExtRecipientMap_.find(sessionInfo->sessionToken) == uiExtRecipientMap_.end()) {
+        HILOG_WARN("Invalid caller for UIExtension.");
+        return false;
+    }
+
+    HILOG_DEBUG("The caller survival.");
+    return true;
 }
 
 int32_t AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,

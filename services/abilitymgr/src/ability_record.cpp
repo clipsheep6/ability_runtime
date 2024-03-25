@@ -2217,7 +2217,8 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
                       std::to_string(GetStartTime()) + "]");
     info.emplace_back("      main name [" + GetAbilityInfo().name + "]");
     info.emplace_back("      bundle name [" + GetAbilityInfo().bundleName + "]");
-    if (UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType)) {
+    bool isUIExtension = UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType);
+    if (isUIExtension) {
         info.emplace_back("      ability type [UIEXTENSION]");
     } else {
         info.emplace_back("      ability type [SERVICE]");
@@ -2244,6 +2245,24 @@ void AbilityRecord::DumpService(std::vector<std::string> &info, std::vector<std:
     // add dump client info
     DumpClientInfo(info, params, isClient);
     DumpUIExtensionRootHostInfo(info);
+    DumpUIExtensionPid(info, isUIExtension);
+}
+
+void AbilityRecord::DumpUIExtensionPid(std::vector<std::string> &info, bool isUIExtension) const
+{
+    if (!isUIExtension) {
+        HILOG_DEBUG("Not ui extension type.");
+        return;
+    }
+
+    auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
+    if (appScheduler == nullptr) {
+        HILOG_ERROR("Get appScheduler is invalid.");
+        return;
+    }
+    AppExecFwk::RunningProcessInfo processInfo;
+    appScheduler->GetRunningProcessInfoByToken(GetToken(), processInfo);
+    info.emplace_back("      pid: " + std::to_string(processInfo.pid_));
 }
 
 void AbilityRecord::RemoveAbilityDeathRecipient() const

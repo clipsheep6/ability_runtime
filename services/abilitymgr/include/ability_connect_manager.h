@@ -521,6 +521,8 @@ private:
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    inline void AddUIExtensionAbilityRecordToTerminatedList(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    inline bool IsCallerValid(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int32_t GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest, bool isCreatedByConnect,
         const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded);
     int32_t GetOrCreateTargetServiceRecord(
@@ -539,6 +541,7 @@ private:
 
     std::mutex recipientMapMutex_;
     RecipientMapType recipientMap_;
+    ffrt::mutex uiExtRecipientMapMutex_;
     RecipientMapType uiExtRecipientMap_;
     std::shared_ptr<TaskHandlerWrap> taskHandler_;
     std::shared_ptr<EventHandlerWrap> eventHandler_;

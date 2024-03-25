@@ -1020,6 +1020,8 @@ private:
 
     void DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const;
 
+    void DumpUIExtensionPid(std::vector<std::string> &info, bool isUIExtension) const;
+
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 
     bool CheckNeedAttachToParent() const;
