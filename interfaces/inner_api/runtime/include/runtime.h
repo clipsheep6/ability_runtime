@@ -83,7 +83,8 @@ public:
     virtual void DestroyHeapProfiler() = 0;
     virtual void ForceFullGC() = 0;
     virtual void ForceFullGC(uint32_t tid) = 0;
-    virtual void DumpHeapSnapshot(uint32_t tid, bool isFullGC, uint32_t fds) = 0;
+    virtual void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
+        std::vector<uint32_t> tidVec) = 0;
     virtual void AllowCrossThreadExecution() = 0;
     virtual void GetHeapPrepare() = 0;
     virtual void NotifyApplicationState(bool isBackground) = 0;

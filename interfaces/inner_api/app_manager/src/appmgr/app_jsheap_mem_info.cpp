@@ -14,30 +14,10 @@
  */
 #include<unistd.h> 
 #include "app_jsheap_mem_info.h"
-#include "ipc_file_descriptor.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
-
-bool JsHeapDumpInfo::WriteFileDescriptor(Parcel& parcel, int fd) const
-{
-    if (fd < 0) {
-        return false;
-    }
-    int dupFd = dup(fd);
-    if (dupFd < 0) {
-        return false;
-    }
-    sptr<IPCFileDescriptor> descriptor = new (std::nothrow)IPCFileDescriptor(dupFd);
-    if (descriptor == nullptr) {
-        HILOG_ERROR("Dump create IPCFileDescriptor object failed");
-        return false;
-    }
-    return parcel.WriteObject<IPCFileDescriptor>(descriptor);
-}
-
-
 
 bool JsHeapDumpInfo::Marshalling(Parcel& parcel) const
 {
@@ -46,8 +26,15 @@ bool JsHeapDumpInfo::Marshalling(Parcel& parcel) const
         HILOG_ERROR("Dump Marshalling msgParcel==nullptr");
         return false;
     }
+    if (!parcel.WriteUInt32Vector(fdVec)) {
+        HILOG_ERROR("WriteUInt32Vector fdVec error");
+        return false;
+    }
+    for (auto &fd : fdVec){
+        msgParcel->WriteFileDescriptor(fd);
+    }
     return (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
-        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot)) && msgParcel->WriteFileDescriptor(fds);
+        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot)) && parcel.WriteUInt32Vector(tidVec);
 }
 
 JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
@@ -61,13 +48,17 @@ JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
     info->tid = parcel.ReadUint32();
     info->needGc = parcel.ReadBool();
     info->needSnapshot = parcel.ReadBool();
+    parcel.ReadUInt32Vector(&info->tidVec);
     auto msgParcel = static_cast<MessageParcel*>(&parcel);
     if(msgParcel==nullptr){
         HILOG_ERROR("Dump Unmarshalling msgParcel==nullptr");
         return nullptr;
     }
-    info->fds = msgParcel->ReadFileDescriptor();
-    HILOG_INFO("Dump JsHeapDumpInfo::Unmarshalling. info->fds=%{public}d", info->fds);
+    for (auto &tid : info->tidVec){
+        uint32_t fd = msgParcel->ReadFileDescriptor();
+        HILOG_INFO("Dump JsHeapDumpInfo::Unmarshalling. fd=%{public}d", fd);
+        info->fdVec.push_back(msgParcel->ReadFileDescriptor());
+    }
     return info;
 }
 } // namespace AppExecFwk

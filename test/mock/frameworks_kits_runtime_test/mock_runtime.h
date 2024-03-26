@@ -125,7 +125,8 @@ public:
         bool needBreakPoint, const std::string &processName, bool isDebug = true) override {}
 
     void DoCleanWorkAfterStageCleaned() override {}
-    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, uint32_t fds) override {}
+    void DumpHeapSnapshot(uint32_t tid, bool isFullGC, std::vector<uint32_t> fdVec,
+        std::vector<uint32_t> tidVec) override {}
     void ForceFullGC(uint32_t tid) override {}
 public:
     Language language;

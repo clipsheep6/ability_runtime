@@ -15,11 +15,9 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_APP_JSHEAP_MEM_INFO_H
 #define OHOS_ABILITY_RUNTIME_APP_JSHEAP_MEM_INFO_H
-#include<unistd.h> 
-#include "ipc_file_descriptor.h"
+#include <vector>
 #include "parcel.h"
 #include "iremote_object.h"
-#include "string"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -28,10 +26,10 @@ struct JsHeapDumpInfo : public Parcelable {
     uint32_t tid;
     bool needGc;
     bool needSnapshot;
-    uint32_t fds;
+    std::vector<uint32_t> fdVec;
+    std::vector<uint32_t> tidVec;
     virtual bool Marshalling(Parcel &parcel) const override;
     static JsHeapDumpInfo *Unmarshalling(Parcel &parcel);
-    bool WriteFileDescriptor(Parcel &parcel, int fd) const;
 };
 } // namespace AppExecFwk
 } // namespace OHOS
