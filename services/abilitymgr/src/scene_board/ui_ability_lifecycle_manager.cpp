@@ -1341,10 +1341,6 @@ void UIAbilityLifecycleManager::OnAcceptWantResponse(const AAFwk::Want &want, co
 
     AbilityRequest abilityRequest = abilityQueue_.front();
     abilityQueue_.pop();
-    if (abilityRequest.callSpecifiedFlagTimeout) {
-        HILOG_ERROR("The abilityRequest call onAcceptWant timeout.");
-        return;
-    }
     if (abilityRequest.abilityInfo.launchMode != AppExecFwk::LaunchMode::SPECIFIED) {
         return;
     }
@@ -1378,8 +1374,7 @@ void UIAbilityLifecycleManager::OnStartSpecifiedAbilityTimeoutResponse(const AAF
     if (abilityQueue_.empty()) {
         return;
     }
-    AbilityRequest &abilityRequest = abilityQueue_.front();
-    abilityRequest.callSpecifiedFlagTimeout = true;
+    abilityQueue_.pop();
 }
 
 void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Want &want, const std::string &flag)
@@ -1393,10 +1388,6 @@ void UIAbilityLifecycleManager::OnStartSpecifiedProcessResponse(const AAFwk::Wan
     AbilityRequest abilityRequest = abilityQueue_.front();
     abilityQueue_.pop();
     std::string specifiedProcessFlag = flag;
-    if (abilityRequest.callSpecifiedFlagTimeout) {
-        HILOG_ERROR("The abilityRequest call onNewProcessRequest timeout.");
-        specifiedProcessFlag = "";
-    }
     abilityRequest.want.SetParam(PARAM_SPECIFIED_PROCESS_FLAG, specifiedProcessFlag);
     auto isSpecified = (abilityRequest.abilityInfo.launchMode == AppExecFwk::LaunchMode::SPECIFIED);
     if (isSpecified) {
@@ -1422,8 +1413,7 @@ void UIAbilityLifecycleManager::OnStartSpecifiedProcessTimeoutResponse(const AAF
     if (abilityQueue_.empty()) {
         return;
     }
-    AbilityRequest &abilityRequest = abilityQueue_.front();
-    abilityRequest.callSpecifiedFlagTimeout = true;
+    abilityQueue_.pop();
 }
 
 void UIAbilityLifecycleManager::StartSpecifiedAbilityBySCB(const Want &want, int32_t userId)
