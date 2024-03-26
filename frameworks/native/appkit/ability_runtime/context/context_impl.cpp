@@ -1039,8 +1039,7 @@ Global::Resource::DeviceType ContextImpl::GetDeviceType() const
     return deviceType_;
 }
 
-int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
-    std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
+ErrCode ContextImpl::GetOverlayMgrProxy()
 {
     int errCode = GetBundleManager();
     if (errCode != ERR_OK) {
@@ -1048,12 +1047,28 @@ int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std:
         return errCode;
     }
 
+    std::lock_guard<std::mutex> lock(overlayMgrProxyMutex_);
+    if (overlayMgrProxy_ != nullptr) {
+        return ERR_OK;
+    }
+
+    overlayMgrProxy_ = bundleMgr_->GetOverlayManagerProxy();
     if (overlayMgrProxy_ == nullptr) {
-        overlayMgrProxy_ = bundleMgr_->GetOverlayManagerProxy();
-        if (overlayMgrProxy_ ==  nullptr) {
-            HILOG_ERROR("GetOverlayManagerProxy failed.");
-            return ERR_INVALID_VALUE;
-        }
+        HILOG_ERROR("The overlayMgrProxy_ is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    HILOG_DEBUG("Success.");
+    return ERR_OK;
+}
+
+int ContextImpl::GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
+    std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos)
+{
+    int errCode = GetOverlayMgrProxy();
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("failed, errCode: %{public}d.", errCode);
+        return errCode;
     }
 
     auto ret = overlayMgrProxy_->GetTargetOverlayModuleInfo(moduleName, overlayModuleInfos);
