@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "extension_module_loader.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "request_info.h"
 
@@ -50,14 +51,14 @@ void AbilityExtensionModuleLoaderTest::TearDown()
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_0100, TestSize.Level1)
 {
-    HILOG_INFO("ExtensionModuleLoader start");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader start");
 
     Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     Extension* extension = ExtensionModuleLoader::GetLoader(nullptr).Create(runtime);
     EXPECT_EQ(extension, nullptr);
 
-    HILOG_INFO("ExtensionModuleLoader end");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader end");
 }
 
 /**
@@ -67,13 +68,13 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_0100, TestSize.
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, GetParams_0100, TestSize.Level1)
 {
-    HILOG_INFO("ExtensionModuleLoader start");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader start");
 
     auto params = ExtensionModuleLoader::GetLoader(nullptr).GetParams();
     bool ret = params.empty();
     EXPECT_TRUE(ret);
 
-    HILOG_INFO("ExtensionModuleLoader end");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader end");
 }
 
 /**
@@ -83,12 +84,12 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, GetParams_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionModuleLoader_0100, TestSize.Level1)
 {
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader_GetExtensionModuleLoader_0100 start");
     Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     auto result = ExtensionModuleLoader::GetLoader("system").Create(runtime);
     EXPECT_TRUE(result == nullptr);
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader_GetExtensionModuleLoader_0100 end");
 }
 
 /**
@@ -98,12 +99,12 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionMod
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionModuleLoader_0200, TestSize.Level1)
 {
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader_GetExtensionModuleLoader_0200 start");
     Runtime::Options options;
     auto runtime = AbilityRuntime::Runtime::Create(options);
     auto result = ExtensionModuleLoader::GetLoader("/system/lib/libc++.so").Create(runtime);
     EXPECT_TRUE(result == nullptr);
-    HILOG_INFO("ExtensionModuleLoader_GetExtensionModuleLoader_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "ExtensionModuleLoader_GetExtensionModuleLoader_0200 end");
 }
 
 /**
@@ -113,12 +114,12 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, ExtensionModuleLoader_GetExtensionMod
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_GetToken_0100, TestSize.Level1)
 {
-    HILOG_INFO("RequestInfo_GetToken_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_GetToken_0100 start");
     sptr<IRemoteObject> token = nullptr;
     int32_t left = 0, top = 0, width = 0, height = 0;
     auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
     EXPECT_EQ(requestInfo->GetToken(), nullptr);
-    HILOG_INFO("RequestInfo_GetToken_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_GetToken_0100 end");
 }
 
 /**
@@ -128,12 +129,12 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_GetToken_0100, TestSize.L
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_CreateJsWindowRect_0100, TestSize.Level1)
 {
-    HILOG_INFO("RequestInfo_CreateJsWindowRect_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_CreateJsWindowRect_0100 start");
     sptr<IRemoteObject> token = nullptr;
     int32_t left = 0, top = 0, width = 0, height = 0;
     auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
     EXPECT_EQ(requestInfo->CreateJsWindowRect(nullptr, left, top, width, height), nullptr);
-    HILOG_INFO("RequestInfo_CreateJsWindowRect_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_CreateJsWindowRect_0100 end");
 }
 
 /**
@@ -143,12 +144,12 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_CreateJsWindowRect_0100, 
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_WrapRequestInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("RequestInfo_WrapRequestInfo_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_WrapRequestInfo_0100 start");
     sptr<IRemoteObject> token = nullptr;
     int32_t left = 0, top = 0, width = 0, height = 0;
     auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
     EXPECT_EQ(requestInfo->WrapRequestInfo(nullptr, nullptr), nullptr);
-    HILOG_INFO("RequestInfo_WrapRequestInfo_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_WrapRequestInfo_0100 end");
 }
 
 /**
@@ -158,12 +159,12 @@ HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_WrapRequestInfo_0100, Tes
  */
 HWTEST_F(AbilityExtensionModuleLoaderTest, RequestInfo_UnwrapRequestInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("RequestInfo_UnwrapRequestInfo_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_UnwrapRequestInfo_0100 start");
     sptr<IRemoteObject> token = nullptr;
     int32_t left = 0, top = 0, width = 0, height = 0;
     auto requestInfo = std::make_shared<RequestInfo>(token, left, top, width, height);
     EXPECT_EQ(requestInfo->UnwrapRequestInfo(nullptr, nullptr), nullptr);
-    HILOG_INFO("RequestInfo_UnwrapRequestInfo_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "RequestInfo_UnwrapRequestInfo_0100 end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

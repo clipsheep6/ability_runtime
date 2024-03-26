@@ -18,6 +18,7 @@
 
 #include "iremote_object.h"
 #include "app_service_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_app_mgr_service.h"
 
@@ -30,7 +31,7 @@ public:
 
     virtual sptr<IRemoteObject> GetAppMgrService() const override
     {
-        HILOG_DEBUG("Mock MockAppServiceMgr GetAppMgrService called");
+        TAG_LOGD(AAFwkTag::TEST, "Mock MockAppServiceMgr GetAppMgrService called");
         return new MockAppMgrService();
     }
 };

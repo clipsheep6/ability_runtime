@@ -27,6 +27,7 @@
 #include "ability_scheduler.h"
 #include "ability_util.h"
 #include "bundlemgr/mock_bundle_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "mock_ability_connect_callback.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
@@ -132,7 +133,7 @@ sptr<SessionInfo> AbilityConnectManagerTest::MockSessionInfo(int32_t persistentI
 {
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
     if (!sessionInfo) {
-        HILOG_ERROR("sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "sessionInfo is nullptr");
         return nullptr;
     }
     sessionInfo->persistentId = persistentId;
