@@ -103,7 +103,7 @@ private:
     int GrantUriPermissionFor2In1Inner(const std::vector<Uri> &uriVec, unsigned int flag,
         const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId = 0);
 
-    int32_t HandleUriPermission(
+    void HandleUriPermission(
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
 
     bool IsFoundationCall();

@@ -20,9 +20,13 @@
 #undef private
 #undef protected
 
-#include "ability_interceptor.h"
-#include "ability_interceptor_executer.h"
 #include "bundlemgr/mock_bundle_manager.h"
+#include "interceptor/ability_interceptor_executer.h"
+#include "interceptor/ability_jump_interceptor.h"
+#include "interceptor/control_interceptor.h"
+#include "interceptor/crowd_test_interceptor.h"
+#include "interceptor/disposed_rule_interceptor.h"
+#include "interceptor/ecological_rule_interceptor.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -91,7 +95,8 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_001, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_NE(result, ERR_OK);
 }
 
@@ -109,7 +114,8 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_002, TestSize.Level1)
     want.SetElement(element);
     int userId = 100;
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
-    int result = executer->DoProcess(want, 0, userId, false);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_NE(result, ERR_OK);
 }
 
@@ -128,7 +134,8 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_001, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -146,7 +153,8 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_002, TestSize.Level1)
     want.SetElement(element);
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
-    int result = executer->DoProcess(want, 0, userId, false);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -164,7 +172,8 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_003, TestSize.Level1)
     want.SetElement(element);
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
-    int result = executer->DoProcess(want, 0, userId, false);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -182,7 +191,8 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_004, TestSize.Level1)
     want.SetElement(element);
     int userId = 100;
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
-    int result = executer->DoProcess(want, 0, userId, false);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -203,7 +213,8 @@ HWTEST_F(AbilityInterceptorTest, ControlInterceptor_005, TestSize.Level1)
     // make appControlRule become nullptr by crowdtest interceptor
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     executer->AddInterceptor(std::make_shared<ControlInterceptor>());
-    int result = executer->DoProcess(want, 0, userId, false);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -222,7 +233,8 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_001, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, false);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, false, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -241,7 +253,8 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_002, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -260,7 +273,8 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_003, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -279,7 +293,8 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_004, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 
@@ -298,7 +313,8 @@ HWTEST_F(AbilityInterceptorTest, DisposedRuleInterceptor_005, TestSize.Level1)
     int requestCode = 0;
     int userId = 100;
     executer->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
-    int result = executer->DoProcess(want, requestCode, userId, true);
+    AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
+    int result = executer->DoProcess(param);
     EXPECT_EQ(result, ERR_OK);
 }
 } // namespace AAFwk

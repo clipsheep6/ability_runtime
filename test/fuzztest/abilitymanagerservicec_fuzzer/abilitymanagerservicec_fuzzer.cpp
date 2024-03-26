@@ -95,7 +95,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     abilityms->IsAbilityControllerForeground(stringParam);
     AppExecFwk::ExtensionAbilityInfo extensionInfo;
     AppExecFwk::AbilityInfo abilityInfo;
-    abilityms->InitAbilityInfoFromExtension(extensionInfo, abilityInfo);
     abilityms->StartUserTest(*want, token);
     abilityms->FinishUserTest(stringParam, int64Param, stringParam);
 

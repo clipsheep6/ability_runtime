@@ -157,6 +157,13 @@ public:
 
     void HandleExecuteInsightIntentBackground(const AAFwk::Want &want, bool onlyExecuteIntent = false);
 
+    void SetAbilityRecordId(int32_t abilityRecordId)
+    {
+        if (ability_ != nullptr) {
+            ability_->SetAbilityRecordId(abilityRecordId);
+        }
+    }
+
 #ifdef SUPPORT_GRAPHICS
 public:
 

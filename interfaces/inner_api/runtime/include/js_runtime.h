@@ -65,6 +65,7 @@ public:
 
     static bool ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content);
 
+    static std::shared_ptr<Options> GetChildOptions();
     JsRuntime();
     ~JsRuntime() override;
 
@@ -138,6 +139,7 @@ private:
 
     bool Initialize(const Options& options);
     void Deinitialize();
+    static void SetChildOptions(const Options& options);
 
     int32_t JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue);
 
@@ -157,6 +159,8 @@ private:
 
     static std::atomic<bool> hasInstance;
 
+    static std::shared_ptr<Options> childOptions_;
+    
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);

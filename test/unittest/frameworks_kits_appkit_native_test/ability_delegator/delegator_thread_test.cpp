@@ -19,6 +19,7 @@
 #include "delegator_thread.h"
 #undef private
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing::ext;
@@ -48,7 +49,7 @@ void DelegatorThreadTest::TearDown()
 namespace {
 void CallBackFunc()
 {
-    HILOG_INFO("CallBackFunc is called");
+    TAG_LOGI(AAFwkTag::TEST, "CallBackFunc is called");
 }
 }
 
@@ -59,7 +60,7 @@ void CallBackFunc()
  */
 HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Delegator_Thread_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Delegator_Thread_Test_0100 is called");
 
     DelegatorThread threadObj(true);
     std::function<void()> ff = nullptr;
@@ -73,7 +74,7 @@ HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0100, Function | MediumTest 
  */
 HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Delegator_Thread_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Delegator_Thread_Test_0200 is called");
 
     DelegatorThread threadObj(true);
     threadObj.handler_ = nullptr;
@@ -88,7 +89,7 @@ HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0200, Function | MediumTest 
  */
 HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Delegator_Thread_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Delegator_Thread_Test_0300 is called");
 
     DelegatorThread threadObj(true);
     std::function<void()> ff = CallBackFunc;
@@ -102,7 +103,7 @@ HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0300, Function | MediumTest 
  */
 HWTEST_F(DelegatorThreadTest, Delegator_Thread_Test_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Delegator_Thread_Test_0400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Delegator_Thread_Test_0400 is called");
 
     DelegatorThread threadObj(false);
     EXPECT_EQ(threadObj.GetThreadName(), "");

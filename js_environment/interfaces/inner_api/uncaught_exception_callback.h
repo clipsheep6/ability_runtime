@@ -49,6 +49,8 @@ public:
 
     std::string GetNativeStrFromJsTaggedObj(napi_value obj, const char* key);
 
+    static std::string GetNativeStack();
+
 private:
     std::function<void(std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask_;
     std::shared_ptr<SourceMapOperator> sourceMapOperator_ = nullptr;

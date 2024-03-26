@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "window_focus_changed_listener.h"
 
 #include "app_mgr_service_inner.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -30,7 +30,7 @@ WindowFocusChangedListener::~WindowFocusChangedListener() {}
 void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusChangeInfo)
 {
     if (!focusChangeInfo) {
-        HILOG_WARN("OnFocused invalid focusChangeInfo.");
+        TAG_LOGW(AAFwkTag::APPMGR, "OnFocused invalid focusChangeInfo.");
         return;
     }
 
@@ -38,7 +38,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
         auto task = [inner = owner_, focusChangeInfo] {
             auto owner = inner.lock();
             if (!owner) {
-                HILOG_WARN("OnUnfocused failed to get app mgr service inner.");
+                TAG_LOGW(AAFwkTag::APPMGR, "OnUnfocused failed to get app mgr service inner.");
                 return;
             }
             owner->HandleFocused(focusChangeInfo);
@@ -50,7 +50,7 @@ void WindowFocusChangedListener::OnFocused(const sptr<FocusChangeInfo> &focusCha
 void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusChangeInfo)
 {
     if (!focusChangeInfo) {
-        HILOG_WARN("OnUnfocused invalid focusChangeInfo.");
+        TAG_LOGW(AAFwkTag::APPMGR, "OnUnfocused invalid focusChangeInfo.");
         return;
     }
 
@@ -58,7 +58,7 @@ void WindowFocusChangedListener::OnUnfocused(const sptr<FocusChangeInfo> &focusC
         auto task = [inner = owner_, focusChangeInfo] {
             auto owner = inner.lock();
             if (!owner) {
-                HILOG_WARN("OnUnfocused failed to get app mgr service inner.");
+                TAG_LOGW(AAFwkTag::APPMGR, "OnUnfocused failed to get app mgr service inner.");
                 return;
             }
             owner->HandleUnfocused(focusChangeInfo);

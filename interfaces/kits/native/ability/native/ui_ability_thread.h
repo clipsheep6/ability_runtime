@@ -171,7 +171,7 @@ private:
     std::shared_ptr<AbilityContext> BuildAbilityContext(
         const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo,
         const std::shared_ptr<AppExecFwk::OHOSApplication> &application, const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AbilityRuntime::Context> &stageContext);
+        const std::shared_ptr<AbilityRuntime::Context> &stageContext, int32_t abilityRecordId);
     void HandleAbilityTransaction(const Want &want, const LifeCycleStateInfo &lifeCycleStateInfo,
         sptr<AAFwk::SessionInfo> sessionInfo = nullptr);
     void HandleShareData(const int32_t &requestCode);

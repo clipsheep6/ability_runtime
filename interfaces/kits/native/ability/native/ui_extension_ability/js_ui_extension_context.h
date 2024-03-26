@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "ui_extension_context.h"
+#include "js_free_install_observer.h"
 #include "native_engine/native_engine.h"
 
 namespace OHOS {
@@ -36,6 +37,7 @@ public:
     static napi_value TerminateSelfWithResult(napi_env env, napi_callback_info info);
     static napi_value CreateJsUIExtensionContext(napi_env env, std::shared_ptr<UIExtensionContext> context);
     static napi_value StartAbilityForResult(napi_env env, napi_callback_info info);
+    static napi_value StartAbilityForResultAsCaller(napi_env env, napi_callback_info info);
     static napi_value ConnectAbility(napi_env env, napi_callback_info info);
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
@@ -46,6 +48,7 @@ protected:
     virtual napi_value OnTerminateSelf(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnStartAbilityForResultAsCaller(napi_env env, NapiCallbackInfo &info);
     virtual napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
@@ -53,12 +56,15 @@ protected:
 
 private:
     std::weak_ptr<UIExtensionContext> context_;
+    sptr<JsFreeInstallObserver> freeInstallObserver_ = nullptr;
     friend class JsEmbeddableUIAbilityContext;
 
     bool CheckStartAbilityInputParam(napi_env env, NapiCallbackInfo& info, AAFwk::Want& want,
         AAFwk::StartOptions& startOptions, size_t& unwrapArgc) const;
     napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         const AAFwk::StartOptions &options, size_t unwrapArgc);
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
+        bool isAbilityResult = false);
 };
 
 class JSUIExtensionConnection : public AbilityConnectCallback {

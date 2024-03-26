@@ -154,7 +154,7 @@ void AmsRecentAppListTest::StartProcessSuccess(const int32_t index) const
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
 
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     return;
 }
 
@@ -206,7 +206,7 @@ HWTEST_F(AmsRecentAppListTest, Create_002, TestSize.Level1)
 
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).WillOnce(Return(ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED));
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
 }
 
@@ -237,11 +237,11 @@ HWTEST_F(AmsRecentAppListTest, Create_003, TestSize.Level1)
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
 
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
 
     // Load ability1, start process 1 again.
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
 }
 
@@ -460,7 +460,7 @@ HWTEST_F(AmsRecentAppListTest, PushAppFront_001, TestSize.Level1)
     EXPECT_CALL(*mockClientPtr, StartProcess(_, _)).Times(1).WillOnce(DoAll(SetArgReferee<1>(pid), Return(ERR_OK)));
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockClientPtr));
 
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     auto appRecord = GetAppRunningRecordByIndex(INDEX_NUM_1);
     serviceInner_->PushAppFront(appRecord->GetRecordId());

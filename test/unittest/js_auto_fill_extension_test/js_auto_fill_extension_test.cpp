@@ -25,6 +25,7 @@
 #include "configuration_utils.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #define private public
@@ -103,13 +104,13 @@ void JsAutoFillExtensionTest::CreateJsAutoFillExtension()
 #ifdef SUPPORT_GRAPHICS
     UErrorCode status = U_ZERO_ERROR;
     icu::Locale locale = icu::Locale::forLanguageTag("zh", status);
-    HILOG_INFO("language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
-        locale.getScript(), locale.getCountry());
+    TAG_LOGI(AAFwkTag::TEST, "language: %{public}s, script: %{public}s, region: %{public}s", locale.getLanguage(),
+             locale.getScript(), locale.getCountry());
     resConfig->SetLocaleInfo(locale);
 #endif
     Global::Resource::RState updateRet = resourceManager->UpdateResConfig(*resConfig);
     if (updateRet != Global::Resource::RState::SUCCESS) {
-        HILOG_ERROR("Init locale failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Init locale failed.");
     }
     contextImpl->SetResourceManager(resourceManager);
 

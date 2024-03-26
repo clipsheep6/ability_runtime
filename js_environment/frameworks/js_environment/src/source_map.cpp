@@ -47,7 +47,6 @@ constexpr int32_t NUM_THIRTEEN = 13;
 constexpr int32_t NUM_TWENTY = 20;
 constexpr int32_t NUM_TWENTYSIX = 26;
 constexpr int32_t DIGIT_NUM = 64;
-const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
 const std::string MEGER_SOURCE_MAP_PATH = "ets/sourceMaps.map";
 } // namespace
 ReadSourceMapCallback SourceMap::readSourceMapFunc_ = nullptr;
@@ -195,35 +194,17 @@ void SourceMap::SplitSourceMap(const std::string& sourceMapData)
     size_t rightBracket = 0;
     size_t urlLeft = 0;
     size_t urlRight = 0;
-    std::string value;
     while ((leftBracket = sourceMapData.find(": {", rightBracket)) != std::string::npos) {
         urlLeft = leftBracket;
         urlRight = sourceMapData.find("  \"", rightBracket) + INDEX_THREE;
+        if (urlRight == std::string::npos) {
+            continue;
+        }
         std::string key = sourceMapData.substr(urlRight, urlLeft - urlRight - INDEX_ONE);
         rightBracket = sourceMapData.find("},", leftBracket);
-        value = sourceMapData.substr(leftBracket, rightBracket);
-        std::size_t sources = value.find("\"sources\": [");
-        if (sources == std::string::npos) {
-            continue;
-        }
-        std::size_t names = value.find("],", sources);
-        if (names == std::string::npos) {
-            continue;
-        }
-        std::size_t mappingsStart = value.find("\"mappings\":") + NUM_THIRTEEN;
-        if (mappingsStart == std::string::npos) {
-            continue;
-        }
-        std::size_t mappingsEnd = value.find("\"", mappingsStart);
-        if (mappingsEnd == std::string::npos) {
-            continue;
-        }
-        std::string mappings = value.substr(mappingsStart, mappingsEnd - mappingsStart);
-        // Intercept the sourcemap file path as the key
-        std::string url = value.substr(sources + NUM_TWENTY, names - sources - NUM_TWENTYSIX);
+        std::string value = sourceMapData.substr(leftBracket, rightBracket);
         std::shared_ptr<SourceMapData> modularMap = std::make_shared<SourceMapData>();
-        modularMap->url_ = url;
-        ExtractSourceMapData(mappings, modularMap);
+        ExtractSourceMapData(value, modularMap);
         sourceMaps_.emplace(key, modularMap);
     }
 }
@@ -237,9 +218,29 @@ void SourceMap::ExtractStackInfo(const std::string& stackStr, std::vector<std::s
     }
 }
 
-void SourceMap::ExtractSourceMapData(const std::string& mappings, std::shared_ptr<SourceMapData>& curMapData)
+void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shared_ptr<SourceMapData>& curMapData)
 {
-    curMapData->mappings_.push_back(mappings);
+    std::vector<std::string> sourceKey;
+    ExtractKeyInfo(sourceMapData, sourceKey);
+
+    std::string mark = "";
+    for (auto sourceKeyInfo : sourceKey) {
+        if (sourceKeyInfo == SOURCES || sourceKeyInfo == NAMES ||
+            sourceKeyInfo == MAPPINGS || sourceKeyInfo == FILE ||
+            sourceKeyInfo == SOURCE_CONTENT ||  sourceKeyInfo == SOURCE_ROOT) {
+            mark = sourceKeyInfo;
+        } else if (mark == SOURCES) {
+            curMapData->sources_.push_back(sourceKeyInfo);
+        } else if (mark == NAMES) {
+            curMapData->names_.push_back(sourceKeyInfo);
+        } else if (mark == MAPPINGS) {
+            curMapData->mappings_.push_back(sourceKeyInfo);
+        } else if (mark == FILE) {
+            curMapData->files_.push_back(sourceKeyInfo);
+        } else {
+            continue;
+        }
+    }
 
     if (curMapData->mappings_.empty()) {
         return;
@@ -297,7 +298,8 @@ void SourceMap::ExtractSourceMapData(const std::string& mappings, std::shared_pt
 
 MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap)
 {
-    if (row < 1 || col < 1 || targetMap.afterPos_.empty()) {
+    if (row < 1 || col < 1 || targetMap.afterPos_.empty() || targetMap.files_[0].empty() ||
+        targetMap.sources_[0].empty()) {
         return MappingInfo {0, 0, ""};
     }
     row--;
@@ -319,7 +321,7 @@ MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targe
             left = mid + 1;
         }
     }
-    std::string sources = targetMap.url_;
+    std::string sources = targetMap.sources_[0];
     auto pos = sources.find(WEBPACK);
     if (pos != std::string::npos) {
         sources.replace(pos, sizeof(WEBPACK) - 1, "");

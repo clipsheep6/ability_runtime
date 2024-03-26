@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -48,8 +48,6 @@ namespace {
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
-constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOSAVE = "save";
-constexpr const char *WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL = "fill";
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
 constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
 }
@@ -420,6 +418,20 @@ void JsAutoFillExtension::OnBackground()
     Extension::OnBackground();
 }
 
+void JsAutoFillExtension::UpdateRequest(const AAFwk::WantParams &wantParams)
+{
+    HILOG_DEBUG("Called.");
+    HandleScope handleScope(jsRuntime_);
+    napi_env env = jsRuntime_.GetNapiEnv();
+    napi_value request = JsAutoFillExtensionUtil::WrapUpdateRequest(wantParams, env);
+    if (request == nullptr) {
+        HILOG_ERROR("Failed to create update request.");
+        return;
+    }
+    napi_value argv[] = { request };
+    CallObjectMethod("onUpdateRequest", argv, ARGC_ONE);
+}
+
 bool JsAutoFillExtension::HandleAutoFillCreate(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo)
 {
     HILOG_DEBUG("Called.");
@@ -477,6 +489,7 @@ void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
         HILOG_DEBUG("UI window show.");
         foregroundWindows_.emplace(obj);
 
+        RegisterTransferComponentDataListener(uiWindow);
         AAFwk::WantParams wantParams;
         wantParams.SetParam(WANT_PARAMS_AUTO_FILL_EVENT_KEY, AAFwk::Integer::Box(
             static_cast<int32_t>(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_REMOVE_TIME_OUT)));
@@ -588,29 +601,52 @@ void JsAutoFillExtension::CallJsOnRequest(
     contentSessions_.emplace(
         sessionInfo->sessionToken, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
 
-    napi_value fillrequest = JsAutoFillExtensionUtil::WrapFillRequest(want, env);
-    if (fillrequest == nullptr) {
+    napi_value request = JsAutoFillExtensionUtil::WrapFillRequest(want, env);
+    if (request == nullptr) {
         HILOG_ERROR("Fill request is nullptr.");
+        return;
     }
 
     napi_value callback = nullptr;
-    auto cmdValue = want.GetStringParam(WANT_PARAMS_AUTO_FILL_CMD);
-    if (cmdValue == WANT_PARAMS_AUTO_FILL_CMD_AUTOSAVE) {
+    auto cmdValue = want.GetIntParam(WANT_PARAMS_AUTO_FILL_CMD, 0);
+    if (cmdValue == AutoFillCommand::SAVE) {
         callback = JsSaveRequestCallback::CreateJsSaveRequestCallback(env, sessionInfo, uiWindow);
-        napi_value argv[] = { nativeContentSession, fillrequest, callback };
+        napi_value argv[] = { nativeContentSession, request, callback };
         CallObjectMethod("onSaveRequest", argv, ARGC_THREE);
-    } else if (cmdValue == WANT_PARAMS_AUTO_FILL_CMD_AUTOFILL) {
+    } else if (cmdValue == AutoFillCommand::FILL) {
         callback = JsFillRequestCallback::CreateJsFillRequestCallback(env, sessionInfo, uiWindow);
-        napi_value argv[] = { nativeContentSession, fillrequest, callback };
+        napi_value argv[] = { nativeContentSession, request, callback };
         CallObjectMethod("onFillRequest", argv, ARGC_THREE);
     } else {
-        HILOG_DEBUG("Invalid auto fill request type.");
+        HILOG_ERROR("Invalid auto fill request type.");
+        return;
     }
 
     napi_ref callbackRef = nullptr;
     napi_create_reference(env, callback, 1, &callbackRef);
     callbacks_.emplace(sessionInfo->sessionToken,
         std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(callbackRef)));
+}
+
+void JsAutoFillExtension::RegisterTransferComponentDataListener(const sptr<Rosen::Window> &uiWindow)
+{
+    HILOG_DEBUG("Called.");
+    if (uiWindow == nullptr) {
+        HILOG_ERROR("Invalid ui window object.");
+        return;
+    }
+
+    auto handler = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+    if (handler == nullptr) {
+        HILOG_ERROR("Failed to create event handler.");
+        return;
+    }
+    uiWindow->RegisterTransferComponentDataListener([this, handler](
+        const AAFwk::WantParams &wantParams) {
+            handler->PostTask([this, wantParams]() {
+                JsAutoFillExtension::UpdateRequest(wantParams);
+                }, "JsAutoFillExtension:UpdateRequest");
+    });
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

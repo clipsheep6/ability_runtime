@@ -32,8 +32,8 @@ public:
     MOCK_METHOD1(ScheduleMemoryLevel, void(int32_t level));
     MOCK_METHOD2(ScheduleHeapMemory, void(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo));
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData&, const Configuration& config));
-    MOCK_METHOD3(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
-        const std::shared_ptr<AAFwk::Want>&));
+    MOCK_METHOD4(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
+        const std::shared_ptr<AAFwk::Want>&, int32_t));
     MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject>&));
     MOCK_METHOD1(ScheduleProfileChanged, void(const Profile&));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration&));
@@ -52,6 +52,11 @@ public:
     MOCK_METHOD0(DetachAppDebug, void());
     MOCK_METHOD0(ScheduleRequestTerminateProcess, int32_t());
     MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
+    MOCK_METHOD2(SetAppWaitingDebug, int32_t(const std::string &bundleName, bool isPersist));
+    MOCK_METHOD0(CancelAppWaitingDebug, int32_t());
+    MOCK_METHOD1(GetWaitingDebugApp, int32_t(std::vector<std::string> &debugInfoList));
+    MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
+    MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
 
     void Post()
     {

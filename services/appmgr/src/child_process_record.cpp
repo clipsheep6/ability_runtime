@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,7 +17,7 @@
 #include <filesystem>
 
 #include "app_running_record.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -30,15 +30,15 @@ ChildProcessRecord::ChildProcessRecord(pid_t hostPid, const std::string &srcEntr
 
 ChildProcessRecord::~ChildProcessRecord()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
 }
 
 std::shared_ptr<ChildProcessRecord> ChildProcessRecord::CreateChildProcessRecord(pid_t hostPid,
     const std::string &srcEntry, const std::shared_ptr<AppRunningRecord> hostRecord)
 {
-    HILOG_DEBUG("hostPid: %{public}d, srcEntry: %{public}s", hostPid, srcEntry.c_str());
+    TAG_LOGD(AAFwkTag::APPMGR, "hostPid: %{public}d, srcEntry: %{public}s", hostPid, srcEntry.c_str());
     if (hostPid <= 0 || srcEntry.empty() || !hostRecord) {
-        HILOG_ERROR("Invalid parameter.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid parameter.");
         return nullptr;
     }
     return std::make_shared<ChildProcessRecord>(hostPid, srcEntry, hostRecord);
@@ -102,19 +102,19 @@ void ChildProcessRecord::SetDeathRecipient(const sptr<AppDeathRecipient> recipie
 void ChildProcessRecord::RegisterDeathRecipient()
 {
     if (scheduler_ == nullptr || deathRecipient_ == nullptr) {
-        HILOG_ERROR("scheduler_ or deathRecipient_ is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "scheduler_ or deathRecipient_ is null.");
         return;
     }
     auto obj = scheduler_->AsObject();
     if (!obj || !obj->AddDeathRecipient(deathRecipient_)) {
-        HILOG_ERROR("AddDeathRecipient failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AddDeathRecipient failed.");
     }
 }
 
 void ChildProcessRecord::RemoveDeathRecipient()
 {
     if (!scheduler_) {
-        HILOG_ERROR("scheduler_ is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "scheduler_ is null.");
         return;
     }
     auto object = scheduler_->AsObject();
@@ -126,7 +126,7 @@ void ChildProcessRecord::RemoveDeathRecipient()
 void ChildProcessRecord::ScheduleExitProcessSafely()
 {
     if (!scheduler_) {
-        HILOG_ERROR("scheduler_ is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "scheduler_ is null.");
         return;
     }
     scheduler_->ScheduleExitProcessSafely();
@@ -135,12 +135,12 @@ void ChildProcessRecord::ScheduleExitProcessSafely()
 void ChildProcessRecord::MakeProcessName(const std::shared_ptr<AppRunningRecord> hostRecord)
 {
     if (!hostRecord) {
-        HILOG_WARN("hostRecord empty.");
+        TAG_LOGW(AAFwkTag::APPMGR, "hostRecord empty.");
         return;
     }
     processName_ = hostRecord->GetBundleName();
     if (srcEntry_.empty()) {
-        HILOG_WARN("srcEntry empty.");
+        TAG_LOGW(AAFwkTag::APPMGR, "srcEntry empty.");
         return;
     }
     std::string filename = std::filesystem::path(srcEntry_).stem();

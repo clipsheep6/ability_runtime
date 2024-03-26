@@ -145,6 +145,7 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     napi_set_named_property(env, object, "uid", CreateJsValue(env, abilityStateData.uid));
     napi_set_named_property(env, object, "state", CreateJsValue(env, abilityStateData.abilityState));
     napi_set_named_property(env, object, "abilityType", CreateJsValue(env, abilityStateData.abilityType));
+    napi_set_named_property(env, object, "isAtomicService", CreateJsValue(env, abilityStateData.isAtomicService));
     return object;
 }
 

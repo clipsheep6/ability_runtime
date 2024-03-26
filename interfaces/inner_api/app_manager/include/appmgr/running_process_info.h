@@ -60,6 +60,7 @@ struct RunningProcessInfo : public Parcelable {
     bool isFocused = false;
     bool isTestProcess = false;
     bool isAbilityForegrounding = false;
+    bool isTestMode = false;
 
     bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;

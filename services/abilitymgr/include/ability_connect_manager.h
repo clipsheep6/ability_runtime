@@ -245,6 +245,8 @@ public:
 
     bool IsUIExtensionFocused(uint32_t uiExtensionTokenId, const sptr<IRemoteObject>& focusToken);
 
+    sptr<IRemoteObject> GetUIExtensionSourceToken(const sptr<IRemoteObject> &token);
+
     bool IsWindowExtensionFocused(uint32_t extensionTokenId, const sptr<IRemoteObject>& focusToken);
 
     void HandleProcessFrozen(const std::vector<int32_t> &pidList, int32_t uid);
@@ -514,12 +516,13 @@ private:
     std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token);
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
-    bool IsSceneBoard(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;
     inline bool IsUIExtensionAbility(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline bool CheckUIExtensionAbilityLoaded(const AbilityRequest &abilityRequest);
     inline bool CheckUIExtensionAbilitySessionExistLocked(const std::shared_ptr<AbilityRecord> &abilityRecord);
     inline void RemoveUIExtensionAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    inline void AddUIExtensionAbilityRecordToTerminatedList(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    inline bool IsCallerValid(const std::shared_ptr<AbilityRecord> &abilityRecord);
     int32_t GetOrCreateExtensionRecord(const AbilityRequest &abilityRequest, bool isCreatedByConnect,
         const std::string &hostBundleName, std::shared_ptr<AbilityRecord> &extensionRecord, bool &isLoaded);
     int32_t GetOrCreateTargetServiceRecord(
@@ -538,6 +541,7 @@ private:
 
     std::mutex recipientMapMutex_;
     RecipientMapType recipientMap_;
+    ffrt::mutex uiExtRecipientMapMutex_;
     RecipientMapType uiExtRecipientMap_;
     std::shared_ptr<TaskHandlerWrap> taskHandler_;
     std::shared_ptr<EventHandlerWrap> eventHandler_;

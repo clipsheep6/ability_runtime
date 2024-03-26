@@ -56,6 +56,7 @@ const std::map<AppExecFwk::ExtensionAbilityType, std::string> UI_EXTENSION_NAME_
     { AppExecFwk::ExtensionAbilityType::SHARE, SHARE_EXTENSION },
     { AppExecFwk::ExtensionAbilityType::ACTION, ACTION_EXTENSION },
     { AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD, AUTO_FILL_EXTENSION },
+    { AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART, AUTO_FILL_EXTENSION },
     { AppExecFwk::ExtensionAbilityType::EMBEDDED_UI, EMBEDDED_UI_EXTENSION }
 };
 

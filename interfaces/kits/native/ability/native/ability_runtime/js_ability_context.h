@@ -116,7 +116,7 @@ private:
     napi_value ChangeAbilityVisibility(napi_env env, NapiCallbackInfo& info, bool isShow);
     napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
     napi_value OpenAtomicServiceInner(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
-        AAFwk::StartOptions &options, size_t unwrapArgc);
+        AAFwk::StartOptions &options);
     napi_value OnMoveAbilityToBackground(napi_env env, NapiCallbackInfo& info);
 
     static bool UnWrapWant(napi_env env, napi_value argv, AAFwk::Want& want);
@@ -125,7 +125,7 @@ private:
     static napi_value WrapAbilityResult(napi_env env, const int& resultCode, const AAFwk::Want& want);
     void InheritWindowMode(AAFwk::Want &want);
     static napi_value WrapRequestDialogResult(napi_env env, int32_t resultCode, const AAFwk::Want& want);
-    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result,
         bool isAbilityResult = false);
     bool CheckStartAbilityByCallParams(napi_env env, NapiCallbackInfo& info, AAFwk::Want &want,
         int32_t &userId, napi_value &lastParam);

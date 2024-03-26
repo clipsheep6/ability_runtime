@@ -155,7 +155,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_001, TestSize.Level1)
     MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
 
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
     HILOG_INFO("Create_Recent_List_001 end");
 }

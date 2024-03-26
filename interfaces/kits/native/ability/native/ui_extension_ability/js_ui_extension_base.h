@@ -20,6 +20,7 @@
 #include "ability_local_record.h"
 #include "configuration.h"
 #include "js_extension_common.h"
+#include "js_ui_extension_content_session.h"
 #include "native_engine/native_engine.h"
 #include "ohos_application.h"
 #include "session_info.h"
@@ -170,6 +171,7 @@ private:
     std::map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;
     std::set<uint64_t> foregroundWindows_;
     std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;
+    std::shared_ptr<AbilityResultListeners> abilityResultListeners_ = nullptr;
     std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo_;
     std::shared_ptr<UIExtensionContext> context_;
     sptr<IRemoteObject> token_ = nullptr;

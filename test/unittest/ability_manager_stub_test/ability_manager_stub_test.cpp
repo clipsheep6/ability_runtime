@@ -1956,22 +1956,6 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_DoAbilityBackgroundInner_001
 
 /*
  * Feature: AbilityManagerService
- * Function: SendANRProcessIDInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService SendANRProcessIDInner
- * EnvConditions: NA
- * CaseDescription: Verify the function SendANRProcessIDInner is normal flow.
- */
-HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_SendANRProcessIDInner_001, TestSize.Level1)
-{
-    MessageParcel data;
-    MessageParcel reply;
-    auto res = stub_->SendANRProcessIDInner(data, reply);
-    EXPECT_EQ(res, NO_ERROR);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: RegisterObserver
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService RegisterObserver
@@ -2750,6 +2734,21 @@ HWTEST_F(AbilityManagerStubTest, GetUIExtensionRootHostInfo_0100, TestSize.Level
     EXPECT_EQ(ret, NO_ERROR);
 
     HILOG_INFO("end");
+}
+
+/**
+ * @tc.name: RestartAppInner_0100
+ * @tc.desc: RestartAppInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RestartAppInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    Want want;
+    data.WriteParcelable(&want);
+    auto result = stub_->RestartAppInner(data, reply);
+    EXPECT_EQ(result, NO_ERROR);
 }
 } // namespace AAFwk
 } // namespace OHOS

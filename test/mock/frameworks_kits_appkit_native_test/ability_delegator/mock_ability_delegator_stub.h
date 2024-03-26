@@ -142,7 +142,6 @@ public:
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
     int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
-    int SendANRProcessID(int pid) override;
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override;
     bool IsRunningInStabilityTest() override;
@@ -328,7 +327,6 @@ public:
     int GetMissionSnapshot(const std::string& deviceId, int32_t missionId,
         MissionSnapshot& snapshot, bool isLowResolution) override;
     int RegisterSnapshotHandler(const sptr<ISnapshotHandler>& handler) override;
-    int SendANRProcessID(int pid) override;
     int SetAbilityController(const sptr<AppExecFwk::IAbilityController>& abilityController,
         bool imAStabilityTest) override;
     bool IsRunningInStabilityTest() override;

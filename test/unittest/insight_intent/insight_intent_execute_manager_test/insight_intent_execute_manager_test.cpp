@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "want.h"
 #include "insight_intent_execute_param.h"
@@ -53,7 +54,7 @@ void InsightIntentExecuteManagerTest::TearDown()
  */
 HWTEST_F(InsightIntentExecuteManagerTest, GenerateWant_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     AppExecFwk::InsightIntentExecuteParam param;
     param.bundleName_ = "test.bundleName";
     param.moduleName_ = "test.entry";
@@ -68,7 +69,7 @@ HWTEST_F(InsightIntentExecuteManagerTest, GenerateWant_0100, TestSize.Level1)
     // get display id of want, expect don't contain
     auto displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, -100);
     EXPECT_EQ(displayId, -100);
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 
 /**
@@ -79,7 +80,7 @@ HWTEST_F(InsightIntentExecuteManagerTest, GenerateWant_0100, TestSize.Level1)
  */
 HWTEST_F(InsightIntentExecuteManagerTest, GenerateWant_0200, TestSize.Level1)
 {
-    HILOG_INFO("begin.");
+    TAG_LOGI(AAFwkTag::TEST, "begin.");
     AppExecFwk::InsightIntentExecuteParam param;
     param.bundleName_ = "test.bundleName";
     param.moduleName_ = "test.entry";
@@ -95,7 +96,7 @@ HWTEST_F(InsightIntentExecuteManagerTest, GenerateWant_0200, TestSize.Level1)
     // get display id of want
     auto displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, -100);
     EXPECT_EQ(displayId, 2);
-    HILOG_INFO("end.");
+    TAG_LOGI(AAFwkTag::TEST, "end.");
 }
 } // namespace AAFwk
 } // namespace OHOS

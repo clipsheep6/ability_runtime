@@ -5303,9 +5303,9 @@ napi_value JsNapiCommon::JsStartAbility(napi_env env, napi_callback_info info, A
     auto callback = (argc == ARGS_ONE) ? nullptr : argv[PARAM1];
     napi_value result = nullptr;
     if ((param->want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-        AddFreeInstallObserver(env, param->want, callback);
+        AddFreeInstallObserver(env, param->want, callback, &result);
         NapiAsyncTask::ScheduleHighQos("JsNapiCommon::JsStartAbility", env,
-            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
+            CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, nullptr));
     } else {
         NapiAsyncTask::ScheduleHighQos("JsNapiCommon::JsStartAbility", env,
             CreateAsyncTaskWithLastParam(env, callback, std::move(execute), std::move(complete), &result));
@@ -5352,7 +5352,8 @@ napi_value JsNapiCommon::JsGetExternalCacheDir(napi_env env, napi_callback_info 
     return result;
 }
 
-void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback)
+void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback,
+    napi_value* result)
 {
     // adapter free install async return install and start result
     HILOG_DEBUG("AddFreeInstallObserver start.");
@@ -5370,7 +5371,7 @@ void JsNapiCommon::AddFreeInstallObserver(napi_env env, const AAFwk::Want &want,
         std::string bundleName = want.GetElement().GetBundleName();
         std::string abilityName = want.GetElement().GetAbilityName();
         std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
-        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback);
+        freeInstallObserver_->AddJsObserverObject(bundleName, abilityName, startTime, callback, result);
     }
 }
 }  // namespace AppExecFwk

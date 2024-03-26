@@ -174,6 +174,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleRequestTerminateProcess;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_APPLICATION)] =
         &AppMgrStub::HandleRequestTerminateApplication;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID)] =
+        &AppMgrStub::HandleGetAppRunningUniqueIdByPid;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1133,6 +1135,23 @@ int32_t AppMgrStub::HandleRequestTerminateApplication(MessageParcel &data, Messa
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("Fail to write bool result.");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetAppRunningUniqueIdByPid(MessageParcel &data, MessageParcel &reply)
+{
+    HILOG_DEBUG("Called.");
+    int32_t pid = data.ReadInt32();
+    std::string appRunningUniqueId;
+    int32_t result = GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+    if (!reply.WriteInt32(result)) {
+        HILOG_ERROR("Write result error.");
+        return IPC_STUB_ERR;
+    }
+    if (result == ERR_OK && !reply.WriteString(appRunningUniqueId)) {
+        HILOG_ERROR("GetAppRunningUniqueIdByPid err or Write appRunningUniqueId error.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

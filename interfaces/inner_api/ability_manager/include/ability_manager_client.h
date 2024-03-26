@@ -217,6 +217,38 @@ public:
             int32_t userId = DEFAULT_INVAL_VALUE);
 
     /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken current caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param userId Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityForResultAsCaller(
+        const Want &want,
+        sptr<IRemoteObject> callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken current caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param userId Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityForResultAsCaller(
+        const Want &want,
+        const StartOptions &startOptions,
+        sptr<IRemoteObject> callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE);
+
+    /**
      * Start ui session ability with extension session info, send session info to ability manager service.
      *
      * @param want Ability want.
@@ -1064,14 +1096,6 @@ public:
     virtual int SetAbilityController(sptr<AppExecFwk::IAbilityController> abilityController,
         bool imAStabilityTest);
 
-    /**
-     * Send not response process ID to ability manager service.
-     *
-     * @param pid The not response process ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    ErrCode SendANRProcessID(int pid);
-
     #ifdef ABILITY_COMMAND_FOR_TEST
     /**
      * Block ability manager service.
@@ -1349,7 +1373,8 @@ public:
      * @brief Update session info.
      * @param sessionInfos The vector of session info.
      */
-    void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId);
+    int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+        std::vector<int32_t> &sessionIds);
 
     /**
      * @brief Get host info of root caller.

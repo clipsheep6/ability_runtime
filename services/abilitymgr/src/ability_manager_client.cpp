@@ -20,6 +20,7 @@
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
@@ -209,6 +210,28 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const Start
     HILOG_INFO("abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityAsCaller(want, startOptions, callerToken, asCallerSourceToken, userId, requestCode);
+}
+
+ErrCode AbilityManagerClient::StartAbilityForResultAsCaller(
+    const Want &want, sptr<IRemoteObject> callerToken, int requestCode, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("The abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityForResultAsCaller(want, callerToken, requestCode, userId);
+}
+
+ErrCode AbilityManagerClient::StartAbilityForResultAsCaller(const Want &want, const StartOptions &startOptions,
+    sptr<IRemoteObject> callerToken, int requestCode, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_DEBUG("The abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
+    HandleDlpApp(const_cast<Want &>(want));
+    return abms->StartAbilityForResultAsCaller(want, startOptions, callerToken, requestCode, userId);
 }
 
 ErrCode AbilityManagerClient::StartAbilityByUIContentSession(const Want &want, const StartOptions &startOptions,
@@ -1026,11 +1049,7 @@ ErrCode AbilityManagerClient::StartSyncRemoteMissions(const std::string &devId, 
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StartSyncRemoteMissions(devId, fixConflict, tag);
 }
-/**
- * Stop synchronizing remote device mission
- * @param devId, deviceId.
- * @return Returns ERR_OK on success, others on failure.
- */
+
 ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string &devId)
 {
     auto abms = GetAbilityManager();
@@ -1040,12 +1059,15 @@ ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string &devId)
 
 ErrCode AbilityManagerClient::StartUser(int accountId, sptr<IUserCallback> callback)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "StartUser in client:%{public}d.", accountId);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StartUser(accountId, callback);
 }
+
 ErrCode AbilityManagerClient::StopUser(int accountId, sptr<IUserCallback> callback)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "StopUser in client:%{public}d.", accountId);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StopUser(accountId, callback);
@@ -1275,13 +1297,6 @@ ErrCode AbilityManagerClient::SetAbilityController(sptr<AppExecFwk::IAbilityCont
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetAbilityController(abilityController, imAStabilityTest);
-}
-
-ErrCode AbilityManagerClient::SendANRProcessID(int pid)
-{
-    auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    return abms->SendANRProcessID(pid);
 }
 
 void AbilityManagerClient::UpdateMissionSnapShot(sptr<IRemoteObject> token,
@@ -1716,12 +1731,13 @@ int32_t AbilityManagerClient::NotifyDebugAssertResult(uint64_t assertFaultSessio
     return abms->NotifyDebugAssertResult(assertFaultSessionId, userStatus);
 }
 
-void AbilityManagerClient::UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId)
+int32_t AbilityManagerClient::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+    std::vector<int32_t> &sessionIds)
 {
     HILOG_DEBUG("Called.");
     auto abms = GetAbilityManager();
-    CHECK_POINTER_RETURN(abms);
-    abms->UpdateSessionInfoBySCB(sessionInfos, userId);
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
 }
 
 ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,

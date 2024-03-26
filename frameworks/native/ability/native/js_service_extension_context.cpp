@@ -177,7 +177,7 @@ private:
         context->ClearFailedCallConnection(callback);
     }
 
-    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback)
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result)
     {
         // adapter free install async return install and start result
         int ret = 0;
@@ -194,7 +194,7 @@ private:
             std::string abilityName = want.GetElement().GetAbilityName();
             std::string startTime = want.GetStringParam(Want::PARAM_RESV_START_TIME);
             freeInstallObserver_->AddJsObserverObject(
-                bundleName, abilityName, startTime, callback);
+                bundleName, abilityName, startTime, callback, result);
         }
     }
 
@@ -235,9 +235,9 @@ private:
         napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         napi_value result = nullptr;
         if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-            AddFreeInstallObserver(env, want, lastParam);
+            AddFreeInstallObserver(env, want, lastParam, &result);
             NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbility", env,
-                CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
+                CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, nullptr));
         } else {
             NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbility", env,
                 CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
@@ -500,9 +500,9 @@ private:
         napi_value lastParam = (info.argc == unwrapArgc) ? nullptr : info.argv[unwrapArgc];
         napi_value result = nullptr;
         if ((want.GetFlags() & Want::FLAG_INSTALL_ON_DEMAND) == Want::FLAG_INSTALL_ON_DEMAND) {
-            AddFreeInstallObserver(env, want, lastParam);
+            AddFreeInstallObserver(env, want, lastParam, &result);
             NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbilityWithAccount", env,
-                CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, &result));
+                CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), nullptr, nullptr));
         } else {
             NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnStartAbilityWithAccount", env,
                 CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));

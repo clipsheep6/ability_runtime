@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 #include "app_spawn_client.h"
 
 #include "hitrace_meter.h"
-#include "hilog_wrapper.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -40,14 +40,14 @@ ErrCode AppSpawnClient::OpenConnection()
     }
 
     if (!socket_) {
-        HILOG_ERROR("failed to open connection without socket!");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to open connection without socket!");
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
 
     int32_t retryCount = 1;
     ErrCode errCode = socket_->OpenAppSpawnConnection();
     while (FAILED(errCode) && retryCount <= CONNECT_RETRY_MAX_TIMES) {
-        HILOG_WARN("failed to OpenConnection, retry times %{public}d ...", retryCount);
+        TAG_LOGW(AAFwkTag::APPMGR, "failed to OpenConnection, retry times %{public}d ...", retryCount);
         usleep(CONNECT_RETRY_DELAY);
         errCode = socket_->OpenAppSpawnConnection();
         retryCount++;
@@ -55,7 +55,7 @@ ErrCode AppSpawnClient::OpenConnection()
     if (SUCCEEDED(errCode)) {
         state_ = SpawnConnectionState::STATE_CONNECTED;
     } else {
-        HILOG_ERROR("failed to openConnection, errorCode is %{public}08x", errCode);
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to openConnection, errorCode is %{public}08x", errCode);
         state_ = SpawnConnectionState::STATE_CONNECT_FAILED;
     }
     return errCode;
@@ -63,11 +63,11 @@ ErrCode AppSpawnClient::OpenConnection()
 
 ErrCode AppSpawnClient::PreStartNWebSpawnProcess()
 {
-    HILOG_INFO("PreStartNWebSpawnProcess");
+    TAG_LOGI(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess");
     int32_t retryCount = 1;
     ErrCode errCode = PreStartNWebSpawnProcessImpl();
     while (FAILED(errCode) && retryCount <= CONNECT_RETRY_MAX_TIMES) {
-        HILOG_ERROR("failed to Start NWebSpawn Process, retry times %{public}d ...", retryCount);
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to Start NWebSpawn Process, retry times %{public}d ...", retryCount);
         usleep(CONNECT_RETRY_DELAY);
         errCode = PreStartNWebSpawnProcessImpl();
         retryCount++;
@@ -77,16 +77,16 @@ ErrCode AppSpawnClient::PreStartNWebSpawnProcess()
 
 ErrCode AppSpawnClient::PreStartNWebSpawnProcessImpl()
 {
-    HILOG_INFO("PreStartNWebSpawnProcessImpl");
+    TAG_LOGI(AAFwkTag::APPMGR, "PreStartNWebSpawnProcessImpl");
     if (!socket_) {
-        HILOG_ERROR("failed to Pre Start NWebSpawn Process without socket!");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to Pre Start NWebSpawn Process without socket!");
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
 
     // openconnection failed, return fail
     ErrCode result = OpenConnection();
     if (FAILED(result)) {
-        HILOG_ERROR("connect to nwebspawn failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "connect to nwebspawn failed!");
         return result;
     }
 
@@ -100,13 +100,13 @@ ErrCode AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!socket_) {
-        HILOG_ERROR("failed to startProcess without socket!");
+        TAG_LOGE(AAFwkTag::APPMGR, "failed to startProcess without socket!");
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
     int32_t retryCount = 1;
     ErrCode errCode = StartProcessImpl(startMsg, pid);
     while (FAILED(errCode) && retryCount <= CONNECT_RETRY_MAX_TIMES) {
-        HILOG_WARN("failed to StartProcess, retry times %{public}d ...", retryCount);
+        TAG_LOGW(AAFwkTag::APPMGR, "failed to StartProcess, retry times %{public}d ...", retryCount);
         usleep(CONNECT_RETRY_DELAY);
         errCode = StartProcessImpl(startMsg, pid);
         retryCount++;
@@ -120,7 +120,7 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
     ErrCode result = OpenConnection();
     // open connection failed, return fail
     if (FAILED(result)) {
-        HILOG_ERROR("connect to appSpawn failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "connect to appSpawn failed!");
         return result;
     }
     std::unique_ptr<AppSpawnClient, void (*)(AppSpawnClient *)> autoCloseConnection(
@@ -128,29 +128,29 @@ ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t
 
     AppSpawnMsgWrapper msgWrapper;
     if (!msgWrapper.AssembleMsg(startMsg)) {
-        HILOG_ERROR("AssembleMsg failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "AssembleMsg failed!");
         return ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED;
     }
     AppSpawnPidMsg pidMsg;
     if (msgWrapper.IsValid()) {
         result = socket_->WriteMessage(msgWrapper.GetMsgBuf(), msgWrapper.GetMsgLength());
         if (FAILED(result)) {
-            HILOG_ERROR("WriteMessage failed!");
+            TAG_LOGE(AAFwkTag::APPMGR, "WriteMessage failed!");
             return result;
         }
         result = StartProcessForWriteMsg(msgWrapper);
         if (FAILED(result)) {
-            HILOG_ERROR("StartProcessForWriteMsg failed!");
+            TAG_LOGE(AAFwkTag::APPMGR, "StartProcessForWriteMsg failed!");
             return result;
         }
         result = socket_->ReadMessage(reinterpret_cast<void *>(pidMsg.pidBuf), LEN_PID);
         if (FAILED(result)) {
-            HILOG_ERROR("ReadMessage failed!");
+            TAG_LOGE(AAFwkTag::APPMGR, "ReadMessage failed!");
             return result;
         }
     }
     if (pidMsg.pid <= 0) {
-        HILOG_ERROR("invalid pid!");
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid pid!");
         result = ERR_APPEXECFWK_INVALID_PID;
     } else {
         pid = pidMsg.pid;
@@ -163,7 +163,7 @@ ErrCode AppSpawnClient::StartProcessForWriteMsg(const AppSpawnMsgWrapper &msgWra
     ErrCode result = ERR_OK;
     result = WriteStrInfoMessage(msgWrapper.GetExtraInfoStr());
     if (FAILED(result)) {
-        HILOG_ERROR("Write extra info failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write extra info failed!");
         return result;
     }
     return result;
@@ -179,7 +179,7 @@ ErrCode AppSpawnClient::WriteStrInfoMessage(const std::string &strInfo)
     // split msg
     const char *buff = strInfo.c_str();
     size_t leftLen = strInfo.size() + 1;
-    HILOG_DEBUG("strInfo length is %zu", leftLen);
+    TAG_LOGD(AAFwkTag::APPMGR, "strInfo length is %zu", leftLen);
     while (leftLen >= SOCK_MAX_SEND_BUFFER) {
         result = socket_->WriteMessage(buff, SOCK_MAX_SEND_BUFFER);
         if (FAILED(result)) {
@@ -189,7 +189,7 @@ ErrCode AppSpawnClient::WriteStrInfoMessage(const std::string &strInfo)
         leftLen -= SOCK_MAX_SEND_BUFFER;
     }
 
-    HILOG_DEBUG("strInfo: leftLen = %zu", leftLen);
+    TAG_LOGD(AAFwkTag::APPMGR, "strInfo: leftLen = %zu", leftLen);
     if (leftLen > 0) {
         result = socket_->WriteMessage(buff, leftLen);
     }
@@ -199,14 +199,14 @@ ErrCode AppSpawnClient::WriteStrInfoMessage(const std::string &strInfo)
 ErrCode AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg &startMsg, int &status)
 {
     if (!socket_) {
-        HILOG_ERROR("socket_ is null!");
+        TAG_LOGE(AAFwkTag::APPMGR, "socket_ is null!");
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
 
     ErrCode result = OpenConnection();
     // open connection failed, return fail
     if (FAILED(result)) {
-        HILOG_ERROR("connect to appSpawn failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "connect to appSpawn failed!");
         return result;
     }
     std::unique_ptr<AppSpawnClient, void (*)(AppSpawnClient *)> autoCloseConnection(
@@ -214,18 +214,18 @@ ErrCode AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
 
     AppSpawnMsgWrapper msgWrapper;
     if (!msgWrapper.AssembleMsg(startMsg)) {
-        HILOG_ERROR("AssembleMsg failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "AssembleMsg failed!");
         return ERR_APPEXECFWK_ASSEMBLE_START_MSG_FAILED;
     }
     if (msgWrapper.IsValid()) {
         result = socket_->WriteMessage(msgWrapper.GetMsgBuf(), msgWrapper.GetMsgLength());
         if (FAILED(result)) {
-            HILOG_ERROR("WriteMessage failed!");
+            TAG_LOGE(AAFwkTag::APPMGR, "WriteMessage failed!");
             return result;
         }
         result = socket_->ReadMessage(reinterpret_cast<void *>(&status), sizeof(int));
         if (FAILED(result)) {
-            HILOG_ERROR("ReadMessage failed!");
+            TAG_LOGE(AAFwkTag::APPMGR, "ReadMessage failed!");
             return result;
         }
     }

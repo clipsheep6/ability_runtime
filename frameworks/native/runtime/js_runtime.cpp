@@ -47,7 +47,9 @@
 #include "module_checker_delegate.h"
 #include "napi/native_api.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
+#include "native_engine/native_create_env.h"
 #include "native_engine/native_engine.h"
+#include "native_runtime_impl.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
@@ -143,10 +145,51 @@ int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* messa
     HILOG_INFO("ArkLog: %{public}s", message);
     return 0;
 }
+
+napi_status CreateNapiEnv(napi_env *env)
+{
+    HILOG_DEBUG("Called");
+    if (env == nullptr) {
+        HILOG_ERROR("Invalid arg");
+        return napi_status::napi_invalid_arg;
+    }
+    auto options = JsRuntime::GetChildOptions();
+    if (options == nullptr) {
+        HILOG_ERROR("options is null, it maybe application startup failed!");
+        return napi_status::napi_generic_failure;
+    }
+    std::shared_ptr<OHOS::JsEnv::JsEnvironment> jsEnv = nullptr;
+    auto errCode = NativeRuntimeImpl::GetNativeRuntimeImpl().CreateJsEnv(*options, jsEnv);
+    if (errCode != napi_status::napi_ok) {
+        HILOG_ERROR("CreateJsEnv failed");
+        return errCode;
+    }
+    *env = reinterpret_cast<napi_env>(jsEnv->GetNativeEngine());
+    if (env == nullptr) {
+        HILOG_ERROR("CreateJsEnv failed");
+        return napi_status::napi_generic_failure;
+    }
+    return NativeRuntimeImpl::GetNativeRuntimeImpl().Init(*options, *env);
+}
+
+napi_status DestroyNapiEnv(napi_env *env)
+{
+    HILOG_DEBUG("Called");
+    if (env == nullptr) {
+        HILOG_ERROR("Invalid arg");
+        return napi_status::napi_invalid_arg;
+    }
+    auto errCode = NativeRuntimeImpl::GetNativeRuntimeImpl().RemoveJsEnv(*env);
+    if (errCode == napi_status::napi_ok) {
+        *env = nullptr;
+    }
+    return errCode;
+}
+
 } // namespace
 
 std::atomic<bool> JsRuntime::hasInstance(false);
-
+std::shared_ptr<Runtime::Options> JsRuntime::childOptions_ = nullptr;
 JsRuntime::JsRuntime()
 {
     HILOG_DEBUG("JsRuntime costructor.");
@@ -163,7 +206,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     std::unique_ptr<JsRuntime> instance;
-
+    SetChildOptions(options);
     if (!options.preload && options.isStageModel) {
         auto preloadedInstance = Runtime::GetPreloaded();
 #ifdef SUPPORT_GRAPHICS
@@ -605,6 +648,8 @@ bool JsRuntime::Initialize(const Options& options)
             HILOG_ERROR("Create js environment failed.");
             return false;
         }
+        NativeCreateEnv::RegCreateNapiEnvCallback(CreateNapiEnv);
+        NativeCreateEnv::RegDestroyNapiEnvCallback(DestroyNapiEnv);
     } else {
         jsEnv_->StartMonitorJSHeapUsage();
     }
@@ -658,7 +703,6 @@ bool JsRuntime::Initialize(const Options& options)
             codePath_ = options.codePath;
             ReInitJsEnvImpl(options);
             LoadAotFile(options);
-
             panda::JSNApi::SetBundle(vm, options.isBundle);
             panda::JSNApi::SetBundleName(vm, options.bundleName);
             panda::JSNApi::SetHostResolveBufferTracker(
@@ -682,7 +726,8 @@ bool JsRuntime::Initialize(const Options& options)
     }
 
     if (!options.preload) {
-        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular);
+        auto operatorObj = std::make_shared<JsEnv::SourceMapOperator>(options.bundleName, isModular,
+                                                                      options.isDebugVersion);
         InitSourceMap(operatorObj);
 
         if (options.isUnique) {
@@ -1476,6 +1521,40 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     }
     HILOG_DEBUG("The size of the map is %{public}zu", systemKitsMap.size());
     return systemKitsMap;
+}
+
+void JsRuntime::SetChildOptions(const Options& options)
+{
+    if (childOptions_ == nullptr) {
+        childOptions_ = std::make_shared<Options>();
+    }
+    childOptions_->lang = options.lang;
+    childOptions_->bundleName = options.bundleName;
+    childOptions_->moduleName = options.moduleName;
+    childOptions_->codePath = options.codePath;
+    childOptions_->bundleCodeDir = options.bundleCodeDir;
+    childOptions_->hapPath = options.hapPath;
+    childOptions_->arkNativeFilePath = options.arkNativeFilePath;
+    childOptions_->hapModulePath = options.hapModulePath;
+    childOptions_->loadAce = options.loadAce;
+    childOptions_->preload = options.preload;
+    childOptions_->isBundle = options.isBundle;
+    childOptions_->isDebugVersion = options.isDebugVersion;
+    childOptions_->isJsFramework = options.isJsFramework;
+    childOptions_->isStageModel = options.isStageModel;
+    childOptions_->isTestFramework = options.isTestFramework;
+    childOptions_->uid = options.uid;
+    childOptions_->isUnique = options.isUnique;
+    childOptions_->moduleCheckerDelegate = options.moduleCheckerDelegate;
+    childOptions_->apiTargetVersion = options.apiTargetVersion;
+    childOptions_->packagePathStr = options.packagePathStr;
+    childOptions_->assetBasePathStr = options.assetBasePathStr;
+}
+
+std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
+{
+    HILOG_DEBUG("called");
+    return childOptions_;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

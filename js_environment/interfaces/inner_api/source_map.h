@@ -27,6 +27,9 @@
 
 namespace OHOS {
 namespace JsEnv {
+namespace {
+const std::string NOT_FOUNDMAP = "Cannot get SourceMap info, dump raw stack:\n";
+}
 using ErrorPos = std::pair<uint32_t, uint32_t>;
 struct SourceMapInfo {
     int32_t beforeRow = 0;
@@ -48,7 +51,6 @@ public:
     SourceMapData() = default;
     ~SourceMapData() = default;
 
-    std::string url_;
     SourceMapInfo nowPos_;
     std::vector<std::string> files_;
     std::vector<std::string> sources_;

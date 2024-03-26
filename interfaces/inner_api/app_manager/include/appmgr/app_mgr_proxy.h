@@ -517,6 +517,8 @@ public:
     virtual int32_t UpdateRenderState(pid_t renderPid, int32_t state) override;
 
     int32_t SignRestartAppFlag(const std::string &bundleName) override;
+
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId) override;
 private:
     bool SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data, MessageParcel &reply);
     bool WriteInterfaceToken(MessageParcel &data);

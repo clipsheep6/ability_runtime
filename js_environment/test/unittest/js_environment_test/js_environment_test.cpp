@@ -21,6 +21,7 @@
 #include <string>
 
 #include "ecmascript/napi/include/jsnapi.h"
+#include "hilog_wrapper.h"
 #include "js_env_logger.h"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
@@ -98,18 +99,14 @@ HWTEST_F(JsEnvironmentTest, JsEnvInitialize_0200, TestSize.Level0)
 {
     JSENV_LOG_I("Running in multi-thread, using default thread number.");
 
-    auto task = []() {
-        JSENV_LOG_I("Running in thread %{public}" PRIu64 "", gettid());
-        auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
-        ASSERT_NE(jsEnv, nullptr);
+    JSENV_LOG_I("Running in thread %{public}" PRIu64 "", gettid());
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    ASSERT_NE(jsEnv, nullptr);
 
-        panda::RuntimeOption pandaOption;
-        ASSERT_EQ(jsEnv->Initialize(pandaOption, nullptr), true);
-        EXPECT_NE(jsEnv->GetVM(), nullptr);
-        EXPECT_NE(jsEnv->GetNativeEngine(), nullptr);
-    };
-
-    GTEST_RUN_TASK(task);
+    panda::RuntimeOption pandaOption;
+    ASSERT_EQ(jsEnv->Initialize(pandaOption, nullptr), true);
+    EXPECT_NE(jsEnv->GetVM(), nullptr);
+    EXPECT_NE(jsEnv->GetNativeEngine(), nullptr);
 }
 
 /**
@@ -128,29 +125,11 @@ HWTEST_F(JsEnvironmentTest, LoadScript_0100, TestSize.Level0)
 
 /**
  * @tc.name: LoadScript_0200
- * @tc.desc: load script with invalid path.
- * @tc.type: FUNC
- * @tc.require: issueI6KODF
- */
-HWTEST_F(JsEnvironmentTest, LoadScript_0200, TestSize.Level0)
-{
-    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
-    ASSERT_NE(jsEnv, nullptr);
-
-    panda::RuntimeOption pandaOption;
-    auto ret = jsEnv->Initialize(pandaOption, static_cast<void*>(this));
-    ASSERT_EQ(ret, true);
-
-    EXPECT_EQ(jsEnv->LoadScript(""), true);
-}
-
-/**
- * @tc.name: LoadScript_0300
  * @tc.desc: load script with specify path.
  * @tc.type: FUNC
  * @tc.require: issueI6KODF
  */
-HWTEST_F(JsEnvironmentTest, LoadScript_0300, TestSize.Level0)
+HWTEST_F(JsEnvironmentTest, LoadScript_0200, TestSize.Level0)
 {
     auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
     ASSERT_NE(jsEnv, nullptr);
@@ -278,6 +257,39 @@ HWTEST_F(JsEnvironmentTest, StopDebugger_0100, TestSize.Level0)
     ASSERT_NE(jsEnv, nullptr);
 
     jsEnv->StopDebugger();
+}
+
+/**
+ * @tc.name: StopDebugger_0200
+ * @tc.desc: StopDebugger
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, StopDebugger_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+
+    panda::RuntimeOption pandaOption;
+    jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    jsEnv->StopDebugger();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: StopDebugger_0300
+ * @tc.desc: StopDebugger
+ * @tc.type: FUNC
+ * @tc.require: issue
+ */
+HWTEST_F(JsEnvironmentTest, StopDebugger_0300, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+
+    panda::RuntimeOption pandaOption;
+    jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    std::string option = "ark:1234@Debugger";
+    jsEnv->StopDebugger(option);
+    ASSERT_NE(jsEnv, nullptr);
 }
 
 /**
@@ -452,6 +464,96 @@ HWTEST_F(JsEnvironmentTest, NotifyDebugMode_0100, TestSize.Level0)
     bool debug = true;
     bool debugMode = true;
     jsEnv->NotifyDebugMode(tid, libraryPath, instanceId, debug, debugMode);
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: GetDebuggerPostTask_0100
+ * @tc.desc: Js environment GetDebuggerPostTask.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, GetDebuggerPostTask_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    jsEnv->GetDebuggerPostTask();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: GetHeapPrepare_0100
+ * @tc.desc: Js environment GetHeapPrepare.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, GetHeapPrepare_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    jsEnv->GetHeapPrepare();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: GetHeapPrepare_0200
+ * @tc.desc: Js environment GetHeapPrepare.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, GetHeapPrepare_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    panda::RuntimeOption pandaOption;
+    jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    jsEnv->GetHeapPrepare();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: StartMonitorJSHeapUsage_0100
+ * @tc.desc: Js environment StartMonitorJSHeapUsage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StartMonitorJSHeapUsage_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    jsEnv->StartMonitorJSHeapUsage();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: StartMonitorJSHeapUsage_0200
+ * @tc.desc: Js environment StartMonitorJSHeapUsage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StartMonitorJSHeapUsage_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    panda::RuntimeOption pandaOption;
+    jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    jsEnv->StartMonitorJSHeapUsage();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: StopMonitorJSHeapUsage_0100
+ * @tc.desc: Js environment StopMonitorJSHeapUsage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StopMonitorJSHeapUsage_0100, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    jsEnv->StopMonitorJSHeapUsage();
+    ASSERT_NE(jsEnv, nullptr);
+}
+
+/**
+ * @tc.name: StopMonitorJSHeapUsage_0200
+ * @tc.desc: Js environment StopMonitorJSHeapUsage.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsEnvironmentTest, StopMonitorJSHeapUsage_0200, TestSize.Level0)
+{
+    auto jsEnv = std::make_shared<JsEnvironment>(std::make_unique<AbilityRuntime::OHOSJsEnvironmentImpl>());
+    panda::RuntimeOption pandaOption;
+    jsEnv->Initialize(pandaOption, static_cast<void*>(this));
+    jsEnv->StopMonitorJSHeapUsage();
     ASSERT_NE(jsEnv, nullptr);
 }
 } // namespace JsEnv

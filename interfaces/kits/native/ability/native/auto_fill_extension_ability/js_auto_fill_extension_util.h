@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,16 @@ class JsRuntime;
 struct FillResponse {
     AbilityBase::ViewData viewData;
 };
+
+enum AutoFillCommand {
+    NONE,
+    FILL,
+    SAVE,
+    UPDATE,
+    RESIZE,
+    INPUT,
+    RELOAD_IN_MODAL
+};
 /**
  * @brief Js autofill extension base.
  */
@@ -35,10 +45,13 @@ public:
     explicit JsAutoFillExtensionUtil(const std::unique_ptr<Runtime> &runtime);
     virtual ~JsAutoFillExtensionUtil();
     static napi_value WrapFillRequest(const AAFwk::Want &want, const napi_env env);
+    static napi_value WrapUpdateRequest(const AAFwk::WantParams &wantParams, const napi_env env);
     static napi_value WrapViewData(const napi_env env, const AbilityBase::ViewData &viewData);
     static napi_value WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo);
+    static napi_value WrapRectData(const napi_env env, const AbilityBase::Rect &rect);
     static void UnwrapViewData(const napi_env env, const napi_value value, AbilityBase::ViewData &viewData);
     static void UnwrapPageNodeInfo(const napi_env env, const napi_value jsProValue, AbilityBase::PageNodeInfo &node);
+    static void UnwrapRectData(const napi_env env, const napi_value value, AbilityBase::Rect &rect);
     static void UnwrapFillResponse(const napi_env env, const napi_value value, FillResponse &response);
 
     enum AutoFillResultCode {

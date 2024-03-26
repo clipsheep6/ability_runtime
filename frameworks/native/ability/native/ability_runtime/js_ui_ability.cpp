@@ -454,6 +454,7 @@ void JsUIAbility::OnSceneCreated()
     }
 
     HandleScope handleScope(jsRuntime_);
+    UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
     napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageCreate");
@@ -488,6 +489,7 @@ void JsUIAbility::OnSceneRestored()
         HILOG_ERROR("JsAppWindowStage is nullptr.");
         return;
     }
+    UpdateJsWindowStage(jsAppWindowStage->GetNapiValue());
     napi_value argv[] = {jsAppWindowStage->GetNapiValue()};
     CallObjectMethod("onWindowStageRestore", argv, ArraySize(argv));
 
@@ -505,6 +507,7 @@ void JsUIAbility::onSceneDestroyed()
     HILOG_DEBUG("Begin ability is %{public}s.", GetAbilityName().c_str());
     UIAbility::onSceneDestroyed();
     HandleScope handleScope(jsRuntime_);
+    UpdateJsWindowStage(nullptr);
     CallObjectMethod("onWindowStageDestroy");
 
     if (scene_ != nullptr) {
@@ -1447,6 +1450,28 @@ sptr<IRemoteObject> JsUIAbility::SetNewRuleFlagToCallee(napi_env env, napi_value
         return nullptr;
     }
     return remoteObj;
+}
+
+void JsUIAbility::UpdateJsWindowStage(napi_value windowStage)
+{
+    HILOG_DEBUG("Called.");
+    if (shellContextRef_ == nullptr) {
+        HILOG_ERROR("shellContextRef_ is nullptr.");
+        return;
+    }
+    napi_value contextObj = shellContextRef_->GetNapiValue();
+    napi_env env = jsRuntime_.GetNapiEnv();
+    if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
+        HILOG_ERROR("Failed to get context native object.");
+        return;
+    }
+    if (windowStage == nullptr) {
+        HILOG_DEBUG("Set context windowStage is undefined.");
+        napi_set_named_property(env, contextObj, "windowStage", CreateJsUndefined(env));
+        return;
+    }
+    HILOG_DEBUG("Set context windowStage object.");
+    napi_set_named_property(env, contextObj, "windowStage", windowStage);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

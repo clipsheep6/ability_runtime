@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "bundle_mgr_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "mock_bundle_installer_service.h"
@@ -88,7 +89,7 @@ void QuickFixManagerServiceTest::TearDown()
  */
 HWTEST_F(QuickFixManagerServiceTest, ApplyQuickFix_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
     auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
@@ -107,7 +108,7 @@ HWTEST_F(QuickFixManagerServiceTest, ApplyQuickFix_0100, TestSize.Level1)
     auto ret = quickFixMs_->ApplyQuickFix(quickFixFiles);
     EXPECT_EQ(ret, QUICK_FIX_OK);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -118,7 +119,7 @@ HWTEST_F(QuickFixManagerServiceTest, ApplyQuickFix_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerServiceTest, GetApplyedQuickFixInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
     auto mockGetSystemAbility = [bms = mockBundleMgr, saMgr = iSystemAbilityMgr_](int32_t systemAbilityId) {
@@ -140,7 +141,7 @@ HWTEST_F(QuickFixManagerServiceTest, GetApplyedQuickFixInfo_0100, TestSize.Level
     EXPECT_EQ(quickFixInfo.bundleVersionCode, static_cast<uint32_t>(1000));
     EXPECT_EQ(quickFixInfo.bundleVersionName, "1.0.0");
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -151,7 +152,7 @@ HWTEST_F(QuickFixManagerServiceTest, GetApplyedQuickFixInfo_0100, TestSize.Level
  */
 HWTEST_F(QuickFixManagerServiceTest, ApplyAndRemoveTask_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
     EXPECT_NE(quickFixMs_, nullptr);
     quickFixMs_->RemoveApplyTask(nullptr);
     quickFixMs_->AddApplyTask(nullptr);
@@ -161,7 +162,7 @@ HWTEST_F(QuickFixManagerServiceTest, ApplyAndRemoveTask_0100, TestSize.Level1)
     quickFixMs_->AddApplyTask(applyTask);
     quickFixMs_->AddApplyTask(applyTask);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -171,7 +172,7 @@ HWTEST_F(QuickFixManagerServiceTest, ApplyAndRemoveTask_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
     EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
@@ -179,7 +180,7 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0100, TestSize.Level1)
     auto ret = quickFixMs_->RevokeQuickFix(bundleName);
     EXPECT_EQ(ret, QUICK_FIX_OK);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -189,7 +190,7 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
     EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
@@ -200,7 +201,7 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0200, TestSize.Level1)
     auto ret = quickFixMs_->RevokeQuickFix(bundleName);
     EXPECT_EQ(ret, QUICK_FIX_DEPLOYING_TASK);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -210,7 +211,7 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0200, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0300, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     std::string bundleName = "test.bundle.name";
     auto applyTask = std::make_shared<QuickFixManagerApplyTask>(nullptr, nullptr, nullptr, nullptr);
@@ -219,7 +220,7 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0300, TestSize.Level1)
     auto ret = quickFixMs_->RevokeQuickFix(bundleName);
     EXPECT_EQ(ret, QUICK_FIX_GET_BUNDLE_INFO_FAILED);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -229,7 +230,7 @@ HWTEST_F(QuickFixManagerServiceTest, RevokeQuickFix_0300, TestSize.Level1)
  */
 HWTEST_F(QuickFixManagerServiceTest, GetQuickFixInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetQuickFixInfo_0100 start.");
+    TAG_LOGI(AAFwkTag::TEST, "GetQuickFixInfo_0100 start.");
 
     auto mockGetBundleInstaller = []() { return mockBundleInstaller; };
     EXPECT_CALL(*mockBundleMgr, GetBundleInstaller()).WillOnce(testing::Invoke(mockGetBundleInstaller));
@@ -242,7 +243,7 @@ HWTEST_F(QuickFixManagerServiceTest, GetQuickFixInfo_0100, TestSize.Level1)
     EXPECT_EQ(patchExists, true);
     EXPECT_EQ(isSoContained, true);
 
-    HILOG_INFO("GetQuickFixInfo_0100 end.");
+    TAG_LOGI(AAFwkTag::TEST, "GetQuickFixInfo_0100 end.");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

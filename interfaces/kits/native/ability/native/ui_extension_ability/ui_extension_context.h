@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -96,6 +96,31 @@ public:
         const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task);
 
     /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want Information of other ability.
+     * @param requestCode Request code for abilityMS to return result.
+     * @param task Represent std::function<void(int, const AAFwk::Want &, bool)>.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode StartAbilityForResultAsCaller(const AAFwk::Want &want, int requestCode, RuntimeTask &&task);
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want Information of other ability.
+     * @param startOptions Indicates the StartOptions containing service side information about the target ability to
+     * start.
+     * @param requestCode Request code for abilityMS to return result.
+     * @param task Represent std::function<void(int, const AAFwk::Want &, bool)>.
+     *
+     * @return errCode ERR_OK on success, others on failure.
+     */
+    virtual ErrCode StartAbilityForResultAsCaller(
+        const AAFwk::Want &want, const AAFwk::StartOptions &startOptions, int requestCode, RuntimeTask &&task);
+
+    /**
      * @brief Called when startAbilityForResult(ohos.aafwk.content.Want,int) is called to start an extension ability
      * and the result is returned.
      * @param requestCode Indicates the request code returned after the ability is started. You can define the request
@@ -136,6 +161,8 @@ private:
     int curRequestCode_ = 0;
 
     sptr<Rosen::Window> window_ = nullptr;
+
+    std::mutex mutexlock_;
     /**
      * @brief Get Current Ability Type
      *

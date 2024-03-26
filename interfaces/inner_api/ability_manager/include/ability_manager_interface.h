@@ -18,6 +18,7 @@
 
 #include <ipc_types.h>
 #include <iremote_broker.h>
+#include <list>
 #include <vector>
 
 #include "ability_connect_callback_interface.h"
@@ -214,6 +215,44 @@ public:
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param callerToken current caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param userId Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityForResultAsCaller(
+        const Want &want,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
+    /**
+     * Starts a new ability for result using the original caller information.
+     *
+     * @param want the want of the ability to start.
+     * @param startOptions Indicates the options used to start.
+     * @param callerToken current caller ability token.
+     * @param requestCode the resultCode of the ability to start.
+     * @param userId Designation User ID.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int StartAbilityForResultAsCaller(
+        const Want &want,
+        const StartOptions &startOptions,
+        const sptr<IRemoteObject> &callerToken,
+        int requestCode = DEFAULT_INVAL_VALUE,
+        int32_t userId = DEFAULT_INVAL_VALUE)
     {
         return 0;
     }
@@ -975,14 +1014,6 @@ public:
     virtual int DoAbilityBackground(const sptr<IRemoteObject> &token, uint32_t flag) = 0;
 
     /**
-     * Send not response process ID to ability manager service.
-     *
-     * @param pid The not response process ID.
-     * @return Returns ERR_OK on success, others on failure.
-     */
-    virtual int SendANRProcessID(int pid) = 0;
-
-    /**
      * Get mission id by ability token.
      *
      * @param token The token of ability.
@@ -1384,7 +1415,11 @@ public:
      * @brief Update session info.
      * @param sessionInfos The vector of session info.
      */
-    virtual void UpdateSessionInfoBySCB(const std::vector<SessionInfo> &sessionInfos, int32_t userId) {}
+    virtual int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
+        std::vector<int32_t> &sessionIds)
+    {
+        return 0;
+    }
 
     /**
      * @brief Get host info of root caller.

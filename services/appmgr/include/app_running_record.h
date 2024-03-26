@@ -291,9 +291,9 @@ public:
      */
     sptr<IAppScheduler> GetApplicationClient() const;
 
-    void AddModule(const std::shared_ptr<ApplicationInfo> &appInfo, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const sptr<IRemoteObject> &token, const HapModuleInfo &hapModuleInfo,
-        const std::shared_ptr<AAFwk::Want> &want);
+    void AddModule(std::shared_ptr<ApplicationInfo> appInfo, std::shared_ptr<AbilityInfo> abilityInfo,
+        sptr<IRemoteObject> token, const HapModuleInfo &hapModuleInfo,
+        std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     void AddModules(const std::shared_ptr<ApplicationInfo> &appInfo, const std::vector<HapModuleInfo> &moduleInfos);
 
@@ -590,6 +590,7 @@ public:
     const AAFwk::Want &GetNewProcessRequestWant() const;
     void SetDebugApp(bool isDebugApp);
     bool IsDebugApp();
+    bool IsDebugging() const;
     void SetNativeDebug(bool isNativeDebug);
     void SetPerfCmd(const std::string &perfCmd);
     void AddRenderRecord(const std::shared_ptr<RenderRecord> &record);
@@ -680,6 +681,14 @@ public:
     {
         return isSpawned_.load();
     }
+
+    std::map<pid_t, std::weak_ptr<AppRunningRecord>> GetChildAppRecordMap() const;
+    void AddChildAppRecord(pid_t pid, std::shared_ptr<AppRunningRecord> appRecord);
+    void RemoveChildAppRecord(pid_t pid);
+    void ClearChildAppRecordMap();
+
+    void SetParentAppRecord(std::shared_ptr<AppRunningRecord> appRecord);
+    std::shared_ptr<AppRunningRecord> GetParentAppRecord();
 
     /**
      * @brief Notify NativeEngine GC of status change.
@@ -845,6 +854,9 @@ private:
     bool isKilling_ = false;
     bool isContinuousTask_ = false;    // Only continuesTask processes can be set to true, please choose carefully
     std::atomic_bool isSpawned_ = false;
+
+    std::weak_ptr<AppRunningRecord> parentAppRecord_;
+    std::map<pid_t, std::weak_ptr<AppRunningRecord>> childAppRecordMap_;
 
     // render record
     std::map<int32_t, std::shared_ptr<RenderRecord>> renderRecordMap_;

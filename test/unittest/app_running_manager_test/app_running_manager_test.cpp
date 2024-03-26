@@ -19,6 +19,7 @@
 #include "app_running_manager.h"
 #include "child_process_record.h"
 #undef private
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "window_visibility_info.h"
 
@@ -208,7 +209,7 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_OnWindowVisibilityChanged_0100
  */
 HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProcessPid_0100, TestSize.Level1)
 {
-    HILOG_DEBUG("AppRunningManager_GetAppRunningRecordByChildProcessPid_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "AppRunningManager_GetAppRunningRecordByChildProcessPid_0100 called.");
     auto appRunningManager = std::make_shared<AppRunningManager>();
     EXPECT_NE(appRunningManager, nullptr);
     

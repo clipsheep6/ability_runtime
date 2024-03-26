@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,6 +17,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 config("appmgr_config") {
   include_dirs = [
     "include",
+    "include/utils",
     "//third_party/json/include",
     "${ability_runtime_innerkits_path}/ability_manager/include",
     "${ability_runtime_services_path}/common/include",
@@ -38,6 +39,7 @@ ohos_shared_library("libappms") {
   sources = [
     "src/ability_running_record.cpp",
     "src/ams_mgr_scheduler.cpp",
+    "src/app_config_data_manager.cpp",
     "src/app_death_recipient.cpp",
     "src/app_debug_manager.cpp",
     "src/app_lifecycle_deal.cpp",
@@ -110,6 +112,7 @@ ohos_shared_library("libappms") {
     "init:libbeget_proxy",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
     "kv_store:distributeddata_mgr",
     "memory_utils:libmeminfo",
     "safwk:system_ability_fwk",

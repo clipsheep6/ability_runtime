@@ -256,6 +256,7 @@ public:
 
     int32_t SignRestartAppFlag(const std::string &bundleName);
 
+    int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(

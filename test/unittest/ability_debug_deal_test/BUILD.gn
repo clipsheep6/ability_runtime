@@ -44,6 +44,7 @@ ohos_unittest("ability_debug_deal_test") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
   ]
 }

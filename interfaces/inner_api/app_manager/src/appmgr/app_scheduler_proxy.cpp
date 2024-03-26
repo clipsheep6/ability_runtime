@@ -179,7 +179,7 @@ void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, const uint32_t
 }
 
 void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AAFwk::Want> &want)
+    const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -203,6 +203,10 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
 
     if (!data.WriteParcelable(want.get())) {
         HILOG_ERROR("write want fail.");
+        return;
+    }
+    if (!data.WriteInt32(abilityRecordId)) {
+        HILOG_ERROR("write ability record id fail.");
         return;
     }
     int32_t ret = SendTransactCmd(

@@ -290,11 +290,6 @@ public:
         return true;
     }
 
-    int SendANRProcessID(int pid) override
-    {
-        return 0;
-    }
-
     int SetMissionIcon(const sptr<IRemoteObject>& token,
         const std::shared_ptr<OHOS::Media::PixelMap>& icon) override
     {

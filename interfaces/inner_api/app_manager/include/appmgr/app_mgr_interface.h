@@ -582,6 +582,17 @@ public:
     {
         return 0;
     }
+
+    /**
+     * Get appRunningUniqueId by pid.
+     * @param pid pid.
+     * @param appRunningUniqueId appRunningUniqueId.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
+    {
+        return 0;
+    }
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

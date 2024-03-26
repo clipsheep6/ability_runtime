@@ -38,8 +38,9 @@ void AppMgrClient::GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token
 
 void AppMgrClient::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info) const {}
 
-AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
-    const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want)
+AppMgrResultCode AppMgrClient::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+    const AbilityInfo& abilityInfo, const ApplicationInfo& appInfo, const AAFwk::Want& want,
+    int32_t abilityRecordId)
 {
     return AppMgrResultCode::RESULT_OK;
 }

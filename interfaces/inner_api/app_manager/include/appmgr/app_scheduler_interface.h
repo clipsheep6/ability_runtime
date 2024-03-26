@@ -135,7 +135,7 @@ public:
     virtual void ScheduleAbilityStage(const HapModuleInfo &) = 0;
 
     virtual void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &want) = 0;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) = 0;
 
     /**
      * ScheduleCleanAbility, call ScheduleCleanAbility() through proxy project,

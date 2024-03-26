@@ -56,6 +56,8 @@ public:
         UpdateOnDemandPolicy, int32_t(int32_t, OnDemandPolicyType, const std::vector<SystemAbilityOnDemandEvent> &));
     MOCK_METHOD1(GetOnDemandSystemAbilityIds, int32_t(std::vector<int32_t> &));
     MOCK_METHOD0(UnloadAllIdleSystemAbility, int32_t());
+    MOCK_METHOD2(GetExtensionSaIds, int32_t(const std::string&, std::vector<int32_t> &));
+    MOCK_METHOD2(GetExtensionRunningSaList, int32_t(const std::string&, std::vector<sptr<IRemoteObject>>&));
 };
 } // namespace AppExecFwk
 } // namespace OHOS

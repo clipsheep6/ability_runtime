@@ -15,7 +15,7 @@
 
 #include "disposed_observer.h"
 
-#include "ability_interceptor.h"
+#include "interceptor/disposed_rule_interceptor.h"
 #include "ability_record.h"
 #include "hilog_wrapper.h"
 #include "modal_system_ui_extension.h"
@@ -33,6 +33,15 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
     std::lock_guard<ffrt::mutex> guard(observerLock_);
     if (abilityStateData.abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND)) {
         token_ = abilityStateData.token;
+        auto abilityRecord = Token::GetAbilityRecordByToken(token_);
+        if (abilityRecord && !abilityRecord->GetAbilityInfo().isStageBasedModel) {
+            auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+            bool ret = systemUIExtension->CreateModalUIExtension(*disposedRule_.want);
+            if (!ret) {
+                HILOG_ERROR("failed to start system UIExtension");
+            }
+            interceptor_->UnregisterObserver(abilityStateData.bundleName);
+        }
     }
 }
 

@@ -16,6 +16,7 @@
 #include <gtest/gtest.h>
 
 #include "napi_base_context.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing::ext;
@@ -49,7 +50,7 @@ void NapiBaseContextTest::TearDown()
  */
 HWTEST_F(NapiBaseContextTest, IsStageContext_0100, TestSize.Level1)
 {
-    HILOG_INFO("IsStageContext start");
+    TAG_LOGI(AAFwkTag::TEST, "IsStageContext start");
 
     napi_env env = nullptr;
     bool stageMode = false;
@@ -58,7 +59,7 @@ HWTEST_F(NapiBaseContextTest, IsStageContext_0100, TestSize.Level1)
     EXPECT_NE(status, napi_ok);
     EXPECT_FALSE(stageMode);
 
-    HILOG_INFO("IsStageContext end");
+    TAG_LOGI(AAFwkTag::TEST, "IsStageContext end");
 }
 
 /**
@@ -68,14 +69,14 @@ HWTEST_F(NapiBaseContextTest, IsStageContext_0100, TestSize.Level1)
  */
 HWTEST_F(NapiBaseContextTest, GetStageModeContext_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetStageModeContext start");
+    TAG_LOGI(AAFwkTag::TEST, "GetStageModeContext start");
 
     napi_env env = nullptr;
     napi_value argv[0] = {};
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, argv[0]);
     EXPECT_EQ(context, nullptr);
 
-    HILOG_INFO("GetStageModeContext end");
+    TAG_LOGI(AAFwkTag::TEST, "GetStageModeContext end");
 }
 
 /**
@@ -85,13 +86,13 @@ HWTEST_F(NapiBaseContextTest, GetStageModeContext_0100, TestSize.Level1)
  */
 HWTEST_F(NapiBaseContextTest, GetCurrentAbility_0100, TestSize.Level1)
 {
-    HILOG_INFO("GetCurrentAbility start");
+    TAG_LOGI(AAFwkTag::TEST, "GetCurrentAbility start");
 
     napi_env env = nullptr;
     auto ability = OHOS::AbilityRuntime::GetCurrentAbility(env);
     EXPECT_EQ(ability, nullptr);
 
-    HILOG_INFO("GetCurrentAbility end");
+    TAG_LOGI(AAFwkTag::TEST, "GetCurrentAbility end");
 }
 
 }  // namespace AbilityRuntime

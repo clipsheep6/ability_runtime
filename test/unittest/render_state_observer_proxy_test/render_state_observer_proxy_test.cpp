@@ -67,10 +67,9 @@ HWTEST_F(RenderStateObserverProxyTest, WriteInterfaceToken_0100, TestSize.Level1
  */
 HWTEST_F(RenderStateObserverProxyTest, OnRenderStateChanged_0100, TestSize.Level1)
 {
-    EXPECT_CALL(*mock_, OnRenderStateChanged(_, _)).Times(1);
-    pid_t renderPid = 0;
-    int state = 0;
-    observerProxy_->OnRenderStateChanged(renderPid, state);
+    EXPECT_CALL(*mock_, OnRenderStateChanged(_)).Times(1);
+    RenderStateData renderStateData;
+    observerProxy_->OnRenderStateChanged(renderStateData);
 }
 } // namepsace AppExecFwk
 } // namespace OHOS

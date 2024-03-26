@@ -73,6 +73,21 @@ void ExtensionRecordManager::RemoveExtensionRecord(const int32_t extensionRecord
     HILOG_DEBUG("extensionRecordId %{public}d.", extensionRecordId);
     std::lock_guard<std::mutex> lock(mutex_);
     extensionRecords_.erase(extensionRecordId);
+    terminateRecords_.erase(extensionRecordId);
+}
+
+void ExtensionRecordManager::AddExtensionRecordToTerminatedList(const int32_t extensionRecordId)
+{
+    HILOG_DEBUG("extensionRecordId %{public}d.", extensionRecordId);
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    auto findRecord = extensionRecords_.find(extensionRecordId);
+    if (findRecord == extensionRecords_.end()) {
+        HILOG_ERROR("extensionRecordId %{public}d not found.", extensionRecordId);
+        return;
+    }
+    terminateRecords_.emplace(*findRecord);
+    extensionRecords_.erase(extensionRecordId);
 }
 
 int32_t ExtensionRecordManager::GetExtensionRecord(const int32_t extensionRecordId,
@@ -367,6 +382,70 @@ int32_t ExtensionRecordManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObj
     hostInfo.elementName_ = callerAbilityRecord->GetElementName();
     HILOG_DEBUG("Root host uri: %{public}s.", hostInfo.elementName_.GetURI().c_str());
     return ERR_OK;
+}
+
+std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(int32_t extensionRecordId)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto findRecord = extensionRecords_.find(extensionRecordId);
+    if (findRecord != extensionRecords_.end()) {
+        return findRecord->second;
+    }
+    findRecord = terminateRecords_.find(extensionRecordId);
+    if (findRecord == terminateRecords_.end()) {
+        HILOG_ERROR("Ui extension record not found, id: %{public}d.", extensionRecordId);
+        return nullptr;
+    }
+
+    return findRecord->second;
+}
+
+void ExtensionRecordManager::LoadTimeout(int32_t extensionRecordId)
+{
+    HILOG_DEBUG("Called.");
+    auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
+    if (uiExtensionRecord == nullptr) {
+        HILOG_ERROR("Parsing ui extension record failed.");
+        return;
+    }
+    HILOG_DEBUG("Start load timeout.");
+    uiExtensionRecord->LoadTimeout();
+}
+
+void ExtensionRecordManager::ForegroundTimeout(int32_t extensionRecordId)
+{
+    HILOG_DEBUG("Called.");
+    auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
+    if (uiExtensionRecord == nullptr) {
+        HILOG_ERROR("Parsing ui extension record failed.");
+        return;
+    }
+    HILOG_DEBUG("Start foreground timeout.");
+    uiExtensionRecord->ForegroundTimeout();
+}
+
+void ExtensionRecordManager::BackgroundTimeout(int32_t extensionRecordId)
+{
+    HILOG_DEBUG("Called.");
+    auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
+    if (uiExtensionRecord == nullptr) {
+        HILOG_ERROR("Parsing ui extension record failed.");
+        return;
+    }
+    HILOG_DEBUG("Start background timeout.");
+    uiExtensionRecord->BackgroundTimeout();
+}
+
+void ExtensionRecordManager::TerminateTimeout(int32_t extensionRecordId)
+{
+    HILOG_DEBUG("Called.");
+    auto uiExtensionRecord = std::static_pointer_cast<UIExtensionRecord>(GetExtensionRecordById(extensionRecordId));
+    if (uiExtensionRecord == nullptr) {
+        HILOG_ERROR("Parsing ui extension record failed.");
+        return;
+    }
+    HILOG_DEBUG("Start terminate timeout.");
+    uiExtensionRecord->TerminateTimeout();
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
