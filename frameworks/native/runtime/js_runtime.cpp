@@ -32,6 +32,7 @@
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "hdc_register.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "hot_reloader.h"
@@ -612,6 +613,8 @@ void JsRuntime::PostPreload(const Options& options)
     }
     bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
     postOption.SetEnableProfile(profileEnabled);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify PostFork, jitEnabled: %{public}d", options.jitEnabled);
+    postOption.SetEnableJIT(options.jitEnabled);
     panda::JSNApi::PostFork(vm, postOption);
     reinterpret_cast<NativeEngine*>(env)->ReinitUVLoop();
     uv_loop_s* loop = nullptr;
@@ -772,6 +775,8 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
     pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
     pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify CreateJsEnv, jitEnabled: %{public}d", options.jitEnabled);
+    pandaOption.SetEnableJIT(options.jitEnabled);
 
     if (IsUseAbilityRuntime(options)) {
         // aot related
@@ -1549,6 +1554,7 @@ void JsRuntime::SetChildOptions(const Options& options)
     childOptions_->apiTargetVersion = options.apiTargetVersion;
     childOptions_->packagePathStr = options.packagePathStr;
     childOptions_->assetBasePathStr = options.assetBasePathStr;
+    childOptions_->jitEnabled = options.jitEnabled;
 }
 
 std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()

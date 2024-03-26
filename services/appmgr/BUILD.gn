@@ -38,6 +38,7 @@ ohos_shared_library("libappms") {
   include_dirs = [ "${ability_runtime_services_path}/appdfr/include" ]
   sources = [
     "src/ability_running_record.cpp",
+    "src/advanced_security_mode_manager.cpp",
     "src/ams_mgr_scheduler.cpp",
     "src/app_config_data_manager.cpp",
     "src/app_death_recipient.cpp",

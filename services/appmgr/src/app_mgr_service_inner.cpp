@@ -230,7 +230,8 @@ AppMgrServiceInner::AppMgrServiceInner()
       appRunningManager_(std::make_shared<AppRunningManager>()),
       configuration_(std::make_shared<Configuration>()),
       appDebugManager_(std::make_shared<AppDebugManager>()),
-      appRunningStatusModule_(std::make_shared<AbilityRuntime::AppRunningStatusModule>())
+      appRunningStatusModule_(std::make_shared<AbilityRuntime::AppRunningStatusModule>()),
+      securityModeManager_(std::make_shared<AdvancedSecurityModeManager>())
 {}
 
 void AppMgrServiceInner::Init()
@@ -243,6 +244,9 @@ void AppMgrServiceInner::Init()
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
     dfxTaskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("dfx_freeze_task_queue");
+    if (securityModeManager_) {
+        securityModeManager_->Init();
+    }
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -2227,6 +2231,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.procName = processName;
     startMsg.accessTokenIdEx = bundleInfo.applicationInfo.accessTokenIdEx;
 
+    SetProcessJITState(appRecord);
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
     TAG_LOGD(AAFwkTag::APPMGR, "bundleName: %{public}s.", bundleName.c_str());
@@ -2252,6 +2257,22 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     PerfProfile::GetInstance().SetAppForkEndTime(GetTickCount());
     SendProcessStartEvent(appRecord);
     ProcessAppDebug(appRecord, appRecord->IsDebugApp());
+}
+
+void AppMgrServiceInner::SetProcessJITState(const std::shared_ptr<AppRunningRecord> appRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "SetProcessJITState called.");
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return;
+    }
+    if (!securityModeManager_) {
+        HILOG_ERROR("securityModeManager_ is nullptr.");
+        appRecord->SetJITEnabled(true);
+        return;
+    }
+    appRecord->SetJITEnabled(securityModeManager_->IsJITEnabled());
 }
 
 AppDebugInfo AppMgrServiceInner::MakeAppDebugInfo(
@@ -5404,6 +5425,7 @@ int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProce
     info.bundleName = appRecord->GetBundleName();
     info.processName = childProcessRecord->GetProcessName();
     info.srcEntry = childProcessRecord->GetSrcEntry();
+    info.jitEnabled = appRecord->IsJITEnabled();
     return ERR_OK;
 }
 

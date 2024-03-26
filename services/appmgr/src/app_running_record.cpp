@@ -431,6 +431,8 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
+    launchData.SetJITEnabled(jitEnabled_);
+
     TAG_LOGD(AAFwkTag::APPMGR, "app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
@@ -1974,6 +1976,16 @@ std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChil
 {
     std::lock_guard lock(childProcessRecordMapLock_);
     return childProcessRecordMap_;
+}
+
+void AppRunningRecord::SetJITEnabled(const bool jitEnabled)
+{
+    jitEnabled_ = jitEnabled;
+}
+
+bool AppRunningRecord::IsJITEnabled() const
+{
+    return jitEnabled_;
 }
 
 int32_t AppRunningRecord::GetAssignTokenId() const

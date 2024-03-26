@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,29 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_CHILD_PROCESS_INFO_H
-#define OHOS_ABILITY_RUNTIME_CHILD_PROCESS_INFO_H
+#ifndef OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H
 
 #include <string>
 
-#include "parcel.h"
-
 namespace OHOS {
 namespace AppExecFwk {
-struct ChildProcessInfo : public Parcelable {
-    std::int32_t pid;
-    std::int32_t hostPid;
-    std::int32_t uid;
-    std::string bundleName;
-    std::string processName;
-    std::string srcEntry;
-    bool jitEnabled = false;
+class AdvancedSecurityModeManager {
+public:
+    AdvancedSecurityModeManager();
+    virtual ~AdvancedSecurityModeManager();
 
-    bool ReadFromParcel(Parcel &parcel);
-    virtual bool Marshalling(Parcel &parcel) const override;
-    static ChildProcessInfo *Unmarshalling(Parcel &parcel);
+    void Init();
+    bool IsJITEnabled();
+
+private:
+    bool isAdvSecModeEnabled_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS
-
-#endif  // OHOS_ABILITY_RUNTIME_CHILD_PROCESS_INFO_H
+#endif  // OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H

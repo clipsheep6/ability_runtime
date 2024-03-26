@@ -43,6 +43,9 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+    bool g_jitEnabled = false;
+}
 bool ChildProcessManager::signalRegistered_ = false;
 
 ChildProcessManager::ChildProcessManager()
@@ -155,7 +158,7 @@ void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEnt
         return;
     }
 
-    auto runtime = CreateRuntime(bundleInfo, hapModuleInfo, false);
+    auto runtime = CreateRuntime(bundleInfo, hapModuleInfo, false, g_jitEnabled);
     if (!runtime) {
         HILOG_ERROR("Failed to create child process runtime");
         return;
@@ -192,7 +195,7 @@ bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecF
 }
 
 std::unique_ptr<AbilityRuntime::Runtime> ChildProcessManager::CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
-    const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn)
+    const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn, const bool jitEnabled)
 {
     AppExecFwk::ApplicationInfo applicationInfo = bundleInfo.applicationInfo;
     AbilityRuntime::Runtime::Options options;
@@ -206,6 +209,7 @@ std::unique_ptr<AbilityRuntime::Runtime> ChildProcessManager::CreateRuntime(cons
     options.arkNativeFilePath = applicationInfo.arkNativeFilePath;
     options.apiTargetVersion = applicationInfo.apiTargetVersion;
     options.loadAce = true;
+    options.jitEnabled = jitEnabled;
 
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner =
         fromAppSpawn ? AppExecFwk::EventRunner::GetMainEventRunner() : AppExecFwk::EventRunner::Create();
@@ -282,5 +286,9 @@ sptr<AppExecFwk::IAppMgr> ChildProcessManager::GetAppMgr()
     return iface_cast<AppExecFwk::IAppMgr>(object);
 }
 
+void ChildProcessManager::SetForkProcessJITEnabled(bool jitEnabled)
+{
+    g_jitEnabled = jitEnabled;
+}
 }  // namespace AbilityRuntime
 }  // namespace OHOS

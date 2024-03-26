@@ -86,6 +86,7 @@ napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_p
     std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
     pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
     pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+    pandaOption.SetEnableJIT(options.jitEnabled);
 
     bool useAbilityRuntime = (options.isStageModel) || (options.isTestFramework);
     if (useAbilityRuntime) {

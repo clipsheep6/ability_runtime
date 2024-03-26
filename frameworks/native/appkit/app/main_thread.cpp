@@ -39,6 +39,7 @@
 #include "bundle_mgr_proxy.h"
 #include "hitrace_meter.h"
 #include "child_main_thread.h"
+#include "child_process_manager.h"
 #include "configuration_convertor.h"
 #include "common_event_manager.h"
 #include "context_deal.h"
@@ -1339,6 +1340,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
+        options.jitEnabled = appLaunchData.IsJITEnabled();
+        AbilityRuntime::ChildProcessManager::GetInstance().SetForkProcessJITEnabled(appLaunchData.IsJITEnabled());
         if (!bundleInfo.hapModuleInfos.empty()) {
             for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
                 options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;

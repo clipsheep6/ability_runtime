@@ -1748,6 +1748,10 @@ HWTEST_F(MainThreadTest, HandleLaunchApplication_0500, TestSize.Level1)
     launchData.SetPerfCmd(perfCmd);
     EXPECT_EQ(launchData.GetPerfCmd(), perfCmd);
 
+    // check JIT enabled
+    launchData.SetJITEnabled(true)
+    EXPECT_EQ(launchData.IsJITEnabled(), true);
+
     // check debug app
     bool appDebug = true;
     launchData.SetDebugApp(appDebug);

@@ -155,7 +155,7 @@ HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
     ret = ChildProcessManager::GetInstance().GetHapModuleInfo(bundleInfo, hapModuleInfo);
     EXPECT_TRUE(ret);
 
-    auto runtime = ChildProcessManager::GetInstance().CreateRuntime(bundleInfo, hapModuleInfo, false);
+    auto runtime = ChildProcessManager::GetInstance().CreateRuntime(bundleInfo, hapModuleInfo, false, false);
     EXPECT_TRUE(runtime != nullptr);
 }
 

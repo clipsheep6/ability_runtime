@@ -97,6 +97,11 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(jitEnabled_)) {
+        HILOG_ERROR("Failed to write jitEnabled.");
+        return false;
+    }
+
     return true;
 }
 
@@ -138,6 +143,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
 
     debugApp_ = parcel.ReadBool();
     perfCmd_ = parcel.ReadString();
+    jitEnabled_ = parcel.ReadBool();
     return true;
 }
 

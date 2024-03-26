@@ -31,6 +31,7 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
 
   sources = [
     "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/advanced_security_mode_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_config_data_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_death_recipient.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_debug_manager.cpp",
