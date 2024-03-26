@@ -1974,6 +1974,8 @@ private:
     bool IsAbilityStarted(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &targetRecord,
         const int32_t oriValidUserId);
 
+    bool CheckDebugAppInDeveloperMode(bool isDebugApp);
+
     void InitInterceptor();
     void InitPushTask();
 
