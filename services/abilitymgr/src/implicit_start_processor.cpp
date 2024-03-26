@@ -66,6 +66,11 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
         return false;
     }
 
+    if (want.GetIntParam(AAFwk::SCREEN_MODE_KEY, ScreenMode::IDLE_SCREEN_MODE) != ScreenMode::IDLE_SCREEN_MODE) {
+        HILOG_INFO("The implicit startup process is not used for the startup of EmbeddaUIAbility");
+        return false;
+    }
+
     if (std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
         HILOG_INFO("implicit start, the action is %{public}s", want.GetAction().data());
         return true;

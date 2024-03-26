@@ -42,6 +42,8 @@ constexpr int32_t INDEX_ONE = 1;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
+
+const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 } // namespace
 
 static std::map<UIExtensionConnectionKey, sptr<JSUIExtensionConnection>, key_compare> g_connects;
@@ -518,16 +520,9 @@ napi_value JsUIExtensionContext::OnOpenAtomicService(napi_env env, NapiCallbackI
         unwrapArgc++;
     }
 
-    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
-    std::string bundleName = elementName.GetBundleName();
-    std::string abilityName = elementName.GetAbilityName();
-    if (bundleName.empty() || abilityName.empty()) {
-        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
-        return CreateJsUndefined(env);
-    }
-
-    want.SetElement(elementName);
+    std::string bundleName = ATOMIC_SERVICE_PREFIX + appId;
+    HILOG_INFO("ywz bundleName: %{public}s.", bundleName.c_str());
+    want.SetBundle(bundleName);
     return OpenAtomicServiceInner(env, info, want, startOptions, unwrapArgc);
 }
 

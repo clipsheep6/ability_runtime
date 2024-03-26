@@ -275,16 +275,7 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
         if (resultCode == ERR_OK) {
             HILOG_INFO("FreeInstall success.");
             if (isAsync) {
-                Want newWant((*it).want);
-                newWant.SetFlags(want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
-                auto identity = IPCSkeleton::ResetCallingIdentity();
-                IPCSkeleton::SetCallingIdentity((*it).identity);
-                auto result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityByFreeInstall(newWant,
-                    (*it).callerToken, (*it).userId, (*it).requestCode);
-                IPCSkeleton::SetCallingIdentity(identity);
-                HILOG_INFO("The result of StartAbility is %{public}d.", result);
-                DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
-                    bundleName, abilityName, startTime, result);
+                StartAbilityByFreeInstall(*it, bundleName, abilityName, startTime);
             } else {
                 (*it).promise->set_value(resultCode);
             }
@@ -300,6 +291,37 @@ void FreeInstallManager::NotifyFreeInstallResult(const Want &want, int resultCod
 
         it = freeInstallList_.erase(it);
     }
+}
+
+void FreeInstallManager::StartAbilityByFreeInstall(FreeInstallInfo &info, std::string &bundleName,
+    std::string &abilityName, std::string &startTime)
+{
+    info.want.SetFlags(info.want.GetFlags() ^ Want::FLAG_INSTALL_ON_DEMAND);
+    auto identity = IPCSkeleton::ResetCallingIdentity();
+    IPCSkeleton::SetCallingIdentity(info.identity);
+    auto result = UpdateElementName(info.want, info.userId);
+    if (result == ERR_OK) {
+        result = DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbilityByFreeInstall(info.want,
+            info.callerToken, info.userId, info.requestCode);
+    }
+    IPCSkeleton::SetCallingIdentity(identity);
+    HILOG_INFO("The result of StartAbility is %{public}d.", result);
+    DelayedSingleton<FreeInstallObserverManager>::GetInstance()->OnInstallFinished(
+        bundleName, abilityName, startTime, result);
+}
+
+int32_t FreeInstallManager::UpdateElementName(Want &want, int32_t userId) const
+{
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, ERR_INVALID_VALUE);
+    Want launchWant;
+    auto errCode = bundleMgrHelper->GetLaunchWantForBundle(want.GetBundle(), launchWant, userId);
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("GetLaunchWantForBundle returns %{public}d.", errCode);
+        return errCode;
+    }
+    want.SetElement(launchWant.GetElement());
+    return ERR_OK;
 }
 
 int FreeInstallManager::FreeInstallAbilityFromRemote(const Want &want, const sptr<IRemoteObject> &callback,

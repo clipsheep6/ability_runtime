@@ -1758,17 +1758,6 @@ int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
     return abms->RestartApp(want);
 }
 
-AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::string &appId)
-{
-    HILOG_DEBUG("Called.");
-    auto abms = GetAbilityManager();
-    if (abms == nullptr) {
-        HILOG_ERROR("abms is nullptr.");
-        return {};
-    }
-    return abms->GetElementNameByAppId(appId);
-}
-
 int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &options,
     sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {

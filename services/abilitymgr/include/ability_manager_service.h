@@ -312,13 +312,6 @@ public:
         int requestCode) override;
 
     /**
-     * @brief Obtains elementName by appId.
-     * @param appId The ID of the application to which this bundle belongs.
-     * @return Returns elementName.
-     */
-    virtual AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId) override;
-
-    /**
      * Pop-up launch of full-screen atomic service.
      *
      * @param want The want with parameters.

@@ -178,6 +178,7 @@ constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewDat
 constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
+const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
@@ -1712,17 +1713,6 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     HILOG_DEBUG("request dialog service, start service extension,name is %{public}s.", abilityInfo.name.c_str());
     ReportEventToSuspendManager(abilityInfo);
     return connectManager->StartAbility(abilityRequest);
-}
-
-AppExecFwk::ElementName AbilityManagerService::GetElementNameByAppId(const std::string &appId)
-{
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        HILOG_ERROR("bms is invalid.");
-        return {};
-    }
-    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
-    return launchWant.GetElement();
 }
 
 int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, const StartOptions &options,
@@ -9895,28 +9885,28 @@ bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> calle
         HILOG_ERROR("bms is invalid.");
         return false;
     }
-    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
-    std::string bundleName = launchWant.GetElement().GetBundleName();
-    std::string abilityName = launchWant.GetElement().GetAbilityName();
-    if (bundleName.empty() || abilityName.empty()) {
-        HILOG_ERROR("bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
+    std::string bundleName = ATOMIC_SERVICE_PREFIX + appId;
+    Want want;
+    want.SetBundle(bundleName);
+    want.SetParam("isEmbeded", 1);
+    int32_t ret = freeInstallManager_->StartFreeInstall(want, GetUserId(), 0, callerToken, false);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("The target is not allowed to free install.");
         return false;
     }
-    AppExecFwk::ApplicationInfo appInfo;
-    bool ans = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-        GetUserId(), appInfo));
-    if (!ans) {
-        HILOG_ERROR("Fail to get application info.");
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
+    Want launchWant;
+    auto errCode = bundleMgrHelper->GetLaunchWantForBundle(bundleName, launchWant, GetUserId());
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("GetLaunchWantForBundle returns %{public}d.", errCode);
         return false;
     }
-    if (appInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_ERROR("The target is not atomic service.");
-        return false;
-    }
-    launchWant.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
-    launchWant.SetParam("send_to_erms_targetBundleType", static_cast<int32_t>(appInfo.bundleType));
+    want.SetElement(launchWant.GetElement());
+    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
+    want.SetParam("send_to_erms_targetBundleType", static_cast<int32_t>(AppExecFwk::BundleType::ATOMIC_SERVICE));
     auto erms = std::make_shared<EcologicalRuleInterceptor>();
-    auto queryRet = erms->DoProcess(launchWant, 0, GetUserId(), true, callerToken);
+    auto queryRet = erms->DoProcess(want, 0, GetUserId(), true, callerToken);
     if (queryRet == ERR_OK) {
         return true;
     }
