@@ -1317,6 +1317,21 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     if (ret != ERR_OK) {
         HILOG_ERROR("Get base shared bundle infos failed: %{public}d.", ret);
     }
+
+    std::map<std::string, std::string> pkgContextInfoJsonStringMap;
+    for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+        std::string pkgContextInfoJsonString;
+        ErrCode errCode = bundleMgrHelper->GetJsonProfile(
+            AppExecFwk::PKG_CONTEXT_PROFILE, appInfo.bundleName,
+            hapModuleInfo.moduleName, pkgContextInfoJsonString, UNSPECIFIED_USERID);
+        if (ret != ERR_OK) {
+            HILOG_ERROR("GetJsonProfile failed: %{public}d.", ret);
+        }
+        if (!pkgContextInfoJsonString.empty()) {
+            pkgContextInfoJsonStringMap[hapModuleInfo.moduleName] = pkgContextInfoJsonString;
+        }
+    }
+
     AppLibPathMap appLibPaths {};
     GetNativeLibPath(bundleInfo, hspList, appLibPaths);
     bool isSystemApp = bundleInfo.applicationInfo.isSystemApp;
@@ -1339,9 +1354,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         options.arkNativeFilePath = bundleInfo.applicationInfo.arkNativeFilePath;
         options.uid = bundleInfo.applicationInfo.uid;
         options.apiTargetVersion = appInfo.apiTargetVersion;
+        options.pkgContextInfoJsonStringMap = pkgContextInfoJsonStringMap;
         if (!bundleInfo.hapModuleInfos.empty()) {
             for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
                 options.hapModulePath[hapModuleInfo.moduleName] = hapModuleInfo.hapPath;
+                options.packageNameList[hapModuleInfo.moduleName] = hapModuleInfo.packageName;
             }
         }
         auto runtime = AbilityRuntime::Runtime::Create(options);

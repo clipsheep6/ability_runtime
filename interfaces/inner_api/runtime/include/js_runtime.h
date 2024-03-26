@@ -177,6 +177,9 @@ private:
     void SetRequestAotCallback();
 
     std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
+
+    std::map<std::string, std::vector<std::vector<std::string>>> GetPkgContextInfoListMap(
+        std::map<std::string, std::string> contextInfoMap);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
