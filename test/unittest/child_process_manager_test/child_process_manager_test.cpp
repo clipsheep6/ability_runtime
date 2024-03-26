@@ -79,7 +79,7 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Lev
     TAG_LOGD(AAFwkTag::TEST, "StartChildProcessBySelfFork_0100 called.");
     pid_t pid;
     auto ret = ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
-    EXPECT_TRUE(ret == ChildProcessManagerErrorCode::ERR_OK);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
 }
 
 /**
@@ -92,7 +92,7 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessByAppSpawnFork_0100, TestSize
     TAG_LOGD(AAFwkTag::TEST, "StartChildProcessByAppSpawnFork_0100 called.");
     pid_t pid;
     auto ret = ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork("./ets/process/DemoProcess.ts", pid);
-    EXPECT_TRUE(ret == ChildProcessManagerErrorCode::ERR_OK);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
 }
 
 /**

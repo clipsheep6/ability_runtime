@@ -59,6 +59,10 @@ ohos_unittest("ui_extension_get_host_info_test") {
     "ipc:ipc_core",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:scene_session" ]
+  }
 }
 
 group("unittest") {

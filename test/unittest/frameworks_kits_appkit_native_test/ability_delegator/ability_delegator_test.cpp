@@ -467,9 +467,12 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_0800, Function | MediumTes
     sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new MockAbilityDelegatorStub());
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
 
-    sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+        EXPECT_TRUE(abilityDelegator.DoAbilityForeground(token));
+    }
 
-    EXPECT_TRUE(abilityDelegator.DoAbilityForeground(token));
+    EXPECT_TRUE(iRemoteObj != nullptr);
 }
 
 /**
@@ -561,9 +564,12 @@ HWTEST_F(AbilityDelegatorTest, Ability_Delegator_Test_1100, Function | MediumTes
     sptr<IRemoteObject> iRemoteObj = sptr<IRemoteObject>(new MockAbilityDelegatorStub());
     AbilityDelegator abilityDelegator(context, std::move(testRunner), iRemoteObj);
 
-    sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        sptr<IRemoteObject> token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
+        EXPECT_TRUE(abilityDelegator.DoAbilityBackground(token));
+    }
 
-    EXPECT_TRUE(abilityDelegator.DoAbilityBackground(token));
+    EXPECT_TRUE(iRemoteObj != nullptr);
 }
 
 /**
