@@ -743,6 +743,8 @@ int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::M
 
 int32_t AppRunningManager::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
+    TAG_LOGE(AAFwkTag::APPMGR,"pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        info.pid, info.tid, info.needGc, info.needSnapshot);
     std::lock_guard<ffrt::mutex> guard(lock_);
     int32_t pid = static_cast<int32_t>(info.pid);
     auto iter = std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&pid](const auto &pair) {

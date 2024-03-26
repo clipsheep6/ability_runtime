@@ -32,7 +32,9 @@ bool JsHeapDumpInfo::Marshalling(Parcel& parcel) const
     }
     for (auto &fd : fdVec){
         msgParcel->WriteFileDescriptor(fd);
+        HILOG_ERROR("Dump WriteFileDescriptor fd=%{public}d", fd);
     }
+    HILOG_INFO("Dump JsHeapDumpInfo::Marshalling");
     return (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
         && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot)) && parcel.WriteUInt32Vector(tidVec);
 }
