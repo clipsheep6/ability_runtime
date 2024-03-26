@@ -61,12 +61,13 @@ public:
         const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     void RevokeUriPermission(const TokenId tokenId) override;
     int RevokeAllUriPermissions(uint32_t tokenId) override;
-    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
+    int RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName) override;
+    int32_t RevokeUriPermissionManually(const std::vector<Uri> &uriVec, const std::string &bundleName) override;
 
     bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
     
-    uint32_t GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex);
+    int32_t GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex, uint32_t &tokenId);
 
 private:
     template<typename T>
@@ -77,7 +78,7 @@ private:
         TokenId fromTokenId, TokenId targetTokenId, uint32_t autoRemove);
     int AddTempUriPermission(const std::string &uri, unsigned int flag, TokenId fromTokenId,
         TokenId targetTokenId, uint32_t autoRemove);
-    int DeleteTempUriPermission(const std::string &uri, uint32_t fromTokenId, uint32_t targetTokenId);
+    int32_t DeleteTempUriPermission(const std::vector<Uri> &uriVec, uint32_t fromTokenId, uint32_t targetTokenId);
 
     int GrantBatchUriPermissionImpl(const std::vector<std::string> &uriVec, unsigned int flag,
         TokenId initiatorTokenId, TokenId targetTokenId, uint32_t autoRemove);
@@ -88,8 +89,7 @@ private:
         uint32_t autoRemove);
 
     bool SendEvent(uint32_t callerTokenId, uint32_t targetTokenId, std::string &uri);
-
-    int CheckRule(unsigned int flag);
+    int32_t CheckCalledBySandBox();
 
     bool CheckUriPermission(const Uri &uri, unsigned int flag, uint32_t callerTokenId);
     bool CheckUriTypeIsValid(const Uri &uri);
@@ -107,6 +107,8 @@ private:
         uint64_t tokenId, unsigned int flag, std::vector<PolicyInfo> &docsVec, bool isSystemAppCall);
 
     bool IsFoundationCall();
+
+    int32_t DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec);
 
     class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
     public:

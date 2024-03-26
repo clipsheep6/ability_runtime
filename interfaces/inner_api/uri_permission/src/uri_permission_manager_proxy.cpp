@@ -70,6 +70,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
+    if (uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("Exceeded maximum uri count.");
+        return INVALID_PARAMETERS_ERR;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         HILOG_ERROR("Write interface token failed.");
@@ -122,7 +126,7 @@ int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> 
     }
     if (uriVec.size() > MAX_URI_COUNT) {
         HILOG_ERROR("Exceeded maximum uri count.");
-        return INNER_ERR;
+        return INVALID_PARAMETERS_ERR;
     }
     if (!data.WriteUint32(uriVec.size())) {
         HILOG_ERROR("Write size of uriVec failed.");
@@ -199,10 +203,10 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessTok
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
         return INNER_ERR;
     }
-    return ERR_OK;
+    return reply.ReadInt32();
 }
 
-int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName)
 {
     HILOG_DEBUG("UriPermissionManagerProxy::RevokeUriPermissionManually is called.");
     MessageParcel data;
@@ -221,6 +225,43 @@ int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY, data, reply, option);
+    if (error != ERR_OK) {
+        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        return INNER_ERR;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t UriPermissionManagerProxy::RevokeUriPermissionManually(const std::vector<Uri> &uriVec,
+    const std::string &bundleName)
+{
+    HILOG_DEBUG("RevokeUriPermissionManually with batch uris, is called.");
+    if (uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("Exceeded maximum uri count.");
+        return INVALID_PARAMETERS_ERR;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        HILOG_ERROR("Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteUint32(uriVec.size())) {
+        HILOG_ERROR("Write size of uriVec failed.");
+        return INNER_ERR;
+    }
+    for (const auto &uri : uriVec) {
+        if (!data.WriteParcelable(&uri)) {
+            HILOG_ERROR("Write uri failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundleName failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_BATCH_REVOKE_URI_PERMISSION_MANUALLY, data, reply, option);
     if (error != ERR_OK) {
         HILOG_ERROR("SendRequest fail, error: %{public}d", error);
         return INNER_ERR;

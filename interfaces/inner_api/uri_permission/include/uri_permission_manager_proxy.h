@@ -36,7 +36,9 @@ public:
         const std::string &targetBundleName, int32_t appIndex = 0, bool isSystemAppCall = false) override;
     virtual void RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId) override;
     virtual int RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId) override;
-    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) override;
+    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName) override;
+    virtual int32_t RevokeUriPermissionManually(const std::vector<Uri> &uriVec,
+        const std::string &bundleName) override;
     virtual bool VerifyUriPermission(const Uri &uri, uint32_t flag, uint32_t tokenId) override;
     virtual bool IsAuthorizationUriAllowed(uint32_t fromTokenId) override;
 

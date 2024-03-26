@@ -79,7 +79,7 @@ bool UriPermissionManagerStubImpl::IsAuthorizationUriAllowed(uint32_t fromTokenI
 int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
-    HILOG_DEBUG("CALL: appIndex is %{public}d.", appIndex);
+    HILOG_INFO("Called, uri is %{private}s", uri.ToString().c_str());
     std::vector<Uri> uriVec = { uri };
     return GrantUriPermission(uriVec, flag, targetBundleName, appIndex, initiatorTokenId);
 }
@@ -87,7 +87,13 @@ int UriPermissionManagerStubImpl::GrantUriPermission(const Uri &uri, unsigned in
 int UriPermissionManagerStubImpl::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
-    HILOG_DEBUG("CALL: appIndex is %{public}d, uriVec size is %{public}zu", appIndex, uriVec.size());
+    HILOG_INFO("BundleName is %{public}s, appIndex is %{public}d, size of uriVec is %{public}u.",
+        targetBundleName.c_str(), appIndex, uriVec.size());
+
+    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
+        HILOG_ERROR("Flag is %{public}u, invalid!", flag);
+        return ERR_CODE_INVALID_URI_FLAG;
+    }
     if (AppUtils::GetInstance().IsGrantPersistUriPermission()) {
         bool isSystemAppCall = PermissionVerification::GetInstance()->IsSystemAppCall();
         // IsSACall function used for visibility checks.
@@ -105,12 +111,16 @@ int UriPermissionManagerStubImpl::GrantUriPermissionInner(const std::vector<Uri>
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     HILOG_DEBUG("Called.");
-    auto checkResult = CheckRule(flag);
+    auto checkResult = CheckCalledBySandBox();
     if (checkResult != ERR_OK) {
         return checkResult;
     }
     flag &= (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION);
-    auto targetTokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
+    uint32_t targetTokenId = 0;
+    if (GetTokenIdByBundleName(targetBundleName, appIndex, targetTokenId) != ERR_OK) {
+        HILOG_ERROR("Get tokenId by bundle name failed!");
+        return INNER_ERR;
+    }
     // autoRemove will be set to 1 if the process name is foundation.
     uint32_t autoRemove = 0;
     uint32_t appTokenId = IPCSkeleton::GetCallingTokenID();
@@ -148,7 +158,7 @@ int persistPermission(const std::vector<PolicyInfo> &policy, std::vector<uint32_
     return 0;
 }
 
-int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
+int32_t UriPermissionManagerStubImpl::CheckCalledBySandBox()
 {
     // reject sandbox to grant uri permission
     ConnectManager(appMgr_, APP_MGR_SERVICE_ID);
@@ -165,11 +175,6 @@ int UriPermissionManagerStubImpl::CheckRule(unsigned int flag)
     if (isSandbox) {
         HILOG_ERROR("Sandbox application can not grant URI permission.");
         return ERR_CODE_GRANT_URI_PERMISSION;
-    }
-
-    if ((flag & (Want::FLAG_AUTH_READ_URI_PERMISSION | Want::FLAG_AUTH_WRITE_URI_PERMISSION)) == 0) {
-        HILOG_WARN("UriPermissionManagerStubImpl::GrantUriPermission: The param flag is invalid.");
-        return ERR_CODE_INVALID_URI_FLAG;
     }
     return ERR_OK;
 }
@@ -281,6 +286,7 @@ int UriPermissionManagerStubImpl::GrantBatchUriPermissionImpl(const std::vector<
     bool needSendEvent = CheckAndCreateEventInfo(callerTokenId, targetTokenId, eventInfo);
     int successCount = 0;
     for (size_t i = 0; i < uriVec.size(); i++) {
+        HILOG_DEBUG("uri is %{public}s", uriVec[i].c_str());
         auto ret = resVec[i];
         if (ret != 0 && ret != -EEXIST) {
             HILOG_ERROR("failed to CreateShareFile.");
@@ -347,16 +353,7 @@ void UriPermissionManagerStubImpl::RevokeUriPermission(const TokenId tokenId)
             }
         }
     }
-
-    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
-    if (storageManager_ == nullptr) {
-        HILOG_ERROR("ConnectManager failed");
-        return;
-    }
-
-    if (!uriList.empty()) {
-        storageManager_->DeleteShareFile(tokenId, uriList);
-    }
+    DeleteShareFile(tokenId, uriList);
 }
 
 int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
@@ -403,58 +400,86 @@ int UriPermissionManagerStubImpl::RevokeAllUriPermissions(uint32_t tokenId)
     return ERR_OK;
 }
 
-int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+int32_t UriPermissionManagerStubImpl::RevokeUriPermissionManually(const std::vector<Uri> &uriVec,
+    const std::string &bundleName)
 {
-    HILOG_INFO("Start to remove uri permission manually.");
-    Uri uri_inner = uri;
-    auto uriStr = uri.ToString();
-    auto&& authority = uri_inner.GetAuthority();
-    auto&& scheme = uri_inner.GetScheme();
-    if (scheme != "file" && scheme != "content") {
-        HILOG_WARN("only support file uri.");
-        return ERR_CODE_INVALID_URI_TYPE;
+    HILOG_INFO("Bundle name is %{public}s, size of uri list is %{public}u", bundleName.c_str(), uriVec.size());
+    uint32_t targetTokenId = 0;
+    if (!PermissionVerification::GetInstance()->IsSystemAppCall() &&
+        !PermissionVerification::GetInstance()->IsSACall()) {
+        HILOG_ERROR("Not system application or SA call.");
+        return CHECK_PERMISSION_FAILED;
     }
-    auto tokenId = GetTokenIdByBundleName(bundleName, 0);
-    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
-    HILOG_DEBUG("callerTokenId is %{public}u, targetTokenId is %{public}u", callerTokenId, tokenId);
-    if (tokenId == callerTokenId) {
-        return DeleteTempUriPermission(uriStr, 0, tokenId);
-    }
-    return DeleteTempUriPermission(uriStr, callerTokenId, tokenId);
-}
-
-int UriPermissionManagerStubImpl::DeleteTempUriPermission(const std::string &uri, uint32_t fromTokenId,
-    uint32_t targetTokenId)
-{
-    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
-    if (storageManager_ == nullptr) {
-        HILOG_ERROR("ConnectStorageManager failed");
+    if (GetTokenIdByBundleName(bundleName, 0, targetTokenId) != ERR_OK) {
+        HILOG_ERROR("Get tokenId by bundle name failed!");
         return INNER_ERR;
     }
+    auto callerTokenId = IPCSkeleton::GetCallingTokenID();
+    return DeleteTempUriPermission(uriVec, callerTokenId, targetTokenId);
+}
 
-    std::lock_guard<std::mutex> guard(mutex_);
-    auto search = uriMap_.find(uri);
-    if (search == uriMap_.end()) {
-        HILOG_INFO("URI does not exist on uri map.");
-        return ERR_OK;
-    }
-    auto& list = search->second;
-    for (auto it = list.begin(); it != list.end(); it++) {
-        if ((it->fromTokenId == fromTokenId || fromTokenId == 0) && it->targetTokenId == targetTokenId) {
-            HILOG_INFO("Notify storageMGR to delete shareFile.");
-            std::vector<std::string> uriList;
-            uriList.emplace_back(search->first);
-            auto procedureRet = storageManager_->DeleteShareFile(targetTokenId, uriList);
-            if (procedureRet != ERR_OK) {
-                HILOG_ERROR("DeleteShareFile failed");
-                return procedureRet;
+int UriPermissionManagerStubImpl::RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName)
+{
+    HILOG_INFO("Uri is %{private}s, bundleName is %{public}s", uri.ToString().c_str(), bundleName.c_str());
+    std::vector<Uri> uriVec = { uri };
+    return RevokeUriPermissionManually(uriVec, bundleName);
+}
+
+int32_t UriPermissionManagerStubImpl::DeleteTempUriPermission(const std::vector<Uri> &uriVec, uint32_t fromTokenId,
+    uint32_t targetTokenId)
+{
+    uint32_t invalidUriCount = 0;
+    std::vector<std::string> removedUriList;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        for (auto &uri : uriVec) {
+            if (!CheckUriTypeIsValid(uri)) {
+                invalidUriCount++;
+                continue;
             }
-            list.erase(it);
-            break;
+            auto search = uriMap_.find(uri.ToString());
+            if (search == uriMap_.end()) {
+                HILOG_DEBUG("URI does not exist on uri map, uri is %{private}s", uri.ToString().c_str());
+                continue;
+            }
+            auto &recordList = search->second;
+            for (auto it = recordList.begin(); it != recordList.end(); it++) {
+                bool permission = (it->fromTokenId == fromTokenId || fromTokenId == targetTokenId);
+                if (permission && it->targetTokenId == targetTokenId) {
+                    HILOG_DEBUG("Found a valid uri permission record, uri is %{private}s", uri.ToString().c_str());
+                    removedUriList.emplace_back(search->first);
+                    recordList.erase(it);
+                    break;
+                }
+            }
+            if (recordList.size() == 0) {
+                uriMap_.erase(search);
+            }
         }
     }
-    if (list.size() == 0) {
-        uriMap_.erase(search);
+    // All uri is invalid.
+    if (invalidUriCount == uriVec.size()) {
+        HILOG_ERROR("All uri type is invalid.");
+        return ERR_CODE_INVALID_URI_TYPE;
+    }
+    return DeleteShareFile(targetTokenId, removedUriList);
+}
+
+int32_t UriPermissionManagerStubImpl::DeleteShareFile(uint32_t targetTokenId, const std::vector<std::string> &uriVec)
+{
+    if (uriVec.size() == 0) {
+        HILOG_WARN("Size of uri list is 0.");
+        return ERR_OK;
+    }
+    ConnectManager(storageManager_, STORAGE_MANAGER_MANAGER_ID);
+    if (storageManager_ == nullptr) {
+        HILOG_ERROR("Connect StorageManager failed.");
+        return INNER_ERR;
+    }
+    auto ret = storageManager_->DeleteShareFile(targetTokenId, uriVec);
+    if (ret != ERR_OK) {
+        HILOG_INFO("DeleteShareFile finished, errorCode is %{public}d.", ret);
+        return ret;
     }
     return ERR_OK;
 }
@@ -508,7 +533,8 @@ std::shared_ptr<AppExecFwk::BundleMgrHelper> UriPermissionManagerStubImpl::Conne
     return bundleMgrHelper_;
 }
 
-uint32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string bundleName, int32_t appIndex)
+int32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string &bundleName, int32_t appIndex,
+    uint32_t &tokenId)
 {
     auto bundleMgrHelper = ConnectManagerHelper();
     if (bundleMgrHelper == nullptr) {
@@ -530,7 +556,8 @@ uint32_t UriPermissionManagerStubImpl::GetTokenIdByBundleName(const std::string 
             return GET_BUNDLE_INFO_FAILED;
         }
     }
-    return bundleInfo.applicationInfo.accessTokenId;
+    tokenId = bundleInfo.applicationInfo.accessTokenId;
+    return ERR_OK;
 }
 
 void UriPermissionManagerStubImpl::ProxyDeathRecipient::OnRemoteDied([[maybe_unused]]
@@ -563,7 +590,7 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
     const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall, uint32_t initiatorTokenId)
 {
     HILOG_INFO("UriVec size is %{public}zu, targetBundleName is %{public}s", uriVec.size(), targetBundleName.c_str());
-    auto checkResult = CheckRule(flag);
+    auto checkResult = CheckCalledBySandBox();
     if (checkResult != ERR_OK) {
         return checkResult;
     }
@@ -591,7 +618,10 @@ int UriPermissionManagerStubImpl::GrantUriPermissionFor2In1Inner(const std::vect
             otherVec.emplace_back(uri_inner);
         }
     }
-    uint32_t tokenId = GetTokenIdByBundleName(targetBundleName, appIndex);
+    uint32_t tokenId = 0;
+    if (GetTokenIdByBundleName(targetBundleName, 0, tokenId) != ERR_OK) {
+        HILOG_ERROR("Get tokenId by bundle name failed!");
+    }
     HILOG_DEBUG("The tokenId is %{public}u", tokenId);
     HandleUriPermission(tokenId, flag, docsVec, isSystemAppCall);
     if (!otherVec.empty()) {
@@ -684,7 +714,7 @@ std::string UriPermissionManagerStubImpl::GetBundleNameByTokenId(uint32_t tokenI
     Security::AccessToken::HapTokenInfo hapInfo;
     auto ret = Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapInfo);
     if (ret != Security::AccessToken::AccessTokenKitRet::RET_SUCCESS) {
-        HILOG_ERROR("GetHapTokenInfo failed, ret is %{public}i", ret);
+        HILOG_WARN("GetHapTokenInfo failed, ret is %{public}i", ret);
         return "";
     }
     return hapInfo.bundleName;
@@ -714,9 +744,13 @@ bool UriPermissionManagerStubImpl::CheckUriPermission(const Uri &uri, unsigned i
     // Check if caller have permission to grant uri with type of bundle name.
     auto uriInner = uri;
     auto &&authority = uriInner.GetAuthority();
-    auto authorityTokenId = GetTokenIdByBundleName(authority, 0);
     if (authority == "docs" || authority == "media") {
         HILOG_ERROR("Authotity is media or docs, do not have permission.");
+        return false;
+    }
+    uint32_t authorityTokenId = 0;
+    if (GetTokenIdByBundleName(authority, 0, authorityTokenId) != ERR_OK) {
+        HILOG_ERROR("Get tokenId by bundle name failed!");
         return false;
     }
     if (authorityTokenId != callerTokenId) {
@@ -731,7 +765,8 @@ bool UriPermissionManagerStubImpl::CheckUriTypeIsValid(const Uri &uri)
     auto innerUri = uri;
     auto &&scheme = innerUri.GetScheme();
     if (scheme != "file" && scheme != "content") {
-        HILOG_ERROR("Only support file or content uri, scheme is %{public}s", scheme.c_str());
+        HILOG_ERROR("Only support file or content uri, scheme is %{public}s, uri is %{private}s",
+            scheme.c_str(), uri.ToString().c_str());
         return false;
     }
     return true;

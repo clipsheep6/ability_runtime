@@ -94,12 +94,27 @@ int UriPermissionManagerClient::RevokeAllUriPermissions(const Security::AccessTo
     return INNER_ERR;
 }
 
-int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
+int UriPermissionManagerClient::RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName)
 {
     HILOG_DEBUG("UriPermissionManagerClient::RevokeUriPermissionManually is called.");
     auto uriPermMgr = ConnectUriPermService();
     if (uriPermMgr) {
         return uriPermMgr->RevokeUriPermissionManually(uri, bundleName);
+    }
+    return INNER_ERR;
+}
+
+int32_t UriPermissionManagerClient::RevokeUriPermissionManually(const std::vector<Uri> &uriVec,
+    const std::string &bundleName)
+{
+    HILOG_DEBUG("RevokeUriPermissionManually with batch uris, is called.");
+    if (uriVec.size() == 0 || uriVec.size() > MAX_URI_COUNT) {
+        HILOG_ERROR("The size of uriVec should be between 1 and %{public}i.", MAX_URI_COUNT);
+        return INVALID_PARAMETERS_ERR;
+    }
+    auto uriPermMgr = ConnectUriPermService();
+    if (uriPermMgr) {
+        return uriPermMgr->RevokeUriPermissionManually(uriVec, bundleName);
     }
     return INNER_ERR;
 }
