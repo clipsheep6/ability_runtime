@@ -114,5 +114,9 @@ bool PermissionVerification::JudgeCallerIsAllowedToUseSystemAPI() const
 {
     return true;
 }
+bool PermissionVerification::IsSystemAppCall() const
+{
+    return true;
+}
 } // namespace AAFwk
 } // namespace OHOS

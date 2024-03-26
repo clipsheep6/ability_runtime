@@ -58,7 +58,8 @@ HWTEST_F(ImplicitStartProcessorTest, ImplicitStartAbility_001, TestSize.Level1)
     auto processor = std::make_shared<ImplicitStartProcessor>();
     AbilityRequest request;
     int32_t userId = 0;
-    bool res = processor->ImplicitStartAbility(request, userId);
+    bool res = processor->ImplicitStartAbility(request, userId,
+        AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
     EXPECT_TRUE(res);
 }
 

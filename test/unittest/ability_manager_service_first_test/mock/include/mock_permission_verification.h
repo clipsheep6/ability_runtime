@@ -91,6 +91,7 @@ struct VerificationInfo {
     }
 
     bool JudgeCallerIsAllowedToUseSystemAPI() const;
+    bool IsSystemAppCall() const;
 
     bool VerifyPrepareTerminatePermission() const;
 };

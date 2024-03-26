@@ -91,6 +91,7 @@ public:
     }
 
     bool JudgeCallerIsAllowedToUseSystemAPI() const;
+    bool IsSystemAppCall() const;
 };
 } // namespace AAFwk
 } // namespace OHOS
