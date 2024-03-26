@@ -78,6 +78,72 @@ bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
     auto it = trustMap.find(abilityInfo.bundleName);
     return (it != trustMap.end() && it->second == abilityInfo.name);
 }
+
+std::mutex g_keepAliveAbilitiesMutex;
+std::vector<std::pair<std::string, std::string>> g_keepAliveAbilities;
+void GetKeepAliveAbilities()
+{
+    if (!g_keepAliveAbilities.empty()) {
+        return;
+    }
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER(bundleMgrHelper);
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    bool getBundleInfos = bundleMgrHelper->GetBundleInfos(
+        OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
+    if (!getBundleInfos) {
+        HILOG_ERROR("Handle ability died task, get bundle infos failed.");
+        return;
+    }
+
+    auto checkIsAbilityNeedKeepAlive = [](const AppExecFwk::HapModuleInfo &hapModuleInfo,
+        const std::string &processName, std::string &mainElement) {
+        if (hapModuleInfo.isModuleJson) {
+            // new application model
+            if (hapModuleInfo.process == processName) {
+                mainElement = hapModuleInfo.mainElementName;
+                return true;
+            }
+            return false;
+        }
+
+        // old application model
+        mainElement = hapModuleInfo.mainAbility;
+        for (auto abilityInfo : hapModuleInfo.abilityInfos) {
+            if (abilityInfo.process == processName && abilityInfo.name == mainElement) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    for (const auto &bundleInfo : bundleInfos) {
+        std::string processName = bundleInfo.applicationInfo.process;
+        if (!bundleInfo.isKeepAlive || processName.empty()) {
+            continue;
+        }
+        std::string bundleName = bundleInfo.name;
+        for (auto hapModuleInfo : bundleInfo.hapModuleInfos) {
+            std::string mainElement;
+            if (checkIsAbilityNeedKeepAlive(hapModuleInfo, processName, mainElement) && !mainElement.empty()) {
+                g_keepAliveAbilities.emplace_back(bundleName, mainElement);
+            }
+        }
+    }
+}
+
+bool IsInKeepAliveList(const AppExecFwk::AbilityInfo &abilityInfo)
+{
+    std::lock_guard guard(g_keepAliveAbilitiesMutex);
+    GetKeepAliveAbilities();
+    for (const auto &pair : g_keepAliveAbilities) {
+        if (abilityInfo.bundleName == pair.first && abilityInfo.name == pair.second) {
+            return true;
+        }
+    }
+    return false;
+}
 }
 
 AbilityConnectManager::AbilityConnectManager(int userId) : userId_(userId)
@@ -1796,65 +1862,13 @@ void AbilityConnectManager::HandleInactiveTimeout(const std::shared_ptr<AbilityR
 bool AbilityConnectManager::IsAbilityNeedKeepAlive(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    if (IsSpecialAbility(abilityRecord->GetAbilityInfo())) {
+    CHECK_POINTER_AND_RETURN(abilityRecord, false);
+    const auto &abilityInfo = abilityRecord->GetAbilityInfo();
+    if (IsSpecialAbility(abilityInfo)) {
         return true;
     }
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
-    std::vector<AppExecFwk::BundleInfo> bundleInfos;
-    bool getBundleInfos = bundleMgrHelper->GetBundleInfos(
-        OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
-    if (!getBundleInfos) {
-        HILOG_ERROR("Handle ability died task, get bundle infos failed.");
-        return false;
-    }
 
-    auto CheckIsAbilityNeedKeepAlive = [](const AppExecFwk::HapModuleInfo &hapModuleInfo,
-        const std::string processName, std::string &mainElement) {
-        if (!hapModuleInfo.isModuleJson) {
-            // old application model
-            mainElement = hapModuleInfo.mainAbility;
-            for (auto abilityInfo : hapModuleInfo.abilityInfos) {
-                if (abilityInfo.process == processName && abilityInfo.name == mainElement) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // new application model
-        if (hapModuleInfo.process == processName) {
-            mainElement = hapModuleInfo.mainElementName;
-            return true;
-        }
-        return false;
-    };
-
-    auto GetKeepAliveAbilities = [&](std::vector<std::pair<std::string, std::string>> &keepAliveAbilities) {
-        for (size_t i = 0; i < bundleInfos.size(); i++) {
-            std::string processName = bundleInfos[i].applicationInfo.process;
-            if (!bundleInfos[i].isKeepAlive || processName.empty()) {
-                continue;
-            }
-            std::string bundleName = bundleInfos[i].name;
-            for (auto hapModuleInfo : bundleInfos[i].hapModuleInfos) {
-                std::string mainElement;
-                if (CheckIsAbilityNeedKeepAlive(hapModuleInfo, processName, mainElement) && !mainElement.empty()) {
-                    keepAliveAbilities.push_back(std::make_pair(bundleName, mainElement));
-                }
-            }
-        }
-    };
-
-    auto findKeepAliveAbility = [abilityRecord](const std::pair<std::string, std::string> &keepAlivePair) {
-        return ((abilityRecord->GetAbilityInfo().bundleName == keepAlivePair.first &&
-                abilityRecord->GetAbilityInfo().name == keepAlivePair.second));
-    };
-
-    std::vector<std::pair<std::string, std::string>> keepAliveAbilities;
-    GetKeepAliveAbilities(keepAliveAbilities);
-    auto findIter = find_if(keepAliveAbilities.begin(), keepAliveAbilities.end(), findKeepAliveAbility);
-    if (findIter != keepAliveAbilities.end()) {
+    if (IsInKeepAliveList(abilityInfo)) {
         abilityRecord->SetKeepAlive();
         return true;
     }
