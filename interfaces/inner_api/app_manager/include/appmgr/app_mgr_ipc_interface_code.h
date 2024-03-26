@@ -91,6 +91,7 @@ enum class AppMgrInterfaceCode {
     SIGN_RESTART_APP_FLAG = 65,
     DUMP_JSHEAP_MEMORY_PROCESS = 66,
     GET_APP_RUNNING_UNIQUE_ID_BY_PID = 67,
+    APP_NOTIFY_PROC_MEMORY_LEVEL = 68,
 };
 } // AppExecFwk
 } // OHOS

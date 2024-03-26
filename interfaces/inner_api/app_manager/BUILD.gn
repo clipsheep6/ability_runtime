@@ -91,6 +91,7 @@ ohos_shared_library("app_manager") {
     "src/appmgr/configuration_observer_proxy.cpp",
     "src/appmgr/configuration_observer_stub.cpp",
     "src/appmgr/fault_data.cpp",
+    "src/appmgr/memory_level_info.cpp",
     "src/appmgr/page_state_data.cpp",
     "src/appmgr/priority_object.cpp",
     "src/appmgr/process_data.cpp",
