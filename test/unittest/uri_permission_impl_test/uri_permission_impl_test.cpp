@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,10 +15,16 @@
 
 #include <gtest/gtest.h>
 
-#include "event_report.h"
+#include <vector>
+
+#include "mock_ipc_skeleton.h"
 #include "mock_native_token.h"
+#include "mock_bundle_mgr_helper.h"
+#include "system_ability_manager_client_mock.h"
+
+#include "ability_manager_errors.h"
+#include "event_report.h"
 #include "system_ability_definition.h"
-#include "system_ability_manager_client.h"
 #include "tokenid_kit.h"
 #define private public
 #include "uri_permission_manager_stub_impl.h"
@@ -242,6 +248,109 @@ HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermission_002, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
+ * Function: GetTokenIdByBundleName
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService GetTokenIdByBundleName
+ */
+HWTEST_F(UriPermissionImplTest, Upms_GetTokenIdByBundleName_001, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    std::string bundleName = "com.example.app1001";
+    int appIndex = 0;
+    uint32_t tokenId = 0;
+    auto ret = upms->GetTokenIdByBundleName(bundleName, appIndex, tokenId);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: RevokeUriPermissionManually
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermissionManually_001, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    upms->storageManager_ = new StorageManager::StorageManagerServiceMock();
+
+    std::string uriStr = "file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_A.txt";
+    std::string targetBundleName = "com.example.app1002";
+    uint32_t fromTokenId = 1001;
+    uint32_t targetTokenId = 1002;
+    uint32_t flag = 1;
+
+    auto errorCode = upms->AddTempUriPermission(uriStr, flag, fromTokenId, targetTokenId, 0);
+    EXPECT_EQ(errorCode, ERR_OK);
+
+    auto verifyRet = upms->VerifyUriPermission(Uri(uriStr), flag, targetTokenId);
+    EXPECT_EQ(verifyRet, true);
+
+    IPCID::tokenId = fromTokenId;
+    std::vector<Uri> uriVec = { Uri(uriStr) };
+    errorCode = upms->DeleteTempUriPermission(uriVec, fromTokenId, targetTokenId);
+    EXPECT_EQ(errorCode, ERR_OK);
+    verifyRet = upms->VerifyUriPermission(Uri(uriStr), flag, targetTokenId);
+    EXPECT_EQ(verifyRet, false);
+    IPCID::tokenId = 0;
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: RevokeUriPermissionManually
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermissionManually_002, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    upms->storageManager_ = new StorageManager::StorageManagerServiceMock();
+
+    std::string uriStr = "unknow://com.example.app1001/data/storage/el2/base/haps/entry/files/test_A.txt";
+    std::string targetBundleName = "com.example.app1002";
+    auto errorCode = upms->RevokeUriPermissionManually(Uri(uriStr), targetBundleName);
+    EXPECT_NE(errorCode, ERR_OK);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: RevokeUriPermissionManually
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService RevokeUriPermissionManually for batch uris
+ */
+HWTEST_F(UriPermissionImplTest, Upms_RevokeUriPermissionManually_003, TestSize.Level1)
+{
+    auto upms = std::make_shared<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    upms->storageManager_ = new StorageManager::StorageManagerServiceMock();
+
+    std::string uriStrA = "file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_A.txt";
+    std::string uriStrB = "file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_B.txt";
+    std::vector<Uri> uriVec = { Uri(uriStrA), Uri(uriStrB) };
+    std::string targetBundleName = "com.example.app1002";
+    uint32_t fromTokenId = 1001;
+    uint32_t targetTokenId = 1002;
+    uint32_t flag = 1;
+
+    upms->AddTempUriPermission(uriStrA, flag, fromTokenId, targetTokenId, 0);
+    upms->AddTempUriPermission(uriStrB, flag, fromTokenId, targetTokenId, 0);
+    
+    IPCID::tokenId = fromTokenId;
+    auto ret = upms->DeleteTempUriPermission(uriVec, fromTokenId, targetTokenId);
+    EXPECT_EQ(ret, ERR_OK);
+    
+    auto verifyRet = upms->VerifyUriPermission(Uri(uriStrA), flag, targetTokenId);
+    EXPECT_EQ(verifyRet, false);
+    verifyRet = upms->VerifyUriPermission(Uri(uriStrB), flag, targetTokenId);
+    EXPECT_EQ(verifyRet, false);
+
+    IPCID::tokenId = 0;
+}
+
+/*
+ * Feature: URIPermissionManagerService
  * Function: ConnectManager
  * SubFunction: NA
  * FunctionPoints: URIPermissionManagerService ConnectManager
@@ -254,6 +363,23 @@ HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_001, TestSize.Level1)
     sptr<StorageManager::IStorageManager> storageManager = nullptr;
     upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
     SystemAbilityManagerClient::nullptrFlag = false;
+    ASSERT_EQ(storageManager, nullptr);
+}
+
+/*
+ * Feature: URIPermissionManagerService
+ * Function: ConnectManager
+ * SubFunction: NA
+ * FunctionPoints: URIPermissionManagerService ConnectManager
+ */
+HWTEST_F(UriPermissionImplTest, Upms_ConnectManager_002, TestSize.Level1)
+{
+    auto upms = std::make_unique<UriPermissionManagerStubImpl>();
+    ASSERT_NE(upms, nullptr);
+    MockSystemAbilityManager::isNullptr = true;
+    sptr<StorageManager::IStorageManager> storageManager = nullptr;
+    upms->ConnectManager(storageManager, STORAGE_MANAGER_MANAGER_ID);
+    MockSystemAbilityManager::isNullptr = false;
     ASSERT_EQ(storageManager, nullptr);
 }
 
@@ -284,7 +410,7 @@ HWTEST_F(UriPermissionImplTest, Upms_VerifyUriPermission_001, TestSize.Level1)
 
 /*
  * Feature: URIPermissionManagerService
- * Function: ConnectManager
+ * Function: SendEvent
  * SubFunction: NA
  * FunctionPoints: URIPermissionManagerService SendEvent
  */
