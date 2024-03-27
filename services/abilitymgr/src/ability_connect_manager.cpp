@@ -176,7 +176,9 @@ int AbilityConnectManager::TerminateAbilityInner(const sptr<IRemoteObject> &toke
         if (!abilityRecord->IsConnectListEmpty()) {
             HILOG_INFO("There exist connection, don't terminate.");
             return ERR_OK;
-        } else {
+        } else if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND) ||
+            abilityRecord->IsAbilityState(AbilityState::INITIAL) ||
+            abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
             HILOG_INFO("current ability is active");
             DoBackgroundAbilityWindow(abilityRecord, abilityRecord->GetSessionInfo());
             MoveToTerminatingMap(abilityRecord);
