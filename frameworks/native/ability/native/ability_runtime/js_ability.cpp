@@ -548,10 +548,10 @@ bool JsAbility::OnBackPress()
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true);
-    bool ret = false;
+    bool ret = true;
     if (!ConvertFromJsValue(env, jsValue, ret)) {
         TAG_LOGW(AAFwkTag::ABILITY, "Get js value failed");
-        return false;
+        return true;
     }
     TAG_LOGD(AAFwkTag::ABILITY, "end, ret = %{public}d", ret);
     return ret;
