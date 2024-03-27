@@ -39,22 +39,6 @@ public:
     UIAbilityLifecycleManager() = default;
     virtual ~UIAbilityLifecycleManager() = default;
 
-    struct SpecifiedInfo {
-        std::string abilityName = "";
-        std::string bundleName = "";
-        std::string flag = "";
-    };
-    struct key_compare {
-        bool operator()(const SpecifiedInfo &info1, const SpecifiedInfo &info2) const
-        {
-            if (info1.abilityName < info2.abilityName || info1.bundleName < info2.bundleName ||
-                info1.flag < info2.flag) {
-                return true;
-            }
-            return false;
-        }
-    };
-
     void SignRestartAppFlag(const std::string &bundleName);
 
     /**
@@ -371,8 +355,6 @@ private:
         std::shared_ptr<AbilityRecord> callerAbility, std::shared_ptr<StartOptions> startOptions = nullptr);
     int SendSessionInfoToSCB(std::shared_ptr<AbilityRecord> &callerAbility, sptr<SessionInfo> &sessionInfo);
     int StartAbilityBySpecifed(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &callerAbility);
-    std::shared_ptr<AbilityRecord> GetReusedSpecifiedAbility(const AAFwk::Want &want, const std::string &flag);
-    void EraseSpecifiedAbilityRecord(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
     void SetLastExitReason(std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void SetRevicerInfo(const AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> &abilityRecord) const;
@@ -385,7 +367,6 @@ private:
         sptr<SessionInfo> sessionInfo) const;
     void AddCallerRecord(AbilityRequest &abilityRequest, sptr<SessionInfo> sessionInfo,
         std::shared_ptr<AbilityRecord> uiAbilityRecord) const;
-    void CheckSpecified(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> uiAbilityRecord);
     void SendKeyEvent(AbilityRequest &abilityRequest) const;
     bool CheckPid(const std::shared_ptr<AbilityRecord> abilityRecord, const int32_t pid) const;
 
@@ -394,9 +375,7 @@ private:
     std::unordered_map<int64_t, std::shared_ptr<AbilityRecord>> tmpAbilityMap_;
     std::list<std::shared_ptr<AbilityRecord>> terminateAbilityList_;
     sptr<Rosen::ISession> rootSceneSession_;
-    std::map<SpecifiedInfo, std::shared_ptr<AbilityRecord>, key_compare> specifiedAbilityMap_;
     std::queue<AbilityRequest> abilityQueue_;
-    std::queue<SpecifiedInfo> specifiedInfoQueue_;
     sptr<ISessionHandler> handler_;
 };
 }  // namespace AAFwk
