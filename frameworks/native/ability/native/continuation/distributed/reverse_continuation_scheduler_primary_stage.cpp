@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "reverse_continuation_scheduler_primary_stage.h"
 
 #include "continuation_handler_stage.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,79 +29,79 @@ ReverseContinuationSchedulerPrimaryStage::ReverseContinuationSchedulerPrimarySta
 
 void ReverseContinuationSchedulerPrimaryStage::NotifyReplicaTerminated()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     wptr<ReverseContinuationSchedulerPrimaryStage> weak = this;
     auto task = [weak]() {
         auto reverseContinuationSchedulerPrimary = weak.promote();
         if (reverseContinuationSchedulerPrimary == nullptr) {
-            HILOG_ERROR("reverseContinuationSchedulerPrimary is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "reverseContinuationSchedulerPrimary is nullptr.");
             return;
         }
         reverseContinuationSchedulerPrimary->HandlerNotifyReplicaTerminated();
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("mainHandler_ is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr.");
         return;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error.");
         return;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 bool ReverseContinuationSchedulerPrimaryStage::ContinuationBack(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     wptr<ReverseContinuationSchedulerPrimaryStage> weak = this;
     auto task = [weak, want]() {
         auto reverseContinuationSchedulerPrimary = weak.promote();
         if (reverseContinuationSchedulerPrimary == nullptr) {
-            HILOG_ERROR("reverseContinuationSchedulerPrimary is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "reverseContinuationSchedulerPrimary is nullptr.");
             return;
         }
         reverseContinuationSchedulerPrimary->HandlerContinuationBack(want);
     };
 
     if (mainHandler_ == nullptr) {
-        HILOG_ERROR("mainHandler_ is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "mainHandler_ is nullptr.");
         return false;
     }
 
     bool ret = mainHandler_->PostTask(task);
     if (!ret) {
-        HILOG_ERROR("PostTask error.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask error.");
         return false;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
 void ReverseContinuationSchedulerPrimaryStage::HandlerNotifyReplicaTerminated()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("ContinuationHandler is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
         return;
     }
     continuationHandler->NotifyReplicaTerminated();
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 void ReverseContinuationSchedulerPrimaryStage::HandlerContinuationBack(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<IReverseContinuationSchedulerPrimaryHandler> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("ContinuationHandler is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
         return;
     }
     continuationHandler->ContinuationBack(want);
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 } // namespace AppExecFwk
 } // namespace OHOS

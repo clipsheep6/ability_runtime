@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,7 +31,7 @@ sptr<IRemoteObject> DistributedClient::GetDmsProxy()
 {
     auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrProxy == nullptr) {
-        HILOG_ERROR("fail to get samgr.");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "fail to get samgr.");
         return nullptr;
     }
     return samgrProxy->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID);
@@ -40,7 +40,7 @@ sptr<IRemoteObject> DistributedClient::GetDmsProxy()
 int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
     int32_t callerUid, int32_t requestCode, uint32_t accessToken)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
         return INVALID_PARAMETERS_ERR;
@@ -59,15 +59,15 @@ int32_t DistributedClient::StartRemoteAbility(const OHOS::AAFwk::Want& want,
 
 int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     if (connect == nullptr) {
-        HILOG_ERROR("ConnectRemoteAbility connect is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ConnectRemoteAbility connect is null");
         return ERR_NULL_OBJECT;
     }
 
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("ConnectRemoteAbility remote is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ConnectRemoteAbility remote is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -81,15 +81,15 @@ int32_t DistributedClient::ConnectRemoteAbility(const OHOS::AAFwk::Want& want, c
 int32_t DistributedClient::DisconnectRemoteAbility(const sptr<IRemoteObject>& connect, int32_t callerUid,
     uint32_t accessToken)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     if (connect == nullptr) {
-        HILOG_ERROR("DisconnectRemoteAbility connect is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "DisconnectRemoteAbility connect is null");
         return ERR_NULL_OBJECT;
     }
 
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("DisconnectRemoteAbility remote is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "DisconnectRemoteAbility remote is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -106,14 +106,14 @@ int32_t DistributedClient::DisconnectRemoteAbility(const sptr<IRemoteObject>& co
 int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     if (callback == nullptr) {
-        HILOG_ERROR("ContinueMission callback null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ContinueMission callback null");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("ContinueMission remote service null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ContinueMission remote service null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -132,15 +132,15 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
 int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const std::string& dstDeviceId,
     const std::string& bundleName, const sptr<IRemoteObject>& callback, const OHOS::AAFwk::WantParams& wantParams)
 {
-    HILOG_INFO("dmsClient %{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "dmsClient %{public}s called.", __func__);
     if (callback == nullptr) {
-        HILOG_ERROR("ContinueMission callback null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ContinueMission callback null");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_DEBUG("write interface token failed.");
-        HILOG_ERROR("ContinueMission remote service null");
+        TAG_LOGD(AAFwkTag::DISTRIBUTED, "write interface token failed.");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ContinueMission remote service null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -167,15 +167,15 @@ int32_t DistributedClient::ContinueMission(const std::string& srcDeviceId, const
 int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int32_t missionId, int32_t callerUid,
     int32_t status, uint32_t accessToken)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("StartContinuation remote service null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "StartContinuation remote service null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        HILOG_DEBUG("write interface token failed.");
+        TAG_LOGD(AAFwkTag::DISTRIBUTED, "write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
@@ -190,10 +190,10 @@ int32_t DistributedClient::StartContinuation(const OHOS::AAFwk::Want& want, int3
 ErrCode DistributedClient::NotifyCompleteContinuation(
     const std::u16string &devId, int32_t sessionId, bool isSuccess)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("NotifyCompleteContinuation remote service null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "NotifyCompleteContinuation remote service null");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -202,22 +202,22 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteString16(devId)) {
-        HILOG_ERROR("write deviceId error");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "write deviceId error");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(sessionId)) {
-        HILOG_ERROR("write sessionId error");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "write sessionId error");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteBool(isSuccess)) {
-        HILOG_ERROR("write result error");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "write result error");
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
     MessageOption option;
     int32_t result = remote->SendRequest(NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
     if (result != ERR_NONE) {
-        HILOG_ERROR("SendRequest failed, result = %{public}d", result);
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "SendRequest failed, result = %{public}d", result);
         return result;
     }
     return ERR_OK;
@@ -225,10 +225,10 @@ ErrCode DistributedClient::NotifyCompleteContinuation(
 
 int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    HILOG_INFO("StartSyncRemoteMissions called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "StartSyncRemoteMissions called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system abiity is nullptr");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is nullptr");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -245,10 +245,10 @@ int32_t DistributedClient::StartSyncRemoteMissions(const std::string& devId, boo
 
 int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
 {
-    HILOG_INFO("StopSyncRemoteMissions called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "StopSyncRemoteMissions called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system abiity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -263,10 +263,10 @@ int32_t DistributedClient::StopSyncRemoteMissions(const std::string& devId)
 int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("RegisterMissionListener called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "RegisterMissionListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system ablity is nullptr.");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is nullptr.");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -282,10 +282,10 @@ int32_t DistributedClient::RegisterMissionListener(const std::u16string& devId,
 int32_t DistributedClient::RegisterOnListener(const std::string& type,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("RegisterOnListener called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "RegisterOnListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system ablity is nullptr");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is nullptr");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -301,16 +301,16 @@ int32_t DistributedClient::RegisterOnListener(const std::string& type,
 int32_t DistributedClient::RegisterOffListener(const std::string& type,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("RegisterOffListener called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "RegisterOffListener called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system ablity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     MessageParcel reply;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        HILOG_DEBUG("write interface token failed.");
+        TAG_LOGD(AAFwkTag::DISTRIBUTED, "write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, String, type);
@@ -321,10 +321,10 @@ int32_t DistributedClient::RegisterOffListener(const std::string& type,
 int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId,
     const sptr<IRemoteObject>& obj)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system abiity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -340,10 +340,10 @@ int32_t DistributedClient::UnRegisterMissionListener(const std::u16string& devId
 int32_t DistributedClient::GetMissionInfos(const std::string& deviceId, int32_t numMissions,
     std::vector<AAFwk::MissionInfo>& missionInfos)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system abiity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system abiity is null");
         return INVALID_PARAMETERS_ERR;
     }
 
@@ -351,14 +351,14 @@ int32_t DistributedClient::GetMissionInfos(const std::string& deviceId, int32_t 
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        HILOG_DEBUG("write interface token failed.");
+        TAG_LOGD(AAFwkTag::DISTRIBUTED, "write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, String16, Str8ToStr16(deviceId));
     PARCEL_WRITE_HELPER(data, Int32, numMissions);
     int32_t ret = remote->SendRequest(GET_MISSION_INFOS, data, reply, option);
     if (ret != ERR_NONE) {
-        HILOG_WARN("sendRequest fail, error: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::DISTRIBUTED, "sendRequest fail, error: %{public}d", ret);
         return ret;
     }
     return ReadMissionInfosFromParcel(reply, missionInfos) ? ERR_NONE : ERR_FLATTEN_OBJECT;
@@ -368,12 +368,12 @@ int32_t DistributedClient::GetRemoteMissionSnapshotInfo(const std::string& devic
     std::unique_ptr<MissionSnapshot>& missionSnapshot)
 {
     if (deviceId.empty()) {
-        HILOG_ERROR("deviceId is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "deviceId is null");
         return ERR_NULL_OBJECT;
     }
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -386,7 +386,7 @@ int32_t DistributedClient::GetRemoteMissionSnapshotInfo(const std::string& devic
     MessageOption option;
     int32_t error = remote->SendRequest(GET_REMOTE_MISSION_SNAPSHOT_INFO, data, reply, option);
     if (error != ERR_NONE) {
-        HILOG_ERROR("transact failed, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "transact failed, error: %{public}d", error);
         return error;
     }
     std::unique_ptr<MissionSnapshot> missionSnapshotPtr(reply.ReadParcelable<MissionSnapshot>());
@@ -400,41 +400,41 @@ bool DistributedClient::ReadMissionInfosFromParcel(Parcel& parcel,
     int32_t hasMissions = parcel.ReadInt32();
     if (hasMissions == 1) {
         int32_t len = parcel.ReadInt32();
-        HILOG_DEBUG("readLength is:%{public}d", len);
+        TAG_LOGD(AAFwkTag::DISTRIBUTED, "readLength is:%{public}d", len);
         if (len < 0) {
             return false;
         }
         size_t size = static_cast<size_t>(len);
         if ((size > parcel.GetReadableBytes()) || (missionInfos.max_size() < size)) {
-            HILOG_ERROR("Failed to read MissionInfo vector, size = %{public}zu", size);
+            TAG_LOGE(AAFwkTag::DISTRIBUTED, "Failed to read MissionInfo vector, size = %{public}zu", size);
             return false;
         }
         missionInfos.clear();
         for (size_t i = 0; i < size; i++) {
             AAFwk::MissionInfo *ptr = parcel.ReadParcelable<AAFwk::MissionInfo>();
             if (ptr == nullptr) {
-                HILOG_WARN("read MissionInfo failed");
+                TAG_LOGW(AAFwkTag::DISTRIBUTED, "read MissionInfo failed");
                 return false;
             }
             missionInfos.emplace_back(*ptr);
             delete ptr;
         }
     }
-    HILOG_INFO("info size is:%{public}zu", missionInfos.size());
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "info size is:%{public}zu", missionInfos.size());
     return true;
 }
 
 int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& want, const sptr<IRemoteObject>& connect)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     if (connect == nullptr) {
-        HILOG_ERROR("StartRemoteAbilityByCall connect is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "StartRemoteAbilityByCall connect is null");
         return ERR_NULL_OBJECT;
     }
 
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("StartRemoteAbilityByCall remote is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "StartRemoteAbilityByCall remote is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -448,15 +448,15 @@ int32_t DistributedClient::StartRemoteAbilityByCall(const OHOS::AAFwk::Want& wan
 int32_t DistributedClient::ReleaseRemoteAbility(const sptr<IRemoteObject>& connect,
     const AppExecFwk::ElementName &element)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "called");
     if (connect == nullptr) {
-        HILOG_ERROR("ReleaseRemoteAbility connect is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ReleaseRemoteAbility connect is null");
         return ERR_NULL_OBJECT;
     }
 
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("ReleaseRemoteAbility remote is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ReleaseRemoteAbility remote is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
@@ -465,7 +465,7 @@ int32_t DistributedClient::ReleaseRemoteAbility(const sptr<IRemoteObject>& conne
     }
     PARCEL_WRITE_HELPER(data, RemoteObject, connect);
     if (!data.WriteParcelable(&element)) {
-        HILOG_ERROR("ReleaseRemoteAbility write element error.");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "ReleaseRemoteAbility write element error.");
         return ERR_INVALID_VALUE;
     }
     MessageParcel reply;
@@ -475,21 +475,21 @@ int32_t DistributedClient::ReleaseRemoteAbility(const sptr<IRemoteObject>& conne
 int32_t DistributedClient::StartRemoteFreeInstall(const OHOS::AAFwk::Want& want,
     int32_t callerUid, int32_t requestCode, uint32_t accessToken, const sptr<IRemoteObject>& callback)
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
     if (callback == nullptr) {
-        HILOG_ERROR("[%{public}s] callback == nullptr", __FUNCTION__);
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "[%{public}s] callback == nullptr", __FUNCTION__);
         return ERR_NULL_OBJECT;
     }
 
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("[%{public}s] remote == nullptr", __FUNCTION__);
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "[%{public}s] remote == nullptr", __FUNCTION__);
         return INVALID_PARAMETERS_ERR;
     }
 
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        HILOG_ERROR("[%{public}s] write interface token failed.", __FUNCTION__);
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "[%{public}s] write interface token failed.", __FUNCTION__);
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -522,15 +522,15 @@ bool DistributedClient::WriteInfosToParcel(MessageParcel& data, const OHOS::AAFw
 int32_t DistributedClient::StopRemoteExtensionAbility(const Want &want, int32_t callerUid,
     uint32_t accessToken, int32_t extensionType)
 {
-    HILOG_DEBUG("StopRemoteExtensionAbility enter");
+    TAG_LOGD(AAFwkTag::DISTRIBUTED, "StopRemoteExtensionAbility enter");
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("StopRemoteExtensionAbility remote service null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "StopRemoteExtensionAbility remote service null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;
     if (!data.WriteInterfaceToken(DMS_PROXY_INTERFACE_TOKEN)) {
-        HILOG_ERROR("StopRemoteExtensionAbility WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "StopRemoteExtensionAbility WriteInterfaceToken failed");
         return ERR_FLATTEN_OBJECT;
     }
     PARCEL_WRITE_HELPER(data, Parcelable, &want);
@@ -543,10 +543,11 @@ int32_t DistributedClient::StopRemoteExtensionAbility(const Want &want, int32_t 
 
 int32_t DistributedClient::SetMissionContinueState(int32_t missionId, const AAFwk::ContinueState &state)
 {
-    HILOG_INFO("SetMissionContinueState called. Mission id: %{public}d, state: %{public}d", missionId, state);
+    TAG_LOGI(AAFwkTag::DISTRIBUTED,
+        "SetMissionContinueState called. Mission id: %{public}d, state: %{public}d", missionId, state);
     sptr<IRemoteObject> remote = GetDmsProxy();
     if (remote == nullptr) {
-        HILOG_ERROR("remote system ablity is null");
+        TAG_LOGE(AAFwkTag::DISTRIBUTED, "remote system ablity is null");
         return INVALID_PARAMETERS_ERR;
     }
     MessageParcel data;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,6 +35,7 @@
 #include "event_runner.h"
 #include "errors.h"
 #include "hap_module_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parameters.h"
 #include "runtime.h"
@@ -50,17 +51,17 @@ bool ChildProcessManager::signalRegistered_ = false;
 
 ChildProcessManager::ChildProcessManager()
 {
-    HILOG_DEBUG("ChildProcessManager constructor called");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "ChildProcessManager constructor called");
 }
 
 ChildProcessManager::~ChildProcessManager()
 {
-    HILOG_DEBUG("ChildProcessManager deconstructor called");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "ChildProcessManager deconstructor called");
 }
 
 ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessBySelfFork(const std::string &srcEntry, pid_t &pid)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
     ChildProcessManagerErrorCode errorCode = PreCheck();
     if (errorCode != ChildProcessManagerErrorCode::ERR_OK) {
         return errorCode;
@@ -68,14 +69,14 @@ ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessBySelfFork(co
 
     AppExecFwk::BundleInfo bundleInfo;
     if (!GetBundleInfo(bundleInfo)) {
-        HILOG_ERROR("GetBundleInfo failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "GetBundleInfo failed.");
         return ChildProcessManagerErrorCode::ERR_GET_BUNDLE_INFO_FAILED;
     }
     
     RegisterSignal();
     pid = fork();
     if (pid < 0) {
-        HILOG_ERROR("Fork process failed");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Fork process failed");
         return ChildProcessManagerErrorCode::ERR_FORK_FAILED;
     }
     if (pid == 0) {
@@ -87,20 +88,20 @@ ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessBySelfFork(co
 ChildProcessManagerErrorCode ChildProcessManager::StartChildProcessByAppSpawnFork(
     const std::string &srcEntry, pid_t &pid)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
     ChildProcessManagerErrorCode errorCode = PreCheck();
     if (errorCode != ChildProcessManagerErrorCode::ERR_OK) {
         return errorCode;
     }
     sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
     if (appMgr == nullptr) {
-        HILOG_ERROR("GetAppMgr failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "GetAppMgr failed.");
         return ChildProcessManagerErrorCode::ERR_GET_APP_MGR_FAILED;
     }
     auto ret = appMgr->StartChildProcess(srcEntry, pid);
-    HILOG_DEBUG("AppMgr StartChildProcess ret:%{public}d", ret);
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "AppMgr StartChildProcess ret:%{public}d", ret);
     if (ret != ERR_OK) {
-        HILOG_ERROR("AppMgr StartChildProcess failed, ret:%{public}d", ret);
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "AppMgr StartChildProcess failed, ret:%{public}d", ret);
         return ChildProcessManagerErrorCode::ERR_GET_APP_MGR_START_PROCESS_FAILED;
     }
     return ChildProcessManagerErrorCode::ERR_OK;
@@ -110,7 +111,7 @@ void ChildProcessManager::RegisterSignal()
 {
     if (!signalRegistered_) {
         signalRegistered_ = true;
-        HILOG_DEBUG("Register signal");
+        TAG_LOGD(AAFwkTag::PROCESSMGR, "Register signal");
         signal(SIGCHLD, ChildProcessManager::HandleSigChild);
     }
 }
@@ -125,11 +126,11 @@ void ChildProcessManager::HandleSigChild(int32_t signo)
 ChildProcessManagerErrorCode ChildProcessManager::PreCheck()
 {
     if (!AAFwk::AppUtils::GetInstance().IsMultiProcessModel()) {
-        HILOG_ERROR("Multi process model is not enabled");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Multi process model is not enabled");
         return ChildProcessManagerErrorCode::ERR_MULTI_PROCESS_MODEL_DISABLED;
     }
     if (IsChildProcess()) {
-        HILOG_ERROR("Already in child process");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
         return ChildProcessManagerErrorCode::ERR_ALREADY_IN_CHILD_PROCESS;
     }
     return ChildProcessManagerErrorCode::ERR_OK;
@@ -143,28 +144,28 @@ bool ChildProcessManager::IsChildProcess()
 void ChildProcessManager::HandleChildProcessBySelfFork(const std::string &srcEntry,
     const AppExecFwk::BundleInfo &bundleInfo)
 {
-    HILOG_DEBUG("HandleChildProcessBySelfFork start.");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "HandleChildProcessBySelfFork start.");
     isChildProcessBySelfFork_ = true;
     std::shared_ptr<AppExecFwk::EventRunner> eventRunner = AppExecFwk::EventRunner::GetMainEventRunner();
     if (eventRunner == nullptr) {
-        HILOG_ERROR("Get main eventRunner failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get main eventRunner failed.");
         return;
     }
     eventRunner->Stop();
     
     AppExecFwk::HapModuleInfo hapModuleInfo;
     if (!GetHapModuleInfo(bundleInfo, hapModuleInfo)) {
-        HILOG_ERROR("GetHapModuleInfo failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "GetHapModuleInfo failed.");
         return;
     }
 
     auto runtime = CreateRuntime(bundleInfo, hapModuleInfo, false, g_jitEnabled);
     if (!runtime) {
-        HILOG_ERROR("Failed to create child process runtime");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to create child process runtime");
         return;
     }
     LoadJsFile(srcEntry, hapModuleInfo, runtime);
-    HILOG_DEBUG("HandleChildProcessBySelfFork end.");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "HandleChildProcessBySelfFork end.");
     exit(0);
 }
 
@@ -181,16 +182,16 @@ bool ChildProcessManager::LoadJsFile(const std::string &srcEntry, const AppExecF
 
     auto process = ChildProcess::Create(runtime);
     if (process == nullptr) {
-        HILOG_ERROR("Failed to create ChildProcess.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to create ChildProcess.");
         return false;
     }
     bool ret = process->Init(processStartInfo);
     if (!ret) {
-        HILOG_ERROR("JsChildProcess init failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "JsChildProcess init failed.");
         return false;
     }
     process->OnStart();
-    HILOG_DEBUG("LoadJsFile end.");
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "LoadJsFile end.");
     return true;
 }
 
@@ -222,17 +223,17 @@ bool ChildProcessManager::GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo)
 {
     auto sysMrgClient = DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     if (sysMrgClient == nullptr) {
-        HILOG_ERROR("Failed to get SysMrgClient.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to get SysMrgClient.");
         return false;
     }
     auto bundleObj = sysMrgClient->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (bundleObj == nullptr) {
-        HILOG_ERROR("Failed to get bundle manager service.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Failed to get bundle manager service.");
         return false;
     }
     auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleObj);
     if (bundleMgr == nullptr) {
-        HILOG_ERROR("Bundle manager is nullptr.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Bundle manager is nullptr.");
         return false;
     }
     return (bundleMgr->GetBundleInfoForSelf(
@@ -245,10 +246,10 @@ bool ChildProcessManager::GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleI
     AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
     if (bundleInfo.hapModuleInfos.empty()) {
-        HILOG_ERROR("hapModuleInfos empty!");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "hapModuleInfos empty!");
         return false;
     }
-    HILOG_DEBUG("hapModueInfos size: %{public}zu", bundleInfo.hapModuleInfos.size());
+    TAG_LOGD(AAFwkTag::PROCESSMGR, "hapModueInfos size: %{public}zu", bundleInfo.hapModuleInfos.size());
     bool result = false;
     for (const auto &info : bundleInfo.hapModuleInfos) {
         if (info.moduleType == AppExecFwk::ModuleType::ENTRY) {
@@ -264,7 +265,7 @@ bool ChildProcessManager::hasChildProcessRecord()
 {
     sptr<AppExecFwk::IAppMgr> appMgr = GetAppMgr();
     if (appMgr == nullptr) {
-        HILOG_ERROR("GetAppMgr failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "GetAppMgr failed.");
         return false;
     }
     AppExecFwk::ChildProcessInfo info;
@@ -275,12 +276,12 @@ sptr<AppExecFwk::IAppMgr> ChildProcessManager::GetAppMgr()
 {
     auto sysMrgClient = DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance();
     if (sysMrgClient == nullptr) {
-        HILOG_ERROR("Get SysMrgClient failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Get SysMrgClient failed.");
         return nullptr;
     }
     auto object = sysMrgClient->GetSystemAbility(APP_MGR_SERVICE_ID);
     if (object == nullptr) {
-        HILOG_ERROR("GetAppMgr failed.");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "GetAppMgr failed.");
         return nullptr;
     }
     return iface_cast<AppExecFwk::IAppMgr>(object);

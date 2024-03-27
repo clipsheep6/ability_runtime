@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "reverse_continuation_scheduler_primary_stub.h"
 #include "ability_scheduler_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
@@ -47,11 +48,12 @@ ReverseContinuationSchedulerPrimaryStub::~ReverseContinuationSchedulerPrimaryStu
 int ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     std::u16string token = data.ReadInterfaceToken();
     std::u16string descriptor = Str8ToStr16(DESCRIPTOR);
     if (descriptor != token) {
-        HILOG_ERROR("ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, DESCRIPTOR != touken");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, DESCRIPTOR != touken");
         return -1;
     }
 
@@ -61,37 +63,41 @@ int ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest(
         if (func != nullptr) {
             return (this->*func)(data, reply);
         } else {
-            HILOG_WARN("ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, func is nullptr");
+            TAG_LOGW(AAFwkTag::CONTINUATION,
+                "ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, func is nullptr");
         }
     } else {
-        HILOG_WARN("ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, iter not find");
+        TAG_LOGW(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerPrimaryStub::OnRemoteRequest failed, iter not find");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int ReverseContinuationSchedulerPrimaryStub::NotifyReplicaTerminatedInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     NotifyReplicaTerminated();
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return 0;
 }
 int ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     std::unique_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (want == nullptr) {
-        HILOG_ERROR("ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner want is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerPrimaryStub::ContinuationBackInner want is nullptr");
         return -1;
     }
 
     if (!ContinuationBack(*want)) {
-        HILOG_ERROR("ReverseContinuationSchedulerPrimaryStub::NotifyReverseaTerminatedInner failed, ContinuationBack() "
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerPrimaryStub::NotifyReverseaTerminatedInner failed, ContinuationBack() "
                  "return false");
         return -1;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return 0;
 }
 }  // namespace AppExecFwk
