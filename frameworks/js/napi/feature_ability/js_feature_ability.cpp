@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "distribute_constants.h"
 #include "distribute_req_param.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 
@@ -27,7 +28,7 @@ const std::string RESULT_DATA_TAG = "resultData";
 
 void JsFeatureAbility::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_INFO("JsFeatureAbility::Finalizer is called");
+    TAG_LOGI(AAFwkTag::FA, "JsFeatureAbility::Finalizer is called");
     std::unique_ptr<JsFeatureAbility>(static_cast<JsFeatureAbility*>(data));
 }
 
@@ -88,21 +89,21 @@ napi_value JsFeatureAbility::UnsubscribeMsg(napi_env env, napi_callback_info inf
 
 napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
-        HILOG_ERROR("arguments not match");
+        TAG_LOGE(AAFwkTag::FA, "arguments not match");
         return CreateJsUndefined(env);
     }
 
     Ability* ability = GetAbility(env);
     if (ability == nullptr) {
-        HILOG_ERROR("ability is null");
+        TAG_LOGE(AAFwkTag::FA, "ability is null");
         return CreateJsUndefined(env);
     }
 
     DistributeReqParam requestParam;
     if (!UnWrapRequestParams(env, info.argv[0], requestParam)) {
-        HILOG_ERROR("unwrap request arguments failed");
+        TAG_LOGE(AAFwkTag::FA, "unwrap request arguments failed");
         return CreateJsUndefined(env);
     }
 
@@ -121,20 +122,20 @@ napi_value JsFeatureAbility::OnStartAbility(napi_env env, NapiCallbackInfo& info
 
 napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
-        HILOG_ERROR("Params not match");
+        TAG_LOGE(AAFwkTag::FA, "Params not match");
         return CreateJsUndefined(env);
     }
     Ability* ability = GetAbility(env);
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "ability is nullptr");
         return CreateJsUndefined(env);
     }
 
     DistributeReqParam requestParam;
     if (!UnWrapRequestParams(env, info.argv[0], requestParam)) {
-        HILOG_ERROR("unwrap request params failed");
+        TAG_LOGE(AAFwkTag::FA, "unwrap request params failed");
         return CreateJsUndefined(env);
     }
 
@@ -144,54 +145,54 @@ napi_value JsFeatureAbility::OnStartAbilityForResult(napi_env env, NapiCallbackI
 
     std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
     FeatureAbilityTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want) {
-        HILOG_INFO("OnStartAbilityForResult async callback is called");
+        TAG_LOGI(AAFwkTag::FA, "OnStartAbilityForResult async callback is called");
         std::string data = want.GetStringParam(RESULT_DATA_TAG);
         napi_value abilityResult = JsFeatureAbility::CreateJsResult(env, resultCode, data);
         if (abilityResult == nullptr) {
-            HILOG_WARN("wrap abilityResult failed");
+            TAG_LOGW(AAFwkTag::FA, "wrap abilityResult failed");
             asyncTask->Reject(env, CreateJsError(env, 1, "failed to get result data!"));
         } else {
             asyncTask->Resolve(env, abilityResult);
         }
-        HILOG_INFO("OnStartAbilityForResult async callback is called end");
+        TAG_LOGI(AAFwkTag::FA, "OnStartAbilityForResult async callback is called end");
     };
 
     want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
     requestCode_ = (requestCode_ == INT_MAX) ? 0 : (requestCode_ + 1);
     ability->StartFeatureAbilityForResult(want, requestCode_, std::move(task));
 
-    HILOG_INFO("OnStartAbilityForResult is called end");
+    TAG_LOGI(AAFwkTag::FA, "OnStartAbilityForResult is called end");
     return result;
 }
 
 napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     if (info.argc != 1) {
-        HILOG_ERROR("Params not match");
+        TAG_LOGE(AAFwkTag::FA, "Params not match");
         return CreateJsUndefined(env);
     }
 
     Ability *ability = GetAbility(env);
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::FA, "ability is nullptr");
         return CreateJsUndefined(env);
     }
 
     if (!IsTypeForNapiValue(env, info.argv[0], napi_object)) {
-        HILOG_ERROR("Params is invalid.");
+        TAG_LOGE(AAFwkTag::FA, "Params is invalid.");
         return CreateJsUndefined(env);
     }
 
     int32_t code = ERR_OK;
     if (!UnwrapInt32ByPropertyName(env, info.argv[0], "code", code)) {
-        HILOG_ERROR("Failed to get code.");
+        TAG_LOGE(AAFwkTag::FA, "Failed to get code.");
         return CreateJsUndefined(env);
     }
 
     napi_value jsResultObj = GetPropertyValueByPropertyName(env, info.argv[0], "result", napi_object);
     if (jsResultObj == nullptr) {
-        HILOG_ERROR("Failed to get result.");
+        TAG_LOGE(AAFwkTag::FA, "Failed to get result.");
         return CreateJsUndefined(env);
     }
 
@@ -206,7 +207,7 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
     std::string resultStr {};
     resultStr = UnwrapStringFromJS(env, transValue, "");
 
-    HILOG_DEBUG("code: %{public}d, result:%{public}s", code, resultStr.c_str());
+    TAG_LOGD(AAFwkTag::FA, "code: %{public}d, result:%{public}s", code, resultStr.c_str());
     Want want;
     want.SetParam(RESULT_DATA_TAG, resultStr);
     ability->SetResult(code, want);
@@ -225,49 +226,49 @@ napi_value JsFeatureAbility::OnFinishWithResult(napi_env env, NapiCallbackInfo& 
 
 napi_value JsFeatureAbility::OnGetDeviceList(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnCallAbility(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnContinueAbility(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnUnsubscribeAbilityEvent(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSendMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnSubscribeMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
 napi_value JsFeatureAbility::OnUnsubscribeMsg(napi_env env, const NapiCallbackInfo& info)
 {
-    HILOG_INFO("%{public}s is called", __FUNCTION__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s is called", __FUNCTION__);
     return CreateJsUndefined(env);
 }
 
@@ -279,7 +280,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_global(env, &global);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("JsFeatureAbility::GetAbility, get_global=%{public}d err:%{public}s",
+        TAG_LOGE(AAFwkTag::FA, "JsFeatureAbility::GetAbility, get_global=%{public}d err:%{public}s",
             ret, errorInfo->error_message);
         return nullptr;
     }
@@ -288,7 +289,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_named_property(env, global, "ability", &abilityObj);
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("JsFeatureAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
+        TAG_LOGE(AAFwkTag::FA, "JsFeatureAbility::GetAbility, get_named_property=%{public}d err:%{public}s",
             ret, errorInfo->error_message);
         return nullptr;
     }
@@ -297,7 +298,7 @@ Ability* JsFeatureAbility::GetAbility(napi_env env)
     ret = napi_get_value_external(env, abilityObj, reinterpret_cast<void **>(&ability));
     if (ret != napi_ok) {
         napi_get_last_error_info(env, &errorInfo);
-        HILOG_ERROR("JsFeatureAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
+        TAG_LOGE(AAFwkTag::FA, "JsFeatureAbility::GetAbility, get_value_external=%{public}d err:%{public}s",
             ret, errorInfo->error_message);
     return nullptr;
     }
@@ -387,10 +388,10 @@ bool JsFeatureAbility::CheckThenGetDeepLinkUri(const DistributeReqParam &request
 
 bool JsFeatureAbility::UnWrapRequestParams(napi_env env, napi_value param, DistributeReqParam &requestParam)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::FA, "%{public}s called. Params is invalid.", __func__);
         return false;
     }
 
@@ -485,16 +486,16 @@ napi_value JsFeatureAbility::CreateJsFeatureAbility(napi_env env)
 
 napi_value JsFeatureAbilityInit(napi_env env, napi_value exports)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::FA, "called");
     if (env == nullptr) {
-        HILOG_ERROR("env nullptr.");
+        TAG_LOGE(AAFwkTag::FA, "env nullptr.");
         return nullptr;
     }
 
     napi_value global = nullptr;
     napi_get_global(env, &global);
     if (!CheckTypeForNapiValue(env, global, napi_object)) {
-        HILOG_ERROR("global is not NativeObject");
+        TAG_LOGE(AAFwkTag::FA, "global is not NativeObject");
         return nullptr;
     }
 

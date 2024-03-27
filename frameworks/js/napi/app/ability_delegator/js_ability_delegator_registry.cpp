@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <memory>
 #include "ability_delegator.h"
 #include "ability_delegator_registry.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_ability_delegator.h"
 #include "js_ability_delegator_utils.h"
@@ -36,7 +37,7 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        HILOG_INFO("enter");
+        TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
         reference.reset();
         std::unique_ptr<JsAbilityDelegatorRegistry>(static_cast<JsAbilityDelegatorRegistry *>(data));
     }
@@ -54,9 +55,9 @@ public:
 private:
     napi_value OnGetAbilityDelegator(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("enter");
+        TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
         if (!AppExecFwk::AbilityDelegatorRegistry::GetAbilityDelegator()) {
-            HILOG_ERROR("Failed to get delegator object");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get delegator object");
             return CreateJsNull(env);
         }
 
@@ -72,12 +73,12 @@ private:
 
     napi_value OnGetArguments(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("enter");
+        TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
         std::shared_ptr<AppExecFwk::AbilityDelegatorArgs> abilityDelegatorArgs =
             AppExecFwk::AbilityDelegatorRegistry::GetArguments();
         if (!abilityDelegatorArgs) {
-            HILOG_ERROR("Failed to get delegator args object");
+            TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get delegator args object");
             return CreateJsNull(env);
         }
         return CreateJsAbilityDelegatorArguments(env, abilityDelegatorArgs);
@@ -87,9 +88,9 @@ private:
 
 napi_value JsAbilityDelegatorRegistryInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid input parameters");
         return nullptr;
     }
 
@@ -109,17 +110,17 @@ napi_value JsAbilityDelegatorRegistryInit(napi_env env, napi_value exportObj)
 
 napi_value AbilityLifecycleStateInit(napi_env env)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input arguments");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid input arguments");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
         return nullptr;
     }
     napi_set_named_property(env, objValue, "UNINITIALIZED",

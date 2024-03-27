@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "request_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
@@ -41,9 +42,9 @@ sptr<IRemoteObject> RequestInfo::GetToken()
 
 napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
 {
-    HILOG_DEBUG("WrapRequestInfo called.");
+    TAG_LOGD(AAFwkTag::DIALOG, "WrapRequestInfo called.");
     if (request == nullptr) {
-        HILOG_ERROR("request is nullptr.");
+        TAG_LOGE(AAFwkTag::DIALOG, "request is nullptr.");
         return nullptr;
     }
 
@@ -59,17 +60,17 @@ napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
     napi_value result = nullptr;
     napi_new_instance(env, requestInfoClass, 0, nullptr, &result);
     if (result == nullptr) {
-        HILOG_ERROR("create instance failed.");
+        TAG_LOGE(AAFwkTag::DIALOG, "create instance failed.");
         return nullptr;
     }
 
     if (!CheckTypeForNapiValue(env, result, napi_object)) {
-        HILOG_ERROR("UnwrapRequestInfo result type error!");
+        TAG_LOGE(AAFwkTag::DIALOG, "UnwrapRequestInfo result type error!");
         return nullptr;
     }
 
     auto nativeFinalize = [](napi_env env, void* data, void* hint) {
-        HILOG_INFO("Js RequestInfo finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "Js RequestInfo finalizer is called");
         auto requestInfo = static_cast<RequestInfo*>(data);
         if (requestInfo) {
             delete requestInfo;
@@ -85,12 +86,12 @@ napi_value RequestInfo::WrapRequestInfo(napi_env env, RequestInfo *request)
 napi_value RequestInfo::CreateJsWindowRect(
     napi_env env, int32_t left, int32_t top, int32_t width, int32_t height)
 {
-    HILOG_DEBUG("left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d",
+    TAG_LOGD(AAFwkTag::DIALOG, "left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d",
         left, top, width, height);
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Native object is nullptr.");
+        TAG_LOGE(AAFwkTag::DIALOG, "Native object is nullptr.");
         return objValue;
     }
     napi_set_named_property(env, objValue, "left", CreateJsValue(env, left));
@@ -102,14 +103,14 @@ napi_value RequestInfo::CreateJsWindowRect(
 
 std::shared_ptr<RequestInfo> RequestInfo::UnwrapRequestInfo(napi_env env, napi_value jsParam)
 {
-    HILOG_INFO("UnwrapRequestInfo called.");
+    TAG_LOGI(AAFwkTag::DIALOG, "UnwrapRequestInfo called.");
     if (jsParam == nullptr) {
-        HILOG_ERROR("jsParam is nullptr");
+        TAG_LOGE(AAFwkTag::DIALOG, "jsParam is nullptr");
         return nullptr;
     }
 
     if (!CheckTypeForNapiValue(env, jsParam, napi_object)) {
-        HILOG_ERROR("UnwrapRequestInfo jsParam type error!");
+        TAG_LOGE(AAFwkTag::DIALOG, "UnwrapRequestInfo jsParam type error!");
         return nullptr;
     }
     void* result = nullptr;

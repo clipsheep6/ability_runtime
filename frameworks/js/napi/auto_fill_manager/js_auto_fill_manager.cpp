@@ -17,6 +17,7 @@
 
 #include "ability_business_error.h"
 #include "auto_fill_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
@@ -31,7 +32,7 @@ constexpr size_t ARGC_ONE = 1;
 
 void JsAutoFillManager::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     std::unique_ptr<JsAutoFillManager>(static_cast<JsAutoFillManager *>(data));
 }
 
@@ -42,29 +43,29 @@ napi_value JsAutoFillManager::RequestAutoSave(napi_env env, napi_callback_info i
 
 napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("The param is invalid.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "The param is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     napi_value instanceIdValue = nullptr;
     if (napi_get_named_property(env, info.argv[INDEX_ZERO], "instanceId_", &instanceIdValue) != napi_ok) {
-        HILOG_ERROR("Get function by name failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Get function by name failed.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
     int32_t instanceId = -1;
     if (!ConvertFromJsValue(env, instanceIdValue, instanceId)) {
-        HILOG_ERROR("Failed to parse type.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Failed to parse type.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
 
     auto saveCallback = GetCallbackByInstanceId(instanceId);
     if (saveCallback != nullptr) {
-        HILOG_ERROR("There are other requests in progress.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "There are other requests in progress.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
@@ -72,14 +73,14 @@ napi_value JsAutoFillManager::OnRequestAutoSave(napi_env env, NapiCallbackInfo &
     auto autoSaveMangerFunc = std::bind(&JsAutoFillManager::OnRequestAutoSaveDone, this, std::placeholders::_1);
     saveCallback = std::make_shared<JsAutoSaveRequestCallback>(env, instanceId, autoSaveMangerFunc);
     if (saveCallback == nullptr) {
-        HILOG_ERROR("saveCallback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "saveCallback is nullptr.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
 
     if (info.argc != ARGC_ONE) {
         if (!CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
-            HILOG_ERROR("Second input parameter error.");
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Second input parameter error.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -94,7 +95,7 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
 {
     auto uiContent = Ace::UIContent::GetUIContent(instanceId);
     if (uiContent == nullptr) {
-        HILOG_ERROR("UIContent is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return;
     }
@@ -104,7 +105,7 @@ void JsAutoFillManager::OnRequestAutoSaveInner(napi_env env, int32_t instanceId,
         request.autoFillCommand = AutoFill::AutoFillCommand::SAVE;
         auto ret = AutoFillManager::GetInstance().RequestAutoSave(uiContent, request, saveRequestCallback);
         if (ret != ERR_OK) {
-            HILOG_ERROR("Request auto save error[%{public}d].", ret);
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Request auto save error[%{public}d].", ret);
             ThrowError(env, GetJsErrorCodeByNativeError(ret));
             return;
         }
@@ -134,7 +135,7 @@ void JsAutoFillManager::OnRequestAutoSaveDone(int32_t instanceId)
 
 napi_value CreateJsAutoFillType(napi_env env)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -185,9 +186,9 @@ napi_value CreateJsAutoFillType(napi_env env)
 
 napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Env or exportObj nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Env or exportObj nullptr.");
         return nullptr;
     }
 

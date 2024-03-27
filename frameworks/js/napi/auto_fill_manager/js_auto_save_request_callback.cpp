@@ -15,6 +15,7 @@
 
 #include "js_auto_save_request_callback.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_auto_fill_manager.h"
 #include "js_runtime.h"
@@ -34,7 +35,7 @@ JsAutoSaveRequestCallback::~JsAutoSaveRequestCallback() {}
 
 void JsAutoSaveRequestCallback::OnSaveRequestSuccess()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_SUCCESS);
     if (autoFillManagerFunc_ != nullptr) {
         autoFillManagerFunc_(instanceId_);
@@ -43,7 +44,7 @@ void JsAutoSaveRequestCallback::OnSaveRequestSuccess()
 
 void JsAutoSaveRequestCallback::OnSaveRequestFailed()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     JSCallFunction(METHOD_ON_SAVE_REQUEST_FAILED);
     if (autoFillManagerFunc_ != nullptr) {
         autoFillManagerFunc_(instanceId_);
@@ -52,9 +53,9 @@ void JsAutoSaveRequestCallback::OnSaveRequestFailed()
 
 void JsAutoSaveRequestCallback::Register(napi_value value)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (IsJsCallbackEquals(callback_, value)) {
-        HILOG_ERROR("The current callback already exists.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "The current callback already exists.");
         return;
     }
 
@@ -81,19 +82,19 @@ void JsAutoSaveRequestCallback::JSCallFunction(const std::string &methodName)
 void JsAutoSaveRequestCallback::JSCallFunctionWorker(const std::string &methodName)
 {
     if (callback_ == nullptr) {
-        HILOG_ERROR("callback is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "callback is nullptr.");
         return;
     }
 
     auto obj = callback_->GetNapiValue();
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get value.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Failed to get value.");
         return;
     }
 
     napi_value funcObject;
     if (napi_get_named_property(env_, obj, methodName.c_str(), &funcObject) != napi_ok) {
-        HILOG_ERROR("Get function by name failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Get function by name failed.");
         return;
     }
 
@@ -103,19 +104,19 @@ void JsAutoSaveRequestCallback::JSCallFunctionWorker(const std::string &methodNa
 bool JsAutoSaveRequestCallback::IsJsCallbackEquals(std::shared_ptr<NativeReference> callback, napi_value value)
 {
     if (callback == nullptr) {
-        HILOG_ERROR("Invalid jsCallback.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Invalid jsCallback.");
         return false;
     }
 
     auto object = callback->GetNapiValue();
     if (object == nullptr) {
-        HILOG_ERROR("Failed to get object.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Failed to get object.");
         return false;
     }
 
     bool result = false;
     if (napi_strict_equals(env_, object, value, &result) != napi_ok) {
-        HILOG_ERROR("Object does not match value.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Object does not match value.");
         return false;
     }
 
