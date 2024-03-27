@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_manager_service.h"
 #include "app_scheduler.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_session_manager_service.h"
@@ -88,19 +89,19 @@ void UserController::ClearAbilityUserItems(int32_t userId)
 void UserController::StartUser(int32_t userId, sptr<IUserCallback> callback, bool isForeground)
 {
     if (userId < 0 || userId == USER_ID_NO_HEAD) {
-        HILOG_ERROR("StartUser userId is invalid:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUser userId is invalid:%{public}d", userId);
         callback->OnStartUserDone(userId, INVALID_USERID_VALUE);
         return;
     }
 
     if (IsCurrentUser(userId)) {
-        HILOG_WARN("StartUser user is already current:%{public}d", userId);
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "StartUser user is already current:%{public}d", userId);
         callback->OnStartUserDone(userId, ERR_OK);
         return;
     }
 
     if (!IsExistOsAccount(userId)) {
-        HILOG_ERROR("StartUser not exist such account:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUser not exist such account:%{public}d", userId);
         callback->OnStartUserDone(userId, INVALID_USERID_VALUE);
         return;
     }
@@ -115,7 +116,7 @@ void UserController::StartUser(int32_t userId, sptr<IUserCallback> callback, boo
     auto userItem = GetOrCreateUserItem(userId);
     auto state = userItem->GetState();
     if (state == STATE_STOPPING || state == STATE_SHUTDOWN) {
-        HILOG_ERROR("StartUser user is stop now, userId:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUser user is stop now, userId:%{public}d", userId);
         callback->OnStartUserDone(userId, ERR_DEAD_OBJECT);
         return;
     }
@@ -151,17 +152,17 @@ void UserController::StartUser(int32_t userId, sptr<IUserCallback> callback, boo
 int32_t UserController::StopUser(int32_t userId)
 {
     if (userId < 0 || userId == USER_ID_NO_HEAD || userId == USER_ID_DEFAULT) {
-        HILOG_ERROR("userId is invalid:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId is invalid:%{public}d", userId);
         return -1;
     }
 
     if (IsCurrentUser(userId)) {
-        HILOG_WARN("user is already current:%{public}d", userId);
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "user is already current:%{public}d", userId);
         return 0;
     }
 
     if (!IsExistOsAccount(userId)) {
-        HILOG_ERROR("not exist such account:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "not exist such account:%{public}d", userId);
         return -1;
     }
 
@@ -169,7 +170,7 @@ int32_t UserController::StopUser(int32_t userId)
 
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
-        HILOG_ERROR("appScheduler is null");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appScheduler is null");
         return -1;
     }
     appScheduler->KillProcessesByUserId(userId);
@@ -177,7 +178,7 @@ int32_t UserController::StopUser(int32_t userId)
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto taskDataPersistenceMgr = DelayedSingleton<TaskDataPersistenceMgr>::GetInstance();
         if (!taskDataPersistenceMgr) {
-            HILOG_ERROR("taskDataPersistenceMgr is null");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr is null");
             return -1;
         }
         taskDataPersistenceMgr->RemoveUserDir(userId);
@@ -185,7 +186,7 @@ int32_t UserController::StopUser(int32_t userId)
 
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityManagerService) {
-        HILOG_ERROR("abilityManagerService is null");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManagerService is null");
         return -1;
     }
     abilityManagerService->ClearUserData(userId);
@@ -197,26 +198,26 @@ int32_t UserController::StopUser(int32_t userId)
 int32_t UserController::LogoutUser(int32_t userId)
 {
     if (userId < 0 || userId == USER_ID_NO_HEAD) {
-        HILOG_ERROR("userId is invalid:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId is invalid:%{public}d", userId);
         return INVALID_USERID_VALUE;
     }
     if (!IsExistOsAccount(userId)) {
-        HILOG_ERROR("not exist such account:%{public}d", userId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "not exist such account:%{public}d", userId);
         return INVALID_USERID_VALUE;
     }
     auto abilityManagerService = DelayedSingleton<AbilityManagerService>::GetInstance();
     if (!abilityManagerService) {
-        HILOG_ERROR("abilityManagerService is null");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityManagerService is null");
         return -1;
     }
     abilityManagerService->RemoveLauncherDeathRecipient(userId);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
-        HILOG_INFO("SceneBoard exit normally.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "SceneBoard exit normally.");
         Rosen::MockSessionManagerService::GetInstance().NotifyNotKillService();
     }
     auto appScheduler = DelayedSingleton<AppScheduler>::GetInstance();
     if (!appScheduler) {
-        HILOG_ERROR("appScheduler is null");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "appScheduler is null");
         return INVALID_USERID_VALUE;
     }
     appScheduler->KillProcessesByUserId(userId);
@@ -251,7 +252,7 @@ bool UserController::IsCurrentUser(int32_t userId)
     if (oldUserId == userId) {
         auto userItem = GetUserItem(userId);
         if (userItem) {
-            HILOG_WARN("IsCurrentUser userId is already current:%{public}d", userId);
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "IsCurrentUser userId is already current:%{public}d", userId);
             return true;
         }
     }
@@ -282,7 +283,7 @@ void UserController::SetCurrentUserId(int32_t userId)
 {
     std::lock_guard<ffrt::mutex> guard(userLock_);
     currentUserId_ = userId;
-    HILOG_DEBUG("set current userId: %{public}d", userId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "set current userId: %{public}d", userId);
     DelayedSingleton<AppScheduler>::GetInstance()->SetCurrentUserId(userId);
 }
 
@@ -361,11 +362,11 @@ void UserController::ProcessEvent(const EventWrap &event)
     auto eventId = event.GetEventId();
     auto eventData = static_cast<UserEvent*>(event.GetEventData().get());
     if (!eventData) {
-        HILOG_DEBUG("no event data, event id: %{public}u.", eventId);
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "no event data, event id: %{public}u.", eventId);
         return;
     }
 
-    HILOG_DEBUG("Event id obtained: %{public}u.", eventId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Event id obtained: %{public}u.", eventId);
     switch (eventId) {
         case UserEventHandler::EVENT_SYSTEM_USER_START: {
             HandleSystemUserStart(eventData->newUserId);
@@ -392,7 +393,7 @@ void UserController::ProcessEvent(const EventWrap &event)
             break;
         }
         default: {
-            HILOG_WARN("Unsupported  event.");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "Unsupported  event.");
             break;
         }
     }

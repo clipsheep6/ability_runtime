@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "prepare_terminate_callback_stub.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,7 +27,7 @@ PrepareTerminateCallbackStub::PrepareTerminateCallbackStub()
 
 PrepareTerminateCallbackStub::~PrepareTerminateCallbackStub()
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     requestFuncMap_.clear();
 }
 
@@ -34,7 +35,7 @@ int32_t PrepareTerminateCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != IPrepareTerminateCallback::GetDescriptor()) {
-        HILOG_ERROR("InterfaceToken not equal IPrepareTerminateCallback's descriptor.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "InterfaceToken not equal IPrepareTerminateCallback's descriptor.");
         return ERR_INVALID_STATE;
     }
 
@@ -45,13 +46,13 @@ int32_t PrepareTerminateCallbackStub::OnRemoteRequest(
             return (this->*requestFunc)(data, reply);
         }
     }
-    HILOG_WARN("default case, needs to be checked.");
+    TAG_LOGW(AAFwkTag::ABILITYMGR, "default case, needs to be checked.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int32_t PrepareTerminateCallbackStub::DoPrepareTerminateInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     DoPrepareTerminate();
     return ERR_OK;
 }

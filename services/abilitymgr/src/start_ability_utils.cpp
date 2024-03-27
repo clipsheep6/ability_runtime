@@ -17,6 +17,7 @@
 
 #include "ability_record.h"
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -51,7 +52,7 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
                 userId, appInfo)
         );
         if (!result) {
-            HILOG_WARN("Get app info from bms failed: %{public}s", bundleName.c_str());
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "Get app info from bms failed: %{public}s", bundleName.c_str());
             return false;
         }
     }
@@ -61,7 +62,7 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
 StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex)
 {
     if (StartAbilityUtils::startAbilityInfo != nullptr) {
-        HILOG_WARN("startAbilityInfo has been created");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "startAbilityInfo has been created");
     }
     StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want,
         validUserId, appIndex);
@@ -137,14 +138,14 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
                 abilityInfoFlag, userId, extensionInfos));
         }
         if (extensionInfos.size() <= 0) {
-            HILOG_ERROR("Get extension info failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension info failed.");
             request->status = RESOLVE_ABILITY_ERR;
             return request;
         }
 
         AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
         if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
-            HILOG_ERROR("extensionInfo empty.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionInfo empty.");
             request->status = RESOLVE_ABILITY_ERR;
             return request;
         }

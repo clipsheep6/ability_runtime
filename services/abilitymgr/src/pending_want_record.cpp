@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "pending_want_record.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "pending_want_manager.h"
@@ -61,10 +62,10 @@ void PendingWantRecord::UnregisterCancelListener(const sptr<IWantReceiver> &rece
 
 int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 {
-    HILOG_INFO("%{public}s:begin.", __func__);
+    TAG_LOGI(AAFwkTag::WANTAGENT, "%{public}s:begin.", __func__);
     std::lock_guard<ffrt::mutex> locker(lock_);
     if (canceled_) {
-        HILOG_INFO("wantAgent is canceled!");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "wantAgent is canceled!");
         if (senderInfo.finishedReceiver != nullptr) {
             Want want;
             WantParams wantParams = {};
@@ -75,7 +76,7 @@ int32_t PendingWantRecord::SenderInner(SenderInfo &senderInfo)
 
     auto pendingWantManager = pendingWantManager_.lock();
     if (pendingWantManager == nullptr) {
-        HILOG_ERROR("%{public}s:pendingWantManager is nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:pendingWantManager is nullptr.", __func__);
         return ERR_INVALID_VALUE;
     }
 

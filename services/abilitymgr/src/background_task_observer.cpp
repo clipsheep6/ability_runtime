@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 #include "background_task_observer.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include <unistd.h>
 #include "sa_mgr_client.h"
@@ -30,7 +31,8 @@ BackgroundTaskObserver::~BackgroundTaskObserver()
 void BackgroundTaskObserver::OnContinuousTaskStart(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)
 {
-    HILOG_DEBUG("OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
+    TAG_LOGD(
+        AAFwkTag::ABILITYMGR, "OnContinuousTaskStart, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.push_front(continuousTaskCallbackInfo->GetCreatorUid());
     if (appManager_ == nullptr) {
@@ -44,7 +46,7 @@ void BackgroundTaskObserver::OnContinuousTaskStart(const std::shared_ptr<Backgro
 void BackgroundTaskObserver::OnContinuousTaskStop(const std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>
     &continuousTaskCallbackInfo)
 {
-    HILOG_DEBUG("OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "OnContinuousTaskStop, uid:%{public}d", continuousTaskCallbackInfo->GetCreatorUid());
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
     bgTaskUids_.remove(continuousTaskCallbackInfo->GetCreatorUid());
     if (appManager_ == nullptr) {
@@ -60,7 +62,7 @@ void BackgroundTaskObserver::GetContinuousTaskApps()
     std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
     ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
     if (result != ERR_OK) {
-        HILOG_ERROR("failed to GetContinuousTaskApps, ErrCode: %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to GetContinuousTaskApps, ErrCode: %{public}d", result);
         return;
     }
     std::lock_guard<std::mutex> lock(bgTaskMutex_);
@@ -86,7 +88,7 @@ sptr<AppExecFwk::IAppMgr> BackgroundTaskObserver::GetAppManager()
         auto appObj =
             OHOS::DelayedSingleton<SaMgrClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
         if (appObj == nullptr) {
-            HILOG_ERROR("Failed to get app manager service.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get app manager service.");
             return nullptr;
         }
         appManager_ = iface_cast<AppExecFwk::IAppMgr>(appObj);

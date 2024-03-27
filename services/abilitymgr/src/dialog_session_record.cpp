@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include <chrono>
 #include "ability_record.h"
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "parameters.h"
@@ -64,7 +65,7 @@ sptr<DialogSessionInfo> DialogSessionRecord::GetDialogSessionInfo(const std::str
     if (it != dialogSessionInfoMap_.end()) {
         return it->second;
     }
-    HILOG_INFO("not find");
+    TAG_LOGI(AAFwkTag::DIALOG, "not find");
     return nullptr;
 }
 
@@ -75,7 +76,7 @@ std::shared_ptr<DialogCallerInfo> DialogSessionRecord::GetDialogCallerInfo(const
     if (it != dialogCallerInfoMap_.end()) {
         return it->second;
     }
-    HILOG_INFO("not find");
+    TAG_LOGI(AAFwkTag::DIALOG, "not find");
     return nullptr;
 }
 
@@ -109,7 +110,7 @@ bool DialogSessionRecord::QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInf
     bool ret = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(bundleName,
         static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
     if (ret != ERR_OK) {
-        HILOG_ERROR("Get application info failed, err:%{public}d.", ret);
+        TAG_LOGE(AAFwkTag::DIALOG, "Get application info failed, err:%{public}d.", ret);
         return false;
     }
     dialogAbilityInfo.bundleIconId = bundleInfo.applicationInfo.iconId;
@@ -133,7 +134,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         dialogSessionInfo->callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
         bool ret = QueryDialogAppInfo(dialogSessionInfo->callerAbilityInfo, userId);
         if (!ret) {
-            HILOG_ERROR("query dialog app info failed");
+            TAG_LOGE(AAFwkTag::DIALOG, "query dialog app info failed");
             return false;
         }
     }
@@ -148,7 +149,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         targetDialogAbilityInfo.abilityLabelId = dialogAppInfo.labelId;
         int ret = QueryDialogAppInfo(targetDialogAbilityInfo, userId);
         if (!ret) {
-            HILOG_ERROR("query dialog app infos failed");
+            TAG_LOGE(AAFwkTag::DIALOG, "query dialog app infos failed");
             return false;
         }
         dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);

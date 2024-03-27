@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "start_options.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "process_options.h"
 
@@ -101,7 +102,7 @@ bool StartOptions::Marshalling(Parcel &parcel) const
     parcel.WriteBool(windowWidthUsed_);
     parcel.WriteBool(windowHeightUsed_);
     if (!parcel.WriteParcelable(processOptions.get())) {
-        HILOG_ERROR("Write processOptions failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write processOptions failed.");
         return false;
     }
     return true;

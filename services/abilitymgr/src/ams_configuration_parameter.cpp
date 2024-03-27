@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "ams_configuration_parameter.h"
 #include "app_utils.h"
 #include "config_policy_utils.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -42,13 +43,13 @@ void AmsConfigurationParameter::Parse()
     char buf[MAX_PATH_LEN] = { 0 };
     char *filePath = GetOneCfgFile(AmsConfig::PICKER_CONFIG_FILE_PATH, buf, MAX_PATH_LEN);
     if (filePath == nullptr || filePath[0] == '\0' || strlen(filePath) > MAX_PATH_LEN) {
-        HILOG_ERROR("Can not get config file");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not get config file");
         LoadUIExtensionPickerConfig(AmsConfig::PICKER_CONFIG_FILE_PATH_DEFAULT);
     }
     std::string customConfig = filePath;
-    HILOG_INFO("The configuration file path is :%{private}s", customConfig.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "The configuration file path is :%{private}s", customConfig.c_str());
     LoadUIExtensionPickerConfig(customConfig);
-    HILOG_INFO("load config ref : %{public}d", ref);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "load config ref : %{public}d", ref);
 }
 
 bool AmsConfigurationParameter::NonConfigFile() const
@@ -120,11 +121,11 @@ const std::map<std::string, std::string>& AmsConfigurationParameter::GetPickerMa
 
 void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &filePath)
 {
-    HILOG_INFO("%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in);
     if (!inFile.is_open()) {
-        HILOG_ERROR("read picker config error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "read picker config error");
         return;
     }
 
@@ -132,24 +133,24 @@ void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &f
     inFile >> pickerJson;
     inFile.close();
     if (pickerJson.is_discarded()) {
-        HILOG_ERROR("json discarded error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "json discarded error");
         return;
     }
 
     if (pickerJson.is_null() || pickerJson.empty()) {
-        HILOG_ERROR("invalid jsonObj");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid jsonObj");
         return;
     }
 
     if (!pickerJson.contains(AmsConfig::UIEATENSION)) {
-        HILOG_ERROR("json config not contains the key");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "json config not contains the key");
         return;
     }
 
     if (pickerJson[AmsConfig::UIEATENSION].is_null()
         || !pickerJson[AmsConfig::UIEATENSION].is_array()
         || pickerJson[AmsConfig::UIEATENSION].empty()) {
-        HILOG_ERROR("invalid obj");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid obj");
         return;
     }
 
@@ -158,26 +159,27 @@ void AmsConfigurationParameter::LoadUIExtensionPickerConfig(const std::string &f
             || !extension[AmsConfig::UIEATENSION_TYPE].is_string()
             || extension[AmsConfig::UIEATENSION_TYPE_PICKER].is_null()
             || !extension[AmsConfig::UIEATENSION_TYPE_PICKER].is_string()) {
-            HILOG_ERROR("invalid key or value");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid key or value");
             continue;
         }
         std::string type = extension[AmsConfig::UIEATENSION_TYPE].get<std::string>();
         std::string typePicker = extension[AmsConfig::UIEATENSION_TYPE_PICKER].get<std::string>();
-        HILOG_INFO("type is %{public}s, typePicker is %{public}s", type.c_str(), typePicker.c_str());
+        TAG_LOGI(AAFwkTag::ABILITYMGR,
+            "type is %{public}s, typePicker is %{public}s", type.c_str(), typePicker.c_str());
         picker_[type] = typePicker;
     }
     pickerJson.clear();
-    HILOG_INFO("read config success");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "read config success");
 }
 
 int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 {
-    HILOG_DEBUG("%{public}s", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s", __func__);
     int ret[2] = {0};
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in);
     if (!inFile.is_open()) {
-        HILOG_INFO("read ams config error ...");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Read ability manager service config error.");
         nonConfigFile_ = true;
         return READ_FAIL;
     }
@@ -185,7 +187,7 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     json amsJson;
     inFile >> amsJson;
     if (amsJson.is_discarded()) {
-        HILOG_INFO("json discarded error ...");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "json discarded error ...");
         nonConfigFile_ = true;
         inFile.close();
         return READ_JSON_FAIL;
@@ -193,12 +195,12 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 
     ret[0] = LoadAppConfigurationForStartUpService(amsJson);
     if (ret[0] != 0) {
-        HILOG_ERROR("LoadAppConfigurationForStartUpService return error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "LoadAppConfigurationForStartUpService return error");
     }
 
     ret[1] = LoadAppConfigurationForMemoryThreshold(amsJson);
     if (ret[1] != 0) {
-        HILOG_ERROR("LoadAppConfigurationForMemoryThreshold return error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "LoadAppConfigurationForMemoryThreshold return error");
     }
 
     LoadSystemConfiguration(amsJson);
@@ -208,12 +210,12 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
 
     for (const auto& i : ret) {
         if (i != 0) {
-            HILOG_ERROR("json no have service item ...");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "json no have service item ...");
             return READ_JSON_FAIL;
         }
     }
 
-    HILOG_INFO("read ams config success!");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Reading ability manager service config success.");
     return READ_OK;
 }
 
@@ -239,7 +241,7 @@ int AmsConfigurationParameter::LoadAppConfigurationForMemoryThreshold(nlohmann::
 {
     int ret = 0;
     if (!Object.contains("memorythreshold")) {
-        HILOG_ERROR("LoadAppConfigurationForMemoryThreshold return error");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "LoadAppConfigurationForMemoryThreshold return error");
         ret = -1;
     }
 

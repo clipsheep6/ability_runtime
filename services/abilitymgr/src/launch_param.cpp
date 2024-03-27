@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "launch_param.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
@@ -62,7 +63,7 @@ bool LaunchParam::Marshalling(Parcel &parcel) const
         return false;
     }
     if (!parcel.WriteString16(Str8ToStr16(lastExitMessage))) {
-        HILOG_ERROR("Write parcel lastExitMessage failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write parcel lastExitMessage failed.");
         return false;
     }
     return true;

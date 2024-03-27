@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "insight_intent_utils.h"
 
 #include "bundle_mgr_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
@@ -30,10 +31,10 @@ namespace AbilityRuntime {
 std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const std::string &moduleName,
     const std::string &intentName)
 {
-    HILOG_DEBUG("Get srcEntry, bundleName: %{public}s, moduleName: %{public}s, intentName: %{public}s.",
+    TAG_LOGD(AAFwkTag::INTENT, "Get srcEntry, bundleName: %{public}s, moduleName: %{public}s, intentName: %{public}s.",
         bundleName.c_str(), moduleName.c_str(), intentName.c_str());
     if (bundleName.empty() || moduleName.empty() || intentName.empty()) {
-        HILOG_ERROR("Invalid param.");
+        TAG_LOGE(AAFwkTag::INTENT, "Invalid param.");
         return std::string("");
     }
 
@@ -47,14 +48,14 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
     auto ret = IN_PROCESS_CALL(bundleMgrHelper->GetJsonProfile(AppExecFwk::INTENT_PROFILE, bundleName, moduleName,
         profile, AppExecFwk::OsAccountManagerWrapper::GetCurrentActiveAccountId()));
     if (ret != ERR_OK) {
-        HILOG_ERROR("Get json profile failed, error code: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::INTENT, "Get json profile failed, error code: %{public}d.", ret);
         return std::string("");
     }
 
     // Transform json string
     std::vector<InsightIntentInfo> infos;
     if (!InsightIntentProfile::TransformTo(profile, infos)) {
-        HILOG_ERROR("Transform profile failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "Transform profile failed.");
         return std::string("");
     }
 
@@ -65,7 +66,7 @@ std::string InsightIntentUtils::GetSrcEntry(const std::string &bundleName, const
             srcEntry = info.srcEntry;
         }
     }
-    HILOG_DEBUG("srcEntry: %{public}s", srcEntry.c_str());
+    TAG_LOGD(AAFwkTag::INTENT, "srcEntry: %{public}s", srcEntry.c_str());
     return srcEntry;
 }
 } // namespace AbilityRuntime
