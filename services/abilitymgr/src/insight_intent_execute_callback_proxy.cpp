@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_manager_errors.h"
 #include "insight_intent_execute_callback_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "message_parcel.h"
@@ -24,27 +25,27 @@ namespace AAFwk {
 void InsightIntentExecuteCallbackProxy::OnExecuteDone(uint64_t key, int32_t resultCode,
     const AppExecFwk::InsightIntentExecuteResult &executeResult)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::INTENT, "call");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IInsightIntentExecuteCallback::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "Write interface token failed.");
         return;
     }
     if (!data.WriteUint64(key)) {
-        HILOG_ERROR("key write failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "key write failed.");
         return;
     }
     if (!data.WriteInt32(resultCode)) {
-        HILOG_ERROR("resultCode write failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "resultCode write failed.");
         return;
     }
     if (!data.WriteParcelable(&executeResult)) {
-        HILOG_ERROR("executeResult write failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "executeResult write failed.");
         return;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::INTENT, "Remote() is NULL");
         return;
     }
 
@@ -52,7 +53,7 @@ void InsightIntentExecuteCallbackProxy::OnExecuteDone(uint64_t key, int32_t resu
     MessageOption option(MessageOption::TF_ASYNC);
     int error = remote->SendRequest(ON_INSIGHT_INTENT_EXECUTE_DONE, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::INTENT, "SendRequest fail, error: %{public}d", error);
     }
 }
 } // namespace AAFwk

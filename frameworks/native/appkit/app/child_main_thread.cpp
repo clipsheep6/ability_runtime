@@ -146,7 +146,7 @@ void ChildMainThread::HandleLoadJs()
         return;
     }
 
-    runtime_ = childProcessManager.CreateRuntime(bundleInfoCopy, hapModuleInfo, true);
+    runtime_ = childProcessManager.CreateRuntime(bundleInfoCopy, hapModuleInfo, true, processInfo_->jitEnabled);
     if (!runtime_) {
         HILOG_ERROR("Failed to create child process runtime");
         return;

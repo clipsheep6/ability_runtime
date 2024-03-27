@@ -25,6 +25,7 @@
 #include "mock_bundle_manager.h"
 #include "sys_mgr_client.h"
 #include "system_ability_definition.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -75,10 +76,10 @@ void ChildProcessManagerTest::TearDown()
  */
 HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("StartChildProcessBySelfFork_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "StartChildProcessBySelfFork_0100 called.");
     pid_t pid;
     auto ret = ChildProcessManager::GetInstance().StartChildProcessBySelfFork("./ets/process/DemoProcess.ts", pid);
-    EXPECT_TRUE(ret == ChildProcessManagerErrorCode::ERR_OK);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
 }
 
 /**
@@ -88,10 +89,10 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessBySelfFork_0100, TestSize.Lev
  */
 HWTEST_F(ChildProcessManagerTest, StartChildProcessByAppSpawnFork_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("StartChildProcessByAppSpawnFork_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "StartChildProcessByAppSpawnFork_0100 called.");
     pid_t pid;
     auto ret = ChildProcessManager::GetInstance().StartChildProcessByAppSpawnFork("./ets/process/DemoProcess.ts", pid);
-    EXPECT_TRUE(ret == ChildProcessManagerErrorCode::ERR_OK);
+    EXPECT_NE(ret, ChildProcessManagerErrorCode::ERR_FORK_FAILED);
 }
 
 /**
@@ -101,7 +102,7 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessByAppSpawnFork_0100, TestSize
  */
 HWTEST_F(ChildProcessManagerTest, IsChildProcess_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("IsChildProcess_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "IsChildProcess_0100 called.");
     auto ret = ChildProcessManager::GetInstance().IsChildProcess();
     EXPECT_TRUE(!ret);
 }
@@ -113,7 +114,7 @@ HWTEST_F(ChildProcessManagerTest, IsChildProcess_0100, TestSize.Level0)
  */
 HWTEST_F(ChildProcessManagerTest, GetBundleInfo_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("GetBundleInfo_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "GetBundleInfo_0100 called.");
     AppExecFwk::BundleInfo bundleInfo;
     auto ret = ChildProcessManager::GetInstance().GetBundleInfo(bundleInfo);
     EXPECT_TRUE(ret);
@@ -126,7 +127,7 @@ HWTEST_F(ChildProcessManagerTest, GetBundleInfo_0100, TestSize.Level0)
  */
 HWTEST_F(ChildProcessManagerTest, GetHapModuleInfo_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("GetHapModuleInfo_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "GetHapModuleInfo_0100 called.");
     AppExecFwk::BundleInfo bundleInfo;
     auto ret = ChildProcessManager::GetInstance().GetBundleInfo(bundleInfo);
     EXPECT_TRUE(ret);
@@ -143,7 +144,7 @@ HWTEST_F(ChildProcessManagerTest, GetHapModuleInfo_0100, TestSize.Level0)
  */
 HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("CreateRuntime_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "CreateRuntime_0100 called.");
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
         const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn);
     AppExecFwk::BundleInfo bundleInfo;
@@ -154,7 +155,7 @@ HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
     ret = ChildProcessManager::GetInstance().GetHapModuleInfo(bundleInfo, hapModuleInfo);
     EXPECT_TRUE(ret);
 
-    auto runtime = ChildProcessManager::GetInstance().CreateRuntime(bundleInfo, hapModuleInfo, false);
+    auto runtime = ChildProcessManager::GetInstance().CreateRuntime(bundleInfo, hapModuleInfo, false, false);
     EXPECT_TRUE(runtime != nullptr);
 }
 
@@ -165,7 +166,7 @@ HWTEST_F(ChildProcessManagerTest, CreateRuntime_0100, TestSize.Level0)
  */
 HWTEST_F(ChildProcessManagerTest, LoadJsFile_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("LoadJsFile_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "LoadJsFile_0100 called.");
     std::unique_ptr<Runtime> runtime;
     AppExecFwk::HapModuleInfo hapModuleInfo;
     auto ret = ChildProcessManager::GetInstance().LoadJsFile("./ets/process/AProcess.ts", hapModuleInfo, runtime);

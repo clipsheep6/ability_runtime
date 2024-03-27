@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "ability_manager_client.h"
 #include "configuration_utils.h"
 #include "hitrace_meter.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "insight_intent_execute_param.h"
 #include "insight_intent_execute_result.h"
@@ -63,7 +64,7 @@ napi_value PromiseCallback(napi_env env, napi_callback_info info)
 
 napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "enter");
     void *data = nullptr;
     size_t argc = ARGC_MAX_COUNT;
     napi_value argv[ARGC_MAX_COUNT] = {nullptr};
@@ -76,7 +77,7 @@ napi_value OnConnectPromiseCallback(napi_env env, napi_callback_info info)
     callbackInfo->Call(service);
     AppExecFwk::AbilityTransactionCallbackInfo<sptr<IRemoteObject>>::Destroy(callbackInfo);
     data = nullptr;
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end");
     return nullptr;
 }
 }
@@ -86,19 +87,19 @@ using namespace OHOS::AppExecFwk;
 napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
 {
     if (value == nullptr) {
-        HILOG_WARN("invalid parameter.");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "invalid parameter.");
         return nullptr;
     }
     auto ptr = reinterpret_cast<std::weak_ptr<ServiceExtensionContext> *>(value)->lock();
     if (ptr == nullptr) {
-        HILOG_WARN("invalid context.");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "invalid context.");
         return nullptr;
     }
     napi_value object = CreateJsServiceExtensionContext(env, ptr);
     auto sysModule = JsRuntime::LoadSystemModuleByEngine(env,
         "application.ServiceExtensionContext", &object, 1);
     if (sysModule == nullptr) {
-        HILOG_WARN("load module failed.");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "load module failed.");
         return nullptr;
     }
     auto contextObj = sysModule->GetNapiValue();
@@ -107,7 +108,7 @@ napi_value AttachServiceExtensionContext(napi_env env, void *value, void *)
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(ptr);
     napi_wrap(env, contextObj, workContext,
         [](napi_env, void *data, void *) {
-            HILOG_DEBUG("Finalizer for weak_ptr service extension context is called");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "Finalizer for weak_ptr service extension context is called");
             delete static_cast<std::weak_ptr<ServiceExtensionContext> *>(data);
         },
         nullptr, nullptr);
@@ -122,7 +123,7 @@ JsServiceExtension* JsServiceExtension::Create(const std::unique_ptr<Runtime>& r
 JsServiceExtension::JsServiceExtension(JsRuntime& jsRuntime) : jsRuntime_(jsRuntime) {}
 JsServiceExtension::~JsServiceExtension()
 {
-    HILOG_DEBUG("Js service extension destructor.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Js service extension destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
@@ -140,13 +141,13 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     std::string srcPath = "";
     GetSrcPath(srcPath);
     if (srcPath.empty()) {
-        HILOG_ERROR("Failed to get srcPath");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get srcPath");
         return;
     }
 
     std::string moduleName(Extension::abilityInfo_->moduleName);
     moduleName.append("::").append(abilityInfo_->name);
-    HILOG_DEBUG("JsServiceExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "JsServiceExtension::Init moduleName:%{public}s,srcPath:%{public}s.",
         moduleName.c_str(), srcPath.c_str());
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
@@ -154,14 +155,14 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     jsObj_ = jsRuntime_.LoadModule(
         moduleName, srcPath, abilityInfo_->hapPath, abilityInfo_->compileMode == CompileMode::ES_MODULE);
     if (jsObj_ == nullptr) {
-        HILOG_ERROR("Failed to get jsObj_");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get jsObj_");
         return;
     }
 
-    HILOG_DEBUG("ConvertNativeValueTo.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ConvertNativeValueTo.");
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get JsServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get JsServiceExtension object");
         return;
     }
 
@@ -175,7 +176,7 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     if (context != nullptr && appContext != nullptr) {
         auto appConfig = appContext->GetConfiguration();
         if (appConfig != nullptr) {
-            HILOG_DEBUG("Original config dump: %{public}s", appConfig->GetName().c_str());
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "Original config dump: %{public}s", appConfig->GetName().c_str());
             context->SetConfiguration(std::make_shared<Configuration>(*appConfig));
         }
     }
@@ -185,29 +186,29 @@ void JsServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
 void JsServiceExtension::ListenWMS()
 {
 #ifdef SUPPORT_GRAPHICS
-    HILOG_DEBUG("RegisterDisplayListener");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "RegisterDisplayListener");
     auto abilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (abilityManager == nullptr) {
-        HILOG_ERROR("Failed to get SaMgr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get SaMgr.");
         return;
     }
 
     auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
     displayListener_ = sptr<JsServiceExtensionDisplayListener>::MakeSptr(jsServiceExtension);
     if (displayListener_ == nullptr) {
-        HILOG_ERROR("Failed to create display listener.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to create display listener.");
         return;
     }
 
     auto listener = sptr<SystemAbilityStatusChangeListener>::MakeSptr(displayListener_);
     if (listener == nullptr) {
-        HILOG_ERROR("Failed to create status change listener.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to create status change listener.");
         return;
     }
 
     auto ret = abilityManager->SubscribeSystemAbility(WINDOW_MANAGER_SERVICE_ID, listener);
     if (ret != 0) {
-        HILOG_ERROR("subscribe system ability failed, ret = %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "subscribe system ability failed, ret = %{public}d.", ret);
     }
 #endif
 }
@@ -215,7 +216,7 @@ void JsServiceExtension::ListenWMS()
 void JsServiceExtension::SystemAbilityStatusChangeListener::OnAddSystemAbility(int32_t systemAbilityId,
     const std::string& deviceId)
 {
-    HILOG_DEBUG("systemAbilityId: %{public}d add", systemAbilityId);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "systemAbilityId: %{public}d add", systemAbilityId);
     if (systemAbilityId == WINDOW_MANAGER_SERVICE_ID) {
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(tmpDisplayListener_);
     }
@@ -225,26 +226,26 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
 {
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Failed to get context");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get context");
         return;
     }
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
     napi_value contextObj = CreateJsServiceExtensionContext(env, context);
     shellContextRef_ = JsRuntime::LoadSystemModuleByEngine(env, "application.ServiceExtensionContext",
         &contextObj, ARGC_ONE);
     if (shellContextRef_ == nullptr) {
-        HILOG_ERROR("Failed to load module");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to load module");
         return;
     }
     contextObj = shellContextRef_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, contextObj, napi_object)) {
-        HILOG_ERROR("Failed to get context native object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get context native object");
         return;
     }
     auto workContext = new (std::nothrow) std::weak_ptr<ServiceExtensionContext>(context);
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachServiceExtensionContext, workContext, nullptr);
-    HILOG_DEBUG("Bind.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Bind.");
     context->Bind(jsRuntime_, shellContextRef_.get());
     napi_set_named_property(env, obj, "context", contextObj);
 
@@ -254,19 +255,19 @@ void JsServiceExtension::BindContext(napi_env env, napi_value obj)
         },
         nullptr, nullptr);
 
-    HILOG_DEBUG("end.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end.");
 }
 
 void JsServiceExtension::OnStart(const AAFwk::Want &want)
 {
     Extension::OnStart(want);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
 
     auto context = GetContext();
     if (context != nullptr) {
         int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
-        HILOG_DEBUG("displayId %{public}d", displayId);
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "displayId %{public}d", displayId);
         auto configUtils = std::make_shared<ConfigurationUtils>();
         configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
     }
@@ -282,21 +283,21 @@ void JsServiceExtension::OnStart(const AAFwk::Want &want)
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);
-    HILOG_DEBUG("ok");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ok");
 }
 
 void JsServiceExtension::OnStop()
 {
     ServiceExtension::OnStop();
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
     CallObjectMethod("onDestroy");
     bool ret = ConnectionManager::GetInstance().DisconnectCaller(GetContext()->GetToken());
     if (ret) {
         ConnectionManager::GetInstance().ReportConnectionLeakEvent(getpid(), gettid());
-        HILOG_DEBUG("The service extension connection is not disconnected.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "The service extension connection is not disconnected.");
     }
     Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(displayListener_);
-    HILOG_DEBUG("ok");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ok");
 }
 
 sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
@@ -306,7 +307,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want)
     napi_env env = jsRuntime_.GetNapiEnv();
     auto remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("remoteObj null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteObj null.");
     }
     return remoteObj;
 }
@@ -322,7 +323,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
         isAsyncCallback = false;
         sptr<IRemoteObject> remoteObj = NAPI_ohos_rpc_getNativeRemoteObject(env, result);
         if (remoteObj == nullptr) {
-            HILOG_ERROR("remoteObj null.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteObj null.");
         }
         return remoteObj;
     }
@@ -330,19 +331,19 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     bool callResult = false;
     do {
         if (!CheckTypeForNapiValue(env, result, napi_object)) {
-            HILOG_ERROR("CallPromise, error to convert native value to NativeObject.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, error to convert native value to NativeObject.");
             break;
         }
         napi_value then = nullptr;
         napi_get_named_property(env, result, "then", &then);
         if (then == nullptr) {
-            HILOG_ERROR("CallPromise, error to get property: then.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, error to get property: then.");
             break;
         }
         bool isCallable = false;
         napi_is_callable(env, then, &isCallable);
         if (!isCallable) {
-            HILOG_ERROR("CallPromise, property then is not callable");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, property then is not callable");
             break;
         }
         napi_value promiseCallback = nullptr;
@@ -354,7 +355,7 @@ sptr<IRemoteObject> JsServiceExtension::OnConnect(const AAFwk::Want &want,
     } while (false);
 
     if (!callResult) {
-        HILOG_ERROR("error to call promise.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to call promise.");
         isAsyncCallback = false;
     } else {
         isAsyncCallback = true;
@@ -367,9 +368,9 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
-    HILOG_DEBUG("%{public}s begin.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s begin.", __func__);
     CallOnDisconnect(want, false);
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s end.", __func__);
 }
 
 void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
@@ -378,7 +379,7 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     HandleScope handleScope(jsRuntime_);
     Extension::OnDisconnect(want);
-    HILOG_DEBUG("%{public}s start.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s start.", __func__);
     napi_value result = CallOnDisconnect(want, true);
     bool isPromise = CheckPromise(result);
     if (!isPromise) {
@@ -387,19 +388,19 @@ void JsServiceExtension::OnDisconnect(const AAFwk::Want &want,
     }
     bool callResult = CallPromise(result, callbackInfo);
     if (!callResult) {
-        HILOG_ERROR("error to call promise.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to call promise.");
         isAsyncCallback = false;
     } else {
         isAsyncCallback = true;
     }
 
-    HILOG_DEBUG("%{public}s end.", __func__);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "%{public}s end.", __func__);
 }
 
 void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     Extension::OnCommand(want, restart, startId);
-    HILOG_DEBUG("restart=%{public}s,startId=%{public}d.",
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false",
         startId);
     // wrap want
@@ -411,48 +412,49 @@ void JsServiceExtension::OnCommand(const AAFwk::Want &want, bool restart, int st
     napi_create_int32(env, startId, &napiStartId);
     napi_value argv[] = {napiWant, napiStartId};
     CallObjectMethod("onRequest", argv, ARGC_TWO);
-    HILOG_DEBUG("ok");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ok");
 }
 
 bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called.");
     auto callback = std::make_unique<InsightIntentExecutorAsyncCallback>();
     callback.reset(InsightIntentExecutorAsyncCallback::Create());
     if (callback == nullptr) {
-        HILOG_ERROR("Create async callback failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Create async callback failed.");
         return false;
     }
     auto executeParam = std::make_shared<AppExecFwk::InsightIntentExecuteParam>();
     bool ret = AppExecFwk::InsightIntentExecuteParam::GenerateFromWant(want, *executeParam);
     if (!ret) {
-        HILOG_ERROR("Generate execute param failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Generate execute param failed.");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
     }
-    HILOG_DEBUG("Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
-        "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64"",
+    TAG_LOGD(AAFwkTag::SERVICE_EXT,
+        "Insight intent bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s"
+        "insightIntentName: %{public}s, executeMode: %{public}d, intentId: %{public}" PRIu64 "",
         executeParam->bundleName_.c_str(), executeParam->moduleName_.c_str(), executeParam->abilityName_.c_str(),
         executeParam->insightIntentName_.c_str(), executeParam->executeMode_, executeParam->insightIntentId_);
     auto asyncCallback = [weak = weak_from_this(), intentId = executeParam->insightIntentId_]
         (AppExecFwk::InsightIntentExecuteResult result) {
-        HILOG_DEBUG("Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "Execute insight intent finshed, intentId %{public}" PRIu64"", intentId);
         auto extension = weak.lock();
         if (extension == nullptr) {
-            HILOG_ERROR("extension is nullptr.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "extension is nullptr.");
             return;
         }
         auto ret = extension->OnInsightIntentExecuteDone(intentId, result);
         if (!ret) {
-            HILOG_ERROR("OnInsightIntentExecuteDone failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnInsightIntentExecuteDone failed.");
         }
     };
     callback->Push(asyncCallback);
     InsightIntentExecutorInfo executorInfo;
     ret = GetInsightIntentExecutorInfo(want, executeParam, executorInfo);
     if (!ret) {
-        HILOG_ERROR("Get Intent executor failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Get Intent executor failed.");
         InsightIntentExecutorMgr::TriggerCallbackInner(std::move(callback),
             static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
         return false;
@@ -460,7 +462,7 @@ bool JsServiceExtension::HandleInsightIntent(const AAFwk::Want &want)
     ret = DelayedSingleton<InsightIntentExecutorMgr>::GetInstance()->ExecuteInsightIntent(
         jsRuntime_, executorInfo, std::move(callback));
     if (!ret) {
-        HILOG_ERROR("Execute insight intent failed.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Execute insight intent failed.");
         return false;
     }
     return true;
@@ -470,10 +472,10 @@ bool JsServiceExtension::GetInsightIntentExecutorInfo(const Want &want,
     const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &executeParam,
     InsightIntentExecutorInfo &executorInfo)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called.");
     auto context = GetContext();
     if (executeParam == nullptr || context == nullptr || abilityInfo_ == nullptr) {
-        HILOG_ERROR("Param invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Param invalid.");
         return false;
     }
 
@@ -489,20 +491,20 @@ bool JsServiceExtension::GetInsightIntentExecutorInfo(const Want &want,
 bool JsServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
     const AppExecFwk::InsightIntentExecuteResult &result)
 {
-    HILOG_INFO("Notify execute done, intentId %{public}" PRIu64"", intentId);
+    TAG_LOGI(AAFwkTag::SERVICE_EXT, "Notify execute done, intentId %{public}" PRIu64"", intentId);
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("context is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "context is null.");
         return false;
     }
     auto token = context->GetToken();
     if (token == nullptr) {
-        HILOG_ERROR("token is null.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "token is null.");
         return false;
     }
     auto ret = AAFwk::AbilityManagerClient::GetInstance()->ExecuteInsightIntentDone(token, intentId, result);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Notify execute done faild.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Notify execute done faild.");
         return false;
     }
     return true;
@@ -510,10 +512,10 @@ bool JsServiceExtension::OnInsightIntentExecuteDone(uint64_t intentId,
 
 napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
-    HILOG_DEBUG("name:%{public}s", name);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "name:%{public}s", name);
 
     if (!jsObj_) {
-        HILOG_WARN("Not found ServiceExtension.js");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "Not found ServiceExtension.js");
         return nullptr;
     }
 
@@ -522,17 +524,17 @@ napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value con
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, name, &method);
     if (!CheckTypeForNapiValue(env, method, napi_function)) {
-        HILOG_ERROR("Failed to get '%{public}s' from ServiceExtension object", name);
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get '%{public}s' from ServiceExtension object", name);
         return nullptr;
     }
-    HILOG_DEBUG("CallFunction(%{public}s) ok", name);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "CallFunction(%{public}s) ok", name);
     napi_value result = nullptr;
     napi_call_function(env, obj, method, argc, argv, &result);
     return result;
@@ -540,7 +542,7 @@ napi_value JsServiceExtension::CallObjectMethod(const char* name, napi_value con
 
 void JsServiceExtension::GetSrcPath(std::string &srcPath)
 {
-    HILOG_DEBUG("GetSrcPath start.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "GetSrcPath start.");
     if (!Extension::abilityInfo_->isModuleJson) {
         /* temporary compatibility api8 + config.json */
         srcPath.append(Extension::abilityInfo_->package);
@@ -564,33 +566,33 @@ napi_value JsServiceExtension::CallOnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnConnect(want);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
     napi_env env = jsRuntime_.GetNapiEnv();
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     if (!jsObj_) {
-        HILOG_WARN("Not found ServiceExtension.js");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "Not found ServiceExtension.js");
         return nullptr;
     }
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, "onConnect", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onConnect from ServiceExtension object");
         return nullptr;
     }
     napi_value remoteNative = nullptr;
     napi_call_function(env, obj, method, ARGC_ONE, argv, &remoteNative);
     if (remoteNative == nullptr) {
-        HILOG_ERROR("remoteNative nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "remoteNative nullptr.");
     }
-    HILOG_DEBUG("ok");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ok");
     return remoteNative;
 }
 
@@ -601,20 +603,20 @@ napi_value JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool wi
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = { napiWant };
     if (!jsObj_) {
-        HILOG_WARN("Not found ServiceExtension.js");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "Not found ServiceExtension.js");
         return nullptr;
     }
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, "onDisconnect", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onDisconnect from ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onDisconnect from ServiceExtension object");
         return nullptr;
     }
 
@@ -631,14 +633,14 @@ napi_value JsServiceExtension::CallOnDisconnect(const AAFwk::Want &want, bool wi
 bool JsServiceExtension::CheckPromise(napi_value result)
 {
     if (result == nullptr) {
-        HILOG_DEBUG("CheckPromise, result is nullptr, no need to call promise.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "CheckPromise, result is nullptr, no need to call promise.");
         return false;
     }
     napi_env env = jsRuntime_.GetNapiEnv();
     bool isPromise = false;
     napi_is_promise(env, result, &isPromise);
     if (!isPromise) {
-        HILOG_DEBUG("CheckPromise, result is not promise, no need to call promise.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "CheckPromise, result is not promise, no need to call promise.");
         return false;
     }
     return true;
@@ -648,19 +650,19 @@ bool JsServiceExtension::CallPromise(napi_value result, AppExecFwk::AbilityTrans
 {
     napi_env env = jsRuntime_.GetNapiEnv();
     if (!CheckTypeForNapiValue(env, result, napi_object)) {
-        HILOG_ERROR("CallPromise, Error to convert native value to NativeObject.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, Error to convert native value to NativeObject.");
         return false;
     }
     napi_value then = nullptr;
     napi_get_named_property(env, result, "then", &then);
     if (then == nullptr) {
-        HILOG_ERROR("CallPromise, Error to get property: then.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, Error to get property: then.");
         return false;
     }
     bool isCallable = false;
     napi_is_callable(env, then, &isCallable);
     if (!isCallable) {
-        HILOG_ERROR("CallPromise, Property then is not callable.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "CallPromise, Property then is not callable.");
         return false;
     }
     HandleScope handleScope(jsRuntime_);
@@ -669,43 +671,43 @@ bool JsServiceExtension::CallPromise(napi_value result, AppExecFwk::AbilityTrans
         callbackInfo, &promiseCallback);
     napi_value argv[1] = { promiseCallback };
     napi_call_function(env, result, then, 1, argv, nullptr);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "end");
     return true;
 }
 
 void JsServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration& configuration)
 {
     ServiceExtension::OnConfigurationUpdated(configuration);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
         return;
     }
 
     auto contextConfig = context->GetConfiguration();
     if (contextConfig != nullptr) {
-        HILOG_DEBUG("Config dump: %{public}s", contextConfig->GetName().c_str());
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump: %{public}s", contextConfig->GetName().c_str());
         std::vector<std::string> changeKeyV;
         contextConfig->CompareDifferent(changeKeyV, configuration);
         if (!changeKeyV.empty()) {
             contextConfig->Merge(changeKeyV, configuration);
         }
-        HILOG_DEBUG("Config dump after merge: %{public}s", contextConfig->GetName().c_str());
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump after merge: %{public}s", contextConfig->GetName().c_str());
     }
     ConfigurationUpdated();
 }
 
 void JsServiceExtension::ConfigurationUpdated()
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called.");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
 
     // Notify extension context
     auto fullConfig = GetContext()->GetConfiguration();
     if (!fullConfig) {
-        HILOG_ERROR("configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "configuration is nullptr.");
         return;
     }
 
@@ -718,20 +720,20 @@ void JsServiceExtension::ConfigurationUpdated()
 void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
     Extension::Dump(params, info);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "call");
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
     // create js array object of params
     napi_value argv[] = { CreateNativeArray(env, params) };
 
     if (!jsObj_) {
-        HILOG_WARN("Not found ServiceExtension.js");
+        TAG_LOGW(AAFwkTag::SERVICE_EXT, "Not found ServiceExtension.js");
         return;
     }
 
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get ServiceExtension object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get ServiceExtension object");
         return;
     }
 
@@ -741,15 +743,15 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
         method = nullptr;
         napi_get_named_property(env, obj, "dump", &method);
         if (!CheckTypeForNapiValue(env, method, napi_function)) {
-            HILOG_ERROR("Failed to get onConnect from ServiceExtension object");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onConnect from ServiceExtension object");
             return;
         }
     }
-    HILOG_DEBUG("success");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "success");
     napi_value dumpInfo = nullptr;
     napi_call_function(env, obj, method, ARGC_ONE, argv, &dumpInfo);
     if (dumpInfo == nullptr) {
-        HILOG_ERROR("dumpInfo nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "dumpInfo nullptr.");
         return;
     }
     uint32_t len = 0;
@@ -759,45 +761,45 @@ void JsServiceExtension::Dump(const std::vector<std::string> &params, std::vecto
         napi_value element = nullptr;
         napi_get_element(env, dumpInfo, i, &element);
         if (!ConvertFromJsValue(env, element, dumpInfoStr)) {
-            HILOG_ERROR("Parse dumpInfoStr failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Parse dumpInfoStr failed.");
             return;
         }
         info.push_back(dumpInfoStr);
     }
-    HILOG_DEBUG("Dump info size: %{public}zu", info.size());
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Dump info size: %{public}zu", info.size());
 }
 
 #ifdef SUPPORT_GRAPHICS
 void JsServiceExtension::OnCreate(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("enter.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "enter.");
 }
 
 void JsServiceExtension::OnDestroy(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("exit.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "exit.");
 }
 
 void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("displayId: %{public}" PRIu64"", displayId);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "displayId: %{public}" PRIu64"", displayId);
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
         return;
     }
 
     auto contextConfig = context->GetConfiguration();
     if (contextConfig == nullptr) {
-        HILOG_ERROR("Configuration is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Configuration is invalid.");
         return;
     }
 
-    HILOG_DEBUG("Config dump: %{public}s", contextConfig->GetName().c_str());
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump: %{public}s", contextConfig->GetName().c_str());
     bool configChanged = false;
     auto configUtils = std::make_shared<ConfigurationUtils>();
     configUtils->UpdateDisplayConfig(displayId, contextConfig, context->GetResourceManager(), configChanged);
-    HILOG_DEBUG("Config dump after update: %{public}s", contextConfig->GetName().c_str());
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "Config dump after update: %{public}s", contextConfig->GetName().c_str());
 
     if (configChanged) {
         auto jsServiceExtension = std::static_pointer_cast<JsServiceExtension>(shared_from_this());
@@ -811,7 +813,7 @@ void JsServiceExtension::OnChange(Rosen::DisplayId displayId)
         }
     }
 
-    HILOG_DEBUG("finished.");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "finished.");
 }
 #endif
 } // AbilityRuntime

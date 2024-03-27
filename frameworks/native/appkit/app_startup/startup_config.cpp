@@ -17,5 +17,31 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+StartupConfig::StartupConfig() = default;
+
+StartupConfig::~StartupConfig() = default;
+
+StartupConfig::StartupConfig(int32_t awaitTimeoutMs) : awaitTimeoutMs_(awaitTimeoutMs)
+{}
+
+StartupConfig::StartupConfig(const std::shared_ptr<StartupListener> &listener) : listener_(listener)
+{}
+
+StartupConfig::StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<StartupListener> &listener)
+    : awaitTimeoutMs_(awaitTimeoutMs), listener_(listener)
+{}
+
+int32_t StartupConfig::GetAwaitTimeoutMs() const
+{
+    return awaitTimeoutMs_;
+}
+
+int32_t StartupConfig::ListenerOnCompleted(const StartupTaskResult &result)
+{
+    if (listener_ != nullptr) {
+        listener_->OnCompleted(result);
+    }
+    return ERR_OK;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

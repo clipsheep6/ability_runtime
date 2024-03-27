@@ -136,7 +136,7 @@ public:
      * @return
      */
     virtual void ScheduleLaunchAbility(const AbilityInfo &, const sptr<IRemoteObject> &,
-        const std::shared_ptr<AAFwk::Want> &want) override;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) override;
 
     /**
      * ScheduleCleanAbility, call ScheduleCleanAbility() through proxy project,

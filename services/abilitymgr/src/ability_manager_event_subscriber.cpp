@@ -16,6 +16,7 @@
 #include "ability_manager_event_subscriber.h"
 
 #include "common_event_support.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -29,7 +30,7 @@ void AbilityManagerEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventDa
 {
     const AAFwk::Want &want = data.GetWant();
     std::string action = want.GetAction();
-    HILOG_DEBUG("The action: %{public}s.", action.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "The action: %{public}s.", action.c_str());
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_SCREEN_UNLOCKED) {
         if (callback_ != nullptr) {
             callback_();

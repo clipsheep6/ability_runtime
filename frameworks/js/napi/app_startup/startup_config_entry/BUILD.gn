@@ -14,47 +14,48 @@
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
 
-es2abc_gen_abc("gen_startup_task_executor_abc") {
-  src_js = rebase_path("startup_task_executor.js")
-  dst_file = rebase_path(target_out_dir + "/startup_task_executor.abc")
-  in_puts = [ "startup_task_executor.js" ]
-  out_puts = [ target_out_dir + "/startup_task_executor.abc" ]
+es2abc_gen_abc("gen_startup_config_entry_abc") {
+  src_js = rebase_path("startup_config_entry.js")
+  dst_file = rebase_path(target_out_dir + "/startup_config_entry.abc")
+  in_puts = [ "startup_config_entry.js" ]
+  out_puts = [ target_out_dir + "/startup_config_entry.abc" ]
   extra_args = [ "--module" ]
 }
 
-gen_js_obj("startup_task_executor_js") {
-  input = "startup_task_executor.js"
-  output = target_out_dir + "/startup_task_executor.o"
+gen_js_obj("startup_config_entry_js") {
+  input = "startup_config_entry.js"
+  output = target_out_dir + "/startup_config_entry.o"
 }
 
-gen_js_obj("startup_task_executor_abc") {
-  input = get_label_info(":gen_startup_task_executor_abc", "target_out_dir") +
-          "/startup_task_executor.abc"
-  output = target_out_dir + "/startup_task_executor_abc.o"
-  dep = ":gen_startup_task_executor_abc"
+gen_js_obj("startup_config_entry_abc") {
+  input = get_label_info(":gen_startup_config_entry_abc", "target_out_dir") +
+          "/startup_config_entry.abc"
+  output = target_out_dir + "/startup_config_entry_abc.o"
+  dep = ":gen_startup_config_entry_abc"
 }
 
-ohos_shared_library("startuptaskexecutor_napi") {
+ohos_shared_library("startupconfigentry_napi") {
   sanitize = {
     integer_overflow = true
     ubsan = true
     boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
+
     debug = false
   }
   branch_protector_ret = "pac_ret"
 
-  sources = [ "startup_task_executor_module.cpp" ]
+  sources = [ "startup_config_entry_module.cpp" ]
 
   deps = [
-    ":startup_task_executor_abc",
-    ":startup_task_executor_js",
+    ":startup_config_entry_abc",
+    ":startup_config_entry_js",
   ]
 
   external_deps = [ "napi:ace_napi" ]
 
-  relative_install_dir = "module/application"
+  relative_install_dir = "module/app/appstartup"
   subsystem_name = "ability"
   part_name = "ability_runtime"
 }

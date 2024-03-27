@@ -21,7 +21,8 @@
 namespace OHOS {
 namespace AbilityRuntime {
 
-StartupTaskManager::StartupTaskManager() = default;
+StartupTaskManager::StartupTaskManager(uint32_t startupTaskManagerId) : startupTaskManagerId_(startupTaskManagerId)
+{}
 
 StartupTaskManager::~StartupTaskManager() = default;
 
@@ -40,19 +41,29 @@ int32_t StartupTaskManager::AddTask(const std::shared_ptr<StartupTask> &task)
     return ERR_OK;
 }
 
+int32_t StartupTaskManager::SetConfig(const std::shared_ptr<StartupConfig> &config)
+{
+    config_ = config;
+    return ERR_OK;
+}
+
 int32_t StartupTaskManager::Prepare()
 {
+    HILOG_DEBUG("id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
+    // sort
     dispatcher_ = std::make_shared<StartupTaskDispatcher>();
     return ERR_OK;
 }
 
 int32_t StartupTaskManager::Run()
 {
+    HILOG_DEBUG("id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
     for (auto &iter : tasks_) {
         if (iter.second == nullptr) {
             continue;
         }
-        iter.second->RunTaskInit();
+        std::unique_ptr<StartupTaskResultCallback> callback = std::make_unique<StartupTaskResultCallback>();
+        iter.second->RunTaskInit(std::move(callback));
     }
     return ERR_OK;
 }

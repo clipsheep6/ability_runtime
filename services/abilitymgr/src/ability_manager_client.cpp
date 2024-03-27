@@ -20,6 +20,7 @@
 #ifdef WITH_DLP
 #include "dlp_file_kits.h"
 #endif // WITH_DLP
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
@@ -49,22 +50,22 @@ std::once_flag AbilityManagerClient::singletonFlag_;
 const std::string DLP_PARAMS_SANDBOX = "ohos.dlp.params.sandbox";
 #endif // WITH_DLP
 
-#define CHECK_POINTER_RETURN(object)     \
-    if (!object) {                       \
-        HILOG_ERROR("proxy is nullptr"); \
-        return;                          \
+#define CHECK_POINTER_RETURN(object)                        \
+    if (!object) {                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "proxy is nullptr"); \
+        return;                                             \
     }
 
-#define CHECK_POINTER_RETURN_NOT_CONNECTED(object)   \
-    if (!object) {                                   \
-        HILOG_ERROR("proxy is nullptr.");            \
-        return ABILITY_SERVICE_NOT_CONNECTED;        \
+#define CHECK_POINTER_RETURN_NOT_CONNECTED(object)           \
+    if (!object) {                                           \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "proxy is nullptr."); \
+        return ABILITY_SERVICE_NOT_CONNECTED;                \
     }
 
-#define CHECK_POINTER_RETURN_INVALID_VALUE(object)   \
-    if (!object) {                                   \
-        HILOG_ERROR("proxy is nullptr.");            \
-        return ERR_INVALID_VALUE;                    \
+#define CHECK_POINTER_RETURN_INVALID_VALUE(object)           \
+    if (!object) {                                           \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "proxy is nullptr."); \
+        return ERR_INVALID_VALUE;                            \
     }
 
 std::shared_ptr<AbilityManagerClient> AbilityManagerClient::GetInstance()
@@ -80,7 +81,7 @@ AbilityManagerClient::AbilityManagerClient()
 
 AbilityManagerClient::~AbilityManagerClient()
 {
-    HILOG_INFO("Remove DeathRecipient");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Remove DeathRecipient");
     RemoveDeathRecipient();
 }
 
@@ -147,7 +148,7 @@ ErrCode AbilityManagerClient::StartAbility(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("ability:%{public}s, userId:%{public}d",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s, userId:%{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbility(want, callerToken, userId, requestCode);
@@ -159,7 +160,7 @@ ErrCode AbilityManagerClient::StartAbilityByInsightIntent(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("ability:%{public}s, bundle:%{public}s, intentId:%{public}" PRIu64,
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s, bundle:%{public}s, intentId:%{public}" PRIu64,
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), intentId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityByInsightIntent(want, callerToken, intentId, userId);
@@ -181,7 +182,8 @@ ErrCode AbilityManagerClient::StartAbility(const Want &want, const StartOptions 
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("abilityName:%{public}s, userId:%{public}d.", want.GetElement().GetAbilityName().c_str(), userId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityName:%{public}s, userId:%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbility(want, startOptions, callerToken, userId, requestCode);
 }
@@ -193,8 +195,8 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("ability:%{public}s, userId:%{public}d.",
-               want.GetElement().GetAbilityName().c_str(), userId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "ability:%{public}s, userId:%{public}d.", want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityAsCaller(want, callerToken, asCallerSoureToken, userId, requestCode);
 }
@@ -206,7 +208,8 @@ ErrCode AbilityManagerClient::StartAbilityAsCaller(const Want &want, const Start
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityName:%{public}s, userId:%{public}d",
+        want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityAsCaller(want, startOptions, callerToken, asCallerSourceToken, userId, requestCode);
 }
@@ -217,7 +220,8 @@ ErrCode AbilityManagerClient::StartAbilityForResultAsCaller(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("The abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "The abilityName:%{public}s, userId:%{public}d",
+        want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityForResultAsCaller(want, callerToken, requestCode, userId);
 }
@@ -228,7 +232,8 @@ ErrCode AbilityManagerClient::StartAbilityForResultAsCaller(const Want &want, co
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("The abilityName:%{public}s, userId:%{public}d", want.GetElement().GetAbilityName().c_str(), userId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "The abilityName:%{public}s, userId:%{public}d",
+        want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityForResultAsCaller(want, startOptions, callerToken, requestCode, userId);
 }
@@ -240,7 +245,8 @@ ErrCode AbilityManagerClient::StartAbilityByUIContentSession(const Want &want, c
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("abilityName:%{public}s, userId:%{public}d.", want.GetElement().GetAbilityName().c_str(), userId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityName:%{public}s, userId:%{public}d.",
+        want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityByUIContentSession(want, startOptions, callerToken, sessionInfo, userId, requestCode);
 }
@@ -251,7 +257,7 @@ ErrCode AbilityManagerClient::StartAbilityByUIContentSession(const Want &want, s
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("ability:%{public}s, userId:%{public}d",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s, userId:%{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
     return abms->StartAbilityByUIContentSession(want, callerToken, sessionInfo, userId, requestCode);
@@ -261,7 +267,7 @@ ErrCode AbilityManagerClient::SendResultToAbility(int requestCode, int resultCod
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     return abms->SendResultToAbility(requestCode, resultCode, resultWant);
 }
 
@@ -270,7 +276,7 @@ ErrCode AbilityManagerClient::StartExtensionAbility(const Want &want, sptr<IRemo
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("name:%{public}s %{public}s, userId=%{public}d.",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, userId=%{public}d.",
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StartExtensionAbility(want, callerToken, userId, extensionType);
 }
@@ -294,12 +300,12 @@ ErrCode AbilityManagerClient::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> s
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("abilityName: %{public}s, isShow: %{public}d",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityName: %{public}s, isShow: %{public}d",
         sessionInfo->want.GetElement().GetAbilityName().c_str(), isShow);
     return abms->ChangeUIAbilityVisibilityBySCB(sessionInfo, isShow);
 }
@@ -310,7 +316,7 @@ ErrCode AbilityManagerClient::StartUIExtensionAbility(sptr<SessionInfo> extensio
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
-    HILOG_INFO("name: %{public}s %{public}s, persistentId: %{public}d, userId: %{public}d.",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "name: %{public}s %{public}s, persistentId: %{public}d, userId: %{public}d.",
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
         extensionSessionInfo->want.GetElement().GetBundleName().c_str(), extensionSessionInfo->persistentId, userId);
     return abms->StartUIExtensionAbility(extensionSessionInfo, userId);
@@ -320,12 +326,12 @@ ErrCode AbilityManagerClient::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("abilityName: %{public}s.", sessionInfo->want.GetElement().GetAbilityName().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityName: %{public}s.", sessionInfo->want.GetElement().GetAbilityName().c_str());
     return abms->StartUIAbilityBySCB(sessionInfo);
 }
 
@@ -334,7 +340,7 @@ ErrCode AbilityManagerClient::StopExtensionAbility(const Want &want, sptr<IRemot
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId=%{public}d.",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, userId=%{public}d.",
         want.GetElement().GetAbilityName().c_str(), want.GetElement().GetBundleName().c_str(), userId);
     return abms->StopExtensionAbility(want, callerToken, userId, extensionType);
 }
@@ -343,7 +349,7 @@ ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> token, int re
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
 
@@ -354,7 +360,7 @@ ErrCode AbilityManagerClient::TerminateUIExtensionAbility(sptr<SessionInfo> exte
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
-    HILOG_DEBUG("name: %{public}s %{public}s, persistentId: %{public}d.",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "name: %{public}s %{public}s, persistentId: %{public}d.",
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
         extensionSessionInfo->want.GetElement().GetBundleName().c_str(), extensionSessionInfo->persistentId);
     return abms->TerminateUIExtensionAbility(extensionSessionInfo, resultCode, resultWant);
@@ -362,7 +368,7 @@ ErrCode AbilityManagerClient::TerminateUIExtensionAbility(sptr<SessionInfo> exte
 
 ErrCode AbilityManagerClient::MoveAbilityToBackground(sptr<IRemoteObject> token)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->MoveAbilityToBackground(token);
@@ -380,18 +386,18 @@ ErrCode AbilityManagerClient::CloseAbility(sptr<IRemoteObject> token, int result
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         sptr<AAFwk::SessionInfo> info = new AAFwk::SessionInfo();
         info->want = *resultWant;
         info->resultCode = resultCode;
         info->sessionToken = token;
         auto err = sceneSessionManager->TerminateSessionNew(info, false);
-        HILOG_INFO("CloseAbility Calling SceneBoard Interface ret=%{public}d", err);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "CloseAbility Calling SceneBoard Interface ret=%{public}d", err);
         return static_cast<int>(err);
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     return abms->CloseAbility(token, resultCode, resultWant);
 }
 
@@ -399,12 +405,12 @@ ErrCode AbilityManagerClient::CloseUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("failed, sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, sessionInfo is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     return abms->CloseUIAbilityBySCB(sessionInfo);
 }
 
@@ -413,7 +419,7 @@ ErrCode AbilityManagerClient::MinimizeAbility(sptr<IRemoteObject> token, bool fr
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("fromUser:%{public}d.", fromUser);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "fromUser:%{public}d.", fromUser);
     return abms->MinimizeAbility(token, fromUser);
 }
 
@@ -423,7 +429,7 @@ ErrCode AbilityManagerClient::MinimizeUIExtensionAbility(sptr<SessionInfo> exten
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     CHECK_POINTER_RETURN_INVALID_VALUE(extensionSessionInfo);
-    HILOG_DEBUG("name: %{public}s %{public}s, persistentId: %{public}d, fromUser: %{public}d.",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "name: %{public}s %{public}s, persistentId: %{public}d, fromUser: %{public}d.",
         extensionSessionInfo->want.GetElement().GetAbilityName().c_str(),
         extensionSessionInfo->want.GetElement().GetBundleName().c_str(), extensionSessionInfo->persistentId, fromUser);
     return abms->MinimizeUIExtensionAbility(extensionSessionInfo, fromUser);
@@ -433,12 +439,12 @@ ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(sptr<SessionInfo> sessionIn
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("failed, sessionInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, sessionInfo is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     return abms->MinimizeUIAbilityBySCB(sessionInfo, fromUser);
 }
 
@@ -447,7 +453,7 @@ ErrCode AbilityManagerClient::ConnectAbility(const Want &want, sptr<IAbilityConn
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("name:%{public}s %{public}s, userId:%{public}d.",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
@@ -458,7 +464,7 @@ ErrCode AbilityManagerClient::ConnectAbility(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId);
 }
@@ -469,13 +475,13 @@ ErrCode AbilityManagerClient::ConnectDataShareExtensionAbility(const Want &want,
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("Connect failed, bundleName:%{public}s, abilityName:%{public}s, uri:%{public}s.",
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect failed, bundleName:%{public}s, abilityName:%{public}s, uri:%{public}s.",
             want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
             want.GetUriString().c_str());
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
 
-    HILOG_INFO("name:%{public}s %{public}s, uri:%{public}s.",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, uri:%{public}s.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
         want.GetUriString().c_str());
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::DATASHARE, userId);
@@ -487,12 +493,12 @@ ErrCode AbilityManagerClient::ConnectExtensionAbility(const Want &want, sptr<IAb
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("Connect failed, bundleName:%{public}s, abilityName:%{public}s",
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect failed, bundleName:%{public}s, abilityName:%{public}s",
             want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
 
-    HILOG_INFO("name:%{public}s %{public}s, userId:%{public}d.",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::UNSPECIFIED, userId);
 }
@@ -503,13 +509,13 @@ ErrCode AbilityManagerClient::ConnectUIExtensionAbility(const Want &want, sptr<I
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("Connect failed, bundleName:%{public}s, abilityName:%{public}s, uri:%{public}s.",
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect failed, bundleName:%{public}s, abilityName:%{public}s, uri:%{public}s.",
             want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
             want.GetUriString().c_str());
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
 
-    HILOG_INFO("name:%{public}s %{public}s, uri:%{public}s.",
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "name:%{public}s %{public}s, uri:%{public}s.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
         want.GetUriString().c_str());
     return abms->ConnectUIExtensionAbility(want, connect, sessionInfo, userId, connectInfo);
@@ -520,7 +526,7 @@ ErrCode AbilityManagerClient::DisconnectAbility(sptr<IAbilityConnection> connect
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     return abms->DisconnectAbility(connect);
 }
 
@@ -567,53 +573,53 @@ ErrCode AbilityManagerClient::Connect()
     }
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        HILOG_ERROR("Fail to get registry.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to get registry.");
         return GET_ABILITY_SERVICE_FAILED;
     }
     sptr<IRemoteObject> remoteObj = systemManager->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (remoteObj == nullptr) {
-        HILOG_ERROR("Fail to connect ability manager service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to connect ability manager service.");
         return GET_ABILITY_SERVICE_FAILED;
     }
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AbilityMgrDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        HILOG_ERROR("Failed to create AbilityMgrDeathRecipient!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to create AbilityMgrDeathRecipient!");
         return GET_ABILITY_SERVICE_FAILED;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
-        HILOG_ERROR("Add death recipient to AbilityManagerService failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Add death recipient to AbilityManagerService failed.");
         return GET_ABILITY_SERVICE_FAILED;
     }
 
     proxy_ = iface_cast<IAbilityManager>(remoteObj);
-    HILOG_DEBUG("Connect ability manager service success.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Connect ability manager service success.");
     return ERR_OK;
 }
 
 void AbilityManagerClient::RemoveDeathRecipient()
 {
-    HILOG_INFO("RemoveDeathRecipient");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "RemoveDeathRecipient");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (proxy_ == nullptr) {
-        HILOG_INFO("AbilityMgrProxy do not exist");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityMgrProxy do not exist");
         return;
     }
     if (deathRecipient_ == nullptr) {
-        HILOG_INFO("AbilityMgrDeathRecipient do not exist");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityMgrDeathRecipient do not exist");
         return;
     }
     auto serviceRemote = proxy_->AsObject();
     if (serviceRemote != nullptr && serviceRemote->RemoveDeathRecipient(deathRecipient_)) {
         proxy_ = nullptr;
         deathRecipient_ = nullptr;
-        HILOG_INFO("Remove DeathRecipient success");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Remove DeathRecipient success");
     }
 }
 
 ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteObject> token)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StopServiceAbility(want, -1, token);
@@ -621,7 +627,7 @@ ErrCode AbilityManagerClient::StopServiceAbility(const Want &want, sptr<IRemoteO
 
 ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->KillProcess(bundleName);
@@ -630,7 +636,7 @@ ErrCode AbilityManagerClient::KillProcess(const std::string &bundleName)
 #ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName, const std::string &state)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ForceTimeoutForTest(abilityName, state);
@@ -639,7 +645,7 @@ ErrCode AbilityManagerClient::ForceTimeoutForTest(const std::string &abilityName
 
 ErrCode AbilityManagerClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ClearUpApplicationData(bundleName, userId);
@@ -649,7 +655,7 @@ ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, co
     int32_t missionId, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams)
 {
     if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
-        HILOG_ERROR("srcDeviceId or dstDeviceId or callback is null!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null!");
         return ERR_INVALID_VALUE;
     }
 
@@ -663,7 +669,7 @@ ErrCode AbilityManagerClient::ContinueMission(const std::string &srcDeviceId, co
     const std::string &bundleName, sptr<IRemoteObject> callback, AAFwk::WantParams &wantParams)
 {
     if (srcDeviceId.empty() || dstDeviceId.empty() || callback == nullptr) {
-        HILOG_ERROR("srcDeviceId or dstDeviceId or callback is null!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId or dstDeviceId or callback is null!");
         return ERR_INVALID_VALUE;
     }
 
@@ -709,7 +715,7 @@ ErrCode AbilityManagerClient::LockMissionForCleanup(int32_t missionId)
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->LockSession(missionId);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -726,7 +732,7 @@ ErrCode AbilityManagerClient::UnlockMissionForCleanup(int32_t missionId)
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->UnlockSession(missionId);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -750,7 +756,7 @@ ErrCode AbilityManagerClient::RegisterMissionListener(sptr<IMissionListener> lis
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->RegisterSessionListener(listener);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -767,7 +773,7 @@ ErrCode AbilityManagerClient::UnRegisterMissionListener(sptr<IMissionListener> l
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->UnRegisterSessionListener(listener);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -817,7 +823,7 @@ ErrCode AbilityManagerClient::GetMissionInfos(const std::string& deviceId, int32
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->GetSessionInfos(deviceId, numMax, missionInfos);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -835,7 +841,7 @@ ErrCode AbilityManagerClient::GetMissionInfo(const std::string& deviceId, int32_
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->GetSessionInfo(deviceId, missionId, missionInfo);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -852,7 +858,7 @@ ErrCode AbilityManagerClient::CleanMission(int32_t missionId)
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->ClearSession(missionId);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -869,7 +875,7 @@ ErrCode AbilityManagerClient::CleanAllMissions()
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->ClearAllSessions();
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -897,11 +903,11 @@ ErrCode AbilityManagerClient::MoveMissionToFront(int32_t missionId, const StartO
 
 ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t>& missionIds, int32_t topMissionId)
 {
-    HILOG_INFO("MoveMissionsToForeground begin, topMissionId:%{public}d", topMissionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "MoveMissionsToForeground begin, topMissionId:%{public}d", topMissionId);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->MoveSessionsToForeground(missionIds, topMissionId);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -928,11 +934,11 @@ ErrCode AbilityManagerClient::MoveMissionsToForeground(const std::vector<int32_t
 ErrCode AbilityManagerClient::MoveMissionsToBackground(const std::vector<int32_t>& missionIds,
     std::vector<int32_t>& result)
 {
-    HILOG_INFO("MoveMissionsToBackground begin.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "MoveMissionsToBackground begin.");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->MoveSessionsToBackground(missionIds, result);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -950,7 +956,7 @@ ErrCode AbilityManagerClient::GetMissionIdByToken(sptr<IRemoteObject> token, int
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     missionId = abms->GetMissionIdByToken(token);
     if (missionId <= 0) {
-        HILOG_ERROR("get missionid by token failed!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get missionid by token failed!");
         return MISSION_NOT_FOUND;
     }
     return ERR_OK;
@@ -960,7 +966,7 @@ ErrCode AbilityManagerClient::StartAbilityByCall(const Want &want, sptr<IAbility
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("AbilityManagerClient::StartAbilityByCall called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerClient::StartAbilityByCall called.");
     return abms->StartAbilityByCall(want, connect, nullptr, DEFAULT_INVAL_VALUE);
 }
 
@@ -969,7 +975,7 @@ ErrCode AbilityManagerClient::StartAbilityByCall(const Want &want, sptr<IAbility
 {
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_DEBUG("AbilityManagerClient::StartAbilityByCall called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerClient::StartAbilityByCall called.");
     return abms->StartAbilityByCall(want, connect, callToken, accountId);
 }
 
@@ -1022,14 +1028,14 @@ ErrCode AbilityManagerClient::RequestDialogService(
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    HILOG_INFO("request is:%{public}s.", want.GetElement().GetURI().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "request is:%{public}s.", want.GetElement().GetURI().c_str());
     HandleDlpApp(const_cast<Want &>(want));
     return abms->RequestDialogService(want, callerToken);
 }
 
 ErrCode AbilityManagerClient::ReportDrawnCompleted(sptr<IRemoteObject> callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
     auto abilityMgr = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abilityMgr);
     return abilityMgr->ReportDrawnCompleted(callerToken);
@@ -1048,11 +1054,7 @@ ErrCode AbilityManagerClient::StartSyncRemoteMissions(const std::string &devId, 
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StartSyncRemoteMissions(devId, fixConflict, tag);
 }
-/**
- * Stop synchronizing remote device mission
- * @param devId, deviceId.
- * @return Returns ERR_OK on success, others on failure.
- */
+
 ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string &devId)
 {
     auto abms = GetAbilityManager();
@@ -1062,12 +1064,15 @@ ErrCode AbilityManagerClient::StopSyncRemoteMissions(const std::string &devId)
 
 ErrCode AbilityManagerClient::StartUser(int accountId, sptr<IUserCallback> callback)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "StartUser in client:%{public}d.", accountId);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StartUser(accountId, callback);
 }
+
 ErrCode AbilityManagerClient::StopUser(int accountId, sptr<IUserCallback> callback)
 {
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "StopUser in client:%{public}d.", accountId);
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->StopUser(accountId, callback);
@@ -1093,7 +1098,7 @@ ErrCode AbilityManagerClient::GetMissionSnapshot(const std::string& deviceId, in
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->GetSessionSnapshot(deviceId, missionId, snapshot, isLowResolution);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -1126,7 +1131,7 @@ ErrCode AbilityManagerClient::GetTopAbility(sptr<IRemoteObject> &token)
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->GetFocusSessionToken(token);
         return static_cast<int>(err);
     }
@@ -1141,7 +1146,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetElementNameByToken(sptr<IRemote
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms == nullptr");
         return {};
     }
     return abms->GetElementNameByToken(token, isNeedLocalDeviceId);
@@ -1159,7 +1164,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityForeground(sptr<IRemoteObject> t
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         sceneSessionManager->PendingSessionToForeground(token);
     }
     auto abms = GetAbilityManager();
@@ -1172,7 +1177,7 @@ ErrCode AbilityManagerClient::DelegatorDoAbilityBackground(sptr<IRemoteObject> t
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         sceneSessionManager->PendingSessionToBackgroundForDelegator(token);
     }
     auto abms = GetAbilityManager();
@@ -1186,7 +1191,7 @@ ErrCode AbilityManagerClient::SetMissionContinueState(sptr<IRemoteObject> token,
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_DEBUG("call");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
         uint32_t value = static_cast<uint32_t>(state);
         Rosen::ContinueState continueState = static_cast<Rosen::ContinueState>(value);
         auto err = sceneSessionManager->SetSessionContinueState(token, continueState);
@@ -1203,7 +1208,7 @@ ErrCode AbilityManagerClient::SetMissionLabel(sptr<IRemoteObject> token, const s
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->SetSessionLabel(token, label);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -1221,7 +1226,7 @@ ErrCode AbilityManagerClient::SetMissionIcon(
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
-        HILOG_INFO("call");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
         auto err = sceneSessionManager->SetSessionIcon(abilityToken, icon);
         if (SCB_TO_MISSION_ERROR_CODE_MAP.count(err)) {
             return SCB_TO_MISSION_ERROR_CODE_MAP[err];
@@ -1251,12 +1256,12 @@ ErrCode AbilityManagerClient::PrepareTerminateAbility(sptr<IRemoteObject> token,
     sptr<IPrepareTerminateCallback> callback)
 {
     if (callback == nullptr) {
-        HILOG_ERROR("callback is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr.");
         return ERR_INVALID_VALUE;
     }
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return abms->PrepareTerminateAbility(token, callback);
@@ -1324,7 +1329,7 @@ void AbilityManagerClient::ScheduleRecoverAbility(sptr<IRemoteObject> token, int
 #ifdef ABILITY_COMMAND_FOR_TEST
 ErrCode AbilityManagerClient::BlockAmsService()
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAmsService();
@@ -1332,7 +1337,7 @@ ErrCode AbilityManagerClient::BlockAmsService()
 
 ErrCode AbilityManagerClient::BlockAbility(int32_t abilityRecordId)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAbility(abilityRecordId);
@@ -1340,7 +1345,7 @@ ErrCode AbilityManagerClient::BlockAbility(int32_t abilityRecordId)
 
 ErrCode AbilityManagerClient::BlockAppService()
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->BlockAppService();
@@ -1366,7 +1371,7 @@ void AbilityManagerClient::ResetProxy(wptr<IRemoteObject> remote)
 
     auto serviceRemote = proxy_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
-        HILOG_DEBUG("To remove death recipient.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "To remove death recipient.");
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
         proxy_ = nullptr;
     }
@@ -1374,14 +1379,14 @@ void AbilityManagerClient::ResetProxy(wptr<IRemoteObject> remote)
 
 void AbilityManagerClient::AbilityMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject>& remote)
 {
-    HILOG_DEBUG("AbilityMgrDeathRecipient handle remote died.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityMgrDeathRecipient handle remote died.");
     AbilityManagerClient::GetInstance()->ResetProxy(remote);
 }
 
 ErrCode AbilityManagerClient::FreeInstallAbilityFromRemote(const Want &want, sptr<IRemoteObject> callback,
     int32_t userId, int requestCode)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "enter");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->FreeInstallAbilityFromRemote(want, callback, userId, requestCode);
@@ -1397,20 +1402,20 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
             sptr<IRemoteObject> token = nullptr;
             auto ret = GetTopAbility(token);
             if (ret != ERR_OK) {
-                HILOG_ERROR("get top ability token failed");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "get top ability token failed");
                 return elementName;
             }
             if (token == nullptr) {
-                HILOG_ERROR("token is nullptr");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
                 return elementName;
             }
             return GetElementNameByToken(token, isNeedLocalDeviceId);
         }
     }
-    HILOG_DEBUG("enter.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "enter.");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms == nullptr");
         return {};
     }
 
@@ -1420,7 +1425,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
 ErrCode AbilityManagerClient::DumpAbilityInfoDone(std::vector<std::string> &infos,
     sptr<IRemoteObject> callerToken)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DumpAbilityInfoDone(infos, callerToken);
@@ -1438,7 +1443,7 @@ void AbilityManagerClient::HandleDlpApp(Want &want)
 
 ErrCode AbilityManagerClient::AddFreeInstallObserver(sptr<AbilityRuntime::IFreeInstallObserver> observer)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->AddFreeInstallObserver(observer);
@@ -1447,13 +1452,13 @@ ErrCode AbilityManagerClient::AddFreeInstallObserver(sptr<AbilityRuntime::IFreeI
 int32_t AbilityManagerClient::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
         CHECK_POINTER_RETURN_INVALID_VALUE(sceneSessionManager);
         std::vector<bool> isValidList;
         auto err = sceneSessionManager->IsValidSessionIds(missionIds, isValidList);
-        HILOG_DEBUG("IsValidSessionIds %{public}d size %{public}d",
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "IsValidSessionIds %{public}d size %{public}d",
             static_cast<int>(err), static_cast<int32_t>(isValidList.size()));
         for (auto i = 0; i < static_cast<int32_t>(isValidList.size()); ++i) {
             MissionValidResult missionResult = {};
@@ -1470,7 +1475,7 @@ int32_t AbilityManagerClient::IsValidMissionIds(
 
 ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->VerifyPermission(permission, pid, uid);
@@ -1479,7 +1484,7 @@ ErrCode AbilityManagerClient::VerifyPermission(const std::string &permission, in
 ErrCode AbilityManagerClient::AcquireShareData(
     int32_t missionId, sptr<IAcquireShareDataCallback> shareData)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->AcquireShareData(missionId, shareData);
@@ -1488,7 +1493,7 @@ ErrCode AbilityManagerClient::AcquireShareData(
 ErrCode AbilityManagerClient::ShareDataDone(
     sptr<IRemoteObject> token, int32_t resultCode, int32_t uniqueId, WantParams &wantParam)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ShareDataDone(token, resultCode, uniqueId, wantParam);
@@ -1496,7 +1501,7 @@ ErrCode AbilityManagerClient::ShareDataDone(
 
 ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
-    HILOG_DEBUG("begin.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "begin.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ForceExitApp(pid, exitReason);
@@ -1504,7 +1509,7 @@ ErrCode AbilityManagerClient::ForceExitApp(const int32_t pid, const ExitReason &
 
 ErrCode AbilityManagerClient::RecordAppExitReason(const ExitReason &exitReason)
 {
-    HILOG_DEBUG("RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "RecordAppExitReason reason:%{public}d, exitMsg: %{public}s", exitReason.reason,
         exitReason.exitMsg.c_str());
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
@@ -1513,7 +1518,7 @@ ErrCode AbilityManagerClient::RecordAppExitReason(const ExitReason &exitReason)
 
 ErrCode AbilityManagerClient::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
 {
-    HILOG_DEBUG("RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "RecordProcessExitReason pid:%{public}d, reason:%{public}d, exitMsg: %{public}s",
         pid, exitReason.reason, exitReason.exitMsg.c_str());
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
@@ -1522,7 +1527,7 @@ ErrCode AbilityManagerClient::RecordProcessExitReason(const int32_t pid, const E
 
 void AbilityManagerClient::SetRootSceneSession(sptr<IRemoteObject> rootSceneSession)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     abms->SetRootSceneSession(rootSceneSession);
@@ -1530,7 +1535,7 @@ void AbilityManagerClient::SetRootSceneSession(sptr<IRemoteObject> rootSceneSess
 
 void AbilityManagerClient::CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     abms->CallUIAbilityBySCB(sessionInfo);
@@ -1538,7 +1543,7 @@ void AbilityManagerClient::CallUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
 
 void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN(abms);
     abms->StartSpecifiedAbilityBySCB(want);
@@ -1546,7 +1551,7 @@ void AbilityManagerClient::StartSpecifiedAbilityBySCB(const Want &want)
 
 ErrCode AbilityManagerClient::NotifySaveAsResult(const Want &want, int resultCode, int requestCode)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->NotifySaveAsResult(want, resultCode, requestCode);
@@ -1554,7 +1559,7 @@ ErrCode AbilityManagerClient::NotifySaveAsResult(const Want &want, int resultCod
 
 ErrCode AbilityManagerClient::SetSessionManagerService(sptr<IRemoteObject> sessionManagerService)
 {
-    HILOG_INFO("AbilityManagerClient::SetSessionManagerService call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerClient::SetSessionManagerService call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetSessionManagerService(sessionManagerService);
@@ -1563,7 +1568,7 @@ ErrCode AbilityManagerClient::SetSessionManagerService(sptr<IRemoteObject> sessi
 ErrCode AbilityManagerClient::RegisterIAbilityManagerCollaborator(
     int32_t type, sptr<IAbilityManagerCollaborator> impl)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterIAbilityManagerCollaborator(type, impl);
@@ -1571,7 +1576,7 @@ ErrCode AbilityManagerClient::RegisterIAbilityManagerCollaborator(
 
 ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnregisterIAbilityManagerCollaborator(type);
@@ -1579,7 +1584,7 @@ ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type
 
 ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterAutoStartupSystemCallback(callback);
@@ -1587,7 +1592,7 @@ ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObje
 
 ErrCode AbilityManagerClient::UnregisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnregisterAutoStartupSystemCallback(callback);
@@ -1595,7 +1600,7 @@ ErrCode AbilityManagerClient::UnregisterAutoStartupSystemCallback(sptr<IRemoteOb
 
 ErrCode AbilityManagerClient::SetApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->SetApplicationAutoStartup(info);
@@ -1603,7 +1608,7 @@ ErrCode AbilityManagerClient::SetApplicationAutoStartup(const AutoStartupInfo &i
 
 ErrCode AbilityManagerClient::CancelApplicationAutoStartup(const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->CancelApplicationAutoStartup(info);
@@ -1611,7 +1616,7 @@ ErrCode AbilityManagerClient::CancelApplicationAutoStartup(const AutoStartupInfo
 
 ErrCode AbilityManagerClient::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->QueryAllAutoStartupApplications(infoList);
@@ -1620,7 +1625,7 @@ ErrCode AbilityManagerClient::QueryAllAutoStartupApplications(std::vector<AutoSt
 ErrCode AbilityManagerClient::PrepareTerminateAbilityBySCB(sptr<SessionInfo> sessionInfo,
     bool &isPrepareTerminate)
 {
-    HILOG_INFO("call.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "call.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->PrepareTerminateAbilityBySCB(sessionInfo, isPrepareTerminate);
@@ -1628,7 +1633,7 @@ ErrCode AbilityManagerClient::PrepareTerminateAbilityBySCB(sptr<SessionInfo> ses
 
 ErrCode AbilityManagerClient::RegisterSessionHandler(sptr<IRemoteObject> object)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterSessionHandler(object);
@@ -1636,7 +1641,7 @@ ErrCode AbilityManagerClient::RegisterSessionHandler(sptr<IRemoteObject> object)
 
 ErrCode AbilityManagerClient::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RegisterAppDebugListener(listener);
@@ -1644,7 +1649,7 @@ ErrCode AbilityManagerClient::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebu
 
 ErrCode AbilityManagerClient::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnregisterAppDebugListener(listener);
@@ -1652,7 +1657,7 @@ ErrCode AbilityManagerClient::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDe
 
 ErrCode AbilityManagerClient::AttachAppDebug(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->AttachAppDebug(bundleName);
@@ -1660,7 +1665,7 @@ ErrCode AbilityManagerClient::AttachAppDebug(const std::string &bundleName)
 
 ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->DetachAppDebug(bundleName);
@@ -1669,7 +1674,7 @@ ErrCode AbilityManagerClient::DetachAppDebug(const std::string &bundleName)
 ErrCode AbilityManagerClient::ExecuteIntent(uint64_t key, sptr<IRemoteObject> callerToken,
     const InsightIntentExecuteParam &param)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteIntent(key, callerToken, param);
@@ -1677,10 +1682,10 @@ ErrCode AbilityManagerClient::ExecuteIntent(uint64_t key, sptr<IRemoteObject> ca
 
 bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
         return true;
     }
     return abms->IsAbilityControllerStart(want);
@@ -1689,7 +1694,7 @@ bool AbilityManagerClient::IsAbilityControllerStart(const Want &want)
 ErrCode AbilityManagerClient::ExecuteInsightIntentDone(sptr<IRemoteObject> token, uint64_t intentId,
     const InsightIntentExecuteResult &result)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->ExecuteInsightIntentDone(token, intentId, result);
@@ -1697,7 +1702,7 @@ ErrCode AbilityManagerClient::ExecuteInsightIntentDone(sptr<IRemoteObject> token
 
 int32_t AbilityManagerClient::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->GetForegroundUIAbilities(list);
@@ -1705,10 +1710,10 @@ int32_t AbilityManagerClient::GetForegroundUIAbilities(std::vector<AppExecFwk::A
 
 int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
 {
-    HILOG_DEBUG("call OpenFile");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call OpenFile");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
         return true;
     }
     return abms->OpenFile(uri, flag);
@@ -1717,7 +1722,7 @@ int32_t AbilityManagerClient::OpenFile(const Uri& uri, uint32_t flag)
 int32_t AbilityManagerClient::RequestAssertFaultDialog(
     const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Request to display assert fault dialog.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Request to display assert fault dialog.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->RequestAssertFaultDialog(callback, wantParams);
@@ -1725,7 +1730,7 @@ int32_t AbilityManagerClient::RequestAssertFaultDialog(
 
 int32_t AbilityManagerClient::NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
 {
-    HILOG_DEBUG("Notify user action result to assert fault callback.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify user action result to assert fault callback.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->NotifyDebugAssertResult(assertFaultSessionId, userStatus);
@@ -1734,7 +1739,7 @@ int32_t AbilityManagerClient::NotifyDebugAssertResult(uint64_t assertFaultSessio
 int32_t AbilityManagerClient::UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
     std::vector<int32_t> &sessionIds)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UpdateSessionInfoBySCB(sessionInfos, userId, sessionIds);
@@ -1743,7 +1748,7 @@ int32_t AbilityManagerClient::UpdateSessionInfoBySCB(std::list<SessionInfo> &ses
 ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
     UIExtensionHostInfo &hostInfo, int32_t userId)
 {
-    HILOG_DEBUG("Get ui extension host info.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Get ui extension host info.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->GetUIExtensionRootHostInfo(token, hostInfo, userId);
@@ -1752,7 +1757,7 @@ ErrCode AbilityManagerClient::GetUIExtensionRootHostInfo(const sptr<IRemoteObjec
 int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->RestartApp(want);
@@ -1760,10 +1765,10 @@ int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
 
 AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::string &appId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
         return {};
     }
     return abms->GetElementNameByAppId(appId);
@@ -1772,7 +1777,7 @@ AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::s
 int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &options,
     sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->OpenAtomicService(want, options, callerToken, requestCode, userId);
@@ -1780,10 +1785,10 @@ int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &
 
 bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
-    HILOG_DEBUG("Get ui extension host info.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Get ui extension host info.");
     auto abms = GetAbilityManager();
     if (abms == nullptr) {
-        HILOG_ERROR("abms is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
         return false;
     }
     return abms->IsEmbeddedOpenAllowed(callerToken, appId);

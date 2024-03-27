@@ -18,6 +18,7 @@
 #define protected public
 #include "js_child_process.h"
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 
@@ -53,7 +54,7 @@ void JsChildProcessTest::TearDown()
  */
 HWTEST_F(JsChildProcessTest, JsChildProcessCreate_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("JsChildProcessCreate_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "JsChildProcessCreate_0100 called.");
     std::unique_ptr<Runtime> runtime = std::make_unique<JsRuntime>();
     auto process = JsChildProcess::Create(runtime);
     EXPECT_TRUE(process != nullptr);
@@ -66,7 +67,7 @@ HWTEST_F(JsChildProcessTest, JsChildProcessCreate_0100, TestSize.Level0)
  */
 HWTEST_F(JsChildProcessTest, JsChildProcessInit_0100, TestSize.Level0)
 {
-    HILOG_DEBUG("JsChildProcessInit_0100 called.");
+    TAG_LOGD(AAFwkTag::TEST, "JsChildProcessInit_0100 called.");
     std::unique_ptr<Runtime> runtime = std::make_unique<JsRuntime>();
     auto process = JsChildProcess::Create(runtime);
     EXPECT_TRUE(process != nullptr);

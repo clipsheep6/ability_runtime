@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include "ability_manager_client.h"
 #undef private
 #include "ability_manager_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_manager_stub.h"
 
@@ -84,7 +85,7 @@ void AbilityCommandModuleTest::MakeMockObjects() const
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0100 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -104,7 +105,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0100, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0200 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -124,7 +125,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0200, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0300 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -143,7 +144,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0300, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0400 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -163,7 +164,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0400, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0500 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -184,7 +185,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0500, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0600 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -211,7 +212,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0600, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0700 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -232,7 +233,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0700, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0800 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0800 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
@@ -263,7 +264,7 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0800, Function | 
  */
 HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Module_Test_0900 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Module_Test_0900 is called");
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),

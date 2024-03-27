@@ -19,6 +19,7 @@
 #include "quick_fix_callback_stub.h"
 #include "mock_quick_fix_callback_stub.h"
 #undef private
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 using namespace testing;
@@ -59,7 +60,7 @@ void QuickFixCallbackStubTest::TearDown()
  */
 HWTEST_F(QuickFixCallbackStubTest, OnLoadPatchDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -77,7 +78,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnLoadPatchDone_0100, TestSize.Level1)
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_LOAD_PATCH, data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -88,7 +89,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnLoadPatchDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackStubTest, OnUnloadPatchDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -106,7 +107,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnUnloadPatchDone_0100, TestSize.Level1)
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_UNLOAD_PATCH, data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -117,7 +118,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnUnloadPatchDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackStubTest, OnReloadPageDone_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -135,7 +136,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnReloadPageDone_0100, TestSize.Level1)
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_RELOAD_PAGE, data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -146,7 +147,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnReloadPageDone_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackStubTest, OnRemoteRequest_0100, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -160,7 +161,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnRemoteRequest_0100, TestSize.Level1)
         IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_LOAD_PATCH, data, reply, option);
     EXPECT_EQ(result, ERR_INVALID_STATE);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 
 /**
@@ -171,7 +172,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnRemoteRequest_0100, TestSize.Level1)
  */
 HWTEST_F(QuickFixCallbackStubTest, OnRemoteRequest_0200, TestSize.Level1)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
 
     MessageParcel data;
     MessageParcel reply;
@@ -185,7 +186,7 @@ HWTEST_F(QuickFixCallbackStubTest, OnRemoteRequest_0200, TestSize.Level1)
     auto result = mockQuickFixCallback_->OnRemoteRequest(invalidCode, data, reply, option);
     EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
 
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

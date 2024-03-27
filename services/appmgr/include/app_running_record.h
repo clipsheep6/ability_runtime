@@ -291,9 +291,9 @@ public:
      */
     sptr<IAppScheduler> GetApplicationClient() const;
 
-    void AddModule(const std::shared_ptr<ApplicationInfo> &appInfo, const std::shared_ptr<AbilityInfo> &abilityInfo,
-        const sptr<IRemoteObject> &token, const HapModuleInfo &hapModuleInfo,
-        const std::shared_ptr<AAFwk::Want> &want);
+    void AddModule(std::shared_ptr<ApplicationInfo> appInfo, std::shared_ptr<AbilityInfo> abilityInfo,
+        sptr<IRemoteObject> token, const HapModuleInfo &hapModuleInfo,
+        std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId);
 
     void AddModules(const std::shared_ptr<ApplicationInfo> &appInfo, const std::vector<HapModuleInfo> &moduleInfos);
 
@@ -731,6 +731,9 @@ public:
 
     void SetAssertionPauseFlag(bool flag);
     bool IsAssertionPause() const;
+    
+    void SetJITEnabled(const bool jitEnabled);
+    bool IsJITEnabled() const;
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -842,6 +845,7 @@ private:
     std::string perfCmd_;
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
+    bool jitEnabled_ = false;
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "appexecfwk_errors.h"
 #include "configuration.h"
 #include "hitrace_meter.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -44,11 +45,12 @@ AppStateCallbackHost::~AppStateCallbackHost()
 int AppStateCallbackHost::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("AppStateCallbackHost::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
+    TAG_LOGD(AAFwkTag::APPMGR, "AppStateCallbackHost::OnReceived, code = %{public}u, flags= %{public}d.", code,
+        option.GetFlags());
     std::u16string descriptor = AppStateCallbackHost::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -59,18 +61,18 @@ int AppStateCallbackHost::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
-    HILOG_DEBUG("AppStateCallbackHost::OnRemoteRequest end");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppStateCallbackHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 void AppStateCallbackHost::OnAbilityRequestDone(const sptr<IRemoteObject> &, const AbilityState)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
 
 void AppStateCallbackHost::OnAppStateChanged(const AppProcessData &)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
 }
 
 void AppStateCallbackHost::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
@@ -82,7 +84,7 @@ int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, Messa
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<AppProcessData> processData(data.ReadParcelable<AppProcessData>());
     if (!processData) {
-        HILOG_ERROR("ReadParcelable<AppProcessData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AppProcessData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -106,7 +108,7 @@ int32_t AppStateCallbackHost::HandleNotifyConfigurationChange(MessageParcel &dat
 {
     std::unique_ptr<AppExecFwk::Configuration> config(data.ReadParcelable<AppExecFwk::Configuration>());
     if (config == nullptr) {
-        HILOG_ERROR("To read config failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "To read config failed.");
         return ERR_DEAD_OBJECT;
     }
     auto userId = data.ReadInt32();

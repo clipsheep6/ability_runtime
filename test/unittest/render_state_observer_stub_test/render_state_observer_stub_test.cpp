@@ -57,12 +57,10 @@ HWTEST_F(RenderStateObserverStubTest, OnRenderStateChangedInner_0100, TestSize.L
 {
     auto stub = new (std::nothrow) MockRenderStateObserverStub();
     EXPECT_TRUE(stub);
-    EXPECT_CALL(*stub, OnRenderStateChanged(_, _)).Times(1);
+    EXPECT_CALL(*stub, OnRenderStateChanged(_)).Times(1);
     MessageParcel data;
-    pid_t renderPid = 0;
-    int32_t state = 0;
-    data.WriteInt32(renderPid);
-    data.WriteInt32(state);
+    RenderStateData renderStateData;
+    data.WriteParcelable(&renderStateData);
     MessageParcel reply;
     auto result = stub->OnRenderStateChangedInner(data, reply);
     EXPECT_EQ(NO_ERROR, result);

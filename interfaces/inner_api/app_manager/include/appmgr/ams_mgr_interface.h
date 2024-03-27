@@ -45,7 +45,7 @@ public:
      */
     virtual void LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-        const std::shared_ptr<AAFwk::Want> &want) = 0;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) {};
 
     /**
      * TerminateAbility, call TerminateAbility() through the proxy object, terminate the token ability.
@@ -228,6 +228,38 @@ public:
     virtual int32_t DetachAppDebug(const std::string &bundleName) = 0;
 
     /**
+     * @brief Set app waiting debug mode.
+     * @param bundleName The application bundle name.
+     * @param isPersist The persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t SetAppWaitingDebug(const std::string &bundleName, bool isPersist) = 0;
+
+    /**
+     * @brief Cancel app waiting debug mode.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t CancelAppWaitingDebug() = 0;
+
+    /**
+     * @brief Get waiting debug mode application.
+     * @param debugInfoList The debug info list, including bundle name and persist flag.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetWaitingDebugApp(std::vector<std::string> &debugInfoList) = 0;
+
+    /**
+     * @brief Determine whether it is a waiting debug application based on the bundle name.
+     * @return Returns true if it is a waiting debug application, otherwise it returns false.
+     */
+    virtual bool IsWaitingDebugApp(const std::string &bundleName) = 0;
+
+    /**
+     * @brief Clear non persist waiting debug flag.
+     */
+    virtual void ClearNonPersistWaitingDebugFlag() = 0;
+
+    /**
      * @brief Registering ability debug mode response.
      * @param response Response for ability debug object.
      * @return Returns ERR_OK on success, others on failure.
@@ -286,6 +318,11 @@ public:
         UNREGISTER_APP_DEBUG_LISTENER,
         ATTACH_APP_DEBUG,
         DETACH_APP_DEBUG,
+        SET_APP_WAITING_DEBUG,
+        CANCEL_APP_WAITING_DEBUG,
+        GET_WAITING_DEBUG_APP,
+        IS_WAITING_DEBUG_APP,
+        CLEAR_NON_PERSIST_WAITING_DEBUG_FLAG,
         REGISTER_ABILITY_DEBUG_RESPONSE,
         IS_ATTACH_DEBUG,
         START_SPECIFIED_PROCESS,

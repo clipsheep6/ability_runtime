@@ -431,6 +431,8 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
+    launchData.SetJITEnabled(jitEnabled_);
+
     TAG_LOGD(AAFwkTag::APPMGR, "app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
@@ -665,13 +667,13 @@ void AppRunningRecord::AddModules(
     }
 
     for (auto &iter : moduleInfos) {
-        AddModule(appInfo, nullptr, nullptr, iter, nullptr);
+        AddModule(appInfo, nullptr, nullptr, iter, nullptr, 0);
     }
 }
 
-void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo,
-    const std::shared_ptr<AbilityInfo> &abilityInfo, const sptr<IRemoteObject> &token,
-    const HapModuleInfo &hapModuleInfo, const std::shared_ptr<AAFwk::Want> &want)
+void AppRunningRecord::AddModule(std::shared_ptr<ApplicationInfo> appInfo,
+    std::shared_ptr<AbilityInfo> abilityInfo, sptr<IRemoteObject> token,
+    const HapModuleInfo &hapModuleInfo, std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called");
 
@@ -713,7 +715,7 @@ void AppRunningRecord::AddModule(const std::shared_ptr<ApplicationInfo> &appInfo
         TAG_LOGE(AAFwkTag::APPMGR, "abilityInfo or token is nullptr");
         return;
     }
-    moduleRecord->AddAbility(token, abilityInfo, want);
+    moduleRecord->AddAbility(token, abilityInfo, want, abilityRecordId);
 
     return;
 }
@@ -754,6 +756,7 @@ void AppRunningRecord::StateChangedNotifyObserver(
     abilityStateData.token = ability->GetToken();
     abilityStateData.abilityType = static_cast<int32_t>(ability->GetAbilityInfo()->type);
     abilityStateData.isFocused = ability->GetFocusFlag();
+    abilityStateData.abilityRecordId = ability->GetAbilityRecordId();
     if (ability->GetWant() != nullptr) {
         abilityStateData.callerAbilityName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_ABILITY_NAME);
         abilityStateData.callerBundleName = ability->GetWant()->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
@@ -1973,6 +1976,16 @@ std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChil
 {
     std::lock_guard lock(childProcessRecordMapLock_);
     return childProcessRecordMap_;
+}
+
+void AppRunningRecord::SetJITEnabled(const bool jitEnabled)
+{
+    jitEnabled_ = jitEnabled;
+}
+
+bool AppRunningRecord::IsJITEnabled() const
+{
+    return jitEnabled_;
 }
 
 int32_t AppRunningRecord::GetAssignTokenId() const

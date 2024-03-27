@@ -24,6 +24,7 @@
 #include "context_deal.h"
 #include "context_impl.h"
 #include "fa_ability_thread.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
@@ -753,7 +754,7 @@ HWTEST_F(OHOSApplicationTest, OnConfigurationUpdated_0600, TestSize.Level1)
     resourceManager->GetResConfig(*resConfigAfter);
     const icu::Locale *localeInfo = resConfigAfter->GetLocaleInfo();
     ASSERT_NE(localeInfo, nullptr);
-    HILOG_INFO("Update config language %{public}s succeed.", localeInfo->getLanguage());
+    TAG_LOGI(AAFwkTag::TEST, "Update config language %{public}s succeed.", localeInfo->getLanguage());
     EXPECT_EQ(strcmp(localeInfo->getLanguage(), "zh"), 0);
 }
 

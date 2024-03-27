@@ -21,6 +21,7 @@ ohos_unittest("app_foreground_state_observer_stub_test") {
 
   include_dirs = [
     "${ability_runtime_innerkits_path}/app_manager/include/appmgr/",
+    "${ability_runtime_services_path}/common/include",
     "${ability_runtime_test_path}/unittest/app_foreground_state_observer_proxy_test/",
     "//foundation/filemanagement/user_file_service/utils/",
   ]

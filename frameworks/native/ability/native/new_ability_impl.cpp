@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "new_ability_impl.h"
 
 #include "freeze_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "scene_board_judgement.h"
@@ -36,7 +37,8 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
     sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
+    TAG_LOGI(AAFwkTag::ABILITY,
+        "Lifecycle: srcState:%{public}d; targetState: %{public}d; isNewWant: %{public}d, sceneFlag: %{public}d",
         lifecycleState_, targetState.state, targetState.isNewWant, targetState.sceneFlag);
 #ifdef SUPPORT_GRAPHICS
     if (ability_ != nullptr) {
@@ -47,7 +49,7 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
             ability_->RequestFocus(want);
             AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, targetState.state, GetRestoreData());
         }
-        HILOG_ERROR("Org lifeCycleState equals to Dst lifeCycleState.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Org lifeCycleState equals to Dst lifeCycleState.");
         return;
     }
 #endif
@@ -70,16 +72,16 @@ void NewAbilityImpl::HandleAbilityTransaction(const Want &want, const AAFwk::Lif
 
 void NewAbilityImpl::HandleShareData(const int32_t &uniqueId)
 {
-    HILOG_INFO("handleShareData begin sourceState:%{public}d.", lifecycleState_);
+    TAG_LOGI(AAFwkTag::ABILITY, "handleShareData begin sourceState:%{public}d.", lifecycleState_);
     WantParams wantParam;
     int32_t resultCode = Share(wantParam);
-    HILOG_INFO("wantParam size: %{public}d.", wantParam.Size());
+    TAG_LOGI(AAFwkTag::ABILITY, "wantParam size: %{public}d.", wantParam.Size());
     AbilityManagerClient::GetInstance()->ShareDataDone(token_, resultCode, uniqueId, wantParam);
 }
 
 void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &state)
 {
-    HILOG_INFO("Lifecycle: notify ability manager service.");
+    TAG_LOGI(AAFwkTag::ABILITY, "Lifecycle: notify ability manager service.");
     auto ret = AbilityManagerClient::GetInstance()->AbilityTransitionDone(token_, state, GetRestoreData());
     if (ret == ERR_OK && state == AAFwk::ABILITY_STATE_FOREGROUND_NEW) {
         FreezeUtil::LifecycleFlow flow = { token_, FreezeUtil::TimeoutState::FOREGROUND };
@@ -99,7 +101,7 @@ void NewAbilityImpl::AbilityTransactionCallback(const AbilityLifeCycleState &sta
 bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycleStateInfo &targetState)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction begin");
+    TAG_LOGD(AAFwkTag::ABILITY, "NewAbilityImpl::AbilityTransaction begin");
     bool ret = true;
     switch (targetState.state) {
         case AAFwk::ABILITY_STATE_INITIAL: {
@@ -154,11 +156,11 @@ bool NewAbilityImpl::AbilityTransaction(const Want &want, const AAFwk::LifeCycle
         }
         default: {
             ret = false;
-            HILOG_ERROR("NewAbilityImpl::HandleAbilityTransaction state error");
+            TAG_LOGE(AAFwkTag::ABILITY, "NewAbilityImpl::HandleAbilityTransaction state error");
             break;
         }
     }
-    HILOG_DEBUG("NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
+    TAG_LOGD(AAFwkTag::ABILITY, "NewAbilityImpl::AbilityTransaction end: retVal = %{public}d", static_cast<int>(ret));
     return ret;
 }
 }  // namespace AppExecFwk

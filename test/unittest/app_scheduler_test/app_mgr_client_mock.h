@@ -30,8 +30,8 @@ public:
     {}
     MOCK_METHOD0(ConnectAppMgrService, AppMgrResultCode());
     MOCK_METHOD1(RegisterAppStateCallback, AppMgrResultCode(const sptr<IAppStateCallback> &callback));
-    MOCK_METHOD5(LoadAbility, AppMgrResultCode(const sptr<IRemoteObject>&, const sptr<IRemoteObject>&,
-        const AbilityInfo&, const ApplicationInfo&, const AAFwk::Want&));
+    MOCK_METHOD6(LoadAbility, AppMgrResultCode(sptr<IRemoteObject>, sptr<IRemoteObject>,
+        const AbilityInfo&, const ApplicationInfo&, const AAFwk::Want&, int32_t));
     MOCK_METHOD2(TerminateAbility, AppMgrResultCode(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD2(UpdateExtensionState, AppMgrResultCode(const sptr<IRemoteObject> &token, const ExtensionState state));
     MOCK_METHOD2(UpdateApplicationInfoInstalled, AppMgrResultCode(const std::string &bundleName, const int uid));

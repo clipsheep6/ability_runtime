@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "errors.h"
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
 #include "event_report.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "parameters.h"
@@ -67,32 +68,33 @@ bool ImplicitStartProcessor::IsImplicitStartAction(const Want &want)
     }
 
     if (std::find(blackList.begin(), blackList.end(), want.GetAction()) == blackList.end()) {
-        HILOG_INFO("implicit start, the action is %{public}s", want.GetAction().data());
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "implicit start, the action is %{public}s", want.GetAction().data());
         return true;
     }
 
     return false;
 }
 
-int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId)
+int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode)
 {
-    HILOG_INFO("implicit start ability by type: %{public}d", request.callType);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "implicit start ability by type: %{public}d", request.callType);
     auto sysDialogScheduler = DelayedSingleton<SystemDialogScheduler>::GetInstance();
     CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
 
     std::vector<DialogAppInfo> dialogAppInfos;
     auto deviceType = OHOS::system::GetDeviceType();
-    HILOG_DEBUG("deviceType is %{public}s", deviceType.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "deviceType is %{public}s", deviceType.c_str());
     auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, deviceType, false);
     if (ret != ERR_OK) {
-        HILOG_ERROR("generate ability request by action failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
         return ret;
     }
+    AbilityUtil::ProcessWindowMode(request.want, request.abilityInfo.applicationInfo.accessTokenId, windowMode);
 
     auto identity = IPCSkeleton::ResetCallingIdentity();
     auto startAbilityTask = [imp = shared_from_this(), request, userId, identity]
         (const std::string& bundle, const std::string& abilityName) mutable {
-        HILOG_INFO("implicit start ability call back.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "implicit start ability call back.");
 
         // reset calling indentity
         IPCSkeleton::SetCallingIdentity(identity);
@@ -112,12 +114,12 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     AddIdentity(tokenId, identity);
     if (dialogAppInfos.size() == 0 && AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
         if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
-            HILOG_INFO("hint dialog doesn't generate.");
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "hint dialog doesn't generate.");
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         ret = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
         if (ret != ERR_OK) {
-            HILOG_ERROR("GetSelectorDialogWant failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSelectorDialogWant failed.");
             return ret;
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
@@ -125,7 +127,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
             NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
             return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
-        HILOG_ERROR("implicit query ability infos failed, show tips dialog.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "implicit query ability infos failed, show tips dialog.");
         want = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
         abilityMgr->StartAbility(want);
         return ERR_IMPLICIT_START_ABILITY_FAIL;
@@ -134,7 +136,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type,
             userId, request.callerToken);
         if (ret != ERR_OK) {
-            HILOG_ERROR("GetPcSelectorDialogWant failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "GetPcSelectorDialogWant failed.");
             return ret;
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
@@ -145,12 +147,12 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         bool isMoreHapList = true;
         ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, deviceType, isMoreHapList);
         if (ret != ERR_OK) {
-            HILOG_ERROR("generate ability request by action failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
             return ret;
         }
         if (dialogAllAppInfos.size() == 0) {
             if ((request.want.GetFlags() & Want::FLAG_START_WITHOUT_TIPS) == Want::FLAG_START_WITHOUT_TIPS) {
-                HILOG_INFO("hint dialog doesn't generate.");
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "hint dialog doesn't generate.");
                 return ERR_IMPLICIT_START_ABILITY_FAIL;
             }
             Want dialogWant = sysDialogScheduler->GetTipsDialogWant(request.callerToken);
@@ -160,7 +162,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAllAppInfos, request.want,
             TYPE_ONLY_MATCH_WILDCARD, userId, request.callerToken);
         if (ret != ERR_OK) {
-            HILOG_ERROR("GetPcSelectorDialogWant failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "GetPcSelectorDialogWant failed.");
             return ret;
         }
         ret = abilityMgr->StartAbility(request.want, request.callerToken);
@@ -174,15 +176,16 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     defaultPicker = request.want.GetBoolParam(SHOW_DEFAULT_PICKER_FLAG, defaultPicker);
     if (dialogAppInfos.size() == 1 && (!defaultPicker || AppUtils::GetInstance().IsSelectorDialogDefaultPossion())) {
         auto info = dialogAppInfos.front();
-        HILOG_INFO("ImplicitQueryInfos success, target ability: %{public}s", info.abilityName.data());
+        TAG_LOGI(
+            AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, target ability: %{public}s", info.abilityName.data());
         return IN_PROCESS_CALL(startAbilityTask(info.bundleName, info.abilityName));
     }
 
     if (AppUtils::GetInstance().IsSelectorDialogDefaultPossion()) {
-        HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, Multiple apps to choose.");
         ret = sysDialogScheduler->GetSelectorDialogWant(dialogAppInfos, request.want, request.callerToken);
         if (ret != ERR_OK) {
-            HILOG_ERROR("GetSelectorDialogWant failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "GetSelectorDialogWant failed.");
             return ret;
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
@@ -195,12 +198,12 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         return ret;
     }
 
-    HILOG_INFO("ImplicitQueryInfos success, Multiple apps to choose in pc.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ImplicitQueryInfos success, Multiple apps to choose in pc.");
     std::string type = MatchTypeAndUri(request.want);
 
     ret = sysDialogScheduler->GetPcSelectorDialogWant(dialogAppInfos, request.want, type, userId, request.callerToken);
     if (ret != ERR_OK) {
-        HILOG_ERROR("GetPcSelectorDialogWant failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetPcSelectorDialogWant failed.");
         return ret;
     }
     if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
@@ -219,10 +222,10 @@ int ImplicitStartProcessor::NotifyCreateModalDialog(AbilityRequest &abilityReque
     auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
     std::string dialogSessionId;
     if (abilityMgr->GenerateDialogSessionRecord(abilityRequest, userId, dialogSessionId, dialogAppInfos, true)) {
-        HILOG_DEBUG("create dialog by ui extension");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "create dialog by ui extension");
         return abilityMgr->CreateModalDialog(want, abilityRequest.callerToken, dialogSessionId);
     }
-    HILOG_ERROR("create dialog by ui extension failed");
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "create dialog by ui extension failed");
     return INNER_ERR;
 }
 
@@ -233,14 +236,14 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
         auto uri = want.GetUriString();
         auto suffixIndex = uri.rfind('.');
         if (suffixIndex == std::string::npos) {
-            HILOG_ERROR("Get suffix failed, uri is %{public}s", uri.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Get suffix failed, uri is %{public}s", uri.c_str());
             return "";
         }
         type = uri.substr(suffixIndex);
         if (type == ".dlp") {
             auto suffixDlpIndex = uri.rfind('.', suffixIndex - 1);
             if (suffixDlpIndex == std::string::npos) {
-                HILOG_ERROR("Get suffix failed, uri is %{public}s", uri.c_str());
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Get suffix failed, uri is %{public}s", uri.c_str());
                 return "";
             }
             type = uri.substr(suffixDlpIndex, suffixIndex - suffixDlpIndex);
@@ -252,7 +255,7 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList)
 {
-    HILOG_DEBUG("%{public}s.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s.", __func__);
     // get abilityinfos from bms
     auto bundleMgrHelper = GetBundleManagerHelper();
     CHECK_POINTER_AND_RETURN(bundleMgrHelper, GET_ABILITY_SERVICE_FAILED);
@@ -265,7 +268,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (IPCSkeleton::GetCallingUid() == NFC_CALLER_UID &&
         !request.want.GetStringArrayParam(PARAM_ABILITY_APPINFOS).empty()) {
-        HILOG_INFO("The NFCNeed caller source is NFC.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The NFCNeed caller source is NFC.");
         ImplicitStartProcessor::QueryBmsAppInfos(request, userId, dialogAppInfos);
     }
 
@@ -275,8 +278,9 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
 
-    HILOG_INFO("ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu.",
-        abilityInfos.size(), extensionInfos.size());
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu.", abilityInfos.size(),
+        extensionInfos.size());
 
     if (abilityInfos.size() == 1) {
         auto skillUri =  abilityInfos.front().skillUri;
@@ -288,10 +292,10 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     if (abilityInfos.size() + extensionInfos.size() > 1) {
-        HILOG_INFO("More than one target application, filter by erms");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "More than one target application, filter by erms");
         bool ret = FilterAbilityList(request.want, abilityInfos, extensionInfos, userId);
         if (!ret) {
-            HILOG_ERROR("FilterAbilityList failed");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "FilterAbilityList failed");
         }
     }
 
@@ -401,9 +405,10 @@ bool ImplicitStartProcessor::CheckImplicitStartExtensionIsValid(const AbilityReq
     if (!request.want.GetElement().GetBundleName().empty()) {
         return true;
     }
-    HILOG_DEBUG("ImplicitStartExtension type: %{public}d.", static_cast<int32_t>(extensionInfo.type));
+    TAG_LOGD(
+        AAFwkTag::ABILITYMGR, "ImplicitStartExtension type: %{public}d.", static_cast<int32_t>(extensionInfo.type));
     if (extensionWhiteList.find(extensionInfo.type) == extensionWhiteList.end()) {
-        HILOG_ERROR("The extension without UI is not allowed ImplicitStart");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The extension without UI is not allowed ImplicitStart");
         return false;
     }
     return true;
@@ -459,7 +464,8 @@ int ImplicitStartProcessor::CallStartAbilityInner(int32_t userId,
         EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
     }
 
-    HILOG_INFO("ability:%{public}s, bundle:%{public}s", eventInfo.abilityName.c_str(), eventInfo.bundleName.c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s, bundle:%{public}s", eventInfo.abilityName.c_str(),
+        eventInfo.bundleName.c_str());
 
     auto ret = callBack();
     if (ret != ERR_OK) {
@@ -483,12 +489,12 @@ sptr<AppExecFwk::IDefaultApp> ImplicitStartProcessor::GetDefaultAppProxy()
 {
     auto bundleMgrHelper = GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The bundleMgrHelper is nullptr.");
         return nullptr;
     }
     auto defaultAppProxy = bundleMgrHelper->GetDefaultAppProxy();
     if (defaultAppProxy == nullptr) {
-        HILOG_ERROR("The defaultAppProxy is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The defaultAppProxy is nullptr.");
         return nullptr;
     }
     return defaultAppProxy;
@@ -502,7 +508,7 @@ bool ImplicitStartProcessor::FilterAbilityList(const Want &want, std::vector<App
     int ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->
         EvaluateResolveInfos(want, callerInfo, 0, abilityInfos, extensionInfos));
     if (ret != ERR_OK) {
-        HILOG_ERROR("Failed to evaluate resolve infos from erms.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to evaluate resolve infos from erms.");
         return false;
     }
     return true;
@@ -518,7 +524,7 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
 
     auto bundleMgrHelper = GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("Get Bubndle manager helper failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get Bubndle manager helper failed.");
         return;
     }
 
@@ -527,36 +533,36 @@ void ImplicitStartProcessor::GetEcologicalCallerInfo(const Want &want, ErmsCalle
     bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
-        HILOG_ERROR("Get targetAppInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get targetAppInfo failed.");
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_DEBUG("the target type  is atomic service");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "the target type  is atomic service");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (targetAppInfo.bundleType == AppExecFwk::BundleType::APP) {
-        HILOG_DEBUG("the target type is app");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "the target type is app");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
-        HILOG_DEBUG("the target type is invalid type");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "the target type is invalid type");
     }
 
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerInfo.uid, callerBundleName));
     if (err != ERR_OK) {
-        HILOG_ERROR("Get callerBundleName failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get callerBundleName failed.");
         return;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
-        HILOG_DEBUG("Get callerAppInfo failed.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Get callerAppInfo failed.");
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_DEBUG("the caller type  is atomic service");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "the caller type  is atomic service");
         callerInfo.callerAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
-        HILOG_DEBUG("the caller type is app");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "the caller type is app");
         callerInfo.callerAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     } else {
-        HILOG_DEBUG("the caller type is invalid type");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "the caller type is invalid type");
     }
 }
 
@@ -617,13 +623,13 @@ bool ImplicitStartProcessor::IsExistDefaultApp(int32_t userId, const std::string
     }
 
     if (bundleInfo.abilityInfos.size() == 1) {
-        HILOG_INFO("find default ability.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "find default ability.");
         return true;
     } else if (bundleInfo.extensionInfos.size() == 1) {
-        HILOG_INFO("find default extension.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "find default extension.");
         return true;
     } else {
-        HILOG_INFO("GetDefaultApplication failed.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "GetDefaultApplication failed.");
         return false;
     }
 }

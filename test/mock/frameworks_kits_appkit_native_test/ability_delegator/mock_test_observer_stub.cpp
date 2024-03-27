@@ -14,6 +14,7 @@
  */
 
 #include "mock_test_observer_stub.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -29,7 +30,7 @@ int MockTestObserverStub::OnRemoteRequest(
 
 void MockTestObserverStub::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("MockTestObserverStub::TestStatus is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockTestObserverStub::TestStatus is called");
 
     testStatusFlag = true;
 }

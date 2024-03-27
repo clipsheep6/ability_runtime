@@ -80,7 +80,7 @@ void AppLifeCycleDeal::LaunchAbility(const std::shared_ptr<AbilityRunningRecord>
         }
         TAG_LOGD(AAFwkTag::APPMGR, "Launch ability.");
         appThread->ScheduleLaunchAbility(*abilityInfo, ability->GetToken(),
-            ability->GetWant());
+            ability->GetWant(), ability->GetAbilityRecordId());
     } else {
         TAG_LOGW(AAFwkTag::APPMGR, "LoadLifecycle.");
     }

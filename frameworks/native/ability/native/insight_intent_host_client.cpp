@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "insight_intent_host_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -27,7 +28,7 @@ sptr<InsightIntentHostClient> InsightIntentHostClient::GetInstance()
         if (instance_ == nullptr) {
             instance_ = new (std::nothrow) InsightIntentHostClient();
             if (instance_ == nullptr) {
-                HILOG_ERROR("failed to create InsightIntentHostClient.");
+                TAG_LOGE(AAFwkTag::INTENT, "failed to create InsightIntentHostClient.");
             }
         }
     }
@@ -37,7 +38,7 @@ sptr<InsightIntentHostClient> InsightIntentHostClient::GetInstance()
 uint64_t InsightIntentHostClient::AddInsightIntentExecute(
     const std::shared_ptr<InsightIntentExecuteCallbackInterface> &callback)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called.");
     std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
     callbackMap_.emplace(++key_, callback);
     return key_;
@@ -45,7 +46,7 @@ uint64_t InsightIntentHostClient::AddInsightIntentExecute(
 
 void InsightIntentHostClient::RemoveInsightIntentExecute(uint64_t key)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called.");
     std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
     auto iter = callbackMap_.find(key);
     if (iter != callbackMap_.end()) {
@@ -56,14 +57,14 @@ void InsightIntentHostClient::RemoveInsightIntentExecute(uint64_t key)
 void InsightIntentHostClient::OnExecuteDone(uint64_t key, int32_t resultCode,
     const AppExecFwk::InsightIntentExecuteResult &executeResult)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::INTENT, "called.");
 
     std::shared_ptr<InsightIntentExecuteCallbackInterface> callback = nullptr;
     {
         std::lock_guard<std::mutex> lock(insightIntentExecutebackMutex_);
         auto iter = callbackMap_.find(key);
         if (iter == callbackMap_.end()) {
-            HILOG_INFO("InsightIntent execute callback not found");
+            TAG_LOGI(AAFwkTag::INTENT, "InsightIntent execute callback not found");
         } else {
             callback = iter->second;
             callbackMap_.erase(key);

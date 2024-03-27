@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <nlohmann/json.hpp>
 
 #include "app_module_checker.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS::AbilityRuntime {
@@ -36,18 +37,18 @@ void ExtensionConfigMgr::Init()
     std::ifstream inFile;
     inFile.open(EXTENSION_BLOCKLIST_FILE_PATH, std::ios::in);
     if (!inFile.is_open()) {
-        HILOG_ERROR("read extension config error");
+        TAG_LOGE(AAFwkTag::EXT, "read extension config error");
         return;
     }
     nlohmann::json extensionConfig;
     inFile >> extensionConfig;
     if (extensionConfig.is_discarded()) {
-        HILOG_ERROR("extension config json discarded error");
+        TAG_LOGE(AAFwkTag::EXT, "extension config json discarded error");
         inFile.close();
         return;
     }
     if (!extensionConfig.contains(ExtensionConfigItem::ITEM_NAME_BLOCKLIST)) {
-        HILOG_ERROR("extension config file have no blocklist node");
+        TAG_LOGE(AAFwkTag::EXT, "extension config file have no blocklist node");
         inFile.close();
         return;
     }
@@ -68,10 +69,10 @@ void ExtensionConfigMgr::Init()
 
 void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 {
-    HILOG_DEBUG("AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
+    TAG_LOGD(AAFwkTag::EXT, "AddBlockListItem name = %{public}s, type = %{public}d", name.c_str(), type);
     auto iter = blocklistConfig_.find(name);
     if (iter == blocklistConfig_.end()) {
-        HILOG_DEBUG("Extension name = %{public}s, not exist in blocklist config", name.c_str());
+        TAG_LOGD(AAFwkTag::EXT, "Extension name = %{public}s, not exist in blocklist config", name.c_str());
         return;
     }
     extensionBlocklist_.emplace(type, iter->second);
@@ -80,10 +81,10 @@ void ExtensionConfigMgr::AddBlockListItem(const std::string& name, int32_t type)
 void ExtensionConfigMgr::UpdateRuntimeModuleChecker(const std::unique_ptr<AbilityRuntime::Runtime> &runtime)
 {
     if (!runtime) {
-        HILOG_ERROR("UpdateRuntimeModuleChecker faild, runtime is null");
+        TAG_LOGE(AAFwkTag::EXT, "UpdateRuntimeModuleChecker faild, runtime is null");
         return;
     }
-    HILOG_DEBUG("extensionType_ = %{public}d", extensionType_);
+    TAG_LOGD(AAFwkTag::EXT, "extensionType_ = %{public}d", extensionType_);
     auto moduleChecker = std::make_shared<AppModuleChecker>(extensionType_, std::move(extensionBlocklist_));
     runtime->SetModuleLoadChecker(moduleChecker);
 }

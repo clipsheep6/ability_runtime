@@ -18,6 +18,7 @@
 
 #include <memory>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "jsnapi.h"
 
@@ -46,7 +47,7 @@ public:
     int32_t RequestAot(const std::string &bundleName, const std::string &moduleName, int32_t triggerMode)
     {
         if (requestAotCallback_ == nullptr) {
-            HILOG_ERROR("callback is invalid.");
+            TAG_LOGE(AAFwkTag::TEST, "callback is invalid.");
             return -1;
         }
 

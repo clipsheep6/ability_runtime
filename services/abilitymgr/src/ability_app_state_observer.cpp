@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_app_state_observer.h"
 #include "ability_record.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -31,8 +32,11 @@ void AbilityAppStateObserver::OnProcessDied(const AppExecFwk::ProcessData &proce
             abilityInfo.type == AppExecFwk::AbilityType::PAGE) {
             abilityRecord->OnProcessDied();
         }
+        if (abilityRecord->IsSceneBoard() && abilityRecord->GetPid() == processData.pid) {
+            abilityRecord->OnProcessDied();
+        }
     } else {
-        HILOG_WARN("AbilityRecord null");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "AbilityRecord null");
     }
 }
 } // namespace AAFwk

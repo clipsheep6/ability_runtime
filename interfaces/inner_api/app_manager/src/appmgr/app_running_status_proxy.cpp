@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 #include "app_running_status_proxy.h"
 
 #include "app_running_status_listener_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_proxy.h"
@@ -29,16 +30,16 @@ void AppRunningStatusProxy::NotifyAppRunningStatus(const std::string &bundle, in
 {
     MessageParcel data;
     if (!data.WriteInterfaceToken(AppRunningStatusProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
     if (!data.WriteString(bundle) || !data.WriteInt32(uid) || !data.WriteInt32(static_cast<int32_t>(runningStatus))) {
-        HILOG_ERROR("Write data failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data failed.");
         return;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return;
     }
 
@@ -47,7 +48,7 @@ void AppRunningStatusProxy::NotifyAppRunningStatus(const std::string &bundle, in
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(AppRunningStatusListenerInterface::MessageCode::APP_RUNNING_STATUS), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 }

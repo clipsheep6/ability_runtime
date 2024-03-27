@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "acquire_share_data_callback_stub.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 
@@ -28,7 +29,7 @@ AcquireShareDataCallbackStub::AcquireShareDataCallbackStub()
 
 AcquireShareDataCallbackStub::~AcquireShareDataCallbackStub()
 {
-    HILOG_INFO("~AcquireShareDataCallbackStub.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "~AcquireShareDataCallbackStub.");
 }
 
 int32_t AcquireShareDataCallbackStub::OnRemoteRequest(
@@ -37,7 +38,7 @@ int32_t AcquireShareDataCallbackStub::OnRemoteRequest(
     std::u16string descriptor = AcquireShareDataCallbackStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_INFO("local descriptor is not equal to remote.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -53,7 +54,7 @@ int32_t AcquireShareDataCallbackStub::AcquireShareDataDoneInner(MessageParcel &d
     int32_t resultCode = data.ReadInt32();
     std::shared_ptr<WantParams> wantParam(data.ReadParcelable<WantParams>());
     if (wantParam == nullptr) {
-        HILOG_ERROR("wantParam is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParam is nullptr");
         return ERR_INVALID_VALUE;
     }
     return AcquireShareDataDone(resultCode, *wantParam);
@@ -61,22 +62,22 @@ int32_t AcquireShareDataCallbackStub::AcquireShareDataDoneInner(MessageParcel &d
 
 int32_t AcquireShareDataCallbackStub::AcquireShareDataDone(int32_t resultCode, WantParams &wantParam)
 {
-    HILOG_INFO("resultCode:%{public}d, wantParam size:%{public}d", resultCode, wantParam.Size());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "resultCode:%{public}d, wantParam size:%{public}d", resultCode, wantParam.Size());
     if (resultCode || wantParam.IsEmpty()) {
-        HILOG_INFO("invaild param.");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "invaild param.");
     }
     auto task = [resultCode, wantParam, shareRuntimeTask = shareRuntimeTask_]() {
         if (shareRuntimeTask) {
             shareRuntimeTask(resultCode, wantParam);
         }
     };
-    HILOG_INFO("AcquireShareDataDone shareRuntimeTask start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AcquireShareDataDone shareRuntimeTask start.");
     if (!handler_) {
-        HILOG_ERROR("handler_ object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "handler_ object is nullptr.");
         return OBJECT_NULL;
     }
     handler_->PostTask(task, "AcquieShareDataDone.");
-    HILOG_INFO("AcquireShareDataDone shareRuntimeTask end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AcquireShareDataDone shareRuntimeTask end.");
     return NO_ERROR;
 }
 

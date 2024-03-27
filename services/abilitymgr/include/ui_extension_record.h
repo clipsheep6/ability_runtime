@@ -34,6 +34,19 @@ public:
     bool ContinueToGetCallerToken() override;
 
     void Update(const AAFwk::AbilityRequest &abilityRequest) override;
+
+    void LoadTimeout();
+    void ForegroundTimeout();
+    void BackgroundTimeout();
+    void TerminateTimeout();
+private:
+    enum ErrorCode {
+        LOAD_TIMEOUT = 0,
+        FOREGROUND_TIMEOUT = 1,
+        BACKGROUND_TIMEOUT = 2,
+        TERMINATE_TIMEOUT = 3
+    };
+    void HandleNotifyUIExtensionTimeout(ErrorCode code);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

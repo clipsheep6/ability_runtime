@@ -13,11 +13,24 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H
 
-class StartupTaskExecutor {
-  runOnMainThread(message) {
-    console.log('StartupTaskExecutor, message ' + message);
-  }
-}
+#include <string>
 
-export default StartupTaskExecutor;
+namespace OHOS {
+namespace AppExecFwk {
+class AdvancedSecurityModeManager {
+public:
+    AdvancedSecurityModeManager();
+    virtual ~AdvancedSecurityModeManager();
+
+    void Init();
+    bool IsJITEnabled();
+
+private:
+    bool isAdvSecModeEnabled_ = false;
+};
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H

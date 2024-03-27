@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 
 #include "child_process_manager.h"
 #include "child_process_manager_error_utils.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
@@ -44,7 +45,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("%{public}s::Finalizer is called", PROCESS_MANAGER_NAME);
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "%{public}s::Finalizer is called", PROCESS_MANAGER_NAME);
         std::unique_ptr<JsChildProcessManager>(static_cast<JsChildProcessManager*>(data));
     }
 
@@ -56,32 +57,32 @@ public:
 private:
     napi_value OnStartChildProcess(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("called.");
+        TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
         if (ChildProcessManager::GetInstance().IsChildProcess()) {
-            HILOG_ERROR("Already in child process");
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Already in child process");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED);
             return CreateJsUndefined(env);
         }
         if (argc < ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         std::string srcEntry;
         int32_t startMode;
         if (!ConvertFromJsValue(env, argv[0], srcEntry)) {
-            HILOG_ERROR("Parse param srcEntry failed");
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param srcEntry failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         if (!ConvertFromJsValue(env, argv[1], startMode)) {
-            HILOG_ERROR("Parse param startMode failed");
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param startMode failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
-        HILOG_DEBUG("StartMode: %{public}d", startMode);
+        TAG_LOGD(AAFwkTag::PROCESSMGR, "StartMode: %{public}d", startMode);
         if (startMode != MODE_SELF_FORK && startMode != MODE_APP_SPAWN_FORK) {
-            HILOG_ERROR("Not supported StartMode");
+            TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -98,7 +99,7 @@ private:
 
     static void ForkProcess(napi_env env, NapiAsyncTask &task, const std::string &srcEntry, const int32_t startMode)
     {
-        HILOG_DEBUG("called.");
+        TAG_LOGD(AAFwkTag::PROCESSMGR, "called.");
         pid_t pid = 0;
         ChildProcessManagerErrorCode errorCode;
         switch (startMode) {
@@ -111,12 +112,13 @@ private:
                 break;
             }
             default: {
-                HILOG_ERROR("Not supported StartMode");
+                TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
                 return;
             }
         }
-        HILOG_DEBUG("ChildProcessManager start resultCode: %{public}d, pid:%{public}d", errorCode, pid);
+        TAG_LOGD(
+            AAFwkTag::PROCESSMGR, "ChildProcessManager start resultCode: %{public}d, pid:%{public}d", errorCode, pid);
         if (errorCode == ChildProcessManagerErrorCode::ERR_OK) {
             task.ResolveWithNoError(env, CreateJsValue(env, pid));
         } else {
@@ -127,9 +129,9 @@ private:
 
 napi_value JsChildProcessManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::PROCESSMGR, "called.");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Invalid input params");
+        TAG_LOGE(AAFwkTag::PROCESSMGR, "Invalid input params");
         return nullptr;
     }
 

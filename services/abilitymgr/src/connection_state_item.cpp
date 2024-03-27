@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "connection_state_item.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -263,19 +264,19 @@ bool ConnectionStateItem::AddConnection(std::shared_ptr<ConnectionRecord> record
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
-        HILOG_ERROR("AddConnection, invalid connection record.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, invalid connection record.");
         return false;
     }
 
     auto token = record->GetTargetToken();
     if (!token) {
-        HILOG_ERROR("AddConnection, invalid token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, invalid token.");
         return false;
     }
 
     sptr<IRemoteObject> connectionObj = record->GetConnection();
     if (!connectionObj) {
-        HILOG_ERROR("AddConnection, no connection callback for this connect.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, no connection callback for this connect.");
         return false;
     }
 
@@ -291,7 +292,7 @@ bool ConnectionStateItem::AddConnection(std::shared_ptr<ConnectionRecord> record
     }
 
     if (!connectedExtension) {
-        HILOG_ERROR("AddConnection, connectedExtension is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "AddConnection, connectedExtension is invalid");
         return false;
     }
 
@@ -307,31 +308,31 @@ bool ConnectionStateItem::RemoveConnection(std::shared_ptr<ConnectionRecord> rec
     AbilityRuntime::ConnectionData &data)
 {
     if (!record) {
-        HILOG_ERROR("RemoveConnection, invalid connection record.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, invalid connection record.");
         return false;
     }
 
     auto token = record->GetTargetToken();
     if (!token) {
-        HILOG_ERROR("RemoveConnection, invalid token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, invalid token.");
         return false;
     }
 
     sptr<IRemoteObject> connectionObj = record->GetConnection();
     if (!connectionObj) {
-        HILOG_ERROR("RemoveConnection, no connection callback for this connect.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, no connection callback for this connect.");
         return false;
     }
 
     auto it = connectionMap_.find(token);
     if (it == connectionMap_.end()) {
-        HILOG_ERROR("RemoveConnection, no such connectedExtension.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, no such connectedExtension.");
         return false;
     }
 
     auto connectedExtension = it->second;
     if (!connectedExtension) {
-        HILOG_ERROR("RemoveConnection, can not find such connectedExtension");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveConnection, can not find such connectedExtension");
         return false;
     }
 
@@ -348,13 +349,13 @@ bool ConnectionStateItem::AddDataAbilityConnection(const DataAbilityCaller &call
     const std::shared_ptr<DataAbilityRecord> &dataAbility, AbilityRuntime::ConnectionData &data)
 {
     if (!dataAbility) {
-        HILOG_ERROR("invalid dataAbility.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid dataAbility.");
         return false;
     }
 
     auto token = dataAbility->GetToken();
     if (!token) {
-        HILOG_ERROR("invalid dataAbility token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid dataAbility token.");
         return false;
     }
 
@@ -370,7 +371,7 @@ bool ConnectionStateItem::AddDataAbilityConnection(const DataAbilityCaller &call
     }
 
     if (!connectedAbility) {
-        HILOG_ERROR("connectedAbility is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "connectedAbility is invalid");
         return false;
     }
 
@@ -386,25 +387,25 @@ bool ConnectionStateItem::RemoveDataAbilityConnection(const DataAbilityCaller &c
     const std::shared_ptr<DataAbilityRecord> &dataAbility, AbilityRuntime::ConnectionData &data)
 {
     if (!dataAbility) {
-        HILOG_ERROR("RemoveDataAbilityConnection, invalid data ability record.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, invalid data ability record.");
         return false;
     }
 
     auto token = dataAbility->GetToken();
     if (!token) {
-        HILOG_ERROR("RemoveDataAbilityConnection, invalid data ability token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, invalid data ability token.");
         return false;
     }
 
     auto it = dataAbilityMap_.find(token);
     if (it == dataAbilityMap_.end()) {
-        HILOG_ERROR("RemoveDataAbilityConnection, no such connected data ability.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, no such connected data ability.");
         return false;
     }
 
     auto connectedDataAbility = it->second;
     if (!connectedDataAbility) {
-        HILOG_ERROR("RemoveDataAbilityConnection, can not find such connectedDataAbility");
+        TAG_LOGE(AAFwkTag::CONNECTION, "RemoveDataAbilityConnection, can not find such connectedDataAbility");
         return false;
     }
 
@@ -426,13 +427,13 @@ bool ConnectionStateItem::HandleDataAbilityDied(const sptr<IRemoteObject> &token
 
     auto it = dataAbilityMap_.find(token);
     if (it == dataAbilityMap_.end()) {
-        HILOG_ERROR("HandleDataAbilityDied, no such connected data ability.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "HandleDataAbilityDied, no such connected data ability.");
         return false;
     }
 
     auto connectedDataAbility = it->second;
     if (!connectedDataAbility) {
-        HILOG_ERROR("HandleDataAbilityDied, can not find such connectedDataAbility");
+        TAG_LOGE(AAFwkTag::CONNECTION, "HandleDataAbilityDied, can not find such connectedDataAbility");
         return false;
     }
 

@@ -59,7 +59,7 @@ public:
 
     static bool IsImplicitStartAction(const Want &want);
 
-    int ImplicitStartAbility(AbilityRequest &request, int32_t userId);
+    int ImplicitStartAbility(AbilityRequest &request, int32_t userId, int32_t windowMode = 0);
 
     void ResetCallingIdentityAsCaller(int32_t tokenId);
 

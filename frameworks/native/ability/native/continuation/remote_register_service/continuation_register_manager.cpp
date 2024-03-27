@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include "continuation_device_callback_interface.h"
 #include "continuation_register_manager_proxy.h"
 #include "extra_params.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "request_callback.h"
 
@@ -40,12 +41,12 @@ void ContinuationRegisterManager::Register(const std::string &bundleName, const 
     const std::shared_ptr<IContinuationDeviceCallback> &deviceCallback,
     const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->Register(bundleName, parameter, deviceCallback, requestCallback);
-        HILOG_INFO("%{public}s called end", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     } else {
-        HILOG_ERROR("%{public}s, ContinuationRegisterManagerProxy is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s, ContinuationRegisterManagerProxy is null", __func__);
     }
 }
 
@@ -57,12 +58,12 @@ void ContinuationRegisterManager::Register(const std::string &bundleName, const 
  */
 void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->Unregister(token, requestCallback);
-        HILOG_INFO("%{public}s called end", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     } else {
-        HILOG_ERROR("%{public}s, ContinuationRegisterManagerProxy is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s, ContinuationRegisterManagerProxy is null", __func__);
     }
 }
 
@@ -77,12 +78,12 @@ void ContinuationRegisterManager::Unregister(int token, const std::shared_ptr<Re
 void ContinuationRegisterManager::UpdateConnectStatus(
     int token, const std::string &deviceId, int status, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->UpdateConnectStatus(token, deviceId, status, requestCallback);
-        HILOG_INFO("%{public}s called end", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     } else {
-        HILOG_ERROR("%{public}s, ContinuationRegisterManagerProxy is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s, ContinuationRegisterManagerProxy is null", __func__);
     }
 }
 
@@ -96,12 +97,12 @@ void ContinuationRegisterManager::UpdateConnectStatus(
 void ContinuationRegisterManager::ShowDeviceList(
     int token, const ExtraParams &parameter, const std::shared_ptr<RequestCallback> &requestCallback)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->ShowDeviceList(token, parameter, requestCallback);
-        HILOG_INFO("%{public}s called end", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     } else {
-        HILOG_ERROR("%{public}s, ContinuationRegisterManagerProxy is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s, ContinuationRegisterManagerProxy is null", __func__);
     }
 }
 
@@ -110,12 +111,12 @@ void ContinuationRegisterManager::ShowDeviceList(
  */
 void ContinuationRegisterManager::Disconnect(void)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     if (continuationRegisterManagerProxy_ != nullptr) {
         continuationRegisterManagerProxy_->Disconnect();
-        HILOG_INFO("%{public}s called end", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     } else {
-        HILOG_ERROR("%{public}s, ContinuationRegisterManagerProxy is null", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s, ContinuationRegisterManagerProxy is null", __func__);
     }
 }
 }  // namespace AppExecFwk

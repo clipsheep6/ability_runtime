@@ -212,7 +212,7 @@ public:
     void ScheduleAbilityStage(const HapModuleInfo &abilityStage) override;
 
     void ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
-        const std::shared_ptr<AAFwk::Want> &want) override;
+        const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId) override;
 
     /**
      *
@@ -645,7 +645,7 @@ private:
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
     void SetAppDebug(uint32_t modeFlag, bool isDebug);
-    
+
     /**
      * @brief Whether MainThread is started by ChildProcessManager.
      *

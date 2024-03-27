@@ -14,6 +14,7 @@
  */
 
 #include "insight_intent_execute_param.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "int_wrapper.h"
 #include "string_wrapper.h"
@@ -78,7 +79,7 @@ bool InsightIntentExecuteParam::GenerateFromWant(const AAFwk::Want &want,
 {
     const WantParams &wantParams = want.GetParams();
     if (!wantParams.HasParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME)) {
-        HILOG_ERROR("The want does not contain insight intent name.");
+        TAG_LOGE(AAFwkTag::INTENT, "The want does not contain insight intent name.");
         return false;
     }
 

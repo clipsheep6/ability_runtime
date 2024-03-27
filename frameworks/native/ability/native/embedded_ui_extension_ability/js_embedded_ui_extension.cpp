@@ -15,6 +15,7 @@
 
 #include "js_embedded_ui_extension.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ui_extension_base.h"
@@ -33,7 +34,7 @@ JsEmbeddedUIExtension::JsEmbeddedUIExtension(const std::unique_ptr<Runtime> &run
 
 JsEmbeddedUIExtension::~JsEmbeddedUIExtension()
 {
-    HILOG_DEBUG("destructor.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "destructor.");
     auto context = GetContext();
     if (context) {
         context->Unbind();
@@ -44,11 +45,11 @@ void JsEmbeddedUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &reco
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     EmbeddedUIExtension::Init(record, application, handler, token);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->SetAbilityInfo(abilityInfo_);
@@ -59,11 +60,11 @@ void JsEmbeddedUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &reco
 
 void JsEmbeddedUIExtension::OnStart(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     Extension::OnStart(want);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnStart(want);
@@ -71,11 +72,11 @@ void JsEmbeddedUIExtension::OnStart(const AAFwk::Want &want)
 
 void JsEmbeddedUIExtension::OnStop()
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     EmbeddedUIExtension::OnStop();
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnStop();
@@ -84,15 +85,16 @@ void JsEmbeddedUIExtension::OnStop()
 void JsEmbeddedUIExtension::OnCommandWindow(
     const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
-    HILOG_DEBUG("begin. persistentId: %{private}d, winCmd: %{public}d", sessionInfo->persistentId, winCmd);
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "begin. persistentId: %{private}d, winCmd: %{public}d",
+        sessionInfo->persistentId, winCmd);
     if (sessionInfo == nullptr) {
-        HILOG_ERROR("sessionInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "sessionInfo is nullptr.");
         return;
     }
     Extension::OnCommandWindow(want, sessionInfo, winCmd);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnCommandWindow(want, sessionInfo, winCmd);
@@ -101,10 +103,11 @@ void JsEmbeddedUIExtension::OnCommandWindow(
 void JsEmbeddedUIExtension::OnCommand(const AAFwk::Want &want, bool restart, int32_t startId)
 {
     Extension::OnCommand(want, restart, startId);
-    HILOG_DEBUG("begin restart = %{public}s, startId = %{public}d.", restart ? "true" : "false", startId);
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "begin restart = %{public}s, startId = %{public}d.",
+        restart ? "true" : "false", startId);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnCommand(want, restart, startId);
@@ -112,12 +115,12 @@ void JsEmbeddedUIExtension::OnCommand(const AAFwk::Want &want, bool restart, int
 
 void JsEmbeddedUIExtension::OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     Extension::OnForeground(want, sessionInfo);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnForeground(want, sessionInfo);
@@ -125,11 +128,11 @@ void JsEmbeddedUIExtension::OnForeground(const Want &want, sptr<AAFwk::SessionIn
 
 void JsEmbeddedUIExtension::OnBackground()
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnBackground();
@@ -138,11 +141,11 @@ void JsEmbeddedUIExtension::OnBackground()
 
 void JsEmbeddedUIExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     Extension::OnConfigurationUpdated(configuration);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->OnConfigurationUpdated(configuration);
@@ -150,11 +153,11 @@ void JsEmbeddedUIExtension::OnConfigurationUpdated(const AppExecFwk::Configurati
 
 void JsEmbeddedUIExtension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     Extension::Dump(params, info);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is nullptr");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is nullptr");
         return;
     }
     jsUIExtensionBase_->Dump(params, info);
@@ -162,11 +165,11 @@ void JsEmbeddedUIExtension::Dump(const std::vector<std::string> &params, std::ve
 
 void JsEmbeddedUIExtension::OnAbilityResult(int32_t requestCode, int32_t resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("OnAbilityResult called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "OnAbilityResult called.");
     Extension::OnAbilityResult(requestCode, resultCode, resultData);
 
     if (jsUIExtensionBase_ == nullptr) {
-        HILOG_ERROR("jsUIExtensionBase_ is null");
+        TAG_LOGE(AAFwkTag::EMBEDDED_EXT, "jsUIExtensionBase_ is null");
         return;
     }
     jsUIExtensionBase_->OnAbilityResult(requestCode, resultCode, resultData);

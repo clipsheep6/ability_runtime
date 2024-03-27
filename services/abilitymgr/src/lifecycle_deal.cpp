@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_record.h"
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -41,10 +42,10 @@ sptr<IAbilityScheduler> LifecycleDeal::GetScheduler()
 
 void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
-    HILOG_DEBUG("caller %{public}s, %{public}s",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "caller %{public}s, %{public}s",
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_ACTIVE;
@@ -54,7 +55,7 @@ void LifecycleDeal::Activate(const Want &want, LifeCycleStateInfo &stateInfo)
 void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INACTIVE;
@@ -63,7 +64,7 @@ void LifecycleDeal::Inactivate(const Want &want, LifeCycleStateInfo &stateInfo,
 
 void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &stateInfo)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND;
@@ -72,7 +73,7 @@ void LifecycleDeal::MoveToBackground(const Want &want, LifeCycleStateInfo &state
 
 void LifecycleDeal::ConnectAbility(const Want &want)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleConnectAbility(want);
@@ -80,7 +81,7 @@ void LifecycleDeal::ConnectAbility(const Want &want)
 
 void LifecycleDeal::DisconnectAbility(const Want &want)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleDisconnectAbility(want);
@@ -88,7 +89,7 @@ void LifecycleDeal::DisconnectAbility(const Want &want)
 
 void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo, sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_INITIAL;
@@ -97,7 +98,7 @@ void LifecycleDeal::Terminate(const Want &want, LifeCycleStateInfo &stateInfo, s
 
 void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 {
-    HILOG_DEBUG("startId:%{public}d", startId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "startId:%{public}d", startId);
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbility(want, reStart, startId);
@@ -105,7 +106,7 @@ void LifecycleDeal::CommandAbility(const Want &want, bool reStart, int startId)
 
 void LifecycleDeal::CommandAbilityWindow(const Want &want, const sptr<SessionInfo> &sessionInfo, WindowCommand winCmd)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleCommandAbilityWindow(want, sessionInfo, winCmd);
@@ -113,7 +114,7 @@ void LifecycleDeal::CommandAbilityWindow(const Want &want, const sptr<SessionInf
 
 void LifecycleDeal::SaveAbilityState()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleSaveAbilityState();
@@ -121,7 +122,7 @@ void LifecycleDeal::SaveAbilityState()
 
 void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleRestoreAbilityState(inState);
@@ -130,10 +131,10 @@ void LifecycleDeal::RestoreAbilityState(const PacMap &inState)
 void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
-    HILOG_DEBUG("caller %{public}s, %{public}s",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "caller %{public}s, %{public}s",
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_FOREGROUND_NEW;
@@ -143,10 +144,10 @@ void LifecycleDeal::ForegroundNew(const Want &want, LifeCycleStateInfo &stateInf
 void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInfo,
     sptr<SessionInfo> sessionInfo)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
-    HILOG_DEBUG("caller %{public}s, %{public}s",
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "caller %{public}s, %{public}s",
         stateInfo.caller.bundleName.c_str(),
         stateInfo.caller.abilityName.c_str());
     stateInfo.state = AbilityLifeCycleState::ABILITY_STATE_BACKGROUND_NEW;
@@ -155,14 +156,14 @@ void LifecycleDeal::BackgroundNew(const Want &want, LifeCycleStateInfo &stateInf
 
 void LifecycleDeal::ContinueAbility(const std::string& deviceId, uint32_t versionCode)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     CHECK_POINTER(abilityScheduler_);
     abilityScheduler_->ContinueAbility(deviceId, versionCode);
 }
 
 void LifecycleDeal::NotifyContinuationResult(int32_t result)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->NotifyContinuationResult(result);
@@ -170,7 +171,7 @@ void LifecycleDeal::NotifyContinuationResult(int32_t result)
 
 void LifecycleDeal::ShareData(const int32_t &uniqueId)
 {
-    HILOG_DEBUG("uniqueId is %{public}d.", uniqueId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "uniqueId is %{public}d.", uniqueId);
     auto abilityScheduler = GetScheduler();
     CHECK_POINTER(abilityScheduler);
     abilityScheduler->ScheduleShareData(uniqueId);
@@ -178,10 +179,10 @@ void LifecycleDeal::ShareData(const int32_t &uniqueId)
 
 bool LifecycleDeal::PrepareTerminateAbility()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     auto abilityScheduler = GetScheduler();
     if (abilityScheduler == nullptr) {
-        HILOG_ERROR("abilityScheduler is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityScheduler is nullptr.");
         return false;
     }
     return abilityScheduler->SchedulePrepareTerminateAbility();

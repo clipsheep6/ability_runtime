@@ -19,6 +19,7 @@
 #include "ability_manager_errors.h"
 #include "js_runtime.h"
 #include "js_startup_task_executor.h"
+#include "js_startup_task_result.h"
 #include "startup_task.h"
 
 namespace OHOS {
@@ -32,13 +33,12 @@ public:
 
     int32_t Init();
 
-    int32_t RunTaskInit() override;
+    int32_t RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback) override;
 
 private:
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> startupJsRef_;
     std::shared_ptr<NativeReference> contextJsRef_;
-    std::shared_ptr<JsStartupTaskExecutor> executor_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

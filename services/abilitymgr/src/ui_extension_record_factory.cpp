@@ -17,6 +17,7 @@
 #include "ui_extension_record.h"
 #include "ability_util.h"
 #include "extension_record_manager.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -33,10 +34,10 @@ bool UIExtensionRecordFactory::NeedReuse(const AAFwk::AbilityRequest &abilityReq
     int32_t uiExtensionAbilityId = abilityRequest.sessionInfo->want.GetIntParam(UIEXTENSION_ABILITY_ID,
         INVALID_EXTENSION_RECORD_ID);
     if (uiExtensionAbilityId == INVALID_EXTENSION_RECORD_ID) {
-        HILOG_DEBUG("UIEXTENSION_ABILITY_ID is not config, no reuse");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "UIEXTENSION_ABILITY_ID is not config, no reuse");
         return false;
     }
-    HILOG_INFO("UIExtensionAbility id: %{public}d.", uiExtensionAbilityId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "UIExtensionAbility id: %{public}d.", uiExtensionAbilityId);
     extensionRecordId = uiExtensionAbilityId;
     return ExtensionRecordFactory::NeedReuse(abilityRequest, extensionRecordId);
 }
@@ -52,7 +53,7 @@ int32_t UIExtensionRecordFactory::CreateRecord(
 {
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = AAFwk::AbilityRecord::CreateAbilityRecord(abilityRequest);
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("Failed to create ability record");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to create ability record");
         return ERR_NULL_OBJECT;
     }
     extensionRecord = std::make_shared<UIExtensionRecord>(abilityRecord);

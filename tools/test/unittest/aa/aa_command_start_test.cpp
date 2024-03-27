@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "ability_manager_client.h"
 #undef private
 #include "ability_manager_interface.h"
+#include "hilog_tag_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -109,7 +110,7 @@ void AaCommandStartTest::MakeMockObjects() const
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0100");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0100");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -129,7 +130,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0100, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0200");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0200");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -150,7 +151,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0200, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0300");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0300");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -171,7 +172,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0300, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0400");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0400");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -192,7 +193,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0400, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0500");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0500");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -213,7 +214,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0500, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0600");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0600");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -234,7 +235,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0600, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0700");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0700");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -255,7 +256,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0700, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0800");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0800");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -276,7 +277,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0800, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_0900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_0900");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_0900");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -297,7 +298,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_0900, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1000");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1000");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -319,7 +320,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1000, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1100");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1100");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -342,7 +343,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1100, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1200");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1200");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -366,7 +367,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1200, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1300");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1300");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -389,7 +390,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1300, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1400");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1400");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -413,7 +414,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1400, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1500");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1500");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -438,7 +439,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1500, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1600");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1600");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -464,7 +465,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1600, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1700");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1700");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -485,7 +486,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1700, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1800");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1800");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -508,7 +509,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1800, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_1900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_1900");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_1900");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -532,7 +533,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_1900, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2000");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2000");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -557,7 +558,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2000, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2100");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2100");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -583,7 +584,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2100, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2200");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2200");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -611,7 +612,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2200, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2300");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2300");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -634,7 +635,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2300, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2400");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2400");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -659,7 +660,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2400, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2500");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2500");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -686,7 +687,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2500, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2600");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2600");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -713,7 +714,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2600, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2700");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2700");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -742,7 +743,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2700, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2800");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2800");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -773,7 +774,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2800, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_2900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_2900");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_2900");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -804,7 +805,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_2900, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3000");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3000");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -835,7 +836,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3000, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3100");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3100");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -865,7 +866,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3100, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3200");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3200");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -889,7 +890,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3200, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3300");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3300");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -915,7 +916,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3300, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3500");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3500");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -939,7 +940,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3500, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3600");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3600");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -970,7 +971,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3600, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3700");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3700");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -1001,7 +1002,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3700, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3800");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3800");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -1033,7 +1034,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3800, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_3900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_3900");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_3900");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -1065,7 +1066,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_3900, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_4000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_4000");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_4000");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),
@@ -1096,7 +1097,7 @@ HWTEST_F(AaCommandStartTest, Aa_Command_Start_4000, Function | MediumTest | Leve
  */
 HWTEST_F(AaCommandStartTest, Aa_Command_Start_4100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_Start_4100");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_Start_4100");
 
     char* argv[] = {
         (char*)TOOL_NAME.c_str(),

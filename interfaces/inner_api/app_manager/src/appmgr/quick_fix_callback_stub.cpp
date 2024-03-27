@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "quick_fix_callback_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -35,7 +36,7 @@ int QuickFixCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != IQuickFixCallback::GetDescriptor()) {
-        HILOG_ERROR("local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -47,7 +48,7 @@ int QuickFixCallbackStub::OnRemoteRequest(
         }
     }
 
-    HILOG_WARN("default case, need check value of code!");
+    TAG_LOGW(AAFwkTag::APPMGR, "default case, need check value of code!");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

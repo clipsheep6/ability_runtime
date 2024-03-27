@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "user_callback_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -37,32 +38,32 @@ void UserCallbackProxy::SendRequestCommon(int userId, int errcode, IUserCallback
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_INFO("UserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d",
-        cmd, userId, errcode);
+    TAG_LOGI(AAFwkTag::ABILITYMGR,
+        "UserCallbackProxy, sendrequest, cmd:%{public}d, userId:%{public}d, errcode:%{public}d", cmd, userId, errcode);
     if (!data.WriteInterfaceToken(IUserCallback::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("Write userId error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write userId error.");
         return;
     }
 
     if (!data.WriteInt32(errcode)) {
-        HILOG_ERROR("Write errcode error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write errcode error.");
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return;
     }
 
     int error = remote->SendRequest(cmd, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest fail, error: %{public}d", error);
         return;
     }
 }

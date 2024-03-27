@@ -13,15 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
-#define OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
-
-#include "ability_manager_errors.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class StartupTaskExecutor {
-};
+StartupTaskResult::StartupTaskResult() = default;
+
+StartupTaskResult::~StartupTaskResult() = default;
+
+StartupTaskResult::StartupTaskResult(int32_t resultCode, const std::string &resultMessage)
+    : resultCode_(resultCode), resultMessage_(resultMessage)
+{}
+
+int32_t StartupTaskResult::GetResultCode() const
+{
+    return resultCode_;
+}
+
+std::string StartupTaskResult::GetResultMessage() const
+{
+    return resultMessage_;
+}
+
+StartupTaskResult::ResultType StartupTaskResult::GetResultType() const
+{
+    return ResultType::INVALID;
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H

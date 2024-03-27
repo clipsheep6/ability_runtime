@@ -13,9 +13,24 @@
  * limitations under the License.
  */
 
-#include "startup_task_executor.h"
+#ifndef OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H
+#define OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H
+
+#include "parcel.h"
 
 namespace OHOS {
-namespace AbilityRuntime {
-} // namespace AbilityRuntime
+namespace AppExecFwk {
+struct RenderStateData : public Parcelable {
+    bool ReadFromParcel(Parcel &parcel);
+    virtual bool Marshalling(Parcel &parcel) const override;
+    static RenderStateData *Unmarshalling(Parcel &parcel);
+
+    int32_t pid = 0;
+    int32_t uid = 0;
+    int32_t hostPid = -1;
+    int32_t hostUid = -1;
+    int32_t state = 0;
+};
+} // namespace AppExecFwk
 } // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_RENDER_STATE_DATA_H

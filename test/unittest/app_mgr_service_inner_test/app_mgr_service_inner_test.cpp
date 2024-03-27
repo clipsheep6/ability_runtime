@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 #include "app_scheduler.h"
 #include "appspawn_util.h"
 #include "event_handler.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "mock_ability_token.h"
@@ -67,7 +68,7 @@ class RenderStateObserverMock : public RenderStateObserverStub {
 public:
     RenderStateObserverMock() = default;
     virtual ~RenderStateObserverMock() = default;
-    void OnRenderStateChanged(pid_t renderPid, int32_t state) override
+    void OnRenderStateChanged(const RenderStateData &renderStateData) override
     {}
 };
 
@@ -120,7 +121,7 @@ void AppMgrServiceInnerTest::TearDown()
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0100, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceCallback_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0100 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -134,7 +135,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0100, TestSize.Level1)
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceCallback_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0100 end");
 }
 
 /**
@@ -144,7 +145,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0100, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0200, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceCallback_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0200 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -158,7 +159,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0200, TestSize.Level1)
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceCallback_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0200 end");
 }
 
 /**
@@ -168,7 +169,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0200, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0300, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceCallback_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0300 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -182,7 +183,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0300, TestSize.Level1)
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceCallback_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0300 end");
 }
 
 /**
@@ -192,7 +193,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0300, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0400, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceCallback_0400 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0400 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -206,7 +207,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0400, TestSize.Level1)
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceCallback_0400 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceCallback_0400 end");
 }
 
 /**
@@ -216,7 +217,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceCallback_0400, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceWatchParameter_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceWatchParameter_0100 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -233,7 +234,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Leve
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceWatchParameter_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceWatchParameter_0100 end");
 }
 
 /**
@@ -243,7 +244,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0100, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0200, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceWatchParameter_0200 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceWatchParameter_0200 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -260,7 +261,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0200, TestSize.Leve
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceWatchParameter_0200 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceWatchParameter_0200 end");
 }
 
 /**
@@ -270,7 +271,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0200, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0300, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceWatchParameter_0300 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceWatchParameter_0300 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -287,7 +288,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0300, TestSize.Leve
     config = appMgrServiceInner->GetConfiguration();
     EXPECT_NE(config, nullptr);
 
-    HILOG_INFO("PointerDeviceWatchParameter_0300 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceWatchParameter_0300 end");
 }
 
 /**
@@ -298,7 +299,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceWatchParameter_0300, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1)
 {
-    HILOG_INFO("PointerDeviceUpdateConfig_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceUpdateConfig_0100 start");
 
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
@@ -336,7 +337,7 @@ HWTEST_F(AppMgrServiceInnerTest, PointerDeviceUpdateConfig_0100, TestSize.Level1
         EXPECT_EQ(value, "true");
     }
 
-    HILOG_INFO("PointerDeviceUpdateConfig_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "PointerDeviceUpdateConfig_0100 end");
 }
 
 /**
@@ -379,25 +380,25 @@ HWTEST_F(AppMgrServiceInnerTest, PreStartNWebSpawnProcess_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, LoadAbility_001, TestSize.Level0)
 {
-    HILOG_INFO("LoadAbility_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "LoadAbility_001 start");
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
-    appMgrServiceInner->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
+    appMgrServiceInner->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr, 0);
 
     auto appMgrServiceInner1 = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner1, nullptr);
 
     appMgrServiceInner1->remoteClientManager_->SetBundleManagerHelper(nullptr);
-    appMgrServiceInner1->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
+    appMgrServiceInner1->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr, 0);
 
     auto appMgrServiceInner2 = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner2, nullptr);
 
-    appMgrServiceInner2->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr);
-    HILOG_INFO("LoadAbility_001 end");
+    appMgrServiceInner2->LoadAbility(token, nullptr, abilityInfo_, applicationInfo_, nullptr, 0);
+    TAG_LOGI(AAFwkTag::TEST, "LoadAbility_001 end");
 }
 
 /**
@@ -408,7 +409,7 @@ HWTEST_F(AppMgrServiceInnerTest, LoadAbility_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, CheckLoadAbilityConditions_001, TestSize.Level0)
 {
-    HILOG_INFO("CheckLoadAbilityConditions_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "CheckLoadAbilityConditions_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -431,7 +432,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckLoadAbilityConditions_001, TestSize.Level0
     appMgrServiceInner->CheckLoadAbilityConditions(token, abilityInfo_, applicationInfo_);
 
     EXPECT_NE(appMgrServiceInner, nullptr);
-    HILOG_INFO("CheckLoadAbilityConditions_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "CheckLoadAbilityConditions_001 end");
 }
 
 /**
@@ -442,7 +443,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckLoadAbilityConditions_001, TestSize.Level0
  */
 HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_001, TestSize.Level0)
 {
-    HILOG_INFO("MakeProcessName_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -455,7 +456,7 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_001, TestSize.Level0)
     appMgrServiceInner->MakeProcessName(abilityInfo_, applicationInfo_, hapModuleInfo, 1, processName);
 
     EXPECT_NE(appMgrServiceInner, nullptr);
-    HILOG_INFO("MakeProcessName_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_001 end");
 }
 
 /**
@@ -466,7 +467,7 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_002, TestSize.Level0)
 {
-    HILOG_INFO("MakeProcessName_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -500,7 +501,7 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_002, TestSize.Level0)
     appMgrServiceInner->MakeProcessName(applicationInfo_, hapModuleInfo, processName);
 
     EXPECT_NE(appMgrServiceInner, nullptr);
-    HILOG_INFO("MakeProcessName_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "MakeProcessName_002 end");
 }
 
 /**
@@ -511,7 +512,7 @@ HWTEST_F(AppMgrServiceInnerTest, MakeProcessName_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetBundleAndHapInfo_001, TestSize.Level0)
 {
-    HILOG_INFO("GetBundleAndHapInfo_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetBundleAndHapInfo_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -521,7 +522,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleAndHapInfo_001, TestSize.Level0)
 
     appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
     appMgrServiceInner->GetBundleAndHapInfo(*abilityInfo_, applicationInfo_, bundleInfo, hapModuleInfo, 1);
-    HILOG_INFO("GetBundleAndHapInfo_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetBundleAndHapInfo_001 end");
 }
 
 /**
@@ -532,7 +533,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleAndHapInfo_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, AttachApplication_001, TestSize.Level0)
 {
-    HILOG_INFO("AttachApplication_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AttachApplication_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -543,7 +544,7 @@ HWTEST_F(AppMgrServiceInnerTest, AttachApplication_001, TestSize.Level0)
     sptr<MockAppScheduler> mockAppScheduler = new (std::nothrow) MockAppScheduler();
     sptr<IAppScheduler> client = iface_cast<IAppScheduler>(mockAppScheduler.GetRefPtr());
     appMgrServiceInner->AttachApplication(1, client);
-    HILOG_INFO("AttachApplication_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AttachApplication_001 end");
 }
 
 /**
@@ -554,7 +555,7 @@ HWTEST_F(AppMgrServiceInnerTest, AttachApplication_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
 {
-    HILOG_INFO("LaunchApplication_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "LaunchApplication_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -594,7 +595,7 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
 
     appMgrServiceInner->configuration_ = nullptr;
     appMgrServiceInner->LaunchApplication(appRecord);
-    HILOG_INFO("LaunchApplication_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "LaunchApplication_001 end");
 }
 
 /**
@@ -605,7 +606,7 @@ HWTEST_F(AppMgrServiceInnerTest, LaunchApplication_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, AddAbilityStageDone_001, TestSize.Level0)
 {
-    HILOG_INFO("AddAbilityStageDone_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AddAbilityStageDone_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -617,7 +618,7 @@ HWTEST_F(AppMgrServiceInnerTest, AddAbilityStageDone_001, TestSize.Level0)
     recordId_ += 1;
 
     appMgrServiceInner->AddAbilityStageDone(recordId_);
-    HILOG_INFO("AddAbilityStageDone_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AddAbilityStageDone_001 end");
 }
 
 /**
@@ -628,7 +629,7 @@ HWTEST_F(AppMgrServiceInnerTest, AddAbilityStageDone_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_001, TestSize.Level0)
 {
-    HILOG_INFO("ApplicationForegrounded_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationForegrounded_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -640,7 +641,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_001, TestSize.Level0)
     recordId_ += 1;
 
     appMgrServiceInner->ApplicationForegrounded(recordId_);
-    HILOG_INFO("ApplicationForegrounded_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationForegrounded_001 end");
 }
 
 /**
@@ -651,7 +652,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
 {
-    HILOG_INFO("ApplicationForegrounded_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationForegrounded_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -662,7 +663,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
     recordId_ += 1;
 
     appMgrServiceInner->ApplicationForegrounded(recordId_);
-    HILOG_INFO("ApplicationForegrounded_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationForegrounded_002 end");
 }
 
 /**
@@ -673,7 +674,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
 {
-    HILOG_INFO("ApplicationForegrounded_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationForegrounded_003 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -692,7 +693,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
     record->SetCallerPid(1);
 
     appMgrServiceInner->ApplicationForegrounded(--recordId_);
-    HILOG_INFO("ApplicationForegrounded_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationForegrounded_003 end");
 }
 
 /**
@@ -703,7 +704,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationForegrounded_003, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ApplicationBackgrounded_001, TestSize.Level0)
 {
-    HILOG_INFO("ApplicationBackgrounded_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationBackgrounded_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     appMgrServiceInner->Init();
@@ -722,7 +723,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationBackgrounded_001, TestSize.Level0)
     appRecord->SetState(ApplicationState::APP_STATE_FOREGROUND);
     appMgrServiceInner->ApplicationBackgrounded(recordId_);
 
-    HILOG_INFO("ApplicationBackgrounded_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationBackgrounded_001 end");
 }
 
 /**
@@ -733,7 +734,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationBackgrounded_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ApplicationTerminated_001, TestSize.Level0)
 {
-    HILOG_INFO("ApplicationTerminated_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationTerminated_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -769,7 +770,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationTerminated_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->ApplicationTerminated(recordId_);
 
-    HILOG_INFO("ApplicationTerminated_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ApplicationTerminated_001 end");
 }
 
 /**
@@ -780,7 +781,7 @@ HWTEST_F(AppMgrServiceInnerTest, ApplicationTerminated_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillApplication_001, TestSize.Level0)
 {
-    HILOG_INFO("KillApplication_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplication_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -790,7 +791,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplication_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->KillApplication(bundleName);
 
-    HILOG_INFO("KillApplication_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplication_001 end");
 }
 
 /**
@@ -801,7 +802,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplication_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUid_001, TestSize.Level0)
 {
-    HILOG_INFO("KillApplicationByUid_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -817,7 +818,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUid_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->KillApplicationByUid(bundleName, 0);
 
-    HILOG_INFO("KillApplicationByUid_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUid_001 end");
 }
 
 /**
@@ -828,7 +829,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUid_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
 {
-    HILOG_INFO("KillApplicationSelf_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationSelf_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -837,7 +838,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     EXPECT_EQ(appMgrServiceInner->KillApplicationSelf(), ERR_NO_INIT);
 
-    HILOG_INFO("KillApplicationSelf_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationSelf_001 end");
 }
 
 /**
@@ -848,7 +849,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationSelf_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
 {
-    HILOG_INFO("KillApplicationByUserId_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUserId_001 start");
     AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -869,7 +870,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
     appMgrServiceInner->KillApplicationByUserId(bundleName, 0);
     EXPECT_EQ(result, 0);
 
-    HILOG_INFO("KillApplicationByUserId_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUserId_001 end");
 }
 
 /**
@@ -880,7 +881,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserId_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserIdLocked_001, TestSize.Level0)
 {
-    HILOG_INFO("KillApplicationByUserIdLocked_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUserIdLocked_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -900,7 +901,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserIdLocked_001, TestSize.Lev
     appMgrServiceInner->KillApplicationByUserIdLocked(bundleName, 0);
     EXPECT_EQ(result, 0);
 
-    HILOG_INFO("KillApplicationByUserIdLocked_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByUserIdLocked_001 end");
 }
 
 /**
@@ -911,14 +912,14 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByUserIdLocked_001, TestSize.Lev
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationData_001, TestSize.Level0)
 {
-    HILOG_INFO("ClearUpApplicationData_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearUpApplicationData_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::string bundleName = "test_bundleName";
     appMgrServiceInner->ClearUpApplicationData(bundleName, 0, 0);
 
-    HILOG_INFO("ClearUpApplicationData_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearUpApplicationData_001 end");
 }
 
 /**
@@ -929,7 +930,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationData_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationDataByUserId_001, TestSize.Level0)
 {
-    HILOG_INFO("ClearUpApplicationDataByUserId_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearUpApplicationDataByUserId_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -944,7 +945,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationDataByUserId_001, TestSize.Le
     appMgrServiceInner->remoteClientManager_->SetBundleManagerHelper(nullptr);
     appMgrServiceInner->ClearUpApplicationDataByUserId(bundleName, 1, 1, 0);
 
-    HILOG_INFO("ClearUpApplicationDataByUserId_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearUpApplicationDataByUserId_001 end");
 }
 
 /**
@@ -955,14 +956,14 @@ HWTEST_F(AppMgrServiceInnerTest, ClearUpApplicationDataByUserId_001, TestSize.Le
  */
 HWTEST_F(AppMgrServiceInnerTest, GetAllRunningProcesses_001, TestSize.Level0)
 {
-    HILOG_INFO("GetAllRunningProcesses_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAllRunningProcesses_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::vector<RunningProcessInfo> info;
     appMgrServiceInner->GetAllRunningProcesses(info);
 
-    HILOG_INFO("GetAllRunningProcesses_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAllRunningProcesses_001 end");
 }
 
 /**
@@ -973,14 +974,14 @@ HWTEST_F(AppMgrServiceInnerTest, GetAllRunningProcesses_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetProcessRunningInfosByUserId_001, TestSize.Level0)
 {
-    HILOG_INFO("GetProcessRunningInfosByUserId_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetProcessRunningInfosByUserId_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::vector<RunningProcessInfo> info;
     appMgrServiceInner->GetProcessRunningInfosByUserId(info, 0);
 
-    HILOG_INFO("GetProcessRunningInfosByUserId_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetProcessRunningInfosByUserId_001 end");
 }
 
 /**
@@ -1005,7 +1006,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAllRenderProcesses_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyMemoryLevel_001, TestSize.Level0)
 {
-    HILOG_INFO("NotifyMemoryLevel_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyMemoryLevel_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1026,7 +1027,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyMemoryLevel_001, TestSize.Level0)
     result = appMgrServiceInner->NotifyMemoryLevel(3);
     EXPECT_EQ(result, ERR_INVALID_VALUE);
 
-    HILOG_INFO("NotifyMemoryLevel_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyMemoryLevel_001 end");
 }
 
 /**
@@ -1037,7 +1038,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyMemoryLevel_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
 {
-    HILOG_INFO("KillProcessByPid_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessByPid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1047,7 +1048,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
     result = appMgrServiceInner->KillProcessByPid(1, "KillProcessByPid_001");
     EXPECT_EQ(result, 0);
 
-    HILOG_INFO("KillProcessByPid_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessByPid_001 end");
 }
 
 /**
@@ -1058,7 +1059,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
 {
-    HILOG_INFO("KillProcessByPid_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessByPid_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int pid = 0;
@@ -1074,7 +1075,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
     int result = appMgrServiceInner->KillProcessByPid(pid, "KillProcessByPid_002");
     EXPECT_EQ(result, -1);
 
-    HILOG_INFO("KillProcessByPid_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessByPid_002 end");
 }
 
 /**
@@ -1085,7 +1086,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetAllPids_001, TestSize.Level0)
 {
-    HILOG_INFO("GetAllPids_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAllPids_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1103,7 +1104,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAllPids_001, TestSize.Level0)
     result = appMgrServiceInner->GetAllPids(pids);
     EXPECT_TRUE(result);
 
-    HILOG_INFO("GetAllPids_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAllPids_001 end");
 }
 
 /**
@@ -1114,7 +1115,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAllPids_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ProcessExist_001, TestSize.Level0)
 {
-    HILOG_INFO("ProcessExist_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ProcessExist_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1122,7 +1123,7 @@ HWTEST_F(AppMgrServiceInnerTest, ProcessExist_001, TestSize.Level0)
     bool result = appMgrServiceInner->ProcessExist(pid);
     EXPECT_FALSE(result);
 
-    HILOG_INFO("ProcessExist_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ProcessExist_001 end");
 }
 
 /**
@@ -1133,7 +1134,7 @@ HWTEST_F(AppMgrServiceInnerTest, ProcessExist_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, CreateAppRunningRecord_001, TestSize.Level0)
 {
-    HILOG_INFO("CreateAppRunningRecord_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "CreateAppRunningRecord_001 start");
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -1144,59 +1145,59 @@ HWTEST_F(AppMgrServiceInnerTest, CreateAppRunningRecord_001, TestSize.Level0)
     std::string processName = "test_processName";
 
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(nullptr, nullptr,
-        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr);
+        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr);
+        nullptr, nullptr, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, nullptr, "", bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, nullptr, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, "", bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, "", bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_EQ(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_NE(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_NE(appRecord, nullptr);
 
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, nullptr, 0);
     EXPECT_NE(appRecord, nullptr);
 
     std::shared_ptr<AppRunningRecord> appRecord1 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        nullptr, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        nullptr, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_EQ(appRecord1, nullptr);
 
     std::shared_ptr<AppRunningRecord> appRecord2 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord2, nullptr);
 
     want = std::make_shared<Want>();
     const std::string COLD_START = "coldStart";
     want->SetParam(COLD_START, true);
     std::shared_ptr<AppRunningRecord> appRecord3 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord3, nullptr);
 
     want->SetParam(COLD_START, false);
     std::shared_ptr<AppRunningRecord> appRecord4 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord4, nullptr);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     std::shared_ptr<AppRunningRecord> appRecord5 = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_EQ(appRecord5, nullptr);
 
-    HILOG_INFO("CreateAppRunningRecord_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "CreateAppRunningRecord_001 end");
 }
 
 /**
@@ -1207,7 +1208,7 @@ HWTEST_F(AppMgrServiceInnerTest, CreateAppRunningRecord_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, TerminateAbility_001, TestSize.Level0)
 {
-    HILOG_INFO("TerminateAbility_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "TerminateAbility_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1221,7 +1222,7 @@ HWTEST_F(AppMgrServiceInnerTest, TerminateAbility_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->TerminateAbility(token, true);
 
-    HILOG_INFO("TerminateAbility_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "TerminateAbility_001 end");
 }
 
 /**
@@ -1232,7 +1233,7 @@ HWTEST_F(AppMgrServiceInnerTest, TerminateAbility_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
 {
-    HILOG_INFO("UpdateAbilityState_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityState_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1246,13 +1247,13 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, nullptr, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, nullptr, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
 
     OHOS::sptr<IRemoteObject> token1 = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     std::shared_ptr<AppRunningRecord> appRecord1 = appMgrServiceInner->CreateAppRunningRecord(token1, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord1, nullptr);
 
     appMgrServiceInner->UpdateAbilityState(token1, AbilityState::ABILITY_STATE_READY);
@@ -1278,7 +1279,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
     OHOS::sptr<IRemoteObject> token2 = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     abilityInfo_->type = AbilityType::SERVICE;
     std::shared_ptr<AppRunningRecord> appRecord2 = appMgrServiceInner->CreateAppRunningRecord(token2, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord2, nullptr);
     appMgrServiceInner->UpdateAbilityState(token2, AbilityState::ABILITY_STATE_CREATE);
 
@@ -1299,7 +1300,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
     abilityRecord2->SetState(AbilityState::ABILITY_STATE_BACKGROUND);
     appMgrServiceInner->UpdateAbilityState(token2, AbilityState::ABILITY_STATE_BACKGROUND);
 
-    HILOG_INFO("UpdateAbilityState_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateAbilityState_001 end");
 }
 
 /**
@@ -1310,7 +1311,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateAbilityState_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, UpdateExtensionState_001, TestSize.Level0)
 {
-    HILOG_INFO("UpdateExtensionState_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateExtensionState_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1324,11 +1325,11 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateExtensionState_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->UpdateExtensionState(token, ExtensionState::EXTENSION_STATE_CREATE);
 
-    HILOG_INFO("UpdateExtensionState_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateExtensionState_001 end");
 }
 
 /**
@@ -1339,7 +1340,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateExtensionState_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, OpenAppSpawnConnection_001, TestSize.Level0)
 {
-    HILOG_INFO("OpenAppSpawnConnection_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "OpenAppSpawnConnection_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1351,7 +1352,7 @@ HWTEST_F(AppMgrServiceInnerTest, OpenAppSpawnConnection_001, TestSize.Level0)
     auto errorCode1 = appMgrServiceInner->OpenAppSpawnConnection();
     EXPECT_EQ(errorCode1, ERR_INVALID_VALUE);
 
-    HILOG_INFO("OpenAppSpawnConnection_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "OpenAppSpawnConnection_001 end");
 }
 
 /**
@@ -1362,7 +1363,7 @@ HWTEST_F(AppMgrServiceInnerTest, OpenAppSpawnConnection_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, CloseAppSpawnConnection_001, TestSize.Level0)
 {
-    HILOG_INFO("CloseAppSpawnConnection_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "CloseAppSpawnConnection_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1371,7 +1372,7 @@ HWTEST_F(AppMgrServiceInnerTest, CloseAppSpawnConnection_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->CloseAppSpawnConnection();
 
-    HILOG_INFO("CloseAppSpawnConnection_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "CloseAppSpawnConnection_001 end");
 }
 
 /**
@@ -1382,7 +1383,7 @@ HWTEST_F(AppMgrServiceInnerTest, CloseAppSpawnConnection_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, QueryAppSpawnConnectionState_001, TestSize.Level0)
 {
-    HILOG_INFO("QueryAppSpawnConnectionState_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "QueryAppSpawnConnectionState_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1398,7 +1399,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryAppSpawnConnectionState_001, TestSize.Leve
     connectionState = appMgrServiceInner->QueryAppSpawnConnectionState();
     EXPECT_EQ(connectionState, SpawnConnectionState::STATE_NOT_CONNECT);
 
-    HILOG_INFO("QueryAppSpawnConnectionState_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "QueryAppSpawnConnectionState_001 end");
 }
 
 /**
@@ -1409,7 +1410,7 @@ HWTEST_F(AppMgrServiceInnerTest, QueryAppSpawnConnectionState_001, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, SetAppSpawnClient_001, TestSize.Level0)
 {
-    HILOG_INFO("SetAppSpawnClient_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SetAppSpawnClient_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1419,7 +1420,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetAppSpawnClient_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->SetAppSpawnClient(spawnClient);
 
-    HILOG_INFO("SetAppSpawnClient_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SetAppSpawnClient_001 end");
 }
 
 /**
@@ -1430,7 +1431,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetAppSpawnClient_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, SetBundleManager_001, TestSize.Level0)
 {
-    HILOG_INFO("SetBundleManager_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SetBundleManager_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1440,7 +1441,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetBundleManager_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->SetBundleManagerHelper(bundleManager);
 
-    HILOG_INFO("SetBundleManager_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SetBundleManager_001 end");
 }
 
 /**
@@ -1451,7 +1452,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetBundleManager_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterAppStateCallback_001, TestSize.Level0)
 {
-    HILOG_INFO("RegisterAppStateCallback_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterAppStateCallback_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1460,7 +1461,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterAppStateCallback_001, TestSize.Level0)
     sptr<IAppStateCallback> callback;
     appMgrServiceInner->RegisterAppStateCallback(callback);
 
-    HILOG_INFO("RegisterAppStateCallback_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterAppStateCallback_001 end");
 }
 
 /**
@@ -1471,7 +1472,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterAppStateCallback_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, AbilityBehaviorAnalysis_001, TestSize.Level0)
 {
-    HILOG_INFO("AbilityBehaviorAnalysis_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityBehaviorAnalysis_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1485,14 +1486,14 @@ HWTEST_F(AppMgrServiceInnerTest, AbilityBehaviorAnalysis_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->AbilityBehaviorAnalysis(token, nullptr, 0, 0, 0);
 
     OHOS::sptr<IRemoteObject> preToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     appMgrServiceInner->AbilityBehaviorAnalysis(token, preToken, 0, 0, 0);
 
-    HILOG_INFO("AbilityBehaviorAnalysis_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityBehaviorAnalysis_001 end");
 }
 
 /**
@@ -1503,7 +1504,7 @@ HWTEST_F(AppMgrServiceInnerTest, AbilityBehaviorAnalysis_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillProcessByAbilityToken_001, TestSize.Level0)
 {
-    HILOG_INFO("KillProcessByAbilityToken_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessByAbilityToken_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1517,14 +1518,14 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByAbilityToken_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
     appRecord->SetKeepAliveAppState(true, true);
     appMgrServiceInner->KillProcessByAbilityToken(token);
 
-    HILOG_INFO("KillProcessByAbilityToken_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessByAbilityToken_001 end");
 }
 
 /**
@@ -1535,7 +1536,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByAbilityToken_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillProcessesByUserId_001, TestSize.Level0)
 {
-    HILOG_INFO("KillProcessesByUserId_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessesByUserId_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1544,7 +1545,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessesByUserId_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->KillProcessesByUserId(0);
 
-    HILOG_INFO("KillProcessesByUserId_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillProcessesByUserId_001 end");
 }
 
 /**
@@ -1555,36 +1556,36 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessesByUserId_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartAbility_001, TestSize.Level0)
 {
-    HILOG_INFO("StartAbility_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbility_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     HapModuleInfo hapModuleInfo;
     std::shared_ptr<AAFwk::Want> want;
     std::shared_ptr<AppRunningRecord> appRecord;
-    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, nullptr, hapModuleInfo, nullptr);
-    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, nullptr);
-    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, nullptr, hapModuleInfo, nullptr, 0);
+    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, nullptr, 0);
+    appMgrServiceInner->StartAbility(nullptr, nullptr, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     OHOS::sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
     OHOS::sptr<IRemoteObject> preToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
-    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want);
-    appMgrServiceInner->StartAbility(nullptr, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
-    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want, 0);
+    appMgrServiceInner->StartAbility(nullptr, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
+    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     BundleInfo bundleInfo;
     std::string processName = "test_processName";
     appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
-    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want);
-    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(token, nullptr, abilityInfo_, appRecord, hapModuleInfo, want, 0);
+    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
     abilityInfo_->applicationInfo.name = "hiservcie";
     abilityInfo_->applicationInfo.bundleName = "com.ix.hiservcie";
-    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want);
+    appMgrServiceInner->StartAbility(token, preToken, abilityInfo_, appRecord, hapModuleInfo, want, 0);
 
-    HILOG_INFO("StartAbility_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartAbility_001 end");
 }
 
 /**
@@ -1595,7 +1596,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartAbility_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetAppRunningRecordByAbilityToken_001, TestSize.Level0)
 {
-    HILOG_INFO("GetAppRunningRecordByAbilityToken_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAppRunningRecordByAbilityToken_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1605,7 +1606,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAppRunningRecordByAbilityToken_001, TestSize
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->GetAppRunningRecordByAbilityToken(token);
 
-    HILOG_INFO("GetAppRunningRecordByAbilityToken_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAppRunningRecordByAbilityToken_001 end");
 }
 
 /**
@@ -1616,7 +1617,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAppRunningRecordByAbilityToken_001, TestSize
  */
 HWTEST_F(AppMgrServiceInnerTest, AbilityTerminated_001, TestSize.Level0)
 {
-    HILOG_INFO("AbilityTerminated_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityTerminated_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1630,11 +1631,11 @@ HWTEST_F(AppMgrServiceInnerTest, AbilityTerminated_001, TestSize.Level0)
     std::shared_ptr<AAFwk::Want> want;
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     appMgrServiceInner->AbilityTerminated(token);
 
-    HILOG_INFO("AbilityTerminated_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityTerminated_001 end");
 }
 
 /**
@@ -1645,7 +1646,7 @@ HWTEST_F(AppMgrServiceInnerTest, AbilityTerminated_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetAppRunningRecordByAppRecordId_001, TestSize.Level0)
 {
-    HILOG_INFO("GetAppRunningRecordByAppRecordId_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAppRunningRecordByAppRecordId_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1654,7 +1655,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAppRunningRecordByAppRecordId_001, TestSize.
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->GetAppRunningRecordByAppRecordId(0);
 
-    HILOG_INFO("GetAppRunningRecordByAppRecordId_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAppRunningRecordByAppRecordId_001 end");
 }
 
 /**
@@ -1665,7 +1666,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAppRunningRecordByAppRecordId_001, TestSize.
  */
 HWTEST_F(AppMgrServiceInnerTest, OnAppStateChanged_001, TestSize.Level0)
 {
-    HILOG_INFO("OnAppStateChanged_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "OnAppStateChanged_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1689,7 +1690,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppStateChanged_001, TestSize.Level0)
     appMgrServiceInner->appStateCallbacks_.push_back(callback);
     appMgrServiceInner->OnAppStateChanged(appRecord, ApplicationState::APP_STATE_CREATE, true, false);
 
-    HILOG_INFO("OnAppStateChanged_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "OnAppStateChanged_001 end");
 }
 
 /**
@@ -1700,7 +1701,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAppStateChanged_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, OnAbilityStateChanged_001, TestSize.Level0)
 {
-    HILOG_INFO("OnAbilityStateChanged_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "OnAbilityStateChanged_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1708,7 +1709,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAbilityStateChanged_001, TestSize.Level0)
 
     sptr<IRemoteObject> token = new MockAbilityToken();
     std::shared_ptr<AbilityRunningRecord> abilityRunningRecord =
-        std::make_shared<AbilityRunningRecord>(abilityInfo_, token);
+        std::make_shared<AbilityRunningRecord>(abilityInfo_, token, 0);
     appMgrServiceInner->OnAbilityStateChanged(abilityRunningRecord, AbilityState::ABILITY_STATE_CREATE);
 
     sptr<MockAppStateCallback> mockCallback(new MockAppStateCallback());
@@ -1721,7 +1722,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAbilityStateChanged_001, TestSize.Level0)
     appMgrServiceInner->appStateCallbacks_.push_back(callback);
     appMgrServiceInner->OnAbilityStateChanged(abilityRunningRecord, AbilityState::ABILITY_STATE_CREATE);
 
-    HILOG_INFO("OnAbilityStateChanged_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "OnAbilityStateChanged_001 end");
 }
 
 /**
@@ -1732,7 +1733,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnAbilityStateChanged_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("StartProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1757,7 +1758,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
     appMgrServiceInner->StartProcess(appName, processName, 0, nullptr, 0, bundleInfo, bundleName, 0);
     appMgrServiceInner->StartProcess(appName, processName, 0, appRecord, 0, bundleInfo, bundleName, 0);
 
-    HILOG_INFO("StartProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartProcess_001 end");
 }
 
 /**
@@ -1768,7 +1769,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
 {
-    HILOG_INFO("RemoveAppFromRecentList_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RemoveAppFromRecentList_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1793,7 +1794,7 @@ HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
     appRecord->SetKeepAliveAppState(false, false);
     appMgrServiceInner->RemoveAppFromRecentList(appName1, processName1);
 
-    HILOG_INFO("RemoveAppFromRecentList_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RemoveAppFromRecentList_001 end");
 }
 
 /**
@@ -1804,7 +1805,7 @@ HWTEST_F(AppMgrServiceInnerTest, RemoveAppFromRecentList_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearRecentAppList_001, TestSize.Level0)
 {
-    HILOG_INFO("ClearRecentAppList_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearRecentAppList_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1812,7 +1813,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearRecentAppList_001, TestSize.Level0)
     std::list<const std::shared_ptr<AppTaskInfo>> list = appMgrServiceInner->GetRecentAppList();
     EXPECT_EQ(list.size(), 0);
 
-    HILOG_INFO("ClearRecentAppList_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearRecentAppList_001 end");
 }
 
 /**
@@ -1823,7 +1824,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearRecentAppList_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, OnRemoteDied_001, TestSize.Level0)
 {
-    HILOG_INFO("OnRemoteDied_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "OnRemoteDied_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1831,7 +1832,7 @@ HWTEST_F(AppMgrServiceInnerTest, OnRemoteDied_001, TestSize.Level0)
     appMgrServiceInner->OnRemoteDied(remoteObject, true);
     appMgrServiceInner->OnRemoteDied(remoteObject, false);
 
-    HILOG_INFO("OnRemoteDied_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "OnRemoteDied_001 end");
 }
 
 /**
@@ -1841,12 +1842,12 @@ HWTEST_F(AppMgrServiceInnerTest, OnRemoteDied_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_001, TestSize.Level0)
 {
-    HILOG_INFO("ClearAppRunningData_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->ClearAppRunningData(nullptr, true);
-    HILOG_INFO("ClearAppRunningData_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_001 end");
 }
 
 /**
@@ -1856,7 +1857,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_002, TestSize.Level0)
 {
-    HILOG_INFO("ClearAppRunningData_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     BundleInfo info;
@@ -1864,7 +1865,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_002, TestSize.Level0)
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     appMgrServiceInner->ClearAppRunningData(appRecord, true);
-    HILOG_INFO("ClearAppRunningData_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_002 end");
 }
 
 /**
@@ -1874,7 +1875,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_003, TestSize.Level0)
 {
-    HILOG_INFO("ClearAppRunningData_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_003 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     BundleInfo info;
@@ -1882,7 +1883,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_003, TestSize.Level0)
     std::shared_ptr<AppRunningRecord> appRecord =
         appMgrServiceInner->appRunningManager_->CreateAppRunningRecord(applicationInfo_, processName, info);
     appMgrServiceInner->ClearAppRunningData(appRecord, false);
-    HILOG_INFO("ClearAppRunningData_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_003 end");
 }
 
 /**
@@ -1892,12 +1893,12 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_003, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_004, TestSize.Level0)
 {
-    HILOG_INFO("ClearAppRunningData_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_004 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     appMgrServiceInner->ClearAppRunningData(nullptr, false);
-    HILOG_INFO("ClearAppRunningData_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "ClearAppRunningData_004 end");
 }
 
 /**
@@ -1908,7 +1909,7 @@ HWTEST_F(AppMgrServiceInnerTest, ClearAppRunningData_004, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleTimeOut_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleTimeOut_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleTimeOut_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1918,7 +1919,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleTimeOut_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->HandleTimeOut(innerEvent);
 
-    HILOG_INFO("HandleTimeOut_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleTimeOut_001 end");
 }
 
 /**
@@ -1929,7 +1930,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleTimeOut_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleAbilityAttachTimeOut_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleAbilityAttachTimeOut_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleAbilityAttachTimeOut_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1938,7 +1939,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleAbilityAttachTimeOut_001, TestSize.Level0
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->HandleAbilityAttachTimeOut(nullptr);
 
-    HILOG_INFO("HandleAbilityAttachTimeOut_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleAbilityAttachTimeOut_001 end");
 }
 
 /**
@@ -1949,7 +1950,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleAbilityAttachTimeOut_001, TestSize.Level0
  */
 HWTEST_F(AppMgrServiceInnerTest, PrepareTerminate_001, TestSize.Level0)
 {
-    HILOG_INFO("PrepareTerminate_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "PrepareTerminate_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1958,7 +1959,7 @@ HWTEST_F(AppMgrServiceInnerTest, PrepareTerminate_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->PrepareTerminate(nullptr);
 
-    HILOG_INFO("PrepareTerminate_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "PrepareTerminate_001 end");
 }
 
 /**
@@ -1969,7 +1970,7 @@ HWTEST_F(AppMgrServiceInnerTest, PrepareTerminate_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleTerminateApplicationTimeOut_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleTerminateApplicationTimeOut_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleTerminateApplicationTimeOut_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -1996,7 +1997,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleTerminateApplicationTimeOut_001, TestSize
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->HandleTerminateApplicationTimeOut(0);
 
-    HILOG_INFO("HandleTerminateApplicationTimeOut_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleTerminateApplicationTimeOut_001 end");
 }
 
 /**
@@ -2007,7 +2008,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleTerminateApplicationTimeOut_001, TestSize
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleAddAbilityStageTimeOut_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleAddAbilityStageTimeOut_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleAddAbilityStageTimeOut_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2034,7 +2035,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleAddAbilityStageTimeOut_001, TestSize.Leve
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->HandleAddAbilityStageTimeOut(0);
 
-    HILOG_INFO("HandleAddAbilityStageTimeOut_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleAddAbilityStageTimeOut_001 end");
 }
 
 /**
@@ -2045,7 +2046,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleAddAbilityStageTimeOut_001, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByToken_001, TestSize.Level0)
 {
-    HILOG_INFO("GetRunningProcessInfoByToken_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningProcessInfoByToken_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2055,7 +2056,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByToken_001, TestSize.Leve
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->GetRunningProcessInfoByToken(nullptr, info);
 
-    HILOG_INFO("GetRunningProcessInfoByToken_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningProcessInfoByToken_001 end");
 }
 
 /**
@@ -2066,7 +2067,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByToken_001, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByPid_001, TestSize.Level0)
 {
-    HILOG_INFO("GetRunningProcessInfoByPid_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningProcessInfoByPid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2076,7 +2077,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByPid_001, TestSize.Level0
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->GetRunningProcessInfoByPid(0, info);
 
-    HILOG_INFO("GetRunningProcessInfoByPid_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningProcessInfoByPid_001 end");
 }
 
 /**
@@ -2087,7 +2088,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInfoByPid_001, TestSize.Level0
  */
 HWTEST_F(AppMgrServiceInnerTest, CheckGetRunningInfoPermission_001, TestSize.Level0)
 {
-    HILOG_INFO("CheckGetRunningInfoPermission_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "CheckGetRunningInfoPermission_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2096,7 +2097,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckGetRunningInfoPermission_001, TestSize.Lev
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->CheckGetRunningInfoPermission();
 
-    HILOG_INFO("CheckGetRunningInfoPermission_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "CheckGetRunningInfoPermission_001 end");
 }
 
 /**
@@ -2107,14 +2108,14 @@ HWTEST_F(AppMgrServiceInnerTest, CheckGetRunningInfoPermission_001, TestSize.Lev
  */
 HWTEST_F(AppMgrServiceInnerTest, LoadResidentProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("LoadResidentProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "LoadResidentProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::vector<BundleInfo> infos;
     appMgrServiceInner->LoadResidentProcess(infos);
 
-    HILOG_INFO("LoadResidentProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "LoadResidentProcess_001 end");
 }
 
 /**
@@ -2125,7 +2126,7 @@ HWTEST_F(AppMgrServiceInnerTest, LoadResidentProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartResidentProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("StartResidentProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartResidentProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2147,7 +2148,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartResidentProcess_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->StartResidentProcess(infos, 0, true);
 
-    HILOG_INFO("StartResidentProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartResidentProcess_001 end");
 }
 
 /**
@@ -2158,7 +2159,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartResidentProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartEmptyResidentProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("StartEmptyResidentProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartEmptyResidentProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2177,7 +2178,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartEmptyResidentProcess_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->StartEmptyResidentProcess(info, processName, 0, true);
 
-    HILOG_INFO("StartEmptyResidentProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartEmptyResidentProcess_001 end");
 }
 
 /**
@@ -2188,7 +2189,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartEmptyResidentProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, CheckRemoteClient_001, TestSize.Level0)
 {
-    HILOG_INFO("CheckRemoteClient_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "CheckRemoteClient_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2203,7 +2204,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckRemoteClient_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->CheckRemoteClient();
 
-    HILOG_INFO("CheckRemoteClient_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "CheckRemoteClient_001 end");
 }
 
 /**
@@ -2214,7 +2215,7 @@ HWTEST_F(AppMgrServiceInnerTest, CheckRemoteClient_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, RestartResidentProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("RestartResidentProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RestartResidentProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2237,7 +2238,7 @@ HWTEST_F(AppMgrServiceInnerTest, RestartResidentProcess_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->RestartResidentProcess(appRecord);
 
-    HILOG_INFO("RestartResidentProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RestartResidentProcess_001 end");
 }
 
 /**
@@ -2248,7 +2249,7 @@ HWTEST_F(AppMgrServiceInnerTest, RestartResidentProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyAppStatusByCallerUid_001, TestSize.Level0)
 {
-    HILOG_INFO("NotifyAppStatusByCallerUid_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppStatusByCallerUid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2256,7 +2257,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppStatusByCallerUid_001, TestSize.Level0
     std::string eventData = "test_event_data";
     appMgrServiceInner->NotifyAppStatusByCallerUid(bundleName, 0, 0, eventData);
 
-    HILOG_INFO("NotifyAppStatusByCallerUid_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppStatusByCallerUid_001 end");
 }
 
 /**
@@ -2267,7 +2268,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppStatusByCallerUid_001, TestSize.Level0
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterApplicationStateObserver_001, TestSize.Level0)
 {
-    HILOG_INFO("RegisterApplicationStateObserver_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterApplicationStateObserver_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2275,7 +2276,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterApplicationStateObserver_001, TestSize.
     std::vector<std::string> bundleNameList;
     appMgrServiceInner->RegisterApplicationStateObserver(observer, bundleNameList);
 
-    HILOG_INFO("RegisterApplicationStateObserver_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterApplicationStateObserver_001 end");
 }
 
 /**
@@ -2286,14 +2287,14 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterApplicationStateObserver_001, TestSize.
  */
 HWTEST_F(AppMgrServiceInnerTest, UnregisterApplicationStateObserver_001, TestSize.Level0)
 {
-    HILOG_INFO("UnregisterApplicationStateObserver_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UnregisterApplicationStateObserver_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     sptr<IApplicationStateObserver> observer;
     appMgrServiceInner->UnregisterApplicationStateObserver(observer);
 
-    HILOG_INFO("UnregisterApplicationStateObserver_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UnregisterApplicationStateObserver_001 end");
 }
 
 /**
@@ -2304,14 +2305,14 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterApplicationStateObserver_001, TestSiz
  */
 HWTEST_F(AppMgrServiceInnerTest, GetForegroundApplications_001, TestSize.Level0)
 {
-    HILOG_INFO("GetForegroundApplications_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetForegroundApplications_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::vector<AppStateData> list;
     appMgrServiceInner->GetForegroundApplications(list);
 
-    HILOG_INFO("GetForegroundApplications_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetForegroundApplications_001 end");
 }
 
 /**
@@ -2322,7 +2323,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetForegroundApplications_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartUserTestProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("StartUserTestProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartUserTestProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2350,7 +2351,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartUserTestProcess_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->StartUserTestProcess(want, observer, bundleInfo, 0);
 
-    HILOG_INFO("StartUserTestProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartUserTestProcess_001 end");
 }
 
 /**
@@ -2361,7 +2362,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartUserTestProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetHapModuleInfoForTestRunner_001, TestSize.Level0)
 {
-    HILOG_INFO("GetHapModuleInfoForTestRunner_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetHapModuleInfoForTestRunner_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2388,7 +2389,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetHapModuleInfoForTestRunner_001, TestSize.Lev
     want.SetParam("-m", moduleName);
     appMgrServiceInner->GetHapModuleInfoForTestRunner(want, observer, bundleInfo, hapModuleInfo);
 
-    HILOG_INFO("GetHapModuleInfoForTestRunner_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetHapModuleInfoForTestRunner_001 end");
 }
 
 /**
@@ -2399,7 +2400,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetHapModuleInfoForTestRunner_001, TestSize.Lev
  */
 HWTEST_F(AppMgrServiceInnerTest, UserTestAbnormalFinish_001, TestSize.Level0)
 {
-    HILOG_INFO("UserTestAbnormalFinish_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UserTestAbnormalFinish_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2410,7 +2411,7 @@ HWTEST_F(AppMgrServiceInnerTest, UserTestAbnormalFinish_001, TestSize.Level0)
     appMgrServiceInner->UserTestAbnormalFinish(observer, "");
     appMgrServiceInner->UserTestAbnormalFinish(observer, msg);
 
-    HILOG_INFO("UserTestAbnormalFinish_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UserTestAbnormalFinish_001 end");
 }
 
 /**
@@ -2421,7 +2422,7 @@ HWTEST_F(AppMgrServiceInnerTest, UserTestAbnormalFinish_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartEmptyProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("StartEmptyProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartEmptyProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2446,7 +2447,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartEmptyProcess_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->StartEmptyProcess(want, observer, info, processName, 0);
 
-    HILOG_INFO("StartEmptyProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartEmptyProcess_001 end");
 }
 
 /**
@@ -2457,7 +2458,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartEmptyProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, FinishUserTest_001, TestSize.Level0)
 {
-    HILOG_INFO("FinishUserTest_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "FinishUserTest_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2476,7 +2477,7 @@ HWTEST_F(AppMgrServiceInnerTest, FinishUserTest_001, TestSize.Level0)
     sptr<IRemoteObject> token = new MockAbilityToken();
     std::string processName = "test_processName";
     std::shared_ptr<AppRunningRecord> appRecord = appMgrServiceInner->CreateAppRunningRecord(token, nullptr,
-        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want);
+        applicationInfo_, abilityInfo_, processName, bundleInfo, hapModuleInfo, want, 0);
     EXPECT_NE(appRecord, nullptr);
     pid = appRecord->GetPriorityObject()->GetPid();
     appMgrServiceInner->FinishUserTest(msg, 0, bundleName, pid);
@@ -2488,7 +2489,7 @@ HWTEST_F(AppMgrServiceInnerTest, FinishUserTest_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->FinishUserTest(msg, 0, bundleName, pid);
 
-    HILOG_INFO("FinishUserTest_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "FinishUserTest_001 end");
 }
 
 /**
@@ -2499,7 +2500,7 @@ HWTEST_F(AppMgrServiceInnerTest, FinishUserTest_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, FinishUserTestLocked_001, TestSize.Level0)
 {
-    HILOG_INFO("FinishUserTestLocked_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "FinishUserTestLocked_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2529,7 +2530,7 @@ HWTEST_F(AppMgrServiceInnerTest, FinishUserTestLocked_001, TestSize.Level0)
     appRecord->SetUserTestInfo(record);
     appMgrServiceInner->FinishUserTestLocked(msg, 0, appRecord);
 
-    HILOG_INFO("FinishUserTestLocked_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "FinishUserTestLocked_001 end");
 }
 
 /**
@@ -2540,7 +2541,7 @@ HWTEST_F(AppMgrServiceInnerTest, FinishUserTestLocked_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartSpecifiedAbility_001, TestSize.Level0)
 {
-    HILOG_INFO("StartSpecifiedAbility_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartSpecifiedAbility_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2559,7 +2560,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartSpecifiedAbility_001, TestSize.Level0)
     appMgrServiceInner->remoteClientManager_ = nullptr;
     appMgrServiceInner->StartSpecifiedAbility(want, *abilityInfo_);
 
-    HILOG_INFO("StartSpecifiedAbility_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartSpecifiedAbility_001 end");
 }
 
 /**
@@ -2570,7 +2571,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartSpecifiedAbility_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterStartSpecifiedAbilityResponse_001, TestSize.Level0)
 {
-    HILOG_INFO("RegisterStartSpecifiedAbilityResponse_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterStartSpecifiedAbilityResponse_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2579,7 +2580,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterStartSpecifiedAbilityResponse_001, Test
     sptr<IStartSpecifiedAbilityResponse> response;
     appMgrServiceInner->RegisterStartSpecifiedAbilityResponse(response);
 
-    HILOG_INFO("RegisterStartSpecifiedAbilityResponse_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterStartSpecifiedAbilityResponse_001 end");
 }
 
 /**
@@ -2590,7 +2591,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterStartSpecifiedAbilityResponse_001, Test
  */
 HWTEST_F(AppMgrServiceInnerTest, ScheduleAcceptWantDone_001, TestSize.Level0)
 {
-    HILOG_INFO("ScheduleAcceptWantDone_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ScheduleAcceptWantDone_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2608,7 +2609,7 @@ HWTEST_F(AppMgrServiceInnerTest, ScheduleAcceptWantDone_001, TestSize.Level0)
     appMgrServiceInner->RegisterStartSpecifiedAbilityResponse(response);
     appMgrServiceInner->ScheduleAcceptWantDone(appRecord->GetRecordId(), want, flag);
 
-    HILOG_INFO("ScheduleAcceptWantDone_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ScheduleAcceptWantDone_001 end");
 }
 
 /**
@@ -2619,7 +2620,7 @@ HWTEST_F(AppMgrServiceInnerTest, ScheduleAcceptWantDone_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleStartSpecifiedAbilityTimeOut_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleStartSpecifiedAbilityTimeOut_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleStartSpecifiedAbilityTimeOut_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2649,7 +2650,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleStartSpecifiedAbilityTimeOut_001, TestSiz
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->HandleStartSpecifiedAbilityTimeOut(0);
 
-    HILOG_INFO("HandleStartSpecifiedAbilityTimeOut_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleStartSpecifiedAbilityTimeOut_001 end");
 }
 
 /**
@@ -2660,7 +2661,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleStartSpecifiedAbilityTimeOut_001, TestSiz
  */
 HWTEST_F(AppMgrServiceInnerTest, UpdateConfiguration_001, TestSize.Level0)
 {
-    HILOG_INFO("UpdateConfiguration_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateConfiguration_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2690,7 +2691,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateConfiguration_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->UpdateConfiguration(config);
 
-    HILOG_INFO("UpdateConfiguration_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UpdateConfiguration_001 end");
 }
 
 /**
@@ -2701,7 +2702,7 @@ HWTEST_F(AppMgrServiceInnerTest, UpdateConfiguration_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterConfigurationObserver_001, TestSize.Level0)
 {
-    HILOG_INFO("RegisterConfigurationObserver_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterConfigurationObserver_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2713,7 +2714,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterConfigurationObserver_001, TestSize.Lev
     appMgrServiceInner->RegisterConfigurationObserver(observer);
     appMgrServiceInner->RegisterConfigurationObserver(observer);
 
-    HILOG_INFO("RegisterConfigurationObserver_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterConfigurationObserver_001 end");
 }
 
 /**
@@ -2724,7 +2725,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterConfigurationObserver_001, TestSize.Lev
  */
 HWTEST_F(AppMgrServiceInnerTest, UnregisterConfigurationObserver_001, TestSize.Level0)
 {
-    HILOG_INFO("UnregisterConfigurationObserver_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "UnregisterConfigurationObserver_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2738,7 +2739,7 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterConfigurationObserver_001, TestSize.L
     appMgrServiceInner->RegisterConfigurationObserver(observer);
     appMgrServiceInner->UnregisterConfigurationObserver(observer);
 
-    HILOG_INFO("UnregisterConfigurationObserver_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "UnregisterConfigurationObserver_001 end");
 }
 
 /**
@@ -2749,7 +2750,7 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterConfigurationObserver_001, TestSize.L
  */
 HWTEST_F(AppMgrServiceInnerTest, InitGlobalConfiguration_001, TestSize.Level0)
 {
-    HILOG_INFO("InitGlobalConfiguration_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "InitGlobalConfiguration_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2758,7 +2759,7 @@ HWTEST_F(AppMgrServiceInnerTest, InitGlobalConfiguration_001, TestSize.Level0)
     appMgrServiceInner->configuration_ = nullptr;
     appMgrServiceInner->InitGlobalConfiguration();
 
-    HILOG_INFO("InitGlobalConfiguration_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "InitGlobalConfiguration_001 end");
 }
 
 /**
@@ -2769,7 +2770,7 @@ HWTEST_F(AppMgrServiceInnerTest, InitGlobalConfiguration_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, KillApplicationByRecord_001, TestSize.Level0)
 {
-    HILOG_INFO("KillApplicationByRecord_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByRecord_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2786,7 +2787,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByRecord_001, TestSize.Level0)
     appMgrServiceInner->KillApplicationByRecord(appRecord);
     appMgrServiceInner->KillApplicationByRecord(appRecord1);
 
-    HILOG_INFO("KillApplicationByRecord_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "KillApplicationByRecord_001 end");
 }
 
 /**
@@ -2797,7 +2798,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplicationByRecord_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendHiSysEvent_001, TestSize.Level0)
 {
-    HILOG_INFO("SendHiSysEvent_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendHiSysEvent_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2818,7 +2819,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendHiSysEvent_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->SendHiSysEvent(0, 0);
 
-    HILOG_INFO("SendHiSysEvent_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendHiSysEvent_001 end");
 }
 
 /**
@@ -2829,7 +2830,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendHiSysEvent_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetAbilityRecordsByProcessID_001, TestSize.Level0)
 {
-    HILOG_INFO("GetAbilityRecordsByProcessID_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAbilityRecordsByProcessID_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2844,7 +2845,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAbilityRecordsByProcessID_001, TestSize.Leve
     int pid = appRecord->GetPriorityObject()->GetPid();
     appMgrServiceInner->GetAbilityRecordsByProcessID(pid, tokens);
 
-    HILOG_INFO("GetAbilityRecordsByProcessID_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAbilityRecordsByProcessID_001 end");
 }
 
 /**
@@ -2855,7 +2856,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAbilityRecordsByProcessID_001, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Level0)
 {
-    HILOG_INFO("GetApplicationInfoByProcessID_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetApplicationInfoByProcessID_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2874,7 +2875,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Lev
     appRecord->appInfo_ = nullptr;
     appMgrServiceInner->GetApplicationInfoByProcessID(pid, application, debug);
 
-    HILOG_INFO("GetApplicationInfoByProcessID_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetApplicationInfoByProcessID_001 end");
 }
 
 /**
@@ -2885,7 +2886,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetApplicationInfoByProcessID_001, TestSize.Lev
  */
 HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
 {
-    HILOG_INFO("VerifyProcessPermission_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyProcessPermission_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2894,7 +2895,7 @@ HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->VerifyProcessPermission("");
 
-    HILOG_INFO("VerifyProcessPermission_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyProcessPermission_001 end");
 }
 
 /**
@@ -2905,7 +2906,7 @@ HWTEST_F(AppMgrServiceInnerTest, VerifyProcessPermission_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, VerifyAPL_001, TestSize.Level0)
 {
-    HILOG_INFO("VerifyAPL_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyAPL_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -2914,7 +2915,7 @@ HWTEST_F(AppMgrServiceInnerTest, VerifyAPL_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->VerifyAPL();
 
-    HILOG_INFO("VerifyAPL_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyAPL_001 end");
 }
 
 /**
@@ -2925,14 +2926,14 @@ HWTEST_F(AppMgrServiceInnerTest, VerifyAPL_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, VerifyAccountPermission_001, TestSize.Level0)
 {
-    HILOG_INFO("VerifyAccountPermission_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyAccountPermission_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     std::string permissionName = "test_permissionName";
     appMgrServiceInner->VerifyAccountPermission(permissionName, 0);
 
-    HILOG_INFO("VerifyAccountPermission_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "VerifyAccountPermission_001 end");
 }
 
 /**
@@ -2960,7 +2961,7 @@ HWTEST_F(AppMgrServiceInnerTest, PreStartNWebSpawnProcess_003, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("StartRenderProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartRenderProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3000,7 +3001,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_001, TestSize.Level0)
     ret = appMgrServiceInner->StartRenderProcess(hostPid, renderParam, 1, 1, 1, renderPid);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
 
-    HILOG_INFO("StartRenderProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartRenderProcess_001 end");
 }
 
 /**
@@ -3011,7 +3012,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_002, TestSize.Level0)
 {
-    HILOG_INFO("StartRenderProcess_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "StartRenderProcess_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3053,7 +3054,7 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_002, TestSize.Level0)
 
     ret = appMgrServiceInner->StartRenderProcess(hostPid1, renderParam, 1, 1, 1, renderPid);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("StartRenderProcess_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "StartRenderProcess_002 end");
 }
 
 /**
@@ -3063,14 +3064,14 @@ HWTEST_F(AppMgrServiceInnerTest, StartRenderProcess_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("AttachRenderProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AttachRenderProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     pid_t pid = 0;
     sptr<IRenderScheduler> scheduler;
     appMgrServiceInner->AttachRenderProcess(pid, scheduler);
-    HILOG_INFO("AttachRenderProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AttachRenderProcess_001 end");
 }
 
 /**
@@ -3080,14 +3081,14 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
 {
-    HILOG_INFO("AttachRenderProcess_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "AttachRenderProcess_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     pid_t pid = 1;
     sptr<IRenderScheduler> scheduler;
     appMgrServiceInner->AttachRenderProcess(pid, scheduler);
-    HILOG_INFO("AttachRenderProcess_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "AttachRenderProcess_002 end");
 }
 
 /**
@@ -3098,7 +3099,7 @@ HWTEST_F(AppMgrServiceInnerTest, AttachRenderProcess_002, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
 {
-    HILOG_INFO("BuildStartFlags_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "BuildStartFlags_001 start");
 
     AAFwk::Want want;
     AbilityInfo abilityInfo;
@@ -3110,7 +3111,7 @@ HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
     uint32_t result = AppspawnUtil::BuildStartFlags(want, abilityInfo);
     EXPECT_EQ(result, 7);
 
-    HILOG_INFO("BuildStartFlags_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "BuildStartFlags_001 end");
 }
 
 /**
@@ -3121,7 +3122,7 @@ HWTEST_F(AppMgrServiceInnerTest, BuildStartFlags_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, RegisterFocusListener_001, TestSize.Level0)
 {
-    HILOG_INFO("RegisterFocusListener_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterFocusListener_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3130,7 +3131,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterFocusListener_001, TestSize.Level0)
     appMgrServiceInner->focusListener_ = nullptr;
     appMgrServiceInner->RegisterFocusListener();
 
-    HILOG_INFO("RegisterFocusListener_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "RegisterFocusListener_001 end");
 }
 
 /**
@@ -3141,7 +3142,7 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterFocusListener_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleFocused_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleFocused_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleFocused_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3163,7 +3164,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleFocused_001, TestSize.Level0)
     appRecord->GetPriorityObject()->SetPid(pid);
     appMgrServiceInner->HandleFocused(focusChangeInfo);
 
-    HILOG_INFO("HandleFocused_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleFocused_001 end");
 }
 
 /**
@@ -3174,7 +3175,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleFocused_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, HandleUnfocused_001, TestSize.Level0)
 {
-    HILOG_INFO("HandleUnfocused_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "HandleUnfocused_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3196,7 +3197,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleUnfocused_001, TestSize.Level0)
     appRecord->GetPriorityObject()->SetPid(pid);
     appMgrServiceInner->HandleUnfocused(focusChangeInfo);
 
-    HILOG_INFO("HandleUnfocused_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "HandleUnfocused_001 end");
 }
 
 /**
@@ -3207,7 +3208,7 @@ HWTEST_F(AppMgrServiceInnerTest, HandleUnfocused_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetAppRunningStateByBundleName_001, TestSize.Level0)
 {
-    HILOG_INFO("GetAppRunningStateByBundleName_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetAppRunningStateByBundleName_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3217,7 +3218,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAppRunningStateByBundleName_001, TestSize.Le
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->GetAppRunningStateByBundleName(bundleName);
 
-    HILOG_INFO("GetAppRunningStateByBundleName_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetAppRunningStateByBundleName_001 end");
 }
 
 /**
@@ -3228,7 +3229,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetAppRunningStateByBundleName_001, TestSize.Le
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyLoadRepairPatch_001, TestSize.Level0)
 {
-    HILOG_INFO("NotifyLoadRepairPatch_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyLoadRepairPatch_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3239,7 +3240,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyLoadRepairPatch_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->NotifyLoadRepairPatch(bundleName, callback);
 
-    HILOG_INFO("NotifyLoadRepairPatch_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyLoadRepairPatch_001 end");
 }
 
 /**
@@ -3250,7 +3251,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyLoadRepairPatch_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyHotReloadPage_001, TestSize.Level0)
 {
-    HILOG_INFO("NotifyHotReloadPage_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyHotReloadPage_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3261,7 +3262,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyHotReloadPage_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->NotifyHotReloadPage(bundleName, callback);
 
-    HILOG_INFO("NotifyHotReloadPage_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyHotReloadPage_001 end");
 }
 
 /**
@@ -3273,7 +3274,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyHotReloadPage_001, TestSize.Level0)
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("SetContinuousTaskProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SetContinuousTaskProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3293,7 +3294,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
     ret = appMgrServiceInner->SetContinuousTaskProcess(0, true);
     EXPECT_EQ(ret, ERR_INVALID_OPERATION);
 
-    HILOG_INFO("SetContinuousTaskProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SetContinuousTaskProcess_001 end");
 }
 #endif
 
@@ -3305,7 +3306,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetContinuousTaskProcess_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
 {
-    HILOG_INFO("NotifyUnLoadRepairPatch_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyUnLoadRepairPatch_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3316,7 +3317,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
     appMgrServiceInner->appRunningManager_ = nullptr;
     appMgrServiceInner->NotifyUnLoadRepairPatch(bundleName, callback);
 
-    HILOG_INFO("NotifyUnLoadRepairPatch_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyUnLoadRepairPatch_001 end");
 }
 
 /**
@@ -3326,7 +3327,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyUnLoadRepairPatch_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
 {
-    HILOG_INFO("SetCurrentUserId_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SetCurrentUserId_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3334,7 +3335,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
     appMgrServiceInner->SetCurrentUserId(userId);
     EXPECT_EQ(appMgrServiceInner->currentUserId_, userId);
 
-    HILOG_INFO("SetCurrentUserId_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SetCurrentUserId_001 end");
 }
 
 /**
@@ -3345,7 +3346,7 @@ HWTEST_F(AppMgrServiceInnerTest, SetCurrentUserId_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetProcessMemoryByPid_001, TestSize.Level0)
 {
-    HILOG_INFO("GetProcessMemoryByPid_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetProcessMemoryByPid_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3354,7 +3355,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetProcessMemoryByPid_001, TestSize.Level0)
     int32_t ret = appMgrServiceInner->GetProcessMemoryByPid(pid, memorySize);
     EXPECT_EQ(ret, ERR_OK);
 
-    HILOG_INFO("GetProcessMemoryByPid_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetProcessMemoryByPid_001 end");
 }
 
 /**
@@ -3365,7 +3366,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetProcessMemoryByPid_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInformation_001, TestSize.Level0)
 {
-    HILOG_INFO("GetRunningProcessInformation_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningProcessInformation_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3383,7 +3384,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInformation_001, TestSize.Leve
     ret = appMgrServiceInner->GetRunningProcessInformation(bundleName, userId, info);
     EXPECT_EQ(ret, ERR_NO_INIT);
 
-    HILOG_INFO("GetRunningProcessInformation_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetRunningProcessInformation_001 end");
 }
 
 /**
@@ -3393,7 +3394,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetRunningProcessInformation_001, TestSize.Leve
  */
 HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_001, TestSize.Level1)
 {
-    HILOG_INFO("GetBundleNameByPid_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetBundleNameByPid_001 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -3403,7 +3404,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_001, TestSize.Level1)
     auto ret  = appMgrServiceInner->GetBundleNameByPid(pid, name, uid);
     EXPECT_EQ(ret, ERR_INVALID_OPERATION);
 
-    HILOG_INFO("GetBundleNameByPid_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetBundleNameByPid_001 end");
 }
 
 /**
@@ -3413,7 +3414,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_002, TestSize.Level1)
 {
-    HILOG_INFO("GetBundleNameByPid_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "GetBundleNameByPid_002 start");
 
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
@@ -3426,7 +3427,7 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_002, TestSize.Level1)
     auto ret  = appMgrServiceInner->GetBundleNameByPid(pid, name, uid);
     EXPECT_EQ(ret, ERR_OK);
 
-    HILOG_INFO("GetBundleNameByPid_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "GetBundleNameByPid_002 end");
 }
 
 /**
@@ -3436,14 +3437,14 @@ HWTEST_F(AppMgrServiceInnerTest, GetBundleNameByPid_002, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, AppRecoveryNotifyApp_001, TestSize.Level1)
 {
-    HILOG_INFO("AppRecoveryNotifyApp_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "AppRecoveryNotifyApp_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int32_t pid = 0;
     std::string bundleName = "com.is.hiserice";
     appMgrServiceInner->AppRecoveryNotifyApp(pid, bundleName, FaultDataType::RESOURCE_CONTROL, "appRecovery");
     appMgrServiceInner->AppRecoveryNotifyApp(pid, bundleName, FaultDataType::APP_FREEZE, "recovery");
-    HILOG_INFO("AppRecoveryNotifyApp_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "AppRecoveryNotifyApp_001 end");
 }
 
 /**
@@ -3453,7 +3454,7 @@ HWTEST_F(AppMgrServiceInnerTest, AppRecoveryNotifyApp_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyAppFault_001, TestSize.Level1)
 {
-    HILOG_INFO("NotifyAppFault_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppFault_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     FaultData faultData1;
@@ -3470,7 +3471,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFault_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, TimeoutNotifyApp_001, TestSize.Level1)
 {
-    HILOG_INFO("TimeoutNotifyApp_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "TimeoutNotifyApp_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int32_t pid = 0;
@@ -3480,7 +3481,7 @@ HWTEST_F(AppMgrServiceInnerTest, TimeoutNotifyApp_001, TestSize.Level1)
     faultData.errorObject.name = "1234";
     faultData.faultType = FaultDataType::APP_FREEZE;
     appMgrServiceInner->TimeoutNotifyApp(pid, uid, bundleName, faultData);
-    HILOG_INFO("TimeoutNotifyApp_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "TimeoutNotifyApp_001 end");
 }
 
 /**
@@ -3490,7 +3491,7 @@ HWTEST_F(AppMgrServiceInnerTest, TimeoutNotifyApp_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
 {
-    HILOG_INFO("NotifyAppFaultBySA_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppFaultBySA_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AppFaultDataBySA faultData;
@@ -3498,7 +3499,7 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyAppFaultBySA_001, TestSize.Level1)
     faultData.errorObject.name = "appRecovery";
     int32_t ret = appMgrServiceInner->NotifyAppFaultBySA(faultData);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("NotifyAppFaultBySA_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "NotifyAppFaultBySA_001 end");
 }
 
 /**
@@ -3602,6 +3603,47 @@ HWTEST_F(AppMgrServiceInnerTest, DetachAppDebug_002, TestSize.Level0)
 }
 
 /**
+ * @tc.name: SetAppWaitingDebug_001
+ * @tc.desc: Test function SetAppWaitingDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetAppWaitingDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::string bundleName("test");
+    auto result = appMgrServiceInner->SetAppWaitingDebug(bundleName, false);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: CancelAppWaitingDebug_001
+ * @tc.desc: Test function CancelAppWaitingDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, CancelAppWaitingDebug_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    auto result = appMgrServiceInner->CancelAppWaitingDebug();
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
+ * @tc.name: GetWaitingDebugApp_001
+ * @tc.desc: Test function GetWaitingDebugApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetWaitingDebugApp_001, TestSize.Level0)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    std::vector<std::string> debugInfoList;
+    auto result = appMgrServiceInner->GetWaitingDebugApp(debugInfoList);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
  * @tc.name: RegisterAbilityDebugResponse_001
  * @tc.desc: Test the status of RegisterAbilityDebugResponse.
  * @tc.type: FUNC
@@ -3682,14 +3724,14 @@ HWTEST_F(AppMgrServiceInnerTest, MakeAppDebugInfo_001, TestSize.Level0)
  */
 HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
 {
-    HILOG_INFO("ChangeAppGcState_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "ChangeAppGcState_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     int32_t pid = 0;
     int32_t state = 0;
     int32_t ret = appMgrServiceInner->ChangeAppGcState(pid, state);
     EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    HILOG_INFO("ChangeAppGcState_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "ChangeAppGcState_001 end");
 }
 
 /**
@@ -3699,12 +3741,12 @@ HWTEST_F(AppMgrServiceInnerTest, ChangeAppGcState_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_001, TestSize.Level1)
 {
-    HILOG_INFO("SendReStartProcessEvent_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
     appMgrServiceInner->SendReStartProcessEvent(eventInfo, nullptr);
-    HILOG_INFO("SendReStartProcessEvent_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_001 end");
 }
 
 /**
@@ -3714,7 +3756,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_001, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_002, TestSize.Level1)
 {
-    HILOG_INFO("SendReStartProcessEvent_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_002 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
@@ -3727,7 +3769,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_002, TestSize.Level1)
     int64_t killedTime = restartTime - 3000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
     appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
-    HILOG_INFO("SendReStartProcessEvent_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_002 end");
 }
 
 /**
@@ -3737,7 +3779,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_002, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_003, TestSize.Level1)
 {
-    HILOG_INFO("SendReStartProcessEvent_003 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_003 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
@@ -3752,7 +3794,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_003, TestSize.Level1)
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
     appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
-    HILOG_INFO("SendReStartProcessEvent_003 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_003 end");
 }
 
 /**
@@ -3762,7 +3804,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_003, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_004, TestSize.Level1)
 {
-    HILOG_INFO("SendReStartProcessEvent_004 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_004 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
@@ -3778,7 +3820,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_004, TestSize.Level1)
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
     appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
-    HILOG_INFO("SendReStartProcessEvent_004 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_004 end");
 }
 
 /**
@@ -3788,7 +3830,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_004, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_005, TestSize.Level1)
 {
-    HILOG_INFO("SendReStartProcessEvent_005 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_005 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
     AAFwk::EventInfo eventInfo;
@@ -3804,7 +3846,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_005, TestSize.Level1)
     int64_t killedTime = restartTime - 1000;
     appMgrServiceInner->killedPorcessMap_.emplace(killedTime, processName);
     appMgrServiceInner->SendReStartProcessEvent(eventInfo, record);
-    HILOG_INFO("SendReStartProcessEvent_005 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendReStartProcessEvent_005 end");
 }
 
 /**
@@ -3815,7 +3857,7 @@ HWTEST_F(AppMgrServiceInnerTest, SendReStartProcessEvent_005, TestSize.Level1)
  */
 HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
 {
-    HILOG_INFO("SendAppLaunchEvent_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "SendAppLaunchEvent_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3838,11 +3880,11 @@ HWTEST_F(AppMgrServiceInnerTest, SendAppLaunchEvent_001, TestSize.Level0)
     appRecord->appInfo_ = nullptr;
     appRecord2->appInfo_ = nullptr;
     appMgrServiceInner->SendAppLaunchEvent(appRecord);
-    HILOG_INFO("SendAppLaunchEvent_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "SendAppLaunchEvent_001 end");
 }
 HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
 {
-    HILOG_INFO("IsMainProcess_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "IsMainProcess_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
 
@@ -3861,7 +3903,7 @@ HWTEST_F(AppMgrServiceInnerTest, IsMainProcess_001, TestSize.Level0)
     EXPECT_EQ(appMgrServiceInner->IsMainProcess(applicationInfo_, hapModuleInfo), true);
     applicationInfo_->process = "";
 
-    HILOG_INFO("IsMainProcess_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "IsMainProcess_001 end");
 }
 
 /**

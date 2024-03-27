@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "auto_startup_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_ability_auto_startup_manager_utils.h"
@@ -39,7 +40,7 @@ constexpr const char *ON_OFF_TYPE_SYSTEM = "systemAutoStartup";
 
 void JsAbilityAutoStartupManager::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     std::unique_ptr<JsAbilityAutoStartupManager>(static_cast<JsAbilityAutoStartupManager *>(data));
 }
 
@@ -72,7 +73,7 @@ bool JsAbilityAutoStartupManager::CheckCallerIsSystemApp()
 {
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-        HILOG_ERROR("Current app is not system app, not allow.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current app is not system app, not allow.");
         return false;
     }
     return true;
@@ -80,22 +81,22 @@ bool JsAbilityAutoStartupManager::CheckCallerIsSystemApp()
 
 napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     if (info.argc < ARGC_TWO) {
-        HILOG_ERROR("The param is invalid.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE_SYSTEM) {
-        HILOG_ERROR("The param is invalid.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
 
     if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("Current app is not system app");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current app is not system app");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
@@ -103,7 +104,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
     if (jsAutoStartupCallback_ == nullptr) {
         jsAutoStartupCallback_ = new (std::nothrow) JsAbilityAutoStartupCallBack(env);
         if (jsAutoStartupCallback_ == nullptr) {
-            HILOG_ERROR("JsAutoStartupCallback_ is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "JsAutoStartupCallback_ is nullptr.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
@@ -112,7 +113,7 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
             AbilityManagerClient::GetInstance()->RegisterAutoStartupSystemCallback(jsAutoStartupCallback_->AsObject());
         if (ret != ERR_OK) {
             jsAutoStartupCallback_ = nullptr;
-            HILOG_ERROR("Register auto start up listener wrong[%{public}d].", ret);
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Register auto start up listener wrong[%{public}d].", ret);
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_APP_BOOT);
             } else {
@@ -128,16 +129,16 @@ napi_value JsAbilityAutoStartupManager::OnRegisterAutoStartupCallback(napi_env e
 
 napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("OnUnregisterAutoStartupCallback Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "OnUnregisterAutoStartupCallback Called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("The argument is invalid.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The argument is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     std::string type;
     if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], type) || type != ON_OFF_TYPE_SYSTEM) {
-        HILOG_ERROR("Failed to parse type.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse type.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
         return CreateJsUndefined(env);
     }
@@ -148,7 +149,7 @@ napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env
     }
 
     if (jsAutoStartupCallback_ == nullptr) {
-        HILOG_ERROR("JsAutoStartupCallback_ is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "JsAutoStartupCallback_ is nullptr.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
@@ -173,15 +174,15 @@ napi_value JsAbilityAutoStartupManager::OnUnregisterAutoStartupCallback(napi_env
 
 napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("OnSetApplicationAutoStartup Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "OnSetApplicationAutoStartup Called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("The argument is invalid.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The argument is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("Current app is not system app");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current app is not system app");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
@@ -195,19 +196,19 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
     auto retVal = std::make_shared<int32_t>(0);
     NapiAsyncTask::ExecuteCallback execute = [autoStartupInfo, ret = retVal] () {
         if (ret == nullptr) {
-            HILOG_ERROR("The param is invalid.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
             return;
         }
         *ret = AbilityManagerClient::GetInstance()->SetApplicationAutoStartup(autoStartupInfo);
     };
     NapiAsyncTask::CompleteCallback complete = [ret = retVal](napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr) {
-            HILOG_ERROR("The argument is invalid.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The argument is invalid.");
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(INNER_ERR)));
             return;
         }
         if (*ret != ERR_OK) {
-            HILOG_ERROR("Wrong error:%{public}d.", *ret);
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Wrong error:%{public}d.", *ret);
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(*ret)));
             return;
         }
@@ -223,15 +224,15 @@ napi_value JsAbilityAutoStartupManager::OnSetApplicationAutoStartup(napi_env env
 
 napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("OnCancelApplicationAutoStartup Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "OnCancelApplicationAutoStartup Called.");
     if (info.argc < ARGC_ONE) {
-        HILOG_ERROR("The param is invalid.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
         ThrowTooFewParametersError(env);
         return CreateJsUndefined(env);
     }
 
     if (!CheckCallerIsSystemApp()) {
-        HILOG_ERROR("Current app is not system app.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Current app is not system app.");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
@@ -245,7 +246,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
     auto retVal = std::make_shared<int32_t>(0);
     NapiAsyncTask::ExecuteCallback execute = [autoStartupInfo, ret = retVal] () {
         if (ret == nullptr) {
-            HILOG_ERROR("The param is invalid.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
             return;
         }
         *ret = AbilityManagerClient::GetInstance()->CancelApplicationAutoStartup(autoStartupInfo);
@@ -253,12 +254,12 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
 
     NapiAsyncTask::CompleteCallback complete = [ret = retVal](napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr) {
-            HILOG_ERROR("The parameter is invalid.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The parameter is invalid.");
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(INNER_ERR)));
             return;
         }
         if (*ret != ERR_OK) {
-            HILOG_ERROR("Failed error:%{public}d.", *ret);
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed error:%{public}d.", *ret);
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(*ret)));
             return;
         }
@@ -274,7 +275,7 @@ napi_value JsAbilityAutoStartupManager::OnCancelApplicationAutoStartup(napi_env 
 
 napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_env env, const NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     if (!CheckCallerIsSystemApp()) {
         ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
@@ -284,7 +285,7 @@ napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_e
     auto infoList = std::make_shared<std::vector<AutoStartupInfo>>();
     NapiAsyncTask::ExecuteCallback execute = [infos = infoList, ret = retVal] () {
         if (ret == nullptr || infos == nullptr) {
-            HILOG_ERROR("The param is invalid.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
             return;
         }
         *ret = AbilityManagerClient::GetInstance()->QueryAllAutoStartupApplications(*infos);
@@ -293,12 +294,12 @@ napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_e
     NapiAsyncTask::CompleteCallback complete = [infos = infoList, ret = retVal](
                                                    napi_env env, NapiAsyncTask &task, int32_t status) {
         if (ret == nullptr || infos == nullptr) {
-            HILOG_ERROR("The param is invalid.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The param is invalid.");
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(INNER_ERR)));
             return;
         }
         if (*ret != ERR_OK) {
-            HILOG_ERROR("Failed error:%{public}d.", *ret);
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed error:%{public}d.", *ret);
             task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(*ret)));
             return;
         }
@@ -314,9 +315,9 @@ napi_value JsAbilityAutoStartupManager::OnQueryAllAutoStartupApplications(napi_e
 
 napi_value JsAbilityAutoStartupManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Env or exportObj nullptr.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Env or exportObj nullptr.");
         return nullptr;
     }
 
@@ -333,7 +334,7 @@ napi_value JsAbilityAutoStartupManagerInit(napi_env env, napi_value exportObj)
         JsAbilityAutoStartupManager::CancelApplicationAutoStartup);
     BindNativeFunction(env, exportObj, "queryAllAutoStartupApplications", moduleName,
         JsAbilityAutoStartupManager::QueryAllAutoStartupApplications);
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "End.");
     return CreateJsUndefined(env);
 }
 } // namespace AbilityRuntime

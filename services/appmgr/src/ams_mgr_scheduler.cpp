@@ -57,7 +57,7 @@ AmsMgrScheduler::~AmsMgrScheduler()
 
 void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
     const std::shared_ptr<AbilityInfo> &abilityInfo, const std::shared_ptr<ApplicationInfo> &appInfo,
-    const std::shared_ptr<AAFwk::Want> &want)
+    const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
     if (!abilityInfo || !appInfo) {
         TAG_LOGE(AAFwkTag::APPMGR, "param error");
@@ -76,7 +76,8 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
     TAG_LOGI(AAFwkTag::APPMGR, "SubmitLoadTask: %{public}s-%{public}s", abilityInfo->bundleName.c_str(),
         abilityInfo->name.c_str());
     std::function<void()> loadAbilityFunc =
-        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo, appInfo, want);
+        std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo,
+            appInfo, want, abilityRecordId);
 
     amsHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_LOAD_ABILITY,
@@ -417,6 +418,51 @@ int32_t AmsMgrScheduler::DetachAppDebug(const std::string &bundleName)
         return ERR_INVALID_OPERATION;
     }
     return amsMgrServiceInner_->DetachAppDebug(bundleName);
+}
+
+int32_t AmsMgrScheduler::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->SetAppWaitingDebug(bundleName, isPersist);
+}
+
+int32_t AmsMgrScheduler::CancelAppWaitingDebug()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->CancelAppWaitingDebug();
+}
+
+int32_t AmsMgrScheduler::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return amsMgrServiceInner_->GetWaitingDebugApp(debugInfoList);
+}
+
+bool AmsMgrScheduler::IsWaitingDebugApp(const std::string &bundleName)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return false;
+    }
+    return amsMgrServiceInner_->IsWaitingDebugApp(bundleName);
+}
+
+void AmsMgrScheduler::ClearNonPersistWaitingDebugFlag()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return;
+    }
+    amsMgrServiceInner_->ClearNonPersistWaitingDebugFlag();
 }
 
 int32_t AmsMgrScheduler::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)

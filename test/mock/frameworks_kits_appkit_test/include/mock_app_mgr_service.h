@@ -21,6 +21,7 @@
 #include "semaphore_ex.h"
 #include "app_scheduler_interface.h"
 #include "app_mgr_stub.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "app_malloc_info.h"
 #include "app_jsheap_mem_info.h"
@@ -29,10 +30,10 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockAppMgrService : public AppMgrStub {
 public:
-    MOCK_METHOD5(LoadAbility,
+    MOCK_METHOD6(LoadAbility,
         void(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
             const std::shared_ptr<AbilityInfo>& abilityInfo, const std::shared_ptr<ApplicationInfo>& appInfo,
-            const std::shared_ptr<AAFwk::Want>& want));
+            const std::shared_ptr<AAFwk::Want>& want, int32_t abilityRecordId));
     MOCK_METHOD2(TerminateAbility, void(const sptr<IRemoteObject>& token, bool isClearMissionFlag));
     MOCK_METHOD2(UpdateAbilityState, void(const sptr<IRemoteObject>& token, const AbilityState state));
     MOCK_METHOD1(SetAppFreezingTime, void(int time));
@@ -81,7 +82,7 @@ public:
     MOCK_METHOD1(RegisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD1(UnregisterRenderStateObserver, int32_t(const sptr<IRenderStateObserver> &observer));
     MOCK_METHOD2(UpdateRenderState, int32_t(pid_t renderPid, int32_t state));
-    
+
     void AttachApplication(const sptr<IRemoteObject>& app)
     {
         GTEST_LOG_(INFO) << "MockAppMgrService::AttachApplication called";
@@ -254,7 +255,7 @@ public:
         const std::shared_ptr<AAFwk::Want>& want)
     {
         if (Appthread_ != nullptr) {
-            Appthread_->ScheduleLaunchAbility(abilityinf, token, want);
+            Appthread_->ScheduleLaunchAbility(abilityinf, token, want, 0);
         }
     }
 
@@ -286,31 +287,31 @@ public:
 
     bool IsAttached()
     {
-        HILOG_INFO("MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsAttached Attached_ = %{public}d", Attached_);
         return Attached_;
     }
 
     bool IsForegrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsForegrounded Foregrounded_ = %{public}d", Foregrounded_);
         return Foregrounded_;
     }
 
     bool IsBackgrounded()
     {
-        HILOG_INFO("MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsBackgrounded Backgrounded_ = %{public}d", Backgrounded_);
         return Backgrounded_;
     }
 
     bool IsTerminated()
     {
-        HILOG_INFO("MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::IsTerminated Terminated_ = %{public}d", Terminated_);
         return Terminated_;
     }
 
     void init()
     {
-        HILOG_INFO("MockAppMgrService::init called");
+        TAG_LOGI(AAFwkTag::TEST, "MockAppMgrService::init called");
         Attached_ = false;
     }
 

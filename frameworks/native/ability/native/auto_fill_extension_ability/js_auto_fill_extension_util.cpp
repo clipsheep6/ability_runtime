@@ -15,6 +15,7 @@
 
 #include "js_auto_fill_extension_util.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 
@@ -52,7 +53,7 @@ constexpr uint32_t PAGE_NODE_COUNT_MAX = 100;
 
 napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const AbilityBase::ViewData &viewData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -77,7 +78,7 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
         if (jsSubValue != nullptr && napi_set_element(env, jsArray, index, jsSubValue) == napi_ok) {
             index++;
         } else {
-            HILOG_ERROR("Set element fail.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Set element fail.");
         }
     }
 
@@ -90,7 +91,7 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
 
 napi_value JsAutoFillExtensionUtil::WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     napi_value jsValue = nullptr;
@@ -151,10 +152,10 @@ napi_value JsAutoFillExtensionUtil::WrapRectData(const napi_env env, const Abili
 void JsAutoFillExtensionUtil::UnwrapViewData(
     const napi_env env, const napi_value value, AbilityBase::ViewData &viewData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsViewData = GetPropertyValueByPropertyName(env, value, VIEW_DATA_VIEW_DATA, napi_object);
     if (jsViewData == nullptr) {
-        HILOG_ERROR("Get ViewData from JS failed");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Get ViewData from JS failed");
         return;
     }
 
@@ -171,7 +172,7 @@ void JsAutoFillExtensionUtil::UnwrapViewData(
     if (jsValue != nullptr) {
         uint32_t jsProCount = 0;
         if (!IsArrayForNapiValue(env, jsValue, jsProCount)) {
-            HILOG_ERROR("Get PAGE_NODE_INFOS from JS failed.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Get PAGE_NODE_INFOS from JS failed.");
             return;
         }
 
@@ -190,7 +191,7 @@ void JsAutoFillExtensionUtil::UnwrapViewData(
 void JsAutoFillExtensionUtil::UnwrapPageNodeInfo(
     const napi_env env, const napi_value jsNode, AbilityBase::PageNodeInfo &node)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     UnwrapInt32ByPropertyName(env, jsNode, PAGE_INFO_ID, node.id);
     UnwrapInt32ByPropertyName(env, jsNode, PAGE_INFO_DEPTH, node.depth);
     int32_t type;
@@ -226,17 +227,17 @@ void JsAutoFillExtensionUtil::UnwrapRectData(
 
 napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, const napi_env env)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
     if (jsObject == nullptr) {
-        HILOG_ERROR("Failed to create jsObject.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to create jsObject.");
         return nullptr;
     }
 
     if (want.HasParameter(WANT_PARAMS_AUTO_FILL_TYPE_KEY)) {
         auto type = want.GetIntParam(WANT_PARAMS_AUTO_FILL_TYPE_KEY, -1);
-        HILOG_DEBUG("Auto fill request type: %{public}d", type);
+        TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Auto fill request type: %{public}d", type);
 
         napi_value jsValue = AppExecFwk::WrapInt32ToJS(env, type);
         SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_TYPE, jsValue);
@@ -245,7 +246,7 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
     if (want.HasParameter(WANT_PARAMS_VIEW_DATA)) {
         std::string viewDataString = want.GetStringParam(WANT_PARAMS_VIEW_DATA);
         if (viewDataString.empty()) {
-            HILOG_ERROR("View data is empty.");
+            TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "View data is empty.");
             return jsObject;
         }
 
@@ -289,7 +290,7 @@ napi_value JsAutoFillExtensionUtil::WrapUpdateRequest(const AAFwk::WantParams &w
 
 void JsAutoFillExtensionUtil::UnwrapFillResponse(const napi_env env, const napi_value value, FillResponse &response)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     UnwrapViewData(env, value, response.viewData);
 }
 } // namespace AbilityRuntime

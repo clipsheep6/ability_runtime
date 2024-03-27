@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <string>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parcel_macro.h"
 #include "string_ex.h"
@@ -36,7 +37,7 @@ std::string DialogAbilityInfo::GetURI() const
 bool DialogAbilityInfo::ParseURI(const std::string &uri)
 {
     if (std::count(uri.begin(), uri.end(), '/') != MEMBER_NUM - 1) {
-        HILOG_ERROR("Invalid uri: %{public}s.", uri.c_str());
+        TAG_LOGE(AAFwkTag::DIALOG, "Invalid uri: %{public}s.", uri.c_str());
         return false;
     }
 
@@ -73,21 +74,21 @@ bool DialogSessionInfo::ReadFromParcel(Parcel &parcel)
 {
     std::string callerAbilityInfoUri = Str16ToStr8(parcel.ReadString16());
     if (!callerAbilityInfo.ParseURI(callerAbilityInfoUri)) {
-        HILOG_ERROR("parse callerAbilityInfo failed");
+        TAG_LOGE(AAFwkTag::DIALOG, "parse callerAbilityInfo failed");
         return false;
     }
     int32_t targetAbilityInfoSize = 0;
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, targetAbilityInfoSize);
     CONTAINER_SECURITY_VERIFY(parcel, targetAbilityInfoSize, &targetAbilityInfos);
     if (targetAbilityInfoSize > CYCLE_LIMIT) {
-        HILOG_ERROR("size is too large.");
+        TAG_LOGE(AAFwkTag::DIALOG, "size is too large.");
         return false;
     }
     for (auto i = 0; i < targetAbilityInfoSize; i++) {
         std::string targetAbilityInfoUri = Str16ToStr8(parcel.ReadString16());
         DialogAbilityInfo targetAbilityInfo;
         if (!targetAbilityInfo.ParseURI(targetAbilityInfoUri)) {
-            HILOG_ERROR("parse targetAbilityInfo failed");
+            TAG_LOGE(AAFwkTag::DIALOG, "parse targetAbilityInfo failed");
             return false;
         }
         targetAbilityInfos.emplace_back(targetAbilityInfo);
@@ -119,7 +120,7 @@ DialogSessionInfo *DialogSessionInfo::Unmarshalling(Parcel &parcel)
 {
     DialogSessionInfo *info = new (std::nothrow) DialogSessionInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        HILOG_ERROR("read from parcel failed");
+        TAG_LOGE(AAFwkTag::DIALOG, "read from parcel failed");
         delete info;
         info = nullptr;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "child_process_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "parcel_macro_base.h"
@@ -39,6 +40,7 @@ bool ChildProcessInfo::ReadFromParcel(Parcel &parcel)
     bundleName = Str16ToStr8(parcel.ReadString16());
     processName = Str16ToStr8(parcel.ReadString16());
     srcEntry = Str16ToStr8(parcel.ReadString16());
+    jitEnabled = parcel.ReadBool();
 
     return true;
 }
@@ -47,7 +49,7 @@ ChildProcessInfo *ChildProcessInfo::Unmarshalling(Parcel &parcel)
 {
     ChildProcessInfo *info = new (std::nothrow) ChildProcessInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        HILOG_WARN("read from parcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "read from parcel failed");
         delete info;
         info = nullptr;
     }
@@ -62,6 +64,7 @@ bool ChildProcessInfo::Marshalling(Parcel &parcel) const
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(bundleName));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(processName));
     WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(String16, parcel, Str8ToStr16(srcEntry));
+    WRITE_PARCEL_AND_RETURN_FALSE_IF_FAIL(Bool, parcel, jitEnabled);
     return true;
 }
 }  // namespace AppExecFwk

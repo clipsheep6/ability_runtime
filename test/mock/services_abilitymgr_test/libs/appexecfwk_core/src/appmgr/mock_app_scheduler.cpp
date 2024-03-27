@@ -15,6 +15,7 @@
 
 #include "app_scheduler.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ability_util.h"
 #include "ability_manager_errors.h"
@@ -24,28 +25,28 @@ namespace OHOS {
 namespace AAFwk {
 AppScheduler::AppScheduler()
 {
-    HILOG_INFO(" Test AppScheduler::AppScheduler()");
+    TAG_LOGI(AAFwkTag::TEST, " Test AppScheduler::AppScheduler()");
 }
 
 AppScheduler::~AppScheduler()
 {
-    HILOG_INFO("Test AppScheduler::~AppScheduler()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::~AppScheduler()");
 }
 
 bool AppScheduler::Init(const std::weak_ptr<AppStateCallback>& callback)
 {
-    HILOG_INFO("Test AppScheduler::Init()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::Init()");
     if (!callback.lock()) {
         return false;
     }
     return true;
 }
 
-int AppScheduler::LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
+int AppScheduler::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
     const AppExecFwk::AbilityInfo& abilityInfo, const AppExecFwk::ApplicationInfo& applicationInfo,
-    const AAFwk::Want& want)
+    const AAFwk::Want& want, int32_t abilityRecordId)
 {
-    HILOG_INFO("Test AppScheduler::LoadAbility()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::LoadAbility()");
     if (applicationInfo.bundleName.find("com.ix.First.Test") != std::string::npos) {
         return INNER_ERR;
     }
@@ -54,34 +55,34 @@ int AppScheduler::LoadAbility(const sptr<IRemoteObject>& token, const sptr<IRemo
 
 int AppScheduler::TerminateAbility(const sptr<IRemoteObject>& token, bool isClearMissionFlag)
 {
-    HILOG_INFO("Test AppScheduler::TerminateAbility()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::TerminateAbility()");
     return ERR_OK;
 }
 
 void AppScheduler::MoveToForeground(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("Test AppScheduler::MoveToForeground()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::MoveToForeground()");
 }
 
 void AppScheduler::MoveToBackground(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("Test AppScheduler::MoveToBackground()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::MoveToBackground()");
 }
 
 void AppScheduler::AbilityBehaviorAnalysis(const sptr<IRemoteObject>& token, const sptr<IRemoteObject>& preToken,
     const int32_t visibility, const int32_t perceptibility, const int32_t connectionState)
 {
-    HILOG_INFO("Test AppScheduler::AbilityBehaviorAnalysis()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::AbilityBehaviorAnalysis()");
 }
 
 void AppScheduler::KillProcessByAbilityToken(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("Test AppScheduler::KillProcessByAbilityToken()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::KillProcessByAbilityToken()");
 }
 
 void AppScheduler::KillProcessesByUserId(int32_t userId)
 {
-    HILOG_INFO("Test AppScheduler::KillProcessesByUserId()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::KillProcessesByUserId()");
 }
 
 AppAbilityState AppScheduler::ConvertToAppAbilityState(const int32_t state)
@@ -106,65 +107,65 @@ AppAbilityState AppScheduler::GetAbilityState() const
 
 void AppScheduler::OnAbilityRequestDone(const sptr<IRemoteObject>& token, const AppExecFwk::AbilityState state)
 {
-    HILOG_INFO("Test AppScheduler::OnAbilityRequestDone()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::OnAbilityRequestDone()");
 }
 
 int AppScheduler::KillApplication(const std::string& bundleName)
 {
-    HILOG_INFO("Test AppScheduler::KillApplication()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::KillApplication()");
     return ERR_OK;
 }
 
 void AppScheduler::AttachTimeOut(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("Test AppScheduler::AttachTimeOut()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::AttachTimeOut()");
 }
 
 void AppScheduler::PrepareTerminate(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("Test AppScheduler::PrepareTerminate()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::PrepareTerminate()");
 }
 
 void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData& appData)
 {
-    HILOG_INFO("Test AppScheduler::OnAppStateChanged()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::OnAppStateChanged()");
 }
 
 int AppScheduler::ClearUpApplicationData(const std::string& bundleName, const int32_t userId)
 {
-    HILOG_INFO("Test AppScheduler::ClearUpApplicationData()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::ClearUpApplicationData()");
     return ERR_OK;
 }
 
 void AppScheduler::UpdateAbilityState(const sptr<IRemoteObject>& token, const AppExecFwk::AbilityState state)
 {
-    HILOG_INFO("Test AppScheduler::UpdateAbilityState()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::UpdateAbilityState()");
 }
 
 void AppScheduler::UpdateExtensionState(const sptr<IRemoteObject>& token, const AppExecFwk::ExtensionState state)
 {
-    HILOG_INFO("Test AppScheduler::UpdateExtensionState()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::UpdateExtensionState()");
 }
 
 void AppScheduler::StartupResidentProcess(const std::vector<AppExecFwk::BundleInfo>& bundleInfos)
 {
-    HILOG_INFO("Test AppScheduler::StartupResidentProcess()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::StartupResidentProcess()");
 }
 
 int AppScheduler::GetProcessRunningInfos(std::vector<AppExecFwk::RunningProcessInfo>& info)
 {
-    HILOG_INFO("Test AppScheduler::GetProcessRunningInfos()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::GetProcessRunningInfos()");
     return 0;
 }
 
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject>& token, AppExecFwk::RunningProcessInfo& info)
 {
-    HILOG_INFO("Test AppScheduler::GetRunningProcessInfoByToken()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::GetRunningProcessInfoByToken()");
 }
 
 void AppScheduler::GetRunningProcessInfoByPid(const pid_t pid, OHOS::AppExecFwk::RunningProcessInfo& info) const
 {
-    HILOG_INFO("Test AppScheduler::GetRunningProcessInfoByPid()");
+    TAG_LOGI(AAFwkTag::TEST, "Test AppScheduler::GetRunningProcessInfoByPid()");
 }
 
 void AppScheduler::StartSpecifiedAbility(const AAFwk::Want& want, const AppExecFwk::AbilityInfo& abilityInfo)
@@ -199,7 +200,7 @@ int32_t AppScheduler::UnregisterAppDebugListener(const sptr<AppExecFwk::IAppDebu
 {
     return 0;
 }
-    
+
 int32_t AppScheduler::AttachAppDebug(const std::string &bundleName)
 {
     return 0;

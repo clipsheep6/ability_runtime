@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "reverse_continuation_scheduler_replica_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -32,23 +33,24 @@ sptr<IRemoteObject> ReverseContinuationSchedulerReplicaProxy::AsObject()
 
 void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObject> &primary)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerReplicaProxy::GetDescriptor())) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::PassPrimary write interface token failed");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::PassPrimary write interface token failed");
         return;
     }
     if (primary) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(primary)) {
-            HILOG_ERROR("Failed to write flag and primary");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "Failed to write flag and primary");
             return;
         }
     } else {
-        HILOG_DEBUG("primary is nullptr");
+        TAG_LOGD(AAFwkTag::CONTINUATION, "primary is nullptr");
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "Failed to write flag");
             return;
         }
     }
@@ -56,19 +58,21 @@ void ReverseContinuationSchedulerReplicaProxy::PassPrimary(const sptr<IRemoteObj
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IReverseContinuationSchedulerReplica::Message::PASS_PRIMARY), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::PassPrimary SendRequest return false");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::PassPrimary SendRequest return false");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 bool ReverseContinuationSchedulerReplicaProxy::ReverseContinuation()
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerReplicaProxy::GetDescriptor())) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::ReverseContinuation write interface token failed");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::ReverseContinuation write interface token failed");
         return false;
     }
 
@@ -77,25 +81,28 @@ bool ReverseContinuationSchedulerReplicaProxy::ReverseContinuation()
         data,
         reply,
         option) != NO_ERROR) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::ReverseContinuation SendRequest return false");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::ReverseContinuation SendRequest return false");
         return false;
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
     return true;
 }
 
 void ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult(int reverseResult)
 {
-    HILOG_INFO("%{public}s called begin", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called begin", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!data.WriteInterfaceToken(ReverseContinuationSchedulerReplicaProxy::GetDescriptor())) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write interface token failed");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write interface token failed");
         return;
     }
     if (!data.WriteInt32(reverseResult)) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write parcel flags failed");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult write parcel flags failed");
         return;
     }
     if (SendTransactCmd(
@@ -103,9 +110,10 @@ void ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult(int reverseRe
         data,
         reply,
         option) != NO_ERROR) {
-        HILOG_ERROR("ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult SendRequest return false");
+        TAG_LOGE(AAFwkTag::CONTINUATION,
+            "ReverseContinuationSchedulerReplicaProxy::NotifyReverseResult SendRequest return false");
     }
-    HILOG_INFO("%{public}s called end", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called end", __func__);
 }
 
 int32_t ReverseContinuationSchedulerReplicaProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
@@ -113,7 +121,7 @@ int32_t ReverseContinuationSchedulerReplicaProxy::SendTransactCmd(uint32_t code,
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 

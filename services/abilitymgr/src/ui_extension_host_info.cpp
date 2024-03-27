@@ -14,6 +14,7 @@
  */
 
 #include "ui_extension_host_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -22,7 +23,7 @@ bool UIExtensionHostInfo::ReadFromParcel(Parcel &parcel)
 {
     std::unique_ptr<AppExecFwk::ElementName> abilityInfo(parcel.ReadParcelable<AppExecFwk::ElementName>());
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("Read host info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Read host info failed.");
         return false;
     }
 
@@ -34,7 +35,7 @@ UIExtensionHostInfo *UIExtensionHostInfo::Unmarshalling(Parcel &parcel)
 {
     UIExtensionHostInfo *hostInfo = new (std::nothrow) UIExtensionHostInfo();
     if (hostInfo == nullptr) {
-        HILOG_ERROR("Create host info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Create host info failed.");
         return nullptr;
     }
 

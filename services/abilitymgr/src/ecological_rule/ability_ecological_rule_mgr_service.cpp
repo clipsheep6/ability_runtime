@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "ability_manager_errors.h"
 #include "iservice_registry.h"
 #include "iremote_broker.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -70,13 +71,13 @@ sptr<IAbilityEcologicalRuleMgrService> AbilityEcologicalRuleMgrServiceClient::Co
 {
     sptr<ISystemAbilityManager> samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgr == nullptr) {
-        HILOG_ERROR("GetSystemAbilityManager error");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "GetSystemAbilityManager error");
         return nullptr;
     }
 
     auto systemAbility = samgr->CheckSystemAbility(ECOLOGICALRULEMANAGERSERVICE_ID);
     if (systemAbility == nullptr) {
-        HILOG_ERROR("CheckSystemAbility error");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "CheckSystemAbility error");
         return nullptr;
     }
 
@@ -85,7 +86,7 @@ sptr<IAbilityEcologicalRuleMgrService> AbilityEcologicalRuleMgrServiceClient::Co
 
     sptr<IAbilityEcologicalRuleMgrService> service = iface_cast<IAbilityEcologicalRuleMgrService>(systemAbility);
     if (service == nullptr) {
-        HILOG_DEBUG("The erms has transfer to foundation.");
+        TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "The erms has transfer to foundation.");
         service = new AbilityEcologicalRuleMgrServiceProxy(systemAbility);
     }
     return service;
@@ -95,11 +96,11 @@ bool AbilityEcologicalRuleMgrServiceClient::CheckConnectService()
 {
     std::lock_guard<std::mutex> autoLock(proxyLock_);
     if (ecologicalRuleMgrServiceProxy_ == nullptr) {
-        HILOG_WARN("redo ConnectService");
+        TAG_LOGW(AAFwkTag::ECOLOGICAL_RULE, "redo ConnectService");
         ecologicalRuleMgrServiceProxy_ = ConnectService();
     }
     if (ecologicalRuleMgrServiceProxy_ == nullptr) {
-        HILOG_ERROR("Connect SA Failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "Connect SA Failed");
         return false;
     }
     return true;
@@ -117,14 +118,15 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
-    HILOG_DEBUG("want: %{public}s, callerInfo: %{public}s, type: %{public}d", want.ToString().c_str(),
-        callerInfo.ToString().c_str(), type);
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "want: %{public}s, callerInfo: %{public}s, type: %{public}d",
+        want.ToString().c_str(), callerInfo.ToString().c_str(), type);
     if (!CheckConnectService()) {
         return AAFwk::ERR_CONNECT_ERMS_FAILED;
     }
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
-    HILOG_DEBUG("[ERMS-DFX] EvaluateResolveInfos interface cost %{public}lld mirco seconds.", cost);
+    TAG_LOGD(
+        AAFwkTag::ECOLOGICAL_RULE, "[ERMS-DFX] EvaluateResolveInfos interface cost %{public}lld mirco seconds.", cost);
     return res;
 }
 
@@ -133,7 +135,8 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     int64_t start = GetCurrentTimeMicro();
-    HILOG_DEBUG("callerInfo: %{public}s, want: %{public}s", callerInfo.ToString().c_str(), want.ToString().c_str());
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "callerInfo: %{public}s, want: %{public}s", callerInfo.ToString().c_str(),
+        want.ToString().c_str());
 
     if (!CheckConnectService()) {
         return AAFwk::ERR_CONNECT_ERMS_FAILED;
@@ -141,11 +144,13 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
     int32_t res = ecologicalRuleMgrServiceProxy_->QueryStartExperience(want, callerInfo, rule);
     if (rule.replaceWant != nullptr) {
         rule.replaceWant->SetParam(ERMS_ORIGINAL_TARGET, want.ToString());
-        HILOG_DEBUG("queryStart finish: isAllow = %{public}d, sceneCode = %{public}s, replaceWant = %{public}s",
-            rule.isAllow, rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
+        TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE,
+            "queryStart finish: isAllow = %{public}d, sceneCode = %{public}s, replaceWant = %{public}s", rule.isAllow,
+            rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
     }
     int64_t cost = GetCurrentTimeMicro() - start;
-    HILOG_DEBUG("[ERMS-DFX] QueryStartExperience interface cost %{public}lld mirco seconds.", cost);
+    TAG_LOGD(
+        AAFwkTag::ECOLOGICAL_RULE, "[ERMS-DFX] QueryStartExperience interface cost %{public}lld mirco seconds.", cost);
     return res;
 }
 
@@ -161,37 +166,37 @@ AbilityEcologicalRuleMgrServiceProxy::AbilityEcologicalRuleMgrServiceProxy(
 int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &want,
     const AbilityCallerInfo &callerInfo, int32_t type, std::vector<AbilityInfo> &abilityInfos)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "called");
     MessageParcel data;
 
     if (!data.WriteInterfaceToken(ERMS_INTERFACE_TOKEN)) {
-        HILOG_ERROR("write token failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write token failed");
         return ERR_FAILED;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("write want failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write want failed");
         return ERR_FAILED;
     }
 
     if (!data.WriteParcelable(&callerInfo)) {
-        HILOG_ERROR("write callerInfo failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerInfo failed");
         return ERR_FAILED;
     }
 
     if (!data.WriteInt32(type)) {
-        HILOG_ERROR("write type failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write type failed");
         return ERR_FAILED;
     }
 
     if (!data.WriteInt32(abilityInfos.size())) {
-        HILOG_ERROR("write abilityInfos size failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write abilityInfos size failed");
         return ERR_FAILED;
     }
 
     for (auto &abilityInfo : abilityInfos) {
         if (!data.WriteParcelable(&abilityInfo)) {
-            HILOG_ERROR("write abilityInfo failed");
+            TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write abilityInfo failed");
             return ERR_FAILED;
         }
     }
@@ -201,20 +206,20 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
 
     auto remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("get Remote failed.");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "get Remote failed.");
         return ERR_FAILED;
     }
 
     int32_t ret = remote->SendRequest(EVALUATE_RESOLVE_INFO_CMD, data, reply, option);
     if (ret != ERR_NONE) {
-        HILOG_ERROR("SendRequest error, ret = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "SendRequest error, ret = %{public}d", ret);
         return ERR_FAILED;
     }
 
     if (!ReadParcelableVector(abilityInfos, reply)) {
-        HILOG_ERROR("GetParcelableInfos fail");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "GetParcelableInfos fail");
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "end");
     return ERR_OK;
 }
 
@@ -223,14 +228,14 @@ bool AbilityEcologicalRuleMgrServiceProxy::ReadParcelableVector(std::vector<T> &
 {
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        HILOG_ERROR("size is too large.");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "size is too large.");
         return false;
     }
     parcelableVector.clear();
     for (int32_t i = 0; i < infoSize; i++) {
         sptr<T> info = reply.ReadParcelable<T>();
         if (info == nullptr) {
-            HILOG_ERROR("read Parcelable infos failed");
+            TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "read Parcelable infos failed");
             return false;
         }
         parcelableVector.emplace_back(*info);
@@ -241,21 +246,21 @@ bool AbilityEcologicalRuleMgrServiceProxy::ReadParcelableVector(std::vector<T> &
 int32_t AbilityEcologicalRuleMgrServiceProxy::QueryStartExperience(const Want &want,
     const AbilityCallerInfo &callerInfo, AbilityExperienceRule &rule)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "called");
     MessageParcel data;
 
     if (!data.WriteInterfaceToken(ERMS_INTERFACE_TOKEN)) {
-        HILOG_ERROR("write token failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write token failed");
         return ERR_FAILED;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("write want failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write want failed");
         return ERR_FAILED;
     }
 
     if (!data.WriteParcelable(&callerInfo)) {
-        HILOG_ERROR("write callerInfo failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerInfo failed");
         return ERR_FAILED;
     }
 
@@ -264,24 +269,24 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::QueryStartExperience(const Want &w
 
     auto remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("get Remote failed");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "get Remote failed");
         return ERR_FAILED;
     }
 
     int32_t ret = remote->SendRequest(QUERY_START_EXPERIENCE_CMD, data, reply, option);
     if (ret != ERR_NONE) {
-        HILOG_ERROR("SendRequest error, ret = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "SendRequest error, ret = %{public}d", ret);
         return ERR_FAILED;
     }
 
     sptr<AbilityExperienceRule> sptrRule = reply.ReadParcelable<AbilityExperienceRule>();
     if (sptrRule == nullptr) {
-        HILOG_ERROR("ReadParcelable sptrRule error");
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "ReadParcelable sptrRule error");
         return ERR_FAILED;
     }
 
     rule = *sptrRule;
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ECOLOGICAL_RULE, "end");
     return ERR_OK;
 }
 } // namespace EcologicalRuleMgrService

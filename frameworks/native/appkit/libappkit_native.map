@@ -24,8 +24,9 @@
       *GetDataPath*;
       *MainHandlerDumper*;
       *MainThread*;
-      *MixStackDumper*;
       *OHOSApplication*;
+      *StartupManager*;
+      *StartupTaskResult*;
       *Watchdog*;
     };
   local:

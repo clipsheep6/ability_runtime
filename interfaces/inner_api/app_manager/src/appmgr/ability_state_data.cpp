@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_state_data.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -63,7 +64,7 @@ bool AbilityStateData::Marshalling(Parcel &parcel) const
     if (!parcel.WriteString(callerAbilityName)) {
         return false;
     }
-    if (!parcel.WriteBool(isAtomicService)) {
+    if (!parcel.WriteBool(isAtomicService) || !parcel.WriteInt32(abilityRecordId)) {
         return false;
     }
     return true;
@@ -95,6 +96,7 @@ bool AbilityStateData::ReadFromParcel(Parcel &parcel)
 
     callerAbilityName = parcel.ReadString();
     isAtomicService = parcel.ReadBool();
+    abilityRecordId = parcel.ReadInt32();
     return true;
 }
 
@@ -102,7 +104,7 @@ AbilityStateData *AbilityStateData::Unmarshalling(Parcel &parcel)
 {
     AbilityStateData *abilityStateData = new (std::nothrow) AbilityStateData();
     if (abilityStateData && !abilityStateData->ReadFromParcel(parcel)) {
-        HILOG_WARN("AbilityStateData failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "AbilityStateData failed, because ReadFromParcel failed");
         delete abilityStateData;
         abilityStateData = nullptr;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "ui_extension_ability_connect_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -29,7 +30,7 @@ UIExtensionAbilityConnectInfo *UIExtensionAbilityConnectInfo::Unmarshalling(Parc
 {
     UIExtensionAbilityConnectInfo *connectInfo = new (std::nothrow) UIExtensionAbilityConnectInfo();
     if (connectInfo == nullptr) {
-        HILOG_ERROR("New connect Info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "New connect Info failed.");
         return nullptr;
     }
 
@@ -43,12 +44,12 @@ UIExtensionAbilityConnectInfo *UIExtensionAbilityConnectInfo::Unmarshalling(Parc
 bool UIExtensionAbilityConnectInfo::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString(hostBundleName)) {
-        HILOG_ERROR("Write hostBundleName failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write hostBundleName failed.");
         return false;
     }
 
     if (!parcel.WriteInt32(uiExtensionAbilityId)) {
-        HILOG_ERROR("Write uiExtensionAbilityId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write uiExtensionAbilityId failed.");
         return false;
     }
 

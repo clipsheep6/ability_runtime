@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_free_install_observer.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_error_utils.h"
@@ -24,8 +25,6 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-constexpr size_t ARGC_ONE = 1;
-
 JsFreeInstallObserver::JsFreeInstallObserver(napi_env env) : env_(env) {}
 
 JsFreeInstallObserver::~JsFreeInstallObserver() = default;
@@ -33,7 +32,7 @@ JsFreeInstallObserver::~JsFreeInstallObserver() = default;
 void JsFreeInstallObserver::OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
     const std::string &startTime, const int &resultCode)
 {
-    HILOG_DEBUG("OnInstallFinished come.");
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "call");
     wptr<JsFreeInstallObserver> jsObserver = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([jsObserver, bundleName, abilityName, startTime, resultCode](napi_env env, NapiAsyncTask &task,
@@ -49,53 +48,131 @@ void JsFreeInstallObserver::OnInstallFinished(const std::string &bundleName, con
         std::move(execute), std::move(complete)));
 }
 
-void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
-    const std::string &startTime, const int &resultCode)
+void JsFreeInstallObserver::OnInstallFinished(const std::string &bundleName, const std::string &abilityName,
+    const std::string &startTime, napi_value abilityResult)
 {
-    HILOG_DEBUG("HandleOnInstallFinished begin.");
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "call");
     for (auto it = jsObserverObjectList_.begin(); it != jsObserverObjectList_.end();) {
         if ((it->bundleName == bundleName) && (it->abilityName == abilityName) && (it->startTime == startTime)) {
-            if (it->callback == nullptr) {
+            if (it->callback == nullptr && it->deferred == nullptr) {
+                it++;
                 continue;
             }
-            if (it->isAbilityResult && resultCode == ERR_OK) {
-                it = jsObserverObjectList_.erase(it);
+            if (!it->isAbilityResult) {
+                it++;
                 continue;
+            }
+            if (it->deferred != nullptr) {
+                CallPromise(it->deferred, abilityResult);
+            } else {
+                CallCallback(it->callback, abilityResult);
             }
             FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, "StartFreeInstall", atoi(startTime.c_str()));
-            napi_value value = (it->callback)->GetNapiValue();
-            napi_value argv[] = { CreateJsErrorByNativeErr(env_, resultCode) };
-            CallJsFunction(value, argv, ARGC_ONE);
             it = jsObserverObjectList_.erase(it);
-            HILOG_DEBUG("the size of jsObserverObjectList_:%{public}zu", jsObserverObjectList_.size());
+            TAG_LOGD(AAFwkTag::FREE_INSTALL,
+                "the size of jsObserverObjectList_:%{public}zu", jsObserverObjectList_.size());
         } else {
             it++;
         }
     }
 }
 
-void JsFreeInstallObserver::CallJsFunction(napi_value value, napi_value const* argv, size_t argc)
+void JsFreeInstallObserver::HandleOnInstallFinished(const std::string &bundleName, const std::string &abilityName,
+    const std::string &startTime, const int &resultCode)
 {
-    HILOG_INFO("CallJsFunction begin");
-    if (value == nullptr) {
-        HILOG_ERROR("value is nullptr.");
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "call");
+    for (auto it = jsObserverObjectList_.begin(); it != jsObserverObjectList_.end();) {
+        if ((it->bundleName == bundleName) && (it->abilityName == abilityName) && (it->startTime == startTime)) {
+            if (it->callback == nullptr && it->deferred == nullptr) {
+                it++;
+                continue;
+            }
+            if (it->isAbilityResult && resultCode == ERR_OK) {
+                it++;
+                continue;
+            }
+            if (it->deferred != nullptr) {
+                CallPromise(it->deferred, resultCode);
+            } else {
+                CallCallback(it->callback, resultCode);
+            }
+            FinishAsyncTrace(HITRACE_TAG_ABILITY_MANAGER, "StartFreeInstall", atoi(startTime.c_str()));
+            it = jsObserverObjectList_.erase(it);
+            TAG_LOGD(
+                AAFwkTag::FREE_INSTALL, "the size of jsObserverObjectList_:%{public}zu", jsObserverObjectList_.size());
+        } else {
+            it++;
+        }
+    }
+}
+
+void JsFreeInstallObserver::CallCallback(napi_ref callback, int32_t resultCode)
+{
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "call");
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "callback is nullptr.");
         return;
     }
-    napi_call_function(env_, value, value, argc, argv, nullptr);
+    napi_value value;
+    if (resultCode == ERR_OK) {
+        value = CreateJsUndefined(env_);
+    } else {
+        value = CreateJsError(env_, GetJsErrorCodeByNativeError(resultCode));
+    }
+    napi_value argv[] = { value };
+    napi_value func = nullptr;
+    napi_get_reference_value(env_, callback, &func);
+    napi_call_function(env_, CreateJsUndefined(env_), func, ArraySize(argv), argv, nullptr);
+}
+
+void JsFreeInstallObserver::CallCallback(napi_ref callback, napi_value abilityResult)
+{
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "call");
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "callback is nullptr.");
+        return;
+    }
+    napi_value argv[] = {
+        CreateJsError(env_, 0),
+        abilityResult,
+    };
+    napi_value func = nullptr;
+    napi_get_reference_value(env_, callback, &func);
+    napi_call_function(env_, CreateJsUndefined(env_), func, ArraySize(argv), argv, nullptr);
+}
+
+void JsFreeInstallObserver::CallPromise(napi_deferred deferred, int32_t resultCode)
+{
+    if (deferred == nullptr) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "deferred is nullptr.");
+        return;
+    }
+    if (resultCode == ERR_OK) {
+        napi_value value = CreateJsUndefined(env_);
+        napi_resolve_deferred(env_, deferred, value);
+    } else {
+        napi_value error = CreateJsError(env_, GetJsErrorCodeByNativeError(resultCode));
+        napi_reject_deferred(env_, deferred, error);
+    }
+}
+
+void JsFreeInstallObserver::CallPromise(napi_deferred deferred, napi_value abilityResult)
+{
+    if (deferred == nullptr) {
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "deferred is nullptr.");
+        return;
+    }
+    napi_resolve_deferred(env_, deferred, abilityResult);
 }
 
 void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, const std::string &abilityName,
-    const std::string &startTime, napi_value jsObserverObject, bool isAbilityResult)
+    const std::string &startTime, napi_value jsObserverObject, napi_value* result, bool isAbilityResult)
 {
-    HILOG_INFO("AddJsObserverObject begin.");
-    if (jsObserverObject == nullptr) {
-        HILOG_ERROR("jsObserverObject is nullptr.");
-        return;
-    }
-    
+    TAG_LOGD(AAFwkTag::FREE_INSTALL, "call");
     for (auto it = jsObserverObjectList_.begin(); it != jsObserverObjectList_.end(); ++it) {
-        if (it->bundleName == bundleName && it->abilityName == abilityName && it->startTime == startTime) {
-            HILOG_WARN("The jsObject has been added.");
+        if (it->bundleName == bundleName && it->abilityName == abilityName &&
+            it->startTime == startTime) {
+            TAG_LOGW(AAFwkTag::FREE_INSTALL, "The jsObject has been added.");
             return;
         }
     }
@@ -105,10 +182,21 @@ void JsFreeInstallObserver::AddJsObserverObject(const std::string &bundleName, c
     object.bundleName = bundleName;
     object.abilityName = abilityName;
     object.startTime = startTime;
-    napi_ref ref = nullptr;
-    napi_create_reference(env_, jsObserverObject, 1, &ref);
-    object.callback = std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
     object.isAbilityResult = isAbilityResult;
+    napi_valuetype type = napi_undefined;
+    napi_typeof(env_, jsObserverObject, &type);
+    if (jsObserverObject == nullptr || type != napi_function) {
+        napi_deferred deferred;
+        napi_create_promise(env_, &deferred, result);
+        object.deferred = deferred;
+        object.callback = nullptr;
+    } else {
+        napi_ref ref = nullptr;
+        napi_get_undefined(env_, result);
+        napi_create_reference(env_, jsObserverObject, 1, &ref);
+        object.deferred = nullptr;
+        object.callback = ref;
+    }
     jsObserverObjectList_.emplace_back(object);
 }
 } // namespace AbilityRuntime

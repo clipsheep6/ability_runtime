@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_scheduler_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_types.h"
@@ -28,7 +29,7 @@ AppSchedulerProxy::AppSchedulerProxy(const sptr<IRemoteObject> &impl) : IRemoteP
 bool AppSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AppSchedulerProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed");
         return false;
     }
     return true;
@@ -36,7 +37,7 @@ bool AppSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AppSchedulerProxy::ScheduleForegroundApplication()
 {
-    HILOG_DEBUG("AppSchedulerProxy::ScheduleForegroundApplication start");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy::ScheduleForegroundApplication start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -49,7 +50,7 @@ void AppSchedulerProxy::ScheduleForegroundApplication()
             reply,
             option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -67,7 +68,7 @@ void AppSchedulerProxy::ScheduleBackgroundApplication()
             reply,
             option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is wrong, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is wrong, error code: %{public}d", ret);
     }
 }
 
@@ -80,19 +81,19 @@ void AppSchedulerProxy::ScheduleTerminateApplication(bool isLastProcess)
         return;
     }
     if (!data.WriteBool(isLastProcess)) {
-        HILOG_ERROR("Write bool failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bool failed.");
         return;
     }
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_TERMINATE_APPLICATION_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is unsuccessful, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is unsuccessful, error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::ScheduleLowMemory()
 {
-    HILOG_DEBUG("AppSchedulerProxy::ScheduleLowMemory begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy::ScheduleLowMemory begin");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -102,7 +103,7 @@ void AppSchedulerProxy::ScheduleLowMemory()
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LOWMEMORY_APPLICATION_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -114,25 +115,25 @@ void AppSchedulerProxy::ScheduleMemoryLevel(int32_t level)
 
 void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
-    HILOG_DEBUG("AppSchedulerProxy::ScheduleHeapMemory start");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy::ScheduleHeapMemory start");
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("AppSchedulerProxy !WriteInterfaceToken.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AppSchedulerProxy !WriteInterfaceToken.");
         return;
     }
     data.WriteInt32(pid);
     int32_t ret = SendTransactCmd(operation, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 
     std::unique_ptr<MallocInfo> info(reply.ReadParcelable<MallocInfo>());
     if (info == nullptr) {
-        HILOG_ERROR("MallocInfo ReadParcelable nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "MallocInfo ReadParcelable nullptr");
         return;
     }
     mallocInfo = *info;
@@ -140,19 +141,19 @@ void AppSchedulerProxy::ScheduleHeapMemory(const int32_t pid, OHOS::AppExecFwk::
 
 void AppSchedulerProxy::ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
-    HILOG_DEBUG("AppSchedulerProxy::ScheduleJsHeapMemory start");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy::ScheduleJsHeapMemory start");
     uint32_t operation = static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("AppSchedulerProxy !WriteInterfaceToken.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AppSchedulerProxy !WriteInterfaceToken.");
         return;
     }
     data.WriteParcelable(&info);
     int32_t ret = SendTransactCmd(operation, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 }
@@ -174,12 +175,12 @@ void AppSchedulerProxy::ScheduleMemoryCommon(const int32_t level, const uint32_t
     data.WriteInt32(level);
     int32_t ret = SendTransactCmd(operation, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AAFwk::Want> &want)
+    const std::shared_ptr<AAFwk::Want> &want, int32_t abilityRecordId)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -191,24 +192,28 @@ void AppSchedulerProxy::ScheduleLaunchAbility(const AbilityInfo &info, const spt
 
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token.GetRefPtr())) {
-            HILOG_ERROR("Failed to write flag and token");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write flag and token");
             return;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write flag");
             return;
         }
     }
 
     if (!data.WriteParcelable(want.get())) {
-        HILOG_ERROR("write want fail.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write want fail.");
+        return;
+    }
+    if (!data.WriteInt32(abilityRecordId)) {
+        HILOG_ERROR("write ability record id fail.");
         return;
     }
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_ABILITY_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -221,19 +226,19 @@ void AppSchedulerProxy::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
         return;
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
-        HILOG_ERROR("Failed to write token");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
         return;
     }
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CLEAN_ABILITY_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchData, const Configuration &config)
 {
-    HILOG_DEBUG("AppSchedulerProxy ScheduleLaunchApplication start");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy ScheduleLaunchApplication start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -242,25 +247,25 @@ void AppSchedulerProxy::ScheduleLaunchApplication(const AppLaunchData &launchDat
     }
 
     if (!data.WriteParcelable(&launchData)) {
-        HILOG_ERROR("WriteParcelable launchData failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteParcelable launchData failed");
         return ;
     }
 
     if (!data.WriteParcelable(&config)) {
-        HILOG_ERROR("WriteParcelable config failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteParcelable config failed");
         return ;
     }
 
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_LAUNCH_APPLICATION_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const ApplicationInfo &appInfo)
 {
-    HILOG_DEBUG("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled begin");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return;
@@ -273,14 +278,14 @@ void AppSchedulerProxy::ScheduleUpdateApplicationInfoInstalled(const Application
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_DEBUG("AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy ScheduleUpdateApplicationInfoInstalled end");
 }
 
 void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
 {
-    HILOG_DEBUG("AppSchedulerProxy ScheduleAbilityStage start");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy ScheduleAbilityStage start");
     MessageParcel data;
     constexpr int32_t max = 10000;
     constexpr int32_t large = 60;
@@ -288,7 +293,7 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     auto abilityInfoSize = static_cast<int32_t>(abilityStage.abilityInfos.size());
     auto extensionInfoSize = static_cast<int32_t>(abilityStage.extensionInfos.size());
     if (abilityInfoSize > max || extensionInfoSize > max) {
-        HILOG_ERROR("size exceeds max");
+        TAG_LOGE(AAFwkTag::APPMGR, "size exceeds max");
         return;
     }
     auto componentSize = abilityInfoSize + extensionInfoSize;
@@ -312,9 +317,9 @@ void AppSchedulerProxy::ScheduleAbilityStage(const HapModuleInfo &abilityStage)
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ABILITY_STAGE_INFO), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_DEBUG("AppSchedulerProxy ScheduleAbilityStage end");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerProxy ScheduleAbilityStage end");
 }
 
 void AppSchedulerProxy::ScheduleProfileChanged(const Profile &profile)
@@ -329,7 +334,7 @@ void AppSchedulerProxy::ScheduleProfileChanged(const Profile &profile)
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROFILE_CHANGED_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -345,7 +350,7 @@ void AppSchedulerProxy::ScheduleConfigurationUpdated(const Configuration &config
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_CONFIGURATION_UPDATED), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -360,7 +365,7 @@ void AppSchedulerProxy::ScheduleProcessSecurityExit()
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_PROCESS_SECURITY_EXIT_TRANSACTION), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -379,7 +384,7 @@ void AppSchedulerProxy::ScheduleAcceptWant(const AAFwk::Want &want, const std::s
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ACCEPT_WANT), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -397,13 +402,13 @@ void AppSchedulerProxy::ScheduleNewProcessRequest(const AAFwk::Want &want, const
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote() is NULL");
         return;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NEW_PROCESS_REQUEST), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -413,22 +418,22 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "ScheduleNotifyLoadRepairPatch, Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "ScheduleNotifyLoadRepairPatch, Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteInt32(recordId)) {
-        HILOG_ERROR("Write record id failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write record id failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -437,7 +442,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyLoadRepairPatch(const std::string &bund
     int32_t ret = SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH),
         data, reply, option);
     if (ret != 0) {
-        HILOG_ERROR("ScheduleNotifyLoadRepairPatch, Send request failed with errno %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "ScheduleNotifyLoadRepairPatch, Send request failed with errno %{public}d.", ret);
         return ret;
     }
 
@@ -449,17 +454,17 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallb
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed!");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed!");
         return ERR_INVALID_DATA;
     }
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteInt32(recordId)) {
-        HILOG_ERROR("Write record id failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write record id failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -468,7 +473,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallb
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE),
         data, reply, option);
     if (ret != 0) {
-        HILOG_ERROR("Send request failed with errno %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with errno %{public}d.", ret);
         return ret;
     }
 
@@ -481,22 +486,22 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Schedule notify unload patch, Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Schedule notify unload patch, Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Schedule notify unload patch, Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Schedule notify unload patch, Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteInt32(recordId)) {
-        HILOG_ERROR("Write record id failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write record id failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -505,7 +510,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH), data, reply, option);
     if (ret != 0) {
-        HILOG_ERROR("Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
         return ret;
     }
 
@@ -517,12 +522,12 @@ int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
     MessageParcel data;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteParcelable(&faultData)) {
-        HILOG_ERROR("Write FaultData error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write FaultData error.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -531,7 +536,7 @@ int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_FAULT),
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -543,7 +548,7 @@ int32_t AppSchedulerProxy::ScheduleChangeAppGcState(int32_t state)
     MessageParcel data;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed");
         return ERR_INVALID_DATA;
     }
 
@@ -553,7 +558,7 @@ int32_t AppSchedulerProxy::ScheduleChangeAppGcState(int32_t state)
     auto ret = SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE),
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -562,10 +567,10 @@ int32_t AppSchedulerProxy::ScheduleChangeAppGcState(int32_t state)
 
 void AppSchedulerProxy::AttachAppDebug()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
 
@@ -574,16 +579,16 @@ void AppSchedulerProxy::AttachAppDebug()
     auto ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_ATTACH_APP_DEBUG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Failed to send request with error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to send request with error code: %{public}d", ret);
     }
 }
 
 void AppSchedulerProxy::DetachAppDebug()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
 
@@ -592,7 +597,7 @@ void AppSchedulerProxy::DetachAppDebug()
     auto ret = SendTransactCmd(
         static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code: %{public}d", ret);
     }
 }
 
@@ -601,13 +606,13 @@ int32_t AppSchedulerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code: %{public}d", ret);
         return ret;
     }
     return ret;

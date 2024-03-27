@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_IRENDER_STATE_OBSERVER_H
 
 #include "iremote_broker.h"
+#include "render_state_data.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -24,7 +25,7 @@ class IRenderStateObserver : public IRemoteBroker {
 public:
     DECLARE_INTERFACE_DESCRIPTOR(u"ohos.appexecfwk.IRenderStateObserver");
 
-    virtual void OnRenderStateChanged(pid_t renderPid, int32_t state) = 0;
+    virtual void OnRenderStateChanged(const RenderStateData &renderStateData) = 0;
 
     enum {
         ON_RENDER_STATE_CHANGED = 0,

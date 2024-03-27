@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -31,6 +31,8 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
 
   sources = [
     "${ability_runtime_services_path}/appmgr/src/ability_running_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/advanced_security_mode_manager.cpp",
+    "${ability_runtime_services_path}/appmgr/src/app_config_data_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_death_recipient.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_debug_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_mgr_service.cpp",
@@ -80,6 +82,7 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",
     "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
     "memory_utils:libmeminfo",
   ]
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "ability_local_record.h"
 #include "configuration.h"
 #include "extension_context.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -28,9 +29,9 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
     std::shared_ptr<AppExecFwk::AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::EXT, "called");
     if ((record == nullptr) || (application == nullptr) || (handler == nullptr) || (token == nullptr)) {
-        HILOG_ERROR("Extension::init failed, some object is nullptr");
+        TAG_LOGE(AAFwkTag::EXT, "Extension::init failed, some object is nullptr");
         return;
     }
     abilityInfo_ = record->GetAbilityInfo();
@@ -41,7 +42,7 @@ void Extension::Init(const std::shared_ptr<AppExecFwk::AbilityLocalRecord> &reco
 void Extension::OnStart(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
     SetLaunchWant(want);
     SetLastRequestWant(want);
 }
@@ -49,14 +50,14 @@ void Extension::OnStart(const AAFwk::Want &want)
 void Extension::OnStart(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
     SetLaunchWant(want);
     SetLastRequestWant(want);
 }
 
 void Extension::OnStop()
 {
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::OnStop(AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
@@ -72,7 +73,7 @@ void Extension::OnStopCallBack()
 sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
     return nullptr;
 }
 
@@ -86,7 +87,7 @@ sptr<IRemoteObject> Extension::OnConnect(const AAFwk::Want &want,
 void Extension::OnDisconnect(const AAFwk::Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo,
@@ -98,7 +99,7 @@ void Extension::OnDisconnect(const AAFwk::Want &want, AppExecFwk::AbilityTransac
 
 void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
-    HILOG_DEBUG("restart=%{public}s,startId=%{public}d.",
+    TAG_LOGD(AAFwkTag::EXT, "restart=%{public}s,startId=%{public}d.",
         restart ? "true" : "false",
         startId);
     SetLastRequestWant(want);
@@ -107,19 +108,19 @@ void Extension::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 void Extension::OnCommandWindow(const AAFwk::Want &want, const sptr<AAFwk::SessionInfo> &sessionInfo,
     AAFwk::WindowCommand winCmd)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::EXT, "call");
 }
 
 void Extension::OnForeground(const AAFwk::Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("extension:%{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::EXT, "extension:%{public}s.", abilityInfo_->name.c_str());
 }
 
 void Extension::SetLaunchWant(const AAFwk::Want &want)
@@ -149,17 +150,17 @@ std::shared_ptr<CallingInfo> Extension::GetCallingInfo()
 
 void Extension::OnConfigurationUpdated(const AppExecFwk::Configuration &configuration)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::EXT, "call");
 }
 
 void Extension::OnMemoryLevel(int level)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::EXT, "call");
 }
 
 void Extension::Dump(const std::vector<std::string> &params, std::vector<std::string> &info)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::EXT, "call");
 }
 
 void Extension::SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLifeCycle> &listener)
@@ -169,29 +170,29 @@ void Extension::SetExtensionWindowLifeCycleListener(const sptr<Rosen::IWindowLif
 
 void Extension::OnAbilityResult(int requestCode, int resultCode, const Want &want)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::EXT, "call.");
 }
 
 void Extension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionInfo, AAFwk::WindowCommand winCmd)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::EXT, "call.");
 }
 
 void Extension::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &sessionInfo,
     const AppExecFwk::InsightIntentExecuteResult &result)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::EXT, "call.");
 }
 
 bool Extension::HandleInsightIntent(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::EXT, "call.");
     return true;
 }
 
 bool Extension::OnInsightIntentExecuteDone(uint64_t intentId, const AppExecFwk::InsightIntentExecuteResult &result)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::EXT, "call.");
     return true;
 }
 }

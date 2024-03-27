@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "configuration_utils.h"
 
 #include "configuration_convertor.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"
@@ -28,9 +29,9 @@ using namespace AppExecFwk;
 void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
-    HILOG_DEBUG("Enter");
+    TAG_LOGD(AAFwkTag::ABILITY, "Enter");
     if (resourceManager == nullptr) {
-        HILOG_ERROR("Resource manager is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Resource manager is invalid.");
         return;
     }
 
@@ -40,7 +41,7 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     GetGlobalConfig(configuration, language, colormode, hasPointerDevice);
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        HILOG_ERROR("Create resource config failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Create resource config failed.");
         return;
     }
     resourceManager->GetResConfig(*resConfig);
@@ -49,14 +50,14 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
     if (!language.empty()) {
         UErrorCode status = U_ZERO_ERROR;
         icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-        HILOG_DEBUG("get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
+        TAG_LOGD(AAFwkTag::ABILITY, "get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
         if (status == U_ZERO_ERROR) {
             resConfig->SetLocaleInfo(locale);
         }
 
         const icu::Locale *localeInfo = resConfig->GetLocaleInfo();
         if (localeInfo != nullptr) {
-            HILOG_DEBUG("Update config, language: %{public}s, script: %{public}s, region: %{public}s",
+            TAG_LOGD(AAFwkTag::ABILITY, "Update config, language: %{public}s, script: %{public}s, region: %{public}s",
                 localeInfo->getLanguage(), localeInfo->getScript(), localeInfo->getCountry());
         }
     }
@@ -64,21 +65,21 @@ void ConfigurationUtils::UpdateGlobalConfig(const Configuration &configuration,
 
     if (!colormode.empty()) {
         resConfig->SetColorMode(AppExecFwk::ConvertColorMode(colormode));
-        HILOG_DEBUG("Update config, colorMode: %{public}d", resConfig->GetColorMode());
+        TAG_LOGD(AAFwkTag::ABILITY, "Update config, colorMode: %{public}d", resConfig->GetColorMode());
     }
 
     if (!hasPointerDevice.empty()) {
         resConfig->SetInputDevice(AppExecFwk::ConvertHasPointerDevice(hasPointerDevice));
-        HILOG_DEBUG("Update config, hasPointerDevice: %{public}d", resConfig->GetInputDevice());
+        TAG_LOGD(AAFwkTag::ABILITY, "Update config, hasPointerDevice: %{public}d", resConfig->GetInputDevice());
     }
 
     Global::Resource::RState ret = resourceManager->UpdateResConfig(*resConfig);
     if (ret != Global::Resource::RState::SUCCESS) {
-        HILOG_ERROR("Update resource config failed with %{public}d.", static_cast<int>(ret));
+        TAG_LOGE(AAFwkTag::ABILITY, "Update resource config failed with %{public}d.", static_cast<int>(ret));
         return;
     }
 
-    HILOG_DEBUG("Update resource config succeed.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Update resource config succeed.");
 }
 
 void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
@@ -93,9 +94,9 @@ void ConfigurationUtils::GetGlobalConfig(const Configuration &configuration,
 void ConfigurationUtils::InitDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager)
 {
-    HILOG_DEBUG("Init display config.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Init display config.");
     if (configuration == nullptr || resourceManager == nullptr) {
-        HILOG_ERROR("Input invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
         return;
     }
 
@@ -115,9 +116,9 @@ void ConfigurationUtils::InitDisplayConfig(Rosen::DisplayId displayId, std::shar
 void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::shared_ptr<Configuration> configuration,
     std::shared_ptr<ResourceManager> resourceManager, bool &configChanged)
 {
-    HILOG_DEBUG("Update display config.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Update display config.");
     if (configuration == nullptr || resourceManager == nullptr) {
-        HILOG_ERROR("Input invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Input invalid.");
         return;
     }
 
@@ -134,7 +135,7 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
     if (changeKeyV.empty()) {
-        HILOG_DEBUG("There's no changed config, return.");
+        TAG_LOGD(AAFwkTag::ABILITY, "There's no changed config, return.");
         return;
     }
     configuration->Merge(changeKeyV, newConfig);
@@ -143,17 +144,18 @@ void ConfigurationUtils::UpdateDisplayConfig(Rosen::DisplayId displayId, std::sh
     UpdateDisplayResConfig(resourceManager, density, direction);
 
     auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-    HILOG_INFO("Update display config %{public}s for all windows.", diffConfiguration->GetName().c_str());
+    TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s for all windows.",
+        diffConfiguration->GetName().c_str());
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 }
 
 bool ConfigurationUtils::GetDisplayConfig(Rosen::DisplayId displayId, float &density,
     std::string &directionStr)
 {
-    HILOG_DEBUG("Get display by id %{public}" PRIu64".", displayId);
+    TAG_LOGD(AAFwkTag::ABILITY, "Get display by id %{public}" PRIu64".", displayId);
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (display == nullptr) {
-        HILOG_ERROR("Get display %{public}" PRIu64" failed.", displayId);
+        TAG_LOGE(AAFwkTag::ABILITY, "Get display %{public}" PRIu64" failed.", displayId);
         return false;
     }
 
@@ -161,8 +163,8 @@ bool ConfigurationUtils::GetDisplayConfig(Rosen::DisplayId displayId, float &den
     int32_t width = display->GetWidth();
     int32_t height = display->GetHeight();
     directionStr = GetDirectionStr(height, width);
-    HILOG_DEBUG("DisplayId: %{public}" PRIu64", density: %{public}f, direction: %{public}s.", displayId,
-        density, directionStr.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "DisplayId: %{public}" PRIu64", density: %{public}f, direction: %{public}s.",
+        displayId, density, directionStr.c_str());
     return true;
 }
 
@@ -170,10 +172,11 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
     float &density, std::string &direction)
 {
     // resourceManager has checked in caller function.
-    HILOG_DEBUG("Update resConfig, density: %{public}f, direction: %{public}s.", density, direction.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "Update resConfig, density: %{public}f, direction: %{public}s.",
+        density, direction.c_str());
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        HILOG_ERROR("Create resConfig failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Create resConfig failed.");
         return;
     }
 
@@ -181,8 +184,8 @@ void ConfigurationUtils::UpdateDisplayResConfig(std::shared_ptr<ResourceManager>
     resConfig->SetScreenDensity(density);
     resConfig->SetDirection(ConvertDirection(direction));
     resourceManager->UpdateResConfig(*resConfig);
-    HILOG_DEBUG("Update resConfig finished, density: %{public}f, direction: %{public}d.", resConfig->GetScreenDensity(),
-        resConfig->GetDirection());
+    TAG_LOGD(AAFwkTag::ABILITY, "Update resConfig finished, density: %{public}f, direction: %{public}d.",
+        resConfig->GetScreenDensity(), resConfig->GetDirection());
 }
 #endif
 } // namespace AbilityRuntime

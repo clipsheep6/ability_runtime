@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include <cstdio>
 #include "directory_ex.h"
 #include "file_ex.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "image_source.h"
 #include "media_errors.h"
@@ -61,7 +62,7 @@ struct mission_error_mgr : public jpeg_error_mgr {
 METHODDEF(void) mission_error_exit(j_common_ptr cinfo)
 {
     if (cinfo == nullptr || cinfo->err == nullptr) {
-        HILOG_ERROR("%{public}s param is invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s param is invalid.", __func__);
         return;
     }
     auto err = static_cast<mission_error_mgr*>(cinfo->err);
@@ -86,20 +87,20 @@ bool MissionDataStorage::LoadAllMissionInfo(std::list<InnerMissionInfo> &mission
 
     for (auto fileName : fileNameVec) {
         if (!CheckFileNameValid(fileName)) {
-            HILOG_ERROR("load mission info: file name %{public}s invalid.", fileName.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "load mission info: file name %{public}s invalid.", fileName.c_str());
             continue;
         }
 
         std::string content;
         bool loadFile = OHOS::LoadStringFromFile(fileName, content);
         if (!loadFile) {
-            HILOG_ERROR("load string from file %{public}s failed.", fileName.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "load string from file %{public}s failed.", fileName.c_str());
             continue;
         }
 
         InnerMissionInfo misssionInfo;
         if (!misssionInfo.FromJsonStr(content)) {
-            HILOG_ERROR("parse mission info failed. file: %{public}s", fileName.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "parse mission info failed. file: %{public}s", fileName.c_str());
             continue;
         }
         if (misssionInfo.isTemporary) {
@@ -122,7 +123,7 @@ void MissionDataStorage::SaveMissionInfo(const InnerMissionInfo &missionInfo)
     if (!OHOS::FileExists(dirPath)) {
         bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_ERROR("create dir %{public}s failed.", dirPath.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "create dir %{public}s failed.", dirPath.c_str());
             return;
         }
         chmod(dirPath.c_str(), MODE);
@@ -131,7 +132,7 @@ void MissionDataStorage::SaveMissionInfo(const InnerMissionInfo &missionInfo)
     std::string jsonStr = missionInfo.ToJsonStr();
     bool saveMissionFile = OHOS::SaveStringToFile(filePath, jsonStr, true);
     if (!saveMissionFile) {
-        HILOG_ERROR("save mission file %{public}s failed.", filePath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "save mission file %{public}s failed.", filePath.c_str());
     }
 }
 
@@ -140,7 +141,7 @@ void MissionDataStorage::DeleteMissionInfo(int missionId)
     std::string filePath = GetMissionDataFilePath(missionId);
     bool removeMissionFile = OHOS::RemoveFile(filePath);
     if (!removeMissionFile) {
-        HILOG_ERROR("remove mission file %{public}s failed.", filePath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remove mission file %{public}s failed.", filePath.c_str());
         return;
     }
     DeleteMissionSnapshot(missionId);
@@ -149,10 +150,10 @@ void MissionDataStorage::DeleteMissionInfo(int missionId)
 void MissionDataStorage::SaveMissionSnapshot(int32_t missionId, const MissionSnapshot& missionSnapshot)
 {
 #ifdef SUPPORT_GRAPHICS
-    HILOG_INFO("snapshot: save snapshot from cache, missionId = %{public}d", missionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: save snapshot from cache, missionId = %{public}d", missionId);
     SaveCachedSnapshot(missionId, missionSnapshot);
     SaveSnapshotFile(missionId, missionSnapshot);
-    HILOG_INFO("snapshot: delete snapshot from cache, missionId = %{public}d", missionId);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: delete snapshot from cache, missionId = %{public}d", missionId);
     DeleteCachedSnapshot(missionId);
 #endif
 }
@@ -172,13 +173,13 @@ bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& 
         if (isLowResolution) {
             missionSnapshot.snapshot = GetReducedPixelMap(missionSnapshot.snapshot);
         }
-        HILOG_INFO("snapshot: GetMissionSnapshot from cache, missionId = %{public}d", missionId);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: GetMissionSnapshot from cache, missionId = %{public}d", missionId);
         return true;
     }
 
     auto pixelMap = GetPixelMap(missionId, isLowResolution);
     if (!pixelMap) {
-        HILOG_ERROR("%{public}s: GetPixelMap failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: GetPixelMap failed.", __func__);
         return false;
     }
     missionSnapshot.snapshot = std::move(pixelMap);
@@ -256,18 +257,18 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_p
     if (!OHOS::FileExists(dirPath)) {
         bool createDir = OHOS::ForceCreateDirectory(dirPath);
         if (!createDir) {
-            HILOG_ERROR("snapshot: create dir %{public}s failed.", dirPath.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: create dir %{public}s failed.", dirPath.c_str());
             return;
         }
         chmod(dirPath.c_str(), MODE);
     }
 
     if (isPrivate) {
-        HILOG_DEBUG("snapshot: the param isPrivate is true.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "snapshot: the param isPrivate is true.");
         ssize_t dataLength = snapshot->GetWidth() * snapshot->GetHeight() * RGB888_PIXEL_BYTES;
         uint8_t* data = (uint8_t*) malloc(dataLength);
         if (data == nullptr) {
-            HILOG_ERROR("malloc failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "malloc failed.");
             return;
         }
         if (memset_s(data, dataLength, 0xff, dataLength) == EOK) {
@@ -282,7 +283,7 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_p
         } else if (snapshot->GetPixelFormat() == Media::PixelFormat::RGB_888) {
             WriteRgb888ToJpeg(filePath.c_str(), snapshot->GetWidth(), snapshot->GetHeight(), snapshot->GetPixels());
         } else {
-            HILOG_ERROR("snapshot: invalid pixel format.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: invalid pixel format.");
         }
     }
 }
@@ -317,7 +318,7 @@ bool MissionDataStorage::SaveCachedSnapshot(int32_t missionId, const MissionSnap
     std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.insert_or_assign(missionId, missionSnapshot.snapshot);
     if (!result.second) {
-        HILOG_ERROR("snapshot: save snapshot cache failed, missionId = %{public}d", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: save snapshot cache failed, missionId = %{public}d", missionId);
         return false;
     }
     return true;
@@ -328,7 +329,7 @@ bool MissionDataStorage::DeleteCachedSnapshot(int32_t missionId)
     std::lock_guard<ffrt::mutex> lock(cachedPixelMapMutex_);
     auto result = cachedPixelMap_.erase(missionId);
     if (result != 1) {
-        HILOG_ERROR("snapshot: delete snapshot cache failed, missionId = %{public}d", missionId);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: delete snapshot cache failed, missionId = %{public}d", missionId);
         return false;
     }
     return true;
@@ -339,12 +340,13 @@ void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId, bool isLowReso
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
     std::string dirPath = OHOS::ExtractFilePath(filePath);
     if (!OHOS::FileExists(filePath)) {
-        HILOG_WARN("snapshot: remove snapshot file %{public}s failed, file not exists", filePath.c_str());
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "snapshot: remove snapshot file %{public}s failed, file not exists",
+            filePath.c_str());
         return;
     }
     bool removeResult = OHOS::RemoveFile(filePath);
     if (!removeResult) {
-        HILOG_ERROR("snapshot: remove snapshot file %{public}s failed.", filePath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: remove snapshot file %{public}s failed.", filePath.c_str());
     }
 }
 
@@ -352,7 +354,7 @@ std::shared_ptr<Media::PixelMap> MissionDataStorage::GetSnapshot(int missionId, 
 {
     auto pixelMapPtr = GetPixelMap(missionId, isLowResolution);
     if (!pixelMapPtr) {
-        HILOG_ERROR("%{public}s: GetPixelMap failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: GetPixelMap failed.", __func__);
         return nullptr;
     }
     return std::shared_ptr<Media::PixelMap>(pixelMapPtr.release());
@@ -363,39 +365,42 @@ std::unique_ptr<uint8_t[]> MissionDataStorage::ReadFileToBuffer(const std::strin
     struct stat statbuf;
     int ret = stat(filePath.c_str(), &statbuf);
     if (ret != 0) {
-        HILOG_ERROR("GetPixelMap: get the file size failed, ret:%{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetPixelMap: get the file size failed, ret:%{public}d.", ret);
         return nullptr;
     }
     bufferSize = static_cast<size_t>(statbuf.st_size);
     std::string realPath;
     if (!OHOS::PathToRealPath(filePath, realPath)) {
-        HILOG_ERROR("ReadFileToBuffer:file path to real path failed, file path=%{public}s.", filePath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadFileToBuffer:file path to real path failed, file path=%{public}s.",
+            filePath.c_str());
         return nullptr;
     }
 
     std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(bufferSize);
     if (buffer == nullptr) {
-        HILOG_ERROR("ReadFileToBuffer:buffer is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadFileToBuffer:buffer is nullptr");
         return nullptr;
     }
 
     FILE *fp = fopen(realPath.c_str(), "rb");
     if (fp == nullptr) {
-        HILOG_ERROR("ReadFileToBuffer:open file failed, real path=%{public}s.", realPath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadFileToBuffer:open file failed, real path=%{public}s.", realPath.c_str());
         return nullptr;
     }
     fseek(fp, 0, SEEK_END);
     size_t fileSize = static_cast<size_t>(ftell(fp));
     fseek(fp, 0, SEEK_SET);
     if (bufferSize < fileSize) {
-        HILOG_ERROR("ReadFileToBuffer:buffer size:(%{public}zu) is smaller than file size:(%{public}zu).", bufferSize,
+        TAG_LOGE(AAFwkTag::ABILITYMGR,
+            "ReadFileToBuffer:buffer size:(%{public}zu) is smaller than file size:(%{public}zu).", bufferSize,
             fileSize);
         fclose(fp);
         return nullptr;
     }
     size_t retSize = std::fread(buffer.get(), 1, fileSize, fp);
     if (retSize != fileSize) {
-        HILOG_ERROR("ReadFileToBuffer:read file result size = %{public}zu, size = %{public}zu.", retSize, fileSize);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ReadFileToBuffer:read file result size = %{public}zu, size = %{public}zu.",
+            retSize, fileSize);
         fclose(fp);
         return nullptr;
     }
@@ -407,7 +412,7 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
 {
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
     if (!OHOS::FileExists(filePath)) {
-        HILOG_INFO("snapshot: storage snapshot not exists, missionId = %{public}d", missionId);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "snapshot: storage snapshot not exists, missionId = %{public}d", missionId);
         return nullptr;
     }
     uint32_t errCode = 0;
@@ -416,20 +421,20 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
     const std::string fileName = filePath;
     std::unique_ptr<uint8_t[]> buffer = MissionDataStorage::ReadFileToBuffer(fileName, bufferSize);
     if (buffer == nullptr) {
-        HILOG_ERROR("GetPixelMap: get buffer error buffer == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetPixelMap: get buffer error buffer == nullptr");
         return nullptr;
     }
     Media::SourceOptions sourceOptions;
     auto imageSource = Media::ImageSource::CreateImageSource(buffer.get(), bufferSize, sourceOptions, errCode);
     if (errCode != OHOS::Media::SUCCESS || imageSource == nullptr) {
-        HILOG_ERROR("snapshot: CreateImageSource failed, nullptr or errCode = %{public}d", errCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: CreateImageSource failed, nullptr or errCode = %{public}d", errCode);
         return nullptr;
     }
     Media::DecodeOptions decodeOptions;
     decodeOptions.allocatorType = Media::AllocatorType::SHARE_MEM_ALLOC;
     auto pixelMapPtr = imageSource->CreatePixelMap(decodeOptions, errCode);
     if (errCode != OHOS::Media::SUCCESS) {
-        HILOG_ERROR("snapshot: CreatePixelMap failed, errCode = %{public}d", errCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: CreatePixelMap failed, errCode = %{public}d", errCode);
         return nullptr;
     }
     return pixelMapPtr;
@@ -437,15 +442,15 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
 
 void MissionDataStorage::WriteRgb888ToJpeg(const char* fileName, uint32_t width, uint32_t height, const uint8_t* data)
 {
-    HILOG_INFO("file:%{public}s", fileName);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "file:%{public}s", fileName);
     if (data == nullptr) {
-        HILOG_ERROR("snapshot: data error, nullptr!\n");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: data error, nullptr!\n");
         return;
     }
 
     FILE *file = fopen(fileName, "wb");
     if (file == nullptr) {
-        HILOG_ERROR("snapshot: open file [%s] error, nullptr!\n", fileName);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: open file [%s] error, nullptr!\n", fileName);
         return;
     }
 
@@ -457,7 +462,7 @@ void MissionDataStorage::WriteRgb888ToJpeg(const char* fileName, uint32_t width,
         jpeg_destroy_compress(&jpeg);
         (void)fclose(file);
         file = nullptr;
-        HILOG_ERROR("snapshot: lib jpeg exit with error!");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: lib jpeg exit with error!");
         return;
     }
 
@@ -490,12 +495,12 @@ bool MissionDataStorage::RGB565ToRGB888(const uint16_t *rgb565Buf, int32_t rgb56
     uint8_t *rgb888Buf, int32_t rgb888Size)
 {
     if (rgb565Buf == nullptr || rgb565Size <= 0 || rgb888Buf == nullptr || rgb888Size <= 0) {
-        HILOG_ERROR("%{public}s: params are invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: params are invalid.", __func__);
         return false;
     }
 
     if (rgb888Size < rgb565Size * RGB888_PIXEL_BYTES) {
-        HILOG_ERROR("%{public}s: rgb888Size are invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: rgb888Size are invalid.", __func__);
         return false;
     }
 
@@ -515,12 +520,12 @@ bool MissionDataStorage::RGBA8888ToRGB888(const uint32_t *rgba8888Buf, int32_t r
     uint8_t *rgb888Buf, int32_t rgb888Size)
 {
     if (rgba8888Buf == nullptr || rgba8888Size <= 0 || rgb888Buf == nullptr || rgb888Size <= 0) {
-        HILOG_ERROR("%{public}s: params are invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: params are invalid.", __func__);
         return false;
     }
 
     if (rgb888Size < rgba8888Size * RGB888_PIXEL_BYTES) {
-        HILOG_ERROR("%{public}s: rgb888Size are invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: rgb888Size are invalid.", __func__);
         return false;
     }
 
@@ -535,13 +540,13 @@ bool MissionDataStorage::RGBA8888ToRGB888(const uint32_t *rgba8888Buf, int32_t r
 
 void MissionDataStorage::SaveRGB565Image(const std::shared_ptr<Media::PixelMap> &frame, const char* fileName)
 {
-    HILOG_DEBUG("%{public}s was called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s was called.", __func__);
     int32_t rgb888Size = (frame->GetByteCount() / RGB565_PIXEL_BYTES) * RGB888_PIXEL_BYTES;
     uint8_t *rgb888 = new uint8_t[rgb888Size];
     const uint16_t *rgb565Data = reinterpret_cast<const uint16_t *>(frame->GetPixels());
     auto ret = RGB565ToRGB888(rgb565Data, frame->GetByteCount() / RGB565_PIXEL_BYTES, rgb888, rgb888Size);
     if (ret) {
-        HILOG_DEBUG("snapshot: convert rgb565 to rgb888 successfully.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "snapshot: convert rgb565 to rgb888 successfully.");
         WriteRgb888ToJpeg(fileName, frame->GetWidth(), frame->GetHeight(), rgb888);
     }
     delete [] rgb888;
@@ -549,13 +554,13 @@ void MissionDataStorage::SaveRGB565Image(const std::shared_ptr<Media::PixelMap> 
 
 void MissionDataStorage::SaveRGBA8888Image(const std::shared_ptr<Media::PixelMap> &frame, const char* fileName)
 {
-    HILOG_DEBUG("%{public}s was called.", __func__);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s was called.", __func__);
     int32_t rgb888Size = (frame->GetByteCount() / RGBA8888_PIXEL_BYTES) * RGB888_PIXEL_BYTES;
     uint8_t *rgb888 = new uint8_t[rgb888Size];
     const uint32_t *rgba8888Data = reinterpret_cast<const uint32_t *>(frame->GetPixels());
     auto ret = RGBA8888ToRGB888(rgba8888Data, frame->GetByteCount() / RGBA8888_PIXEL_BYTES, rgb888, rgb888Size);
     if (ret) {
-        HILOG_DEBUG("snapshot: convert rgba8888 to rgb888 successfully.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "snapshot: convert rgba8888 to rgb888 successfully.");
         WriteRgb888ToJpeg(fileName, frame->GetWidth(), frame->GetHeight(), rgb888);
     }
     delete [] rgb888;

@@ -24,6 +24,7 @@
 
 #include "app_mgr_interface.h"
 #include "app_service_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "app_mem_info.h"
 
@@ -83,11 +84,11 @@ private:
         auto me = shared_from_this();
         deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new AppMgrDeathRecipient(me));
         if (deathRecipient_ == nullptr) {
-            HILOG_ERROR("%{public}s :Failed to create AppMgrDeathRecipient!", __func__);
+            TAG_LOGE(AAFwkTag::APPMGR, "%{public}s :Failed to create AppMgrDeathRecipient!", __func__);
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
         }
         if ((remote_->IsProxyObject()) && (!remote_->AddDeathRecipient(deathRecipient_))) {
-            HILOG_ERROR("%{public}s :Add death recipient to AppMgrService failed.", __func__);
+            TAG_LOGE(AAFwkTag::APPMGR, "%{public}s :Add death recipient to AppMgrService failed.", __func__);
             return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
         }
 
@@ -127,8 +128,9 @@ AppMgrClient::AppMgrClient()
 AppMgrClient::~AppMgrClient()
 {}
 
-AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &preToken,
-    const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want)
+AppMgrResultCode AppMgrClient::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
+    const AbilityInfo &abilityInfo, const ApplicationInfo &appInfo, const AAFwk::Want &want,
+    int32_t abilityRecordId)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
@@ -138,7 +140,7 @@ AppMgrResultCode AppMgrClient::LoadAbility(const sptr<IRemoteObject> &token, con
             std::shared_ptr<AbilityInfo> abilityInfoPtr = std::make_shared<AbilityInfo>(abilityInfo);
             std::shared_ptr<ApplicationInfo> appInfoPtr = std::make_shared<ApplicationInfo>(appInfo);
             std::shared_ptr<AAFwk::Want> wantPtr = std::make_shared<AAFwk::Want>(want);
-            amsService->LoadAbility(token, preToken, abilityInfoPtr, appInfoPtr, wantPtr);
+            amsService->LoadAbility(token, preToken, abilityInfoPtr, appInfoPtr, wantPtr, abilityRecordId);
             return AppMgrResultCode::RESULT_OK;
         }
     }
@@ -385,7 +387,7 @@ AppMgrResultCode AppMgrClient::NotifyMemoryLevel(MemoryLevel level)
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
 
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return AppMgrResultCode(service->NotifyMemoryLevel(level));
@@ -395,7 +397,7 @@ AppMgrResultCode AppMgrClient::DumpHeapMemory(const int32_t pid, OHOS::AppExecFw
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("DumpHeapMemory: service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "DumpHeapMemory: service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return AppMgrResultCode(service->DumpHeapMemory(pid, mallocInfo));
@@ -407,7 +409,7 @@ AppMgrResultCode AppMgrClient::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo
         info.pid, info.tid, info.needGc, info.needSnapshot);
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("DumpJsHeapMemory: service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "DumpJsHeapMemory: service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return AppMgrResultCode(service->DumpJsHeapMemory(info));
@@ -505,7 +507,7 @@ void AppMgrClient::AddAbilityStageDone(const int32_t recordId)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return;
     }
 
@@ -516,7 +518,7 @@ void AppMgrClient::StartupResidentProcess(const std::vector<AppExecFwk::BundleIn
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return;
     }
 
@@ -528,7 +530,7 @@ int AppMgrClient::StartUserTestProcess(
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
     }
     return service->StartUserTestProcess(want, observer, bundleInfo, userId);
@@ -538,7 +540,7 @@ int AppMgrClient::FinishUserTest(const std::string &msg, const int64_t &resultCo
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
     }
     return service->FinishUserTest(msg, resultCode, bundleName);
@@ -559,7 +561,7 @@ void AppMgrClient::StartSpecifiedAbility(const AAFwk::Want &want, const AppExecF
 
 void AppMgrClient::StartSpecifiedProcess(const AAFwk::Want &want, const AppExecFwk::AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::APPMGR, "call.");
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
         return;
@@ -588,7 +590,7 @@ void AppMgrClient::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::W
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return;
     }
 
@@ -599,7 +601,7 @@ void AppMgrClient::ScheduleNewProcessRequest(const int32_t recordId, const AAFwk
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return;
     }
 
@@ -646,7 +648,7 @@ int AppMgrClient::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<I
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
 
@@ -657,12 +659,12 @@ int AppMgrClient::GetApplicationInfoByProcessID(const int pid, AppExecFwk::Appli
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     sptr<IAmsMgr> amsService = service->GetAmsMgr();
     if (amsService == nullptr) {
-        HILOG_ERROR("amsService is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "amsService is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return amsService->GetApplicationInfoByProcessID(pid, application, debug);
@@ -672,7 +674,7 @@ int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want) con
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return service->StartNativeProcessForDebugger(want);
@@ -680,7 +682,7 @@ int32_t AppMgrClient::StartNativeProcessForDebugger(const AAFwk::Want &want) con
 
 int AppMgrClient::PreStartNWebSpawnProcess()
 {
-    HILOG_INFO("PreStartNWebSpawnProcess");
+    TAG_LOGI(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess");
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
@@ -704,13 +706,13 @@ int AppMgrClient::StartRenderProcess(const std::string &renderParam,
 void AppMgrClient::AttachRenderProcess(const sptr<IRenderScheduler> &renderScheduler)
 {
     if (!renderScheduler) {
-        HILOG_INFO("renderScheduler is nullptr");
+        TAG_LOGI(AAFwkTag::APPMGR, "renderScheduler is nullptr");
         return;
     }
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
-        HILOG_INFO("AttachRenderProcess");
+        TAG_LOGI(AAFwkTag::APPMGR, "AttachRenderProcess");
         service->AttachRenderProcess(renderScheduler->AsObject());
     }
 }
@@ -732,10 +734,10 @@ sptr<IRemoteObject> AppMgrClient::GetRemoteObject()
 #ifdef ABILITY_COMMAND_FOR_TEST
 int AppMgrClient::BlockAppService()
 {
-    HILOG_INFO("%{public}s", __func__);
+    TAG_LOGI(AAFwkTag::APPMGR, "%{public}s", __func__);
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("service is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "service is nullptr");
         return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
     }
     return service->BlockAppService();
@@ -831,6 +833,51 @@ int32_t AppMgrClient::DetachAppDebug(const std::string &bundleName)
     return amsService_->DetachAppDebug(bundleName);
 }
 
+int32_t AppMgrClient::SetAppWaitingDebug(const std::string &bundleName, bool isPersist)
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->SetAppWaitingDebug(bundleName, isPersist);
+}
+
+int32_t AppMgrClient::CancelAppWaitingDebug()
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->CancelAppWaitingDebug();
+}
+
+int32_t AppMgrClient::GetWaitingDebugApp(std::vector<std::string> &debugInfoList)
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return amsService_->GetWaitingDebugApp(debugInfoList);
+}
+
+bool AppMgrClient::IsWaitingDebugApp(const std::string &bundleName)
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return false;
+    }
+    return amsService_->IsWaitingDebugApp(bundleName);
+}
+
+void AppMgrClient::ClearNonPersistWaitingDebugFlag()
+{
+    if (!IsAmsServiceReady()) {
+        HILOG_ERROR("App manager service is not ready.");
+        return;
+    }
+    amsService_->ClearNonPersistWaitingDebugFlag();
+}
+
 int32_t AppMgrClient::RegisterAbilityDebugResponse(const sptr<IAbilityDebugResponse> &response)
 {
     if (!IsAmsServiceReady()) {
@@ -858,19 +905,19 @@ void AppMgrClient::SetAppAssertionPauseState(int32_t pid, bool flag)
 bool AppMgrClient::IsAmsServiceReady()
 {
     if (mgrHolder_ == nullptr) {
-        HILOG_ERROR("mgrHolder_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "mgrHolder_ is nullptr.");
         return false;
     }
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("App manager service is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App manager service is nullptr.");
         return false;
     }
 
     amsService_ = service->GetAmsMgr();
     if (amsService_ == nullptr) {
-        HILOG_ERROR("amsService_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "amsService_ is nullptr.");
         return false;
     }
     return true;
@@ -916,13 +963,13 @@ int32_t AppMgrClient::NotifyPageHide(const sptr<IRemoteObject> &token, const Pag
 int32_t AppMgrClient::RegisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
 {
     if (listener == nullptr) {
-        HILOG_ERROR("Listener is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Listener is nullptr.");
         return ERR_INVALID_DATA;
     }
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("Service is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return service->RegisterAppRunningStatusListener(listener);
@@ -931,13 +978,13 @@ int32_t AppMgrClient::RegisterAppRunningStatusListener(const sptr<IRemoteObject>
 int32_t AppMgrClient::UnregisterAppRunningStatusListener(const sptr<IRemoteObject> &listener)
 {
     if (listener == nullptr) {
-        HILOG_ERROR("Listener is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Listener is nullptr.");
         return ERR_INVALID_DATA;
     }
 
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("Service is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return service->UnregisterAppRunningStatusListener(listener);
@@ -947,7 +994,7 @@ bool AppMgrClient::IsFinalAppProcess()
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("Service is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return false;
     }
     return service->IsFinalAppProcess();
@@ -957,12 +1004,12 @@ void AppMgrClient::ClearProcessByToken(sptr<IRemoteObject> token) const
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("Service is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return;
     }
     sptr<IAmsMgr> amsService = service->GetAmsMgr();
     if (amsService == nullptr) {
-        HILOG_ERROR("amsService is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "amsService is nullptr.");
         return;
     }
     amsService->ClearProcessByToken(token);
@@ -999,7 +1046,7 @@ int32_t AppMgrClient::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunn
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service == nullptr) {
-        HILOG_ERROR("Service is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return service->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);

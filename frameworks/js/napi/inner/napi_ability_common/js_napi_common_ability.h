@@ -130,7 +130,7 @@ public:
     bool UnwarpVerifyPermissionParams(napi_env env, napi_callback_info info, JsPermissionOptions &options);
     bool GetStringsValue(napi_env env, napi_value object, std::vector<std::string> &strList);
     bool GetPermissionOptions(napi_env env, napi_value object, JsPermissionOptions &options);
-    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback);
+    void AddFreeInstallObserver(napi_env env, const AAFwk::Want &want, napi_value callback, napi_value* result);
     Ability *ability_;
     sptr<AbilityRuntime::JsFreeInstallObserver> freeInstallObserver_ = nullptr;
 };

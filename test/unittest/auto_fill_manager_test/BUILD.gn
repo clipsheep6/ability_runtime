@@ -21,6 +21,8 @@ ohos_unittest("auto_fill_manager_test") {
   include_dirs = [
     "${ability_runtime_innerkits_path}/auto_fill_manager/include/",
     "${ability_runtime_services_path}/common/include",
+    "${ability_runtime_test_path}/mock/frameworks_kits_ability_native_test/include",
+    "foundation/barrierfree/accessibility/interfaces/innerkits/common/include",
   ]
 
   sources = [
@@ -41,9 +43,11 @@ ohos_unittest("auto_fill_manager_test") {
   configs = [ "${ability_runtime_services_path}/common:common_config" ]
 
   external_deps = [
+    "ability_base:base",
     "ability_base:configuration",
     "ability_base:view_data",
     "ability_base:want",
+    "accessibility:accessibility_common",
     "bundle_framework:appexecfwk_base",
     "c_utils:utils",
     "eventhandler:libeventhandler",

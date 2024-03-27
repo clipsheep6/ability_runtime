@@ -21,6 +21,7 @@
 #include <gtest/gtest.h>
 
 #include "refbase.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iremote_object.h"
 #include "mock_bundle_manager.h"
@@ -137,7 +138,7 @@ void AmsAppRecentListModuleTest::CreateAppRecentList(const int32_t appNum)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_001, TestSize.Level1)
 {
-    HILOG_INFO("Create_Recent_List_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "Create_Recent_List_001 start");
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
     CreateAppRecentList(INDEX_NUM_10);
     EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
@@ -155,9 +156,9 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_001, TestSize.Level1)
     MockAppSpawnClient* mockedSpawnClient = new MockAppSpawnClient();
 
     serviceInner_->SetAppSpawnClient(std::unique_ptr<MockAppSpawnClient>(mockedSpawnClient));
-    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr);
+    serviceInner_->LoadAbility(token, nullptr, abilityInfo, appInfo, nullptr, 0);
     EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    HILOG_INFO("Create_Recent_List_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "Create_Recent_List_001 end");
 }
 
 /*
@@ -170,7 +171,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
 {
-    HILOG_INFO("Create_Recent_List_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "Create_Recent_List_002 start");
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
     CreateAppRecentList(INDEX_NUM_10);
     EXPECT_EQ(INDEX_NUM_10, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
@@ -193,7 +194,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
     std::string processName = "test_processName";
     serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
     EXPECT_EQ(INDEX_NUM_10 + INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    HILOG_INFO("Create_Recent_List_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "Create_Recent_List_002 end");
 }
 
 /*
@@ -206,12 +207,12 @@ HWTEST_F(AmsAppRecentListModuleTest, Create_Recent_List_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Update_Recent_List_002, TestSize.Level1)
 {
-    HILOG_INFO("Update_Recent_List_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "Update_Recent_List_002 start");
     std::string appName = "test_appName";
     std::string processName = "test_processName";
     serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    HILOG_INFO("Update_Recent_List_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "Update_Recent_List_002 end");
 }
 
 /*
@@ -224,7 +225,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Update_Recent_List_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_001, TestSize.Level1)
 {
-    HILOG_INFO("Remove_Recent_List_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "Remove_Recent_List_001 start");
     std::string appName = "test_appName";
     std::string appName1 = "test_appName1";
     std::string processName = "test_processName";
@@ -237,7 +238,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_001, TestSize.Level1)
     appInfo->process = processName;
     serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->process);  // specify process condition
     EXPECT_EQ(INDEX_NUM_1, static_cast<int32_t>(serviceInner_->GetRecentAppList().size()));
-    HILOG_INFO("Remove_Recent_List_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "Remove_Recent_List_001 end");
 }
 
 /*
@@ -250,7 +251,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_002, TestSize.Level1)
 {
-    HILOG_INFO("Remove_Recent_List_002 start");
+    TAG_LOGI(AAFwkTag::TEST, "Remove_Recent_List_002 start");
     std::string appName = "test_appName";
     std::string processName = "test_processName";
     serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
@@ -260,7 +261,7 @@ HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_002, TestSize.Level1)
     appInfo->process = processName;
     serviceInner_->RemoveAppFromRecentList(appInfo->name, appInfo->process);  // specify process condition
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    HILOG_INFO("Remove_Recent_List_002 end");
+    TAG_LOGI(AAFwkTag::TEST, "Remove_Recent_List_002 end");
 }
 
 /*
@@ -273,13 +274,13 @@ HWTEST_F(AmsAppRecentListModuleTest, Remove_Recent_List_002, TestSize.Level1)
  */
 HWTEST_F(AmsAppRecentListModuleTest, Clear_Recent_List_001, TestSize.Level1)
 {
-    HILOG_INFO("Clear_Recent_List_001 start");
+    TAG_LOGI(AAFwkTag::TEST, "Clear_Recent_List_001 start");
     std::string appName = "test_appName";
     std::string processName = "test_processName";
     serviceInner_->appProcessManager_->AddAppToRecentList(appName, processName, 0, 0);
     serviceInner_->ClearRecentAppList();
     EXPECT_TRUE(serviceInner_->GetRecentAppList().empty());
-    HILOG_INFO("Clear_Recent_List_001 end");
+    TAG_LOGI(AAFwkTag::TEST, "Clear_Recent_List_001 end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

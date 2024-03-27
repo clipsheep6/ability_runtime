@@ -17,5 +17,17 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+
+StartupListener::StartupListener(const OnCompletedCallback &callback) : onCompletedCallback_(callback)
+{}
+
+StartupListener::~StartupListener() = default;
+
+void StartupListener::OnCompleted(const StartupTaskResult &result)
+{
+    if (onCompletedCallback_ != nullptr) {
+        onCompletedCallback_(result);
+    }
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

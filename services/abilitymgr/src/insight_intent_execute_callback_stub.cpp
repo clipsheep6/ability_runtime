@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "insight_intent_execute_callback_stub.h"
 #include "insight_intent_host_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -27,7 +28,7 @@ InsightIntentExecuteCallbackStub::InsightIntentExecuteCallbackStub()
 
 InsightIntentExecuteCallbackStub::~InsightIntentExecuteCallbackStub()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::INTENT, "call");
     requestFuncMap_.clear();
 }
 
@@ -35,7 +36,7 @@ int32_t InsightIntentExecuteCallbackStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (data.ReadInterfaceToken() != IInsightIntentExecuteCallback::GetDescriptor()) {
-        HILOG_ERROR("InterfaceToken not equal IInsightIntentExecuteCallback's descriptor.");
+        TAG_LOGE(AAFwkTag::INTENT, "InterfaceToken not equal IInsightIntentExecuteCallback's descriptor.");
         return ERR_INVALID_STATE;
     }
 
@@ -46,19 +47,19 @@ int32_t InsightIntentExecuteCallbackStub::OnRemoteRequest(
             return (this->*requestFunc)(data, reply);
         }
     }
-    HILOG_WARN("default case, need check.");
+    TAG_LOGW(AAFwkTag::INTENT, "default case, need check.");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 int32_t InsightIntentExecuteCallbackStub::OnExecuteDoneInner(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::INTENT, "call");
     uint64_t key = data.ReadUint64();
     int32_t resultCode = data.ReadInt32();
     std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> executeResult(
         data.ReadParcelable<AppExecFwk::InsightIntentExecuteResult>());
     if (executeResult == nullptr) {
-        HILOG_ERROR("executeResult is nullptr");
+        TAG_LOGE(AAFwkTag::INTENT, "executeResult is nullptr");
         return ERR_INVALID_VALUE;
     }
     OnExecuteDone(key, resultCode, *executeResult);

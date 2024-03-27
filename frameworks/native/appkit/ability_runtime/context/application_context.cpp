@@ -79,6 +79,7 @@ void ApplicationContext::RegisterEnvironmentCallback(
     if (environmentCallback == nullptr) {
         return;
     }
+    std::lock_guard<std::recursive_mutex> lock(envCallbacksLock_);
     envCallbacks_.push_back(environmentCallback);
 }
 
@@ -86,6 +87,7 @@ void ApplicationContext::UnregisterEnvironmentCallback(
     const std::shared_ptr<EnvironmentCallback> &environmentCallback)
 {
     HILOG_DEBUG("ApplicationContext UnregisterEnvironmentCallback");
+    std::lock_guard<std::recursive_mutex> lock(envCallbacksLock_);
     auto it = std::find(envCallbacks_.begin(), envCallbacks_.end(), environmentCallback);
     if (it != envCallbacks_.end()) {
         envCallbacks_.erase(it);
@@ -232,6 +234,7 @@ void ApplicationContext::DispatchOnAbilityContinue(const std::shared_ptr<NativeR
 
 void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configuration &config)
 {
+    std::lock_guard<std::recursive_mutex> lock(envCallbacksLock_);
     for (auto envCallback : envCallbacks_) {
         if (envCallback != nullptr) {
             envCallback->OnConfigurationUpdated(config);
@@ -241,6 +244,7 @@ void ApplicationContext::DispatchConfigurationUpdated(const AppExecFwk::Configur
 
 void ApplicationContext::DispatchMemoryLevel(const int level)
 {
+    std::lock_guard<std::recursive_mutex> lock(envCallbacksLock_);
     for (auto envCallback : envCallbacks_) {
         if (envCallback != nullptr) {
             envCallback->OnMemoryLevel(level);

@@ -1,0 +1,61 @@
+# Copyright (c) 2024 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
+import("//build/ohos.gni")
+
+es2abc_gen_abc("gen_startup_task_abc") {
+  src_js = rebase_path("startup_task.js")
+  dst_file = rebase_path(target_out_dir + "/startup_task.abc")
+  in_puts = [ "startup_task.js" ]
+  out_puts = [ target_out_dir + "/startup_task.abc" ]
+  extra_args = [ "--module" ]
+}
+
+gen_js_obj("startup_task_js") {
+  input = "startup_task.js"
+  output = target_out_dir + "/startup_task.o"
+}
+
+gen_js_obj("startup_task_abc") {
+  input = get_label_info(":gen_startup_task_abc", "target_out_dir") +
+          "/startup_task.abc"
+  output = target_out_dir + "/startup_task_abc.o"
+  dep = ":gen_startup_task_abc"
+}
+
+ohos_shared_library("startuptask_napi") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+
+  sources = [ "startup_task_module.cpp" ]
+
+  deps = [
+    ":startup_task_abc",
+    ":startup_task_js",
+  ]
+
+  external_deps = [ "napi:ace_napi" ]
+
+  relative_install_dir = "module/app/appstartup"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}

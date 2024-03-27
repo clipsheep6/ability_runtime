@@ -982,7 +982,7 @@ private:
      */
     void GetAbilityTypeString(std::string &typeStr);
     void OnSchedulerDied(const wptr<IRemoteObject> &remote);
-    void RemoveAppStateObserver();
+    void RemoveAppStateObserver(bool force = false);
     void GrantUriPermission(Want &want, std::string targetBundleName, bool isSandboxApp, uint32_t tokenId);
     void GrantDmsUriPermission(Want &want, std::string targetBundleName);
     bool IsDmsCall(Want &want);
@@ -1019,6 +1019,8 @@ private:
     void NotifyMissionBindPid();
 
     void DumpUIExtensionRootHostInfo(std::vector<std::string> &info) const;
+
+    void DumpUIExtensionPid(std::vector<std::string> &info, bool isUIExtension) const;
 
     bool GetUriListFromWant(Want &want, std::vector<std::string> &uriVec);
 

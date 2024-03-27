@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "js_ui_extension_callback.h"
 #include "ability_business_error.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "napi/native_api.h"
@@ -80,15 +81,15 @@ void JsUIExtensionCallback::SetJsCallbackObject(napi_value jsCallbackObject)
     napi_create_reference(env_, jsCallbackObject, 1, &ref);
     jsCallbackObject_ = std::unique_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref));
     if (jsCallbackObject_ == nullptr) {
-        HILOG_ERROR("jsCallbackObject_ is nullptr");
+        TAG_LOGE(AAFwkTag::UI_EXT, "jsCallbackObject_ is nullptr");
     }
 }
 
 void JsUIExtensionCallback::OnError(int32_t number)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::UI_EXT, "call");
     if (env_ == nullptr) {
-        HILOG_ERROR("env_ null");
+        TAG_LOGE(AAFwkTag::UI_EXT, "env_ null");
         return;
     }
     // js callback should run in js thread
@@ -104,7 +105,7 @@ void JsUIExtensionCallback::OnError(int32_t number)
     NapiAsyncTask::Schedule("JsUIExtensionCallback::OnError:",
         env_, std::make_unique<NapiAsyncTask>(callback, std::move(execute), std::move(complete)));
     if (uiContent_ == nullptr) {
-        HILOG_ERROR("uiContent_ null");
+        TAG_LOGE(AAFwkTag::UI_EXT, "uiContent_ null");
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
@@ -112,9 +113,9 @@ void JsUIExtensionCallback::OnError(int32_t number)
 
 void JsUIExtensionCallback::OnRelease(int32_t code)
 {
-    HILOG_INFO("call, code:%{public}d", code);
+    TAG_LOGI(AAFwkTag::UI_EXT, "call, code:%{public}d", code);
     if (uiContent_ == nullptr) {
-        HILOG_ERROR("uiContent_ null");
+        TAG_LOGE(AAFwkTag::UI_EXT, "uiContent_ null");
         return;
     }
     uiContent_->CloseModalUIExtension(sessionId_);
@@ -122,9 +123,9 @@ void JsUIExtensionCallback::OnRelease(int32_t code)
 
 void JsUIExtensionCallback::CallJsError(int32_t number)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::UI_EXT, "call");
     if (env_ == nullptr) {
-        HILOG_ERROR("env_ is null, not call js error.");
+        TAG_LOGE(AAFwkTag::UI_EXT, "env_ is null, not call js error.");
         return;
     }
     std::string name;
@@ -138,25 +139,25 @@ void JsUIExtensionCallback::CallJsError(int32_t number)
     napi_value nativeName = CreateJsValue(env_, name);
     napi_value nativeMessage = CreateJsValue(env_, message);
     if (jsCallbackObject_ == nullptr) {
-        HILOG_ERROR("jsCallbackObject_ is nullptr");
+        TAG_LOGE(AAFwkTag::UI_EXT, "jsCallbackObject_ is nullptr");
         return;
     }
     napi_value obj = jsCallbackObject_->GetNapiValue();
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get js object");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get js object");
         return;
     }
     napi_value method = nullptr;
     napi_get_named_property(env_, obj, "onError", &method);
     if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
         || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
-        HILOG_ERROR("Failed to get onError method from object");
+        TAG_LOGE(AAFwkTag::UI_EXT, "Failed to get onError method from object");
         return;
     }
 
     napi_value argv[] = { nativeNumber, nativeName, nativeMessage };
     napi_call_function(env_, obj, method, ArraySize(argv), argv, nullptr);
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::UI_EXT, "end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

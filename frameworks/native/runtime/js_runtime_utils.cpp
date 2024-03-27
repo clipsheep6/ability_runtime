@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_runtime_utils.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "napi/native_api.h"
@@ -246,7 +247,7 @@ bool NapiAsyncTask::StartWithDefaultQos(const std::string &name, napi_env env)
 
 void NapiAsyncTask::Resolve(napi_env env, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -262,12 +263,12 @@ void NapiAsyncTask::Resolve(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called end.");
 }
 
 void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -283,7 +284,7 @@ void NapiAsyncTask::ResolveWithNoError(napi_env env, napi_value value)
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::Resolve is called end.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::Resolve is called end.");
 }
 
 void NapiAsyncTask::Reject(napi_env env, napi_value error)
@@ -307,7 +308,7 @@ void NapiAsyncTask::Reject(napi_env env, napi_value error)
 
 void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::ResolveWithCustomize is called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::ResolveWithCustomize is called");
     if (deferred_) {
         napi_resolve_deferred(env, deferred_, value);
         deferred_ = nullptr;
@@ -323,12 +324,12 @@ void NapiAsyncTask::ResolveWithCustomize(napi_env env, napi_value error, napi_va
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::ResolveWithCustomize is called end.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::ResolveWithCustomize is called end.");
 }
 
 void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_value value)
 {
-    HILOG_DEBUG("NapiAsyncTask::RejectWithCustomize is called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::RejectWithCustomize is called");
     if (deferred_) {
         napi_reject_deferred(env, deferred_, error);
         deferred_ = nullptr;
@@ -344,7 +345,7 @@ void NapiAsyncTask::RejectWithCustomize(napi_env env, napi_value error, napi_val
         napi_delete_reference(env, callbackRef_);
         callbackRef_ = nullptr;
     }
-    HILOG_DEBUG("NapiAsyncTask::RejectWithCustomize is called end.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NapiAsyncTask::RejectWithCustomize is called end.");
 }
 
 void NapiAsyncTask::Execute(napi_env env, void* data)

@@ -48,6 +48,7 @@ private:
     static std::weak_ptr<EventHandler> appMainHandler_;
     std::weak_ptr<ApplicationInfo> applicationInfo_;
     void AppFreezeRecovery();
+    void SendProcessKillEvent(const std::string& killReason);
     int NotifyANR(const FaultData& faultData);
     bool IsExitApp(const std::string& name);
     bool IsHandleAppfreeze();

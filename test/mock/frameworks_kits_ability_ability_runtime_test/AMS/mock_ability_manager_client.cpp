@@ -20,6 +20,7 @@
 #undef protected
 #include "ability_manager_interface.h"
 #include "string_ex.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "if_system_ability_manager.h"
@@ -53,7 +54,7 @@ AbilityManagerClient::~AbilityManagerClient()
 ErrCode AbilityManagerClient::AttachAbilityThread(
     sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token)
 {
-    HILOG_INFO("AbilityManagerClient::AttachAbilityThread start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::AttachAbilityThread start");
     ErrCode err = Connect();
     if (err != ERR_OK) {
         return ABILITY_SERVICE_NOT_CONNECTED;
@@ -94,7 +95,7 @@ ErrCode AbilityManagerClient::ScheduleDisconnectAbilityDone(sptr<IRemoteObject> 
 ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(sptr<IRemoteObject> token)
 {
     if (g_remoteObject == nullptr) {
-        HILOG_ERROR("%{private}s:ability service not command", __func__);
+        TAG_LOGE(AAFwkTag::TEST, "%{private}s:ability service not command", __func__);
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
@@ -136,41 +137,41 @@ ErrCode AbilityManagerClient::StartAbility(
 ErrCode AbilityManagerClient::StartAbilityByCall(const Want& want, sptr<IAbilityConnection> connect,
     sptr<IRemoteObject> callerToken, int32_t accountId)
 {
-    HILOG_INFO("AbilityManagerClient::StartAbilityByCall start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::StartAbilityByCall start");
     if (g_remoteObject == nullptr) {
-        HILOG_INFO("AbilityManagerClient::StartAbilityByCall fail because remoteObject is null");
+        TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::StartAbilityByCall fail because remoteObject is null");
         g_remoteObject =
             OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    HILOG_INFO("AbilityManagerClient::StartAbilityByCall end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::StartAbilityByCall end");
     return abms->StartAbilityByCall(want, connect, callerToken);
 }
 
 ErrCode AbilityManagerClient::ReleaseCall(
     sptr<IAbilityConnection> connect, const AppExecFwk::ElementName& element)
 {
-    HILOG_INFO("AbilityManagerClient::ReleaseCall start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::ReleaseCall start");
     if (g_remoteObject == nullptr) {
-        HILOG_INFO("AbilityManagerClient::ReleaseCall fail because remoteObject is null");
+        TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::ReleaseCall fail because remoteObject is null");
         g_remoteObject =
             OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    HILOG_INFO("AbilityManagerClient::ReleaseCall end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::ReleaseCall end");
     return abms->ReleaseCall(connect, element);
 }
 
 ErrCode AbilityManagerClient::TerminateAbility(
     sptr<IRemoteObject> token, int resultCode, const Want* resultWant)
 {
-    HILOG_INFO("AbilityManagerClient::TerminateAbility start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::TerminateAbility start");
     if (g_remoteObject == nullptr) {
         g_remoteObject =
             OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(g_remoteObject);
-    HILOG_INFO("AbilityManagerClient::TerminateAbility end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::TerminateAbility end");
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
 
@@ -211,7 +212,7 @@ ErrCode AbilityManagerClient::Connect()
     g_remoteObject =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (g_remoteObject == nullptr) {
-        HILOG_ERROR("AbilityManagerClient::Connect g_remoteObject == nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityManagerClient::Connect g_remoteObject == nullptr");
         return ERR_NO_MEMORY;
     }
 

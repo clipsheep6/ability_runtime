@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_extension_common.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_extension_context.h"
 #include "js_runtime.h"
@@ -49,9 +50,9 @@ JsExtensionCommon::~JsExtensionCommon()
 
 void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk::Configuration> &fullConfig)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::EXT, "%{public}s called.", __func__);
     if (!fullConfig) {
-        HILOG_ERROR("invalid configuration.");
+        TAG_LOGE(AAFwkTag::EXT, "invalid configuration.");
         return;
     }
 
@@ -65,14 +66,14 @@ void JsExtensionCommon::OnConfigurationUpdated(const std::shared_ptr<AppExecFwk:
 
 void JsExtensionCommon::OnMemoryLevel(int level)
 {
-    HILOG_DEBUG("%{public}s called.", __func__);
+    TAG_LOGD(AAFwkTag::EXT, "%{public}s called.", __func__);
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
 
     napi_value obj = jsObj_.GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get js instance object");
+        TAG_LOGE(AAFwkTag::EXT, "Failed to get js instance object");
         return;
     }
 
@@ -85,23 +86,23 @@ void JsExtensionCommon::OnMemoryLevel(int level)
 
 napi_value JsExtensionCommon::CallObjectMethod(const char* name, napi_value const* argv, size_t argc)
 {
-    HILOG_DEBUG("name: %{public}s", name);
+    TAG_LOGD(AAFwkTag::EXT, "name: %{public}s", name);
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
     napi_value obj = jsObj_.GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_object)) {
-        HILOG_ERROR("Failed to get js instance object");
+        TAG_LOGE(AAFwkTag::EXT, "Failed to get js instance object");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env, obj, name, &method);
     if (!CheckTypeForNapiValue(env, obj, napi_function)) {
-        HILOG_ERROR("Failed to get '%{public}s' from js object", name);
+        TAG_LOGE(AAFwkTag::EXT, "Failed to get '%{public}s' from js object", name);
         return nullptr;
     }
-    HILOG_DEBUG("(%{public}s), success", name);
+    TAG_LOGD(AAFwkTag::EXT, "(%{public}s), success", name);
     napi_value result = nullptr;
     napi_call_function(env, obj, method, argc, argv, &result);
     return result;

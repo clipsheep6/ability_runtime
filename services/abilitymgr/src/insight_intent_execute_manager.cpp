@@ -18,6 +18,7 @@
 #include <cinttypes>
 
 #include "ability_manager_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "insight_intent_execute_callback_interface.h"
 #include "insight_intent_utils.h"
@@ -34,10 +35,10 @@ using namespace AppExecFwk;
 
 void InsightIntentExecuteRecipient::OnRemoteDied(const wptr<OHOS::IRemoteObject> &remote)
 {
-    HILOG_DEBUG("InsightIntentExecuteRecipient OnRemoteDied, %{public}" PRIu64, intentId_);
+    TAG_LOGD(AAFwkTag::INTENT, "InsightIntentExecuteRecipient OnRemoteDied, %{public}" PRIu64, intentId_);
     auto object = remote.promote();
     if (object == nullptr) {
-        HILOG_ERROR("remote object is nullptr");
+        TAG_LOGE(AAFwkTag::INTENT, "remote object is nullptr");
         return;
     }
     DelayedSingleton<InsightIntentExecuteManager>::GetInstance()->RemoteDied(intentId_);
@@ -55,16 +56,16 @@ int32_t InsightIntentExecuteManager::CheckAndUpdateParam(uint64_t key, const spt
         return result;
     }
     if (callerToken == nullptr) {
-        HILOG_ERROR("callerToken is nullptr");
+        TAG_LOGE(AAFwkTag::INTENT, "callerToken is nullptr");
         return ERR_INVALID_VALUE;
     }
     if (param == nullptr) {
-        HILOG_ERROR("param is nullptr");
+        TAG_LOGE(AAFwkTag::INTENT, "param is nullptr");
         return ERR_INVALID_VALUE;
     }
     if (param->bundleName_.empty() || param->moduleName_.empty() || param->abilityName_.empty() ||
         param->insightIntentName_.empty()) {
-        HILOG_ERROR("invalid param");
+        TAG_LOGE(AAFwkTag::INTENT, "invalid param");
         return ERR_INVALID_VALUE;
     }
     uint64_t intentId = 0;
@@ -92,13 +93,13 @@ int32_t InsightIntentExecuteManager::CheckAndUpdateWant(Want &want, ExecuteMode 
     auto srcEntry = AbilityRuntime::InsightIntentUtils::GetSrcEntry(elementName.GetBundleName(),
         elementName.GetModuleName(), want.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME));
     if (srcEntry.empty()) {
-        HILOG_ERROR("Insight intent srcEntry invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Insight intent srcEntry invalid.");
         return ERR_INVALID_VALUE;
     }
     want.SetParam(INSIGHT_INTENT_SRC_ENTRY, srcEntry);
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_ID, std::to_string(intentId));
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_MODE, executeMode);
-    HILOG_DEBUG("check done. insightIntentId: %{public}" PRIu64, intentId);
+    TAG_LOGD(AAFwkTag::INTENT, "check done. insightIntentId: %{public}" PRIu64, intentId);
     return ERR_OK;
 }
 
@@ -123,7 +124,7 @@ int32_t InsightIntentExecuteManager::AddRecord(uint64_t key, const sptr<IRemoteO
         // save the latest INSIGHT_INTENT_EXECUTE_RECORDS_MAX_SIZE records
         records_.erase(intentId - INSIGHT_INTENT_EXECUTE_RECORDS_MAX_SIZE);
     }
-    HILOG_DEBUG("init done, records_ size: %{public}zu", records_.size());
+    TAG_LOGD(AAFwkTag::INTENT, "init done, records_ size: %{public}zu", records_.size());
     return ERR_OK;
 }
 
@@ -140,25 +141,25 @@ int32_t InsightIntentExecuteManager::ExecuteIntentDone(uint64_t intentId, int32_
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto findResult = records_.find(intentId);
     if (findResult == records_.end()) {
-        HILOG_ERROR("intent not found, id: %{public}" PRIu64, intentId);
+        TAG_LOGE(AAFwkTag::INTENT, "intent not found, id: %{public}" PRIu64, intentId);
         return ERR_INVALID_VALUE;
     }
 
     std::shared_ptr<InsightIntentExecuteRecord> record = findResult->second;
     if (record == nullptr) {
-        HILOG_ERROR("intent record is null, id: %{public}" PRIu64, intentId);
+        TAG_LOGE(AAFwkTag::INTENT, "intent record is null, id: %{public}" PRIu64, intentId);
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("callback start, id:%{public}" PRIu64, intentId);
+    TAG_LOGD(AAFwkTag::INTENT, "callback start, id:%{public}" PRIu64, intentId);
     if (record->state != InsightIntentExecuteState::EXECUTING) {
-        HILOG_WARN("Insight intent execute state is not EXECUTING, id:%{public}" PRIu64, intentId);
+        TAG_LOGW(AAFwkTag::INTENT, "Insight intent execute state is not EXECUTING, id:%{public}" PRIu64, intentId);
         return ERR_INVALID_OPERATION;
     }
     record->state = InsightIntentExecuteState::EXECUTE_DONE;
     sptr<IInsightIntentExecuteCallback> remoteCallback = iface_cast<IInsightIntentExecuteCallback>(record->callerToken);
     if (remoteCallback == nullptr) {
-        HILOG_ERROR("Failed to get IIntentExecuteCallback");
+        TAG_LOGE(AAFwkTag::INTENT, "Failed to get IIntentExecuteCallback");
         return ERR_INVALID_VALUE;
     }
     remoteCallback->OnExecuteDone(record->key, resultCode, result);
@@ -166,7 +167,7 @@ int32_t InsightIntentExecuteManager::ExecuteIntentDone(uint64_t intentId, int32_
         record->callerToken->RemoveDeathRecipient(record->deathRecipient);
         record->callerToken = nullptr;
     }
-    HILOG_DEBUG("execute done, records_ size: %{public}zu", records_.size());
+    TAG_LOGD(AAFwkTag::INTENT, "execute done, records_ size: %{public}zu", records_.size());
     return ERR_OK;
 }
 
@@ -175,11 +176,11 @@ int32_t InsightIntentExecuteManager::RemoteDied(uint64_t intentId)
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto result = records_.find(intentId);
     if (result == records_.end()) {
-        HILOG_ERROR("intent not found, id: %{public}" PRIu64, intentId);
+        TAG_LOGE(AAFwkTag::INTENT, "intent not found, id: %{public}" PRIu64, intentId);
         return ERR_INVALID_VALUE;
     }
     if (result->second == nullptr) {
-        HILOG_ERROR("intent record is null, id: %{public}" PRIu64, intentId);
+        TAG_LOGE(AAFwkTag::INTENT, "intent record is null, id: %{public}" PRIu64, intentId);
         return ERR_INVALID_VALUE;
     }
     result->second->callerToken = nullptr;
@@ -192,11 +193,11 @@ int32_t InsightIntentExecuteManager::GetBundleName(uint64_t intentId, std::strin
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto result = records_.find(intentId);
     if (result == records_.end()) {
-        HILOG_ERROR("intent not found, id: %{public}" PRIu64, intentId);
+        TAG_LOGE(AAFwkTag::INTENT, "intent not found, id: %{public}" PRIu64, intentId);
         return ERR_INVALID_VALUE;
     }
     if (result->second == nullptr) {
-        HILOG_ERROR("intent record is null, id: %{public}" PRIu64, intentId);
+        TAG_LOGE(AAFwkTag::INTENT, "intent record is null, id: %{public}" PRIu64, intentId);
         return ERR_INVALID_VALUE;
     }
     bundleName = result->second->bundleName;
@@ -207,7 +208,7 @@ int32_t InsightIntentExecuteManager::GenerateWant(
     const std::shared_ptr<AppExecFwk::InsightIntentExecuteParam> &param, Want &want)
 {
     if (param == nullptr) {
-        HILOG_ERROR("param is nullptr");
+        TAG_LOGE(AAFwkTag::INTENT, "param is nullptr");
         return ERR_INVALID_VALUE;
     }
     want.SetElementName("", param->bundleName_, param->abilityName_, param->moduleName_);
@@ -224,7 +225,7 @@ int32_t InsightIntentExecuteManager::GenerateWant(
     auto srcEntry = AbilityRuntime::InsightIntentUtils::GetSrcEntry(param->bundleName_, param->moduleName_,
         param->insightIntentName_);
     if (srcEntry.empty()) {
-        HILOG_ERROR("Insight intent srcEntry invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Insight intent srcEntry invalid.");
         return ERR_INVALID_VALUE;
     }
     want.SetParam(INSIGHT_INTENT_SRC_ENTRY, srcEntry);
@@ -234,7 +235,7 @@ int32_t InsightIntentExecuteManager::GenerateWant(
     want.SetParam(INSIGHT_INTENT_EXECUTE_PARAM_ID, std::to_string(param->insightIntentId_));
     if (param->displayId_ != INVALID_DISPLAY_ID) {
         want.SetParam(Want::PARAM_RESV_DISPLAY_ID, param->displayId_);
-        HILOG_DEBUG("Generate want with displayId: %{public}d", param->displayId_);
+        TAG_LOGD(AAFwkTag::INTENT, "Generate want with displayId: %{public}d", param->displayId_);
     }
     return ERR_OK;
 }
@@ -243,10 +244,10 @@ int32_t InsightIntentExecuteManager::IsValidCall(const Want &want)
 {
     std::string insightIntentName = want.GetStringParam(INSIGHT_INTENT_EXECUTE_PARAM_NAME);
     if (insightIntentName.empty()) {
-        HILOG_ERROR("insightIntentName is empty");
+        TAG_LOGE(AAFwkTag::INTENT, "insightIntentName is empty");
         return ERR_INVALID_VALUE;
     }
-    HILOG_DEBUG("insightIntentName: %{public}s", insightIntentName.c_str());
+    TAG_LOGD(AAFwkTag::INTENT, "insightIntentName: %{public}s", insightIntentName.c_str());
 
     int32_t ret = CheckCallerPermission();
     if (ret != ERR_OK) {
@@ -259,14 +260,14 @@ int32_t InsightIntentExecuteManager::CheckCallerPermission()
 {
     bool isSystemAppCall = PermissionVerification::GetInstance()->JudgeCallerIsAllowedToUseSystemAPI();
     if (!isSystemAppCall) {
-        HILOG_ERROR("The caller is not system-app, can not use system-api");
+        TAG_LOGE(AAFwkTag::INTENT, "The caller is not system-app, can not use system-api");
         return ERR_NOT_SYSTEM_APP;
     }
 
     bool isCallingPerm = PermissionVerification::GetInstance()->VerifyCallingPermission(
         EXECUTE_INSIGHT_INTENT_PERMISSION);
     if (!isCallingPerm) {
-        HILOG_ERROR("Permission %{public}s verification failed", EXECUTE_INSIGHT_INTENT_PERMISSION);
+        TAG_LOGE(AAFwkTag::INTENT, "Permission %{public}s verification failed", EXECUTE_INSIGHT_INTENT_PERMISSION);
         return ERR_PERMISSION_DENIED;
     }
     return ERR_OK;

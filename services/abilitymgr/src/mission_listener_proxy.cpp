@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "mission_listener_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -55,7 +56,7 @@ void MissionListenerProxy::OnMissionUnfocused(int32_t missionId)
 void MissionListenerProxy::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
     if (!icon) {
-        HILOG_ERROR("invalid mission icon.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid mission icon.");
         return;
     }
 
@@ -63,30 +64,30 @@ void MissionListenerProxy::OnMissionIconUpdated(int32_t missionId, const std::sh
     MessageParcel reply;
     MessageOption option;
 
-    HILOG_DEBUG("mission_listener_proxy, OnMissionIconUpdated,missionId:%{public}d", missionId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "mission_listener_proxy, OnMissionIconUpdated,missionId:%{public}d", missionId);
     if (!data.WriteInterfaceToken(IMissionListener::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed when proxy call OnMissionIconUpdated.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed when proxy call OnMissionIconUpdated.");
         return;
     }
 
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("Write missionId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write missionId failed.");
         return;
     }
 
     if (!data.WriteParcelable(icon.get())) {
-        HILOG_ERROR("write icon failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write icon failed.");
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return;
     }
     int error = remote->SendRequest(IMissionListener::ON_MISSION_ICON_UPDATED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("SendRequest icon updated fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest icon updated fail, error: %{public}d", error);
         return;
     }
 }
@@ -108,25 +109,26 @@ void MissionListenerProxy::SendRequestCommon(int32_t missionId, IMissionListener
     MessageParcel reply;
     MessageOption option;
 
-    HILOG_DEBUG("mission_listener_proxy, sendrequest, cmd:%{public}d, missionId:%{public}d", cmd, missionId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "mission_listener_proxy, sendrequest, cmd:%{public}d, missionId:%{public}d", cmd,
+        missionId);
     if (!data.WriteInterfaceToken(IMissionListener::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("Write missionId error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write missionId error.");
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return;
     }
     int error = remote->SendRequest(cmd, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("OnMissionCreated fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OnMissionCreated fail, error: %{public}d", error);
         return;
     }
 }
