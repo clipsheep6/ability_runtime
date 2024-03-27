@@ -1031,7 +1031,6 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
-
     std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
     std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
     if (hapPath.empty()) {

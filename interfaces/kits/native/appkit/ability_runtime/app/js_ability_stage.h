@@ -17,8 +17,15 @@
 #define OHOS_ABILITY_RUNTIME_JS_ABILITY_STAGE_H
 
 #include "ability_delegator_infos.h"
+
+#include <memory>
+#include <vector>
+
 #include "ability_stage.h"
 #include "configuration.h"
+#include "js_startup_task.h"
+#include "resource_manager.h"
+#include "nlohmann/json.hpp"
 #include "native_engine/native_value.h"
 
 class NativeReference;
@@ -59,7 +66,26 @@ private:
 
     int32_t RunAutoStartupTaskInner(bool &waitingForStartup);
 
-    int32_t RegisterStartupTaskFromProfile();
+    int32_t RegisterStartupTaskFromProfile(std::vector<JsStartupTask> &jsStartupTasks);
+    
+    bool GetProfileInfoFromResourceManager(std::vector<std::string> &profileInfo);
+    
+    bool AnalyzeProfileInfoAndRegisterStartupTask(
+        std::vector<std::string> &profileInfo,
+        std::vector<JsStartupTask> &jsStartupTasks);
+    
+    void SetOptionalParameters(const nlohmann::json &module, JsStartupTask &jsStartupTask);
+    
+    std::unique_ptr<NativeReference> LoadJsStartupTask(const std::string &srcEntry);
+    
+    bool GetResFromResMgr(
+        const std::string &resName,
+        const std::shared_ptr<Global::Resource::ResourceManager> &resMgr,
+        bool isCompressed, std::vector<std::string> &profileInfo);
+        
+    bool IsFileExisted(const std::string &filePath);
+    
+    bool TransformFileToJsonString(const std::string &resPath, std::string &profile);
 
     JsRuntime& jsRuntime_;
     std::shared_ptr<NativeReference> jsAbilityStageObj_;
