@@ -14,6 +14,7 @@
  */
 
 #include "app_jsheap_mem_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,7 +29,7 @@ JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
 {
     JsHeapDumpInfo *info = new (std::nothrow) JsHeapDumpInfo();
     if (info == nullptr) {
-        HILOG_ERROR("info nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "info nullptr");
         return nullptr;
     }
     info->pid = parcel.ReadUint32();

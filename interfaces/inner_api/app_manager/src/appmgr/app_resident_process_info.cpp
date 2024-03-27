@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "app_resident_process_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -31,7 +32,7 @@ AppResidentProcessInfo *AppResidentProcessInfo::Unmarshalling(Parcel &parcel)
 
 bool AppResidentProcessInfo::Marshalling(Parcel &parcel) const
 {
-    HILOG_WARN("Marshalling");
+    TAG_LOGW(AAFwkTag::APPMGR, "Marshalling");
     parcel.WriteBool(isKeepAliveApp_);
     parcel.WriteInt32(abilityStage_.size());
     for (auto &info : abilityStage_) {
@@ -47,13 +48,13 @@ bool AppResidentProcessInfo::ReadFromParcel(Parcel &parcel)
     isKeepAliveApp_ = parcel.ReadBool();
     auto size = parcel.ReadInt32();
     if (size > CYCLE_LIMIT) {
-        HILOG_ERROR("size is too large");
+        TAG_LOGE(AAFwkTag::APPMGR, "size is too large");
         return false;
     }
     for (int32_t i = 0; i < size; i++) {
         std::unique_ptr<HapModuleInfo> hapModuleInfo(parcel.ReadParcelable<HapModuleInfo>());
         if (!hapModuleInfo) {
-            HILOG_ERROR("ReadParcelable<AbilityInfo> failed");
+            TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AbilityInfo> failed");
             return false;
         }
         abilityStage_.emplace_back(*hapModuleInfo);

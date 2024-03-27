@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_debug_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -31,12 +32,12 @@ AppDebugInfo *AppDebugInfo::Unmarshalling(Parcel &parcel)
 {
     AppDebugInfo *info = new (std::nothrow) AppDebugInfo();
     if (info == nullptr) {
-        HILOG_ERROR("App debug info is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App debug info is nullptr.");
         return nullptr;
     }
 
     if (!info->ReadFromParcel(parcel)) {
-        HILOG_ERROR("Read from parcel failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Read from parcel failed.");
         delete info;
         info = nullptr;
     }
@@ -47,17 +48,17 @@ bool AppDebugInfo::Marshalling(Parcel &parcel) const
 {
     // write bundleName
     if (!parcel.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
         return false;
     }
     // write pid
     if (!parcel.WriteInt32(pid)) {
-        HILOG_ERROR("Write pid failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write pid failed.");
         return false;
     }
     // write uid
     if (!parcel.WriteInt32(uid)) {
-        HILOG_ERROR("Write uid failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write uid failed.");
         return false;
     }
     return true;

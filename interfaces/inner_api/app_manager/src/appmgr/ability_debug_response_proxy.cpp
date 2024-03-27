@@ -15,6 +15,7 @@
 
 #include "ability_debug_response_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -31,7 +32,7 @@ AbilityDebugResponseProxy::AbilityDebugResponseProxy(
 bool AbilityDebugResponseProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityDebugResponseProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
     return true;
@@ -39,47 +40,47 @@ bool AbilityDebugResponseProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AbilityDebugResponseProxy::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     SendRequest(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STARTED, tokens);
 }
 
 void AbilityDebugResponseProxy::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     SendRequest(IAbilityDebugResponse::Message::ON_ABILITYS_DEBUG_STOPED, tokens);
 }
 
 void AbilityDebugResponseProxy::OnAbilitysAssertDebugChange(
     const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
 
     if (tokens.size() <= CYCLE_LIMIT_MIN || tokens.size() > CYCLE_LIMIT_MAX ||
         !data.WriteInt32(tokens.size())) {
-        HILOG_ERROR("Write data size failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data size failed.");
         return;
     }
 
     for (const auto &item : tokens) {
         if (!data.WriteRemoteObject(item)) {
-            HILOG_ERROR("Write token failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Write token failed.");
             return;
         }
     }
 
     if (!data.WriteBool(isAssertDebug)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write flag failed.");
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return;
     }
 
@@ -87,36 +88,36 @@ void AbilityDebugResponseProxy::OnAbilitysAssertDebugChange(
     MessageOption option;
     auto ret = remote->SendRequest(static_cast<uint32_t>(Message::ON_ABILITYS_ASSERT_DEBUG), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 void AbilityDebugResponseProxy::SendRequest(
     const IAbilityDebugResponse::Message &message, const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
 
     if (tokens.size() <= CYCLE_LIMIT_MIN || tokens.size() > CYCLE_LIMIT_MAX ||
         !data.WriteInt32(tokens.size())) {
-        HILOG_ERROR("Write data size failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write data size failed.");
         return;
     }
 
     for (auto iter = tokens.begin(); iter != tokens.end(); iter++) {
         if (!data.WriteRemoteObject(iter->GetRefPtr())) {
-            HILOG_ERROR("Write token failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Write token failed.");
             return;
         }
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return;
     }
 
@@ -124,7 +125,7 @@ void AbilityDebugResponseProxy::SendRequest(
     MessageOption option(MessageOption::TF_SYNC);
     auto ret = remote->SendRequest(static_cast<uint32_t>(message), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 } // namespace AppExecFwk

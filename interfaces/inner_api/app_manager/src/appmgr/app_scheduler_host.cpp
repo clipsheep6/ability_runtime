@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include "ability_info.h"
 #include "appexecfwk_errors.h"
 #include "hitrace_meter.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -83,17 +84,18 @@ void AppSchedulerHost::InitMemberFuncMap()
 
 AppSchedulerHost::~AppSchedulerHost()
 {
-    HILOG_INFO("AppSchedulerHost destruction");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppSchedulerHost destruction");
     memberFuncMap_.clear();
 }
 
 int AppSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("AppSchedulerHost::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerHost::OnReceived, code = %{public}u, flags= %{public}d.", code,
+        option.GetFlags());
     std::u16string descriptor = AppSchedulerHost::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -104,7 +106,7 @@ int AppSchedulerHost::OnRemoteRequest(uint32_t code, MessageParcel &data, Messag
             return (this->*memberFunc)(data, reply);
         }
     }
-    HILOG_DEBUG("AppSchedulerHost::OnRemoteRequest end");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppSchedulerHost::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -165,7 +167,7 @@ int32_t AppSchedulerHost::HandleScheduleJsHeapMemory(MessageParcel &data, Messag
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<JsHeapDumpInfo> info(data.ReadParcelable<JsHeapDumpInfo>());
     if (!info) {
-        HILOG_ERROR("ReadParcelable<JsHeapDumpInfo> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<JsHeapDumpInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     ScheduleJsHeapMemory(*info);
@@ -177,7 +179,7 @@ int32_t AppSchedulerHost::HandleScheduleLaunchAbility(MessageParcel &data, Messa
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<AbilityInfo> abilityInfo(data.ReadParcelable<AbilityInfo>());
     if (!abilityInfo) {
-        HILOG_ERROR("ReadParcelable<AbilityInfo> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AbilityInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -206,11 +208,11 @@ int32_t AppSchedulerHost::HandleScheduleLaunchApplication(MessageParcel &data, M
     std::unique_ptr<AppLaunchData> launchData(data.ReadParcelable<AppLaunchData>());
     std::unique_ptr<Configuration> config(data.ReadParcelable<Configuration>());
     if (!launchData) {
-        HILOG_ERROR("ReadParcelable<launchData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<launchData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (!config) {
-        HILOG_ERROR("ReadParcelable<Configuration> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<Configuration> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -223,7 +225,7 @@ int32_t AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled(MessagePa
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<ApplicationInfo> appInfo(data.ReadParcelable<ApplicationInfo>());
     if (!appInfo) {
-        HILOG_ERROR("ReadParcelable<ApplicationInfo> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<ApplicationInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -236,7 +238,7 @@ int32_t AppSchedulerHost::HandleScheduleAbilityStage(MessageParcel &data, Messag
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<HapModuleInfo> abilityStage(data.ReadParcelable<HapModuleInfo>());
     if (!abilityStage) {
-        HILOG_ERROR("ReadParcelable<launchData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<launchData> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -249,7 +251,7 @@ int32_t AppSchedulerHost::HandleScheduleProfileChanged(MessageParcel &data, Mess
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<Profile> profile(data.ReadParcelable<Profile>());
     if (!profile) {
-        HILOG_ERROR("ReadParcelable<Profile> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<Profile> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -262,7 +264,7 @@ int32_t AppSchedulerHost::HandleScheduleConfigurationUpdated(MessageParcel &data
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<Configuration> configuration(data.ReadParcelable<Configuration>());
     if (!configuration) {
-        HILOG_ERROR("ReadParcelable<Configuration> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<Configuration> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
@@ -282,7 +284,7 @@ int32_t AppSchedulerHost::HandleScheduleAcceptWant(MessageParcel &data, MessageP
     HITRACE_METER(HITRACE_TAG_APP);
     AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "want is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto moduleName = data.ReadString();
@@ -293,11 +295,11 @@ int32_t AppSchedulerHost::HandleScheduleAcceptWant(MessageParcel &data, MessageP
 
 int32_t AppSchedulerHost::HandleScheduleNewProcessRequest(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::APPMGR, "call.");
     HITRACE_METER(HITRACE_TAG_APP);
     AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "want is nullptr");
         return ERR_INVALID_VALUE;
     }
     auto moduleName = data.ReadString();
@@ -339,13 +341,13 @@ int32_t AppSchedulerHost::HandleNotifyAppFault(MessageParcel &data, MessageParce
 {
     std::unique_ptr<FaultData> faultData(data.ReadParcelable<FaultData>());
     if (faultData == nullptr) {
-        HILOG_ERROR("ReadParcelable<FaultData> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<FaultData> failed");
         return ERR_INVALID_VALUE;
     }
 
     int32_t result = ScheduleNotifyAppFault(*faultData);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("reply write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -356,7 +358,7 @@ int32_t AppSchedulerHost::HandleScheduleChangeAppGcState(MessageParcel &data, Me
     int32_t state = data.ReadInt32();
     int32_t result = ScheduleChangeAppGcState(state);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("reply write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

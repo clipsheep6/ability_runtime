@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_debug_listener_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -31,7 +32,7 @@ AppDebugListenerProxy::AppDebugListenerProxy(
 bool AppDebugListenerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AppDebugListenerProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
     return true;
@@ -39,13 +40,13 @@ bool AppDebugListenerProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AppDebugListenerProxy::OnAppDebugStarted(const std::vector<AppDebugInfo> &debugInfos)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     SendRequest(IAppDebugListener::Message::ON_APP_DEBUG_STARTED, debugInfos);
 }
 
 void AppDebugListenerProxy::OnAppDebugStoped(const std::vector<AppDebugInfo> &debugInfos)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     SendRequest(IAppDebugListener::Message::ON_APP_DEBUG_STOPED, debugInfos);
 }
 
@@ -54,25 +55,25 @@ void AppDebugListenerProxy::SendRequest(
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
 
     if (debugInfos.size() <= CYCLE_LIMIT_MIN || debugInfos.size() > CYCLE_LIMIT_MAX ||
         !data.WriteInt32(debugInfos.size())) {
-        HILOG_ERROR("Write debug info size failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write debug info size failed.");
         return;
     }
     for (auto &debugInfo : debugInfos) {
         if (!data.WriteParcelable(&debugInfo)) {
-            HILOG_ERROR("Write debug info failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Write debug info failed.");
             return;
         }
     };
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return;
     }
 
@@ -80,7 +81,7 @@ void AppDebugListenerProxy::SendRequest(
     MessageOption option(MessageOption::TF_ASYNC);
     int32_t ret = remote->SendRequest(static_cast<uint32_t>(message), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 } // namespace AppExecFwk

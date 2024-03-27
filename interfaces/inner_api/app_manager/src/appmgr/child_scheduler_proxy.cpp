@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "child_scheduler_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -26,7 +27,7 @@ ChildSchedulerProxy::ChildSchedulerProxy(const sptr<IRemoteObject> &impl) : IRem
 bool ChildSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(ChildSchedulerProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed");
         return false;
     }
     return true;
@@ -34,53 +35,53 @@ bool ChildSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 
 bool ChildSchedulerProxy::ScheduleLoadJs()
 {
-    HILOG_DEBUG("ScheduleLoadJs start");
+    TAG_LOGD(AAFwkTag::APPMGR, "ScheduleLoadJs start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote() is NULL");
         return false;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_LOAD_JS), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return false;
     }
-    HILOG_DEBUG("ScheduleLoadJs end");
+    TAG_LOGD(AAFwkTag::APPMGR, "ScheduleLoadJs end");
     return true;
 }
 
 bool ChildSchedulerProxy::ScheduleExitProcessSafely()
 {
-    HILOG_DEBUG("ScheduleExitProcessSafely start.");
+    TAG_LOGD(AAFwkTag::APPMGR, "ScheduleExitProcessSafely start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote() is NULL.");
         return false;
     }
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IChildScheduler::Message::SCHEDULE_EXIT_PROCESS_SAFELY), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d.", ret);
         return false;
     }
-    HILOG_DEBUG("ScheduleExitProcessSafely end.");
+    TAG_LOGD(AAFwkTag::APPMGR, "ScheduleExitProcessSafely end.");
     return true;
 }
 }  // namespace AppExecFwk

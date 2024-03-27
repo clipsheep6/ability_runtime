@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "child_scheduler_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -36,11 +37,12 @@ ChildSchedulerStub::~ChildSchedulerStub()
 int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("ChildSchedulerStub::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
+    TAG_LOGI(AAFwkTag::APPMGR, "ChildSchedulerStub::OnReceived, code = %{public}u, flags= %{public}d.", code,
+        option.GetFlags());
     std::u16string descriptor = ChildSchedulerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("A local descriptor is not equivalent to a remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "A local descriptor is not equivalent to a remote");
         return ERR_INVALID_STATE;
     }
 
@@ -51,7 +53,7 @@ int32_t ChildSchedulerStub::OnRemoteRequest(uint32_t code, MessageParcel &data,
             return (this->*memberFunc)(data, reply);
         }
     }
-    HILOG_INFO("ChildSchedulerStub::OnRemoteRequest end");
+    TAG_LOGI(AAFwkTag::APPMGR, "ChildSchedulerStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 

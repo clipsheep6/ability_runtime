@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_task_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -75,7 +76,7 @@ AppTaskInfo *AppTaskInfo::Unmarshalling(Parcel &parcel)
 {
     AppTaskInfo *appTaskInfo = new (std::nothrow) AppTaskInfo();
     if (appTaskInfo && !appTaskInfo->ReadFromParcel(parcel)) {
-        HILOG_WARN("failed, because ReadFromParcel failed");
+        TAG_LOGW(AAFwkTag::APPMGR, "failed, because ReadFromParcel failed");
         delete appTaskInfo;
         appTaskInfo = nullptr;
     }
