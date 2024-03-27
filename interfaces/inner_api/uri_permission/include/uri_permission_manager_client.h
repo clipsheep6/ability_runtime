@@ -82,7 +82,17 @@ public:
      * @param uri The file uri.
      * @param BundleName A BundleName of an application.
      */
-    int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName);
+    int RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName);
+
+    /**
+     * @brief Clear user's uri authorization record, size of uri list must be no more than 500.
+     *
+     *
+     * @param uriVec The file uri list.
+     * @param BundleName A BundleName of an application.
+     * @return Returns ERR_OK if at least one uri permission record is revoked.
+     */
+    int32_t RevokeUriPermissionManually(const std::vector<Uri> &uriVec, const std::string &bundleName);
 
     /**
      * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission

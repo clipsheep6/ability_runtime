@@ -84,7 +84,17 @@ public:
      * @param bundleName bundleName of an application.
      * @return Returns true if the remove is successful, otherwise returns false.
      */
-    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string bundleName) = 0;
+    virtual int RevokeUriPermissionManually(const Uri &uri, const std::string &bundleName) = 0;
+
+    /**
+     * @brief Clear user's uri authorization record, size of uri list must be no more than 500.
+     *
+     *
+     * @param uriVec The file uri list.
+     * @param BundleName A BundleName of an application.
+     * @return Returns ERR_OK if at least one uri permission record is revoked.
+     */
+    virtual int32_t RevokeUriPermissionManually(const std::vector<Uri> &uriVec, const std::string &bundleName) = 0;
 
     /**
      * @brief verify if tokenId have uri permission of flag, including temporary permission and persistable permission
@@ -119,7 +129,10 @@ public:
         ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1,
 
         //ipc id for IsAuthorizationUriAllowed
-        ON_IS_Authorization_URI_ALLOWED
+        ON_IS_Authorization_URI_ALLOWED,
+        
+        // ipc id for Batch RevokeUriPermissionManually
+        ON_BATCH_REVOKE_URI_PERMISSION_MANUALLY
     };
 };
 }  // namespace AAFwk

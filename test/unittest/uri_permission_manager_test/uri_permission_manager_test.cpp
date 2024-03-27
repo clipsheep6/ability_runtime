@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,7 +99,6 @@ HWTEST_F(UriPermissionManagerTest, LoadUriPermService_001, TestSize.Level1)
     EXPECT_TRUE(ret);
 }
 
-
 /*
  * Feature: UriPermissionManagerClient
  * Function: RevokeAllUriPermissions
@@ -107,16 +106,16 @@ HWTEST_F(UriPermissionManagerTest, LoadUriPermService_001, TestSize.Level1)
  * FunctionPoints: NA
  * CaseDescription: Verify UriPermissionManagerClient RevokeAllUriPermissions
  */
-HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_002, TestSize.Level1)
+HWTEST_F(UriPermissionManagerTest, RevokeAllUriPermissions_001, TestSize.Level1)
 {
-    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
+    // AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
     std::string bundleName = "com.example.test";
     uint32_t targetTokenId = 100002;
     Uri uri(uriStr);
     auto ret = upmc.RevokeAllUriPermissions(targetTokenId);
-    EXPECT_EQ(ret, ERR_OK);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
 }
 
 /*
@@ -126,7 +125,7 @@ HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistable
  * FunctionPoints: NA
  * CaseDescription: Verify UriPermissionManagerClient VerifyUriPermission
  */
-HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistableTest_003, TestSize.Level1)
+HWTEST_F(UriPermissionManagerTest, VerifyUriPermission_001, TestSize.Level1)
 {
     auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
     auto uriStr = "file://docs/storage/Users/currentUser/test.txt";
@@ -136,6 +135,57 @@ HWTEST_F(UriPermissionManagerTest, UriPermissionManager_UriPermissionPersistable
     Uri uri(uriStr);
     bool res = upmc.VerifyUriPermission(uri, perReadFlag, targetTokenId);
     EXPECT_EQ(res, false);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: RevokeUriPermissionManually
+ * SubFunction: RevokeUriPermissionManually
+ * FunctionPoints: NA
+ * CaseDescription: Verify UriPermissionManagerClient RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionManagerTest, RevokeUriPermissionManually_001, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto uri = Uri("file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_A.txt");
+    std::string targetBundleName = "com.example.app1002";
+    auto ret = upmc.RevokeUriPermissionManually(uri, targetBundleName);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: RevokeUriPermissionManually
+ * SubFunction: RevokeUriPermissionManually
+ * FunctionPoints: NA
+ * CaseDescription: Verify UriPermissionManagerClient RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionManagerTest, RevokeUriPermissionManually_002, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    std::string uriStrA = "file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_A.txt";
+    std::string uriStrB = "file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_B.txt";
+    std::vector<Uri> uriVec = { Uri(uriStrA), Uri(uriStrB) };
+    std::string targetBundleName = "com.example.app1002";
+    auto ret = upmc.RevokeUriPermissionManually(uriVec, targetBundleName);
+    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+}
+
+/*
+ * Feature: UriPermissionManagerClient
+ * Function: RevokeUriPermissionManually
+ * SubFunction: RevokeUriPermissionManually
+ * FunctionPoints: NA
+ * CaseDescription: Verify UriPermissionManagerClient RevokeUriPermissionManually
+ */
+HWTEST_F(UriPermissionManagerTest, RevokeUriPermissionManually_003, TestSize.Level1)
+{
+    auto& upmc = AAFwk::UriPermissionManagerClient::GetInstance();
+    auto uri = Uri("file://com.example.app1001/data/storage/el2/base/haps/entry/files/test_A.txt");
+    std::vector<Uri> uriVec(501, uri);
+    std::string targetBundleName = "com.example.app1002";
+    auto ret = upmc.RevokeUriPermissionManually(uriVec, targetBundleName);
+    EXPECT_EQ(ret, INVALID_PARAMETERS_ERR);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -15,6 +15,7 @@
 
 #include "uri_permission_manager_stub.h"
 
+#include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -45,6 +46,9 @@ int UriPermissionManagerStub::OnRemoteRequest(
         }
         case UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY : {
             return HandleRevokeUriPermissionManually(data, reply);
+        }
+        case UriPermMgrCmd::ON_BATCH_REVOKE_URI_PERMISSION_MANUALLY : {
+            return HandleBatchRevokeUriPermissionManually(data, reply);
         }
         case UriPermMgrCmd::ON_VERIFY_URI_PERMISSION : {
             return HandleVerifyUriPermission(data, reply);
@@ -95,9 +99,9 @@ int UriPermissionManagerStub::HandleGrantUriPermission(MessageParcel &data, Mess
 int UriPermissionManagerStub::HandleBatchGrantUriPermission(MessageParcel &data, MessageParcel &reply)
 {
     auto size = data.ReadUint32();
-    if (size <= 0 || size > MAX_URI_COUNT) {
-        HILOG_ERROR("size is invalid.");
-        return ERR_DEAD_OBJECT;
+    if (size == 0 || size > MAX_URI_COUNT) {
+        HILOG_ERROR("Size is 0 or greater than 500.");
+        return INVALID_PARAMETERS_ERR;
     }
     std::vector<Uri> uriVec;
     for (uint32_t i = 0; i < size; i++) {
@@ -130,6 +134,28 @@ int UriPermissionManagerStub::HandleRevokeUriPermissionManually(MessageParcel &d
     return ERR_OK;
 }
 
+int UriPermissionManagerStub::HandleBatchRevokeUriPermissionManually(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_URI_COUNT) {
+        HILOG_ERROR("Size is 0 or greater than 500.");
+        return INVALID_PARAMETERS_ERR;
+    }
+    std::vector<Uri> uriVec;
+    for (uint32_t i = 0; i < size; i++) {
+        std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
+        if (!uri) {
+            HILOG_ERROR("To read uri failed.");
+            return ERR_DEAD_OBJECT;
+        }
+        uriVec.emplace_back(*uri);
+    }
+    auto bundleName = data.ReadString();
+    int result = RevokeUriPermissionManually(uriVec, bundleName);
+    reply.WriteInt32(result);
+    return ERR_OK;
+}
+
 int UriPermissionManagerStub::HandleVerifyUriPermission(MessageParcel &data, MessageParcel &reply)
 {
     std::unique_ptr<Uri> uri(data.ReadParcelable<Uri>());
@@ -149,7 +175,7 @@ int UriPermissionManagerStub::HandleBatchGrantUriPermissionFor2In1(MessageParcel
     auto size = data.ReadUint32();
     if (size == 0 || size > MAX_URI_COUNT) {
         HILOG_ERROR("size is invalid.");
-        return ERR_DEAD_OBJECT;
+        return INVALID_PARAMETERS_ERR;
     }
     std::vector<Uri> uriVec;
     for (uint32_t i = 0; i < size; i++) {
