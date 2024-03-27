@@ -132,7 +132,6 @@
             "nfctech",
             "reminderAgent",
             "reminderAgentManager",
-            "sensor",
             "tagSession",
             "telephony.call",
             "telephony.data",
