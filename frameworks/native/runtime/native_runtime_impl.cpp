@@ -18,6 +18,7 @@
 #include <regex>
 
 #include "bundle_mgr_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "js_environment.h"
@@ -39,7 +40,7 @@ constexpr size_t MAX_ENV_COUNT = 16;
 const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
-    HILOG_INFO("ArkLog: %{public}s", message);
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ArkLog: %{public}s", message);
     return 0;
 }
 }
@@ -65,7 +66,7 @@ NativeRuntimeImpl& NativeRuntimeImpl::GetNativeRuntimeImpl()
 
 napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     panda::RuntimeOption pandaOption;
     int arkProperties = OHOS::system::GetIntParameter<int>("persist.ark.properties", -1);
     std::string bundleName = OHOS::system::GetParameter("persist.ark.arkbundlename", "");
@@ -75,7 +76,7 @@ napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_p
     pandaOption.SetArkBundleName(bundleName);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
-    HILOG_INFO("NativeRuntimeImpl::Initialize ark properties = %{public}d bundlename = %{public}s",
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "NativeRuntimeImpl::Initialize ark properties = %{public}d bundlename = %{public}s",
         arkProperties, bundleName.c_str());
     pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
     pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
@@ -100,7 +101,7 @@ napi_status NativeRuntimeImpl::CreateJsEnv(const Options& options, std::shared_p
     jsEnv = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
     if (jsEnv == nullptr || !jsEnv->Initialize(pandaOption, static_cast<void*>(this))
         || jsEnv->GetNativeEngine() == nullptr) {
-        HILOG_ERROR("Initialize js environment failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize js environment failed.");
         return napi_status::napi_ok;
     }
     jsEnv->GetNativeEngine()->MarkNativeThread();
@@ -111,13 +112,13 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
 {
     auto jsEnv = GetJsEnv(env);
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return napi_status::napi_generic_failure;
     }
 
     auto vm = GetEcmaVm(jsEnv);
     if (!vm) {
-        HILOG_ERROR("vm is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "vm is nullptr.");
         return napi_status::napi_generic_failure;
     }
 
@@ -155,7 +156,7 @@ napi_status NativeRuntimeImpl::Init(const Options& options, napi_env env)
         SetRequestAotCallback(jsEnv);
 
         if (!InitLoop(jsEnv)) {
-            HILOG_ERROR("Initialize loop failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize loop failed.");
             return napi_status::napi_generic_failure;
         }
     }
@@ -169,15 +170,15 @@ napi_status NativeRuntimeImpl::AddEnv(napi_env env, std::shared_ptr<JsEnv::JsEnv
     std::lock_guard<std::mutex> lock(envMutex_);
     pid_t threadId = gettid();
     if (threadIds_.find(threadId) != threadIds_.end()) {
-        HILOG_ERROR("already created!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "already created!");
         return napi_status::napi_create_ark_runtime_only_one_env_per_thread;
     }
     if (envMap_.size() >= MAX_ENV_COUNT) {
-        HILOG_ERROR("the maximum number of runtime environments that can be created is 16!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "the maximum number of runtime environments that can be created is 16!");
         return napi_status::napi_create_ark_runtime_too_many_envs;
     }
     threadIds_.insert(threadId);
-    HILOG_DEBUG("add threadId %{public}zu", threadId);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "add threadId %{public}zu", threadId);
     auto it = envMap_.find(env);
     if (it == envMap_.end()) {
         envMap_[env] = jsEnv;
@@ -190,7 +191,7 @@ napi_status NativeRuntimeImpl::RemoveJsEnv(napi_env env)
 {
     std::lock_guard<std::mutex> lock(envMutex_);
     pid_t threadId = gettid();
-    HILOG_DEBUG("remove threadId %{public}zu", threadId);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "remove threadId %{public}zu", threadId);
     threadIds_.erase(threadId);
     auto it = envMap_.find(env);
     if (it != envMap_.end()) {
@@ -205,7 +206,7 @@ napi_status NativeRuntimeImpl::RemoveJsEnv(napi_env env)
 panda::ecmascript::EcmaVM* NativeRuntimeImpl::GetEcmaVm(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv) const
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return nullptr;
     }
     return jsEnv->GetVM();
@@ -239,7 +240,7 @@ void NativeRuntimeImpl::LoadAotFile(const Options& options, const std::shared_pt
 void NativeRuntimeImpl::InitConsoleModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return;
     }
     jsEnv->InitConsoleModule();
@@ -249,7 +250,7 @@ void NativeRuntimeImpl::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOper
     const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return;
     }
     jsEnv->InitSourceMap(operatorObj);
@@ -258,7 +259,7 @@ void NativeRuntimeImpl::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOper
 void NativeRuntimeImpl::InitTimerModule(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return;
     }
     jsEnv->InitTimerModule();
@@ -268,7 +269,7 @@ void NativeRuntimeImpl::SetModuleLoadChecker(const std::shared_ptr<ModuleChecker
     const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return;
     }
     jsEnv->SetModuleLoadChecker(moduleCheckerDelegate);
@@ -277,29 +278,30 @@ void NativeRuntimeImpl::SetModuleLoadChecker(const std::shared_ptr<ModuleChecker
 void NativeRuntimeImpl::SetRequestAotCallback(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return;
     }
     auto callback = [](const std::string& bundleName, const std::string& moduleName, int32_t triggerMode) -> int32_t {
         auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityMgr == nullptr) {
-            HILOG_ERROR("Failed to get system ability manager.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get system ability manager.");
             return ERR_INVALID_VALUE;
         }
 
         auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         if (remoteObj == nullptr) {
-            HILOG_ERROR("Remote object is nullptr.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Remote object is nullptr.");
             return ERR_INVALID_VALUE;
         }
 
         auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObj);
         if (bundleMgr == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get bundle manager.");
             return ERR_INVALID_VALUE;
         }
 
-        HILOG_DEBUG("Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d.",
+        TAG_LOGD(AAFwkTag::JSRUNTIME,
+            "Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d.",
             bundleName.c_str(), moduleName.c_str(), triggerMode);
         return bundleMgr->ResetAOTCompileStatus(bundleName, moduleName, triggerMode);
     };
@@ -310,7 +312,7 @@ void NativeRuntimeImpl::SetRequestAotCallback(const std::shared_ptr<JsEnv::JsEnv
 bool NativeRuntimeImpl::InitLoop(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return false;
     }
     return jsEnv->InitLoop();
@@ -319,7 +321,7 @@ bool NativeRuntimeImpl::InitLoop(const std::shared_ptr<JsEnv::JsEnvironment>& js
 void NativeRuntimeImpl::InitWorkerModule(const Options& options, const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv)
 {
     if (jsEnv == nullptr) {
-        HILOG_ERROR("jsEnv is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr.");
         return;
     }
 

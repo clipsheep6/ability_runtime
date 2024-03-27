@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_utils.h"
 #include "js_worker.h"
@@ -26,26 +27,26 @@ namespace OHOS {
 namespace AbilityRuntime {
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 }
 
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl(const std::shared_ptr<AppExecFwk::EventRunner>& eventRunner)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventRunner != nullptr) {
-        HILOG_DEBUG("Create event handler.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "Create event handler.");
         eventHandler_ = std::make_shared<AppExecFwk::EventHandler>(eventRunner);
     }
 }
 
 OHOSJsEnvironmentImpl::~OHOSJsEnvironmentImpl()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 }
 
 void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const std::string& name, int64_t delayTime)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventHandler_ != nullptr) {
         eventHandler_->PostTask(task, name, delayTime);
     }
@@ -53,7 +54,7 @@ void OHOSJsEnvironmentImpl::PostTask(const std::function<void()>& task, const st
 
 void OHOSJsEnvironmentImpl::PostSyncTask(const std::function<void()>& task, const std::string& name)
 {
-    HILOG_DEBUG("Post sync task");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Post sync task");
     if (eventHandler_ != nullptr) {
         eventHandler_->PostSyncTask(task, name);
     }
@@ -61,7 +62,7 @@ void OHOSJsEnvironmentImpl::PostSyncTask(const std::function<void()>& task, cons
 
 void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     if (eventHandler_ != nullptr) {
         eventHandler_->RemoveTask(name);
     }
@@ -69,28 +70,28 @@ void OHOSJsEnvironmentImpl::RemoveTask(const std::string& name)
 
 void OHOSJsEnvironmentImpl::InitTimerModule(NativeEngine* engine)
 {
-    HILOG_DEBUG("Init timer.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Init timer.");
     CHECK_POINTER(engine);
     auto ret = JsSysModule::Timer::RegisterTime(reinterpret_cast<napi_env>(engine));
     if (!ret) {
-        HILOG_ERROR("Register timer failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Register timer failed");
     }
 }
 
 void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
 bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER_AND_RETURN(engine, false);
     auto uvLoop = engine->GetUVLoop();
     auto fd = uvLoop != nullptr ? uv_backend_fd(uvLoop) : -1;
     if (fd < 0) {
-        HILOG_ERROR("Failed to get backend fd from uv loop");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get backend fd from uv loop");
         return false;
     }
     uv_run(uvLoop, UV_RUN_NOWAIT);
@@ -116,7 +117,7 @@ void OHOSJsEnvironmentImpl::DeInitLoop(NativeEngine* engine)
 
 void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_ptr<JsEnv::WorkerInfo> workerInfo)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER(engine);
     engine->SetInitWorkerFunc(InitWorkerFunc);
     engine->SetOffWorkerFunc(OffWorkerFunc);
@@ -129,7 +130,7 @@ void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_p
 
 void OHOSJsEnvironmentImpl::InitSyscapModule()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
