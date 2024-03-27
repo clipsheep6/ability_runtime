@@ -333,6 +333,7 @@ private:
 
 private:
     static constexpr size_t INFORMATION_MAX_LENGTH {1000};
+    static constexpr size_t DELEGATOR_PRINT_MAX_LENGTH {10000};
     const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 
 private:
