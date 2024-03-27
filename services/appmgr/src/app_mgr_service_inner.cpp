@@ -1369,8 +1369,12 @@ void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningReco
     }
 }
 
-int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason) const
+int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason)
 {
+    if (!ProcessExist(pid)) {
+        TAG_LOGI(AAFwkTag::APPMGR, "KillProcessByPid, process not exists, pid: %{public}d", pid);
+        return AAFwk::ERR_KILL_PROCESS_NOT_EXIST;
+    }
     std::string killReason = KILL_PROCESS_REASON_PREFIX + reason;
     int32_t ret = -1;
     if (pid > 0) {
@@ -1433,7 +1437,7 @@ bool AppMgrServiceInner::GetAllPids(std::list<pid_t> &pids)
     return (pids.empty() ? false : true);
 }
 
-bool AppMgrServiceInner::ProcessExist(pid_t &pid)
+bool AppMgrServiceInner::ProcessExist(pid_t pid)
 {
     char pid_path[128] = {0};
     struct stat stat_buf;
@@ -5377,7 +5381,8 @@ int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildPro
     childProcessRecord->SetPid(pid);
     childProcessRecord->SetUid(startMsg.uid);
     appRecord->AddChildProcessRecord(pid, childProcessRecord);
-    TAG_LOGI(AAFwkTag::APPMGR, "Start child process success, pid:%{public}d, uid:%{public}d", pid, startMsg.uid);
+    TAG_LOGI(AAFwkTag::APPMGR, "Start child process success, pid:%{public}d, hostPid:%{public}d, uid:%{public}d",
+        pid, childProcessRecord->GetHostPid(), startMsg.uid);
     return ERR_OK;
 }
 
@@ -5484,9 +5489,13 @@ void AppMgrServiceInner::KillChildProcess(const std::shared_ptr<AppRunningRecord
     }
     for (auto iter : childRecordMap) {
         auto childRecord = iter.second;
-        if (childRecord && childRecord->GetPid() > 0) {
-            TAG_LOGD(AAFwkTag::APPMGR, "Kill child process when host died.");
-            KillProcessByPid(childRecord->GetPid(), "KillChildProcess");
+        if (!childRecord) {
+            continue;
+        }
+        auto childPid = childRecord->GetPid();
+        if (childPid > 0) {
+            TAG_LOGI(AAFwkTag::APPMGR, "Kill child process when host died, childPid:%{public}d.", childPid);
+            KillProcessByPid(childPid, "KillChildProcess");
         }
     }
 }
