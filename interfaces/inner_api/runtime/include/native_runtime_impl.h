@@ -51,7 +51,6 @@ private:
     void SetModuleLoadChecker(const std::shared_ptr<ModuleCheckerDelegate>& moduleCheckerDelegate,
         const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
     void SetRequestAotCallback(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
-    bool InitLoop(const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
     void InitWorkerModule(const Options& options, const std::shared_ptr<JsEnv::JsEnvironment>& jsEnv);
     std::unordered_map<napi_env, std::shared_ptr<JsEnv::JsEnvironment>> envMap_;
     std::unordered_set<pid_t> threadIds_;
