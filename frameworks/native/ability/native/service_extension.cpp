@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "configuration_utils.h"
 #include "connection_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_service_extension.h"
 #include "runtime.h"
@@ -42,7 +43,7 @@ ServiceExtension* ServiceExtension::Create(const std::unique_ptr<Runtime>& runti
         return creator_(runtime);
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
     switch (runtime->GetLanguage()) {
         case Runtime::Language::JS:
             return JsServiceExtension::Create(runtime);
@@ -58,7 +59,7 @@ void ServiceExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const sptr<IRemoteObject> &token)
 {
     ExtensionBase<ServiceExtensionContext>::Init(record, application, handler, token);
-    HILOG_DEBUG("ServiceExtension begin init context");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ServiceExtension begin init context");
 }
 
 std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
@@ -70,7 +71,7 @@ std::shared_ptr<ServiceExtensionContext> ServiceExtension::CreateAndInitContext(
     std::shared_ptr<ServiceExtensionContext> context =
         ExtensionBase<ServiceExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (context == nullptr) {
-        HILOG_ERROR("ServiceExtension::CreateAndInitContext context is nullptr");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "ServiceExtension::CreateAndInitContext context is nullptr");
         return context;
     }
     return context;
@@ -82,7 +83,7 @@ void ServiceExtension::OnConfigurationUpdated(const AppExecFwk::Configuration &c
 
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Context is invalid.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Context is invalid.");
         return;
     }
 
