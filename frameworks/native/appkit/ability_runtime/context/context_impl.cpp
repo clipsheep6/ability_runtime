@@ -586,7 +586,6 @@ std::string ContextImpl::GetBaseDir() const
         baseDir = baseDir + CONTEXT_HAPS + CONTEXT_FILE_SEPARATOR +
             ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
     }
-
     HILOG_DEBUG("Dir:%{public}s", baseDir.c_str());
     return baseDir;
 }
@@ -1194,6 +1193,16 @@ void ContextImpl::ClearUpApplicationData()
         HILOG_ERROR("Delete bundle side user data by self is fail.");
         return;
     }
+}
+
+void ContextImpl::SetIsolatedExtension(bool isIsolatedExtension)
+{
+    isIsolatedExtension_ = true;
+}
+
+bool ContextImpl::GetIsolatedExtension()
+{
+    return isIsolatedExtension_;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

@@ -261,6 +261,7 @@ ohos_shared_library("app_context") {
     "${ability_runtime_native_path}/appkit/ability_runtime/context/environment_callback.cpp",
     "${ability_runtime_native_path}/appkit/app/overlay_event_subscriber.cpp",
     "${ability_runtime_native_path}/appkit/app/sys_mgr_client.cpp",
+    "${ability_runtime_native_path}/appkit/ability_runtime/context/extension_context.cpp",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -315,6 +316,7 @@ ohos_shared_library("app_context_utils") {
     "ability_runtime/context/js_application_context_utils.cpp",
     "ability_runtime/context/js_context_utils.cpp",
     "ability_runtime/context/js_resource_manager_utils.cpp",
+    "ability_runtime/context/js_extension_context_utils.cpp"
   ]
   cflags = []
   if (target_cpu == "arm") {

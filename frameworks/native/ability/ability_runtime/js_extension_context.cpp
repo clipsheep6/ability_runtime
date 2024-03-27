@@ -18,6 +18,7 @@
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_data_struct_converter.h"
+#include "js_extension_context_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
 
@@ -56,7 +57,14 @@ napi_value CreateJsExtensionContext(napi_env env, const std::shared_ptr<Extensio
         HILOG_ERROR("Failed to CreateJsExtensionContext, context is nullptr.");
         return nullptr;
     }
-    napi_value object = CreateJsBaseContext(env, context);
+
+    napi_value object = nullptr;
+    object = CreateJsBaseContext(env, context, false, context->GetIsolatedExtension());
+    if (context->GetIsolatedExtension()) {
+        HILOG_DEBUG("the extension is isolated, begin to Create JsExtensionBaseContext.");
+        object = CreateJsExtensionBaseContext(env, object, context);
+    }
+
     if (object == nullptr) {
         HILOG_ERROR("Failed to CreateJsExtensionContext, object is nullptr.");
         return nullptr;

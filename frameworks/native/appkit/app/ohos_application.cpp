@@ -609,10 +609,18 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         stageContext->SetParentContext(abilityRuntimeContext_);
         stageContext->InitHapModuleInfo(abilityInfo);
         stageContext->SetConfiguration(GetConfiguration());
+        // 设置独立沙箱属性
         std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo = stageContext->GetHapModuleInfo();
         if (hapModuleInfo == nullptr) {
             HILOG_ERROR("hapModuleInfo is nullptr");
             return nullptr;
+        }
+
+        auto isExist = [](const ExtensionAbilityInfo &extensionInfo){return extensionInfo.type == ExtensionAbilityType::INPUTMETHOD;};
+        auto isolatedExtension = std::find_if(hapModuleInfo->extensionInfos.begin(), hapModuleInfo->extensionInfos.end(), isExist);
+        if (isolatedExtension != hapModuleInfo->extensionInfos.end()) {
+            stageContext->SetIsolatedExtension(true);
+            HILOG_DEBUG("SetIsolatedExtension");
         }
         SetAppEnv(hapModuleInfo->appEnvironments);
 
@@ -691,11 +699,18 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     stageContext->SetParentContext(abilityRuntimeContext_);
     stageContext->InitHapModuleInfo(hapModuleInfo);
     stageContext->SetConfiguration(GetConfiguration());
+
     auto moduleInfo = stageContext->GetHapModuleInfo();
     if (moduleInfo == nullptr) {
         HILOG_ERROR("moduleInfo is nullptr");
         return false;
     }
+    // auto isExist = [](const ExtensionAbilityInfo &extensionInfo){return extensionInfo.type == ExtensionAbilityType::INPUTMETHOD;};
+    // auto isolatedExtension = std::find_if(moduleInfo->extensionInfos.begin(), moduleInfo->extensionInfos.end(), isExist);
+    // if (isolatedExtension != moduleInfo->extensionInfos.end()) {
+    //     stageContext->SetIsolatedExtension(true);
+    //     HILOG_DEBUG("SetIsolatedExtension");
+    // }
 
     if (abilityRuntimeContext_->GetApplicationInfo() && abilityRuntimeContext_->GetApplicationInfo()->multiProjects) {
         auto rm = stageContext->CreateModuleContext(hapModuleInfo.moduleName)->GetResourceManager();

@@ -53,6 +53,11 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     }
     HILOG_DEBUG("begin init abilityInfo");
     auto abilityInfo = record->GetAbilityInfo();
+    // 读取配置 是否独立沙箱
+    if (abilityInfo->extensionAbilityType == ExtensionAbilityType::SERVICE && abilityInfo->bundleName == "com.example.contexttest") {
+        context->SetIsolatedExtension(true);
+        HILOG_DEBUG("SetIsolatedExtension");
+    }
     context->SetAbilityInfo(abilityInfo);
     context->InitHapModuleInfo(abilityInfo);
     context->SetConfiguration(appContext->GetConfiguration());
