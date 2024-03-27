@@ -390,6 +390,7 @@ int32_t AppMgrStub::HandleDumpHeapMemory(MessageParcel &data, MessageParcel &rep
 
 int32_t AppMgrStub::HandleDumpJsHeapMemory(MessageParcel &data, MessageParcel &reply)
 {
+
     HILOG_DEBUG("AppMgrStub::HandleDumpJsHeapMemory.");
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<JsHeapDumpInfo> info(data.ReadParcelable<JsHeapDumpInfo>());
@@ -397,6 +398,8 @@ int32_t AppMgrStub::HandleDumpJsHeapMemory(MessageParcel &data, MessageParcel &r
         HILOG_ERROR("AppMgrStub read configuration error");
         return ERR_INVALID_VALUE;
     }
+    HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        info->pid, info->tid, info->needGc, info->needSnapshot);
     auto result = DumpJsHeapMemory(*info);
     if (!reply.WriteInt32(result)) {
         HILOG_ERROR("write result error");

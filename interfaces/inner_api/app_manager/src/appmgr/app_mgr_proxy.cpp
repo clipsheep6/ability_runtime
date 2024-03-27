@@ -326,6 +326,8 @@ int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
 
 int32_t AppMgrProxy::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
+    HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        info.pid, info.tid, info.needGc, info.needSnapshot);
     HILOG_DEBUG("AppMgrProxy::DumpJsHeapMemory.");
     MessageParcel data;
     MessageParcel reply;
