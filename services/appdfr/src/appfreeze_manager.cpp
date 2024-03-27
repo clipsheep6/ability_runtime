@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,7 @@
 #include "singleton.h"
 
 #include "app_mgr_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -94,7 +95,7 @@ bool AppfreezeManager::IsHandleAppfreeze(const std::string& bundleName)
 
 int AppfreezeManager::AppfreezeHandle(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo)
 {
-    HILOG_DEBUG("called %{public}s, bundleName %{public}s, name_ %{public}s",
+    TAG_LOGD(AAFwkTag::APPDFR, "called %{public}s, bundleName %{public}s, name_ %{public}s",
         faultData.errorObject.name.c_str(), appInfo.bundleName.c_str(), name_.c_str());
     if (!IsHandleAppfreeze(appInfo.bundleName)) {
         return -1;
@@ -111,7 +112,7 @@ int AppfreezeManager::AppfreezeHandle(const FaultData& faultData, const Appfreez
 
 int AppfreezeManager::AppfreezeHandleWithStack(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo)
 {
-    HILOG_DEBUG("called %{public}s, bundleName %{public}s, name_ %{public}s",
+    TAG_LOGD(AAFwkTag::APPDFR, "called %{public}s, bundleName %{public}s, name_ %{public}s",
         faultData.errorObject.name.c_str(), appInfo.bundleName.c_str(), name_.c_str());
     if (!IsHandleAppfreeze(appInfo.bundleName)) {
         return -1;
@@ -152,8 +153,8 @@ int AppfreezeManager::LifecycleTimeoutHandle(const ParamInfo& info, std::unique_
         info.eventName != AppFreezeType::LIFECYCLE_HALF_TIMEOUT) {
         return -1;
     }
-    HILOG_DEBUG("LifecycleTimeoutHandle called %{public}s, name_ %{public}s",
-        info.bundleName.c_str(), name_.c_str());
+    TAG_LOGD(AAFwkTag::APPDFR, "LifecycleTimeoutHandle called %{public}s, name_ %{public}s", info.bundleName.c_str(),
+        name_.c_str());
     HITRACE_METER_FMT(HITRACE_TAG_APP, "LifecycleTimeoutHandle:%{public}s bundleName:%{public}s",
         info.eventName.c_str(), info.bundleName.c_str());
     AppFaultDataBySA faultDataSA;
@@ -187,7 +188,7 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
         binderInfo += "PeerBinder pids is empty\n";
     }
     for (auto& pidTemp : pids) {
-        HILOG_INFO("pidTemp pids:%{public}d", pidTemp);
+        TAG_LOGI(AAFwkTag::APPDFR, "pidTemp pids:%{public}d", pidTemp);
         if (pidTemp != pid) {
             std::string content = "PeerBinder catcher stacktrace for pid : " + std::to_string(pidTemp) + "\n";
             content += CatcherStacktrace(pidTemp);
@@ -208,7 +209,8 @@ int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManag
         EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
         faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo);
 
-    HILOG_INFO("reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, "
+    TAG_LOGI(AAFwkTag::APPDFR,
+        "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, "
         "hisysevent write ret = %{public}d.",
         faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str(), ret);
     return 0;
@@ -220,7 +222,7 @@ std::map<int, std::set<int>> AppfreezeManager::BinderParser(std::ifstream& fin, 
     const int decimal = 10;
     std::string line;
     bool isBinderMatchup = false;
-    HILOG_INFO("start");
+    TAG_LOGI(AAFwkTag::APPDFR, "start");
     stack += "BinderCatcher --\n\n";
     while (getline(fin, line)) {
         stack += line + "\n";
@@ -261,14 +263,15 @@ std::map<int, std::set<int>> AppfreezeManager::BinderParser(std::ifstream& fin, 
             int serverNum = std::strtol(server.c_str(), nullptr, decimal);
             int clientNum = std::strtol(client.c_str(), nullptr, decimal);
             int waitNum = std::strtol(wait.c_str(), nullptr, decimal);
-            HILOG_INFO("server:%{public}d, client:%{public}d, wait:%{public}d", serverNum, clientNum, waitNum);
+            TAG_LOGI(AAFwkTag::APPDFR, "server:%{public}d, client:%{public}d, wait:%{public}d", serverNum, clientNum,
+                waitNum);
             binderInfo[clientNum].insert(serverNum);
         }
         if (line.find("context") != line.npos) {
             isBinderMatchup = true;
         }
     }
-    HILOG_INFO("binderInfo size: %{public}zu", binderInfo.size());
+    TAG_LOGI(AAFwkTag::APPDFR, "binderInfo size: %{public}zu", binderInfo.size());
     return binderInfo;
 }
 
@@ -279,12 +282,12 @@ std::set<int> AppfreezeManager::GetBinderPeerPids(std::string& stack, int pid) c
     std::string path = LOGGER_DEBUG_PROC_PATH;
     char resolvePath[PATH_MAX] = {0};
     if (realpath(path.c_str(), resolvePath) == nullptr) {
-        HILOG_ERROR("GetBinderPeerPids realpath error");
+        TAG_LOGE(AAFwkTag::APPDFR, "GetBinderPeerPids realpath error");
         return pids;
     }
     fin.open(resolvePath);
     if (!fin.is_open()) {
-        HILOG_ERROR("open file failed, %{public}s.", resolvePath);
+        TAG_LOGE(AAFwkTag::APPDFR, "open file failed, %{public}s.", resolvePath);
         stack += "open file failed :" + path + "\r\n";
         return pids;
     }
@@ -299,7 +302,7 @@ std::set<int> AppfreezeManager::GetBinderPeerPids(std::string& stack, int pid) c
 
     ParseBinderPids(binderInfo, pids, pid, 0);
     for (auto& each : pids) {
-        HILOG_DEBUG("each pids:%{public}d", each);
+        TAG_LOGD(AAFwkTag::APPDFR, "each pids:%{public}d", each);
     }
     return pids;
 }

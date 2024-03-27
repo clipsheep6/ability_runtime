@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 
 #include "ability_manager_client.h"
 #include "element_name.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "bool_wrapper.h"
 
@@ -103,12 +104,12 @@ const int32_t ARG_LIST_INDEX_OFFSET = 2;
 AbilityToolCommand::AbilityToolCommand(int argc, char* argv[]) : ShellCommand(argc, argv, ABILITY_TOOL_NAME)
 {
     for (int i = 0; i < argc_; i++) {
-        HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
+        TAG_LOGI(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s", i, argv_[i]);
     }
 
     aaShellCmd_ = std::make_shared<AbilityManagerShellCommand>(argc, argv);
     if (aaShellCmd_.get() == nullptr) {
-        HILOG_ERROR("Get aa command failed.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Get aa command failed.");
     }
 }
 
@@ -128,7 +129,7 @@ ErrCode AbilityToolCommand::CreateCommandMap()
 ErrCode AbilityToolCommand::CreateMessageMap()
 {
     if (aaShellCmd_.get() == nullptr) {
-        HILOG_ERROR("aa shell command is nullptr.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "aa shell command is nullptr.");
         return OHOS::ERR_INVALID_VALUE;
     }
     return aaShellCmd_.get()->CreateMessageMap();
@@ -158,7 +159,7 @@ ErrCode AbilityToolCommand::RunAsStartAbility()
 
     result = AbilityManagerClient::GetInstance()->StartAbility(want, startoptions, nullptr);
     if (result != OHOS::ERR_OK) {
-        HILOG_ERROR("%{public}s result = %{public}d", STRING_START_ABILITY_NG.c_str(), result);
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s result = %{public}d", STRING_START_ABILITY_NG.c_str(), result);
         if (result != START_ABILITY_WAITING) {
             resultReceiver_ = STRING_START_ABILITY_NG + "\n";
         }
@@ -166,7 +167,7 @@ ErrCode AbilityToolCommand::RunAsStartAbility()
         return result;
     }
 
-    HILOG_INFO("%{public}s", STRING_START_ABILITY_OK.c_str());
+    TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", STRING_START_ABILITY_OK.c_str());
     resultReceiver_ = STRING_START_ABILITY_OK + "\n";
     return OHOS::ERR_OK;
 }
@@ -183,13 +184,13 @@ ErrCode AbilityToolCommand::RunAsStopService()
 
     result = AbilityManagerClient::GetInstance()->StopServiceAbility(want);
     if (result != OHOS::ERR_OK) {
-        HILOG_ERROR("%{public}s result = %{public}d", STRING_STOP_SERVICE_ABILITY_NG.c_str(), result);
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s result = %{public}d", STRING_STOP_SERVICE_ABILITY_NG.c_str(), result);
         resultReceiver_ = STRING_STOP_SERVICE_ABILITY_NG + "\n";
         resultReceiver_.append(GetMessageFromCode(result));
         return result;
     }
 
-    HILOG_INFO("%{public}s", STRING_STOP_SERVICE_ABILITY_OK.c_str());
+    TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", STRING_STOP_SERVICE_ABILITY_OK.c_str());
     resultReceiver_ = STRING_STOP_SERVICE_ABILITY_OK + "\n";
     return OHOS::ERR_OK;
 }
@@ -204,13 +205,13 @@ ErrCode AbilityToolCommand::RunAsForceStop()
     std::string bundleName = argList_[0];
     ErrCode result = AbilityManagerClient::GetInstance()->KillProcess(bundleName);
     if (result != OHOS::ERR_OK) {
-        HILOG_ERROR("%{public}s result = %{public}d", STRING_FORCE_STOP_NG.c_str(), result);
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s result = %{public}d", STRING_FORCE_STOP_NG.c_str(), result);
         resultReceiver_ = STRING_FORCE_STOP_NG + "\n";
         resultReceiver_.append(GetMessageFromCode(result));
         return result;
     }
 
-    HILOG_INFO("%{public}s", STRING_FORCE_STOP_OK.c_str());
+    TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", STRING_FORCE_STOP_OK.c_str());
     resultReceiver_ = STRING_FORCE_STOP_OK + "\n";
     return OHOS::ERR_OK;
 }
@@ -226,12 +227,12 @@ ErrCode AbilityToolCommand::RunAsTestCommand()
     }
 
     if (aaShellCmd_.get() == nullptr) {
-        HILOG_ERROR("aa shell command is nullptr.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "aa shell command is nullptr.");
         return OHOS::ERR_INVALID_VALUE;
     }
 
     if (!aaShellCmd_.get()->IsTestCommandIntegrity(params)) {
-        HILOG_ERROR("test command lack of essential args.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "test command lack of essential args.");
         resultReceiver_ = ABILITY_TOOL_HELP_LACK_OPTIONS + "\n";
         resultReceiver_.append(ABILITY_TOOL_HELP_MSG_TEST);
         return OHOS::ERR_INVALID_VALUE;
@@ -267,7 +268,8 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
     };
 
     while ((option = getopt_long(argc_, argv_, shortOptions.c_str(), longOptions, &index)) != EOF) {
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
         switch (option) {
             case 'h':
                 break;
@@ -284,7 +286,8 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
                 if (!GetKeyAndValueByOpt(optind, paramName, paramValue)) {
                     return OHOS::ERR_INVALID_VALUE;
                 }
-                HILOG_DEBUG("paramName: %{public}s, paramValue: %{public}s", paramName.c_str(), paramValue.c_str());
+                TAG_LOGD(AAFwkTag::AA_TOOL, "paramName: %{public}s, paramValue: %{public}s", paramName.c_str(),
+                    paramValue.c_str());
                 if (paramName == "windowMode" &&
                     std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS))) {
                     windowMode = std::stoi(paramValue);
@@ -309,7 +312,7 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
 
     // Parameter check
     if (abilityName.size() == 0 || bundleName.size() == 0) {
-        HILOG_DEBUG("'ability_tool %{public}s' without enough options.", cmd_.c_str());
+        TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' without enough options.", cmd_.c_str());
         if (abilityName.size() == 0) {
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
         }
@@ -344,7 +347,7 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
             windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_PRIMARY &&
             windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_SECONDARY &&
             windowMode != AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_FLOATING) {
-            HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
+            TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' %{public}s", cmd_.c_str(),
                 ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID.c_str());
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID + "\n");
             return OHOS::ERR_INVALID_VALUE;
@@ -372,7 +375,8 @@ ErrCode AbilityToolCommand::ParseStopServiceArgsFromCmd(Want& want)
     };
 
     while ((option = getopt_long(argc_, argv_, shortOptions.c_str(), longOptions, &index)) != EOF) {
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
         switch (option) {
             case 'h':
                 break;
@@ -391,7 +395,7 @@ ErrCode AbilityToolCommand::ParseStopServiceArgsFromCmd(Want& want)
     }
 
     if (abilityName.size() == 0 || bundleName.size() == 0) {
-        HILOG_INFO("'ability_tool %{public}s' without enough options.", cmd_.c_str());
+        TAG_LOGI(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' without enough options.", cmd_.c_str());
         if (abilityName.size() == 0) {
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_NO_ABILITY_NAME_OPTION + "\n");
         }
@@ -419,7 +423,8 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
 
     // Parameter parse with conversion
     while ((option = getopt_long(argc_, argv_, SHORT_OPTIONS_FOR_TEST.c_str(), LONG_OPTIONS_FOR_TEST, &index)) != EOF) {
-        HILOG_INFO("option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "option: %{public}d, optopt: %{public}d, optind: %{public}d", option, optopt, optind);
         switch (option) {
             case 'h':
                 break;
@@ -430,7 +435,8 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
                 if (!GetKeyAndValueByOpt(optind, tempKey, paramValue)) {
                     return OHOS::ERR_INVALID_VALUE;
                 }
-                HILOG_DEBUG("tempKey: %{public}s, paramValue: %{public}s", tempKey.c_str(), paramValue.c_str());
+                TAG_LOGD(AAFwkTag::AA_TOOL, "tempKey: %{public}s, paramValue: %{public}s", tempKey.c_str(),
+                    paramValue.c_str());
                 paramKey = "-s ";
                 paramKey.append(tempKey);
                 params[paramKey] = paramValue;
@@ -444,7 +450,8 @@ ErrCode AbilityToolCommand::ParseTestArgsFromCmd(std::map<std::string, std::stri
             case 'w':
                 paramValue = optarg;
                 if (!(std::regex_match(paramValue, sm, std::regex(STRING_TEST_REGEX_INTEGER_NUMBERS)))) {
-                    HILOG_DEBUG("'ability_tool test --watchdog %{public}s", ABILITY_TOOL_HELP_MSG_ONLY_NUM.c_str());
+                    TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool test --watchdog %{public}s",
+                        ABILITY_TOOL_HELP_MSG_ONLY_NUM.c_str());
                     resultReceiver_.append(ABILITY_TOOL_HELP_MSG_ONLY_NUM + "\n");
                     return OHOS::ERR_INVALID_VALUE;
                 }
@@ -473,7 +480,7 @@ bool AbilityToolCommand::GetKeyAndValueByOpt(int optind, std::string& key, std::
     int valueIndex = isOption ? argListIndex + 1 : argListIndex;
     if (keyIndex >= static_cast<int>(argList_.size()) || keyIndex < 0 ||
         valueIndex >= static_cast<int>(argList_.size()) || valueIndex < 0) {
-        HILOG_DEBUG("'ability_tool %{public}s' %{public}s", cmd_.c_str(),
+        TAG_LOGD(AAFwkTag::AA_TOOL, "'ability_tool %{public}s' %{public}s", cmd_.c_str(),
             ABILITY_TOOL_HELP_MSG_LACK_VALUE.c_str());
         resultReceiver_.append(ABILITY_TOOL_HELP_MSG_LACK_VALUE + "\n");
         return false;

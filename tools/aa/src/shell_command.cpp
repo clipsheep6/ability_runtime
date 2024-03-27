@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,13 +16,14 @@
 #include "shell_command.h"
 
 #include <getopt.h>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 ShellCommand::ShellCommand(int argc, char* argv[], std::string name)
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "start");
     opterr = 0;
     argc_ = argc;
     argv_ = argv;
@@ -36,7 +37,7 @@ ShellCommand::ShellCommand(int argc, char* argv[], std::string name)
     for (int i = 2; i < argc; i++) {
         argList_.push_back(argv[i]);
     }
-    HILOG_DEBUG("exit");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "exit");
 }
 
 ShellCommand::~ShellCommand()
@@ -44,7 +45,7 @@ ShellCommand::~ShellCommand()
 
 ErrCode ShellCommand::OnCommand()
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "start");
     int result = OHOS::ERR_OK;
 
     auto respond = commandMap_[cmd_];
@@ -59,37 +60,37 @@ ErrCode ShellCommand::OnCommand()
         result = OHOS::ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "end");
     return result;
 }
 
 std::string ShellCommand::ExecCommand()
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "start");
     int result = CreateCommandMap();
     if (result != OHOS::ERR_OK) {
-        HILOG_ERROR("failed to create command map.\n");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "failed to create command map.\n");
     }
 
     result = CreateMessageMap();
     if (result != OHOS::ERR_OK) {
-        HILOG_ERROR("failed to create message map.\n");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "failed to create message map.\n");
     }
 
     result = OnCommand();
     if (result != OHOS::ERR_OK) {
-        HILOG_ERROR("failed to execute your command.\n");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "failed to execute your command.\n");
 
         resultReceiver_ = "error: failed to execute your command.\n";
     }
 
     return resultReceiver_;
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "end");
 }
 
 std::string ShellCommand::GetCommandErrorMsg() const
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "start");
     std::string commandErrorMsg =
         name_ + ": '" + cmd_ + "' is not a valid " + name_ + " command. See '" + name_ + " help'.\n";
 
@@ -98,7 +99,7 @@ std::string ShellCommand::GetCommandErrorMsg() const
 
 std::string ShellCommand::GetUnknownOptionMsg(std::string& unknownOption) const
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::AA_TOOL, "start");
     std::string result = "";
 
     if (optind < 0 || optind > argc_) {
@@ -113,8 +114,8 @@ std::string ShellCommand::GetUnknownOptionMsg(std::string& unknownOption) const
 
 std::string ShellCommand::GetMessageFromCode(const int32_t code) const
 {
-    HILOG_INFO("[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
-    HILOG_INFO("code = %{public}d", code);
+    TAG_LOGI(AAFwkTag::AA_TOOL, "[%{public}s(%{public}s)] enter", __FILE__, __FUNCTION__);
+    TAG_LOGI(AAFwkTag::AA_TOOL, "code = %{public}d", code);
 
     std::string result = "";
     if (messageMap_.find(code) != messageMap_.end()) {
@@ -124,7 +125,7 @@ std::string ShellCommand::GetMessageFromCode(const int32_t code) const
         }
     }
 
-    HILOG_INFO("result = %{public}s", result.c_str());
+    TAG_LOGI(AAFwkTag::AA_TOOL, "result = %{public}s", result.c_str());
 
     return result;
 }

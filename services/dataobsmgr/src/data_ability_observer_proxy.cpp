@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "data_ability_observer_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "message_parcel.h"
 
@@ -36,13 +37,13 @@ void DataAbilityObserverProxy::OnChange()
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(DataAbilityObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("data.WriteInterfaceToken(GetDescriptor()) return false");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "data.WriteInterfaceToken(GetDescriptor()) return false");
         return;
     }
 
     int result = SendTransactCmd(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE, data, reply, option);
     if (result != ERR_NONE) {
-        HILOG_ERROR("SendRequest error, result=%{public}d", result);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "SendRequest error, result=%{public}d", result);
     }
 }
 
@@ -58,18 +59,18 @@ void DataAbilityObserverProxy::OnChangeExt(const ChangeInfo &changeInfo)
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(DataAbilityObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("data.WriteInterfaceToken(GetDescriptor()) return false");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "data.WriteInterfaceToken(GetDescriptor()) return false");
         return;
     }
 
     if (!ChangeInfo::Marshalling(changeInfo, data)) {
-        HILOG_ERROR("changeInfo marshalling failed");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "changeInfo marshalling failed");
         return;
     }
 
     int result = SendTransactCmd(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_EXT, data, reply, option);
     if (result != ERR_NONE) {
-        HILOG_ERROR("SendRequest error, result=%{public}d", result);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "SendRequest error, result=%{public}d", result);
     }
 }
 
@@ -85,19 +86,19 @@ void DataAbilityObserverProxy::OnChangePreferences(const std::string &key)
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!data.WriteInterfaceToken(DataAbilityObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("data.WriteInterfaceToken(GetDescriptor()) return false");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "data.WriteInterfaceToken(GetDescriptor()) return false");
         return;
     }
 
     if (!data.WriteString(key)) {
-        HILOG_ERROR("data.WriteString(key) return false");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "data.WriteString(key) return false");
         return;
     }
 
     int result =
         SendTransactCmd(IDataAbilityObserver::DATA_ABILITY_OBSERVER_CHANGE_PREFERENCES, data, reply, option);
     if (result != ERR_NONE) {
-        HILOG_ERROR("SendRequest error, result=%{public}d", result);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "SendRequest error, result=%{public}d", result);
     }
 }
 
@@ -106,7 +107,7 @@ int32_t DataAbilityObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 

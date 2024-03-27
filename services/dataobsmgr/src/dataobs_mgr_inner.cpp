@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 
 #include "data_ability_observer_stub.h"
 #include "dataobs_mgr_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "common_utils.h"
 
@@ -32,14 +33,15 @@ int DataObsMgrInner::HandleRegisterObserver(const Uri &uri, sptr<IDataAbilityObs
 
     auto [obsPair, flag] = observers_.try_emplace(uri.ToString(), std::list<sptr<IDataAbilityObserver>>());
     if (!flag && obsPair->second.size() > OBS_NUM_MAX) {
-        HILOG_ERROR("The number of subscribers for this uri : %{public}s has reached the upper limit.",
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "The number of subscribers for this uri : %{public}s has reached the upper limit.",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATAOBS_SERVICE_OBS_LIMMIT;
     }
 
     for (auto obs = obsPair->second.begin(); obs != obsPair->second.end(); obs++) {
         if ((*obs)->AsObject() == dataObserver->AsObject()) {
-            HILOG_ERROR("the obs has registered on this uri : %{public}s",
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "the obs has registered on this uri : %{public}s",
                 CommonUtils::Anonymous(uri.ToString()).c_str());
             return OBS_EXIST;
         }
@@ -58,11 +60,12 @@ int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityO
 
     auto obsPair = observers_.find(uri.ToString());
     if (obsPair == observers_.end()) {
-        HILOG_WARN("no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+        TAG_LOGW(
+            AAFwkTag::DBOBSMGR, "no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return NO_OBS_FOR_URI;
     }
 
-    HILOG_DEBUG("obs num is %{public}zu on this uri : %{public}s", obsPair->second.size(),
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "obs num is %{public}zu on this uri : %{public}s", obsPair->second.size(),
         CommonUtils::Anonymous(uri.ToString()).c_str());
     auto obs = obsPair->second.begin();
     for (; obs != obsPair->second.end(); obs++) {
@@ -71,7 +74,8 @@ int DataObsMgrInner::HandleUnregisterObserver(const Uri &uri, sptr<IDataAbilityO
         }
     }
     if (obs == obsPair->second.end()) {
-        HILOG_WARN("no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+        TAG_LOGW(
+            AAFwkTag::DBOBSMGR, "no obs on this uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
         return NO_OBS_FOR_URI;
     }
     obsPair->second.remove(*obs);
@@ -93,7 +97,8 @@ int DataObsMgrInner::HandleNotifyChange(const Uri &uri)
     {
         auto obsPair = observers_.find(uri.ToString());
         if (obsPair == observers_.end()) {
-            HILOG_DEBUG("there is no obs on the uri : %{public}s", CommonUtils::Anonymous(uri.ToString()).c_str());
+            TAG_LOGD(AAFwkTag::DBOBSMGR, "there is no obs on the uri : %{public}s",
+                CommonUtils::Anonymous(uri.ToString()).c_str());
             return NO_OBS_FOR_URI;
         }
         obsList = obsPair->second;
@@ -105,7 +110,7 @@ int DataObsMgrInner::HandleNotifyChange(const Uri &uri)
         }
     }
 
-    HILOG_DEBUG("called end on the uri : %{public}s,obs num: %{public}zu",
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "called end on the uri : %{public}s,obs num: %{public}zu",
         CommonUtils::Anonymous(uri.ToString()).c_str(), obsList.size());
     return NO_ERROR;
 }
@@ -118,7 +123,7 @@ void DataObsMgrInner::AddObsDeathRecipient(sptr<IDataAbilityObserver> dataObserv
 
     auto it = obsRecipient_.find(dataObserver->AsObject());
     if (it != obsRecipient_.end()) {
-        HILOG_WARN("this death recipient has been added.");
+        TAG_LOGW(AAFwkTag::DBOBSMGR, "this death recipient has been added.");
         return;
     } else {
         std::weak_ptr<DataObsMgrInner> thisWeakPtr(shared_from_this());
@@ -130,7 +135,7 @@ void DataObsMgrInner::AddObsDeathRecipient(sptr<IDataAbilityObserver> dataObserv
                 }
             });
         if (!dataObserver->AsObject()->AddDeathRecipient(deathRecipient)) {
-            HILOG_ERROR("AddDeathRecipient failed.");
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "AddDeathRecipient failed.");
         }
         obsRecipient_.emplace(dataObserver->AsObject(), deathRecipient);
     }
@@ -159,7 +164,7 @@ void DataObsMgrInner::OnCallBackDied(const wptr<IRemoteObject> &remote)
     std::lock_guard<ffrt::mutex> lock(innerMutex_);
 
     if (dataObserver == nullptr) {
-        HILOG_ERROR("dataObserver is nullptr.");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is nullptr.");
         return;
     }
 
@@ -172,7 +177,7 @@ void DataObsMgrInner::RemoveObs(sptr<IRemoteObject> dataObserver)
         auto &obsList = iter->second;
         for (auto it = obsList.begin(); it != obsList.end(); it++) {
             if ((*it)->AsObject() == dataObserver) {
-                HILOG_DEBUG("Erase an observer form list.");
+                TAG_LOGD(AAFwkTag::DBOBSMGR, "Erase an observer form list.");
                 obsList.erase(it);
                 break;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,23 +14,24 @@
  */
 
 #include "test_observer_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 TestObserverProxy::TestObserverProxy(const sptr<IRemoteObject>& object) : IRemoteProxy<ITestObserver>(object)
 {
-    HILOG_INFO("test observer proxy instance is created");
+    TAG_LOGI(AAFwkTag::AA_TOOL, "test observer proxy instance is created");
 }
 
 TestObserverProxy::~TestObserverProxy()
 {
-    HILOG_INFO("test observer proxy is destroyed");
+    TAG_LOGI(AAFwkTag::AA_TOOL, "test observer proxy is destroyed");
 }
 
 void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("TestStatus start");
+    TAG_LOGI(AAFwkTag::AA_TOOL, "TestStatus start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -41,26 +42,26 @@ void TestObserverProxy::TestStatus(const std::string& msg, const int64_t& result
     }
 
     if (!data.WriteString(msg)) {
-        HILOG_ERROR("Write string msg failed");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Write string msg failed");
         return;
     }
 
     if (!data.WriteInt64(resultCode)) {
-        HILOG_ERROR("Write resultCode failed");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Write resultCode failed");
         return;
     }
 
     int32_t result = SendTransactCmd(
         static_cast<uint32_t>(ITestObserver::Message::AA_TEST_STATUS), data, reply, option);
     if (result != OHOS::NO_ERROR) {
-        HILOG_ERROR("SendRequest failed, error code: %{public}d", result);
+        TAG_LOGE(AAFwkTag::AA_TOOL, "SendRequest failed, error code: %{public}d", result);
         return;
     }
 }
 
 void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resultCode)
 {
-    HILOG_INFO("TestFinished start");
+    TAG_LOGI(AAFwkTag::AA_TOOL, "TestFinished start");
 
     MessageParcel data;
     MessageParcel reply;
@@ -71,19 +72,19 @@ void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resu
     }
 
     if (!data.WriteString(msg)) {
-        HILOG_ERROR("Failed to write string msg");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to write string msg");
         return;
     }
 
     if (!data.WriteInt64(resultCode)) {
-        HILOG_ERROR("Failed to write resultCode");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to write resultCode");
         return;
     }
 
     int32_t result = SendTransactCmd(
         static_cast<uint32_t>(ITestObserver::Message::AA_TEST_FINISHED), data, reply, option);
     if (result != OHOS::NO_ERROR) {
-        HILOG_ERROR("Failed to SendRequest, error code: %{public}d", result);
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to SendRequest, error code: %{public}d", result);
         return;
     }
 }
@@ -91,7 +92,7 @@ void TestObserverProxy::TestFinished(const std::string& msg, const int64_t& resu
 ShellCommandResult TestObserverProxy::ExecuteShellCommand(
     const std::string& cmd, const int64_t timeoutSec)
 {
-    HILOG_INFO("start");
+    TAG_LOGI(AAFwkTag::AA_TOOL, "start");
 
     ShellCommandResult result;
     MessageParcel data;
@@ -103,24 +104,24 @@ ShellCommandResult TestObserverProxy::ExecuteShellCommand(
     }
 
     if (!data.WriteString(cmd)) {
-        HILOG_ERROR("Failed to write string cmd");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to write string cmd");
         return result;
     }
 
     if (!data.WriteInt64(timeoutSec)) {
-        HILOG_ERROR("Failed to write timeoutSec");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to write timeoutSec");
         return result;
     }
 
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(ITestObserver::Message::AA_EXECUTE_SHELL_COMMAND), data, reply, option);
     if (ret != OHOS::NO_ERROR) {
-        HILOG_ERROR("Failed to SendRequest, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to SendRequest, error code: %{public}d", ret);
         return result;
     }
     ShellCommandResult* resultPtr = reply.ReadParcelable<ShellCommandResult>();
     if (!resultPtr) {
-        HILOG_ERROR("Failed to read result");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to read result");
         return result;
     }
     result = *resultPtr;
@@ -135,7 +136,7 @@ int32_t TestObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 

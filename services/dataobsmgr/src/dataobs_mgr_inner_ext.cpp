@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 
 #include "data_ability_observer_stub.h"
 #include "dataobs_mgr_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "common_utils.h"
 
@@ -40,7 +41,8 @@ Status DataObsMgrInnerExt::HandleRegisterObserver(Uri &uri, sptr<IDataAbilityObs
     std::vector<std::string> path = { uri.GetScheme(), uri.GetAuthority() };
     uri.GetPathSegments(path);
     if (root_ != nullptr && !root_->AddObserver(path, 0, Entry(dataObserver, deathRecipientRef, isDescendants))) {
-        HILOG_ERROR("The number of subscribers for this uri : %{public}s has reached the upper limit.",
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "The number of subscribers for this uri : %{public}s has reached the upper limits.",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         RemoveObsDeathRecipient(dataObserver->AsObject());
         return DATAOBS_SERVICE_OBS_LIMMIT;
@@ -51,7 +53,7 @@ Status DataObsMgrInnerExt::HandleRegisterObserver(Uri &uri, sptr<IDataAbilityObs
 Status DataObsMgrInnerExt::HandleUnregisterObserver(Uri &uri, sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver->AsObject() == nullptr) {
-        HILOG_ERROR("dataObserver is null, uri : %{public}s has reached the upper limit.",
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is null, uri : %{public}s has reached the upper limit.",
             CommonUtils::Anonymous(uri.ToString()).c_str());
         return DATA_OBSERVER_IS_NULL;
     }
@@ -68,7 +70,7 @@ Status DataObsMgrInnerExt::HandleUnregisterObserver(Uri &uri, sptr<IDataAbilityO
 Status DataObsMgrInnerExt::HandleUnregisterObserver(sptr<IDataAbilityObserver> dataObserver)
 {
     if (dataObserver->AsObject() == nullptr) {
-        HILOG_ERROR("dataObserver is null");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "dataObserver is null");
         return DATA_OBSERVER_IS_NULL;
     }
     std::lock_guard<ffrt::mutex> lock(nodeMutex_);
@@ -94,8 +96,9 @@ Status DataObsMgrInnerExt::HandleNotifyChange(const ChangeInfo &changeInfo)
         }
     }
     if (changeRes.empty()) {
-        HILOG_DEBUG("no obs for this uris, changeType:%{public}ud, num of uris:%{public}zu, data is "
-                    "nullptr:%{public}d, size:%{public}ud",
+        TAG_LOGD(AAFwkTag::DBOBSMGR,
+            "no obs for this uris, changeType:%{public}ud, num of uris:%{public}zu, data is "
+            "nullptr:%{public}d, size:%{public}ud",
             changeInfo.changeType_, changeInfo.uris_.size(), changeInfo.data_ == nullptr, changeInfo.size_);
         return NO_OBS_FOR_URI;
     }
@@ -114,7 +117,7 @@ std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddOb
     auto it = obsRecipientRefs.find(dataObserver);
     if (it != obsRecipientRefs.end()) {
         if (std::numeric_limits<uint32_t>::max() - 1 < it->second->ref) {
-            HILOG_ERROR("the num of observer reach max limit");
+            TAG_LOGE(AAFwkTag::DBOBSMGR, "the num of observer reach max limit");
             return nullptr;
         }
     } else {
@@ -129,7 +132,8 @@ std::shared_ptr<DataObsMgrInnerExt::DeathRecipientRef> DataObsMgrInnerExt::AddOb
         dataObserver->AddDeathRecipient(deathRecipient);
         it = obsRecipientRefs.emplace(dataObserver, std::make_shared<DeathRecipientRef>(deathRecipient)).first;
     }
-    HILOG_DEBUG("this observer will be added, sum:%{public}ud", it->second->ref.load(std::memory_order_relaxed));
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "this observer will be added, sum:%{public}ud",
+        it->second->ref.load(std::memory_order_relaxed));
     return it->second;
 }
 
@@ -141,7 +145,7 @@ void DataObsMgrInnerExt::RemoveObsDeathRecipient(const sptr<IRemoteObject> &data
     }
 
     if (isForce || it->second->ref <= 1) {
-        HILOG_DEBUG("this observer deathRecipient will be remove, sum:%{public}ud",
+        TAG_LOGD(AAFwkTag::DBOBSMGR, "this observer deathRecipient will be remove, sum:%{public}ud",
             it->second->ref.load(std::memory_order_relaxed));
         dataObserver->RemoveDeathRecipient(it->second->deathRecipient);
         obsRecipientRefs.erase(it);
@@ -151,7 +155,7 @@ void DataObsMgrInnerExt::RemoveObsDeathRecipient(const sptr<IRemoteObject> &data
 
 void DataObsMgrInnerExt::OnCallBackDied(const wptr<IRemoteObject> &remote)
 {
-    HILOG_DEBUG("this observer died");
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "this observer died");
     auto dataObserver = remote.promote();
     if (dataObserver == nullptr) {
         return;
