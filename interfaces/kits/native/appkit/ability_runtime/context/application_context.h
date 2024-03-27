@@ -29,6 +29,7 @@ namespace AAFwk {
 class Want;
 }
 namespace AbilityRuntime {
+class ExtensionContext;
 using AppConfigUpdateCallback = std::function<void(const AppExecFwk::Configuration &config)>;
 class ApplicationContext : public Context {
 public:
@@ -100,6 +101,7 @@ public:
     int32_t RestartApp(const AAFwk::Want& want);
 
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);
+    void AttachExtensionContext(const std::shared_ptr<ExtensionContext> &extensionContext);
 
     static std::shared_ptr<ApplicationContext> GetInstance();
 
@@ -122,6 +124,7 @@ private:
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
     std::string appRunningUniqueId_;
+    std::shared_ptr<ExtensionContext> extensionContext_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS
