@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,34 +30,35 @@ IAbilityMonitor::IAbilityMonitor(const std::string &abilityName,
 bool IAbilityMonitor::Match(const std::shared_ptr<ADelegatorAbilityProperty> &ability, bool isNotify)
 {
     if (!ability) {
-        HILOG_WARN("Invalid ability property");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid ability property");
         return false;
     }
 
     const auto &aName = ability->name_;
 
     if (abilityName_.empty() || aName.empty()) {
-        HILOG_WARN("Invalid name");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Invalid name");
         return false;
     }
 
     if (abilityName_.compare(aName)) {
-        HILOG_WARN("Different name");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Different name");
         return false;
     }
 
     const auto &aModuleName = ability->moduleName_;
 
     if (!moduleName_.empty() && moduleName_.compare(aModuleName) != 0) {
-        HILOG_ERROR("Different moduleName, %{public}s and %{public}s.", moduleName_.c_str(), aModuleName.c_str());
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Different moduleName, %{public}s and %{public}s.",
+            moduleName_.c_str(), aModuleName.c_str());
         return false;
     }
 
-    HILOG_INFO("Matched : ability name : %{public}s, isNotify : %{public}s",
+    TAG_LOGI(AAFwkTag::DELEGATOR, "Matched : ability name : %{public}s, isNotify : %{public}s",
         abilityName_.data(), (isNotify ? "true" : "false"));
 
     if (isNotify) {
-        HILOG_INFO("Matched : notify ability matched");
+        TAG_LOGI(AAFwkTag::DELEGATOR, "Matched : notify ability matched");
         {
             std::lock_guard<std::mutex> matchLock(mMatch_);
             matchedAbility_ = ability;
@@ -77,7 +78,7 @@ std::shared_ptr<ADelegatorAbilityProperty> IAbilityMonitor::WaitForAbility(const
 {
     auto realTime = timeoutMs;
     if (timeoutMs <= 0) {
-        HILOG_WARN("Timeout should be a positive number");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Timeout should be a positive number");
         realTime = MAX_TIME_OUT;
     }
 
@@ -85,7 +86,7 @@ std::shared_ptr<ADelegatorAbilityProperty> IAbilityMonitor::WaitForAbility(const
 
     auto condition = [this] { return this->matchedAbility_ != nullptr; };
     if (!cvMatch_.wait_for(matchLock, realTime * 1ms, condition)) {
-        HILOG_WARN("Wait ability timeout");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Wait ability timeout");
     }
 
     return matchedAbility_;
