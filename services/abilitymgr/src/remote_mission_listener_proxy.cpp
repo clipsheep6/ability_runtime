@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "remote_mission_listener_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -27,16 +28,16 @@ void RemoteMissionListenerProxy::NotifyMissionsChanged(const std::string& device
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(RemoteMissionListenerProxy::GetDescriptor())) {
-        HILOG_ERROR("NotifyMissionsChanged Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyMissionsChanged Write interface token failed.");
         return;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("NotifyMissionsChanged Write deviceId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyMissionsChanged Write deviceId failed.");
         return;
     }
     int32_t result = SendTransactCmd(IRemoteMissionListener::NOTIFY_MISSION_CHANGED, data, reply, option);
     if (result != NO_ERROR) {
-        HILOG_ERROR("NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
         return;
     }
 }
@@ -47,20 +48,20 @@ void RemoteMissionListenerProxy::NotifySnapshot(const std::string& deviceId, int
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(RemoteMissionListenerProxy::GetDescriptor())) {
-        HILOG_ERROR("NotifySnapshot Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifySnapshot Write interface token failed.");
         return;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("NotifySnapshot Write deviceId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifySnapshot Write deviceId failed.");
         return;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("NotifySnapshot Write missionId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifySnapshot Write missionId failed.");
         return;
     }
     int32_t result = SendTransactCmd(IRemoteMissionListener::NOTIFY_SNAPSHOT, data, reply, option);
     if (result != NO_ERROR) {
-        HILOG_ERROR("NotifySnapshot SendRequest fail, error: %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifySnapshot SendRequest fail, error: %{public}d", result);
         return;
     }
 }
@@ -71,20 +72,20 @@ void RemoteMissionListenerProxy::NotifyNetDisconnect(const std::string& deviceId
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(RemoteMissionListenerProxy::GetDescriptor())) {
-        HILOG_ERROR("NotifyNetDisconnect Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyNetDisconnect Write interface token failed.");
         return;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("NotifyNetDisconnect Write deviceId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyNetDisconnect Write deviceId failed.");
         return;
     }
     if (!data.WriteInt32(state)) {
-        HILOG_ERROR("NotifyNetDisconnect Write missionId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyNetDisconnect Write missionId failed.");
         return;
     }
     int32_t result = SendTransactCmd(IRemoteMissionListener::NOTIFY_NET_DISCONNECT, data, reply, option);
     if (result != NO_ERROR) {
-        HILOG_ERROR("NotifyNetDisconnect SendRequest fail, error: %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyNetDisconnect SendRequest fail, error: %{public}d", result);
         return;
     }
 }
@@ -94,13 +95,13 @@ int32_t RemoteMissionListenerProxy::SendTransactCmd(uint32_t code, MessageParcel
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return NO_ERROR;

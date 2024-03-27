@@ -24,6 +24,7 @@
 #include "app_scheduler.h"
 #include "bundle_constants.h"
 #include "bundle_mgr_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "scene_board_judgement.h"
@@ -50,7 +51,7 @@ void AppExitReasonHelper::SetCurrentMissionListManager(
 int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
 {
     if (!IsExitReasonValid(exitReason)) {
-        HILOG_ERROR("Force exit reason invalid.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Force exit reason invalid.");
         return ERR_INVALID_VALUE;
     }
 
@@ -59,7 +60,7 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
     std::string bundleName;
     int32_t callerUid = IPCSkeleton::GetCallingUid();
     if (IN_PROCESS_CALL(bms->GetNameForUid(callerUid, bundleName)) != ERR_OK) {
-        HILOG_ERROR("Get Bundle Name failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get Bundle Name failed.");
         return GET_BUNDLE_INFO_FAILED;
     }
 
@@ -73,7 +74,7 @@ int32_t AppExitReasonHelper::RecordAppExitReason(const ExitReason &exitReason)
     }
 
     if (abilityList.empty()) {
-        HILOG_ERROR("Active abilityLists empty.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Active abilityLists empty.");
         return ERR_GET_ACTIVE_ABILITY_LIST_EMPTY;
     }
 
@@ -87,7 +88,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
     int32_t uid;
     DelayedSingleton<AppScheduler>::GetInstance()->GetBundleNameByPid(pid, bundleName, uid);
     if (bundleName.empty()) {
-        HILOG_ERROR("Get bundle name by pid failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle name by pid failed.");
         return GET_BUNDLE_INFO_FAILED;
     }
     return RecordProcessExitReason(pid, exitReason, bundleName, uid);
@@ -97,7 +98,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
     const std::string bundleName, const int32_t uid)
 {
     if (!IsExitReasonValid(exitReason)) {
-        HILOG_ERROR("Force exit reason invalid.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Force exit reason invalid.");
         return ERR_INVALID_VALUE;
     }
 
@@ -113,7 +114,7 @@ int32_t AppExitReasonHelper::RecordProcessExitReason(const int32_t pid, const Ex
     }
 
     if (abilityLists.empty()) {
-        HILOG_ERROR("Active abilityLists empty.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Active abilityLists empty.");
         return ERR_GET_ACTIVE_ABILITY_LIST_EMPTY;
     }
     return DelayedSingleton<AbilityRuntime::AppExitReasonDataManager>::GetInstance()->SetAppExitReason(
@@ -152,7 +153,7 @@ std::shared_ptr<MissionListManager> AppExitReasonHelper::GetListManagerByUserId(
     if (it != missionListManagers_.end()) {
         return it->second;
     }
-    HILOG_ERROR("Failed to get MissionListManager. UserId = %{public}d", userId);
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get MissionListManager. UserId = %{public}d", userId);
     return nullptr;
 }
 

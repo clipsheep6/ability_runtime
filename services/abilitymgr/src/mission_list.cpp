@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "mission_list.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -34,7 +35,7 @@ void MissionList::AddMissionToTop(const std::shared_ptr<Mission> &mission)
     }
 
     if (!missions_.empty() && missions_.front() == mission) {
-        HILOG_DEBUG("mission is already at the top of list");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "mission is already at the top of list");
         return;
     }
 
@@ -274,7 +275,7 @@ void MissionList::GetAbilityRecordsByName(
             AppExecFwk::ElementName localElementNoModuleName(abilityInfo.deviceId,
                 abilityInfo.bundleName, abilityInfo.name);
             if (localElement == element || localElementNoModuleName == element) {
-                HILOG_DEBUG("find element %{public}s", localElement.GetURI().c_str());
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "find element %{public}s", localElement.GetURI().c_str());
                 records.push_back(mission->GetAbilityRecord());
             }
         }
@@ -370,7 +371,7 @@ void MissionList::DumpStateByRecordId(
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    HILOG_INFO("record begin to call DumpAbilityState %{public}s", __func__);
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState %{public}s", __func__);
                     abilityRecord->DumpAbilityState(info, isClient, params);
                     return;
                 }
@@ -392,7 +393,7 @@ void MissionList::DumpList(std::vector<std::string> &info, bool isClient)
 
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
-                HILOG_INFO("record begin to call DumpAbilityState %{public}s", __func__);
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call DumpAbilityState %{public}s", __func__);
                 std::vector<std::string> params;
                 abilityRecord->DumpAbilityState(info, isClient, params);
             }
@@ -409,7 +410,7 @@ int MissionList::BlockAbilityByRecordId(int32_t abilityRecordId)
             auto abilityRecord = mission->GetAbilityRecord();
             if (abilityRecord) {
                 if (abilityRecord->GetRecordId() == abilityRecordId) {
-                    HILOG_INFO("record begin to call BlockAbilityByRecordId %{public}s", __func__);
+                    TAG_LOGI(AAFwkTag::ABILITYMGR, "record begin to call BlockAbilityByRecordId %{public}s", __func__);
                     return abilityRecord->BlockAbility();
                 }
             }
@@ -481,7 +482,7 @@ void MissionList::GetActiveAbilityList(const std::string &bundleName, std::vecto
 
         const AppExecFwk::AbilityInfo &abilityInfo = abilityRecord->GetAbilityInfo();
         if (abilityInfo.bundleName == bundleName && !abilityInfo.name.empty()) {
-            HILOG_DEBUG("find ability name is %{public}s", abilityInfo.name.c_str());
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "find ability name is %{public}s", abilityInfo.name.c_str());
             abilityList.push_back(abilityInfo.name);
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "resident_process_manager.h"
 
 #include "ability_manager_service.h"
+#include "hilog_tag_wrapper.h"
 #include "user_controller.h"
 
 namespace OHOS {
@@ -51,7 +52,7 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
             // startAbility
             Want want;
             want.SetElementName(hapModuleInfo.bundleName, mainElement);
-            HILOG_INFO("Start resident ability, mainElement: %{public}s", mainElement.c_str());
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "Start resident ability, mainElement: %{public}s", mainElement.c_str());
             DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(want, USER_ID_NO_HEAD,
                 DEFAULT_INVAL_VALUE);
         }
@@ -91,7 +92,7 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
             hapModuleInfo.abilityInfos, mainElement, uriStr);
         if (getDataAbilityUri) {
             // dataability, need use AcquireDataAbility
-            HILOG_INFO("Start resident dataability, mainElement: %{public}s, uri: %{public}s",
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "Start resident dataability, mainElement: %{public}s, uri: %{public}s",
                 mainElement.c_str(), uriStr.c_str());
             Uri uri(uriStr);
             DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);
@@ -120,7 +121,7 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
         }
     }
     if (mainElementIsPageAbility) {
-        HILOG_DEBUG("%{public}s is page ability", mainElement.c_str());
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is page ability", mainElement.c_str());
         return false;
     }
 
