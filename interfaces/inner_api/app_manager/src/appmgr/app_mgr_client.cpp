@@ -393,6 +393,17 @@ AppMgrResultCode AppMgrClient::NotifyMemoryLevel(MemoryLevel level)
     return AppMgrResultCode(service->NotifyMemoryLevel(level));
 }
 
+AppMgrResultCode AppMgrClient::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap) const
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+
+    if (service == nullptr) {
+        HILOG_ERROR("service is nullptr");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return AppMgrResultCode(service->NotifyProcMemoryLevel(procLevelMap));
+}
+
 AppMgrResultCode AppMgrClient::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
