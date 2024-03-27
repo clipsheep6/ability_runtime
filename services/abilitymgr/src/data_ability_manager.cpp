@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "connection_state_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -35,26 +36,26 @@ constexpr system_clock::duration DATA_ABILITY_LOAD_TIMEOUT = 11000ms;
 
 DataAbilityManager::DataAbilityManager()
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 }
 
 DataAbilityManager::~DataAbilityManager()
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 }
 
 sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     const AbilityRequest &abilityRequest, bool tryBind, const sptr<IRemoteObject> &client, bool isNotHap)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 
     if (abilityRequest.abilityInfo.type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("Data ability manager acquire: not a data ability.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: not a data ability.");
         return nullptr;
     }
 
     if (abilityRequest.abilityInfo.bundleName.empty() || abilityRequest.abilityInfo.name.empty()) {
-        HILOG_ERROR("Data ability manager acquire: invalid name.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: invalid name.");
         return nullptr;
     }
 
@@ -64,13 +65,13 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
     if (client && !isNotHap) {
         clientAbilityRecord = Token::GetAbilityRecordByToken(client);
         if (!clientAbilityRecord) {
-            HILOG_ERROR("Data ability manager acquire: invalid client token.");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Data ability manager acquire: invalid client token.");
             return nullptr;
         }
-        HILOG_INFO("Ability '%{public}s' acquiring data ability '%{public}s'...",
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Ability '%{public}s' acquiring data ability '%{public}s'...",
             clientAbilityRecord->GetAbilityInfo().name.c_str(), dataAbilityName.c_str());
     } else {
-        HILOG_INFO("Loading data ability '%{public}s'...", dataAbilityName.c_str());
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Loading data ability '%{public}s'...", dataAbilityName.c_str());
     }
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
@@ -83,22 +84,23 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
 
     auto it = dataAbilityRecordsLoaded_.find(dataAbilityName);
     if (it == dataAbilityRecordsLoaded_.end()) {
-        HILOG_DEBUG("Acquiring data ability is not existed, loading...");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Acquiring data ability is not existed, loading...");
         dataAbilityRecord = LoadLocked(dataAbilityName, abilityRequest);
     } else {
-        HILOG_DEBUG("Acquiring data ability is existed .");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Acquiring data ability is existed .");
         dataAbilityRecord = it->second;
     }
 
     if (!dataAbilityRecord) {
-        HILOG_ERROR("Failed to load data ability '%{public}s'.", dataAbilityName.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to load data ability '%{public}s'.", dataAbilityName.c_str());
         return nullptr;
     }
 
     auto scheduler = dataAbilityRecord->GetScheduler();
     if (!scheduler) {
         if (DEBUG_ENABLED) {
-            HILOG_ERROR("BUG: data ability '%{public}s' is not loaded, removing it...", dataAbilityName.c_str());
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "BUG: data ability '%{public}s' is not loaded, removing it...",
+                dataAbilityName.c_str());
         }
         auto it = dataAbilityRecordsLoaded_.find(dataAbilityName);
         if (it != dataAbilityRecordsLoaded_.end()) {
@@ -123,7 +125,7 @@ sptr<IAbilityScheduler> DataAbilityManager::Acquire(
 int DataAbilityManager::Release(
     const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &client, bool isNotHap)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
     CHECK_POINTER_AND_RETURN(client, ERR_NULL_OBJECT);
@@ -140,13 +142,13 @@ int DataAbilityManager::Release(
         if (it->second && it->second->GetScheduler() &&
             it->second->GetScheduler()->AsObject() == scheduler->AsObject()) {
             dataAbilityRecord = it->second;
-            HILOG_INFO("Releasing data ability '%{public}s'...", it->first.c_str());
+            TAG_LOGI(AAFwkTag::DATA_ABILITY, "Releasing data ability '%{public}s'...", it->first.c_str());
             break;
         }
     }
 
     if (!dataAbilityRecord) {
-        HILOG_ERROR("Releasing not existed data ability.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Releasing not existed data ability.");
         return ERR_UNKNOWN_OBJECT;
     }
 
@@ -156,12 +158,12 @@ int DataAbilityManager::Release(
     CHECK_POINTER_AND_RETURN(abilityMs, GET_ABILITY_SERVICE_FAILED);
     int result = abilityMs->JudgeAbilityVisibleControl(abilityRecord->GetAbilityInfo());
     if (result != ERR_OK) {
-        HILOG_ERROR("JudgeAbilityVisibleControl error.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "JudgeAbilityVisibleControl error.");
         return result;
     }
 
     if (dataAbilityRecord->GetClientCount(client) == 0) {
-        HILOG_ERROR("Release data ability with wrong client.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Release data ability with wrong client.");
         return ERR_UNKNOWN_OBJECT;
     }
 
@@ -178,7 +180,7 @@ int DataAbilityManager::Release(
 
 bool DataAbilityManager::ContainsDataAbility(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
 
@@ -195,7 +197,7 @@ bool DataAbilityManager::ContainsDataAbility(const sptr<IAbilityScheduler> &sche
 
 int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &scheduler, const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 
     CHECK_POINTER_AND_RETURN(scheduler, ERR_NULL_OBJECT);
     CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
@@ -206,7 +208,7 @@ int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
         DumpLocked(__func__, __LINE__);
     }
 
-    HILOG_INFO("Attaching data ability...");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Attaching data ability...");
 
     auto record = Token::GetAbilityRecordByToken(token);
     std::string abilityName = "";
@@ -224,20 +226,22 @@ int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
     }
 
     if (!dataAbilityRecord) {
-        HILOG_ERROR("Attaching data ability '%{public}s' is not in loading state.", abilityName.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Attaching data ability '%{public}s' is not in loading state.",
+            abilityName.c_str());
         return ERR_UNKNOWN_OBJECT;
     }
 
     if (DEBUG_ENABLED && dataAbilityRecord->GetClientCount() > 0) {
-        HILOG_ERROR("BUG: Attaching data ability '%{public}s' has clients.", abilityName.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "BUG: Attaching data ability '%{public}s' has clients.", abilityName.c_str());
     }
 
     if (DEBUG_ENABLED && dataAbilityRecord->GetScheduler()) {
-        HILOG_ERROR("BUG: Attaching data ability '%{public}s' has ready.", abilityName.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "BUG: Attaching data ability '%{public}s' has ready.", abilityName.c_str());
     }
 
     if (DEBUG_ENABLED && dataAbilityRecordsLoaded_.count(it->first) != 0) {
-        HILOG_ERROR("BUG: The attaching data ability '%{public}s' has already existed.", abilityName.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "BUG: The attaching data ability '%{public}s' has already existed.",
+            abilityName.c_str());
     }
 
     return dataAbilityRecord->Attach(scheduler);
@@ -245,7 +249,7 @@ int DataAbilityManager::AttachAbilityThread(const sptr<IAbilityScheduler> &sched
 
 int DataAbilityManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
 {
-    HILOG_DEBUG("Call");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call");
 
     CHECK_POINTER_AND_RETURN(token, ERR_NULL_OBJECT);
 
@@ -255,7 +259,7 @@ int DataAbilityManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, 
         DumpLocked(__func__, __LINE__);
     }
 
-    HILOG_INFO("Handling data ability transition done %{public}d...", state);
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Handling data ability transition done %{public}d...", state);
 
     DataAbilityRecordPtrMap::iterator it;
     DataAbilityRecordPtr dataAbilityRecord;
@@ -271,7 +275,7 @@ int DataAbilityManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, 
         }
     }
     if (!dataAbilityRecord) {
-        HILOG_ERROR("Attaching data ability '%{public}s' is not existed.", abilityName.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Attaching data ability '%{public}s' is not existed.", abilityName.c_str());
         return ERR_UNKNOWN_OBJECT;
     }
 
@@ -291,7 +295,7 @@ void DataAbilityManager::OnAbilityRequestDone(const sptr<IRemoteObject> &token, 
 
 void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
-    HILOG_INFO("Call");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Call");
     CHECK_POINTER(abilityRecord);
 
     {
@@ -305,7 +309,7 @@ void DataAbilityManager::OnAbilityDied(const std::shared_ptr<AbilityRecord> &abi
                 if (it->second && it->second->GetAbilityRecord() == abilityRecord) {
                     DelayedSingleton<ConnectionStateManager>::GetInstance()->HandleDataAbilityDied(it->second);
                     it->second->KillBoundClientProcesses();
-                    HILOG_DEBUG("Removing died data ability record...");
+                    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Removing died data ability record...");
                     it = dataAbilityRecordsLoaded_.erase(it);
                     break;
                 } else {
@@ -373,7 +377,7 @@ void DataAbilityManager::OnAppStateChanged(const AppInfo &info)
 
 std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordById(int64_t id)
 {
-    HILOG_DEBUG("Call.");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call.");
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
 
@@ -392,7 +396,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordById(int64_t 
 
 std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByToken(const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("Call.");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call.");
 
     CHECK_POINTER_AND_RETURN(token, nullptr);
 
@@ -420,7 +424,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByToken(const
 
 std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByScheduler(const sptr<IAbilityScheduler> &scheduler)
 {
-    HILOG_DEBUG("Call.");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call.");
 
     CHECK_POINTER_AND_RETURN(scheduler, nullptr);
 
@@ -438,7 +442,7 @@ std::shared_ptr<AbilityRecord> DataAbilityManager::GetAbilityRecordByScheduler(c
 
 void DataAbilityManager::Dump(const char *func, int line)
 {
-    HILOG_DEBUG("Call.");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "Call.");
 
     std::lock_guard<ffrt::mutex> locker(mutex_);
 
@@ -448,43 +452,43 @@ void DataAbilityManager::Dump(const char *func, int line)
 DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
     const std::string &name, const AbilityRequest &req)
 {
-    HILOG_DEBUG("name '%{public}s'", name.c_str());
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "name '%{public}s'", name.c_str());
 
     DataAbilityRecordPtr dataAbilityRecord;
 
     auto it = dataAbilityRecordsLoading_.find(name);
     if (it == dataAbilityRecordsLoading_.end()) {
-        HILOG_INFO("Acquiring data ability is not in loading, trying to load it...");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Acquiring data ability is not in loading, trying to load it...");
 
         dataAbilityRecord = std::make_shared<DataAbilityRecord>(req);
         // Start data ability loading process asynchronously.
         int startResult = dataAbilityRecord->StartLoading();
         if (startResult != ERR_OK) {
-            HILOG_ERROR("Failed to load data ability %{public}d", startResult);
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to load data ability %{public}d", startResult);
             return nullptr;
         }
 
         auto insertResult = dataAbilityRecordsLoading_.insert({name, dataAbilityRecord});
         if (!insertResult.second) {
-            HILOG_ERROR("Failed to insert data ability to loading map.");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to insert data ability to loading map.");
             return nullptr;
         }
     } else {
-        HILOG_INFO("Acquired data ability is loading...");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Acquired data ability is loading...");
         dataAbilityRecord = it->second;
     }
 
     if (!dataAbilityRecord) {
-        HILOG_ERROR("Failed to load data ability '%{public}s'.", name.c_str());
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Failed to load data ability '%{public}s'.", name.c_str());
         return nullptr;
     }
 
-    HILOG_INFO("Waiting for data ability loaded...");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Waiting for data ability loaded...");
 
     // Waiting for data ability loaded.
     int ret = dataAbilityRecord->WaitForLoaded(mutex_, DATA_ABILITY_LOAD_TIMEOUT);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Wait for data ability failed %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Wait for data ability failed %{public}d.", ret);
         it = dataAbilityRecordsLoading_.find(name);
         if (it != dataAbilityRecordsLoading_.end()) {
             dataAbilityRecordsLoading_.erase(it);
@@ -499,24 +503,24 @@ DataAbilityManager::DataAbilityRecordPtr DataAbilityManager::LoadLocked(
 void DataAbilityManager::DumpLocked(const char *func, int line)
 {
     if (func && line >= 0) {
-        HILOG_INFO("Data ability manager dump at %{public}s(%{public}d)", func, line);
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Data ability manager dump at %{public}s(%{public}d)", func, line);
     } else {
-        HILOG_INFO("Data ability manager dump");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "Data ability manager dump");
     }
 
-    HILOG_INFO("Available data ability count: %{public}zu", dataAbilityRecordsLoaded_.size());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Available data ability count: %{public}zu", dataAbilityRecordsLoaded_.size());
 
     for (auto it = dataAbilityRecordsLoaded_.begin(); it != dataAbilityRecordsLoaded_.end(); ++it) {
-        HILOG_INFO("'%{public}s':", it->first.c_str());
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "'%{public}s':", it->first.c_str());
         if (it->second) {
             it->second->Dump();
         }
     }
 
-    HILOG_INFO("Loading data ability count: %{public}zu", dataAbilityRecordsLoading_.size());
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Loading data ability count: %{public}zu", dataAbilityRecordsLoading_.size());
 
     for (auto it = dataAbilityRecordsLoading_.begin(); it != dataAbilityRecordsLoading_.end(); ++it) {
-        HILOG_INFO("'%{public}s':", it->first.c_str());
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "'%{public}s':", it->first.c_str());
         if (it->second) {
             it->second->Dump();
         }
@@ -600,7 +604,7 @@ void DataAbilityManager::DumpSysState(std::vector<std::string> &info, bool isCli
 
 void DataAbilityManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)
 {
-    HILOG_INFO("Get ability running infos");
+    TAG_LOGI(AAFwkTag::DATA_ABILITY, "Get ability running infos");
     std::lock_guard<ffrt::mutex> locker(mutex_);
 
     auto queryInfo = [&info, isPerm](DataAbilityRecordPtrMap::reference data) {
@@ -638,7 +642,7 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
     bool getBundleInfos = bundleMgrHelper->GetBundleInfos(
         OHOS::AppExecFwk::GET_BUNDLE_DEFAULT, bundleInfos, USER_ID_NO_HEAD);
     if (!getBundleInfos) {
-        HILOG_ERROR("Handle ability died task, get bundle infos failed.");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Handle ability died task, get bundle infos failed.");
         return;
     }
 
@@ -661,7 +665,7 @@ void DataAbilityManager::RestartDataAbility(const std::shared_ptr<AbilityRecord>
             bool getDataAbilityUri = OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->GetDataAbilityUri(
                 hapModuleInfo.abilityInfos, mainElement, uriStr);
             if (getDataAbilityUri) {
-                HILOG_INFO("restart data ability: %{public}s, uri: %{public}s.",
+                TAG_LOGI(AAFwkTag::DATA_ABILITY, "restart data ability: %{public}s, uri: %{public}s.",
                     abilityRecord->GetAbilityInfo().name.c_str(), uriStr.c_str());
                 Uri uri(uriStr);
                 OHOS::DelayedSingleton<AbilityManagerService>::GetInstance()->AcquireDataAbility(uri, true, nullptr);

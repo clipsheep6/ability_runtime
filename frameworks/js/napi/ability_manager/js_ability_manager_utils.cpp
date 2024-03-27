@@ -18,6 +18,7 @@
 #include <cstdint>
 
 #include "ability_state.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -103,7 +104,7 @@ napi_value CreateJsExtensionRunningInfo(napi_env env, const AAFwk::ExtensionRunn
 
 napi_value AbilityStateInit(napi_env env)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -118,7 +119,7 @@ napi_value AbilityStateInit(napi_env env)
 
 napi_value UserStatusInit(napi_env env)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
 
@@ -131,11 +132,11 @@ napi_value UserStatusInit(napi_env env)
 
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("ObjValue nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ObjValue nullptr.");
         return nullptr;
     }
     napi_set_named_property(env, object, "bundleName", CreateJsValue(env, abilityStateData.bundleName));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "js_app_state_observer.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "js_app_manager_utils.h"
@@ -33,7 +34,7 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
         ([jsObserver, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr null");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnForegroundApplicationChanged(appStateData);
@@ -46,7 +47,8 @@ void JSAppStateObserver::OnForegroundApplicationChanged(const AppStateData &appS
 
 void JSAppStateObserver::HandleOnForegroundApplicationChanged(const AppStateData &appStateData)
 {
-    HILOG_INFO("HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d.",
+    TAG_LOGI(AAFwkTag::APPMGR,
+        "HandleOnForegroundApplicationChanged bundleName:%{public}s, uid:%{public}d, state:%{public}d.",
         appStateData.bundleName.c_str(), appStateData.uid, appStateData.state);
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
@@ -63,7 +65,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
         ([jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr null");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnAbilityStateChanged(abilityStateData);
@@ -76,7 +78,7 @@ void JSAppStateObserver::OnAbilityStateChanged(const AbilityStateData &abilitySt
 
 void JSAppStateObserver::HandleOnAbilityStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -92,7 +94,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
         ([jsObserver, abilityStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
                 return;
             }
             jsObserverSptr->HandleOnExtensionStateChanged(abilityStateData);
@@ -105,7 +107,7 @@ void JSAppStateObserver::OnExtensionStateChanged(const AbilityStateData &ability
 
 void JSAppStateObserver::HandleOnExtensionStateChanged(const AbilityStateData &abilityStateData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -121,7 +123,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
                 return;
             }
             jsObserverSptr->HandleOnProcessCreated(processData);
@@ -134,7 +136,7 @@ void JSAppStateObserver::OnProcessCreated(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessCreated(const ProcessData &processData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -150,7 +152,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr nullptr");
                 return;
             }
             jsObserverSptr->HandleOnProcessStateChanged(processData);
@@ -163,7 +165,7 @@ void JSAppStateObserver::OnProcessStateChanged(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessStateChanged(const ProcessData &processData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -179,7 +181,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
         ([jsObserver, processData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppStateObserver> jsObserverSptr = jsObserver.promote();
             if (!jsObserverSptr) {
-                HILOG_WARN("jsObserverSptr null");
+                TAG_LOGW(AAFwkTag::APPMGR, "jsObserverSptr null");
                 return;
             }
             jsObserverSptr->HandleOnProcessDied(processData);
@@ -192,7 +194,7 @@ void JSAppStateObserver::OnProcessDied(const ProcessData &processData)
 
 void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
@@ -204,26 +206,26 @@ void JSAppStateObserver::HandleOnProcessDied(const ProcessData &processData)
 void JSAppStateObserver::CallJsFunction(
     napi_value value, const char *methodName, napi_value* argv, size_t argc)
 {
-    HILOG_DEBUG("CallJsFunction start, method:%{public}s", methodName);
+    TAG_LOGD(AAFwkTag::APPMGR, "CallJsFunction start, method:%{public}s", methodName);
     if (value == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to get object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        HILOG_ERROR("Wrong to get from object");
+        TAG_LOGE(AAFwkTag::APPMGR, "Wrong to get from object");
         return;
     }
     napi_value callResult = nullptr;
     napi_call_function(env_, value, method, argc, argv, &callResult);
-    HILOG_DEBUG("CallJsFunction finish");
+    TAG_LOGD(AAFwkTag::APPMGR, "CallJsFunction finish");
 }
 
 void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_value jsObserverObject)
 {
-    HILOG_DEBUG("AddJsObserverObject start.");
+    TAG_LOGD(AAFwkTag::APPMGR, "AddJsObserverObject start.");
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsObserverObject, 1, &ref);
     jsObserverObjectMap_.emplace(observerId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
@@ -231,7 +233,7 @@ void JSAppStateObserver::AddJsObserverObject(const int32_t observerId, napi_valu
 
 bool JSAppStateObserver::RemoveJsObserverObject(const int32_t observerId)
 {
-    HILOG_DEBUG("RemoveJsObserverObject start.");
+    TAG_LOGD(AAFwkTag::APPMGR, "RemoveJsObserverObject start.");
     bool result = (jsObserverObjectMap_.erase(observerId) == 1);
     return result;
 }
@@ -245,7 +247,7 @@ bool JSAppStateObserver::FindObserverByObserverId(const int32_t observerId)
 
 size_t JSAppStateObserver::GetJsObserverMapSize()
 {
-    HILOG_DEBUG("GetJsObserverMapSize start");
+    TAG_LOGD(AAFwkTag::APPMGR, "GetJsObserverMapSize start");
     size_t length = jsObserverObjectMap_.size();
     return length;
 }

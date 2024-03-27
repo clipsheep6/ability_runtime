@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <cstdint>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -31,7 +32,7 @@ JsErrorObserver::~JsErrorObserver() = default;
 
 void JsErrorObserver::OnUnhandledException(const std::string errMsg)
 {
-    HILOG_DEBUG("OnUnhandledException come.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "OnUnhandledException come.");
     std::weak_ptr<JsErrorObserver> thisWeakPtr(shared_from_this());
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([thisWeakPtr, errMsg](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -48,7 +49,7 @@ void JsErrorObserver::OnUnhandledException(const std::string errMsg)
 
 void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
 {
-    HILOG_DEBUG("HandleOnUnhandledException come.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "HandleOnUnhandledException come.");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value value = (item.second)->GetNapiValue();
@@ -65,16 +66,16 @@ void JsErrorObserver::HandleOnUnhandledException(const std::string &errMsg)
 
 void JsErrorObserver::CallJsFunction(napi_value obj, const char* methodName, napi_value const* argv, size_t argc)
 {
-    HILOG_DEBUG("called method:%{public}s", methodName);
+    TAG_LOGD(AAFwkTag::JSNAPI, "called method:%{public}s", methodName);
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Failed to get object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, obj, methodName, &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get method");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Failed to get method");
         return;
     }
     napi_value callResult = nullptr;
@@ -113,7 +114,7 @@ bool JsErrorObserver::IsEmpty()
 
 void JsErrorObserver::OnExceptionObject(const AppExecFwk::ErrorObject &errorObj)
 {
-    HILOG_DEBUG("OnExceptionObject come.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "OnExceptionObject come.");
     std::weak_ptr<JsErrorObserver> thisWeakPtr(shared_from_this());
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([thisWeakPtr, errorObj](napi_env env, NapiAsyncTask &task, int32_t status) {
@@ -130,7 +131,7 @@ void JsErrorObserver::OnExceptionObject(const AppExecFwk::ErrorObject &errorObj)
 
 void JsErrorObserver::HandleException(const AppExecFwk::ErrorObject &errorObj)
 {
-    HILOG_DEBUG("HandleException come.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "HandleException come.");
     auto tmpMap = jsObserverObjectMap_;
     for (auto &item : tmpMap) {
         napi_value jsObj = (item.second)->GetNapiValue();
@@ -150,7 +151,7 @@ napi_value JsErrorObserver::CreateJsErrorObject(napi_env env, const AppExecFwk::
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_WARN("invalid object.");
+        TAG_LOGW(AAFwkTag::JSNAPI, "invalid object.");
         return objValue;
     }
     napi_set_named_property(env, objValue, "name", CreateJsValue(env, errorObj.name));

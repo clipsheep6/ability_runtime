@@ -25,6 +25,7 @@
 #include "app_mgr_interface.h"
 #include "errors.h"
 #include "event_runner.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -70,7 +71,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("JsAbilityManager::Finalizer is called");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "JsAbilityManager::Finalizer is called");
         std::unique_ptr<JsAbilityManager>(static_cast<JsAbilityManager*>(data));
     }
 
@@ -143,14 +144,14 @@ private:
 
     napi_value OnOn(napi_env env, size_t argc, napi_value *argv)
     {
-        HILOG_DEBUG("Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
         if (argc < ARGC_TWO) {
-            HILOG_ERROR("Not enough params.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
-            HILOG_ERROR("Invalid param.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid param.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -168,7 +169,7 @@ private:
         if (observerForeground_ == nullptr) {
             observerForeground_ = new (std::nothrow) JSAbilityForegroundStateObserver(env);
             if (observerForeground_ == nullptr) {
-                HILOG_ERROR("observerForeground_ is nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "observerForeground_ is nullptr.");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
                 return CreateJsUndefined(env);
             }
@@ -177,7 +178,7 @@ private:
         if (observerForeground_->IsEmpty()) {
             int32_t ret = GetAppManagerInstance()->RegisterAbilityForegroundStateObserver(observerForeground_);
             if (ret != NO_ERROR) {
-                HILOG_ERROR("Failed error: %{public}d.", ret);
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed error: %{public}d.", ret);
                 ThrowErrorByNativeErr(env, ret);
                 return CreateJsUndefined(env);
             }
@@ -189,14 +190,14 @@ private:
 
     napi_value OnOff(napi_env env, size_t argc, napi_value *argv)
     {
-        HILOG_DEBUG("Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
         if (argc < ARGC_ONE) {
-            HILOG_ERROR("Not enough params when off.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         if (argc == ARGC_TWO && !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
-            HILOG_ERROR("Invalid param.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid param.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -213,12 +214,12 @@ private:
         const std::regex regexJsperf(R"(^\d*)");
         std::match_results<std::string::const_iterator> matchResults;
         if (numStr.empty() || !std::regex_match(numStr, matchResults, regexJsperf)) {
-            HILOG_ERROR("Number parsing error, %{public}s.", numStr.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Number parsing error, %{public}s.", numStr.c_str());
             return false;
         }
         if (MAX_UINT64_VALUE.length() < numStr.length() ||
             (MAX_UINT64_VALUE.length() == numStr.length() && MAX_UINT64_VALUE.compare(numStr) < 0)) {
-            HILOG_ERROR("Number parsing error, %{public}s.", numStr.c_str());
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Number parsing error, %{public}s.", numStr.c_str());
             return false;
         }
         return true;
@@ -226,28 +227,28 @@ private:
 
     napi_value OnNotifyDebugAssertResult(napi_env env, size_t argc, napi_value *argv)
     {
-        HILOG_DEBUG("Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
         if (argc < ARGC_TWO) {
-            HILOG_ERROR("Not enough params when off.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params when off.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
 
         std::string assertSessionStr;
         if (!ConvertFromJsValue(env, argv[INDEX_ZERO], assertSessionStr) || !CheckIsNumString(assertSessionStr)) {
-            HILOG_ERROR("Convert session id error.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert session id error.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         uint64_t assertSessionId = std::stoull(assertSessionStr);
         if (assertSessionId == 0) {
-            HILOG_ERROR("Convert session id failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert session id failed.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         int32_t userStatus;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], userStatus)) {
-            HILOG_ERROR("Convert status failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Convert status failed.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -256,13 +257,13 @@ private:
             [assertSessionId, userStatus](napi_env env, NapiAsyncTask &task, int32_t status) {
             auto amsClient = AbilityManagerClient::GetInstance();
             if (amsClient == nullptr) {
-                HILOG_ERROR("Ability manager service instance is nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability manager service instance is nullptr.");
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(AAFwk::INNER_ERR)));
                 return;
             }
             auto ret = amsClient->NotifyDebugAssertResult(assertSessionId, static_cast<AAFwk::UserStatus>(userStatus));
             if (ret != ERR_OK) {
-                HILOG_ERROR("Notify user action result failed, error is %{public}d.", ret);
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Notify user action result failed, error is %{public}d.", ret);
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
                 return;
             }
@@ -278,7 +279,7 @@ private:
     napi_value OnOffAbilityForeground(napi_env env, size_t argc, napi_value *argv)
     {
         if (observerForeground_ == nullptr) {
-            HILOG_ERROR("Observer is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is nullptr.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
@@ -291,7 +292,7 @@ private:
         if (observerForeground_->IsEmpty()) {
             int32_t ret = GetAppManagerInstance()->UnregisterAbilityForegroundStateObserver(observerForeground_);
             if (ret != NO_ERROR) {
-                HILOG_ERROR("Failed error: %{public}d.", ret);
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed error: %{public}d.", ret);
                 ThrowErrorByNativeErr(env, ret);
                 return CreateJsUndefined(env);
             }
@@ -301,7 +302,7 @@ private:
 
     napi_value OnGetAbilityRunningInfos(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is called", __FUNCTION__);
         NapiAsyncTask::CompleteCallback complete =
             [](napi_env env, NapiAsyncTask &task, int32_t status) {
                 std::vector<AAFwk::AbilityRunningInfo> infos;
@@ -328,9 +329,9 @@ private:
 
     napi_value OnGetExtensionRunningInfos(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is called", __FUNCTION__);
         if (info.argc == 0) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params");
 #ifdef ENABLE_ERRCODE
             ThrowTooFewParametersError(env);
 #endif
@@ -371,12 +372,12 @@ private:
 
     napi_value OnUpdateConfiguration(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is called", __FUNCTION__);
         NapiAsyncTask::CompleteCallback complete;
 
         do {
             if (info.argc == 0) {
-                HILOG_ERROR("Not enough params");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params");
 #ifdef ENABLE_ERRCODE
                 ThrowTooFewParametersError(env);
 #else
@@ -425,11 +426,11 @@ private:
 
     napi_value OnGetTopAbility(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is called", __FUNCTION__);
 #ifdef ENABLE_ERRCODE
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-            HILOG_ERROR("This application is not system-app, can not use system-api");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "This application is not system-app, can not use system-api");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
             return CreateJsUndefined(env);
         }
@@ -453,7 +454,7 @@ private:
 
     napi_value OnAcquireShareData(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_ONE) {
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
@@ -494,20 +495,20 @@ private:
 
     napi_value OnNotifySaveAsResult(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("called");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
         NapiAsyncTask::CompleteCallback complete;
         NapiAsyncTask::ExecuteCallback execute;
 
         do {
             if (info.argc < ARGC_TWO) {
-                HILOG_ERROR("Not enough params");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params");
                 ThrowTooFewParametersError(env);
                 break;
             }
 
             int reqCode = 0;
             if (!ConvertFromJsValue(env, info.argv[1], reqCode)) {
-                HILOG_ERROR("Get requestCode param error");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Get requestCode param error");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 break;
             }
@@ -515,7 +516,7 @@ private:
             AppExecFwk::Want want;
             int resultCode = ERR_OK;
             if (!AppExecFwk::UnWrapAbilityResult(env, info.argv[0], resultCode, want)) {
-                HILOG_ERROR("Unrwrap abilityResult param error");
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Unrwrap abilityResult param error");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 break;
             }
@@ -543,14 +544,14 @@ private:
 
     napi_value OnGetForegroundUIAbilities(napi_env env, size_t argc, napi_value *argv)
     {
-        HILOG_DEBUG("Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
         NapiAsyncTask::CompleteCallback complete = [](napi_env env, NapiAsyncTask &task, int32_t status) {
             std::vector<AppExecFwk::AbilityStateData> list;
             int32_t ret = AbilityManagerClient::GetInstance()->GetForegroundUIAbilities(list);
             if (ret == ERR_OK) {
                 task.ResolveWithNoError(env, CreateJsAbilityStateDataArray(env, list));
             } else {
-                HILOG_ERROR("Failed error: %{public}d.", ret);
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed error: %{public}d.", ret);
                 task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
             }
         };
@@ -564,9 +565,9 @@ private:
 
     napi_value OnIsEmbeddedOpenAllowed(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("Called.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -574,26 +575,26 @@ private:
         bool stageMode = false;
         napi_status status = OHOS::AbilityRuntime::IsStageContext(env, info.argv[0], stageMode);
         if (status != napi_ok || !stageMode) {
-            HILOG_ERROR("it is not a stage mode");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "it is not a stage mode");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         auto context = OHOS::AbilityRuntime::GetStageModeContext(env, info.argv[0]);
         if (context == nullptr) {
-            HILOG_ERROR("get context failed");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "get context failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         auto uiAbilityContext = AbilityRuntime::Context::ConvertTo<AbilityRuntime::AbilityContext>(context);
         if (uiAbilityContext == nullptr) {
-            HILOG_ERROR("convert to UIAbility context failed");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "convert to UIAbility context failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
         std::string appId;
         if (!ConvertFromJsValue(env, info.argv[1], appId)) {
-            HILOG_ERROR("OnOpenAtomicService, parse appId failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "OnOpenAtomicService, parse appId failed.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -616,7 +617,7 @@ private:
 
 napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
 
     std::unique_ptr<JsAbilityManager> jsAbilityManager = std::make_unique<JsAbilityManager>();
     napi_wrap(env, exportObj, jsAbilityManager.release(), JsAbilityManager::Finalizer, nullptr, nullptr);
@@ -640,7 +641,7 @@ napi_value JsAbilityManagerInit(napi_env env, napi_value exportObj)
     BindNativeFunction(
         env, exportObj, "notifyDebugAssertResult", moduleName, JsAbilityManager::NotifyDebugAssertResult);
     BindNativeFunction(env, exportObj, "isEmbeddedOpenAllowed", moduleName, JsAbilityManager::IsEmbeddedOpenAllowed);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "end");
     return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime
