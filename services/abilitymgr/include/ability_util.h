@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "ability_manager_errors.h"
 #include "app_jump_control_rule.h"
 #include "bundle_mgr_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -49,58 +50,58 @@ const std::string JUMP_INTERCEPTOR_DIALOG_CALLER_PKG = "interceptor_callerPkg";
 // dlp White list
 const std::unordered_set<std::string> WHITE_LIST_DLP_SET = { BUNDLE_NAME_SELECTOR_DIALOG };
 
-#define CHECK_POINTER_CONTINUE(object)      \
-    if (!object) {                          \
-        HILOG_ERROR("pointer is nullptr."); \
-        continue;                           \
+#define CHECK_POINTER_CONTINUE(object)                         \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        continue;                                              \
     }
 
-#define CHECK_POINTER_IS_NULLPTR(object)    \
-    if (object == nullptr) {                \
-        HILOG_ERROR("pointer is nullptr."); \
-        return;                             \
+#define CHECK_POINTER_IS_NULLPTR(object)                       \
+    if (object == nullptr) {                                   \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return;                                                \
     }
 
-#define CHECK_POINTER(object)               \
-    if (!object) {                          \
-        HILOG_ERROR("pointer is nullptr."); \
-        return;                             \
+#define CHECK_POINTER(object)                                  \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return;                                                \
     }
 
-#define CHECK_POINTER_LOG(object, log)   \
-    if (!object) {                       \
-        HILOG_ERROR("%{public}s:", log); \
-        return;                          \
+#define CHECK_POINTER_LOG(object, log)                      \
+    if (!object) {                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s:", log); \
+        return;                                             \
     }
 
-#define CHECK_POINTER_AND_RETURN(object, value) \
-    if (!object) {                              \
-        HILOG_ERROR("pointer is nullptr.");     \
-        return value;                           \
+#define CHECK_POINTER_AND_RETURN(object, value)                \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return value;                                          \
     }
 
-#define CHECK_POINTER_AND_RETURN_LOG(object, value, log) \
-    if (!object) {                                       \
-        HILOG_ERROR("%{public}s:", log);                 \
-        return value;                                    \
+#define CHECK_POINTER_AND_RETURN_LOG(object, value, log)    \
+    if (!object) {                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s:", log); \
+        return value;                                       \
     }
 
-#define CHECK_POINTER_RETURN_BOOL(object)   \
-    if (!object) {                          \
-        HILOG_ERROR("pointer is nullptr."); \
-        return false;                       \
+#define CHECK_POINTER_RETURN_BOOL(object)                      \
+    if (!object) {                                             \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pointer is nullptr."); \
+        return false;                                          \
     }
 
-#define CHECK_RET_RETURN_RET(object, log)                         \
-    if (object != ERR_OK) {                                       \
-        HILOG_ERROR("%{public}s, ret : %{public}d", log, object); \
-        return object;                                            \
+#define CHECK_RET_RETURN_RET(object, log)                                            \
+    if (object != ERR_OK) {                                                          \
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, ret : %{public}d", log, object); \
+        return object;                                                               \
     }
 
-#define CHECK_TRUE_RETURN_RET(object, value, log) \
-    if (object) {                                 \
-        HILOG_WARN("%{public}s", log);            \
-        return value;                             \
+#define CHECK_TRUE_RETURN_RET(object, value, log)          \
+    if (object) {                                          \
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "%{public}s", log); \
+        return value;                                      \
     }
 
 [[maybe_unused]] static bool IsSystemDialogAbility(const std::string &bundleName, const std::string &abilityName)
@@ -171,7 +172,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 [[maybe_unused]] static bool ParseJumpInterceptorWant(Want &targetWant, const std::string callerPkg)
 {
     if (callerPkg.empty()) {
-        HILOG_ERROR("%{public}s error, get empty callerPkg.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s error, get empty callerPkg.", __func__);
         return false;
     }
     targetWant.SetParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG, callerPkg);
@@ -182,7 +183,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string &targetPkg)
 {
     if (!targetWant.HasParameter(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG)) {
-        HILOG_ERROR("%{public}s error, the interceptor parameter invalid.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s error, the interceptor parameter invalid.", __func__);
         return false;
     }
     callerPkg = targetWant.GetStringParam(JUMP_INTERCEPTOR_DIALOG_CALLER_PKG);
@@ -194,17 +195,17 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     int32_t userId)
 {
     if (callerPkg.empty() || targetPkg.empty()) {
-        HILOG_ERROR("get invalid inputs");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get invalid inputs");
         return false;
     }
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("Get bundle manager helper failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed.");
         return false;
     }
     auto appControlMgr = bundleMgrHelper->GetAppControlProxy();
     if (appControlMgr == nullptr) {
-        HILOG_ERROR("Get appControlMgr failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get appControlMgr failed");
         return false;
     }
     int ret = IN_PROCESS_CALL(appControlMgr->ConfirmAppJumpControlRule(callerPkg, targetPkg, userId));
@@ -214,7 +215,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 [[maybe_unused]] static bool HandleDlpApp(Want &want)
 {
     if (WHITE_LIST_DLP_SET.find(want.GetBundle()) != WHITE_LIST_DLP_SET.end()) {
-        HILOG_INFO("%{public}s, enter special app", __func__);
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "%{public}s, enter special app", __func__);
         return false;
     }
 
@@ -236,7 +237,7 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
 {
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("Get bundle manager helper failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed.");
         return false;
     }
 
@@ -245,11 +246,11 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     bool getTargetResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(targetBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
     if (!getTargetResult) {
-        HILOG_ERROR("Get targetAppInfo failed in check atomic service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get targetAppInfo failed in check atomic service.");
         return false;
     }
     if (targetAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_INFO("the target is atomic service");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "the target is atomic service");
         return true;
     }
 
@@ -257,18 +258,18 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string callerBundleName;
     ErrCode err = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callerUid, callerBundleName));
     if (err != ERR_OK) {
-        HILOG_ERROR("Get bms failed in check atomic service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bms failed in check atomic service.");
         return false;
     }
     AppExecFwk::ApplicationInfo callerAppInfo;
     bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(callerBundleName,
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
-        HILOG_ERROR("Get callerAppInfo failed in check atomic service.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get callerAppInfo failed in check atomic service.");
         return false;
     }
     if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_INFO("the caller is atomic service");
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "the caller is atomic service");
         return true;
     }
     return false;
@@ -322,11 +323,11 @@ static constexpr int64_t MICROSECONDS = 1000000;    // MICROSECONDS mean 10^6 mi
     std::string appGalleryBundleName;
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr || !bundleMgrHelper->QueryAppGalleryBundleName(appGalleryBundleName)) {
-        HILOG_ERROR("Get bundle manager helper failed or QueryAppGalleryBundleName failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get bundle manager helper failed or QueryAppGalleryBundleName failed.");
         appGalleryBundleName = MARKET_BUNDLE_NAME;
     }
 
-    HILOG_DEBUG("appGalleryBundleName:%{public}s", appGalleryBundleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "appGalleryBundleName:%{public}s", appGalleryBundleName.c_str());
 
     Want want;
     want.SetElementName(appGalleryBundleName, "");
