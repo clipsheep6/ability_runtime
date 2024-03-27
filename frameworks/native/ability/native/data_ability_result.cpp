@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include <memory>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parcel_macro_base.h"
 
@@ -87,7 +88,7 @@ DataAbilityResult *DataAbilityResult::CreateFromParcel(Parcel &parcel)
 {
     DataAbilityResult *dataAbilityResult = new (std::nothrow) DataAbilityResult(parcel);
     if (dataAbilityResult == nullptr) {
-        HILOG_ERROR("DataAbilityResult::CreateFromParcel dataAbilityResult is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityResult::CreateFromParcel dataAbilityResult is nullptr");
     }
     return dataAbilityResult;
 }
@@ -157,7 +158,7 @@ bool DataAbilityResult::ReadFromParcel(Parcel &parcel)
     int32_t empty = VALUE_NULL;
     if (!parcel.ReadInt32(empty)) {
         return false;
-        HILOG_DEBUG("Failed to read parcel");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Failed to read parcel");
     }
 
     if (empty == VALUE_OBJECT) {
@@ -168,7 +169,7 @@ bool DataAbilityResult::ReadFromParcel(Parcel &parcel)
             uri = nullptr;
         } else {
             return false;
-            HILOG_DEBUG("Failed to read parcel");
+            TAG_LOGD(AAFwkTag::DATA_ABILITY, "Failed to read parcel");
         }
     }
 

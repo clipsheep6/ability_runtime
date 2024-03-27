@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "data_ability_operation.h"
 
 #include "data_ability_predicates.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "values_bucket.h"
 
@@ -140,139 +141,139 @@ DataAbilityOperation &DataAbilityOperation::operator=(const DataAbilityOperation
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewInsertBuilder(const std::shared_ptr<Uri> &uri)
 {
-    HILOG_DEBUG("DataAbilityOperation::NewInsertBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewInsertBuilder start");
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityOperation::NewInsertBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewInsertBuilder uri is nullptr");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_INSERT, uri);
-    HILOG_DEBUG("DataAbilityOperation::NewInsertBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewInsertBuilder end");
     return builder;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewUpdateBuilder(const std::shared_ptr<Uri> &uri)
 {
-    HILOG_DEBUG("DataAbilityOperation::NewUpdateBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewUpdateBuilder start");
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityOperation::NewUpdateBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewUpdateBuilder uri is nullptr");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_UPDATE, uri);
-    HILOG_DEBUG("DataAbilityOperation::NewUpdateBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewUpdateBuilder end");
     return builder;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewDeleteBuilder(const std::shared_ptr<Uri> &uri)
 {
-    HILOG_DEBUG("DataAbilityOperation::NewDeleteBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewDeleteBuilder start");
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityOperation::NewDeleteBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewDeleteBuilder uri is nullptr");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_DELETE, uri);
-    HILOG_DEBUG("DataAbilityOperation::NewDeleteBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewDeleteBuilder end");
     return builder;
 }
 
 std::shared_ptr<DataAbilityOperationBuilder> DataAbilityOperation::NewAssertBuilder(const std::shared_ptr<Uri> &uri)
 {
-    HILOG_DEBUG("DataAbilityOperation::NewAssertBuilder start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewAssertBuilder start");
     if (uri == nullptr) {
-        HILOG_ERROR("DataAbilityOperation::NewAssertBuilder uri is nullptr");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewAssertBuilder uri is nullptr");
         return nullptr;
     }
     std::shared_ptr<DataAbilityOperationBuilder> builder =
         std::make_shared<DataAbilityOperationBuilder>(TYPE_ASSERT, uri);
-    HILOG_DEBUG("DataAbilityOperation::NewAssertBuilder end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::NewAssertBuilder end");
     return builder;
 }
 
 int DataAbilityOperation::GetType() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetType");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetType");
     return type_;
 }
 
 std::shared_ptr<Uri> DataAbilityOperation::GetUri() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetUri");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetUri");
     return uri_;
 }
 
 std::shared_ptr<NativeRdb::ValuesBucket> DataAbilityOperation::GetValuesBucket() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetValuesBucket");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetValuesBucket");
     return valuesBucket_;
 }
 
 int DataAbilityOperation::GetExpectedCount() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetExpectedCount");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetExpectedCount");
     return expectedCount_;
 }
 
 std::shared_ptr<NativeRdb::DataAbilityPredicates> DataAbilityOperation::GetDataAbilityPredicates() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetDataAbilityPredicates");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetDataAbilityPredicates");
     return dataAbilityPredicates_;
 }
 
 std::shared_ptr<NativeRdb::ValuesBucket> DataAbilityOperation::GetValuesBucketReferences() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetValuesBucketReferences");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetValuesBucketReferences");
     return valuesBucketReferences_;
 }
 std::map<int, int> DataAbilityOperation::GetDataAbilityPredicatesBackReferences() const
 {
-    HILOG_DEBUG("DataAbilityOperation::GetDataAbilityPredicatesBackReferences");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::GetDataAbilityPredicatesBackReferences");
     return dataAbilityPredicatesBackReferences_;
 }
 bool DataAbilityOperation::IsValidOperation() const
 {
-    HILOG_DEBUG("DataAbilityOperation::IsValidOperation: type is %{public}d", type_);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsValidOperation: type is %{public}d", type_);
     return (type_ == TYPE_INSERT || type_ == TYPE_UPDATE || type_ == TYPE_DELETE || type_ == TYPE_ASSERT);
 }
 bool DataAbilityOperation::IsInsertOperation() const
 {
-    HILOG_DEBUG("DataAbilityOperation::IsInsertOperation: %{public}d", type_ == TYPE_INSERT);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsInsertOperation: %{public}d", type_ == TYPE_INSERT);
     return type_ == TYPE_INSERT;
 }
 bool DataAbilityOperation::IsUpdateOperation() const
 {
-    HILOG_DEBUG("DataAbilityOperation::IsUpdateOperation: %{public}d", type_ == TYPE_UPDATE);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsUpdateOperation: %{public}d", type_ == TYPE_UPDATE);
     return type_ == TYPE_UPDATE;
 }
 bool DataAbilityOperation::IsDeleteOperation() const
 {
-    HILOG_DEBUG("DataAbilityOperation::IsDeleteOperation: %{public}d", type_ == TYPE_DELETE);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsDeleteOperation: %{public}d", type_ == TYPE_DELETE);
     return type_ == TYPE_DELETE;
 }
 bool DataAbilityOperation::IsAssertOperation() const
 {
-    HILOG_DEBUG("DataAbilityOperation::IsAssertOperation: %{public}d", type_ == TYPE_ASSERT);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsAssertOperation: %{public}d", type_ == TYPE_ASSERT);
     return type_ == TYPE_ASSERT;
 }
 bool DataAbilityOperation::IsInterruptionAllowed() const
 {
-    HILOG_DEBUG("DataAbilityOperation::IsInterruptionAllowed: %{public}d", interrupted_);
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::IsInterruptionAllowed: %{public}d", interrupted_);
     return interrupted_;
 }
 
 bool DataAbilityOperation::WriteUri(Parcel &out) const
 {
     if (uri_ == nullptr) {
-        HILOG_DEBUG("Uri is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "Uri is nullptr");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
-        HILOG_ERROR("Write VALUE_OBJECT error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write VALUE_OBJECT error");
         return false;
     }
     if (!out.WriteParcelable(uri_.get())) {
-        HILOG_ERROR("Write Uri error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write Uri error");
         return false;
     }
     return true;
@@ -281,15 +282,15 @@ bool DataAbilityOperation::WriteUri(Parcel &out) const
 bool DataAbilityOperation::WriteValuesBucket(Parcel &out) const
 {
     if (valuesBucket_ == nullptr) {
-        HILOG_DEBUG("ValuesBucket is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "ValuesBucket is nullptr");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
-        HILOG_ERROR("Write VALUE_OBJECT error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write VALUE_OBJECT error");
         return false;
     }
     if (!valuesBucket_->Marshalling(out)) {
-        HILOG_ERROR("Write ValuesBucket error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write ValuesBucket error");
         return false;
     }
     return true;
@@ -298,15 +299,15 @@ bool DataAbilityOperation::WriteValuesBucket(Parcel &out) const
 bool DataAbilityOperation::WritePredicates(Parcel &out) const
 {
     if (dataAbilityPredicates_ == nullptr) {
-        HILOG_DEBUG("DataAbilityPredicates is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityPredicates is nullptr");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
-        HILOG_ERROR("Write VALUE_OBJECT error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write VALUE_OBJECT error");
         return false;
     }
     if (!out.WriteParcelable(dataAbilityPredicates_.get())) {
-        HILOG_ERROR("Write DataAbilityPredicates error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write DataAbilityPredicates error");
         return false;
     }
     return true;
@@ -315,15 +316,15 @@ bool DataAbilityOperation::WritePredicates(Parcel &out) const
 bool DataAbilityOperation::WriteValuesBucketReferences(Parcel &out) const
 {
     if (valuesBucketReferences_ == nullptr) {
-        HILOG_DEBUG("ValuesBucketReferences is nullptr");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "ValuesBucketReferences is nullptr");
         return out.WriteInt32(VALUE_NULL);
     }
     if (!out.WriteInt32(VALUE_OBJECT)) {
-        HILOG_ERROR("Write VALUE_OBJECT error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Write VALUE_OBJECT error");
         return false;
     }
     if (!valuesBucketReferences_->Marshalling(out)) {
-        HILOG_ERROR("ValuesBucketReferences Marshalling error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "ValuesBucketReferences Marshalling error");
         return false;
     }
     return true;
@@ -331,65 +332,66 @@ bool DataAbilityOperation::WriteValuesBucketReferences(Parcel &out) const
 
 bool DataAbilityOperation::Marshalling(Parcel &out) const
 {
-    HILOG_DEBUG("DataAbilityOperation::Marshalling start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling start");
     if (!out.WriteInt32(type_)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(type) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(type) error");
         return false;
     }
     if (!out.WriteInt32(expectedCount_)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(expectedCount) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(expectedCount) error");
         return false;
     }
     if (!out.WriteBool(interrupted_)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(interrupted) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(interrupted) error");
         return false;
     }
     if (!WriteUri(out) || !WriteValuesBucket(out) || !WritePredicates(out) || !WriteValuesBucketReferences(out)) {
-        HILOG_ERROR("Marshalling error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "Marshalling error");
         return false;
     }
     int referenceSize = (int)dataAbilityPredicatesBackReferences_.size();
     if (dataAbilityPredicatesBackReferences_.empty()) {
-        HILOG_DEBUG("DataAbilityOperation::Marshalling dataAbilityPredicatesBackReferences_ is empty");
+        TAG_LOGD(
+            AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling dataAbilityPredicatesBackReferences_ is empty");
         if (!out.WriteInt32(referenceSize)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
-        HILOG_DEBUG("DataAbilityOperation::Marshalling end");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling end");
         return true;
     }
     if (!out.WriteInt32(referenceSize)) {
-        HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
         return false;
     }
     if (referenceSize >= REFERENCE_THRESHOLD) {
-        HILOG_INFO("DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
+        TAG_LOGI(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling referenceSize >= REFERENCE_THRESHOLD");
         return true;
     }
     for (auto it = dataAbilityPredicatesBackReferences_.begin(); it != dataAbilityPredicatesBackReferences_.end();
         it++) {
         if (!out.WriteInt32(it->first)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
         if (!out.WriteInt32(it->second)) {
-            HILOG_ERROR("DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling WriteInt32(VALUE_OBJECT) error");
             return false;
         }
     }
-    HILOG_DEBUG("DataAbilityOperation::Marshalling end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Marshalling end");
     return true;
 }
 DataAbilityOperation *DataAbilityOperation::Unmarshalling(Parcel &in)
 {
-    HILOG_DEBUG("DataAbilityOperation::Unmarshalling start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Unmarshalling start");
     DataAbilityOperation *dataAbilityOperation = new (std::nothrow) DataAbilityOperation();
     if (dataAbilityOperation != nullptr && !dataAbilityOperation->ReadFromParcel(in)) {
-        HILOG_ERROR("DataAbilityOperation::Unmarshalling dataAbilityOperation error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Unmarshalling dataAbilityOperation error");
         delete dataAbilityOperation;
         dataAbilityOperation = nullptr;
     }
-    HILOG_DEBUG("DataAbilityOperation::Unmarshalling end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::Unmarshalling end");
     return dataAbilityOperation;
 }
 
@@ -397,11 +399,11 @@ bool DataAbilityOperation::ReadUriFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
-        HILOG_DEBUG("empty is VALUE_OBJECT");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "empty is VALUE_OBJECT");
         uri_.reset(in.ReadParcelable<Uri>());
         return true;
     }
@@ -413,11 +415,11 @@ bool DataAbilityOperation::ReadValuesBucketFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
-        HILOG_DEBUG("empty is VALUE_OBJECT");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "empty is VALUE_OBJECT");
         valuesBucket_ = std::make_shared<NativeRdb::ValuesBucket>(NativeRdb::ValuesBucket::Unmarshalling(in));
         return true;
     }
@@ -429,11 +431,11 @@ bool DataAbilityOperation::ReadDataAbilityPredicatesFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
-        HILOG_DEBUG("empty is VALUE_OBJECT");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "empty is VALUE_OBJECT");
         dataAbilityPredicates_.reset(in.ReadParcelable<NativeRdb::DataAbilityPredicates>());
         return true;
     }
@@ -445,11 +447,11 @@ bool DataAbilityOperation::ReadValuesBucketReferencesFromParcel(Parcel &in)
 {
     int empty = VALUE_NULL;
     if (!in.ReadInt32(empty)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(empty) error");
         return false;
     }
     if (empty == VALUE_OBJECT) {
-        HILOG_DEBUG("empty is VALUE_OBJECT");
+        TAG_LOGD(AAFwkTag::DATA_ABILITY, "empty is VALUE_OBJECT");
         valuesBucketReferences_ = std::make_shared<NativeRdb::ValuesBucket>(
             NativeRdb::ValuesBucket::Unmarshalling(in));
         return true;
@@ -460,28 +462,29 @@ bool DataAbilityOperation::ReadValuesBucketReferencesFromParcel(Parcel &in)
 
 bool DataAbilityOperation::ReadFromParcel(Parcel &in)
 {
-    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel start");
     if (!in.ReadInt32(type_)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(type) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(type) error");
         return false;
     }
     if (!in.ReadInt32(expectedCount_)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel ReadInt32(expectedCount) error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel ReadInt32(expectedCount) error");
         return false;
     }
     interrupted_ = in.ReadBool();
     if (!ReadUriFromParcel(in) || !ReadValuesBucketFromParcel(in) || !ReadDataAbilityPredicatesFromParcel(in) ||
         !ReadValuesBucketReferencesFromParcel(in)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel error");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel error");
         return false;
     }
     int referenceSize = 0;
     if (!in.ReadInt32(referenceSize)) {
-        HILOG_ERROR("DataAbilityOperation::ReadFromParcel end");
+        TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
         return false;
     }
     if (referenceSize >= REFERENCE_THRESHOLD) {
-        HILOG_INFO("DataAbilityOperation::ReadFromParcel referenceSize:%{public}d >= REFERENCE_THRESHOLD:%{public}d",
+        TAG_LOGI(AAFwkTag::DATA_ABILITY,
+            "DataAbilityOperation::ReadFromParcel referenceSize:%{public}d >= REFERENCE_THRESHOLD:%{public}d",
             referenceSize, REFERENCE_THRESHOLD);
         return true;
     }
@@ -490,36 +493,36 @@ bool DataAbilityOperation::ReadFromParcel(Parcel &in)
         int first = 0;
         int second = 0;
         if (!in.ReadInt32(first)) {
-            HILOG_ERROR("DataAbilityOperation::ReadFromParcel end");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
             return false;
         }
         if (!in.ReadInt32(second)) {
-            HILOG_ERROR("DataAbilityOperation::ReadFromParcel end");
+            TAG_LOGE(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
             return false;
         }
         dataAbilityPredicatesBackReferences_.insert(std::make_pair(first, second));
     }
 
-    HILOG_DEBUG("DataAbilityOperation::ReadFromParcel end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::ReadFromParcel end");
     return true;
 }
 std::shared_ptr<DataAbilityOperation> DataAbilityOperation::CreateFromParcel(Parcel &in)
 {
-    HILOG_DEBUG("DataAbilityOperation::CreateFromParcel start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::CreateFromParcel start");
     std::shared_ptr<DataAbilityOperation> operation = std::make_shared<DataAbilityOperation>(in);
-    HILOG_DEBUG("DataAbilityOperation::CreateFromParcel end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::CreateFromParcel end");
     return operation;
 }
 void DataAbilityOperation::PutMap(Parcel &in)
 {
-    HILOG_DEBUG("DataAbilityOperation::PutMap start");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::PutMap start");
     int count = in.ReadInt32();
     if (count > 0 && count < REFERENCE_THRESHOLD) {
         for (int i = 0; i < count; ++i) {
             dataAbilityPredicatesBackReferences_.insert(std::make_pair(in.ReadInt32(), in.ReadInt32()));
         }
     }
-    HILOG_DEBUG("DataAbilityOperation::PutMap end");
+    TAG_LOGD(AAFwkTag::DATA_ABILITY, "DataAbilityOperation::PutMap end");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
