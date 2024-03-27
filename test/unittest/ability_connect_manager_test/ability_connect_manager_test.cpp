@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -3146,6 +3146,24 @@ HWTEST_F(AbilityConnectManagerTest, IsUIExtensionFocused_002, TestSize.Level1)
     bool isFocused2 = connectManager->IsUIExtensionFocused(
         uiExtension2->GetApplicationInfo().accessTokenId, uiExtensionUser->GetToken());
     EXPECT_EQ(isFocused2, true);
+    connectManager.reset();
+}
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: GetUIExtensionSourceToken
+ * SubFunction: GetUIExtensionSourceToken
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityConnectManager GetUIExtensionSourceToken
+ */
+HWTEST_F(AbilityConnectManagerTest, GetUIExtensionSourceToken_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(3);
+    ASSERT_NE(connectManager, nullptr);
+    connectManager->uiExtensionMap_.clear();
+    auto sourceToken = connectManager->GetUIExtensionSourceToken(nullptr);
+    EXPECT_EQ(sourceToken, nullptr);
     connectManager.reset();
 }
 

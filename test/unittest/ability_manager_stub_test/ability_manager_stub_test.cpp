@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -845,6 +845,38 @@ HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityAsCallerForOptio
     MessageParcel data;
     MessageParcel reply;
     auto res = stub_->StartAbilityAsCallerForOptionInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCallerInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCallerInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityForResultAsCallerInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityForResultAsCallerInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityForResultAsCallerInner(data, reply);
+    EXPECT_EQ(res, ERR_INVALID_VALUE);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCallerForOptionsInner
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCallerForOptionsInner
+ * EnvConditions: NA
+ * CaseDescription: Verify the function StartAbilityForResultAsCallerForOptionsInner is normal flow.
+ */
+HWTEST_F(AbilityManagerStubTest, AbilityManagerStub_StartAbilityForResultAsCallerForOptionsInner_001, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->StartAbilityForResultAsCallerForOptionsInner(data, reply);
     EXPECT_EQ(res, ERR_INVALID_VALUE);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -1280,6 +1280,40 @@ HWTEST_F(AbilityManagerClientBranchTest, StartAbilityAsCaller_0200, TestSize.Lev
     int32_t userId = 2;
     EXPECT_EQ(client_->StartAbilityAsCaller(want, startOptions, callerToken, nullptr, requestCode, userId), ERR_OK);
     GTEST_LOG_(INFO) << "StartAbilityAsCaller_0200 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityForResultAsCaller_0100
+ * @tc.desc: StartAbilityForResultAsCaller
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityForResultAsCaller_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityForResultAsCaller_0100 start";
+    Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 1;
+    int32_t userId = 2;
+    EXPECT_EQ(client_->StartAbilityForResultAsCaller(want, callerToken, requestCode, userId), ERR_OK);
+    GTEST_LOG_(INFO) << "StartAbilityForResultAsCaller_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_StartAbilityForResultAsCaller_0200
+ * @tc.desc: StartAbilityForResultAsCaller
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, StartAbilityForResultAsCaller_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "StartAbilityForResultAsCaller_0200 start";
+    Want want;
+    StartOptions startOptions;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 1;
+    int32_t userId = 2;
+    EXPECT_EQ(
+        client_->StartAbilityForResultAsCaller(want, startOptions, callerToken, requestCode, userId), ERR_OK);
+    GTEST_LOG_(INFO) << "StartAbilityForResultAsCaller_0200 end";
 }
 
 /**
