@@ -202,15 +202,9 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "ability_name:%{public}s", abilityRequest.want.GetElement().GetURI().c_str());
 
-    std::vector<AppExecFwk::Metadata> metaData = abilityRequest.abilityInfo.metadata;
-    bool isSingleton = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
-        return metaDataItem.name == "UIExtensionAbilityLaunchTypeTemp" && metaDataItem.value == "singleton";
-    });
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "State isSingleton: %{public}d.", isSingleton);
-
     std::shared_ptr<AbilityRecord> targetService;
     bool isLoadedAbility = false;
-    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && !isSingleton) {
+    if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
         auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
         if (callerAbilityRecord == nullptr) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get callerAbilityRecord.");
@@ -247,22 +241,6 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Target service has not been loaded.");
         targetService->GrantUriPermissionForServiceExtension();
         LoadAbility(targetService);
-        if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && isSingleton) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start uiextension in singleton mode.");
-            auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
-            if (callerAbilityRecord == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get callerAbilityRecord.");
-                return ERR_NULL_OBJECT;
-            }
-            std::string hostBundleName = callerAbilityRecord->GetAbilityInfo().bundleName;
-            int32_t inputId = abilityRequest.sessionInfo->want.GetIntParam(UIEXTENSION_ABILITY_ID,
-                INVALID_EXTENSION_RECORD_ID);
-            std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
-            CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
-            uiExtensionAbilityRecordMgr_->CreateExtensionRecord(
-                targetService, hostBundleName, extensionRecord, inputId);
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "UIExtensionAbility id %{public}d.", inputId);
-        }
     } else if (targetService->IsAbilityState(AbilityState::ACTIVE) && !IsUIExtensionAbility(targetService)) {
         // It may have been started through connect
         targetService->SetWant(abilityRequest.want);
@@ -1627,13 +1605,7 @@ void AbilityConnectManager::DoBackgroundAbilityWindow(const std::shared_ptr<Abil
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Background ability: %{public}s, persistentId: %{public}d",
         abilityRecord->GetURI().c_str(), sessionInfo->persistentId);
 
-    std::vector<AppExecFwk::Metadata> metaData = abilityRecord->GetAbilityInfo().metadata;
-    bool isSingleton = std::any_of(metaData.begin(), metaData.end(), [](const auto &metaDataItem) {
-        return metaDataItem.name == "UIExtensionAbilityLaunchTypeTemp" && metaDataItem.value == "singleton";
-    });
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "State isSingleton: %{public}d.", isSingleton);
-
-    if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND) || isSingleton) {
+    if (abilityRecord->IsAbilityState(AbilityState::FOREGROUND)) {
         MoveToBackground(abilityRecord);
     } else if (abilityRecord->IsAbilityState(AbilityState::INITIAL) ||
         abilityRecord->IsAbilityState(AbilityState::FOREGROUNDING)) {
