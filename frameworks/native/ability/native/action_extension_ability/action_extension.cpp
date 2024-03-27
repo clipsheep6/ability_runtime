@@ -36,13 +36,5 @@ ActionExtension *ActionExtension::Create(const std::unique_ptr<Runtime> &runtime
             return new ActionExtension();
     }
 }
-
-void ActionExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
-{
-    TAG_LOGD(AAFwkTag::ACTION_EXT, "called.");
-    ExtensionBase<UIExtensionContext>::Init(record, application, handler, token);
-}
 } // namespace AbilityRuntime
 } // namespace OHOS

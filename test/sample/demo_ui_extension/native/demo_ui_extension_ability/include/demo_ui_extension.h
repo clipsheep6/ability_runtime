@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,32 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ACTION_EXTENSION_H
-#define OHOS_ABILITY_RUNTIME_ACTION_EXTENSION_H
+#ifndef OHOS_ABILITY_RUNTIME_DEMO_UI_EXTENSION_H
+#define OHOS_ABILITY_RUNTIME_DEMO_UI_EXTENSION_H
 
+#include "runtime.h"
 #include "ui_extension_base.h"
+#include "ui_extension_context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class UIExtensionContext;
-class Runtime;
-/**
- * @brief Action extension components.
- */
-class ActionExtension : public UIExtensionBase<UIExtensionContext>,
-                        public std::enable_shared_from_this<ActionExtension> {
+class DemoUIExtension : public UIExtensionBase<UIExtensionContext>,
+                        public std::enable_shared_from_this<DemoUIExtension> {
 public:
-    ActionExtension() = default;
-    virtual ~ActionExtension() = default;
+    DemoUIExtension() = default;
+    ~DemoUIExtension() override = default;
 
     /**
-     * @brief Create action extension.
+     * @brief Create demo UI extension.
      *
      * @param runtime The runtime.
-     * @return The action extension instance.
+     * @return The demo UI extension instance.
      */
-    static ActionExtension *Create(const std::unique_ptr<Runtime> &runtime);
+    static DemoUIExtension *Create(const std::unique_ptr<Runtime> &runtime);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_ACTION_EXTENSION_H
+#endif // OHOS_ABILITY_RUNTIME_DEMO_UI_EXTENSION_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,29 +13,26 @@
  * limitations under the License.
  */
 
-#include "js_action_extension.h"
+#include "demo_ui_extension.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
-#include "hitrace_meter.h"
-#include "js_ui_extension_base.h"
+#include "js_demo_ui_extension.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsActionExtension *JsActionExtension::Create(const std::unique_ptr<Runtime> &runtime)
+DemoUIExtension *DemoUIExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    return new JsActionExtension(runtime);
-}
+    HILOG_DEBUG("Create demo extension.");
+    if (runtime == nullptr) {
+        return new DemoUIExtension();
+    }
 
-JsActionExtension::JsActionExtension(const std::unique_ptr<Runtime> &runtime)
-{
-    auto uiExtensionBaseImpl = std::make_unique<JsUIExtensionBase>(runtime);
-    SetUIExtensionBaseImpl(std::move(uiExtensionBaseImpl));
-}
-
-JsActionExtension::~JsActionExtension()
-{
-    TAG_LOGD(AAFwkTag::ACTION_EXT, "destructor.");
+    switch (runtime->GetLanguage()) {
+        case Runtime::Language::JS:
+            return JsDemoUIExtension::Create(runtime);
+        default:
+            return new (std::nothrow) DemoUIExtension();
+    }
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

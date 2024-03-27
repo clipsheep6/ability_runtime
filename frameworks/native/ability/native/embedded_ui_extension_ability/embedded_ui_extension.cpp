@@ -36,13 +36,5 @@ EmbeddedUIExtension *EmbeddedUIExtension::Create(const std::unique_ptr<Runtime> 
             return new (std::nothrow) EmbeddedUIExtension();
     }
 }
-
-void EmbeddedUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
-{
-    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
-    ExtensionBase<UIExtensionContext>::Init(record, application, handler, token);
-}
 } // namespace AbilityRuntime
 } // namespace OHOS

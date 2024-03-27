@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_ACTION_EXTENSION_H
-#define OHOS_ABILITY_RUNTIME_ACTION_EXTENSION_H
+#ifndef OHOS_ABILITY_RUNTIME_EMBEDDED_UI_EXTENSION_H
+#define OHOS_ABILITY_RUNTIME_EMBEDDED_UI_EXTENSION_H
 
-#include "extension_base.h"
+#include "ui_extension_base.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -26,22 +26,11 @@ class Runtime;
  * @brief embedded UI extension components.
  */
 class EmbeddedUIExtension
-    : public ExtensionBase<UIExtensionContext>, public std::enable_shared_from_this<EmbeddedUIExtension> {
+    : public UIExtensionBase<UIExtensionContext>, public std::enable_shared_from_this<EmbeddedUIExtension> {
 public:
     EmbeddedUIExtension() = default;
 
     ~EmbeddedUIExtension() override = default;
-
-    /**
-     * @brief Init the embedded UI extension.
-     *
-     * @param record the embedded UI extension record.
-     * @param application the application info.
-     * @param handler the embedded UI extension handler.
-     * @param token the remote token.
-     */
-    void Init(const std::shared_ptr<AbilityLocalRecord> &record, const std::shared_ptr<OHOSApplication> &application,
-        std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
     /**
      * @brief Create embedded UI extension.
@@ -53,4 +42,4 @@ public:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_ACTION_EXTENSION_H
+#endif // OHOS_ABILITY_RUNTIME_EMBEDDED_UI_EXTENSION_H
