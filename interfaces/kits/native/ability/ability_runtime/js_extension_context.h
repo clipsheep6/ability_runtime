@@ -25,6 +25,7 @@ class JsExtensionContext final {
 public:
     explicit JsExtensionContext(const std::shared_ptr<ExtensionContext>& context) : context_(context) {}
     ~JsExtensionContext() = default;
+    static void Finalizer(napi_env env, void *data, void *hint);
 
     static void ConfigurationUpdated(napi_env env, const std::shared_ptr<NativeReference>& jsContext,
         const std::shared_ptr<AppExecFwk::Configuration> &config);

@@ -353,10 +353,20 @@ public:
      */
     Global::Resource::DeviceType GetDeviceType() const override;
 
+    void SetIsolatedExtension(bool isIsolatedExtension);
+    bool GetIsolatedExtension();
+
     static const int EL_DEFAULT = 1;
 
 protected:
     sptr<IRemoteObject> token_;
+    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgr_;
+    std::string currArea_ = "el2";
+    std::shared_ptr<Context> parentContext_ = nullptr;
+    bool IsCreateBySystemApp() const;
+    void CreateDirIfNotExistWithCheck(const std::string& dirPath, const mode_t& mode, bool checkExist = true);
+    void CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const;
+    int GetCurrentAccountId() const;
 
 private:
     static const int64_t CONTEXT_CREATE_BY_SYSTEM_APP;
@@ -379,15 +389,13 @@ private:
     static const std::string CONTEXT_HAPS;
     static const std::string CONTEXT_ELS[];
     static const std::string CONTEXT_RESOURCE_END;
+    static const std::string CONTEXT_EXTENSION;
     int flags_ = 0x00000000;
 
     void InitResourceManager(const AppExecFwk::BundleInfo &bundleInfo, const std::shared_ptr<ContextImpl> &appContext,
                              bool currentBundle = false, const std::string &moduleName = "");
-    bool IsCreateBySystemApp() const;
-    int GetCurrentAccountId() const;
     void SetFlags(int64_t flags);
     int GetCurrentActiveAccountId() const;
-    void CreateDirIfNotExist(const std::string& dirPath, const mode_t& mode) const;
 
     int GetOverlayModuleInfos(const std::string &bundleName, const std::string &moduleName,
         std::vector<AppExecFwk::OverlayModuleInfo> &overlayModuleInfos);
@@ -405,7 +413,6 @@ private:
     void ChangeToLocalPath(const std::string &bundleName,
         const std::string &sourcDir, std::string &localPath);
 
-    void CreateDirIfNotExistWithCheck(const std::string& dirPath, const mode_t& mode, bool checkExist = true);
     int32_t GetDatabaseDirWithCheck(bool checkExist, std::string &databaseDir);
     int32_t GetGroupDatabaseDirWithCheck(const std::string &groupId, bool checkExist, std::string &databaseDir);
     int32_t GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir);
@@ -422,23 +429,20 @@ private:
 
     static Global::Resource::DeviceType deviceType_;
     std::shared_ptr<AppExecFwk::ApplicationInfo> applicationInfo_ = nullptr;
-    std::shared_ptr<Context> parentContext_ = nullptr;
     std::shared_ptr<Global::Resource::ResourceManager> resourceManager_ = nullptr;
     std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo_ = nullptr;
     std::shared_ptr<AppExecFwk::Configuration> config_ = nullptr;
-    std::string currArea_ = "el2";
     std::vector<AppExecFwk::OverlayModuleInfo> overlayModuleInfos_;
     std::set<std::string> checkedDirSet_;
     std::mutex checkedDirSetLock_;
-
     std::mutex bundleManagerMutex_;
-    std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgr_;
     std::mutex overlayMgrProxyMutex_;
     sptr<AppExecFwk::IOverlayManager> overlayMgrProxy_ = nullptr;
 
     // True: need to get a new fms remote object,
     // False: no need to get a new fms remote object.
     volatile bool resetFlag_ = false;
+    bool isIsolatedExtension_ = false;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

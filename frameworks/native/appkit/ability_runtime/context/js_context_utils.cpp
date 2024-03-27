@@ -72,6 +72,7 @@ public:
 
 protected:
     std::weak_ptr<Context> context_;
+    bool CheckCallerIsSystemApp();
 
 private:
     napi_value OnCreateBundleContext(napi_env env, NapiCallbackInfo& info);
@@ -81,7 +82,6 @@ private:
     napi_value OnCreateModuleContext(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateSystemHspModuleResourceManager(napi_env env, NapiCallbackInfo& info);
     napi_value OnCreateModuleResourceManager(napi_env env, NapiCallbackInfo& info);
-    bool CheckCallerIsSystemApp();
 };
 
 void JsBaseContext::Finalizer(napi_env env, void* data, void* hint)
@@ -691,7 +691,7 @@ napi_value AttachApplicationContext(napi_env env, void* value, void* hint)
     return contextObj;
 }
 
-napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, bool keepContext)
+napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, bool keepContext, bool isIsolatedExtension)
 {
     napi_value object = nullptr;
     napi_create_object(env, &object);
@@ -728,18 +728,21 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeProperty(env, object, "databaseDir", JsBaseContext::GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", JsBaseContext::GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", JsBaseContext::GetBundleCodeDir);
-    BindNativeProperty(env, object, "area", JsBaseContext::GetArea);
     const char *moduleName = "JsBaseContext";
-    BindNativeFunction(env, object, "createBundleContext", moduleName, JsBaseContext::CreateBundleContext);
     BindNativeFunction(env, object, "getApplicationContext", moduleName, JsBaseContext::GetApplicationContext);
     BindNativeFunction(env, object, "switchArea", moduleName, JsBaseContext::SwitchArea);
-    BindNativeFunction(env, object, "getArea", moduleName, JsBaseContext::GetArea);
-    BindNativeFunction(env, object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
-    BindNativeFunction(env, object, "createSystemHspModuleResourceManager", moduleName,
-        JsBaseContext::CreateSystemHspModuleResourceManager);
-    BindNativeFunction(env, object, "createModuleResourceManager", moduleName,
-        JsBaseContext::CreateModuleResourceManager);
     BindNativeFunction(env, object, "getGroupDir", moduleName, JsBaseContext::GetGroupDir);
+
+    if (!isIsolatedExtension) {
+        BindNativeProperty(env, object, "area", JsBaseContext::GetArea);
+        BindNativeFunction(env, object, "getArea", moduleName, JsBaseContext::GetArea);
+        BindNativeFunction(env, object, "createBundleContext", moduleName, JsBaseContext::CreateBundleContext);
+        BindNativeFunction(env, object, "createModuleContext", moduleName, JsBaseContext::CreateModuleContext);
+        BindNativeFunction(env, object, "createSystemHspModuleResourceManager", moduleName,
+            JsBaseContext::CreateSystemHspModuleResourceManager);
+        BindNativeFunction(env, object, "createModuleResourceManager", moduleName,
+            JsBaseContext::CreateModuleResourceManager);
+    }
     return object;
 }
 }  // namespace AbilityRuntime
