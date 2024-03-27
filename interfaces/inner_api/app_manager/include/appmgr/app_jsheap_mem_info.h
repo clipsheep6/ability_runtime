@@ -28,6 +28,7 @@ struct JsHeapDumpInfo : public Parcelable {
     bool needSnapshot;
     std::vector<uint32_t> fdVec;
     std::vector<uint32_t> tidVec;
+    bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static JsHeapDumpInfo *Unmarshalling(Parcel &parcel);
 };
