@@ -59,6 +59,7 @@ public:
     void SetWaitOnMainThread(bool waitOnMainThread);
 
     void SetIsAutoStartup(bool isAutoStartup);
+    uint32_t getDependenceCount() const;
 
     void SaveResult(const std::shared_ptr<StartupTaskResult> &result);
 

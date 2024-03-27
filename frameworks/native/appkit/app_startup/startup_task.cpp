@@ -130,5 +130,10 @@ std::string StartupTask::DumpDependencies() const
     }
     return dumpResult;
 }
+
+uint32_t StartupTask::getDependenceCount() const
+{
+    return dependencies_.size();
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
