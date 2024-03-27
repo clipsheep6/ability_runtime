@@ -124,9 +124,9 @@ public:
     virtual WMError UnregisterDragListener(
         const sptr<IWindowDragListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual WMError RegisterDisplayMoveListener(
-        sptr<IDisplayMoveListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+        const sptr<IDisplayMoveListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual WMError UnregisterDisplayMoveListener(
-        sptr<IDisplayMoveListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
+        const sptr<IDisplayMoveListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
     virtual void RegisterWindowDestroyedListener(const NotifyNativeWinDestroyFunc& func) {}
     virtual WMError RegisterOccupiedAreaChangeListener(
         const sptr<IOccupiedAreaChangeListener>& listener) {return WMError::WM_ERROR_NULLPTR;}
