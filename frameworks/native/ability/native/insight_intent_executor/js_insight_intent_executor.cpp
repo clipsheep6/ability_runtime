@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <want_params.h>
 
 #include "ability_transaction_callback_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "insight_intent_constant.h"
 #include "insight_intent_execute_result.h"
@@ -51,12 +52,12 @@ JsInsightIntentExecutor::JsInsightIntentExecutor(JsRuntime& runtime) : runtime_(
 JsInsightIntentExecutor::~JsInsightIntentExecutor()
 {
     state_ = State::DESTROYED;
-    HILOG_INFO("JsInsightIntentExecutor destructor");
+    TAG_LOGI(AAFwkTag::INTENT, "JsInsightIntentExecutor destructor");
 }
 
 bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightIntentInfo)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     STATE_PATTERN_NAIVE_ACCEPT(State::CREATED, false);
     state_ = State::INITIALIZED;
     InsightIntentExecutor::Init(insightIntentInfo);
@@ -64,26 +65,26 @@ bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightInten
     HandleScope handleScope(runtime_);
     jsObj_ = JsInsightIntentExecutor::LoadJsCode(insightIntentInfo, runtime_);
     if (jsObj_ == nullptr) {
-        HILOG_ERROR("LoadJsCode failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "LoadJsCode failed.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
     auto env = runtime_.GetNapiEnv();
     if (env == nullptr) {
-        HILOG_ERROR("Napi env invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Napi env invalid.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
     auto context = GetContext();
     if (context == nullptr) {
-        HILOG_ERROR("Context invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Context invalid.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
     napi_value contextObj = CreateJsInsightIntentContext(env, context);
     contextObj_ = JsRuntime::LoadSystemModuleByEngine(env, "app.ability.InsightIntentContext", &contextObj, 1);
     if (contextObj_ == nullptr) {
-        HILOG_ERROR("Load system module failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "Load system module failed.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
@@ -92,7 +93,7 @@ bool JsInsightIntentExecutor::Init(const InsightIntentExecutorInfo& insightInten
     if (!CheckTypeForNapiValue(env, executorNapiVal, napi_object) ||
         !CheckTypeForNapiValue(env, contextNapiVal, napi_object) ||
         napi_set_named_property(env, executorNapiVal, "context", contextNapiVal) != napi_ok) {
-        HILOG_ERROR("Set property failed.");
+        TAG_LOGE(AAFwkTag::INTENT, "Set property failed.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
 
@@ -113,12 +114,12 @@ bool JsInsightIntentExecutor::HandleExecuteIntent(
     std::unique_ptr<InsightIntentExecutorAsyncCallback> callback,
     bool& isAsync)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     STATE_PATTERN_NAIVE_ACCEPT(State::INITIALIZED, false);
     state_ = State::EXECUTING;
 
     if (callback == nullptr || callback->IsEmpty()) {
-        HILOG_ERROR("HandleExecuteIntent invalid callback.");
+        TAG_LOGE(AAFwkTag::INTENT, "HandleExecuteIntent invalid callback.");
         STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
     }
     callback_ = std::move(callback);
@@ -126,34 +127,34 @@ bool JsInsightIntentExecutor::HandleExecuteIntent(
     switch (mode) {
         case InsightIntentExecuteMode::UIABILITY_FOREGROUND:
             if (!JsInsightIntentExecutor::CheckParametersUIAbilityForeground(pageLoader)) {
-                HILOG_ERROR("CheckParametersUIAbilityForeground error");
+                TAG_LOGE(AAFwkTag::INTENT, "CheckParametersUIAbilityForeground error");
                 return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentUIAbilityForeground(name, param, pageLoader);
             break;
         case InsightIntentExecuteMode::UIABILITY_BACKGROUND:
             if (!JsInsightIntentExecutor::CheckParametersUIAbilityBackground()) {
-                HILOG_ERROR("CheckParametersUIAbilityBackground error");
+                TAG_LOGE(AAFwkTag::INTENT, "CheckParametersUIAbilityBackground error");
                 return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentUIAbilityBackground(name, param);
             break;
         case InsightIntentExecuteMode::UIEXTENSION_ABILITY:
             if (!JsInsightIntentExecutor::CheckParametersUIExtension(pageLoader)) {
-                HILOG_ERROR("CheckParametersUIExtension error");
+                TAG_LOGE(AAFwkTag::INTENT, "CheckParametersUIExtension error");
                 return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentUIExtension(name, param, pageLoader);
             break;
         case InsightIntentExecuteMode::SERVICE_EXTENSION_ABILITY:
             if (!JsInsightIntentExecutor::CheckParametersServiceExtension()) {
-                HILOG_ERROR("CheckParametersServiceExtension error");
+                TAG_LOGE(AAFwkTag::INTENT, "CheckParametersServiceExtension error");
                 return ExecuteIntentCheckError();
             }
             successful = ExecuteInsightIntentServiceExtension(name, param);
             break;
         default:
-            HILOG_ERROR("InsightIntentExecuteMode not supported yet");
+            TAG_LOGE(AAFwkTag::INTENT, "InsightIntentExecuteMode not supported yet");
             return ExecuteIntentCheckError();
     }
     isAsync = isAsync_;
@@ -164,10 +165,10 @@ std::unique_ptr<NativeReference> JsInsightIntentExecutor::LoadJsCode(
     const InsightIntentExecutorInfo& info,
     JsRuntime& runtime)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     auto executeParam = info.executeParam;
     if (executeParam == nullptr) {
-        HILOG_ERROR("Execute param invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Execute param invalid.");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -193,14 +194,14 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResult(
     const napi_value* argv,
     napi_value& result)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     napi_value method = AppExecFwk::GetPropertyValueByPropertyName(
         env,
         obj,
         funcName,
         napi_valuetype::napi_function);
     if (method == nullptr) {
-        HILOG_ERROR("CallJsFunctionWithResult error");
+        TAG_LOGE(AAFwkTag::INTENT, "CallJsFunctionWithResult error");
         return false;
     }
     napi_call_function(
@@ -219,11 +220,11 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResultInner(
     const napi_value* argv,
     napi_value& result)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     auto* env = runtime_.GetNapiEnv();
     napi_value obj = jsObj_->GetNapiValue();
     if (!CheckTypeForNapiValue(env, obj, napi_valuetype::napi_object)) {
-        HILOG_ERROR("CallJsFunctionWithResultInner Type error");
+        TAG_LOGE(AAFwkTag::INTENT, "CallJsFunctionWithResultInner Type error");
         return false;
     }
     return JsInsightIntentExecutor::CallJsFunctionWithResult(
@@ -238,7 +239,7 @@ bool JsInsightIntentExecutor::CallJsFunctionWithResultInner(
 std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> JsInsightIntentExecutor::GetResultFromJs(
     napi_env env, napi_value resultJs)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     auto resultCpp = std::make_shared<AppExecFwk::InsightIntentExecuteResult>();
     if (!UnwrapExecuteResult(env, resultJs, *resultCpp)) {
         return nullptr;
@@ -248,7 +249,7 @@ std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> JsInsightIntentExecutor:
 
 napi_value JsInsightIntentExecutor::ResolveCbCpp(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     constexpr size_t argc = 1;
     napi_value argv[argc] = {nullptr};
     size_t actualArgc = argc;
@@ -278,7 +279,7 @@ napi_value JsInsightIntentExecutor::RejectCbCpp(napi_env env, napi_callback_info
 void JsInsightIntentExecutor::ReplyFailed(InsightIntentExecutorAsyncCallback* callback,
     InsightIntentInnerErr innerErr)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     if (callback == nullptr) {
         return;
     }
@@ -291,7 +292,7 @@ void JsInsightIntentExecutor::ReplyFailed(InsightIntentExecutorAsyncCallback* ca
 void JsInsightIntentExecutor::ReplySucceeded(InsightIntentExecutorAsyncCallback* callback,
     std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     if (callback == nullptr) {
         return;
     }
@@ -306,7 +307,7 @@ void JsInsightIntentExecutor::ReplySucceeded(InsightIntentExecutorAsyncCallback*
 
 void JsInsightIntentExecutor::ReplyFailedInner(InsightIntentInnerErr innerErr)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     state_ = JsInsightIntentExecutor::State::INVALID;
     auto* callback = callback_.release();
     JsInsightIntentExecutor::ReplyFailed(callback, innerErr);
@@ -314,7 +315,7 @@ void JsInsightIntentExecutor::ReplyFailedInner(InsightIntentInnerErr innerErr)
 
 void JsInsightIntentExecutor::ReplySucceededInner(std::shared_ptr<AppExecFwk::InsightIntentExecuteResult> resultCpp)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     state_ = JsInsightIntentExecutor::State::EXECUTATION_DONE;
     auto* callback = callback_.release();
     JsInsightIntentExecutor::ReplySucceeded(callback, resultCpp);
@@ -322,7 +323,7 @@ void JsInsightIntentExecutor::ReplySucceededInner(std::shared_ptr<AppExecFwk::In
 
 bool JsInsightIntentExecutor::HandleResultReturnedFromJsFunc(napi_value resultJs)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     auto* env = runtime_.GetNapiEnv();
     if (resultJs == nullptr) {
         ReplyFailedInner();
@@ -334,7 +335,7 @@ bool JsInsightIntentExecutor::HandleResultReturnedFromJsFunc(napi_value resultJs
     isAsync_ = isPromise;
 
     if (isPromise) {
-        HILOG_INFO("Is promise");
+        TAG_LOGI(AAFwkTag::INTENT, "Is promise");
         auto* callback = callback_.release();
 
         napi_value then = nullptr;
@@ -355,14 +356,14 @@ bool JsInsightIntentExecutor::HandleResultReturnedFromJsFunc(napi_value resultJs
         napi_value argvCatch[argcCatch] = { rejectCbJs };
         napi_call_function(env, resultJs, promiseCatch, argcCatch, argvCatch, nullptr);
     } else {
-        HILOG_INFO("Not promise");
+        TAG_LOGI(AAFwkTag::INTENT, "Not promise");
         auto resultCpp = JsInsightIntentExecutor::GetResultFromJs(env, resultJs);
         if (resultCpp == nullptr) {
-            HILOG_ERROR("Result invalid");
+            TAG_LOGE(AAFwkTag::INTENT, "Result invalid");
             ReplyFailedInner();
             STATE_PATTERN_NAIVE_STATE_SET_AND_RETURN(State::INVALID, false);
         }
-        HILOG_DEBUG("Call succeed");
+        TAG_LOGD(AAFwkTag::INTENT, "Call succeed");
         ReplySucceededInner(resultCpp);
     }
     return true;
@@ -378,7 +379,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentUIAbilityForeground(
     const AAFwk::WantParams& param,
     const std::shared_ptr<NativeReference>& windowStageJs)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::UIABILITY_FOREGROUND);
@@ -408,7 +409,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentUIAbilityBackground(
     const std::string& name,
     const AAFwk::WantParams& param)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::UIABILITY_BACKGROUND);
@@ -440,7 +441,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentUIExtension(
     const AAFwk::WantParams& param,
     const std::shared_ptr<NativeReference>& UIExtensionContentSession)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::UIEXTENSION_ABILITY);
@@ -470,7 +471,7 @@ bool JsInsightIntentExecutor::ExecuteInsightIntentServiceExtension(
     const std::string& name,
     const AAFwk::WantParams& param)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::INTENT, "enter");
     HandleScope handleScope(runtime_);
 
     constexpr auto intentMode = static_cast<size_t>(InsightIntentExecuteMode::SERVICE_EXTENSION_ABILITY);
