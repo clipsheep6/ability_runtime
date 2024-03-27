@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#include <cinttypes>
 #include "ecological_rule/ability_ecological_rule_mgr_service.h"
 
 #include "ability_manager_errors.h"
@@ -124,7 +124,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     }
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
-    HILOG_DEBUG("[ERMS-DFX] EvaluateResolveInfos interface cost %{public}lld mirco seconds.", cost);
+    HILOG_DEBUG("[ERMS-DFX] EvaluateResolveInfos interface cost %{public}" PRId64 " mirco seconds.", cost);
     return res;
 }
 
@@ -145,7 +145,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
             rule.isAllow, rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
     }
     int64_t cost = GetCurrentTimeMicro() - start;
-    HILOG_DEBUG("[ERMS-DFX] QueryStartExperience interface cost %{public}lld mirco seconds.", cost);
+    HILOG_DEBUG("[ERMS-DFX] QueryStartExperience interface cost %{public}" PRId64 "mirco seconds.", cost);
     return res;
 }
 
