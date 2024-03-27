@@ -21,48 +21,39 @@ namespace AppExecFwk {
 
 bool JsHeapDumpInfo::Marshalling(Parcel& parcel) const
 {
+    bool res = (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
+        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot)
+        && parcel.WriteUInt32Vector(fdVec) && parcel.WriteUInt32Vector(tidVec));
+    HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
+        pid, tid, needGc, needSnapshot);
+
     auto msgParcel = static_cast<MessageParcel*>(&parcel);
     if(msgParcel==nullptr){
         HILOG_ERROR("Dump Marshalling msgParcel==nullptr");
         return false;
     }
-    if (!parcel.WriteUInt32Vector(fdVec) && parcel.WriteUInt32Vector(tidVec)) {
-        HILOG_ERROR("WriteUInt32Vector fdVec error");
-        return false;
-    }
     for (auto &fd : fdVec){
-        // msgParcel->WriteFileDescriptor(fd);
+        msgParcel->WriteFileDescriptor(fd);
         HILOG_ERROR("Dump WriteFileDescriptor fd=%{public}d", fd);
     }
     for (auto &tid : tidVec){
         HILOG_INFO("Dump tid=%{public}d", tid);
     }
-    HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
-        pid, tid, needGc, needSnapshot);
-    return (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
-        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot));
+    return res;
 }
 
 bool JsHeapDumpInfo::ReadFromParcel(Parcel &parcel)
 {
+
     pid = parcel.ReadUint32();
     tid = parcel.ReadUint32();
     needGc = parcel.ReadBool();
     needSnapshot = parcel.ReadBool();
     HILOG_INFO("pid: %{public}d, tid: %{public}d, needGc: %{public}d, needSnapshot: %{public}d",
         pid, tid, needGc, needSnapshot);
-    // std::vector<uint32_t> fdVec1;
-    // std::vector<uint32_t> tidVec2;
+
     parcel.ReadUInt32Vector(&fdVec);
     parcel.ReadUInt32Vector(&tidVec);
-    // for (auto &fd : fdVec1){
-    //     HILOG_INFO("Dump Unmarshalling fd=%{public}d", fd);
-    // }
-    // for (auto &tid : fdVec1){
-    //     HILOG_INFO("Dump Unmarshalling tid=%{public}d", tid);
-    // }
-    // info->fdVec = fdVec1;
-    // info->tidVec = tidVec2;
     for (auto &fd : fdVec){
         HILOG_INFO("Dump1 Unmarshalling fd=%{public}d", fd);
     }
@@ -76,12 +67,13 @@ bool JsHeapDumpInfo::ReadFromParcel(Parcel &parcel)
         HILOG_ERROR("Dump Unmarshalling msgParcel==nullptr");
         return false;
     }
+    fdVec.clear();
+    for (auto &tid : tidVec){
+        uint32_t parcelFd = msgParcel->ReadFileDescriptor();
+        HILOG_INFO("Dump JsHeapDumpInfo::Unmarshalling. tid=%{public}d, parcelFd=%{public}d", tid, parcelFd);
+        fdVec.push_back(parcelFd);
+    }
     return true;
-    // for (auto &tid : info->tidVec){
-    //     uint32_t fd = msgParcel->ReadFileDescriptor();
-    //     HILOG_INFO("Dump JsHeapDumpInfo::Unmarshalling. fd=%{public}d", fd);
-    //     info->fdVec.push_back(msgParcel->ReadFileDescriptor());
-    // }
 }
 
 JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
