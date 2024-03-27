@@ -18,13 +18,22 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "ability_manager_errors.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class StartupTask {
+class StartupTask : public std::enable_shared_from_this<StartupTask> {
 public:
+    enum class State {
+        INVALID,
+        CREATED,
+        INITIALIZING,
+        INITIALIZED,
+    };
+
     explicit StartupTask(const std::string &name);
 
     virtual ~StartupTask();
@@ -51,7 +60,15 @@ public:
 
     void SetIsAutoStartup(bool isAutoStartup);
 
-    virtual int32_t RunTaskInit() = 0;
+    void SaveResult(const std::shared_ptr<StartupTaskResult> &result);
+
+    void RemoveResult();
+
+    std::shared_ptr<StartupTaskResult> GetResult() const;
+
+    virtual int32_t RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback) = 0;
+
+    State GetState() const;
 
 protected:
     std::string name_;
@@ -60,6 +77,10 @@ protected:
     bool callCreateOnMainThread_ = true;
     bool waitOnMainThread_ = true;
     bool isAutoStartup_ = true;
+    std::shared_ptr<StartupTaskResult> result_;
+    State state_ = State::INVALID;
+
+    std::string DumpDependencies() const;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

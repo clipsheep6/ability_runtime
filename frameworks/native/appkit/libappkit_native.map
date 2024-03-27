@@ -25,6 +25,8 @@
       *MainHandlerDumper*;
       *MainThread*;
       *OHOSApplication*;
+      *StartupManager*;
+      *StartupTaskResult*;
       *Watchdog*;
     };
   local:

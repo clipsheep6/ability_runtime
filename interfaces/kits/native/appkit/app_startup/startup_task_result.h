@@ -13,33 +13,41 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
-#define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
+#ifndef OHOS_ABILITY_RUNTIME_STARTUP_TASK_RESULT_H
+#define OHOS_ABILITY_RUNTIME_STARTUP_TASK_RESULT_H
 
+#include <string>
 #include "ability_manager_errors.h"
-#include "js_runtime.h"
-#include "js_startup_task_executor.h"
-#include "js_startup_task_result.h"
-#include "startup_task.h"
+#include "ability_transaction_callback_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsStartupTask : public StartupTask {
+class StartupTaskResult {
 public:
-    JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
-        std::shared_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef_);
+    enum class ResultType {
+        INVALID,
+        JS
+    };
 
-    ~JsStartupTask() override;
+    StartupTaskResult();
 
-    int32_t Init();
+    StartupTaskResult(int32_t resultCode, const std::string &resultMessage);
 
-    int32_t RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback) override;
+    virtual ~StartupTaskResult();
+
+    int32_t GetResultCode() const;
+
+    std::string GetResultMessage() const;
+
+    virtual ResultType GetResultType() const;
 
 private:
-    JsRuntime &jsRuntime_;
-    std::shared_ptr<NativeReference> startupJsRef_;
-    std::shared_ptr<NativeReference> contextJsRef_;
+    int32_t resultCode_ = ERR_OK;
+    std::string resultMessage_;
 };
+using StartupTaskResultCallback = AppExecFwk::AbilityTransactionCallbackInfo<const std::shared_ptr<StartupTaskResult>>;
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
+
+#endif // OHOS_ABILITY_RUNTIME_STARTUP_TASK_RESULT_H
+

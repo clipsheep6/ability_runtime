@@ -16,11 +16,14 @@
 
 #include "startup_task.h"
 
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 StartupTask::StartupTask(const std::string &name) : name_(name)
-{}
+{
+    state_ = State::CREATED;
+}
 
 StartupTask::~StartupTask() = default;
 
@@ -76,7 +79,56 @@ void StartupTask::SetWaitOnMainThread(bool waitOnMainThread)
 
 void StartupTask::SetIsAutoStartup(bool isAutoStartup)
 {
-    isAutoStartup = isAutoStartup_;
+    isAutoStartup_ = isAutoStartup;
+}
+
+void StartupTask::SaveResult(const std::shared_ptr<StartupTaskResult> &result)
+{
+    if (result == nullptr) {
+        HILOG_ERROR("startup task: %{public}s, result is null", name_.c_str());
+        return;
+    }
+    HILOG_DEBUG("startup task: %{public}s, result code: %{public}d", name_.c_str(), result->GetResultCode());
+    result_ = result;
+    if (result->GetResultCode() == ERR_OK) {
+        state_ = State::INITIALIZED;
+    } else {
+        state_ = State::CREATED;
+    }
+}
+
+void StartupTask::RemoveResult()
+{
+    result_ = nullptr;
+    state_ = State::CREATED;
+}
+
+std::shared_ptr<StartupTaskResult> StartupTask::GetResult() const
+{
+    return result_;
+}
+
+StartupTask::State StartupTask::GetState() const
+{
+    return state_;
+}
+
+std::string StartupTask::DumpDependencies() const
+{
+    if (dependencies_.empty()) {
+        return "";
+    }
+    bool isFirst = true;
+    std::string dumpResult;
+    for (auto &iter : dependencies_) {
+        if (isFirst) {
+            dumpResult = iter;
+            isFirst = false;
+        } else {
+            dumpResult += ", " + iter;
+        }
+    }
+    return dumpResult;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

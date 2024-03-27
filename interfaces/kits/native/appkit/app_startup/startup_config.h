@@ -18,6 +18,7 @@
 
 #include "ability_manager_errors.h"
 #include "startup_listener.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -32,6 +33,10 @@ public:
     explicit StartupConfig(const std::shared_ptr<StartupListener> &listener);
 
     explicit StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<StartupListener> &listener);
+
+    int32_t GetAwaitTimeoutMs() const;
+
+    int32_t ListenerOnCompleted(const StartupTaskResult &result);
 
 private:
     int32_t awaitTimeoutMs_ = 10000; // 10s

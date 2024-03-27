@@ -13,16 +13,9 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STARTUP_TASK_DISPATCHER_H
-#define OHOS_ABILITY_RUNTIME_STARTUP_TASK_DISPATCHER_H
+class StartupListener {
+  onCompleted(error) {
+  }
+}
 
-#include "ability_manager_errors.h"
-#include "startup_task_result.h"
-
-namespace OHOS {
-namespace AbilityRuntime {
-class StartupTaskDispatcher {
-};
-} // namespace AbilityRuntime
-} // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_STARTUP_TASK_DISPATCHER_H
+export default StartupListener;

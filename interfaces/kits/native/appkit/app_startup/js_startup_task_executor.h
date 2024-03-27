@@ -18,17 +18,40 @@
 
 #include "ability_manager_errors.h"
 #include "js_runtime.h"
-#include "startup_task_executor.h"
+#include "js_startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsStartupTaskExecutor : public StartupTaskExecutor {
+class JsStartupTaskExecutor {
 public:
-    JsStartupTaskExecutor();
+    static int32_t RunOnMainThread(JsRuntime &jsRuntime,
+        const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+        std::unique_ptr<StartupTaskResultCallback> callback);
 
-    virtual ~JsStartupTaskExecutor();
+    static int32_t RunOnTaskPool(JsRuntime &jsRuntime,
+        const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+        std::unique_ptr<StartupTaskResultCallback> callback);
 
-    virtual int32_t Run(JsRuntime &jsRuntime) = 0;
+private:
+    static int32_t CallStartupInit(napi_env env, const std::shared_ptr<NativeReference> &startup,
+        const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
+        napi_value &returnVal);
+
+    static int32_t HandleReturnVal(napi_env env, napi_value returnVal,
+        std::unique_ptr<StartupTaskResultCallback> &callback);
+
+    static napi_value ResolveResultCallback(napi_env env, napi_callback_info info);
+
+    static napi_value RejectResultCallback(napi_env env, napi_callback_info info);
+
+    static void ReplyFailed(StartupTaskResultCallback *callback,
+        int32_t resultCode, const std::string &resultMessage = "");
+
+    static void ReplyFailed(std::unique_ptr<StartupTaskResultCallback> callback,
+        int32_t resultCode, const std::string &resultMessage = "");
+
+    static void ReplySucceeded(StartupTaskResultCallback *callback,
+        const std::shared_ptr<NativeReference> &resultRef);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

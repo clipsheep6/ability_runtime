@@ -13,22 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_MAIN_THREAD_EXECUTOR_H
-#define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_MAIN_THREAD_EXECUTOR_H
+class StartupTask {
+  onDependenceCompleted(dependence, result) {
+    console.log('onDependenceCompleted');
+  }
 
-#include "ability_manager_errors.h"
-#include "js_startup_task_executor.h"
+  isManualDispatch() {
+    return false;
+  }
+}
 
-namespace OHOS {
-namespace AbilityRuntime {
-class JsStartupTaskMainThreadExecutor : public JsStartupTaskExecutor {
-public:
-    JsStartupTaskMainThreadExecutor();
-
-    ~JsStartupTaskMainThreadExecutor() override;
-
-    int32_t Run(JsRuntime &jsRuntime) override;
-};
-} // namespace AbilityRuntime
-} // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_MAIN_THREAD_EXECUTOR_H
+export default StartupTask;

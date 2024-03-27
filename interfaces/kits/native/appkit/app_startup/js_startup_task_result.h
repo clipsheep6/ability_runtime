@@ -13,15 +13,32 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
-#define OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_RESULT_H
+#define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_RESULT_H
 
-#include "ability_manager_errors.h"
+#include "js_runtime.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class StartupTaskExecutor {
+class JsStartupTaskResult : public StartupTaskResult {
+public:
+    JsStartupTaskResult();
+
+    ~JsStartupTaskResult() override;
+
+    JsStartupTaskResult(int32_t resultCode, const std::string &resultMessage);
+
+    explicit JsStartupTaskResult(const std::shared_ptr<NativeReference> &result);
+
+    ResultType GetResultType() const override;
+
+    std::shared_ptr<NativeReference> GetJsStartupResultRef() const;
+
+private:
+    std::shared_ptr<NativeReference> jsStartupResultRef_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
+
+#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_RESULT_H

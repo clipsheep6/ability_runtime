@@ -16,11 +16,25 @@
 #ifndef OHOS_ABILITY_RUNTIME_STARTUP_LISTENER_H
 #define OHOS_ABILITY_RUNTIME_STARTUP_LISTENER_H
 
+#include <functional>
+
 #include "ability_manager_errors.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+using OnCompletedCallback = std::function<void(const StartupTaskResult &)>;
+
 class StartupListener {
+public:
+    explicit StartupListener(const OnCompletedCallback &callback);
+
+    ~StartupListener();
+
+    void OnCompleted(const StartupTaskResult &result);
+
+private:
+    OnCompletedCallback onCompletedCallback_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

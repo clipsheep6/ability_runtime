@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 
-
-class StartupTaskExecutor {
-  runOnMainThread(message) {
-    console.log('StartupTaskExecutor, message ' + message);
+class StartupConfigEntry {
+  onConfig() {
+    return {}
   }
 }
 
-export default StartupTaskExecutor;
+export default StartupConfigEntry;
