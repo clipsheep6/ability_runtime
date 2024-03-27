@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "napi_common_configuration.h"
 
 #include "configuration_convertor.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 
@@ -34,7 +35,8 @@ bool InnerWrapConfigurationString(
     napi_env env, napi_value jsObject, const std::string &key, const std::string &value)
 {
     if (!value.empty()) {
-        HILOG_INFO("%{public}s called. key=%{public}s, value=%{private}s", __func__, key.c_str(), value.c_str());
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. key=%{public}s, value=%{private}s",
+            __func__, key.c_str(), value.c_str());
         napi_value jsValue = WrapStringToJS(env, value);
         if (jsValue != nullptr) {
             NAPI_CALL_BASE(env, napi_set_named_property(env, jsObject, key.c_str(), jsValue), false);
@@ -46,7 +48,7 @@ bool InnerWrapConfigurationString(
 
 napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &configuration)
 {
-    HILOG_DEBUG("called, config size %{public}d", static_cast<int>(configuration.GetItemSize()));
+    TAG_LOGD(AAFwkTag::JSNAPI, "called, config size %{public}d", static_cast<int>(configuration.GetItemSize()));
     napi_value jsObject = nullptr;
     NAPI_CALL(env, napi_create_object(env, &jsObject));
 
@@ -88,40 +90,40 @@ napi_value WrapConfiguration(napi_env env, const AppExecFwk::Configuration &conf
 
 bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);
         return false;
     }
 
     std::string language {""};
     if (UnwrapStringByPropertyName(env, param, "language", language)) {
-        HILOG_DEBUG("The parsed language part %{public}s", language.c_str());
+        TAG_LOGD(AAFwkTag::JSNAPI, "The parsed language part %{public}s", language.c_str());
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE, language)) {
-            HILOG_ERROR("language Parsing failed");
+            TAG_LOGE(AAFwkTag::JSNAPI, "language Parsing failed");
             return false;
         }
     }
 
     int32_t colormode = -1;
     if (UnwrapInt32ByPropertyName(env, param, "colorMode", colormode)) {
-        HILOG_DEBUG("The parsed colormode part %{public}d", colormode);
+        TAG_LOGD(AAFwkTag::JSNAPI, "The parsed colormode part %{public}d", colormode);
         if (colormode != Global::Resource::DARK && colormode != Global::Resource::LIGHT) {
-            HILOG_ERROR("Set colorMode to unsupported value.");
+            TAG_LOGE(AAFwkTag::JSNAPI, "Set colorMode to unsupported value.");
             return false;
         }
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, GetColorModeStr(colormode))) {
-            HILOG_ERROR("colorMode parsing failed");
+            TAG_LOGE(AAFwkTag::JSNAPI, "colorMode parsing failed");
             return false;
         }
     }
 
     double fontSizeScale = 0.0;
     if (UnwrapDoubleByPropertyName(env, param, "fontSizeScale", fontSizeScale)) {
-        HILOG_DEBUG("The parsed fontSizeScale part %{public}lf", fontSizeScale);
+        TAG_LOGD(AAFwkTag::JSNAPI, "The parsed fontSizeScale part %{public}lf", fontSizeScale);
         if (fontSizeScale < FONT_SIZE_MIN_SCALE || fontSizeScale > FONT_SIZE_MAX_SCALE) {
-            HILOG_ERROR("invalid fontSizeScale");
+            TAG_LOGE(AAFwkTag::JSNAPI, "invalid fontSizeScale");
             return false;
         }
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_SIZE_SCALE, std::to_string(fontSizeScale))) {
@@ -131,9 +133,9 @@ bool UnwrapConfiguration(napi_env env, napi_value param, Configuration &config)
 
     double fontWeightScale = 0.0;
     if (UnwrapDoubleByPropertyName(env, param, "fontWeightScale", fontWeightScale)) {
-        HILOG_DEBUG("The parsed fontWeightScale part %{public}lf", fontWeightScale);
+        TAG_LOGD(AAFwkTag::JSNAPI, "The parsed fontWeightScale part %{public}lf", fontWeightScale);
         if (fontWeightScale < FONT_WEIGHT_MIN_SCALE || fontWeightScale > FONT_WEIGHT_MAX_SCALE) {
-            HILOG_ERROR("invalid fontWeightScale");
+            TAG_LOGE(AAFwkTag::JSNAPI, "invalid fontWeightScale");
             return false;
         }
         if (!config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_FONT_WEIGHT_SCALE, std::to_string(fontWeightScale))) {

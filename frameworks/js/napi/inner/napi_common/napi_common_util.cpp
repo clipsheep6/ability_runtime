@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 
 #include <cstring>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_data.h"
 #include "napi_common_error.h"
@@ -25,11 +26,11 @@ namespace OHOS {
 namespace AppExecFwk {
 bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectType)
 {
-    HILOG_DEBUG("IsTypeForNapiValue start.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "IsTypeForNapiValue start.");
     napi_valuetype valueType = napi_undefined;
 
     if (param == nullptr) {
-        HILOG_DEBUG("param is nullptr");
+        TAG_LOGD(AAFwkTag::JSNAPI, "param is nullptr");
         return false;
     }
 
@@ -42,7 +43,7 @@ bool IsTypeForNapiValue(napi_env env, napi_value param, napi_valuetype expectTyp
 
 bool IsArrayForNapiValue(napi_env env, napi_value param, uint32_t &arraySize)
 {
-    HILOG_DEBUG("IsArrayForNapiValue start.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "IsArrayForNapiValue start.");
     bool isArray = false;
     arraySize = 0;
 
@@ -51,7 +52,7 @@ bool IsArrayForNapiValue(napi_env env, napi_value param, uint32_t &arraySize)
     }
 
     if (napi_get_array_length(env, param, &arraySize) != napi_ok) {
-        HILOG_DEBUG("napi_get_array_length is 0");
+        TAG_LOGD(AAFwkTag::JSNAPI, "napi_get_array_length is 0");
         return false;
     }
     return true;
@@ -219,7 +220,7 @@ napi_value WrapStringToJS(napi_env env, const std::string &value)
 
 std::string UnwrapStringFromJS(napi_env env, napi_value param, const std::string &defaultValue)
 {
-    HILOG_DEBUG("UnwrapStringFromJS enter");
+    TAG_LOGD(AAFwkTag::JSNAPI, "UnwrapStringFromJS enter");
     size_t size = 0;
     if (napi_get_value_string_utf8(env, param, nullptr, 0, &size) != napi_ok) {
         return defaultValue;
@@ -227,13 +228,13 @@ std::string UnwrapStringFromJS(napi_env env, napi_value param, const std::string
 
     std::string value("");
     if (size == 0) {
-        HILOG_DEBUG("size is 0");
+        TAG_LOGD(AAFwkTag::JSNAPI, "size is 0");
         return defaultValue;
     }
 
     char *buf = new (std::nothrow) char[size + 1];
     if (buf == nullptr) {
-        HILOG_DEBUG("buf is nullptr");
+        TAG_LOGD(AAFwkTag::JSNAPI, "buf is nullptr");
         return value;
     }
     (void)memset_s(buf, size + 1, 0, size + 1);
@@ -279,7 +280,7 @@ bool UnwrapStringFromJS2(napi_env env, napi_value param, std::string &value)
 
 napi_value WrapArrayInt32ToJS(napi_env env, const std::vector<int> &value)
 {
-    HILOG_DEBUG("WrapArrayInt32ToJS start.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "WrapArrayInt32ToJS start.");
     napi_value jsArray = nullptr;
     napi_value jsValue = nullptr;
     uint32_t index = 0;
@@ -303,7 +304,7 @@ bool UnwrapArrayInt32FromJS(napi_env env, napi_value param, std::vector<int> &va
     int natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        HILOG_DEBUG("Expanding ArrayInt32 from JS failed");
+        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed");
         return false;
     }
 
@@ -312,7 +313,7 @@ bool UnwrapArrayInt32FromJS(napi_env env, napi_value param, std::vector<int> &va
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            HILOG_DEBUG("Expanding ArrayInt32 from JS failed");
+            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed");
             return false;
         }
 
@@ -350,7 +351,7 @@ bool UnwrapArrayLongFromJS(napi_env env, napi_value param, std::vector<long> &va
     long natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        HILOG_DEBUG("Expanding ArrayInt32 from JS failed.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed.");
         return false;
     }
 
@@ -359,7 +360,7 @@ bool UnwrapArrayLongFromJS(napi_env env, napi_value param, std::vector<long> &va
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            HILOG_DEBUG("Expanding ArrayInt32 from JS failed.");
+            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS failed.");
             return false;
         }
 
@@ -397,7 +398,7 @@ bool UnwrapArrayInt64FromJS(napi_env env, napi_value param, std::vector<int64_t>
     int64_t natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        HILOG_DEBUG("Expanding ArrayInt32 from JS error");
+        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error");
         return false;
     }
 
@@ -406,7 +407,7 @@ bool UnwrapArrayInt64FromJS(napi_env env, napi_value param, std::vector<int64_t>
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            HILOG_DEBUG("Expanding ArrayInt32 from JS error");
+            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error");
             return false;
         }
 
@@ -444,7 +445,7 @@ bool UnwrapArrayDoubleFromJS(napi_env env, napi_value param, std::vector<double>
     double natValue = 0;
 
     if (!IsArrayForNapiValue(env, param, arraySize)) {
-        HILOG_DEBUG("Expanding ArrayInt32 from JS error.");
+        TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error.");
         return false;
     }
 
@@ -453,7 +454,7 @@ bool UnwrapArrayDoubleFromJS(napi_env env, napi_value param, std::vector<double>
         jsValue = nullptr;
         natValue = 0;
         if (napi_get_element(env, param, i, &jsValue) != napi_ok) {
-            HILOG_DEBUG("Expanding ArrayInt32 from JS error.");
+            TAG_LOGD(AAFwkTag::JSNAPI, "Expanding ArrayInt32 from JS error.");
             return false;
         }
 
@@ -851,7 +852,7 @@ napi_value GetCallbackErrorValue(napi_env env, int errCode)
  */
 AsyncJSCallbackInfo *CreateAsyncJSCallbackInfo(napi_env env)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     napi_value global = nullptr;
     NAPI_CALL(env, napi_get_global(env, &global));
@@ -864,7 +865,7 @@ AsyncJSCallbackInfo *CreateAsyncJSCallbackInfo(napi_env env)
 
     AsyncJSCallbackInfo *asyncCallbackInfo = new (std::nothrow) AsyncJSCallbackInfo;
     if (asyncCallbackInfo == nullptr) {
-        HILOG_ERROR("%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, asyncCallbackInfo == nullptr.", __func__);
         return nullptr;
     }
     asyncCallbackInfo->cbInfo.env = env;
@@ -946,16 +947,16 @@ bool WrapThreadReturnData(napi_env env, const ThreadReturnData *data, napi_value
  */
 bool CreateAsyncCallback(napi_env env, napi_value param, AsyncJSCallbackInfo *callback)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     if (param == nullptr || callback == nullptr) {
-        HILOG_INFO("%{public}s called, param or callback is null.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, param or callback is null.", __func__);
         return false;
     }
 
     callback->cbInfo.callback = CreateCallbackRefFromJS(env, param);
     if (callback->cbInfo.callback == nullptr) {
-        HILOG_INFO("%{public}s, create ref failed.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s, create ref failed.", __func__);
         return false;
     }
 
@@ -965,7 +966,7 @@ bool CreateAsyncCallback(napi_env env, napi_value param, AsyncJSCallbackInfo *ca
 napi_ref CreateCallbackRefFromJS(napi_env env, napi_value param)
 {
     if (env == nullptr || param == nullptr) {
-        HILOG_INFO("%{public}s called, env or param is null  ", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, env or param is null  ", __func__);
         return nullptr;
     }
 
@@ -973,7 +974,7 @@ napi_ref CreateCallbackRefFromJS(napi_env env, napi_value param)
     NAPI_CALL(env, napi_typeof(env, param, &valueType));
 
     if (valueType != napi_function) {
-        HILOG_INFO("%{public}s called, Param is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, Param is invalid.", __func__);
         return nullptr;
     }
 
@@ -993,9 +994,9 @@ napi_ref CreateCallbackRefFromJS(napi_env env, napi_value param)
  */
 napi_value ExecuteAsyncCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCallbackInfo, const AsyncParamEx *param)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
     if (asyncCallbackInfo == nullptr || param == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo or param is null", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo or param is null", __func__);
         return nullptr;
     }
 
@@ -1027,9 +1028,9 @@ napi_value ExecuteAsyncCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCall
  */
 napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCallbackInfo, const AsyncParamEx *param)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
     if (asyncCallbackInfo == nullptr || param == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo or param is null", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo or param is null", __func__);
         return nullptr;
     }
 
@@ -1062,11 +1063,11 @@ napi_value ExecutePromiseCallbackWork(napi_env env, AsyncJSCallbackInfo *asyncCa
  */
 void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo is nullptr", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo is nullptr", __func__);
         return;
     }
 
@@ -1092,10 +1093,10 @@ void CompleteAsyncCallbackWork(napi_env env, napi_status status, void *data)
 
 void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo is null", __func__);
         return;
     }
     napi_value callback = nullptr;
@@ -1132,11 +1133,11 @@ void CompleteAsyncVoidCallbackWork(napi_env env, napi_status status, void *data)
  */
 void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo is nullptr.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo is nullptr.", __func__);
         return;
     }
 
@@ -1155,11 +1156,11 @@ void CompletePromiseCallbackWork(napi_env env, napi_status status, void *data)
 
 void CompletePromiseVoidCallbackWork(napi_env env, napi_status status, void *data)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     AsyncJSCallbackInfo *asyncCallbackInfo = static_cast<AsyncJSCallbackInfo *>(data);
     if (asyncCallbackInfo == nullptr) {
-        HILOG_INFO("%{public}s called, asyncCallbackInfo is null", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called, asyncCallbackInfo is null", __func__);
         return;
     }
     napi_value result = nullptr;
@@ -1207,7 +1208,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     bool isTypedArray = false;
     napi_status status = napi_is_typedarray(env, jsValue, &isTypedArray);
     if (status != napi_ok || !isTypedArray) {
-        HILOG_ERROR("%{public}s called, napi_is_typedarray error", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s called, napi_is_typedarray error", __func__);
         return {};
     }
 
@@ -1217,7 +1218,7 @@ std::vector<std::string> ConvertStringVector(napi_env env, napi_value jsValue)
     size_t offset = 0;
     NAPI_CALL_BASE(env, napi_get_typedarray_info(env, jsValue, &type, &length, nullptr, &buffer, &offset), {});
     if (type != napi_uint8_array) {
-        HILOG_ERROR("%{public}s called, napi_uint8_array is nullptr", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s called, napi_uint8_array is nullptr", __func__);
         return {};
     }
     std::string *data = nullptr;

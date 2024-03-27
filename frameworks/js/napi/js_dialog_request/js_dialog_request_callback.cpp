@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_dialog_request_callback.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_context_utils.h"
 #include "js_error_utils.h"
@@ -33,14 +34,14 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("JsDialogRequestCallback::Finalizer is called.");
+        TAG_LOGD(AAFwkTag::DIALOG, "JsDialogRequestCallback::Finalizer is called.");
         std::unique_ptr<JsDialogRequestCallback>(static_cast<JsDialogRequestCallback*>(data));
     }
 
     static napi_value SetRequestResult(napi_env env, napi_callback_info info)
     {
         if (env == nullptr || info == nullptr) {
-            HILOG_ERROR("input parameters %{public}s is nullptr", ((env == nullptr) ? "env" : "info"));
+            TAG_LOGE(AAFwkTag::DIALOG, "input parameters %{public}s is nullptr", ((env == nullptr) ? "env" : "info"));
             return nullptr;
         }
 
@@ -50,15 +51,15 @@ public:
 private:
     napi_value OnSetRequestResult(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("function called");
+        TAG_LOGI(AAFwkTag::DIALOG, "function called");
         if (info.argc < 1) {
-            HILOG_ERROR("Params not match");
+            TAG_LOGE(AAFwkTag::DIALOG, "Params not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
 
         if (!CheckTypeForNapiValue(env, info.argv[0], napi_object)) {
-            HILOG_ERROR("param type mismatch!");
+            TAG_LOGE(AAFwkTag::DIALOG, "param type mismatch!");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -67,7 +68,7 @@ private:
         napi_get_named_property(env, info.argv[0], "result", &resultCode);
         int32_t resultCodeValue = 0;
         if (!ConvertFromJsValue(env, resultCode, resultCodeValue)) {
-            HILOG_ERROR("Convert result failed!");
+            TAG_LOGE(AAFwkTag::DIALOG, "Convert result failed!");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -78,16 +79,16 @@ private:
         if (jWant != nullptr && CheckTypeForNapiValue(env, jWant, napi_object)) {
             AppExecFwk::UnwrapWant(env, jWant, wantValue);
         } else {
-            HILOG_WARN("jWant is invalid data!");
+            TAG_LOGW(AAFwkTag::DIALOG, "jWant is invalid data!");
         }
 
         if (callback_ == nullptr) {
-            HILOG_ERROR("JsDialogRequestCallback::%{public}s, callback_ is nullptr", __func__);
+            TAG_LOGE(AAFwkTag::DIALOG, "JsDialogRequestCallback::%{public}s, callback_ is nullptr", __func__);
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
         callback_->SendResult(resultCodeValue, wantValue);
-        HILOG_INFO("function called end.");
+        TAG_LOGI(AAFwkTag::DIALOG, "function called end.");
         return CreateJsUndefined(env);
     }
 
@@ -98,16 +99,16 @@ private:
 
 napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequestCallback> &remoteObj)
 {
-    HILOG_INFO("CreateJsDialogRequestCallback");
+    TAG_LOGI(AAFwkTag::DIALOG, "CreateJsDialogRequestCallback");
     if (!remoteObj) {
-        HILOG_ERROR("remoteObj is invalid.");
+        TAG_LOGE(AAFwkTag::DIALOG, "remoteObj is invalid.");
         return CreateJsUndefined(env);
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("object is invalid.");
+        TAG_LOGE(AAFwkTag::DIALOG, "object is invalid.");
         return CreateJsUndefined(env);
     }
 
@@ -116,7 +117,7 @@ napi_value CreateJsDialogRequestCallback(napi_env env, const sptr<IDialogRequest
     const char *moduleName = "JsDialogRequestCallback";
     BindNativeFunction(env, objValue, "setRequestResult", moduleName, JsDialogRequestCallback::SetRequestResult);
 
-    HILOG_INFO("CreateJsDialogRequestCallback end");
+    TAG_LOGI(AAFwkTag::DIALOG, "CreateJsDialogRequestCallback end");
     return objValue;
 }
 } // AbilityRuntime

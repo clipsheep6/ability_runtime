@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_mission_info_utils.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
@@ -119,14 +120,14 @@ napi_value CreateJsMissionInfoArray(napi_env env, const std::vector<AAFwk::Missi
     for (const auto &missionInfo : missionInfos) {
         napi_set_element(env, arrayValue, index++, CreateJsMissionInfo(env, missionInfo));
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::MISSION, "end");
     return arrayValue;
 }
 
 bool InnerWrapJsWantParamsWantParams(
     napi_env env, napi_value object, const std::string &key, const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::MISSION, "enter");
     auto value = wantParams.GetParam(key);
     AAFwk::IWantParams *o = AAFwk::IWantParams::Query(value);
     if (o != nullptr) {
@@ -134,13 +135,13 @@ bool InnerWrapJsWantParamsWantParams(
         napi_set_named_property(env, object, key.c_str(), CreateJsWantParams(env, wp));
         return true;
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::MISSION, "end");
     return false;
 }
 
 bool WrapJsWantParamsArray(napi_env env, napi_value object, const std::string &key, sptr<AAFwk::IArray> &ao)
 {
-    HILOG_INFO("%{public}s start. key=%{public}s", __func__, key.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s start. key=%{public}s", __func__, key.c_str());
     if (AAFwk::Array::IsStringArray(ao)) {
         return InnerWrapWantParamsArray<AAFwk::IString, AAFwk::String, std::string>(
             env, object, key, ao);

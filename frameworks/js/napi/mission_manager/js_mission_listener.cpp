@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_mission_listener.h"
 
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
@@ -79,9 +80,9 @@ bool JsMissionListener::IsEmpty()
 
 void JsMissionListener::CallJsMethod(const std::string &methodName, int32_t missionId)
 {
-    HILOG_INFO("methodName = %{public}s", methodName.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "methodName = %{public}s", methodName.c_str());
     if (env_ == nullptr) {
-        HILOG_ERROR("env_ null");
+        TAG_LOGE(AAFwkTag::MISSION, "env_ null");
         return;
     }
 
@@ -106,14 +107,14 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get object");
+            TAG_LOGE(AAFwkTag::MISSION, "Failed to get object");
             continue;
         }
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, methodName.c_str(), &method);
         if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
             || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.c_str());
+            TAG_LOGE(AAFwkTag::MISSION, "Failed to get %{public}s from object", methodName.c_str());
             continue;
         }
         napi_value argv[] = { CreateJsValue(env_, missionId) };
@@ -125,14 +126,14 @@ void JsMissionListener::CallJsMethodInner(const std::string &methodName, int32_t
 #ifdef SUPPORT_GRAPHICS
 void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
-    HILOG_INFO("OnMissionIconUpdated, missionId = %{public}d.", missionId);
+    TAG_LOGI(AAFwkTag::MISSION, "OnMissionIconUpdated, missionId = %{public}d.", missionId);
     if (env_ == nullptr) {
-        HILOG_ERROR("env_ is null");
+        TAG_LOGE(AAFwkTag::MISSION, "env_ is null");
         return;
     }
 
     if (missionId <= 0 || !icon) {
-        HILOG_ERROR("missionId or icon is invalid, missionId:%{public}d.", missionId);
+        TAG_LOGE(AAFwkTag::MISSION, "missionId or icon is invalid, missionId:%{public}d.", missionId);
         return;
     }
 
@@ -154,7 +155,7 @@ void JsMissionListener::OnMissionIconUpdated(int32_t missionId, const std::share
 void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::shared_ptr<Media::PixelMap> &icon)
 {
     if (env_ == nullptr) {
-        HILOG_ERROR("env_ is null, not call js mission updated.");
+        TAG_LOGE(AAFwkTag::MISSION, "env_ is null, not call js mission updated.");
         return;
     }
 
@@ -165,14 +166,14 @@ void JsMissionListener::CallJsMissionIconUpdated(int32_t missionId, const std::s
     for (auto &item : tmpMap) {
         napi_value obj = (item.second)->GetNapiValue();
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get js object");
+            TAG_LOGE(AAFwkTag::MISSION, "Failed to get js object");
             continue;
         }
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, "onMissionIconUpdated", &method);
         if (method == nullptr || AppExecFwk::IsTypeForNapiValue(env_, method, napi_undefined)
             || AppExecFwk::IsTypeForNapiValue(env_, method, napi_null)) {
-            HILOG_ERROR("Failed to get onMissionIconUpdated method from object");
+            TAG_LOGE(AAFwkTag::MISSION, "Failed to get onMissionIconUpdated method from object");
             continue;
         }
 
