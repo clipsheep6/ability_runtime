@@ -5634,7 +5634,7 @@ int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName,
 
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
     return UninstallAppInner(bundleName, uid, false, "");
 }
 

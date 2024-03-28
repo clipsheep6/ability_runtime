@@ -617,7 +617,8 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
 int32_t UIAbilityLifecycleManager::NotifySCBToMinimizeUIAbility(const std::shared_ptr<AbilityRecord> abilityRecord,
     const sptr<IRemoteObject> token)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifySCBToMinimizeUIAbility.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifySCBToMinimizeUIAbility:%{public}s.",
+        abilityRecord->GetWant().GetElement().GetURI().c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto sceneSessionManager = Rosen::SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
