@@ -299,6 +299,25 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
     return result;
 }
 
+int32_t AppMgrProxy::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    MemoryLevelInfo memoryLevelInfo(procLevelMap);
+    data.WriteParcelable(&memoryLevelInfo);
+    int32_t ret = SendRequest(AppMgrInterfaceCode::APP_NOTIFY_PROC_MEMORY_LEVEL, data, reply, option);
+    if (ret != NO_ERROR) {
+        // HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
 int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "AppMgrProxy::DumpHeapMemory.");

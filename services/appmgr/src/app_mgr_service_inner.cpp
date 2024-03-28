@@ -1285,6 +1285,23 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     return appRunningManager_->NotifyMemoryLevel(level);
 }
 
+int32_t AppMgrServiceInner::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
+{
+    HILOG_INFO("AppMgrServiceInner start");
+
+    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
+    if (!isSaCall) {
+        // HILOG_ERROR("callerToken not SA %{public}s", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    if (!appRunningManager_) {
+        // HILOG_ERROR("appRunningManager nullptr!");
+        return ERR_INVALID_VALUE;
+    }
+
+    return appRunningManager_->NotifyProcMemoryLevel(procLevelMap);
+}
+
 int32_t AppMgrServiceInner::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
