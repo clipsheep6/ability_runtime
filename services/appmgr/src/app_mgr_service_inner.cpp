@@ -5690,7 +5690,7 @@ int32_t AppMgrServiceInner::RequestTerminateProcess() const
     pid_t pid = IPCSkeleton::GetCallingPid();
     auto appRecord = GetAppRunningRecordByPid(pid);
     if (appRecord == nullptr) {
-        HILOG_ERROR("Not find app record");
+        TAG_LOGE(AAFwkTag::APPMGR, "Not find app record");
         return ERR_INVALID_VALUE;
     }
     return appRecord->RequestTerminateProcess();
@@ -5701,14 +5701,14 @@ int32_t AppMgrServiceInner::RequestTerminateApplication() const
     pid_t currentPid = IPCSkeleton::GetCallingPid();
     auto appRecord = GetAppRunningRecordByPid(currentPid);
     if (appRecord == nullptr) {
-        HILOG_ERROR("Not find app record");
+        TAG_LOGE(AAFwkTag::APPMGR, "Not find app record");
         return ERR_INVALID_VALUE;
     }
 
     auto &bundleName = appRecord->GetBundleName();
     std::list<pid_t> pids;
     if (appRunningManager_ != nullptr || appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
-        HILOG_ERROR("Failed to obtain the pid under the bundle");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to obtain the pid under the bundle");
         return ERR_INVALID_VALUE;
     }
 

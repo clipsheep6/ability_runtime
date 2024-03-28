@@ -1121,10 +1121,10 @@ int32_t AppMgrStub::HandleSignRestartAppFlag(MessageParcel &data, MessageParcel 
 
 int32_t AppMgrStub::HandleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto result = RequestTerminateProcess();
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write bool result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -1132,10 +1132,10 @@ int32_t AppMgrStub::HandleRequestTerminateProcess(MessageParcel &data, MessagePa
 
 int32_t AppMgrStub::HandleRequestTerminateApplication(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto result = RequestTerminateApplication();
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write bool result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

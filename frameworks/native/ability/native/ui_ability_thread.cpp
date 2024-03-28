@@ -710,12 +710,12 @@ void UIAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 void UIAbilityThread::RequestTerminateSelf()
 {
     if (currentAbility_ == nullptr) {
-        HILOG_ERROR("Current ability is nullptr");
+        TAG_LOGE(AAFwkTag::UIABILITY, "Current ability is nullptr");
         return;
     }
     auto context = currentAbility_->GetAbilityContext();
     if (context == nullptr) {
-        HILOG_ERROR("Current ability context is nullptr");
+        TAG_LOGE(AAFwkTag::UIABILITY, "Current ability context is nullptr");
         return;
     }
 

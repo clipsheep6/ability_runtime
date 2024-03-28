@@ -1536,12 +1536,12 @@ void FAAbilityThread::RequestTerminateSelf()
 {
     if (isUIAbility_) {
         if (currentAbility_ == nullptr) {
-            HILOG_ERROR("Current ability is nullptr");
+            TAG_LOGE(AAFwkTag::FA, "Current ability is nullptr");
             return;
         }
         auto context = currentAbility_->GetAbilityContext();
         if (context == nullptr) {
-            HILOG_ERROR("Current ability context is nullptr");
+            TAG_LOGE(AAFwkTag::FA, "Current ability context is nullptr");
             return;
         }
         context->TerminateSelf();

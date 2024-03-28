@@ -1745,13 +1745,13 @@ int32_t AppMgrProxy::RequestTerminateProcess()
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
     auto error = remote->SendRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_PROCESS), data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return NO_ERROR;
@@ -1768,13 +1768,13 @@ int32_t AppMgrProxy::RequestTerminateApplication()
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
     auto error = remote->SendRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_APPLICATION), data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return NO_ERROR;

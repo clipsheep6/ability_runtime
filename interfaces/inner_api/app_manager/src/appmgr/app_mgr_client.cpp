@@ -307,7 +307,7 @@ AppMgrResultCode AppMgrClient::KillApplicationSelf()
 AppMgrResultCode AppMgrClient::RequestTerminateProcess()
 {
     if (mgrHolder_ == nullptr) {
-        HILOG_ERROR("MgrHolder is null!");
+        TAG_LOGE(AAFwkTag::APPMGR, "MgrHolder is null!");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
@@ -324,7 +324,7 @@ AppMgrResultCode AppMgrClient::RequestTerminateProcess()
 AppMgrResultCode AppMgrClient::RequestTerminateApplication()
 {
     if (mgrHolder_ == nullptr) {
-        HILOG_ERROR("MgrHolder is null!");
+        TAG_LOGE(AAFwkTag::APPMGR, "MgrHolder is null!");
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());

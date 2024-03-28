@@ -384,7 +384,7 @@ int32_t AppSchedulerHost::HandleScheduleRequestTerminateProcess(MessageParcel &d
 {
     int32_t result = ScheduleRequestTerminateProcess();
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Reply write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Reply write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
