@@ -93,6 +93,8 @@ struct VerificationInfo {
 
     bool VerifyPrepareTerminatePermission(const int &tokenId) const;
 
+    bool VerifyShellStartExtensionType(int32_t type) const;
+
 private:
     DISALLOW_COPY_AND_MOVE(PermissionVerification);
 

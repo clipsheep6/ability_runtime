@@ -8352,6 +8352,11 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
+    if (system::GetBoolParameter(DEVELOPER_MODE_STATE, false) &&
+        PermissionVerification::GetInstance()->VerifyShellStartExtensionType(static_cast<int32_t>(extensionType))) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "CheckCallOtherExtensionPermission, allow aa start with debug mode.");
+        return ERR_OK;
+    }
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
