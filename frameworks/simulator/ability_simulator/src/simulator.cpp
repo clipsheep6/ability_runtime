@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@
 #include "bundle_container.h"
 #include "commonlibrary/ets_utils/js_sys_module/timer/timer.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_ability_context.h"
 #include "js_ability_stage_context.h"
@@ -66,7 +67,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "libark_debugger.dylib";
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char *message)
 {
-    HILOG_DEBUG("ArkLog: %{public}s", message);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ArkLog: %{public}s", message);
     return 0;
 }
 
@@ -143,7 +144,7 @@ void DebuggerTask::HandleTask(const uv_async_t *req)
 {
     auto *debuggerTask = reinterpret_cast<DebuggerTask*>(req->data);
     if (debuggerTask == nullptr) {
-        HILOG_ERROR("HandleTask debuggerTask is null");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "HandleTask debuggerTask is null");
         return;
     }
     debuggerTask->func();
@@ -167,7 +168,7 @@ SimulatorImpl::~SimulatorImpl()
         if (uvLoop != nullptr) {
             uv_work_t work;
             uv_queue_work(uvLoop, &work, [](uv_work_t*) {}, [](uv_work_t *work, int32_t status) {
-                HILOG_ERROR("Simulator stop uv loop");
+                TAG_LOGE(AAFwkTag::ABILITY_SIM, "Simulator stop uv loop");
                 uv_stop(work->loop);
             });
         }
@@ -184,7 +185,7 @@ SimulatorImpl::~SimulatorImpl()
 bool SimulatorImpl::Initialize(const Options &options)
 {
     if (nativeEngine_) {
-        HILOG_ERROR("Simulator is already initialized");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Simulator is already initialized");
         return true;
     }
 
@@ -210,18 +211,18 @@ bool SimulatorImpl::Initialize(const Options &options)
 void CallObjectMethod(napi_env env, napi_value obj, const char *name, napi_value const *argv, size_t argc)
 {
     if (obj == nullptr) {
-        HILOG_ERROR("%{public}s, Failed to get Ability object", __func__);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "%{public}s, Failed to get Ability object", __func__);
         return;
     }
     napi_value methodOnCreate = nullptr;
     napi_get_named_property(env, obj, name, &methodOnCreate);
     if (methodOnCreate == nullptr) {
-        HILOG_ERROR("Failed to get '%{public}s' from Ability object", name);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get '%{public}s' from Ability object", name);
         return;
     }
     napi_status status = napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
     if (status != napi_ok) {
-        HILOG_ERROR("Failed to napi call function");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to napi call function");
     }
 }
 
@@ -229,7 +230,7 @@ napi_value SimulatorImpl::LoadScript(const std::string &srcPath)
 {
     panda::Local<panda::ObjectRef> objRef = panda::JSNApi::GetExportObject(vm_, srcPath, "default");
     if (objRef->IsNull()) {
-        HILOG_ERROR("Get export object failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Get export object failed");
         return nullptr;
     }
 
@@ -244,7 +245,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     AppExecFwk::BundleContainer::GetInstance().LoadBundleInfos(options_.moduleJsonBuffer);
     appInfo_ = AppExecFwk::BundleContainer::GetInstance().GetApplicationInfo();
     if (appInfo_ == nullptr) {
-        HILOG_ERROR("appinfo parse failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "appinfo parse failed.");
         return false;
     }
     nlohmann::json appInfoJson;
@@ -259,7 +260,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
     options_.compileMode = "esmodule";
 
     if (appInfo_->moduleInfos.empty()) {
-        HILOG_ERROR("module name is not exist");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module name is not exist");
         return false;
     }
     options_.moduleName = appInfo_->moduleInfos[0].moduleName;
@@ -267,7 +268,7 @@ bool SimulatorImpl::ParseBundleAndModuleInfo()
 
     moduleInfo_ = AppExecFwk::BundleContainer::GetInstance().GetHapModuleInfo(options_.moduleName);
     if (moduleInfo_ == nullptr) {
-        HILOG_ERROR("module info parse failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module info parse failed.");
         return false;
     }
     nlohmann::json moduleInfoJson;
@@ -298,7 +299,7 @@ bool SimulatorImpl::ParseAbilityInfo(const std::string &abilitySrcPath, const st
     }
     
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("ability info parse failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "ability info parse failed.");
         return false;
     }
     nlohmann::json json;
@@ -326,7 +327,7 @@ int64_t SimulatorImpl::StartAbility(
 
     std::ifstream stream(options_.modulePath, std::ios::ate | std::ios::binary);
     if (!stream.is_open()) {
-        HILOG_ERROR("Failed to open: %{public}s", options_.modulePath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to open: %{public}s", options_.modulePath.c_str());
         return -1;
     }
 
@@ -338,19 +339,19 @@ int64_t SimulatorImpl::StartAbility(
 
     auto buf = buffer.release();
     if (!LoadAbilityStage(buf, len)) {
-        HILOG_ERROR("Load ability stage failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Load ability stage failed.");
         return -1;
     }
 
     abilityPath_ = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + abilitySrcPath;
     if (!reinterpret_cast<NativeEngine*>(nativeEngine_)->RunScriptBuffer(abilityPath_, buf, len, false)) {
-        HILOG_ERROR("Failed to run script: %{public}s", abilityPath_.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to run script: %{public}s", abilityPath_.c_str());
         return -1;
     }
 
     napi_value instanceValue = LoadScript(abilityPath_);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create object instance");
         return -1;
     }
 
@@ -367,17 +368,17 @@ int64_t SimulatorImpl::StartAbility(
 bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
 {
     if (moduleInfo_ == nullptr) {
-        HILOG_ERROR("moduleInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "moduleInfo is nullptr");
         return false;
     }
 
     if (moduleInfo_->srcEntrance.empty()) {
-        HILOG_DEBUG("module src path is empty.");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "module src path is empty.");
         return true;
     }
 
     if (nativeEngine_ == nullptr) {
-        HILOG_ERROR("nativeEngine_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "nativeEngine_ is nullptr");
         return false;
     }
     std::string srcEntrance = moduleInfo_->srcEntrance;
@@ -386,15 +387,15 @@ bool SimulatorImpl::LoadAbilityStage(uint8_t *buffer, size_t len)
     srcEntrance = srcEntrance.substr(srcEntrance.find('/') + 1, srcEntrance.length());
 
     auto moduleSrcPath = BUNDLE_INSTALL_PATH + options_.moduleName + "/" + srcEntrance;
-    HILOG_DEBUG("moduleSrcPath is %{public}s", moduleSrcPath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "moduleSrcPath is %{public}s", moduleSrcPath.c_str());
     if (!reinterpret_cast<NativeEngine*>(nativeEngine_)->RunScriptBuffer(moduleSrcPath, buffer, len, false)) {
-        HILOG_ERROR("Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to run ability stage script: %{public}s", moduleSrcPath.c_str());
         return false;
     }
 
     napi_value instanceValue = LoadScript(moduleSrcPath);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create ability stage instance");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create ability stage instance");
         return false;
     }
 
@@ -415,25 +416,25 @@ void SimulatorImpl::InitJsAbilityStageContext(napi_value obj)
 {
     napi_value contextObj = CreateJsAbilityStageContext(nativeEngine_, stageContext_);
     if (contextObj == nullptr) {
-        HILOG_ERROR("contextObj is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "contextObj is nullptr");
         return;
     }
 
     jsStageContext_ = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.AbilityStageContext", &contextObj, 1));
     if (jsStageContext_ == nullptr) {
-        HILOG_ERROR("Failed to get LoadSystemModuleByEngine");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get LoadSystemModuleByEngine");
         return;
     }
 
     contextObj = jsStageContext_->GetNapiValue();
     if (contextObj == nullptr) {
-        HILOG_ERROR("contextObj is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "contextObj is nullptr.");
         return;
     }
 
     if (obj == nullptr) {
-        HILOG_ERROR("obj is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "obj is nullptr");
         return;
     }
     napi_set_named_property(nativeEngine_, obj, "context", contextObj);
@@ -481,9 +482,9 @@ void SimulatorImpl::TerminateAbility(int64_t abilityId)
 
 void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
     if (abilityStage_ == nullptr) {
-        HILOG_ERROR("abilityStage_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "abilityStage_ is nullptr");
         return;
     }
 
@@ -502,7 +503,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 
     auto abilityStage = abilityStage_->GetNapiValue();
     if (abilityStage == nullptr) {
-        HILOG_ERROR("abilityStage is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "abilityStage is nullptr");
         return;
     }
     CallObjectMethod(nativeEngine_, abilityStage, "onConfigurationUpdated", configArgv, ArraySize(configArgv));
@@ -512,7 +513,7 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
     for (auto iter = abilities_.begin(); iter != abilities_.end(); iter++) {
         auto ability = iter->second->GetNapiValue();
         if (ability == nullptr) {
-            HILOG_ERROR("ability is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "ability is nullptr");
             continue;
         }
 
@@ -524,23 +525,23 @@ void SimulatorImpl::UpdateConfiguration(const AppExecFwk::Configuration &config)
 
 void SimulatorImpl::SetMockList(const std::map<std::string, std::string> &mockList)
 {
-    HILOG_DEBUG("called. mockList size: %{public}zu", mockList.size());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called. mockList size: %{public}zu", mockList.size());
     panda::JSNApi::SetMockModuleList(vm_, mockList);
 }
 
 void SimulatorImpl::InitResourceMgr()
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called.");
     resourceMgr_ = std::shared_ptr<Global::Resource::ResourceManager>(Global::Resource::CreateResourceManager());
     if (resourceMgr_ == nullptr) {
-        HILOG_ERROR("resourceMgr is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "resourceMgr is nullptr");
         return;
     }
 
     if (!resourceMgr_->AddResource(options_.resourcePath.c_str())) {
-        HILOG_ERROR("Add resource failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Add resource failed.");
     }
-    HILOG_DEBUG("Add resource success.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Add resource success.");
 }
 
 void SimulatorImpl::InitJsAbilityContext(napi_env env, napi_value obj)
@@ -557,17 +558,17 @@ void SimulatorImpl::InitJsAbilityContext(napi_env env, napi_value obj)
     auto systemModule = std::shared_ptr<NativeReference>(
         JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.AbilityContext", &contextObj, 1));
     if (systemModule == nullptr) {
-        HILOG_ERROR("systemModule is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "systemModule is nullptr.");
         return;
     }
     contextObj = systemModule->GetNapiValue();
     if (contextObj == nullptr) {
-        HILOG_ERROR("contextObj is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "contextObj is nullptr.");
         return;
     }
 
     if (obj == nullptr) {
-        HILOG_ERROR("obj is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "obj is nullptr");
         return;
     }
     napi_set_named_property(env, obj, "context", contextObj);
@@ -639,7 +640,7 @@ std::unique_ptr<NativeReference> SimulatorImpl::CreateJsWindowStage(
 {
     napi_value jsWindowStage = Rosen::CreateJsWindowStage(nativeEngine_, windowScene);
     if (jsWindowStage == nullptr) {
-        HILOG_ERROR("Failed to create jsWindowSatge object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create jsWindowSatge object");
         return nullptr;
     }
     return JsRuntime::LoadSystemModuleByEngine(nativeEngine_, "application.WindowStage", &jsWindowStage, 1);
@@ -663,7 +664,7 @@ panda::ecmascript::EcmaVM *SimulatorImpl::CreateJSVM()
 bool SimulatorImpl::OnInit()
 {
     if (!ParseBundleAndModuleInfo()) {
-        HILOG_ERROR("parse bundle and module info failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "parse bundle and module info failed.");
         return false;
     }
 
@@ -678,7 +679,7 @@ bool SimulatorImpl::OnInit()
 
     auto nativeEngine = new (std::nothrow) ArkNativeEngine(vm_, nullptr);
     if (nativeEngine == nullptr) {
-        HILOG_ERROR("nativeEngine is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "nativeEngine is nullptr");
         return false;
     }
     napi_env env = reinterpret_cast<napi_env>(nativeEngine);
@@ -687,13 +688,13 @@ bool SimulatorImpl::OnInit()
     napi_get_global(env, &globalObj);
     if (globalObj == nullptr) {
         delete nativeEngine;
-        HILOG_ERROR("Failed to get global object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to get global object");
         return false;
     }
 
     if (!LoadRuntimeEnv(env, globalObj)) {
         delete nativeEngine;
-        HILOG_ERROR("Load runtime env failed.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Load runtime env failed.");
         return false;
     }
 
@@ -731,7 +732,7 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
     JsSysModule::Console::InitConsoleModule(env);
     auto ret = JsSysModule::Timer::RegisterTime(env);
     if (!ret) {
-        HILOG_ERROR("Register timer failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Register timer failed");
     }
     napi_value object = nullptr;
     napi_create_object(env, &object);
@@ -748,7 +749,8 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
     napi_set_named_property(env, globalObj, "mockRequireNapi", mockRequireNapi);
     auto* moduleManager = reinterpret_cast<NativeEngine*>(env)->GetModuleManager();
     if (moduleManager != nullptr) {
-        HILOG_ERROR("moduleManager SetPreviewSearchPath: %{public}s", options_.containerSdkPath.c_str());
+        TAG_LOGE(
+            AAFwkTag::ABILITY_SIM, "moduleManager SetPreviewSearchPath: %{public}s", options_.containerSdkPath.c_str());
         moduleManager->SetPreviewSearchPath(options_.containerSdkPath);
     }
 
@@ -759,7 +761,7 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
     }
 
     std::string fileName = options_.containerSdkPath + fileSeparator + "apiMock" + fileSeparator + "jsMockHmos.abc";
-    HILOG_DEBUG("file name: %{public}s", fileName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "file name: %{public}s", fileName.c_str());
     if (!fileName.empty() && AbilityStageContext::Access(fileName)) {
         panda::JSNApi::Execute(vm_, fileName, "_GLOBAL::func_main_0");
     }
@@ -795,7 +797,7 @@ std::unique_ptr<Simulator> Simulator::Create(const Options &options)
 void SimulatorImpl::SetHostResolveBufferTracker(ResolveBufferTrackerCallback cb)
 {
     if (vm_ == nullptr || cb == nullptr) {
-        HILOG_ERROR("Params invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Params invalid.");
         return;
     }
     panda::JSNApi::SetHostResolveBufferTracker(vm_, cb);

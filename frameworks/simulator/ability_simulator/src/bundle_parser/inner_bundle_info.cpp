@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "common_profile.h"
+#include "hilog_tag_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -132,9 +133,9 @@ InnerBundleInfo::InnerBundleInfo()
 {
     baseApplicationInfo_ = std::make_shared<ApplicationInfo>();
     if (baseApplicationInfo_ == nullptr) {
-        HILOG_ERROR("baseApplicationInfo_ is nullptr, create failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "baseApplicationInfo_ is nullptr, create failed");
     }
-    HILOG_DEBUG("inner bundle info instance is created");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "inner bundle info instance is created");
 }
 
 InnerBundleInfo &InnerBundleInfo::operator=(const InnerBundleInfo &info)
@@ -165,7 +166,7 @@ InnerBundleInfo &InnerBundleInfo::operator=(const InnerBundleInfo &info)
 
 InnerBundleInfo::~InnerBundleInfo()
 {
-    HILOG_DEBUG("inner bundle info instance is destroyed");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "inner bundle info instance is destroyed");
 }
 
 void to_json(nlohmann::json &jsonObject, const Distro &distro)
@@ -701,7 +702,8 @@ void from_json(const nlohmann::json &jsonObject, InnerModuleInfo &info)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("read InnerModuleInfo from database error, error code : %{public}d", parseResult);
+        TAG_LOGE(
+            AAFwkTag::ABILITY_SIM, "read InnerModuleInfo from database error, error code : %{public}d", parseResult);
     }
 }
 
@@ -734,13 +736,13 @@ void from_json(const nlohmann::json &jsonObject, Dependency &dependency)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("Dependency from_json error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Dependency from_json error, error code : %{public}d", parseResult);
     }
 }
 
 void from_json(const nlohmann::json &jsonObject, Distro &distro)
 {
-    HILOG_DEBUG("from_json start.");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "from_json start.");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<bool>(jsonObject,
@@ -777,7 +779,7 @@ void from_json(const nlohmann::json &jsonObject, Distro &distro)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("Distro from_json error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Distro from_json error, error code : %{public}d", parseResult);
     }
 }
 
@@ -882,7 +884,8 @@ int32_t InnerBundleInfo::FromJson(const nlohmann::json &jsonObject)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("read InnerBundleInfo from database error, error code : %{public}d", parseResult);
+        TAG_LOGE(
+            AAFwkTag::ABILITY_SIM, "read InnerBundleInfo from database error, error code : %{public}d", parseResult);
     }
     return parseResult;
 }
@@ -891,7 +894,7 @@ std::optional<HapModuleInfo> InnerBundleInfo::FindHapModuleInfo(const std::strin
 {
     auto it = innerModuleInfos_.find(modulePackage);
     if (it == innerModuleInfos_.end()) {
-        HILOG_ERROR("can not find module %{public}s", modulePackage.c_str());
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "can not find module %{public}s", modulePackage.c_str());
         return std::nullopt;
     }
     HapModuleInfo hapInfo;
@@ -1014,7 +1017,8 @@ ErrCode InnerBundleInfo::FindAbilityInfo(
             }
         }
     }
-    HILOG_ERROR("bundleName:%{public}s not find moduleName:%{public}s, abilityName:%{public}s, isModuleFind:%{public}d",
+    TAG_LOGE(AAFwkTag::ABILITY_SIM,
+        "bundleName:%{public}s not find moduleName:%{public}s, abilityName:%{public}s, isModuleFind:%{public}d",
         GetBundleName().c_str(), moduleName.c_str(), abilityName.c_str(), isModuleFind);
     if (isModuleFind) {
         return ERR_BUNDLE_MANAGER_ABILITY_NOT_EXIST;

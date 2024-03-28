@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "dummy_values_bucket.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "string_ex.h"
 
@@ -43,7 +44,7 @@ ValuesBucket ValuesBucket::Unmarshalling(Parcel &parcel)
 {
     ValuesBucket valuesBucket;
     if (!valuesBucket.ReadFromParcel(parcel)) {
-        HILOG_ERROR("ValuesBucket::Unmarshalling ReadFromParcel failed");
+        TAG_LOGE(AAFwkTag::DEFAULT, "ValuesBucket::Unmarshalling ReadFromParcel failed");
     }
     return valuesBucket;
 }
@@ -56,7 +57,7 @@ ValuesBucket ValuesBucket::Unmarshalling(Parcel &parcel)
 bool ValuesBucket::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteString16(Str8ToStr16(testInf_))) {
-        HILOG_ERROR("valuesBucket::Marshalling WriteString16 failed");
+        TAG_LOGE(AAFwkTag::DEFAULT, "valuesBucket::Marshalling WriteString16 failed");
         return false;
     }
     return true;

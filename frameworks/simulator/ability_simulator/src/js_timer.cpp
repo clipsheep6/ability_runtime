@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -43,7 +44,7 @@ public:
         uv_loop_s* loop = nullptr;
         napi_get_uv_event_loop(env_, &loop);
         if (loop == nullptr) {
-            HILOG_ERROR("loop == nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "loop == nullptr.");
             return;
         }
         uv_timer_init(loop, &timerReq_);
@@ -96,7 +97,7 @@ private:
 napi_value StartTimeoutOrInterval(napi_env env, napi_callback_info info, bool isInterval)
 {
     if (env == nullptr || info == nullptr) {
-        HILOG_ERROR("Start timeout or interval failed with env or callback info is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Start timeout or interval failed with env or callback info is nullptr.");
         return nullptr;
     }
     size_t argc = ARGC_MAX_COUNT;
@@ -107,7 +108,7 @@ napi_value StartTimeoutOrInterval(napi_env env, napi_callback_info info, bool is
     // parameter check, must have at least 2 params
     if (argc < 2 ||!CheckTypeForNapiValue(env, argv[0], napi_function)
         || !CheckTypeForNapiValue(env, argv[1], napi_number)) {
-        HILOG_ERROR("Set callback timer failed with invalid parameter.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Set callback timer failed with invalid parameter.");
         return CreateJsUndefined(env);
     }
 
@@ -154,7 +155,7 @@ napi_value StartInterval(napi_env env, napi_callback_info info)
 napi_value StopTimeoutOrInterval(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {
-        HILOG_ERROR("Stop timeout or interval failed with env or callback info is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Stop timeout or interval failed with env or callback info is nullptr.");
         return nullptr;
     }
     size_t argc = ARGC_MAX_COUNT;
@@ -164,7 +165,7 @@ napi_value StopTimeoutOrInterval(napi_env env, napi_callback_info info)
 
     // parameter check, must have at least 1 param
     if (argc < 1 || !CheckTypeForNapiValue(env, argv[0], napi_number)) {
-        HILOG_ERROR("Clear callback timer failed with invalid parameter.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Clear callback timer failed with invalid parameter.");
         return CreateJsUndefined(env);
     }
     uint32_t callbackId = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 
 #include "app_log_wrapper.h"
 #include "bundle_constants.h"
+#include "hilog_tag_wrapper.h"
 #include "iservice_registry.h"
 #include "service_router_load_callback.h"
 #include "system_ability_definition.h"
@@ -35,7 +36,7 @@ ServiceRouterMgrHelper::~ServiceRouterMgrHelper()
 
 void ServiceRouterMgrHelper::OnRemoteDiedHandle()
 {
-    APP_LOGE("Remove service died.");
+    TAG_LOGE(AAFwkTag::SER_ROUTER, "Remove service died.");
     SetServiceRouterMgr(nullptr);
     std::unique_lock<std::mutex> lock(cvLock_);
     isReady = false;
@@ -61,25 +62,25 @@ void ServiceRouterMgrHelper::LoadSA()
     }
     sptr<ISystemAbilityManager> saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
-        APP_LOGE("LoadSA, GetSystemAbilityManager is null.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSA, GetSystemAbilityManager is null.");
         return;
     }
 
     sptr<ServiceRouterLoadCallback> loadCallback = new (std::nothrow) ServiceRouterLoadCallback();
     if (loadCallback == nullptr) {
-        APP_LOGE("LoadSA, new ServiceRouterLoadCallback return null.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSA, new ServiceRouterLoadCallback return null.");
         return;
     }
     int32_t result = saManager->LoadSystemAbility(OHOS::SERVICE_ROUTER_MGR_SERVICE_ID, loadCallback);
     if (result != ERR_OK) {
-        APP_LOGE("LoadSA, LoadSystemAbility result: %{public}d", result);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "LoadSA, LoadSystemAbility result: %{public}d", result);
         return;
     }
 }
 
 void ServiceRouterMgrHelper::FinishStartSASuccess(const sptr<IRemoteObject> &remoteObject)
 {
-    APP_LOGI("FinishStartSASuccess.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "FinishStartSASuccess.");
     SetServiceRouterMgr(OHOS::iface_cast<IServiceRouterManager>(remoteObject));
 
     {
@@ -96,7 +97,7 @@ void ServiceRouterMgrHelper::FinishStartSASuccess(const sptr<IRemoteObject> &rem
 
 void ServiceRouterMgrHelper::FinishStartSAFail()
 {
-    APP_LOGI("FinishStartSAFail.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "FinishStartSAFail.");
     SetServiceRouterMgr(nullptr);
 
     {
@@ -128,7 +129,7 @@ sptr<IServiceRouterManager> ServiceRouterMgrHelper::GetServiceRouterMgr()
 
     routerMgr = InnerGetServiceRouterMgr();
     if (routerMgr == nullptr) {
-        APP_LOGE("GetServiceRouterMgr, after load  routerMgr_ is null");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "GetServiceRouterMgr, after load  routerMgr_ is null");
     }
     return routerMgr;
 }

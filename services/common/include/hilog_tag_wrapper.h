@@ -48,6 +48,8 @@ enum class AAFwkLogTag : uint32_t {
     DIALOG,
     QUICKFIX,
     URIPERMMGR,
+    BUNDLEMGRHELPER,
+    APPKIT,
 
     JSENV = DEFAULT + 0x20,     // 0xD001320
     JSRUNTIME,
@@ -86,6 +88,8 @@ enum class AAFwkLogTag : uint32_t {
     DISTRIBUTED,
     FREE_INSTALL,
 
+    LOCAL_CALL = DEFAULT + 0x60, // 0xD001360
+
     END = 256,               // N.B. never use it
 };
 
@@ -96,12 +100,14 @@ const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
     { AAFwkLogTag::AA_TOOL,     "AAFwkAATool" },
     { AAFwkLogTag::ABILITY_SIM, "AAFwkAbilitySimulator" },
 
-    { AAFwkLogTag::APPDFR,     "AAFwkAppDfr"},
-    { AAFwkLogTag::APPMGR,     "AAFwkAppMgr" },
-    { AAFwkLogTag::DBOBSMGR,   "AAFwkDbObsMgr" },
-    { AAFwkLogTag::DIALOG,     "AAFwkDialog" },
-    { AAFwkLogTag::QUICKFIX,   "AAFwkQuickfix" },
-    { AAFwkLogTag::URIPERMMGR, "AAFwkUriPermMgr" },
+    { AAFwkLogTag::APPDFR,          "AAFwkAppDfr"},
+    { AAFwkLogTag::APPMGR,          "AAFwkAppMgr" },
+    { AAFwkLogTag::DBOBSMGR,        "AAFwkDbObsMgr" },
+    { AAFwkLogTag::DIALOG,          "AAFwkDialog" },
+    { AAFwkLogTag::QUICKFIX,        "AAFwkQuickfix" },
+    { AAFwkLogTag::URIPERMMGR,      "AAFwkUriPermMgr" },
+    { AAFwkLogTag::BUNDLEMGRHELPER, "AAFwkBundleMgrHelper" },
+    { AAFwkLogTag::APPKIT,          "AAFwkAppKit" },
 
     { AAFwkLogTag::JSENV,     "AAFwkJsEnv" },
     { AAFwkLogTag::JSRUNTIME, "AAFwkJsRuntime" },
@@ -139,6 +145,8 @@ const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
     { AAFwkLogTag::CONTINUATION, "AAFwkContinuation" },
     { AAFwkLogTag::DISTRIBUTED,  "AAFwkDistributed" },
     { AAFwkLogTag::FREE_INSTALL, "AAFwkFreeInstall" },
+
+    { AAFwkLogTag::LOCAL_CALL, "AAFwkLocalCall" },
 };
 
 static inline const char* GetTagInfoFromDomainId(AAFwkLogTag tag)

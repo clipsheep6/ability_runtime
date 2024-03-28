@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,13 +15,14 @@
 #include "service_router_death_recipient.h"
 
 #include "app_log_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "service_router_mgr_helper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 void ServiceRouterDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &object)
 {
-    APP_LOGI("OnRemoteDied.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "OnRemoteDied.");
     ServiceRouterMgrHelper::GetInstance().OnRemoteDiedHandle();
 }
 } // namespace AbilityRuntime

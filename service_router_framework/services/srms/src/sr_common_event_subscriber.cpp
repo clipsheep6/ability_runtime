@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "app_log_wrapper.h"
 #include "common_event_support.h"
+#include "hilog_tag_wrapper.h"
 #include "service_router_data_mgr.h"
 #include "want.h"
 
@@ -25,12 +26,12 @@ namespace AbilityRuntime {
 SrCommonEventSubscriber::SrCommonEventSubscriber(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
     : EventFwk::CommonEventSubscriber(subscribeInfo)
 {
-    APP_LOGD("SrCommonEventSubscriber created");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "SrCommonEventSubscriber created");
 }
 
 SrCommonEventSubscriber::~SrCommonEventSubscriber()
 {
-    APP_LOGD("SrCommonEventSubscriber destroyed");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "SrCommonEventSubscriber destroyed");
 }
 
 void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &eventData)
@@ -39,22 +40,22 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
     std::string action = want.GetAction();
     std::string bundleName = want.GetElement().GetBundleName();
     if (action.empty() || eventHandler_ == nullptr) {
-        APP_LOGE("failed, empty action: %{public}s, or invalid event handler", action.c_str());
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed, empty action: %{public}s, or invalid event handler", action.c_str());
         return;
     }
     if (bundleName.empty() && action != EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
-        APP_LOGE("failed, invalid param, action: %{public}s, bundleName: %{public}s",
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed, invalid param, action: %{public}s, bundleName: %{public}s",
             action.c_str(), bundleName.c_str());
         return;
     }
-    APP_LOGI("action:%{public}s.", action.c_str());
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "action:%{public}s.", action.c_str());
     std::weak_ptr<SrCommonEventSubscriber> weakThis = shared_from_this();
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED) {
         int32_t userId = eventData.GetCode();
         auto task = [weakThis, userId]() {
             std::shared_ptr<SrCommonEventSubscriber> sharedThis = weakThis.lock();
             if (sharedThis) {
-                APP_LOGI("%{public}d COMMON_EVENT_USER_SWITCHED", userId);
+                TAG_LOGI(AAFwkTag::SER_ROUTER, "%{public}d COMMON_EVENT_USER_SWITCHED", userId);
                 ServiceRouterDataMgr::GetInstance().LoadAllBundleInfos();
             }
         };
@@ -62,7 +63,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_ADDED ||
         action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_CHANGED) {
         auto task = [weakThis, bundleName]() {
-            APP_LOGI("bundle changed, bundleName: %{public}s", bundleName.c_str());
+            TAG_LOGI(AAFwkTag::SER_ROUTER, "bundle changed, bundleName: %{public}s", bundleName.c_str());
             std::shared_ptr<SrCommonEventSubscriber> sharedThis = weakThis.lock();
             if (sharedThis) {
                 ServiceRouterDataMgr::GetInstance().LoadBundleInfo(bundleName);
@@ -71,7 +72,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
         eventHandler_->PostTask(task, "SrCommonEventSubscriber:LoadBundleInfo");
     } else if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         auto task = [weakThis, bundleName]() {
-            APP_LOGI("bundle remove, bundleName: %{public}s", bundleName.c_str());
+            TAG_LOGI(AAFwkTag::SER_ROUTER, "bundle remove, bundleName: %{public}s", bundleName.c_str());
             std::shared_ptr<SrCommonEventSubscriber> sharedThis = weakThis.lock();
             if (sharedThis) {
                 ServiceRouterDataMgr::GetInstance().DeleteBundleInfo(bundleName);
@@ -79,7 +80,7 @@ void SrCommonEventSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &ev
         };
         eventHandler_->PostTask(task, "SrCommonEventSubscriber:DeleteBundleInfo");
     } else {
-        APP_LOGW("invalid action.");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "invalid action.");
     }
 }
 } // AbilityRuntime

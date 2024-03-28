@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "service_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "parcel_macro.h"
 #include "string_ex.h"
 
@@ -43,7 +44,7 @@ AppInfo *AppInfo::Unmarshalling(Parcel &parcel)
 {
     AppInfo *info = new (std::nothrow) AppInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        APP_LOGW("read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
         delete info;
         info = nullptr;
     }
@@ -70,7 +71,7 @@ BusinessAbilityFilter *BusinessAbilityFilter::Unmarshalling(Parcel &parcel)
 {
     BusinessAbilityFilter *filter = new (std::nothrow) BusinessAbilityFilter();
     if (filter && !filter->ReadFromParcel(parcel)) {
-        APP_LOGW("read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
         delete filter;
         filter = nullptr;
     }
@@ -81,7 +82,7 @@ bool BusinessAbilityInfo::ReadFromParcel(Parcel &parcel)
 {
     std::unique_ptr<AppInfo> app(parcel.ReadParcelable<AppInfo>());
     if (!app) {
-        APP_LOGE("ReadParcelable<AppInfo> failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "ReadParcelable<AppInfo> failed");
         return false;
     }
     appInfo = *app;
@@ -97,7 +98,7 @@ bool BusinessAbilityInfo::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, size);
     CONTAINER_SECURITY_VERIFY(parcel, size, &permissions);
     if (size > CYCLE_LIMIT) {
-        APP_LOGE("size is too large.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "size is too large.");
         return false;
     }
     for (int32_t i = 0; i < size; i++) {
@@ -128,7 +129,7 @@ BusinessAbilityInfo *BusinessAbilityInfo::Unmarshalling(Parcel &parcel)
 {
     BusinessAbilityInfo *info = new (std::nothrow) BusinessAbilityInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        APP_LOGW("read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
         delete info;
         info = nullptr;
     }
@@ -139,7 +140,7 @@ bool PurposeInfo::ReadFromParcel(Parcel &parcel)
 {
     std::unique_ptr<AppInfo> app(parcel.ReadParcelable<AppInfo>());
     if (!app) {
-        APP_LOGE("ReadParcelable<AppInfo> failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "ReadParcelable<AppInfo> failed");
         return false;
     }
     appInfo = *app;
@@ -152,7 +153,7 @@ bool PurposeInfo::ReadFromParcel(Parcel &parcel)
     READ_PARCEL_AND_RETURN_FALSE_IF_FAIL(Int32, parcel, supportDimensionSize);
     CONTAINER_SECURITY_VERIFY(parcel, supportDimensionSize, &supportDimensions);
     if (supportDimensionSize > CYCLE_LIMIT) {
-        APP_LOGE("supportDimensionSize is too large.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "supportDimensionSize is too large.");
         return false;
     }
     for (int32_t i = 0; i < supportDimensionSize; i++) {
@@ -183,7 +184,7 @@ PurposeInfo *PurposeInfo::Unmarshalling(Parcel &parcel)
 {
     PurposeInfo *info = new (std::nothrow) PurposeInfo();
     if (info && !info->ReadFromParcel(parcel)) {
-        APP_LOGW("read from parcel failed");
+        TAG_LOGW(AAFwkTag::SER_ROUTER, "read from parcel failed");
         delete info;
         info = nullptr;
     }

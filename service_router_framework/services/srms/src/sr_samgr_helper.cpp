@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "app_log_wrapper.h"
 #include "bundle_constants.h"
 #include "bundle_mgr_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
@@ -36,7 +37,7 @@ SrSamgrHelper::~SrSamgrHelper()
 
 sptr<IBundleMgr> SrSamgrHelper::GetBundleMgr()
 {
-    APP_LOGI("GetBundleMgr called.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "GetBundleMgr called.");
     std::lock_guard<std::mutex> lock(bundleMgrMutex_);
     if (iBundleMgr_ == nullptr) {
         ConnectBundleMgrLocked();
@@ -50,17 +51,17 @@ int32_t SrSamgrHelper::GetCurrentActiveUserId()
     std::vector<int32_t> activeIds;
     int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
     if (ret != 0) {
-        APP_LOGE("QueryActiveOsAccountIds failed ret:%{public}d", ret);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryActiveOsAccountIds failed ret:%{public}d", ret);
         return Constants::INVALID_USERID;
     }
     if (activeIds.empty()) {
-        APP_LOGE("QueryActiveOsAccountIds activeIds empty");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryActiveOsAccountIds activeIds empty");
         return Constants::INVALID_USERID;
     }
-    APP_LOGE("QueryActiveOsAccountIds activeIds ret:%{public}d", activeIds[0]);
+    TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryActiveOsAccountIds activeIds ret:%{public}d", activeIds[0]);
     return activeIds[0];
 #else
-    APP_LOGI("ACCOUNT_ENABLE is false");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "ACCOUNT_ENABLE is false");
     return 0;
 #endif
 }
@@ -72,28 +73,28 @@ void SrSamgrHelper::ConnectBundleMgrLocked()
     }
     sptr<ISystemAbilityManager> saManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saManager == nullptr) {
-        APP_LOGE("failed to get bms saManager.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed to get bms saManager.");
         return;
     }
 
     sptr<IRemoteObject> remoteObj = saManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
     if (remoteObj == nullptr) {
-        APP_LOGE("failed to get bms remoteObj.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed to get bms remoteObj.");
         return;
     }
 
     deathRecipient_ = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) BmsDeathRecipient());
     if (deathRecipient_ == nullptr) {
-        APP_LOGE("Failed to create BmsDeathRecipient!");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Failed to create BmsDeathRecipient!");
         return;
     }
     if ((remoteObj->IsProxyObject()) && (!remoteObj->AddDeathRecipient(deathRecipient_))) {
-        APP_LOGE("Add death recipient to bms failed.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Add death recipient to bms failed.");
         return;
     }
     iBundleMgr_ = iface_cast<IBundleMgr>(remoteObj);
     if (iBundleMgr_ == nullptr) {
-        APP_LOGE("iface_cast failed, failed to get bms");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "iface_cast failed, failed to get bms");
     }
 }
 
@@ -106,7 +107,7 @@ void SrSamgrHelper::ResetProxy(const wptr<IRemoteObject> &remote)
 
     auto serviceRemote = iBundleMgr_->AsObject();
     if ((serviceRemote != nullptr) && (serviceRemote == remote.promote())) {
-        APP_LOGD("To remove death recipient.");
+        TAG_LOGD(AAFwkTag::SER_ROUTER, "To remove death recipient.");
         serviceRemote->RemoveDeathRecipient(deathRecipient_);
         iBundleMgr_ = nullptr;
     }
@@ -114,7 +115,7 @@ void SrSamgrHelper::ResetProxy(const wptr<IRemoteObject> &remote)
 
 void SrSamgrHelper::BmsDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
-    APP_LOGI("BmsDeathRecipient handle remote abilityms died.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "BmsDeathRecipient handle remote abilityms died.");
     SrSamgrHelper::GetInstance().ResetProxy(remote);
 }
 } // namespace AbilityRuntime

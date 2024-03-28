@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "app_log_wrapper.h"
 #include "application_info.h"
 #include "bundle_info.h"
+#include "hilog_tag_wrapper.h"
 #include "service_info.h"
 #include "want.h"
 
@@ -81,7 +82,7 @@ public:
     void UpdateBusinessAbilityInfos(const std::vector<BusinessAbilityInfo> &businessAbilityInfos)
     {
         if (businessAbilityInfos.size() == 0) {
-            APP_LOGW("UpdateBusinessAbilityInfos, serviceInfos.size is 0");
+            TAG_LOGW(AAFwkTag::SER_ROUTER, "UpdateBusinessAbilityInfos, serviceInfos.size is 0");
             businessAbilityInfos_.clear();
             return;
         }
@@ -96,7 +97,7 @@ public:
     void UpdatePurposeInfos(const std::vector<PurposeInfo> &purposeInfos)
     {
         if (purposeInfos.size() == 0) {
-            APP_LOGW("updatePurposeInfos, purposeInfos.size is 0");
+            TAG_LOGW(AAFwkTag::SER_ROUTER, "updatePurposeInfos, purposeInfos.size is 0");
             purposeInfos_.clear();
             return;
         }

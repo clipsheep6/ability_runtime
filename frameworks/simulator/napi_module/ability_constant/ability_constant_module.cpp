@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "ability_window_configuration.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "launch_param.h"
 #include "napi/native_api.h"
@@ -30,7 +31,7 @@ enum class MemoryLevel {
 
 static napi_status SetEnumItem(napi_env env, napi_value object, const char* name, int32_t value)
 {
-    HILOG_DEBUG("SetEnumItem start");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "SetEnumItem start");
     napi_status status;
     napi_value itemName;
     napi_value itemValue;
@@ -40,7 +41,7 @@ static napi_status SetEnumItem(napi_env env, napi_value object, const char* name
 
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemName, itemValue), status);
     NAPI_CALL_BASE(env, status = napi_set_property(env, object, itemValue, itemName), status);
-    HILOG_DEBUG("SetEnumItem end");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "SetEnumItem end");
 
     return napi_ok;
 }
@@ -151,43 +152,43 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
 {
     napi_value launchReason = InitLaunchReasonObject(env);
     if (launchReason == nullptr) {
-        HILOG_ERROR("failed to create launch reason object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create launch reason object");
         return nullptr;
     }
 
     napi_value lastExitReason = InitLastExitReasonObject(env);
     if (lastExitReason == nullptr) {
-        HILOG_ERROR("failed to create last exit reason object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create last exit reason object");
         return nullptr;
     }
 
     napi_value onContinueResult = InitOnContinueResultObject(env);
     if (onContinueResult == nullptr) {
-        HILOG_ERROR("failed to create onContinue result object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create onContinue result object");
         return nullptr;
     }
 
     napi_value windowMode = InitWindowModeObject(env);
     if (windowMode == nullptr) {
-        HILOG_ERROR("failed to create window mode object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create window mode object");
         return nullptr;
     }
 
     napi_value memoryLevel = InitMemoryLevelObject(env);
     if (memoryLevel == nullptr) {
-        HILOG_ERROR("failed to create memory level object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create memory level object");
         return nullptr;
     }
 
     napi_value stateType = InitStateTypeEnum(env);
     if (stateType == nullptr) {
-        HILOG_ERROR("failed to create state type object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create state type object");
         return nullptr;
     }
 
     napi_value saveResult = InitOnSaveResultEnum(env);
     if (saveResult == nullptr) {
-        HILOG_ERROR("failed to create save result object");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to create save result object");
         return nullptr;
     }
 
@@ -202,7 +203,7 @@ static napi_value AbilityConstantInit(napi_env env, napi_value exports)
     };
     napi_status status = napi_define_properties(env, exports, sizeof(exportObjs) / sizeof(exportObjs[0]), exportObjs);
     if (status != napi_ok) {
-        HILOG_ERROR("failed to define properties for exports");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "failed to define properties for exports");
         return nullptr;
     }
 

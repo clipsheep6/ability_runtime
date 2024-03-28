@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include <sstream>
 #include "bundle_constants.h"
 #include "common_profile.h"
+#include "hilog_tag_wrapper.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -56,7 +57,7 @@ const std::unordered_map<std::string, ExtensionAbilityType> EXTENSION_TYPE_MAP =
 
 ExtensionAbilityType ConvertToExtensionAbilityType(const std::string &type)
 {
-    HILOG_DEBUG("ConvertToExtensionAbilityType start");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ConvertToExtensionAbilityType start");
     if (EXTENSION_TYPE_MAP.find(type) != EXTENSION_TYPE_MAP.end()) {
         return EXTENSION_TYPE_MAP.at(type);
     }
@@ -66,7 +67,7 @@ ExtensionAbilityType ConvertToExtensionAbilityType(const std::string &type)
 
 std::string ConvertToExtensionTypeName(ExtensionAbilityType type)
 {
-    HILOG_DEBUG("ConvertToExtensionTypeName start");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ConvertToExtensionTypeName start");
     for (const auto &[key, val] : EXTENSION_TYPE_MAP) {
         if (val == type) {
             return key;
@@ -284,7 +285,7 @@ struct ModuleJson {
 
 void from_json(const nlohmann::json &jsonObject, Metadata &metadata)
 {
-    HILOG_DEBUG("read metadata tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read metadata tag from module.json");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -314,7 +315,7 @@ void from_json(const nlohmann::json &jsonObject, Metadata &metadata)
 
 void from_json(const nlohmann::json &jsonObject, Ability &ability)
 {
-    HILOG_DEBUG("read ability tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read ability tag from module.json");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -589,7 +590,7 @@ void from_json(const nlohmann::json &jsonObject, Ability &ability)
 
 void from_json(const nlohmann::json &jsonObject, Extension &extension)
 {
-    HILOG_DEBUG("read extension tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read extension tag from module.json");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -815,7 +816,7 @@ void from_json(const nlohmann::json &jsonObject, DeviceConfig &deviceConfig)
 
 void from_json(const nlohmann::json &jsonObject, App &app)
 {
-    HILOG_DEBUG("read app tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read app tag from module.json");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -1144,7 +1145,7 @@ void from_json(const nlohmann::json &jsonObject, App &app)
 
 void from_json(const nlohmann::json &jsonObject, Module &module)
 {
-    HILOG_DEBUG("read module tag from module.json");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "read module tag from module.json");
     const auto &jsonObjectEnd = jsonObject.end();
     GetValueIfFindKey<std::string>(jsonObject,
         jsonObjectEnd,
@@ -1423,7 +1424,7 @@ bool CheckModuleNameIsValid(const std::string &moduleName)
         return false;
     }
     if (moduleName.find(Constants::MODULE_NAME_SEPARATOR) != std::string::npos) {
-        HILOG_ERROR("module name should not contain ,");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "module name should not contain ,");
         return false;
     }
     return true;
@@ -1443,7 +1444,7 @@ bool ToApplicationInfo(
     const TransformParam &transformParam,
     ApplicationInfo &applicationInfo)
 {
-    HILOG_DEBUG("transform ModuleJson to ApplicationInfo");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "transform ModuleJson to ApplicationInfo");
     auto app = moduleJson.app;
     applicationInfo.name = app.bundleName;
     applicationInfo.bundleName = app.bundleName;
@@ -1554,7 +1555,7 @@ bool ToAbilityInfo(
     const TransformParam &transformParam,
     AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("transform ModuleJson to AbilityInfo");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "transform ModuleJson to AbilityInfo");
     abilityInfo.name = ability.name;
     abilityInfo.srcEntrance = ability.srcEntrance;
     abilityInfo.description = ability.description;
@@ -1619,7 +1620,7 @@ bool ToExtensionInfo(
     const TransformParam &transformParam,
     ExtensionAbilityInfo &extensionInfo)
 {
-    HILOG_DEBUG("transform ModuleJson to ExtensionAbilityInfo");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "transform ModuleJson to ExtensionAbilityInfo");
     extensionInfo.type = ConvertToExtensionAbilityType(extension.type);
     extensionInfo.name = extension.name;
     extensionInfo.srcEntrance = extension.srcEntrance;
@@ -1658,7 +1659,7 @@ bool ToInnerModuleInfo(
     const TransformParam &transformParam,
     InnerModuleInfo &innerModuleInfo)
 {
-    HILOG_DEBUG("transform ModuleJson to InnerModuleInfo");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "transform ModuleJson to InnerModuleInfo");
     innerModuleInfo.name = moduleJson.module.name;
     innerModuleInfo.modulePackage = moduleJson.module.name;
     innerModuleInfo.moduleName = moduleJson.module.name;
@@ -1724,7 +1725,7 @@ bool ParseExtensionInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &
     for (const Profile::Extension &extension : moduleJson.module.extensionAbilities) {
         ExtensionAbilityInfo extensionInfo;
         if (!ToExtensionInfo(moduleJson, extension, transformParam, extensionInfo)) {
-            HILOG_ERROR("To extensionInfo failed");
+            TAG_LOGE(AAFwkTag::ABILITY_SIM, "To extensionInfo failed");
             return false;
         }
 
@@ -1795,18 +1796,18 @@ bool ToInnerBundleInfo(const Profile::ModuleJson &moduleJson, InnerBundleInfo &i
 
 ErrCode ModuleProfile::TransformTo(const std::vector<uint8_t> &buf, InnerBundleInfo &innerBundleInfo) const
 {
-    HILOG_DEBUG("transform module.json stream to InnerBundleInfo");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "transform module.json stream to InnerBundleInfo");
     std::vector<uint8_t> buffer = buf;
     buffer.push_back('\0');
     nlohmann::json jsonObject = nlohmann::json::parse(buffer.data(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        HILOG_ERROR("bad profile");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "bad profile");
         return ERR_APPEXECFWK_PARSE_BAD_PROFILE;
     }
 
     Profile::ModuleJson moduleJson = jsonObject.get<Profile::ModuleJson>();
     if (Profile::g_parseResult != ERR_OK) {
-        HILOG_ERROR("g_parseResult is %{public}d", Profile::g_parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "g_parseResult is %{public}d", Profile::g_parseResult);
         int32_t ret = Profile::g_parseResult;
         // need recover parse result to ERR_OK
         Profile::g_parseResult = ERR_OK;

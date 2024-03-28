@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "sa_mgr_client.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -37,7 +38,7 @@ sptr<IRemoteObject> SaMgrClient::GetSystemAbility(const int32_t systemAbilityId)
         if (saMgr_ == nullptr) {
             saMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (saMgr_ == nullptr) {
-                HILOG_ERROR("Failed to get registry.");
+                TAG_LOGE(AAFwkTag::DEFAULT, "Failed to get registry.");
                 return nullptr;
             }
         }
@@ -53,7 +54,7 @@ sptr<IRemoteObject> SaMgrClient::CheckSystemAbility(const int32_t systemAbilityI
         if (saMgr_ == nullptr) {
             saMgr_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (saMgr_ == nullptr) {
-                HILOG_ERROR("Fail to get registry.");
+                TAG_LOGE(AAFwkTag::DEFAULT, "Fail to get registry.");
                 return nullptr;
             }
         }

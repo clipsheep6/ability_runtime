@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #include "app_log_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "napi/native_api.h"
 #include "napi/native_common.h"
 #include "service_info.h"
@@ -53,7 +54,7 @@ static napi_value BusinessAbilityRouterExport(napi_env env, napi_value exports)
 {
     napi_value businessType = InitBusinessTypeObject(env);
     if (businessType == nullptr) {
-        APP_LOGE("failed to create business type object");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "failed to create business type object");
         return nullptr;
     }
 
