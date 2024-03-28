@@ -179,11 +179,6 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
         return ERR_FAILED;
     }
 
-    if (!data.WriteParcelable(&callerInfo)) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerInfo failed");
-        return ERR_FAILED;
-    }
-
     if (!data.WriteInt32(type)) {
         TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write type failed");
         return ERR_FAILED;
@@ -199,6 +194,11 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
             TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write abilityInfo failed");
             return ERR_FAILED;
         }
+    }
+
+    if (!data.WriteParcelable(&callerInfo)) {
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerInfo failed");
+        return ERR_FAILED;
     }
 
     MessageOption option = { MessageOption::TF_SYNC };
