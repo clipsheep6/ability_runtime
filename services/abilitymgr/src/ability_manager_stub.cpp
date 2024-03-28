@@ -404,8 +404,6 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::GetForegroundUIAbilitiesInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
         &AbilityManagerStub::RestartAppInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID)] =
-        &AbilityManagerStub::GetElementNameByAppIdInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE)] =
         &AbilityManagerStub::OpenAtomicServiceInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
@@ -3177,17 +3175,6 @@ int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to write result.");
         return IPC_STUB_ERR;
-    }
-    return ERR_OK;
-}
-
-int32_t AbilityManagerStub::GetElementNameByAppIdInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string appId = data.ReadString();
-    auto elementName = GetElementNameByAppId(appId);
-    if (!reply.WriteParcelable(&elementName)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write want error");
-        return ERR_INVALID_VALUE;
     }
     return ERR_OK;
 }

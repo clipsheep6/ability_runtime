@@ -2140,20 +2140,6 @@ HWTEST_F(AbilityManagerClientBranchTest, UpdateSessionInfoBySCB_0100, TestSize.L
 }
 
 /**
- * @tc.name: AbilityManagerClient_GetElementNameByAppId_0100
- * @tc.desc: GetElementNameByAppId
- * @tc.type: FUNC
- */
-HWTEST_F(AbilityManagerClientBranchTest, GetElementNameByAppId_0100, TestSize.Level1)
-{
-    GTEST_LOG_(INFO) << "GetElementNameByAppId_0100 start";
-    std::string appId = "com.ohos.demo_1";
-    client_->GetElementNameByAppId(appId);
-    EXPECT_TRUE(client_ != nullptr);
-    GTEST_LOG_(INFO) << "GetElementNameByAppId_0100 end";
-}
-
-/**
  * @tc.name: AbilityManagerClient_OpenAtomicService_0100
  * @tc.desc: OpenAtomicService
  * @tc.type: FUNC

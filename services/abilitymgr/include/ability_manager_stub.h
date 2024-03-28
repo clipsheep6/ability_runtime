@@ -273,7 +273,6 @@ private:
     int32_t IsAbilityControllerStartInner(MessageParcel &data, MessageParcel &reply);
     int32_t OpenFileInner(MessageParcel &data, MessageParcel &reply);
 
-    int32_t GetElementNameByAppIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t OpenAtomicServiceInner(MessageParcel &data, MessageParcel &reply);
     int32_t IsEmbeddedOpenAllowedInner(MessageParcel &data, MessageParcel &reply);
 
