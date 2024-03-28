@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "extension_context.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -24,7 +25,7 @@ const size_t ExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("Exten
 void ExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("ExtensionContext::SetAbilityInfo Info == nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ExtensionContext::SetAbilityInfo Info == nullptr");
         return;
     }
     abilityInfo_ = abilityInfo;

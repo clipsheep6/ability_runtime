@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include "appexecfwk_errors.h"
 #include "form_mgr.h"
 #include "form_mgr_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,21 +29,21 @@ const size_t FormExtensionContext::CONTEXT_TYPE_ID(std::hash<const char*> {} ("F
 
 int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::FormProviderData &formProviderData)
 {
-    HILOG_DEBUG("Update form, formId: %{public}" PRId64 ".", formId);
+    TAG_LOGD(AAFwkTag::APPKIT, "Update form, formId: %{public}" PRId64 ".", formId);
     if (formId <= 0) {
-        HILOG_ERROR("FormId can't be negative or zero.");
+        TAG_LOGE(AAFwkTag::APPKIT, "FormId can't be negative or zero.");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
     // check fms recover status
     if (AppExecFwk::FormMgr::GetRecoverStatus() == AppExecFwk::Constants::IN_RECOVERING) {
-        HILOG_ERROR("Update failed, form is in recover status, can't do action on it.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Update failed, form is in recover status, can't do action on it.");
         return ERR_APPEXECFWK_FORM_IN_RECOVER;
     }
 
     // check formProviderData
     if (formProviderData.GetDataString().empty()) {
-        HILOG_ERROR("Form data is empty.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Form data is empty.");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
@@ -52,11 +53,11 @@ int FormExtensionContext::UpdateForm(const int64_t formId, const AppExecFwk::For
 
 ErrCode FormExtensionContext::StartAbility(const AAFwk::Want &want) const
 {
-    HILOG_DEBUG("Start ability.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Start ability.");
     // route to FMS
     ErrCode err = AppExecFwk::FormMgr::GetInstance().StartAbility(want, token_);
     if (err != ERR_OK) {
-        HILOG_ERROR("Start ability failed with %{public}d.", err);
+        TAG_LOGE(AAFwkTag::APPKIT, "Start ability failed with %{public}d.", err);
     }
     return err;
 }
@@ -65,7 +66,7 @@ AppExecFwk::AbilityType FormExtensionContext::GetAbilityInfoType() const
 {
     std::shared_ptr<AppExecFwk::AbilityInfo> info = GetAbilityInfo();
     if (info == nullptr) {
-        HILOG_ERROR("Ability info is invalid.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Ability info is invalid.");
         return AppExecFwk::AbilityType::UNKNOWN;
     }
 
@@ -80,7 +81,7 @@ std::shared_ptr<AppExecFwk::AbilityInfo> FormExtensionContext::GetAbilityInfo() 
 void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("Ability info is invalid.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Ability info is invalid.");
         return;
     }
     abilityInfo_ = abilityInfo;
@@ -89,11 +90,12 @@ void FormExtensionContext::SetAbilityInfo(const std::shared_ptr<OHOS::AppExecFwk
 ErrCode FormExtensionContext::ConnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {
-    HILOG_INFO("Connect ability begin, ability:%{public}s.", want.GetElement().GetAbilityName().c_str());
+    TAG_LOGI(AAFwkTag::APPKIT, "Connect ability begin, ability:%{public}s.",
+        want.GetElement().GetAbilityName().c_str());
     ErrCode ret =
         ConnectionManager::GetInstance().ConnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
-        HILOG_ERROR("FormExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPKIT, "FormExtensionContext::ConnectAbility ErrorCode = %{public}d", ret);
     }
     return ret;
 }
@@ -101,11 +103,11 @@ ErrCode FormExtensionContext::ConnectAbility(
 ErrCode FormExtensionContext::DisconnectAbility(
     const AAFwk::Want &want, const sptr<AbilityConnectCallback> &connectCallback) const
 {
-    HILOG_INFO("Call");
+    TAG_LOGI(AAFwkTag::APPKIT, "Call");
     ErrCode ret =
         ConnectionManager::GetInstance().DisconnectAbility(token_, want, connectCallback);
     if (ret != ERR_OK) {
-        HILOG_ERROR("DisconnectAbility error, ret=%{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPKIT, "DisconnectAbility error, ret=%{public}d", ret);
     }
     return ret;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "environment_callback.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime_utils.h"
@@ -31,23 +32,24 @@ int32_t JsEnvironmentCallback::serialNumber_ = 0;
 void JsEnvironmentCallback::CallConfigurationUpdatedInner(const std::string &methodName,
     const AppExecFwk::Configuration &config, const std::map<int32_t, std::shared_ptr<NativeReference>> &callbacks)
 {
-    HILOG_DEBUG("CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "CallConfigurationUpdatedInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks) {
         if (!callback.second) {
-            HILOG_ERROR("CallConfigurationUpdatedInner, Invalid jsCallback");
+            TAG_LOGE(AAFwkTag::APPKIT, "CallConfigurationUpdatedInner, Invalid jsCallback");
             return;
         }
 
         auto obj = callback.second->GetNapiValue();
         if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-            HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get object");
+            TAG_LOGE(AAFwkTag::APPKIT, "CallConfigurationUpdatedInner, Failed to get object");
             return;
         }
 
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
-            HILOG_ERROR("CallConfigurationUpdatedInner, Failed to get %{public}s from object", methodName.data());
+            TAG_LOGE(AAFwkTag::APPKIT, "CallConfigurationUpdatedInner, Failed to get %{public}s from object",
+                methodName.data());
             return;
         }
 
@@ -78,23 +80,23 @@ void JsEnvironmentCallback::OnConfigurationUpdated(const AppExecFwk::Configurati
 void JsEnvironmentCallback::CallMemoryLevelInner(const std::string &methodName, const int level,
     const std::map<int32_t, std::shared_ptr<NativeReference>> &callbacks)
 {
-    HILOG_DEBUG("CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "CallMemoryLevelInner methodName = %{public}s", methodName.c_str());
     for (auto &callback : callbacks) {
         if (!callback.second) {
-            HILOG_ERROR("CallMemoryLevelInner, Invalid jsCallback");
+            TAG_LOGE(AAFwkTag::APPKIT, "CallMemoryLevelInner, Invalid jsCallback");
             return;
         }
 
         auto obj = callback.second->GetNapiValue();
         if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-            HILOG_ERROR("CallMemoryLevelInner, Failed to get object");
+            TAG_LOGE(AAFwkTag::APPKIT, "CallMemoryLevelInner, Failed to get object");
             return;
         }
 
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
-            HILOG_ERROR("CallMemoryLevelInner, Failed to get %{public}s from object", methodName.data());
+            TAG_LOGE(AAFwkTag::APPKIT, "CallMemoryLevelInner, Failed to get %{public}s from object", methodName.data());
             return;
         }
 
@@ -124,7 +126,7 @@ void JsEnvironmentCallback::OnMemoryLevel(const int level)
 
 int32_t JsEnvironmentCallback::Register(napi_value jsCallback, bool isSync)
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::APPKIT, "start");
     if (env_ == nullptr) {
         return -1;
     }
@@ -141,28 +143,28 @@ int32_t JsEnvironmentCallback::Register(napi_value jsCallback, bool isSync)
     } else {
         callbacks_.emplace(callbackId, std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference*>(ref)));
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::APPKIT, "end");
     return callbackId;
 }
 
 bool JsEnvironmentCallback::UnRegister(int32_t callbackId, bool isSync)
 {
-    HILOG_DEBUG("UnRegister called, env callbackId : %{public}d", callbackId);
+    TAG_LOGD(AAFwkTag::APPKIT, "UnRegister called, env callbackId : %{public}d", callbackId);
     if (isSync) {
         auto it = callbacksSync_.find(callbackId);
         if (it == callbacksSync_.end()) {
-            HILOG_ERROR("UnRegister env callbackId: %{public}d is not in callbacksSync_", callbackId);
+            TAG_LOGE(AAFwkTag::APPKIT, "UnRegister env callbackId: %{public}d is not in callbacksSync_", callbackId);
             return false;
         }
-        HILOG_DEBUG("callbacksSync_.callbackId : %{public}d", it->first);
+        TAG_LOGD(AAFwkTag::APPKIT, "callbacksSync_.callbackId : %{public}d", it->first);
         return callbacksSync_.erase(callbackId) == 1;
     }
     auto it = callbacks_.find(callbackId);
     if (it == callbacks_.end()) {
-        HILOG_ERROR("UnRegister env callbackId: %{public}d is not in callbacks_", callbackId);
+        TAG_LOGE(AAFwkTag::APPKIT, "UnRegister env callbackId: %{public}d is not in callbacks_", callbackId);
         return false;
     }
-    HILOG_DEBUG("callbacks_.callbackId : %{public}d", it->first);
+    TAG_LOGD(AAFwkTag::APPKIT, "callbacks_.callbackId : %{public}d", it->first);
     return callbacks_.erase(callbackId) == 1;
 }
 

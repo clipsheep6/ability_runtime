@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iability_stage_monitor.h"
 
@@ -24,15 +25,16 @@ IAbilityStageMonitor::IAbilityStageMonitor(const std::string &moduleName, const 
 bool IAbilityStageMonitor::Match(const std::shared_ptr<DelegatorAbilityStageProperty> &abilityStage, bool isNotify)
 {
     if (!abilityStage) {
-        HILOG_ERROR("abilityStage to match is null");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "abilityStage to match is null");
         return false;
     }
     if (moduleName_.compare(abilityStage->moduleName_) != 0 || srcEntrance_.compare(abilityStage->srcEntrance_) != 0) {
-        HILOG_WARN("Different abilityStage");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Different abilityStage");
         return false;
     }
 
-    HILOG_INFO("Matched : abilityStage module name : %{public}s, srcEntrance : %{public}s, isNotify : %{public}s",
+    TAG_LOGI(AAFwkTag::DELEGATOR,
+        "Matched : abilityStage module name : %{public}s, srcEntrance : %{public}s, isNotify : %{public}s",
         moduleName_.c_str(), srcEntrance_.c_str(), (isNotify ? "true" : "false"));
 
     if (isNotify) {
@@ -54,7 +56,7 @@ std::shared_ptr<DelegatorAbilityStageProperty> IAbilityStageMonitor::WaitForAbil
 {
     auto realTime = timeoutMs;
     if (timeoutMs <= 0) {
-        HILOG_WARN("Timeout should be a positive number");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Timeout should be a positive number");
         realTime = MAX_TIME_OUT;
     }
 
@@ -62,7 +64,7 @@ std::shared_ptr<DelegatorAbilityStageProperty> IAbilityStageMonitor::WaitForAbil
 
     auto condition = [this] { return this->matchedAbilityStage_ != nullptr; };
     if (!cvMatch_.wait_for(matchLock, std::chrono::milliseconds(realTime), condition)) {
-        HILOG_WARN("Wait abilityStage timeout");
+        TAG_LOGW(AAFwkTag::DELEGATOR, "Wait abilityStage timeout");
     }
     return matchedAbilityStage_;
 }
