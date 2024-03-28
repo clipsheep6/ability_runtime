@@ -329,7 +329,7 @@ int32_t AppLifeCycleDeal::RequestTerminateProcess() const
 {
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        TAG_LOGE("AppThread is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "AppThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleRequestTerminateProcess();
