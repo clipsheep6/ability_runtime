@@ -1281,7 +1281,8 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
         RemoveServiceAbility(abilityRecord);
         if (abilityRecord->GetAbilityInfo().name != AbilityConfig::LAUNCHER_ABILITY_NAME) {
             DelayedSingleton<AppScheduler>::GetInstance()->AttachTimeOut(abilityRecord->GetToken());
-            if (IsAbilityNeedKeepAlive(abilityRecord)) {
+            if (IsAbilityNeedKeepAlive(abilityRecord) &&
+                ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
                 HILOG_WARN("Load time out , try to restart.");
                 RestartAbility(abilityRecord, userId_);
             }
@@ -1857,7 +1858,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
     if (abilityRecord->IsTerminating()) {
         HILOG_INFO("Handle extension DiedByTerminating.");
         RemoveServiceAbility(abilityRecord);
-        if (IsAbilityNeedKeepAlive(abilityRecord)) {
+        if (IsAbilityNeedKeepAlive(abilityRecord) && ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
             HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
             RestartAbility(abilityRecord, currentUserId);
         }
@@ -1876,7 +1877,7 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         isRemove = true;
     }
 
-    if (IsAbilityNeedKeepAlive(abilityRecord)) {
+    if (IsAbilityNeedKeepAlive(abilityRecord) && ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
         HILOG_INFO("restart ability: %{public}s", abilityRecord->GetAbilityInfo().name.c_str());
         if ((IsLauncher(abilityRecord) || IsSceneBoard(abilityRecord)) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(

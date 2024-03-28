@@ -31,9 +31,13 @@ class ResidentProcessManager : public std::enable_shared_from_this<ResidentProce
 public:
     void StartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void StartResidentProcessWithMainElement(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+    int32_t HandleMemorySizeSufficent();
+    int32_t HandleMemorySizeInSufficent();
+    void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler);
 private:
     bool CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, const std::string &processName,
         std::string &mainElement, std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex);
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

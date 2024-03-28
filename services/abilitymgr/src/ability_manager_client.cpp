@@ -1795,5 +1795,13 @@ bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken
     }
     return abms->IsEmbeddedOpenAllowed(callerToken, appId);
 }
+
+int32_t AbilityManagerClient::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    HILOG_DEBUG("Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+}
 } // namespace AAFwk
 } // namespace OHOS

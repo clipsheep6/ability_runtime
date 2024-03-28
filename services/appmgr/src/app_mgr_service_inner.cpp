@@ -41,6 +41,7 @@
 #include "common_event_support.h"
 #include "datetime_ex.h"
 #include "distributed_data_mgr.h"
+#include "exit_resident_process_info.h"
 #include "freeze_util.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
@@ -783,7 +784,10 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     appRecord->ApplicationTerminated();
     // Maybe can't get in here
     if (appRecord->IsKeepAliveApp()) {
-        return;
+        if (ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
+            return;
+        }
+        ExitResidentProcessInfo::GetInstance()->AddExitResidentBundleName(appRecord->GetBundleName());
     }
     if (appRecord->GetState() != ApplicationState::APP_STATE_BACKGROUND) {
         HILOG_DEBUG("current state is not background");
@@ -1725,7 +1729,7 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
 
     // before exec ScheduleProcessSecurityExit return
     // The resident process won't let him die
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsKeepAliveApp() && ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
         return;
     }
 
@@ -2400,7 +2404,7 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     }
 
     // Do not delete resident processes, before exec ScheduleProcessSecurityExit
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsKeepAliveApp() && ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
         return;
     }
 
@@ -2617,6 +2621,9 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     if (!appRecord) {
         HILOG_ERROR("appRecord is nullptr");
         return;
+    }
+    if (appRecord->IsKeepAliveApp() && !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
+        ExitResidentProcessInfo::GetInstance()->AddExitResidentBundleName(appRecord->GetBundleName());
     }
     appRecord->SetState(ApplicationState::APP_STATE_TERMINATED);
     appRecord->RemoveAppDeathRecipient();
@@ -4964,6 +4971,10 @@ void AppMgrServiceInner::ClearAppRunningDataForKeepAlive(const std::shared_ptr<A
     }
 
     if (appRecord->IsKeepAliveApp()) {
+        if (!ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
+            ExitResidentProcessInfo::GetInstance()->AddExitResidentBundleName(appRecord->GetBundleName());
+            return;
+        }
         auto restartProcess = [appRecord, innerService = shared_from_this()]() {
             innerService->RestartResidentProcess(appRecord);
         };

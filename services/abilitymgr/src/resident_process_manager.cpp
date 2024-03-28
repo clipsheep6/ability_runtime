@@ -15,7 +15,9 @@
 
 #include "resident_process_manager.h"
 
+#include "ability_manager_errors.h"
 #include "ability_manager_service.h"
+#include "exit_resident_process_info"
 #include "user_controller.h"
 
 namespace OHOS {
@@ -125,6 +127,59 @@ bool ResidentProcessManager::CheckMainElement(const AppExecFwk::HapModuleInfo &h
     }
 
     return true;
+}
+
+void ResidentProcessManager::SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler)
+{
+    taskHandler_ = taskHandler;
+}
+
+int32_t ResidentProcessManager::HandleMemorySizeSufficent()
+{
+    if (ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
+        HILOG_INFO("memory size is sufficent");
+        return ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED;
+    }
+    ExitResidentProcessInfo::GetInstance()->SetCurrentMemorySizeState(MemorySizeState::MEMORY_SIZE_SUFFICENT);
+    auto StartExitKeepAliveProcessTask = [residentProcessManagerWeak = weak_from_this()]() {
+        auto residentProcessManager = residentProcessManagerWeak.lock();
+        if (residentProcessManager == nullptr) {
+            return;
+        }
+        std::vector<std::string> exitBundleNames;
+        ExitResidentProcessInfo::GetInstance()->GetExitResidentBundleNames(exitBundleNames);
+        std::vector<AppExecFwk::BundleInfo> bundleInfos;
+        for (const std::string& bundleName:exitBundleNames) {   
+            if (!IN_PROCESS_CALL(bms->GetBundleInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, 
+                bundleInfo, U0_USER_ID))) {
+                HILOG_ERROR("Failed to get bundle info from %{public}s.", bundleName.c_str());
+                continue;
+            }
+            if (!bundleInfo.isKeepAlive) {
+                HILOG_ERROR("Not a resident application.");
+                continue;
+            }
+            bundleInfos.emplace_back(bundleInfo);  
+        }
+        ExitResidentProcessInfo::GetInstance()->ClearExitResidentBundleNames();
+        residentProcessManager->StartResidentProcessWithMainElement(bundleInfos);
+
+        if (!bundleInfos.empty()) {
+            residentProcessManager->StartResidentProcess(bundleInfos);
+        }
+    };
+    taskHandler_->SubmitTask(StartExitKeepAliveProcessTask, "startexitkeepaliveprocess");
+    return ERR_OK;
+}
+
+int32_t ResidentProcessManager::HandleMemorySizeInSufficent()
+{
+    if (!ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) {
+        HILOG_INFO("memory size is insufficent");
+        return ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED;
+    }
+    ExitResidentProcessInfo::GetInstance()->SetCurrentMemorySizeState(MemorySizeState::MEMORY_SIZE_INSUFFICENT);
+    return ERR_OK;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

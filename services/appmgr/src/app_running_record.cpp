@@ -1089,13 +1089,15 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     moduleRecord->AbilityTerminated(token);
 
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
-        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType()))) {
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
+        || !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent())) {
         RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && (!IsKeepAliveApp()
-        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())) && !isExtensionDebug) {
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
+        || !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) && !isExtensionDebug) {
         ScheduleTerminate();
     }
 }

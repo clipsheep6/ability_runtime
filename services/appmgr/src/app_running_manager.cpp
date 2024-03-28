@@ -202,7 +202,8 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
         const auto &appRecord = item.second;
         // condition [!appRecord->IsKeepAliveApp()] Is to not kill the resident process.
         // Before using this method, consider whether you need.
-        if (appRecord && !appRecord->IsKeepAliveApp()) {
+        if (appRecord && 
+            (!appRecord->IsKeepAliveApp() || !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent())) {
             pid_t pid = appRecord->GetPriorityObject()->GetPid();
             auto appInfoList = appRecord->GetAppInfoList();
             auto isExist = [&bundleName](const std::shared_ptr<ApplicationInfo> &appInfo) {
@@ -433,7 +434,8 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsLastAbilityRecord(token) &&
+        (!appRecord->IsKeepAliveApp() || !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent())) {
         appRecord->SetTerminating();
     }
 
@@ -463,7 +465,8 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsLastAbilityRecord(token) && 
+        (!appRecord->IsKeepAliveApp() && !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent())) {
         HILOG_INFO("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
@@ -515,7 +518,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         appRecord->TerminateAbility(token, false);
     }
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
-    if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
+    if (isLastAbility &&
+        (!appRecord->IsKeepAliveApp() || !ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent()) &&
+        !isLauncherApp) {
         HILOG_DEBUG("The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {

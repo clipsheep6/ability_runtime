@@ -447,6 +447,11 @@ enum {
      * Native error(2097237) for ability state check failed.
      */
     ERR_NATIVE_ABILITY_STATE_CHECK_FAILED,
+
+    /**
+     * Native error(2097239) for ability state check failed.
+     */
+    ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
 };
 
 enum {

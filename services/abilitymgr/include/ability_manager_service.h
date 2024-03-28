@@ -46,6 +46,7 @@
 #include "bundle_mgr_helper.h"
 #include "data_ability_manager.h"
 #include "event_report.h"
+#include "exit_resident_process_info.h"
 #include "free_install_manager.h"
 #include "hilog_wrapper.h"
 #include "iacquire_share_data_callback_interface.h"
@@ -1556,6 +1557,8 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     virtual int32_t NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus) override;
+
+    virtual int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
 
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;

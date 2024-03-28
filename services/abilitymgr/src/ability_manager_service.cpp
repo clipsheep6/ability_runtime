@@ -397,6 +397,7 @@ bool AbilityManagerService::Init()
 #endif
 
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->SetTaskHandler(taskHandler_);
 
     InitInterceptor();
     InitStartAbilityChain();
@@ -5545,7 +5546,7 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
         return GET_BUNDLE_INFO_FAILED;
     }
 
-    if (bundleInfo.isKeepAlive) {
+    if (bundleInfo.isKeepAlive && ExitResidentProcessInfo::GetInstance()->IsMemorySizeSufficent() {
         HILOG_ERROR("Can not kill keep alive process.");
         return KILL_PROCESS_KEEP_ALIVE;
     }
@@ -9940,6 +9941,15 @@ bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> calle
     }
     HILOG_ERROR("The erms returns err:%{public}d.", queryRet);
     return false;
+}
+
+int32_t AbilityManagerService::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) {
+    HILOG_INFO("NotifyMemonySizeStateChanged, isMemorySizeSufficent: %{public}d", isMemorySizeSufficent);
+    if (isMemorySizeSufficent) {
+        return DelayedSingleton<ResidentProcessManager>::GetInstance()->HandleMemorySizeSufficent();
+    } else {
+        return DelayedSingleton<ResidentProcessManager>::GetInstance()->HandleMemorySizeInSufficent();
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS

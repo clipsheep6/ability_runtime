@@ -5020,5 +5020,25 @@ bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken,
     }
     return reply.ReadBool();
 }
+
+int32_t AbilityManagerProxy::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(isMemorySizeSufficent)) {
+        HILOG_ERROR("write isMemorySizeSufficent fail.");
+        return ERR_INVALID_VALUE;
+    }
+    auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED, data, reply, option);
+    if (error != NO_ERROR) {
+        HILOG_ERROR("Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
 } // namespace AAFwk
 } // namespace OHOS
