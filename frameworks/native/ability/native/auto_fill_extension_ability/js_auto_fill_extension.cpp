@@ -41,6 +41,7 @@
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "napi_remote_object.h"
+#include "string_wrapper.h"
 #include "want_params_wrapper.h"
 
 namespace OHOS {
@@ -51,6 +52,8 @@ constexpr size_t ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
 constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
+constexpr const char *WANT_PARAMS_CUSTOM_DATA = "ohos.ability.params.customData";
+constexpr const char *WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY = "ohos.ability.params.popupWindow";
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {
@@ -165,6 +168,7 @@ void JsAutoFillExtension::BindContext(napi_env env, napi_value obj)
         return;
     }
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Create js auto fill extension context.");
+    context->SetAutoFillExtensionCallback(std::static_pointer_cast<JsAutoFillExtension>(shared_from_this()));
     napi_value contextObj = JsAutoFillExtensionContext::CreateJsAutoFillExtensionContext(env, context);
     if (contextObj == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Create js ui extension context failed.");
@@ -420,6 +424,39 @@ void JsAutoFillExtension::OnBackground()
     Extension::OnBackground();
 }
 
+int32_t JsAutoFillExtension::OnReloadInModal(const sptr<AAFwk::SessionInfo> &sessionInfo, const CustomData &customData)
+{
+    HILOG_DEBUG("Called.");
+    if (!isPopup_) {
+        HILOG_ERROR("The current window type is not popup.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (sessionInfo == nullptr) {
+        HILOG_ERROR("SessionInfo is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+
+    AAFwk::WantParamWrapper wrapper(customData.data);
+    auto customDataString = wrapper.ToString();
+    auto obj = sessionInfo->sessionToken;
+    auto &uiWindow = uiWindowMap_[obj];
+    if (uiWindow == nullptr) {
+        HILOG_ERROR("UI window is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    AAFwk::WantParams wantParams;
+    wantParams.SetParam(WANT_PARAMS_AUTO_FILL_CMD,
+        AAFwk::Integer::Box(static_cast<int32_t>(AutoFillCommand::RELOAD_IN_MODAL)));
+    wantParams.SetParam(WANT_PARAMS_CUSTOM_DATA, AAFwk::String::Box(customDataString));
+    auto ret = static_cast<int32_t>(uiWindow->TransferExtensionData(wantParams));
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Transfer extension data failed.");
+        return ERR_INVALID_OPERATION;
+    }
+    return ERR_OK;
+}
+
 void JsAutoFillExtension::UpdateRequest(const AAFwk::WantParams &wantParams)
 {
     HILOG_DEBUG("Called.");
@@ -478,6 +515,17 @@ void JsAutoFillExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<A
     if (sessionInfo == nullptr) {
         TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "sessionInfo is nullptr.");
         return;
+    }
+
+    auto context = GetContext();
+    if (context == nullptr) {
+        HILOG_ERROR("Failed to get context.");
+        return;
+    }
+    context->SetSessionInfo(sessionInfo);
+
+    if (want.HasParameter(WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY)) {
+        isPopup_ = want.GetBoolParam(WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY, false);
     }
 
     if (!HandleAutoFillCreate(want, sessionInfo)) {
@@ -615,7 +663,7 @@ void JsAutoFillExtension::CallJsOnRequest(
         callback = JsSaveRequestCallback::CreateJsSaveRequestCallback(env, sessionInfo, uiWindow);
         napi_value argv[] = { nativeContentSession, request, callback };
         CallObjectMethod("onSaveRequest", argv, ARGC_THREE);
-    } else if (cmdValue == AutoFillCommand::FILL) {
+    } else if (cmdValue == AutoFillCommand::FILL || cmdValue == AutoFillCommand::RELOAD_IN_MODAL) {
         callback = JsFillRequestCallback::CreateJsFillRequestCallback(env, sessionInfo, uiWindow);
         napi_value argv[] = { nativeContentSession, request, callback };
         CallObjectMethod("onFillRequest", argv, ARGC_THREE);

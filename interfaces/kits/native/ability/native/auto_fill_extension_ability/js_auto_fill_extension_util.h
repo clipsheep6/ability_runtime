@@ -37,6 +37,10 @@ enum AutoFillCommand {
     INPUT,
     RELOAD_IN_MODAL
 };
+
+struct CustomData {
+    AAFwk::WantParams data;
+};
 /**
  * @brief Js autofill extension base.
  */
@@ -49,6 +53,7 @@ public:
     static napi_value WrapViewData(const napi_env env, const AbilityBase::ViewData &viewData);
     static napi_value WrapPageNodeInfo(const napi_env env, const AbilityBase::PageNodeInfo &pageNodeInfo);
     static napi_value WrapRectData(const napi_env env, const AbilityBase::Rect &rect);
+    static napi_value WrapCustomData(const napi_env env, const AAFwk::WantParams &param);
     static void UnwrapViewData(const napi_env env, const napi_value value, AbilityBase::ViewData &viewData);
     static void UnwrapPageNodeInfo(const napi_env env, const napi_value jsProValue, AbilityBase::PageNodeInfo &node);
     static void UnwrapRectData(const napi_env env, const napi_value value, AbilityBase::Rect &rect);
