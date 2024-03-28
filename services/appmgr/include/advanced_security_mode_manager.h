@@ -13,9 +13,24 @@
  * limitations under the License.
  */
 
-#include "startup_task_executor.h"
+#ifndef OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H
+#define OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H
+
+#include <string>
 
 namespace OHOS {
-namespace AbilityRuntime {
-} // namespace AbilityRuntime
-} // namespace OHOS
+namespace AppExecFwk {
+class AdvancedSecurityModeManager {
+public:
+    AdvancedSecurityModeManager();
+    virtual ~AdvancedSecurityModeManager();
+
+    void Init();
+    bool IsJITEnabled();
+
+private:
+    bool isAdvSecModeEnabled_ = false;
+};
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_ADVANCED_SECURITY_MODE_MANAGER_H

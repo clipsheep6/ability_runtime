@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "auto_fill_extension.h"
 
 #include "auto_fill_extension_context.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_auto_fill_extension.h"
 #include "runtime.h"
@@ -24,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 AutoFillExtension *AutoFillExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (runtime == nullptr) {
         return new AutoFillExtension();
     }
@@ -40,7 +41,7 @@ void AutoFillExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
     const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
     const sptr<IRemoteObject> &token)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     ExtensionBase<AutoFillExtensionContext>::Init(record, application, handler, token);
 }
 
@@ -53,7 +54,7 @@ std::shared_ptr<AutoFillExtensionContext> AutoFillExtension::CreateAndInitContex
     std::shared_ptr<AutoFillExtensionContext> context =
         ExtensionBase<AutoFillExtensionContext>::CreateAndInitContext(record, application, handler, token);
     if (context == nullptr) {
-        HILOG_ERROR("UIExtension CreateAndInitContext context is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UIExtension CreateAndInitContext context is nullptr.");
         return context;
     }
     return context;

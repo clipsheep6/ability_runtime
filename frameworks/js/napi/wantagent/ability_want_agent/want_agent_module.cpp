@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 
@@ -36,14 +37,14 @@ EXTERN_C_START
 
 napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("JsNapiWantAgentInit is called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsNapiWantAgentInit is called");
 
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("env or exportObj nullptr");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "env or exportObj nullptr");
         return nullptr;
     }
     if (!CheckTypeForNapiValue(env, exportObj, napi_object)) {
-        HILOG_ERROR("object nullptr");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "object nullptr");
         return nullptr;
     }
 
@@ -53,7 +54,7 @@ napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
 
-    HILOG_DEBUG("JsNapiWantAgentInit BindNativeFunction called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsNapiWantAgentInit BindNativeFunction called");
     const char *moduleName = "JsWantAgent";
     BindNativeFunction(env, exportObj, "equal", moduleName, JsWantAgent::Equal);
     BindNativeFunction(env, exportObj, "getBundleName", moduleName, JsWantAgent::GetBundleName);
@@ -63,7 +64,7 @@ napi_value JsNapiWantAgentInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "getWant", moduleName, JsWantAgent::NapiGetWant);
     BindNativeFunction(env, exportObj, "getWantAgent", moduleName, JsWantAgent::NapiGetWantAgent);
     BindNativeFunction(env, exportObj, "getOperationType", moduleName, JsWantAgent::NapiGetOperationType);
-    HILOG_DEBUG("JsNapiWantAgentInit end");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsNapiWantAgentInit end");
     return exportObj;
 }
 EXTERN_C_END

@@ -44,9 +44,10 @@ public:
     bool GetBundleInfo(AppExecFwk::BundleInfo &bundleInfo);
     bool GetHapModuleInfo(const AppExecFwk::BundleInfo &bundleInfo, AppExecFwk::HapModuleInfo &hapModuleInfo);
     std::unique_ptr<AbilityRuntime::Runtime> CreateRuntime(const AppExecFwk::BundleInfo &bundleInfo,
-        const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn);
+        const AppExecFwk::HapModuleInfo &hapModuleInfo, const bool fromAppSpawn, const bool jitEnabled);
     bool LoadJsFile(const std::string &srcEntry, const AppExecFwk::HapModuleInfo &hapModuleInfo,
         std::unique_ptr<AbilityRuntime::Runtime> &runtime);
+    void SetForkProcessJITEnabled(bool jitEnabled);
 
 private:
     ChildProcessManager();

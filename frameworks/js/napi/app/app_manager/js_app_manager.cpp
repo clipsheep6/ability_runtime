@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 
 #include "ability_manager_interface.h"
 #include "app_mgr_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
@@ -54,7 +55,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         std::unique_ptr<JsAppManager>(static_cast<JsAppManager*>(data));
     }
 
@@ -80,19 +81,19 @@ public:
 
     static napi_value IsRunningInStabilityTest(napi_env env, napi_callback_info info)
     {
-        HILOG_DEBUG("IsRunningInStabilityTest start.");
+        TAG_LOGD(AAFwkTag::APPMGR, "IsRunningInStabilityTest start.");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsRunningInStabilityTest);
     }
 
     static napi_value KillProcessWithAccount(napi_env env, napi_callback_info info)
     {
-        HILOG_DEBUG("KillProcessWithAccount start.");
+        TAG_LOGD(AAFwkTag::APPMGR, "KillProcessWithAccount start.");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnKillProcessWithAccount);
     }
 
     static napi_value KillProcessesByBundleName(napi_env env, napi_callback_info info)
     {
-        HILOG_DEBUG("KillProcessesByBundleName start.");
+        TAG_LOGD(AAFwkTag::APPMGR, "KillProcessesByBundleName start.");
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnkillProcessByBundleName);
     }
 
@@ -117,14 +118,14 @@ private:
 
     napi_value OnRegisterApplicationStateObserver(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             return CreateJsUndefined(env);
         }
         if (appManager_ == nullptr) {
-            HILOG_ERROR("appManager nullptr");
+            TAG_LOGE(AAFwkTag::APPMGR, "appManager nullptr");
             return CreateJsUndefined(env);
         }
         static int64_t serialNumber = 0;
@@ -138,7 +139,7 @@ private:
         }
         int32_t ret = appManager_->RegisterApplicationStateObserver(observer_, bundleNameList);
         if (ret == 0) {
-            HILOG_DEBUG("success.");
+            TAG_LOGD(AAFwkTag::APPMGR, "success.");
             int64_t observerId = serialNumber;
             observer_->AddJsObserverObject(observerId, argv[INDEX_ZERO]);
             if (serialNumber < INT32_MAX) {
@@ -148,20 +149,20 @@ private:
             }
             return CreateJsValue(env, observerId);
         } else {
-            HILOG_ERROR("failed error:%{public}d.", ret);
+            TAG_LOGE(AAFwkTag::APPMGR, "failed error:%{public}d.", ret);
             return CreateJsUndefined(env);
         }
     }
 
     napi_value OnUnregisterApplicationStateObserver(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
         int64_t observerId = -1;
 
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             errCode = ERR_NOT_OK;
         } else {
             // unwrap connectId
@@ -169,9 +170,9 @@ private:
             bool isExist = observer_->FindObserverByObserverId(observerId);
             if (isExist) {
                 // match id
-                HILOG_DEBUG("find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
+                TAG_LOGD(AAFwkTag::APPMGR, "find observer exist observer:%{public}d", static_cast<int32_t>(observerId));
             } else {
-                HILOG_DEBUG("not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
+                TAG_LOGD(AAFwkTag::APPMGR, "not find observer, observer:%{public}d", static_cast<int32_t>(observerId));
                 errCode = ERR_NOT_OK;
             }
         }
@@ -184,16 +185,16 @@ private:
                     return;
                 }
                 if (observer == nullptr || appManager == nullptr) {
-                    HILOG_ERROR("observer or appManager nullptr");
+                    TAG_LOGE(AAFwkTag::APPMGR, "observer or appManager nullptr");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "observer or appManager nullptr"));
                     return;
                 }
                 int32_t ret = appManager->UnregisterApplicationStateObserver(observer);
                 if (ret == 0 && observer->RemoveJsObserverObject(observerId)) {
                     task.Resolve(env, CreateJsUndefined(env));
-                    HILOG_DEBUG("success size:%{public}zu", observer->GetJsObserverMapSize());
+                    TAG_LOGD(AAFwkTag::APPMGR, "success size:%{public}zu", observer->GetJsObserverMapSize());
                 } else {
-                    HILOG_ERROR("failed error:%{public}d", ret);
+                    TAG_LOGE(AAFwkTag::APPMGR, "failed error:%{public}d", ret);
                     task.Reject(env, CreateJsError(env, ret, "UnregisterApplicationStateObserver failed"));
                 }
             };
@@ -207,12 +208,12 @@ private:
 
     napi_value OnGetForegroundApplications(napi_env env, const size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -222,17 +223,17 @@ private:
                     return;
                 }
                 if (appManager == nullptr) {
-                    HILOG_ERROR("appManager nullptr");
+                    TAG_LOGE(AAFwkTag::APPMGR, "appManager nullptr");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "appManager nullptr"));
                     return;
                 }
                 std::vector<AppExecFwk::AppStateData> list;
                 int32_t ret = appManager->GetForegroundApplications(list);
                 if (ret == 0) {
-                    HILOG_DEBUG("success.");
+                    TAG_LOGD(AAFwkTag::APPMGR, "success.");
                     task.Resolve(env, CreateJsAppStateDataArray(env, list));
                 } else {
-                    HILOG_ERROR("failed error:%{public}d", ret);
+                    TAG_LOGE(AAFwkTag::APPMGR, "failed error:%{public}d", ret);
                     task.Reject(env, CreateJsError(env, ret, "OnGetForegroundApplications failed"));
                 }
             };
@@ -246,12 +247,12 @@ private:
 
     napi_value OnGetProcessRunningInfos(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -278,12 +279,12 @@ private:
 
     napi_value OnIsRunningInStabilityTest(napi_env env, const size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough arguments");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -293,12 +294,12 @@ private:
                     return;
                 }
                 if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
+                    TAG_LOGW(AAFwkTag::APPMGR, "abilityManager nullptr");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "abilityManager nullptr"));
                     return;
                 }
                 bool ret = abilityManager->IsRunningInStabilityTest();
-                HILOG_INFO("result:%{public}d", ret);
+                TAG_LOGI(AAFwkTag::APPMGR, "result:%{public}d", ret);
                 task.Resolve(env, CreateJsValue(env, ret));
             };
 
@@ -311,22 +312,22 @@ private:
 
     napi_value OnkillProcessByBundleName(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("OnkillProcessByBundleName called");
+        TAG_LOGD(AAFwkTag::APPMGR, "OnkillProcessByBundleName called");
         int32_t errCode = 0;
         std::string bundleName;
 
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough arguments");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                HILOG_ERROR("get bundleName failed!");
+                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
                 errCode = ERR_NOT_OK;
             }
         }
 
-        HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
+        TAG_LOGI(AAFwkTag::APPMGR, "kill process [%{public}s]", bundleName.c_str());
         NapiAsyncTask::CompleteCallback complete =
             [bundleName, abilityManager = abilityManager_, errCode](napi_env env, NapiAsyncTask& task,
                 int32_t status) {
@@ -335,7 +336,7 @@ private:
                 return;
             }
             if (abilityManager == nullptr) {
-                HILOG_WARN("abilityManager null");
+                TAG_LOGW(AAFwkTag::APPMGR, "abilityManager null");
                 task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "abilityManager nullptr"));
                 return;
             }
@@ -356,20 +357,20 @@ private:
 
     napi_value OnClearUpApplicationData(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
         std::string bundleName;
 
         // only support 1 or 2 params
         if (argc != ARGC_ONE && argc != ARGC_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                HILOG_ERROR("get bundleName failed!");
+                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
                 errCode = ERR_NOT_OK;
             } else {
-                HILOG_INFO("kill process [%{public}s]", bundleName.c_str());
+                TAG_LOGI(AAFwkTag::APPMGR, "kill process [%{public}s]", bundleName.c_str());
             }
         }
 
@@ -381,7 +382,7 @@ private:
                 return;
             }
             if (abilityManager == nullptr) {
-                HILOG_WARN("abilityManager nullptr");
+                TAG_LOGW(AAFwkTag::APPMGR, "abilityManager nullptr");
                 task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "abilityManager nullptr"));
                 return;
             }
@@ -402,22 +403,22 @@ private:
 
     napi_value OnKillProcessWithAccount(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
         int32_t errCode = 0;
         int32_t accountId = -1;
         std::string bundleName;
 
         // only support 2 or 3 params
         if (argc != ARGC_TWO && argc != ARGC_THREE) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params");
             errCode = ERR_NOT_OK;
         } else {
             if (!ConvertFromJsValue(env, argv[0], bundleName)) {
-                HILOG_ERROR("Parse bundleName failed");
+                TAG_LOGE(AAFwkTag::APPMGR, "Parse bundleName failed");
                 errCode = ERR_NOT_OK;
             }
             if (!ConvertFromJsValue(env, argv[1], accountId)) {
-                HILOG_ERROR("Parse userId failed");
+                TAG_LOGE(AAFwkTag::APPMGR, "Parse userId failed");
                 errCode = ERR_NOT_OK;
             }
         }
@@ -433,7 +434,7 @@ private:
                 if (ret == 0) {
                     task.Resolve(env, CreateJsUndefined(env));
                 } else {
-                    HILOG_DEBUG("failed error:%{public}d", ret);
+                    TAG_LOGD(AAFwkTag::APPMGR, "failed error:%{public}d", ret);
                     task.Reject(env, CreateJsError(env, ret, "Kill processes failed."));
                 }
             };
@@ -443,7 +444,7 @@ private:
         NapiAsyncTask::ScheduleHighQos("JSAppManager::OnKillProcessWithAccount",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
-        HILOG_DEBUG("end");
+        TAG_LOGD(AAFwkTag::APPMGR, "end");
     }
 
     napi_value OnGetAppMemorySize(napi_env env, const size_t argc, napi_value* argv)
@@ -452,7 +453,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            HILOG_ERROR("Insufficient params");
+            TAG_LOGE(AAFwkTag::APPMGR, "Insufficient params");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -462,12 +463,12 @@ private:
                     return;
                 }
                 if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
+                    TAG_LOGW(AAFwkTag::APPMGR, "abilityManager nullptr");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "abilityManager nullptr"));
                     return;
                 }
                 int32_t memorySize = abilityManager->GetAppMemorySize();
-                HILOG_INFO("memorySize:%{public}d", memorySize);
+                TAG_LOGI(AAFwkTag::APPMGR, "memorySize:%{public}d", memorySize);
                 task.Resolve(env, CreateJsValue(env, memorySize));
             };
 
@@ -484,7 +485,7 @@ private:
 
         // only support 0 or 1 params
         if (argc != ARGC_ZERO && argc != ARGC_ONE) {
-            HILOG_ERROR("Not enough parameters");
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough parameters");
             errCode = ERR_NOT_OK;
         }
         NapiAsyncTask::CompleteCallback complete =
@@ -494,12 +495,12 @@ private:
                     return;
                 }
                 if (abilityManager == nullptr) {
-                    HILOG_WARN("abilityManager nullptr");
+                    TAG_LOGW(AAFwkTag::APPMGR, "abilityManager nullptr");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "abilityManager nullptr"));
                     return;
                 }
                 bool ret = abilityManager->IsRamConstrainedDevice();
-                HILOG_INFO("result:%{public}d", ret);
+                TAG_LOGI(AAFwkTag::APPMGR, "result:%{public}d", ret);
                 task.Resolve(env, CreateJsValue(env, ret));
             };
 
@@ -531,9 +532,9 @@ OHOS::sptr<OHOS::AAFwk::IAbilityManager> GetAbilityManagerInstance()
 
 napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("JsAppManagerInit start");
+    TAG_LOGD(AAFwkTag::APPMGR, "JsAppManagerInit start");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_WARN("env or exportObj null");
+        TAG_LOGW(AAFwkTag::APPMGR, "env or exportObj null");
         return nullptr;
     }
 
@@ -564,7 +565,7 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetAppMemorySize);
     BindNativeFunction(env, exportObj, "isRamConstrainedDevice", moduleName,
         JsAppManager::IsRamConstrainedDevice);
-    HILOG_DEBUG("JsAppManagerInit end");
+    TAG_LOGD(AAFwkTag::APPMGR, "JsAppManagerInit end");
     return CreateJsUndefined(env);
 }
 }  // namespace AbilityRuntime

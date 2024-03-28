@@ -431,6 +431,8 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetAppIndex(appIndex_);
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
+    launchData.SetJITEnabled(jitEnabled_);
+
     TAG_LOGD(AAFwkTag::APPMGR, "app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
 }
@@ -1983,6 +1985,16 @@ int32_t AppRunningRecord::RequestTerminateProcess() const
         return ERR_INVALID_VALUE;
     }
     return appLifeCycleDeal_->RequestTerminateProcess();
+}
+
+void AppRunningRecord::SetJITEnabled(const bool jitEnabled)
+{
+    jitEnabled_ = jitEnabled;
+}
+
+bool AppRunningRecord::IsJITEnabled() const
+{
+    return jitEnabled_;
 }
 
 int32_t AppRunningRecord::GetAssignTokenId() const

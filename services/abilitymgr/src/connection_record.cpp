@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "ability_manager_service.h"
 #include "ability_util.h"
 #include "connection_state_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -87,7 +88,7 @@ void ConnectionRecord::ClearConnCallBack()
 int ConnectionRecord::DisconnectAbility()
 {
     if (state_ != ConnectionState::CONNECTED) {
-        HILOG_ERROR("The connection has not established, connectionState: %{public}d.",
+        TAG_LOGE(AAFwkTag::CONNECTION, "The connection has not established, connectionState: %{public}d.",
             static_cast<int32_t>(state_));
         return INVALID_CONNECTION_STATE;
     }
@@ -100,12 +101,12 @@ int ConnectionRecord::DisconnectAbility()
         /* post timeout task to taskhandler */
         auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
         if (handler == nullptr) {
-            HILOG_ERROR("fail to get TaskHandler");
+            TAG_LOGE(AAFwkTag::CONNECTION, "fail to get TaskHandler");
         } else {
             std::string taskName("DisconnectTimeout_");
             taskName += std::to_string(recordId_);
             auto disconnectTask = [connectionRecord = shared_from_this()]() {
-                HILOG_ERROR("Disconnect ability timeout");
+                TAG_LOGE(AAFwkTag::CONNECTION, "Disconnect ability timeout");
                 connectionRecord->DisconnectTimeout();
             };
             int disconnectTimeout =
@@ -115,8 +116,8 @@ int ConnectionRecord::DisconnectAbility()
         /* schedule disconnect to target ability */
         targetService_->DisconnectAbility();
     } else {
-        HILOG_DEBUG("The current connection count is %{public}zu, no need to disconnect, just remove connection.",
-            connectNums);
+        TAG_LOGD(AAFwkTag::CONNECTION,
+            "The current connection count is %{public}zu, no need to disconnect, just remove connection.", connectNums);
         targetService_->RemoveConnectRecordFromList(shared_from_this());
         SetConnectState(ConnectionState::DISCONNECTED);
     }
@@ -139,12 +140,12 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (callback && handler) {
         handler->SubmitTask([callback, element, remoteObject, resultCode] {
-            HILOG_DEBUG("OnAbilityConnectDone");
+            TAG_LOGD(AAFwkTag::CONNECTION, "OnAbilityConnectDone");
             callback->OnAbilityConnectDone(element, remoteObject, resultCode);
             });
     }
     DelayedSingleton<ConnectionStateManager>::GetInstance()->AddConnection(shared_from_this());
-    HILOG_INFO("result: %{public}d. connectState:%{public}d.", resultCode, state_);
+    TAG_LOGI(AAFwkTag::CONNECTION, "result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
@@ -158,33 +159,33 @@ void ConnectionRecord::CompleteDisconnect(int resultCode, bool isDied)
         abilityInfo.name, abilityInfo.moduleName);
     auto code = isDied ? (resultCode - 1) : resultCode;
     auto onDisconnectDoneTask = [connCallback = connCallback_, element, code]() {
-        HILOG_DEBUG("OnAbilityDisconnectDone.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "OnAbilityDisconnectDone.");
         if (!connCallback) {
-            HILOG_DEBUG("connCallback_ is nullptr.");
+            TAG_LOGD(AAFwkTag::CONNECTION, "connCallback_ is nullptr.");
             return;
         }
         connCallback->OnAbilityDisconnectDone(element, code);
     };
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        HILOG_ERROR("handler is nullptr.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "handler is nullptr.");
         return;
     }
     handler->SubmitTask(onDisconnectDoneTask);
     DelayedSingleton<ConnectionStateManager>::GetInstance()->RemoveConnection(shared_from_this(), isDied);
-    HILOG_DEBUG("result: %{public}d. connectState:%{public}d.", resultCode, state_);
+    TAG_LOGD(AAFwkTag::CONNECTION, "result: %{public}d. connectState:%{public}d.", resultCode, state_);
 }
 
 void ConnectionRecord::ScheduleDisconnectAbilityDone()
 {
     if (state_ != ConnectionState::DISCONNECTING) {
-        HILOG_ERROR("fail to schedule disconnect ability done, current state is not disconnecting.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail to schedule disconnect ability done, current state is not disconnecting.");
         return;
     }
 
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        HILOG_ERROR("fail to get AbilityTaskHandler");
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail to get AbilityTaskHandler");
     } else {
         std::string taskName = std::string("DisconnectTimeout_") + std::to_string(recordId_);
         handler->CancelTask(taskName);
@@ -196,12 +197,12 @@ void ConnectionRecord::ScheduleDisconnectAbilityDone()
 void ConnectionRecord::ScheduleConnectAbilityDone()
 {
     if (state_ != ConnectionState::CONNECTING) {
-        HILOG_ERROR("fail to schedule connect ability done, current state is not connecting.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail to schedule connect ability done, current state is not connecting.");
         return;
     }
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
-        HILOG_ERROR("fail to get AbilityTaskHandler");
+        TAG_LOGE(AAFwkTag::CONNECTION, "fail to get AbilityTaskHandler");
     } else {
         std::string taskName = std::string("ConnectTimeout_") + std::to_string(recordId_);
         handler->CancelTask(taskName);

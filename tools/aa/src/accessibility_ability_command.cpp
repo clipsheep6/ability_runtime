@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "accessibility_config.h"
 #include "accessibility_system_ability_client.h"
 #include "bool_wrapper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
@@ -240,17 +241,17 @@ AccessibilityAbilityShellCommand::AccessibilityAbilityShellCommand(int argc, cha
     : ShellCommand(argc, argv, ACCESSIBILITY_TOOL_NAME)
 {
     for (int i = 0; i < argc_; i++) {
-        HILOG_INFO("argv_[%{public}d]: %{public}s", i, argv_[i]);
+        TAG_LOGI(AAFwkTag::AA_TOOL, "argv_[%{public}d]: %{public}s", i, argv_[i]);
     }
     if (abilityClientPtr_ == nullptr) {
         abilityClientPtr_ = Accessibility::AccessibilitySystemAbilityClient::GetInstance();
         if (abilityClientPtr_ == nullptr) {
-            HILOG_ERROR("Get accessibility system ability client failed.");
+            TAG_LOGE(AAFwkTag::AA_TOOL, "Get access ability system ability client failed.");
         }
     }
     int32_t addPermissionResult = AccessibilityUtils::AddPermission();
     if (addPermissionResult != 0) {
-        HILOG_ERROR("Add permission for accessibility tool failed.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Add permission for access ability tool failed.");
     }
 }
 
@@ -335,7 +336,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeEnableCommandArgumentFromCmd(Acces
 
         option = getopt_long(argc_, argv_, ENABLE_SHORT_OPTIONS.c_str(), ENABLE_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("option: %{public}d, optind: %{public}d, optopt: %{public}d", option, optind, optopt);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "option: %{public}d, optind: %{public}d, optopt: %{public}d", option, optind, optopt);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
@@ -488,7 +490,7 @@ const std::vector<std::string> AccessibilityAbilityShellCommand::GetEnabledAbili
     std::vector<std::string> enabledAbilities;
     if (abilityClientPtr_ != nullptr &&
         (abilityClientPtr_->GetEnabledAbilities(enabledAbilities) != Accessibility::RET_OK)) {
-        HILOG_ERROR("Failed to GetEnabledAbilities");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to GetEnabledAbilities");
     }
     return enabledAbilities;
 }
@@ -500,7 +502,7 @@ const std::vector<Accessibility::AccessibilityAbilityInfo> AccessibilityAbilityS
     const Accessibility::AbilityStateType stateType = Accessibility::AbilityStateType::ABILITY_STATE_INSTALLED;
     if (abilityClientPtr_ != nullptr &&
         (abilityClientPtr_->GetAbilityList(allTypes, stateType, installedAbilities) != Accessibility::RET_OK)) {
-        HILOG_ERROR("Failed to GetInstalledAbilities");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to GetInstalledAbilities");
     }
     return installedAbilities;
 }
@@ -618,19 +620,19 @@ ErrCode AccessibilityAbilityShellCommand::CheckEnableCommandArgument(const Acces
     }
     std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities = GetInstalledAbilities();
     if (!CheckAbilityArgument(argument, resultMessage)) {
-        HILOG_ERROR("abilityName = %{public}s is invalid.", argument.abilityName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "abilityName = %{public}s is invalid.", argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckBundleArgument(argument, resultMessage)) {
-        HILOG_ERROR("bundleName = %{public}s is invalid.", argument.bundleName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "bundleName = %{public}s is invalid.", argument.bundleName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckCapabilitiesArgument(argument, installedAbilities, resultMessage)) {
-        HILOG_ERROR("capabilityNames = %{public}s is invalid", argument.capabilityNames.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "capabilityNames = %{public}s is invalid", argument.capabilityNames.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckParamValidity(argument, installedAbilities, resultMessage)) {
-        HILOG_ERROR("%{public}s/%{public}s is not installed",
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s/%{public}s is not installed",
             argument.bundleName.c_str(), argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -691,15 +693,15 @@ ErrCode AccessibilityAbilityShellCommand::CheckCommandArgument(const Accessibili
     }
     std::vector<Accessibility::AccessibilityAbilityInfo> installedAbilities = GetInstalledAbilities();
     if (!CheckAbilityArgument(argument, resultMessage)) {
-        HILOG_ERROR("abilityName = %{public}s is invalid", argument.abilityName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "abilityName = %{public}s is invalid", argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckBundleArgument(argument, resultMessage)) {
-        HILOG_ERROR("bundleName = %{public}s is invalid", argument.bundleName.c_str());
+        TAG_LOGE(AAFwkTag::AA_TOOL, "bundleName = %{public}s is invalid", argument.bundleName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
     if (!CheckParamValidity(argument, installedAbilities, resultMessage)) {
-        HILOG_ERROR("%{public}s/%{public}s is not installed",
+        TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s/%{public}s is not installed",
             argument.bundleName.c_str(), argument.abilityName.c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -1180,7 +1182,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeCommandArgumentFromCmd(Accessibili
         counter++;
         option = getopt_long(argc_, argv_, DISABLE_SHORT_OPTIONS.c_str(), DISABLE_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("optopt: %{public}d, option: %{public}d, optind: %{public}d", optopt, option, optind);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "optopt: %{public}d, option: %{public}d, optind: %{public}d", optopt, option, optind);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;
@@ -1242,7 +1245,8 @@ ErrCode AccessibilityAbilityShellCommand::MakeSetCommandArgumentFromCmd(Accessib
 
         option = getopt_long(argc_, argv_, SET_SHORT_OPTIONS.c_str(), SET_LONG_OPTIONS, nullptr);
 
-        HILOG_INFO("optind: %{public}d, optopt: %{public}d, option: %{public}d", optind, optopt, option);
+        TAG_LOGI(
+            AAFwkTag::AA_TOOL, "optind: %{public}d, optopt: %{public}d, option: %{public}d", optind, optopt, option);
 
         if (optind < 0 || optind > argc_) {
             return OHOS::ERR_INVALID_VALUE;

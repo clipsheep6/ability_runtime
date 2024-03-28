@@ -18,6 +18,7 @@
 
 #include "ability_info.h"
 #include "application_info.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "mock_overlay_manager.h"
 namespace {
@@ -251,7 +252,7 @@ bool BundleMgrService::GetBundleInfo(
         bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
     }
     if (bundleName == "com.ohos.quickfix") {
-        HILOG_INFO("GetBundleInfo of [com.ohos.quickfix].");
+        TAG_LOGI(AAFwkTag::TEST, "GetBundleInfo of [com.ohos.quickfix].");
         ConstructHqfInfo(bundleInfo);
     }
     return true;
@@ -386,7 +387,7 @@ ErrCode BundleMgrService::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundle
     HapModuleInfo hapModuleInfo;
     bundleInfo.hapModuleInfos.push_back(hapModuleInfo);
     if (g_CurrentBundleName == "com.ohos.quickfix") {
-        HILOG_INFO("GetBundleInfo of [com.ohos.quickfix].");
+        TAG_LOGI(AAFwkTag::TEST, "GetBundleInfo of [com.ohos.quickfix].");
         ConstructHqfInfo(bundleInfo);
     }
     return ERR_OK;

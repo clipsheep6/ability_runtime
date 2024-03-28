@@ -34,7 +34,20 @@ public:
 
     int32_t BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskManager> &startupTaskManager);
 
+    std::shared_ptr<StartupConfig> GetDefaultConfig() const;
+
+    int32_t RemoveAllResult();
+
+    int32_t RemoveResult(const std::string &name);
+
+    int32_t GetResult(const std::string &name, std::shared_ptr<StartupTaskResult> &result);
+
+    int32_t IsInitialized(const std::string &name, bool &isInitialized);
+
 private:
+    uint32_t startupTaskManagerId = 0;
+    std::map<uint32_t, std::shared_ptr<StartupTaskManager>> startupTaskManagerMap_;
+    // read only after initialization
     std::map<std::string, std::shared_ptr<StartupTask>> startupTasks_;
     std::shared_ptr<StartupConfig> defaultConfig_;
 };

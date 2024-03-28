@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "ability_manager_client.h"
 #include "event_handler.h"
 #include "event_runner.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "insight_intent_callback_interface.h"
 #include "insight_intent_host_client.h"
@@ -82,7 +83,7 @@ public:
 
     static void Finalizer(napi_env env, void *data, void *hint)
     {
-        HILOG_INFO("JsInsightIntentDriver::Finalizer is called");
+        TAG_LOGI(AAFwkTag::INTENT, "JsInsightIntentDriver::Finalizer is called");
         std::unique_ptr<JsInsightIntentDriver>(static_cast<JsInsightIntentDriver*>(data));
     }
 
@@ -94,16 +95,16 @@ public:
 private:
     napi_value OnExecute(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::INTENT, "called");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Params not match");
+            TAG_LOGE(AAFwkTag::INTENT, "Params not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
 
         InsightIntentExecuteParam param;
         if (!UnwrapExecuteParam(env, info.argv[INDEX_ZERO], param)) {
-            HILOG_ERROR("CheckOnOffType, Parse on off type failed");
+            TAG_LOGE(AAFwkTag::INTENT, "CheckOnOffType, Parse on off type failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -126,7 +127,7 @@ private:
         }
 
         if (asyncTask == nullptr) {
-            HILOG_ERROR("asyncTask is nullptr");
+            TAG_LOGE(AAFwkTag::INTENT, "asyncTask is nullptr");
             return CreateJsUndefined(env);
         }
         auto client = std::make_shared<JsInsightIntentExecuteCallbackClient>(env, nativeDeferred, callbackRef);
@@ -143,9 +144,9 @@ private:
 
 napi_value JsInsightIntentDriverInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("JsInsightIntentDriverInit is called");
+    TAG_LOGD(AAFwkTag::INTENT, "JsInsightIntentDriverInit is called");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        TAG_LOGE(AAFwkTag::INTENT, "Invalid input parameters");
         return nullptr;
     }
 

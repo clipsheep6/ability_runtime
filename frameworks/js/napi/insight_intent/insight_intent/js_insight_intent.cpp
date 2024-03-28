@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_insight_intent.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
@@ -32,7 +33,7 @@ const uint8_t NUMBER_OF_PARAMETERS_THREE = 3;
 napi_value ExecuteModeInit(napi_env env)
 {
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        TAG_LOGE(AAFwkTag::INTENT, "Invalid input parameters");
         return nullptr;
     }
     napi_value objValue = nullptr;
@@ -52,9 +53,9 @@ napi_value ExecuteModeInit(napi_env env)
 
 napi_value JsInsightIntentInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        TAG_LOGE(AAFwkTag::INTENT, "Invalid input parameters");
         return nullptr;
     }
 

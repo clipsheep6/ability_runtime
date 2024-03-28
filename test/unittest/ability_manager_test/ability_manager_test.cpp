@@ -20,6 +20,7 @@
 #include "ability_manager_stub_mock.h"
 #undef private
 #undef protected
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 using namespace testing::ext;
 using namespace testing;
@@ -44,7 +45,7 @@ public:
  */
 HWTEST_F(AbilityManagerTest, AbilityManagerTest_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerTest_0100 is start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0100 is start");
     int32_t requestCode = NEGATIVE;
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicSAbility");
@@ -55,7 +56,7 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0100, TestSize.Level1)
     EXPECT_EQ(error, ERR_OK);
     AbilityManager::GetInstance().StartAbility(want, requestCode);
     AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
-    HILOG_INFO("AbilityManagerTest_0100 is end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0100 is end");
 }
 
 /*
@@ -65,7 +66,7 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0100, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerTest, AbilityManagerTest_0200, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerTest_0200 is start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0200 is start");
     int32_t requestCode = NEGATIVE;
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicSAbility");
@@ -73,7 +74,7 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0200, TestSize.Level1)
     ErrCode error = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want, requestCode);
     EXPECT_NE(error, ERR_OK);
     AbilityManager::GetInstance().StartAbility(want, requestCode);
-    HILOG_INFO("AbilityManagerTest_0200 is end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0200 is end");
 }
 
 /*
@@ -83,11 +84,11 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0200, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerTest, AbilityManagerTest_0300, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerTest_0300 is start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0300 is start");
     const std::string bundleName = "test";
     auto res = AbilityManager::GetInstance().ClearUpApplicationData(bundleName);
     EXPECT_EQ(res, ERR_INVALID_OPERATION);
-    HILOG_INFO("AbilityManagerTest_0300 is end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0300 is end");
 }
 
 /*
@@ -97,11 +98,11 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0300, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerTest, AbilityManagerTest_0500, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerTest_0500 is start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0500 is start");
     const std::string bundleName = "test";
     auto res = AbilityManager::GetInstance().KillProcessesByBundleName(bundleName);
     EXPECT_NE(res, ERR_OK);
-    HILOG_INFO("AbilityManagerTest_0500 is end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0500 is end");
 }
 
 /*
@@ -111,14 +112,14 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0500, TestSize.Level1)
  */
 HWTEST_F(AbilityManagerTest, AbilityManagerTest_0600, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerTest_0600 is start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0600 is start");
     const std::string bundleName = "test";
     sptr<AAFwk::AbilityManagerStubTestMock> mock = new AAFwk::AbilityManagerStubTestMock();
     AAFwk::AbilityManagerClient::GetInstance()->proxy_ = mock;
     auto res = AbilityManager::GetInstance().KillProcessesByBundleName(bundleName);
     EXPECT_EQ(res, ERR_OK);
     AAFwk::AbilityManagerClient::GetInstance()->proxy_ = nullptr;
-    HILOG_INFO("AbilityManagerTest_0600 is end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0600 is end");
 }
 } // namespace AAFwk
 } // namespace OHOS

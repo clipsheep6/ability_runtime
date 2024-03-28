@@ -442,12 +442,6 @@ HWTEST_F(MissionInfoMgrTest, FindReusedMissionInfo_001, TestSize.Level1)
     missionInfo.launchMode = 1000;
     missionInfoMgr->missionInfoList_.push_back(missionInfo);
     EXPECT_FALSE(missionInfoMgr->FindReusedMissionInfo("test", "", false, missionInfo));
-
-    missionInfoMgr->missionInfoList_.clear();
-    missionInfo.missionName = "test";
-    missionInfo.launchMode = static_cast<int32_t>(AppExecFwk::LaunchMode::STANDARD);
-    missionInfoMgr->missionInfoList_.push_back(missionInfo);
-    EXPECT_TRUE(missionInfoMgr->FindReusedMissionInfo("test", "", true, missionInfo));
 }
 
 /*

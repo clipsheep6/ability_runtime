@@ -16,6 +16,7 @@
 #include "auto_fill_event_handler.h"
 
 #include "auto_fill_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -26,9 +27,9 @@ AutoFillEventHandler::AutoFillEventHandler(const std::shared_ptr<AppExecFwk::Eve
 
 void AutoFillEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
     if (event == nullptr) {
-        HILOG_ERROR("Event is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Event is nullptr.");
         return;
     }
     AutoFillManager::GetInstance().HandleTimeOut(event->GetInnerEventId());

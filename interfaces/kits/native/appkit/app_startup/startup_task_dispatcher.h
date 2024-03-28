@@ -17,6 +17,7 @@
 #define OHOS_ABILITY_RUNTIME_STARTUP_TASK_DISPATCHER_H
 
 #include "ability_manager_errors.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {

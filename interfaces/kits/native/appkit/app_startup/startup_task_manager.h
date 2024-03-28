@@ -27,17 +27,20 @@ namespace OHOS {
 namespace AbilityRuntime {
 class StartupTaskManager {
 public:
-    StartupTaskManager();
+    explicit StartupTaskManager(uint32_t startupTaskManagerId);
 
     ~StartupTaskManager();
 
     int32_t AddTask(const std::shared_ptr<StartupTask> &task);
+
+    int32_t SetConfig(const std::shared_ptr<StartupConfig> &config);
 
     int32_t Prepare();
 
     int32_t Run();
 
 private:
+    uint32_t startupTaskManagerId_ = 0;
     std::shared_ptr<StartupConfig> config_;
     std::shared_ptr<StartupTaskDispatcher> dispatcher_;
     std::map<std::string, std::shared_ptr<StartupTask>> tasks_;

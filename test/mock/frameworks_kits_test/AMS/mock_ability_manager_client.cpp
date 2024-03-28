@@ -20,6 +20,7 @@
 #undef protected
 #include "ability_manager_interface.h"
 #include "string_ex.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "if_system_ability_manager.h"
@@ -53,7 +54,7 @@ AbilityManagerClient::~AbilityManagerClient()
 ErrCode AbilityManagerClient::AttachAbilityThread(
     sptr<IAbilityScheduler> scheduler, sptr<IRemoteObject> token)
 {
-    HILOG_INFO("AbilityManagerClient::AttachAbilityThread start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::AttachAbilityThread start");
     ErrCode err = Connect();
     if (err != ERR_OK) {
         return ABILITY_SERVICE_NOT_CONNECTED;
@@ -94,7 +95,7 @@ ErrCode AbilityManagerClient::ScheduleDisconnectAbilityDone(sptr<IRemoteObject> 
 ErrCode AbilityManagerClient::ScheduleCommandAbilityDone(sptr<IRemoteObject> token)
 {
     if (remoteObject_ == nullptr) {
-        HILOG_ERROR("%{private}s:ability service not command", __func__);
+        TAG_LOGE(AAFwkTag::TEST, "%{private}s:ability service not command", __func__);
         return ABILITY_SERVICE_NOT_CONNECTED;
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
@@ -125,13 +126,13 @@ ErrCode AbilityManagerClient::StartAbility(const Want& want, int requestCode, in
 
 ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> token, int resultCode, const Want* resultWant)
 {
-    HILOG_INFO("AbilityManagerClient::TerminateAbility start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::TerminateAbility start");
     if (remoteObject_ == nullptr) {
         remoteObject_ =
             OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     }
     sptr<IAbilityManager> abms = iface_cast<IAbilityManager>(remoteObject_);
-    HILOG_INFO("AbilityManagerClient::TerminateAbility end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerClient::TerminateAbility end");
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
 
@@ -172,7 +173,7 @@ ErrCode AbilityManagerClient::Connect()
     remoteObject_ =
         OHOS::DelayedSingleton<AppExecFwk::SysMrgClient>::GetInstance()->GetSystemAbility(ABILITY_MGR_SERVICE_ID);
     if (remoteObject_ == nullptr) {
-        HILOG_ERROR("AbilityManagerClient::Connect remoteObject_ == nullptr");
+        TAG_LOGE(AAFwkTag::TEST, "AbilityManagerClient::Connect remoteObject_ == nullptr");
         return ERR_NO_MEMORY;
     }
 

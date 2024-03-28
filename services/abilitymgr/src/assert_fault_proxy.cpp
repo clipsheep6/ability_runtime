@@ -14,6 +14,7 @@
  */
 #include "ability_manager_client.h"
 #include "assert_fault_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "scene_board_judgement.h"
 
@@ -32,28 +33,28 @@ AssertFaultProxy::AssertFaultProxy(const sptr<IRemoteObject> &impl) : IRemotePro
 
 void AssertFaultProxy::NotifyDebugAssertResult(AAFwk::UserStatus status)
 {
-    HILOG_DEBUG("Notify user action result to assert fault application.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify user action result to assert fault application.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(AssertFaultProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteInt32(static_cast<int32_t>(status))) {
-        HILOG_ERROR("Write status failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write status failed.");
         return;
     }
 
     auto remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Get remote failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get remote failed.");
         return;
     }
 
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
     if (remote->SendRequest(MessageCode::NOTIFY_DEBUG_ASSERT_RESULT, data, reply, option) != NO_ERROR) {
-        HILOG_ERROR("Remote send request failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote send request failed.");
     }
 }
 
@@ -63,7 +64,7 @@ AssertFaultRemoteDeathRecipient::AssertFaultRemoteDeathRecipient(RemoteDiedHandl
 void AssertFaultRemoteDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     if (handler_ == nullptr) {
-        HILOG_ERROR("Callback is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback is nullptr.");
         return;
     }
     handler_(remote);
@@ -88,20 +89,20 @@ sptr<ModalSystemAssertUIExtension::AssertDialogConnection> ModalSystemAssertUIEx
 
 bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     auto callback = GetConnection();
     if (callback == nullptr) {
-        HILOG_ERROR("Callback is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback is nullptr.");
         return false;
     }
     if (callback->RequestShowDialog(want)) {
-        HILOG_DEBUG("Start consumption want.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Start consumption want.");
         return true;
     }
 
     auto abilityManagerClient = AAFwk::AbilityManagerClient::GetInstance();
     if (abilityManagerClient == nullptr) {
-        HILOG_ERROR("ConnectSystemUi AbilityManagerClient is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ConnectSystemUi AbilityManagerClient is nullptr");
         return false;
     }
 
@@ -113,7 +114,7 @@ bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &wan
     }
     auto result = abilityManagerClient->ConnectAbility(systemUIWant, callback, INVALID_USERID);
     if (result != ERR_OK) {
-        HILOG_ERROR("ConnectSystemUi ConnectAbility dialog failed, result = %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ConnectSystemUi ConnectAbility dialog failed, result = %{public}d", result);
         return false;
     }
     return true;
@@ -121,19 +122,19 @@ bool ModalSystemAssertUIExtension::CreateModalUIExtension(const AAFwk::Want &wan
 
 ModalSystemAssertUIExtension::AssertDialogConnection::~AssertDialogConnection()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     CleanUp();
 }
 
 bool ModalSystemAssertUIExtension::AssertDialogConnection::RequestShowDialog(const AAFwk::Want &want)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     {
         std::lock_guard lock(mutex_);
         consumptionList_.push(want);
     }
     if (!isDialogShow_) {
-        HILOG_DEBUG("Connection not ready.");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Connection not ready.");
         return false;
     }
 
@@ -144,7 +145,7 @@ bool ModalSystemAssertUIExtension::AssertDialogConnection::RequestShowDialog(con
 
 void ModalSystemAssertUIExtension::AssertDialogConnection::CleanUp()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     std::lock_guard lock(mutex_);
     if (!consumptionList_.empty()) {
         std::queue<AAFwk::Want> temp;
@@ -160,9 +161,9 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::CleanUp()
 void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
     const AppExecFwk::ElementName &element, const sptr<IRemoteObject> &remote, int resultCode)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     if (remote == nullptr) {
-        HILOG_ERROR("Input remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input remote object is nullptr.");
         return;
     }
     std::lock_guard lock(mutex_);
@@ -173,7 +174,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
             new (std::nothrow) AssertFaultRemoteDeathRecipient([weakThis] (const wptr<IRemoteObject> &remote) {
                 auto remoteObj = weakThis.promote();
                 if (remoteObj == nullptr) {
-                    HILOG_ERROR("Invalid remote object.");
+                    TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid remote object.");
                     return;
                 }
                 remoteObj->CleanUp();
@@ -202,7 +203,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
         AAFwk::IAbilityConnection::ON_ABILITY_CONNECT_DONE;
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != ERR_OK) {
-        HILOG_ERROR("Show dialog is failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Show dialog is failed");
         return;
     }
     isDialogShow_ = true;
@@ -211,7 +212,7 @@ void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityConnectDone(
 void ModalSystemAssertUIExtension::AssertDialogConnection::OnAbilityDisconnectDone(
     const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     CleanUp();
 }
 } // namespace AbilityRuntime

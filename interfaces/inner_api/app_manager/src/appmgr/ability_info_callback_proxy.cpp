@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_info_callback_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -27,7 +28,7 @@ AbilityInfoCallbackProxy::AbilityInfoCallbackProxy(
 bool AbilityInfoCallbackProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityInfoCallbackProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed");
         return false;
     }
     return true;
@@ -46,7 +47,7 @@ void AbilityInfoCallbackProxy::NotifyAbilityToken(const sptr<IRemoteObject> toke
     data.WriteParcelable(&want);
     int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_ABILITY_TOKEN, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 }
@@ -63,7 +64,7 @@ void AbilityInfoCallbackProxy::NotifyRestartSpecifiedAbility(const sptr<IRemoteO
     data.WriteRemoteObject(token);
     int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_RESTART_SPECIFIED_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -82,7 +83,7 @@ void AbilityInfoCallbackProxy::NotifyStartSpecifiedAbility(const sptr<IRemoteObj
     data.WriteInt32(requestCode);
     int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_START_SPECIFIED_ABILITY, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
     sptr<Want> tempWant = reply.ReadParcelable<Want>();
@@ -94,7 +95,7 @@ void AbilityInfoCallbackProxy::NotifyStartSpecifiedAbility(const sptr<IRemoteObj
 void AbilityInfoCallbackProxy::SetExtraParam(const sptr<Want> &want, sptr<Want> &extraParam)
 {
     if (!want || !extraParam) {
-        HILOG_ERROR("want or extraParam is invalid.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want or extraParam is invalid.");
         return;
     }
 
@@ -122,7 +123,7 @@ void AbilityInfoCallbackProxy::NotifyStartAbilityResult(const Want &want, int re
     data.WriteInt32(result);
     int32_t ret = SendTransactCmd(IAbilityInfoCallback::Notify_START_ABILITY_RESULT, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("NotifyStartAbilityResult is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "NotifyStartAbilityResult is failed, error code: %{public}d", ret);
         return;
     }
 }
@@ -132,7 +133,7 @@ int32_t AbilityInfoCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 

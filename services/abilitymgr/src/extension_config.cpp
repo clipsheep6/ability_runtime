@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "extension_config.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -34,10 +35,10 @@ const int32_t DEFAULT_EXTENSION_AUTO_DISCONNECT_TIME = -1;
 
 void ExtensionConfig::LoadExtensionConfiguration()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     nlohmann::json jsonBuf;
     if (!ReadFileInfoJson(AMS_EXTENSION_CONFIG, jsonBuf)) {
-        HILOG_ERROR("Parse file failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Parse file failed.");
         return;
     }
 
@@ -55,7 +56,7 @@ int32_t ExtensionConfig::GetExtensionAutoDisconnectTime(std::string extensionTyp
 void ExtensionConfig::LoadExtensionAutoDisconnectTime(const nlohmann::json &object)
 {
     if (!object.contains(EXTENSION_AUTO_DISCONNECT_TIME_NAME)) {
-        HILOG_ERROR("Disconnect time config not existed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Disconnect time config not existed.");
         return;
     }
 
@@ -77,7 +78,7 @@ void ExtensionConfig::LoadExtensionAutoDisconnectTime(const nlohmann::json &obje
 bool ExtensionConfig::ReadFileInfoJson(const std::string &filePath, nlohmann::json &jsonBuf)
 {
     if (access(filePath.c_str(), F_OK) != 0) {
-        HILOG_DEBUG("%{public}s, not existed", filePath.c_str());
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s, not existed", filePath.c_str());
         return false;
     }
 
@@ -87,14 +88,14 @@ bool ExtensionConfig::ReadFileInfoJson(const std::string &filePath, nlohmann::js
     in.open(filePath, std::ios_base::in);
     if (!in.is_open()) {
         strerror_r(errno, errBuf, sizeof(errBuf));
-        HILOG_ERROR("the file cannot be open due to  %{public}s", errBuf);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file cannot be open due to  %{public}s", errBuf);
         return false;
     }
 
     in.seekg(0, std::ios::end);
     int64_t size = in.tellg();
     if (size <= 0) {
-        HILOG_ERROR("the file is an empty file");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "the file is an empty file");
         in.close();
         return false;
     }
@@ -103,7 +104,7 @@ bool ExtensionConfig::ReadFileInfoJson(const std::string &filePath, nlohmann::js
     jsonBuf = nlohmann::json::parse(in, nullptr, false);
     in.close();
     if (jsonBuf.is_discarded()) {
-        HILOG_ERROR("bad profile file");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bad profile file");
         return false;
     }
 

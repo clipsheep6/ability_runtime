@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "caller_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "string_ex.h"
@@ -49,22 +50,22 @@ bool CallerInfo::Marshalling(Parcel &parcel) const
     }
     // write deviceId
     if (!parcel.WriteString16(Str8ToStr16(deviceId))) {
-        HILOG_DEBUG("Failed to write str deviceId");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Failed to write str deviceId");
         return false;
     }
     // write bundleName
     if (!parcel.WriteString16(Str8ToStr16(bundleName))) {
-        HILOG_DEBUG("Failed to write str bundleName");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Failed to write str bundleName");
         return false;
     }
     // write abilityName
     if (!parcel.WriteString16(Str8ToStr16(abilityName))) {
-        HILOG_DEBUG("Failed to write str abilityName");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Failed to write str abilityName");
         return false;
     }
     // write moduleName
     if (!parcel.WriteString16(Str8ToStr16(moduleName))) {
-        HILOG_DEBUG("Failed to write str moduleName");
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Failed to write str moduleName");
         return false;
     }
     return true;

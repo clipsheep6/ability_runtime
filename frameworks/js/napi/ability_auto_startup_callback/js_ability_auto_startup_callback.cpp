@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_ability_auto_startup_callback.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_ability_auto_startup_manager_utils.h"
 #include "js_runtime.h"
@@ -32,23 +33,23 @@ JsAbilityAutoStartupCallBack::~JsAbilityAutoStartupCallBack() {}
 
 void JsAbilityAutoStartupCallBack::OnAutoStartupOn(const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     JSCallFunction(info, METHOD_ON);
 }
 
 void JsAbilityAutoStartupCallBack::OnAutoStartupOff(const AutoStartupInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     JSCallFunction(info, METHOD_OFF);
 }
 
 void JsAbilityAutoStartupCallBack::Register(napi_value value)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     std::lock_guard<std::mutex> lock(mutexlock);
     for (const auto &callback : callbacks_) {
         if (IsJsCallbackEquals(callback, value)) {
-            HILOG_ERROR("The current callback already exists.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "The current callback already exists.");
             return;
         }
     }
@@ -60,12 +61,12 @@ void JsAbilityAutoStartupCallBack::Register(napi_value value)
 
 void JsAbilityAutoStartupCallBack::UnRegister(napi_value value)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     napi_valuetype type = napi_undefined;
     napi_typeof(env_, value, &type);
     std::lock_guard<std::mutex> lock(mutexlock);
     if (type == napi_undefined || type == napi_null) {
-        HILOG_DEBUG("jsCallback is nullptr, delete all callback.");
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "jsCallback is nullptr, delete all callback.");
         callbacks_.clear();
         return;
     }
@@ -91,7 +92,7 @@ void JsAbilityAutoStartupCallBack::JSCallFunction(const AutoStartupInfo &info, c
                                                    napi_env env, NapiAsyncTask &task, int32_t status) {
         sptr<JsAbilityAutoStartupCallBack> obj = stub.promote();
         if (obj == nullptr) {
-            HILOG_ERROR("Callback object is nullptr");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Callback object is nullptr");
             return;
         }
 
@@ -107,19 +108,19 @@ void JsAbilityAutoStartupCallBack::JSCallFunctionWorker(const AutoStartupInfo &i
     std::lock_guard<std::mutex> lock(mutexlock);
     for (auto callback : callbacks_) {
         if (callback == nullptr) {
-            HILOG_ERROR("callback is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "callback is nullptr.");
             continue;
         }
 
         auto obj = callback->GetNapiValue();
         if (obj == nullptr) {
-            HILOG_ERROR("Failed to get value.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get value.");
             continue;
         }
 
         napi_value funcObject;
         if (napi_get_named_property(env_, obj, methodName.c_str(), &funcObject) != napi_ok) {
-            HILOG_ERROR("Get function by name failed.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get function by name failed.");
             continue;
         }
 
@@ -132,19 +133,19 @@ bool JsAbilityAutoStartupCallBack::IsJsCallbackEquals(const std::shared_ptr<Nati
     napi_value value)
 {
     if (callback == nullptr) {
-        HILOG_ERROR("Invalid jsCallback.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Invalid jsCallback.");
         return false;
     }
 
     auto object = callback->GetNapiValue();
     if (object == nullptr) {
-        HILOG_ERROR("Failed to get object.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to get object.");
         return false;
     }
 
     bool result = false;
     if (napi_strict_equals(env_, object, value, &result) != napi_ok) {
-        HILOG_ERROR("Object does not match value.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Object does not match value.");
         return false;
     }
 

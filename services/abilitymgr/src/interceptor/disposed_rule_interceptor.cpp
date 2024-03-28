@@ -30,6 +30,7 @@ namespace {
 const std::string UNREGISTER_EVENT_TASK = "unregister event task";
 const std::string UNREGISTER_TIMEOUT_OBSERVER_TASK = "unregister timeout observer task";
 constexpr int UNREGISTER_OBSERVER_MICRO_SECONDS = 5000;
+const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
 }
 
 ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
@@ -238,6 +239,7 @@ ErrCode DisposedRuleInterceptor::CreateModalUIExtension(const Want &want, const 
     auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
     if (abilityRecord == nullptr) {
         auto systemUIExtension = std::make_shared<OHOS::Rosen::ModalSystemUiExtension>();
+        (const_cast<Want &>(want)).SetParam(UIEXTENSION_MODAL_TYPE, 1);
         return systemUIExtension->CreateModalUIExtension(want) ? ERR_OK : INNER_ERR;
     } else {
         return abilityRecord->CreateModalUIExtension(want);

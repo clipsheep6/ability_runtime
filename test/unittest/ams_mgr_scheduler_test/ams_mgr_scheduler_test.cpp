@@ -25,6 +25,7 @@
 #include "mock_ability_token.h"
 #include "mock_app_mgr_service_inner.h"
 #include "mock_bundle_manager.h"
+#include "mock_sa_call.h"
 #include "application_state_observer_stub.h"
 
 using namespace testing;
@@ -897,6 +898,7 @@ HWTEST_F(AmsMgrSchedulerTest, UnregisterAppDebugListener_001, TestSize.Level0)
  */
 HWTEST_F(AmsMgrSchedulerTest, AttachAppDebug_001, TestSize.Level0)
 {
+    AAFwk::IsMockSaCall::IsMockSaCallWithPermission();
     auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
     EXPECT_NE(amsMgrScheduler, nullptr);
     std::string bundleName = "";

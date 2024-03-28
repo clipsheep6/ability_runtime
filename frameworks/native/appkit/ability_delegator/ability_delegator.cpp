@@ -353,9 +353,9 @@ void AbilityDelegator::Print(const std::string &msg)
     }
 
     auto realMsg(msg);
-    if (realMsg.length() > INFORMATION_MAX_LENGTH) {
+    if (realMsg.length() > DELEGATOR_PRINT_MAX_LENGTH) {
         HILOG_WARN("Too long message");
-        realMsg.resize(INFORMATION_MAX_LENGTH);
+        realMsg.resize(DELEGATOR_PRINT_MAX_LENGTH);
     }
     HILOG_INFO("message to print : %{public}s", realMsg.data());
 

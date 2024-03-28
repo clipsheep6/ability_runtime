@@ -13,17 +13,31 @@
  * limitations under the License.
  */
 
-#include "js_startup_task_main_thread_executor.h"
+#include "startup_task_result.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-JsStartupTaskMainThreadExecutor::JsStartupTaskMainThreadExecutor() = default;
+StartupTaskResult::StartupTaskResult() = default;
 
-JsStartupTaskMainThreadExecutor::~JsStartupTaskMainThreadExecutor() = default;
+StartupTaskResult::~StartupTaskResult() = default;
 
-int32_t JsStartupTaskMainThreadExecutor::Run(JsRuntime &jsRuntime)
+StartupTaskResult::StartupTaskResult(int32_t resultCode, const std::string &resultMessage)
+    : resultCode_(resultCode), resultMessage_(resultMessage)
+{}
+
+int32_t StartupTaskResult::GetResultCode() const
 {
-    return ERR_OK;
+    return resultCode_;
+}
+
+std::string StartupTaskResult::GetResultMessage() const
+{
+    return resultMessage_;
+}
+
+StartupTaskResult::ResultType StartupTaskResult::GetResultType() const
+{
+    return ResultType::INVALID;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

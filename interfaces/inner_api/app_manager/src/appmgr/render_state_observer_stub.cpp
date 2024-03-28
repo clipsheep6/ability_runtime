@@ -16,6 +16,7 @@
 #include "render_state_observer_stub.h"
 
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -51,7 +52,7 @@ int RenderStateObserverStub::OnRemoteRequest(
     std::u16string descriptor = RenderStateObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("Local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "Local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 

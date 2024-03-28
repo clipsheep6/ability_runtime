@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 #include "app_running_status_stub.h"
 
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -35,11 +36,11 @@ AppRunningStatusStub::~AppRunningStatusStub()
 int AppRunningStatusStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("Called, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
+    TAG_LOGD(AAFwkTag::APPMGR, "Called, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
     std::u16string descriptor = AppRunningStatusStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("Local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 

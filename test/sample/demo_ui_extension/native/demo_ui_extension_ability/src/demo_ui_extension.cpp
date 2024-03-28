@@ -13,22 +13,26 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_MAIN_THREAD_EXECUTOR_H
-#define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_MAIN_THREAD_EXECUTOR_H
+#include "demo_ui_extension.h"
 
-#include "ability_manager_errors.h"
-#include "js_startup_task_executor.h"
+#include "hilog_tag_wrapper.h"
+#include "js_demo_ui_extension.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsStartupTaskMainThreadExecutor : public JsStartupTaskExecutor {
-public:
-    JsStartupTaskMainThreadExecutor();
+DemoUIExtension *DemoUIExtension::Create(const std::unique_ptr<Runtime> &runtime)
+{
+    HILOG_DEBUG("Create demo extension.");
+    if (runtime == nullptr) {
+        return new DemoUIExtension();
+    }
 
-    ~JsStartupTaskMainThreadExecutor() override;
-
-    int32_t Run(JsRuntime &jsRuntime) override;
-};
+    switch (runtime->GetLanguage()) {
+        case Runtime::Language::JS:
+            return JsDemoUIExtension::Create(runtime);
+        default:
+            return new (std::nothrow) DemoUIExtension();
+    }
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_MAIN_THREAD_EXECUTOR_H

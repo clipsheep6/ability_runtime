@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_ability_monitor.h"
 
+#include "hilog_tag_wrapper.h"
 #include "js_ability_delegator_utils.h"
 #include "napi/native_common.h"
 
@@ -30,70 +31,70 @@ JSAbilityMonitor::JSAbilityMonitor(const std::string &abilityName, const std::st
 
 void JSAbilityMonitor::OnAbilityCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onAbilityCreate", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onAbilityForeground", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onAbilityBackground", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnAbilityDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onAbilityDestroy", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onWindowStageCreate", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onWindowStageRestore", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     CallLifecycleCBFunction("onWindowStageDestroy", abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void JSAbilityMonitor::SetJsAbilityMonitor(napi_value jsAbilityMonitor)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     napi_ref ref = nullptr;
     napi_create_reference(env_, jsAbilityMonitor, 1, &ref);
@@ -104,25 +105,25 @@ napi_value JSAbilityMonitor::CallLifecycleCBFunction(const std::string &function
     const std::weak_ptr<NativeReference> &abilityObj)
 {
     if (functionName.empty()) {
-        HILOG_ERROR("Invalid function name");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid function name");
         return nullptr;
     }
 
     if (!jsAbilityMonitor_) {
-        HILOG_ERROR("Invalid jsAbilityMonitor");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid jsAbilityMonitor");
         return nullptr;
     }
 
     napi_value obj = jsAbilityMonitor_->GetNapiValue();
     if (obj == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get object");
         return nullptr;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, obj, functionName.data(), &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get %{public}s from object", functionName.data());
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get %{public}s from object", functionName.data());
         return nullptr;
     }
 

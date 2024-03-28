@@ -13,11 +13,9 @@
  * limitations under the License.
  */
 
+let UIExtensionAbility = requireNapi('app.ability.UIExtensionAbility');
 
-class StartupTaskExecutor {
-  runOnMainThread(message) {
-    console.log('StartupTaskExecutor, message ' + message);
-  }
+class DemoUIExtensionAbility extends UIExtensionAbility {
 }
 
-export default StartupTaskExecutor;
+export default DemoUIExtensionAbility;

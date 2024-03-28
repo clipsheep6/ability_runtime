@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "ability_runtime_error_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_runtime_utils.h"
@@ -33,7 +34,7 @@ namespace OHOS {
 #define NAPI_ASSERT_RETURN_NULL(env, assertion, message)    \
 do {                                                        \
     if (!(assertion)) {                                     \
-        HILOG_INFO(message);                                \
+        TAG_LOGI(AAFwkTag::WANTAGENT, message);             \
         return nullptr;                                     \
     }                                                       \
 } while (0)
@@ -69,9 +70,9 @@ void TriggerCompleteCallBack::SetWantAgentInstance(WantAgent* wantAgent)
 
 napi_value RetErrMsg(napi_env env, napi_value lastParam, int32_t errorCode)
 {
-    HILOG_DEBUG("RetErrMsg called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "RetErrMsg called");
     auto complete = [err = errorCode] (napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("error information output");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "error information output");
         task.Reject(env, CreateJsError(env, err, "PARAMETER_ERROR"));
     };
 
@@ -84,7 +85,7 @@ napi_value RetErrMsg(napi_env env, napi_value lastParam, int32_t errorCode)
 
 napi_value CreateErrorValue(napi_env env, int32_t errCode)
 {
-    HILOG_INFO("enter, errorCode[%{public}d]", errCode);
+    TAG_LOGI(AAFwkTag::WANTAGENT, "enter, errorCode[%{public}d]", errCode);
     napi_value error =  NapiGetNull(env);
     if (errCode == NO_ERROR) {
         return error;
@@ -104,22 +105,23 @@ napi_value CreateErrorValue(napi_env env, int32_t errCode)
 
 void NapiThrow(napi_env env, int32_t errCode)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "enter");
 
     napi_throw(env, CreateErrorValue(env, errCode));
 }
 
 auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
-    HILOG_INFO("TriggerCompleteCallBack::OnSendFinishedUvAfterWorkCallback:status = %{public}d", status);
+    TAG_LOGI(AAFwkTag::WANTAGENT, "TriggerCompleteCallBack::OnSendFinishedUvAfterWorkCallback:status = %{public}d",
+        status);
 
     TriggerReceiveDataWorker* dataWorkerData = static_cast<TriggerReceiveDataWorker *>(work->data);
     if (dataWorkerData == nullptr) {
-        HILOG_ERROR("TriggerReceiveDataWorker instance(uv_work_t) is nullptr");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "TriggerReceiveDataWorker instance(uv_work_t) is nullptr");
         delete work;
         return;
     }
     if (dataWorkerData->resultData == "canceled") {
-        HILOG_INFO("wantAgent is canceled");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "wantAgent is canceled");
         delete dataWorkerData;
         dataWorkerData = nullptr;
         delete work;
@@ -129,7 +131,7 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
     napi_value objValueFirst = nullptr;
     napi_create_object(dataWorkerData->env, &objValueFirst);
     if (objValueFirst == nullptr) {
-        HILOG_ERROR("Failed to get objValueFirst");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Failed to get objValueFirst");
         delete dataWorkerData;
         dataWorkerData = nullptr;
         delete work;
@@ -138,7 +140,7 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
     napi_value objValueSecond = nullptr;
     napi_create_object(dataWorkerData->env, &objValueSecond);
     if (objValueSecond == nullptr) {
-        HILOG_ERROR("Failed to get objValueSecond");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Failed to get objValueSecond");
         delete dataWorkerData;
         dataWorkerData = nullptr;
         delete work;
@@ -175,9 +177,9 @@ auto OnSendFinishedUvAfterWorkCallback = [](uv_work_t* work, int status) {
 void TriggerCompleteCallBack::OnSendFinished(
     const AAFwk::Want &want, int resultCode, const std::string &resultData, const AAFwk::WantParams &resultExtras)
 {
-    HILOG_INFO("TriggerCompleteCallBack::OnSendFinished start");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "TriggerCompleteCallBack::OnSendFinished start");
     if (triggerCompleteInfo_.nativeRef == nullptr) {
-        HILOG_INFO("triggerCompleteInfo_ CallBack is nullptr");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "triggerCompleteInfo_ CallBack is nullptr");
         return;
     }
 
@@ -186,18 +188,18 @@ void TriggerCompleteCallBack::OnSendFinished(
     napi_get_uv_event_loop(triggerCompleteInfo_.env, &loop);
 #endif  // NAPI_VERSION >= 2
     if (loop == nullptr) {
-        HILOG_INFO("loop instance is nullptr");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "loop instance is nullptr");
         return;
     }
 
     uv_work_t* work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        HILOG_INFO("uv_work_t instance is nullptr");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "uv_work_t instance is nullptr");
         return;
     }
     TriggerReceiveDataWorker* dataWorker = new (std::nothrow) TriggerReceiveDataWorker();
     if (dataWorker == nullptr) {
-        HILOG_INFO("TriggerReceiveDataWorker instance is nullptr");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "TriggerReceiveDataWorker instance is nullptr");
         delete work;
         work = nullptr;
         return;
@@ -218,12 +220,12 @@ void TriggerCompleteCallBack::OnSendFinished(
         work = nullptr;
     }
 
-    HILOG_INFO("TriggerCompleteCallBack::OnSendFinished end");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "TriggerCompleteCallBack::OnSendFinished end");
 }
 
 void JsWantAgent::Finalizer(napi_env env, void* data, void* hint)
 {
-    HILOG_INFO("JsWantAgent::Finalizer is called");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "JsWantAgent::Finalizer is called");
     std::unique_ptr<JsWantAgent>(static_cast<JsWantAgent*>(data));
 }
 
@@ -304,12 +306,12 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(argc));
+    TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgentFirst = nullptr;
     WantAgent* pWantAgentSecond = nullptr;
     if (argc < ARGC_TWO || argc > ARGC_THREE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
 #endif
@@ -318,7 +320,7 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
 
     napi_value lastParam = (argc >= ARGC_THREE) ? argv[INDEX_TWO] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
         errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         AbilityRuntimeErrorUtil::Throw(env, errCode);
@@ -331,7 +333,7 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgentFirst));
     if (pWantAgentFirst == nullptr) {
-        HILOG_ERROR("Parse pWantAgentFirst failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgentFirst failed");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -342,7 +344,7 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     }
 
     if (!CheckTypeForNapiValue(env, argv[1], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -354,7 +356,7 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
 
     UnwrapWantAgent(env, argv[1], reinterpret_cast<void **>(&pWantAgentSecond));
     if (pWantAgentSecond == nullptr) {
-        HILOG_ERROR("Parse pWantAgentSceond failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgentSceond failed");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -368,7 +370,7 @@ napi_value JsWantAgent::OnEqual(napi_env env, napi_callback_info info)
     std::shared_ptr<WantAgent> wantAgentSecond = std::make_shared<WantAgent>(*pWantAgentSecond);
     NapiAsyncTask::CompleteCallback complete =
         [wantAgentFirst, wantAgentSecond](napi_env env, NapiAsyncTask &task, int32_t status) {
-            HILOG_DEBUG("OnEqual NapiAsyncTask is called");
+            TAG_LOGD(AAFwkTag::WANTAGENT, "OnEqual NapiAsyncTask is called");
             bool ret = false;
             ErrCode retCode = WantAgentHelper::IsEquals(wantAgentFirst, wantAgentSecond);
 #ifdef ENABLE_ERRCODE
@@ -403,31 +405,31 @@ napi_value JsWantAgent::OnGetWant(napi_env env, napi_callback_info info)
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(argc));
+    TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough arguments");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough arguments");
         return CreateJsUndefined(env);
     }
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong parameter type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong parameter type. Object expected.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent error");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent error");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnGetWant NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnGetWant NapiAsyncTask is called");
         std::shared_ptr<Want> want = WantAgentHelper::GetWant(wantAgent);
         if (want == nullptr) {
             task.Reject(env, CreateJsError(env, ERR_NOT_OK, "WantAgentHelper::GetWant result nullptr."));
@@ -447,31 +449,32 @@ napi_value JsWantAgent::OnGetOperationType(napi_env env, napi_callback_info info
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("JsWantAgent::OnGetOperationType enter, argc = %{public}d", static_cast<int32_t>(argc));
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsWantAgent::OnGetOperationType enter, argc = %{public}d",
+        static_cast<int32_t>(argc));
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         return CreateJsUndefined(env);
     }
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
         errCode = ERR_NOT_OK;
         return RetErrMsg(env, lastParam, errCode);
     }
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnGetOperationType NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnGetOperationType NapiAsyncTask is called");
         auto ret = WantAgentHelper::GetType(wantAgent);
         task.Resolve(env, CreateJsValue(env, ret));
     };
@@ -484,14 +487,14 @@ napi_value JsWantAgent::OnGetOperationType(napi_env env, napi_callback_info info
 
 napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
 #endif
@@ -500,7 +503,7 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -512,7 +515,7 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
 #ifdef ENABLE_ERRCODE
         errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         AbilityRuntimeErrorUtil::Throw(env, errCode);
@@ -525,7 +528,7 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnGetBundleName NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnGetBundleName NapiAsyncTask is called");
         std::string bundleName = "";
 #ifdef ENABLE_ERRCODE
         ErrCode result = WantAgentHelper::GetBundleName(wantAgent, bundleName);
@@ -548,14 +551,14 @@ napi_value JsWantAgent::OnGetBundleName(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
         errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         AbilityRuntimeErrorUtil::Throw(env, errCode);
@@ -565,7 +568,7 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
         errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         AbilityRuntimeErrorUtil::Throw(env, errCode);
@@ -578,7 +581,7 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent error");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent error");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -590,7 +593,7 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnGetUid NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnGetUid NapiAsyncTask is called");
         int uid = -1;
 #ifdef ENABLE_ERRCODE
         ErrCode result = WantAgentHelper::GetUid(wantAgent, uid);
@@ -612,14 +615,14 @@ napi_value JsWantAgent::OnGetUid(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    TAG_LOGD(AAFwkTag::WANTAGENT, "%{public}s is called", __FUNCTION__);
     int32_t errCode = BUSINESS_ERROR_CODE_OK;
     WantAgent* pWantAgent = nullptr;
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
 #endif
@@ -628,7 +631,7 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
 
     napi_value lastParam = (argc >= ARGC_TWO) ? argv[INDEX_ONE] : nullptr;
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
 #ifdef ENABLE_ERRCODE
         errCode = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
         AbilityRuntimeErrorUtil::Throw(env, errCode);
@@ -641,7 +644,7 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
 #ifdef ENABLE_ERRCODE
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
@@ -654,7 +657,7 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete =
         [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-            HILOG_DEBUG("OnCancel NapiAsyncTask is called");
+            TAG_LOGD(AAFwkTag::WANTAGENT, "OnCancel NapiAsyncTask is called");
 #ifdef ENABLE_ERRCODE
             ErrCode result = WantAgentHelper::Cancel(wantAgent);
             if (result != NO_ERROR) {
@@ -676,12 +679,12 @@ napi_value JsWantAgent::OnCancel(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnTrigger(napi_env env, napi_callback_info info)
 {
-    HILOG_DEBUG("%{public}s is called", __FUNCTION__);
+    TAG_LOGD(AAFwkTag::WANTAGENT, "%{public}s is called", __FUNCTION__);
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != ARGC_THREE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         return CreateJsUndefined(env);
     }
 
@@ -705,26 +708,26 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(napi_env env, napi_callback_info inf
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != ARGC_THREE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         return ERR_NOT_OK;
     }
 
     if (!CheckTypeForNapiValue(env, argv[ARGC_ZERO], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
         return ERR_NOT_OK;
     }
     WantAgent* pWantAgent = nullptr;
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
 
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
         return ERR_NOT_OK;
     }
     wantAgent = std::make_shared<WantAgent>(*pWantAgent);
 
     int32_t ret = GetTriggerInfo(env, argv[ARGC_ONE], triggerInfo);
     if (ret != BUSINESS_ERROR_CODE_OK) {
-        HILOG_ERROR("Get trigger info error");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Get trigger info error");
         return ret;
     }
 
@@ -738,9 +741,9 @@ int32_t JsWantAgent::UnWrapTriggerInfoParam(napi_env env, napi_callback_info inf
 
 int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo &triggerInfo)
 {
-    HILOG_DEBUG("GetTriggerInfo called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "GetTriggerInfo called.");
     if (!CheckTypeForNapiValue(env, param, napi_object)) {
-        HILOG_ERROR("param type mismatch!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "param type mismatch!");
         return ERR_NOT_OK;
     }
 
@@ -748,7 +751,7 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
     napi_value jsCode = nullptr;
     napi_get_named_property(env, param, "code", &jsCode);
     if (!ConvertFromJsValue(env, jsCode, code)) {
-        HILOG_ERROR("GetTriggerInfo convert code error!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "GetTriggerInfo convert code error!");
         return ERR_NOT_OK;
     }
 
@@ -760,7 +763,7 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
         napi_get_named_property(env, param, "want", &jsWant);
         want = std::make_shared<AAFwk::Want>();
         if (!UnwrapWant(env, jsWant, *want)) {
-            HILOG_ERROR("GetTriggerInfo convert want error!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "GetTriggerInfo convert want error!");
             return ERR_NOT_OK;
         }
     }
@@ -772,7 +775,7 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
         napi_value jsPermission = nullptr;
         napi_get_named_property(env, param, "permission", &jsPermission);
         if (!ConvertFromJsValue(env, jsPermission, permission)) {
-            HILOG_ERROR("GetTriggerInfo convert permission error!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "GetTriggerInfo convert permission error!");
             return ERR_NOT_OK;
         }
     }
@@ -793,7 +796,7 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
         extraInfo = std::make_shared<AAFwk::WantParams>();
         if (!UnwrapWantParams(env, (jsExtraInfo),
             *extraInfo)) {
-            HILOG_ERROR("GetTriggerInfo convert extraInfo error!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "GetTriggerInfo convert extraInfo error!");
             return ERR_NOT_OK;
         }
     }
@@ -805,12 +808,12 @@ int32_t JsWantAgent::GetTriggerInfo(napi_env env, napi_value param, TriggerInfo 
 
 int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, WantAgentWantsParas &paras)
 {
-    HILOG_DEBUG("GetWantAgentParam called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "GetWantAgentParam called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("param type mismatch!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "param type mismatch!");
         return PARAMETER_ERROR;
     }
 
@@ -820,7 +823,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
     bool isArray = false;
     napi_is_array(env, jsWants, &isArray);
     if (!isArray) {
-        HILOG_ERROR("wants is not array!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "wants is not array!");
         return PARAMETER_ERROR;
     }
 
@@ -831,7 +834,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         napi_value jsWant = nullptr;
         napi_get_element(env, jsWants, i, &jsWant);
         if (!UnwrapWant(env, jsWant, *want)) {
-            HILOG_ERROR("UnwrapWant failed!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "UnwrapWant failed!");
             return PARAMETER_ERROR;
         }
         paras.wants.emplace_back(want);
@@ -843,7 +846,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         napi_value jsActionType = nullptr;
         napi_get_named_property(env, argv[0], "actionType", &jsActionType);
         if (!ConvertFromJsValue(env, jsActionType, paras.operationType)) {
-            HILOG_ERROR("Convert actionType failed!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert actionType failed!");
             return PARAMETER_ERROR;
         }
     }
@@ -854,7 +857,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         napi_value jsOperationType = nullptr;
         napi_get_named_property(env, argv[0], "operationType", &jsOperationType);
         if (!ConvertFromJsValue(env, jsOperationType, paras.operationType)) {
-            HILOG_ERROR("Convert operationType failed!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert operationType failed!");
             return PARAMETER_ERROR;
         }
     }
@@ -862,7 +865,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
     napi_value jsRequestCode = nullptr;
     napi_get_named_property(env, argv[0], "requestCode", &jsRequestCode);
     if (!ConvertFromJsValue(env, jsRequestCode, paras.requestCode)) {
-        HILOG_ERROR("Convert requestCode failed!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Convert requestCode failed!");
         return PARAMETER_ERROR;
     }
 
@@ -874,7 +877,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         bool jsActionFlagsIsArray = false;
         napi_is_array(env, jsActionFlags, &jsActionFlagsIsArray);
         if (!jsActionFlagsIsArray) {
-            HILOG_ERROR("actionFlags is not array!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "actionFlags is not array!");
             return PARAMETER_ERROR;
         }
 
@@ -884,12 +887,12 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
             napi_value jsActionFlag = nullptr;
             napi_get_element(env, jsActionFlags, i, &jsActionFlag);
             if (!CheckTypeForNapiValue(env, jsActionFlag, napi_number)) {
-                HILOG_ERROR("ActionFlag type error!");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "ActionFlag type error!");
                 return PARAMETER_ERROR;
             }
             int32_t actionFlag = 0;
             if (!ConvertFromJsValue(env, jsActionFlag, actionFlag)) {
-                HILOG_ERROR("Convert actionFlag failed!");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Convert actionFlag failed!");
                 return PARAMETER_ERROR;
             }
             paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(actionFlag));
@@ -904,7 +907,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
         bool jsWantAgentFlagsIsArray = false;
         napi_is_array(env, jsWantAgentFlags, &jsWantAgentFlagsIsArray);
         if (!jsWantAgentFlagsIsArray) {
-            HILOG_ERROR("wantAgentFlags is not array!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "wantAgentFlags is not array!");
             return PARAMETER_ERROR;
         }
 
@@ -914,12 +917,12 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
             napi_value jsWantAgentFlag = nullptr;
             napi_get_element(env, jsWantAgentFlags, i, &jsWantAgentFlag);
             if (!CheckTypeForNapiValue(env, jsWantAgentFlag, napi_number)) {
-                HILOG_ERROR("WantAgentFlag type failed!");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentFlag type failed!");
                 return PARAMETER_ERROR;
             }
             int32_t wantAgentFlag = 0;
             if (!ConvertFromJsValue(env, jsWantAgentFlag, wantAgentFlag)) {
-                HILOG_ERROR("Convert WantAgentFlag failed!");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Convert WantAgentFlag failed!");
                 return PARAMETER_ERROR;
             }
             paras.wantAgentFlags.emplace_back(static_cast<WantAgentConstant::Flags>(wantAgentFlag));
@@ -939,12 +942,12 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
     }
     if (hasExtraInfo) {
         if (!CheckTypeForNapiValue(env, jsExtraInfo, napi_object)) {
-            HILOG_ERROR("ExtraInfo type error!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "ExtraInfo type error!");
             return PARAMETER_ERROR;
         }
         if (!UnwrapWantParams(env, (jsExtraInfo),
             paras.extraInfo)) {
-            HILOG_ERROR("Convert extraInfo failed!");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "Convert extraInfo failed!");
             return PARAMETER_ERROR;
         }
     }
@@ -953,7 +956,7 @@ int32_t JsWantAgent::GetWantAgentParam(napi_env env, napi_callback_info info, Wa
 
 napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
 {
-    HILOG_DEBUG("WrapWantAgent called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "WrapWantAgent called.");
     napi_value wantAgentClass = nullptr;
     napi_define_class(
         env,
@@ -971,7 +974,7 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
     napi_value result = nullptr;
     napi_new_instance(env, wantAgentClass, 0, nullptr, &result);
     if (result == nullptr) {
-        HILOG_ERROR("create instance failed.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "create instance failed.");
         delete wantAgent;
         wantAgent = nullptr;
         return nullptr;
@@ -981,7 +984,7 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
         result,
         reinterpret_cast<void*>(wantAgent),
         [](napi_env env, void* data, void* hint) {
-            HILOG_DEBUG("delete wantAgent.");
+            TAG_LOGD(AAFwkTag::WANTAGENT, "delete wantAgent.");
             auto agent = static_cast<WantAgent*>(data);
             delete agent;
             agent = nullptr;
@@ -993,14 +996,14 @@ napi_value JsWantAgent::WrapWantAgent(napi_env env, WantAgent* wantAgent)
 
 void JsWantAgent::UnwrapWantAgent(napi_env env, napi_value jsParam, void** result)
 {
-    HILOG_DEBUG("UnwrapWantAgent called.");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "UnwrapWantAgent called.");
     if (jsParam == nullptr) {
-        HILOG_ERROR("UnwrapWantAgent jsParam is nullptr!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "UnwrapWantAgent jsParam is nullptr!");
         return;
     }
 
     if (!CheckTypeForNapiValue(env, jsParam, napi_object)) {
-        HILOG_ERROR("UnwrapWantAgent jsParam type error!");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "UnwrapWantAgent jsParam type error!");
         return;
     }
 
@@ -1012,9 +1015,9 @@ napi_value JsWantAgent::OnGetWantAgent(napi_env env, napi_callback_info info)
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(argc));
+    TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         return CreateJsUndefined(env);
     }
 
@@ -1022,13 +1025,13 @@ napi_value JsWantAgent::OnGetWantAgent(napi_env env, napi_callback_info info)
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
     int32_t ret = GetWantAgentParam(env, info, *spParas);
     if (ret != 0) {
-        HILOG_ERROR("Failed to get wantAgent parameter.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Failed to get wantAgent parameter.");
         return RetErrMsg(env, lastParam, ret);
     }
 
     NapiAsyncTask::CompleteCallback complete = [weak = weak_from_this(), parasobj = spParas](napi_env env,
         NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnGetWantAgent NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnGetWantAgent NapiAsyncTask is called");
         auto self = weak.lock();
         std::shared_ptr<AAFwk::WantParams> extraInfo = std::make_shared<AAFwk::WantParams>(parasobj->extraInfo);
         WantAgentInfo wantAgentInfo(parasobj->requestCode,
@@ -1042,13 +1045,13 @@ napi_value JsWantAgent::OnGetWantAgent(napi_env env, napi_callback_info info)
         WantAgentHelper::GetWantAgent(context, wantAgentInfo, wantAgent);
         WantAgent* pWantAgent = nullptr;
         if (wantAgent == nullptr) {
-            HILOG_INFO("wantAgent is nullptr...");
+            TAG_LOGI(AAFwkTag::WANTAGENT, "wantAgent is nullptr...");
         } else {
             pWantAgent = new WantAgent(wantAgent->GetPendingWant());
         }
 
         if (pWantAgent == nullptr) {
-            HILOG_INFO("pWantAgent is nullptr...");
+            TAG_LOGI(AAFwkTag::WANTAGENT, "pWantAgent is nullptr...");
         }
         task.Resolve(env, self->WrapWantAgent(env, pWantAgent));
     };
@@ -1064,36 +1067,36 @@ napi_value JsWantAgent::OnNapiGetWant(napi_env env, napi_callback_info info)
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(argc));
+    TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
     WantAgent* pWantAgent = nullptr;
     auto selfToken = IPCSkeleton::GetSelfTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-        HILOG_ERROR("This application is not system-app, can not use system-api");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "This application is not system-app, can not use system-api");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
         return CreateJsUndefined(env);
     }
 
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnNapiGetWant NapiAsyncTask is start");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnNapiGetWant NapiAsyncTask is start");
         std::shared_ptr<Want> want = std::make_shared<Want>();
         ErrCode result = WantAgentHelper::GetWant(wantAgent, want);
         if (result != NO_ERROR) {
@@ -1111,12 +1114,12 @@ napi_value JsWantAgent::OnNapiGetWant(napi_env env, napi_callback_info info)
 
 napi_value JsWantAgent::OnNapiTrigger(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != ARGC_THREE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -1141,9 +1144,9 @@ napi_value JsWantAgent::OnNapiGetWantAgent(napi_env env, napi_callback_info info
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
-    HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(argc));
+    TAG_LOGD(AAFwkTag::WANTAGENT, "enter, argc = %{public}d", static_cast<int32_t>(argc));
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -1151,14 +1154,14 @@ napi_value JsWantAgent::OnNapiGetWantAgent(napi_env env, napi_callback_info info
     std::shared_ptr<WantAgentWantsParas> spParas = std::make_shared<WantAgentWantsParas>();
     int32_t ret = GetWantAgentParam(env, info, *spParas);
     if (ret != 0) {
-        HILOG_ERROR("Failed to get wantAgent param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Failed to get wantAgent param.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
     NapiAsyncTask::CompleteCallback complete = [weak = weak_from_this(), parasobj = spParas](napi_env env,
         NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnNapiGetWantAgent NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnNapiGetWantAgent NapiAsyncTask is called");
         auto self = weak.lock();
         std::shared_ptr<AAFwk::WantParams> extraInfo = std::make_shared<AAFwk::WantParams>(parasobj->extraInfo);
         WantAgentInfo wantAgentInfo(parasobj->requestCode,
@@ -1183,7 +1186,7 @@ napi_value JsWantAgent::OnNapiGetWantAgent(napi_env env, napi_callback_info info
             }
 
             if (pWantAgent == nullptr) {
-                HILOG_ERROR("pWantAgent is nullptr...");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "pWantAgent is nullptr...");
                 result = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
                 task.Reject(env, CreateJsError(env, result, AbilityRuntimeErrorUtil::GetErrMessage(result)));
             } else {
@@ -1201,19 +1204,19 @@ napi_value JsWantAgent::OnNapiGetWantAgent(napi_env env, napi_callback_info info
 
 napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info info)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "called.");
     size_t argc = ARGS_MAX_COUNT;
     napi_value argv[ARGS_MAX_COUNT] = {nullptr};
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     WantAgent* pWantAgent = nullptr;
     if (argc > ARGC_TWO || argc < ARGC_ONE) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Not enough params");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
     if (!CheckTypeForNapiValue(env, argv[0], napi_object)) {
-        HILOG_ERROR("Wrong argument type. Object expected.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Wrong argument type. Object expected.");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
@@ -1221,14 +1224,14 @@ napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info 
     UnwrapWantAgent(env, argv[0], reinterpret_cast<void **>(&pWantAgent));
 
     if (pWantAgent == nullptr) {
-        HILOG_ERROR("Parse pWantAgent failed");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Parse pWantAgent failed");
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
 
     std::shared_ptr<WantAgent> wantAgent = std::make_shared<WantAgent>(*pWantAgent);
     NapiAsyncTask::CompleteCallback complete = [wantAgent](napi_env env, NapiAsyncTask &task, int32_t status) {
-        HILOG_DEBUG("OnNapiGetOperationType NapiAsyncTask is called");
+        TAG_LOGD(AAFwkTag::WANTAGENT, "OnNapiGetOperationType NapiAsyncTask is called");
         int32_t operType;
         ErrCode ret = WantAgentHelper::GetType(wantAgent, operType);
         if (ret != NO_ERROR) {
@@ -1247,10 +1250,10 @@ napi_value JsWantAgent::OnNapiGetOperationType(napi_env env, napi_callback_info 
 
 napi_value WantAgentFlagsInit(napi_env env)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
 
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid input parameters");
         return nullptr;
     }
 
@@ -1283,10 +1286,10 @@ napi_value WantAgentFlagsInit(napi_env env)
 
 napi_value WantAgentOperationTypeInit(napi_env env)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "called");
 
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid input parameters");
         return nullptr;
     }
 
@@ -1311,10 +1314,10 @@ napi_value WantAgentOperationTypeInit(napi_env env)
 
 napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("JsWantAgentInit is called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsWantAgentInit is called");
 
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_ERROR("env or exportObj null.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "env or exportObj null.");
         return nullptr;
     }
 
@@ -1324,7 +1327,7 @@ napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
     napi_set_named_property(env, exportObj, "WantAgentFlags", WantAgentFlagsInit(env));
     napi_set_named_property(env, exportObj, "OperationType", WantAgentOperationTypeInit(env));
 
-    HILOG_DEBUG("JsWantAgentInit BindNativeFunction called");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsWantAgentInit BindNativeFunction called");
     const char* moduleName = "JsWantAgent";
     BindNativeFunction(env, exportObj, "equal", moduleName, JsWantAgent::Equal);
     BindNativeFunction(env, exportObj, "getWant", moduleName, JsWantAgent::GetWant);
@@ -1334,7 +1337,7 @@ napi_value JsWantAgentInit(napi_env env, napi_value exportObj)
     BindNativeFunction(env, exportObj, "cancel", moduleName, JsWantAgent::Cancel);
     BindNativeFunction(env, exportObj, "trigger", moduleName, JsWantAgent::Trigger);
     BindNativeFunction(env, exportObj, "getWantAgent", moduleName, JsWantAgent::GetWantAgent);
-    HILOG_DEBUG("JsWantAgentInit end");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "JsWantAgentInit end");
     return CreateJsUndefined(env);
 }
 

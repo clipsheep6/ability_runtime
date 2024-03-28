@@ -329,7 +329,7 @@ int32_t AppLifeCycleDeal::RequestTerminateProcess() const
 {
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
-        HILOG_ERROR("AppThread is nullptr.");
+        TAG_LOGE("AppThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleRequestTerminateProcess();

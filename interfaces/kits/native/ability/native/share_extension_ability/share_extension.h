@@ -16,7 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_SHARE_EXTENSION_H
 #define OHOS_ABILITY_RUNTIME_SHARE_EXTENSION_H
 
-#include "extension_base.h"
+#include "ui_extension_base.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -25,21 +25,11 @@ class Runtime;
 /**
  * @brief Share extension components.
  */
-class ShareExtension : public ExtensionBase<UIExtensionContext>, public std::enable_shared_from_this<ShareExtension> {
+class ShareExtension : public UIExtensionBase<UIExtensionContext>,
+                       public std::enable_shared_from_this<ShareExtension> {
 public:
     ShareExtension() = default;
     virtual ~ShareExtension() = default;
-
-    /**
-     * @brief Init the share extension.
-     *
-     * @param record the share extension record.
-     * @param application the application info.
-     * @param handler the share extension handler.
-     * @param token the remote token.
-     */
-    void Init(const std::shared_ptr<AbilityLocalRecord> &record, const std::shared_ptr<OHOSApplication> &application,
-        std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token) override;
 
     /**
      * @brief Create share extension.

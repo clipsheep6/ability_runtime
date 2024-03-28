@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +27,7 @@
 #include "ability_record.h"
 #include "app_debug_listener_stub_mock.h"
 #include "ability_scheduler.h"
+#include "hilog_tag_wrapper.h"
 #include "mission_snapshot.h"
 #include "want_sender_info.h"
 
@@ -73,7 +74,7 @@ void AbilityManagerProxyTest::SetUp()
  */
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DumpSysState_0100, TestSize.Level1)
 {
-    HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 start");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerProxy_DumpSysState_0100 start");
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
@@ -87,7 +88,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_DumpSysState_0100, TestSiz
     proxy_->DumpSysState(args, info, isClient, isUserID, USER_ID);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::DUMPSYS_STATE), mock_->code_);
 
-    HILOG_INFO("AbilityManagerProxy_DumpSysState_0100 end");
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerProxy_DumpSysState_0100 end");
 }
 
 /*
@@ -2096,6 +2097,52 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityAsCaller_002, 
 
 /*
  * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartAbilityForResultAsCaller
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityForResultAsCaller_001, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    int requestCode = 1;
+    int32_t userId = 2;
+    auto res = proxy_->StartAbilityForResultAsCaller(want, callerToken, requestCode, userId);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER), mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: StartAbilityForResultAsCaller
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService StartAbilityForResultAsCaller
+ * EnvConditions: NA
+ * CaseDescription: Verify the normal process of StartAbilityForResultAsCaller
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_StartAbilityForResultAsCaller_002, TestSize.Level1)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    const Want want;
+    sptr<IRemoteObject> callerToken = nullptr;
+    StartOptions startOptions;
+    int requestCode = 1;
+    int32_t userId = 2;
+    auto res = proxy_->StartAbilityForResultAsCaller(want, startOptions, callerToken, requestCode, userId);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS),
+        mock_->code_);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/*
+ * Feature: AbilityManagerService
  * Function: CallRequestDone
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService CallRequestDone
@@ -2647,7 +2694,7 @@ HWTEST_F(AbilityManagerProxyTest, QueryAllAutoStartupApplications_0100, TestSize
  */
 HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo_0100, TestSize.Level1)
 {
-    HILOG_INFO("begin");
+    TAG_LOGI(AAFwkTag::TEST, "begin");
 
     EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
         .Times(1)
@@ -2658,7 +2705,7 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo
     proxy_->GetUIExtensionRootHostInfo(token, hostInfo, USER_ID);
     EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO), mock_->code_);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::TEST, "end");
 }
 
 /**

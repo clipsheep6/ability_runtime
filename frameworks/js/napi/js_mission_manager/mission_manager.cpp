@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "ability_manager_client.h"
 #include "event_handler.h"
 #include "event_runner.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_mission_info_utils.h"
@@ -55,7 +56,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         std::unique_ptr<JsMissionManager>(static_cast<JsMissionManager*>(data));
     }
 
@@ -127,7 +128,7 @@ public:
 private:
     napi_value OnOn(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOnNew(env, argc, argv);
@@ -137,9 +138,9 @@ private:
 
     napi_value OnOnOld(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            HILOG_ERROR("Params not match");
+            TAG_LOGE(AAFwkTag::MISSION, "Params not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -161,7 +162,7 @@ private:
             missionListener_->AddJsListenerObject(missionListenerId_, argv[ARGC_ONE]);
             return CreateJsValue(env, missionListenerId_);
         } else {
-            HILOG_ERROR("RegisterMissionListener failed, ret = %{public}d", ret);
+            TAG_LOGE(AAFwkTag::MISSION, "RegisterMissionListener failed, ret = %{public}d", ret);
             missionListener_ = nullptr;
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_MISSION);
@@ -174,14 +175,14 @@ private:
 
     napi_value OnOnNew(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            HILOG_ERROR("Params not match");
+            TAG_LOGE(AAFwkTag::MISSION, "Params not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
-            HILOG_ERROR("Invalid param");
+            TAG_LOGE(AAFwkTag::MISSION, "Invalid param");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -198,7 +199,7 @@ private:
             missionListener_->AddJsListenerObject(missionListenerId_, argv[INDEX_ONE], true);
             return CreateJsValue(env, missionListenerId_);
         } else {
-            HILOG_ERROR("RegisterMissionListener failed, ret = %{public}d", ret);
+            TAG_LOGE(AAFwkTag::MISSION, "RegisterMissionListener failed, ret = %{public}d", ret);
             missionListener_ = nullptr;
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_MISSION);
@@ -211,7 +212,7 @@ private:
 
     napi_value OnOff(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         std::string type = ParseParamType(env, argc, argv);
         if (type == ON_OFF_TYPE_SYNC) {
             return OnOffNew(env, argc, argv);
@@ -221,9 +222,9 @@ private:
 
     napi_value OnOffOld(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -235,7 +236,7 @@ private:
 
         int32_t missionListenerId = -1;
         if (!ConvertFromJsValue(env, argv[ARGC_ONE], missionListenerId)) {
-            HILOG_ERROR("Parse missionListenerId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionListenerId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -271,40 +272,40 @@ private:
 
     napi_value OnOffNew(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::MISSION, "called");
         if (argc < ARG_COUNT_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
 
         int32_t missionListenerId = -1;
         if (!ConvertFromJsValue(env, argv[INDEX_ONE], missionListenerId)) {
-            HILOG_ERROR("Parse missionListenerId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionListenerId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
         if (missionListener_ == nullptr) {
-            HILOG_ERROR("missionListener_ is nullptr");
+            TAG_LOGE(AAFwkTag::MISSION, "missionListener_ is nullptr");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
         if (!missionListener_->RemoveJsListenerObject(missionListenerId, true)) {
-            HILOG_ERROR("missionListenerId not found");
+            TAG_LOGE(AAFwkTag::MISSION, "missionListenerId not found");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_NO_MISSION_LISTENER);
             return CreateJsUndefined(env);
         }
         if (!missionListener_->IsEmpty()) {
-            HILOG_DEBUG("Off success, missionListener is not empty");
+            TAG_LOGD(AAFwkTag::MISSION, "Off success, missionListener is not empty");
             return CreateJsUndefined(env);
         }
         auto ret = AbilityManagerClient::GetInstance()->UnRegisterMissionListener(missionListener_);
         if (ret == 0) {
-            HILOG_DEBUG("UnRegisterMissionListener success");
+            TAG_LOGD(AAFwkTag::MISSION, "UnRegisterMissionListener success");
             missionListener_ = nullptr;
         } else {
-            HILOG_ERROR("UnRegisterMissionListener failed");
+            TAG_LOGE(AAFwkTag::MISSION, "UnRegisterMissionListener failed");
             if (ret == CHECK_PERMISSION_FAILED) {
                 ThrowNoPermissionError(env, PermissionConstants::PERMISSION_MANAGE_MISSION);
             } else {
@@ -316,21 +317,21 @@ private:
 
     napi_value OnGetMissionInfos(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         if (argc < ARG_COUNT_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         std::string deviceId;
         if (!ConvertFromJsValue(env, argv[0], deviceId)) {
-            HILOG_ERROR("Parse deviceId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse deviceId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         int numMax = -1;
         if (!ConvertFromJsValue(env, argv[1], numMax)) {
-            HILOG_ERROR("Parse numMax failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse numMax failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -356,21 +357,21 @@ private:
 
     napi_value OnGetMissionInfo(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         if (argc < ARG_COUNT_TWO) {
-            HILOG_ERROR("Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         std::string deviceId;
         if (!ConvertFromJsValue(env, argv[0], deviceId)) {
-            HILOG_ERROR("Parse deviceId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse deviceId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[1], missionId)) {
-            HILOG_ERROR("Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "Parse missionId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -396,19 +397,19 @@ private:
 
     napi_value OnGetMissionSnapShot(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("called");
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         return GetMissionSnapShot(env, argc, argv, false);
     }
 
     napi_value OnGetLowResolutionMissionSnapShot(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("called");
+        TAG_LOGI(AAFwkTag::MISSION, "called");
         return GetMissionSnapShot(env, argc, argv, true);
     }
 
     napi_value GetMissionSnapShot(napi_env env, size_t argc, napi_value* argv, bool isLowResolution)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         std::string deviceId;
         int32_t missionId = -1;
         if (!CheckMissionSnapShotParams(env, argc, argv, deviceId, missionId)) {
@@ -465,13 +466,13 @@ private:
         }
 
         if (!ConvertFromJsValue(env, argv[0], deviceId)) {
-            HILOG_ERROR("missionSnapshot: Parse deviceId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "missionSnapshot: Parse deviceId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return false;
         }
 
         if (!ConvertFromJsValue(env, argv[1], missionId)) {
-            HILOG_ERROR("missionSnapshot: Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "missionSnapshot: Parse missionId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return false;
         }
@@ -481,15 +482,15 @@ private:
 
     napi_value OnLockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         if (argc == 0) {
-            HILOG_ERROR("OnLockMission Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            HILOG_ERROR("OnLockMission Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "OnLockMission Parse missionId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -514,15 +515,15 @@ private:
 
     napi_value OnUnlockMission(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         if (argc == 0) {
-            HILOG_ERROR("OnUnlockMission Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            HILOG_ERROR("OnUnlockMission Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "OnUnlockMission Parse missionId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -547,15 +548,15 @@ private:
 
     napi_value OnClearMission(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         if (argc == 0) {
-            HILOG_ERROR("OnClearMission Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            HILOG_ERROR("OnClearMission Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "OnClearMission Parse missionId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -580,7 +581,7 @@ private:
 
     napi_value OnClearAllMissions(napi_env env, const size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         NapiAsyncTask::CompleteCallback complete =
             [](napi_env env, NapiAsyncTask &task, int32_t status) {
                 auto ret = AbilityManagerClient::GetInstance()->CleanAllMissions();
@@ -601,15 +602,15 @@ private:
 
     napi_value OnMoveMissionToFront(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         if (argc == 0) {
-            HILOG_ERROR("OnMoveMissionToFront Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         int32_t missionId = -1;
         if (!ConvertFromJsValue(env, argv[0], missionId)) {
-            HILOG_ERROR("OnMoveMissionToFront Parse missionId failed");
+            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionToFront Parse missionId failed");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -617,7 +618,7 @@ private:
 
         AAFwk::StartOptions startOptions;
         if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_object)) {
-            HILOG_INFO("OnMoveMissionToFront start options is used.");
+            TAG_LOGI(AAFwkTag::MISSION, "OnMoveMissionToFront start options is used.");
             AppExecFwk::UnwrapStartOptions(env, argv[1], startOptions);
             unwrapArgc++;
         }
@@ -642,17 +643,17 @@ private:
 
     napi_value OnMoveMissionsToForeground(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         std::vector<int32_t> missionIds;
         if (argc < ARGC_ONE) {
-            HILOG_ERROR("OnMoveMissionsToForeground Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         uint32_t nativeArrayLen = 0;
         napi_get_array_length(env, argv[0], &nativeArrayLen);
         if (nativeArrayLen == 0) {
-            HILOG_ERROR("OnMoveMissionsToForeground MissionId is null");
+            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground MissionId is null");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -661,7 +662,7 @@ private:
             int32_t missionId = 0;
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
-                HILOG_ERROR("OnMoveMissionsToForeground Parse missionId failed");
+                TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse missionId failed");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);
             }
@@ -672,7 +673,7 @@ private:
         decltype(argc) unwrapArgc = 1;
         if (argc > ARGC_ONE && AppExecFwk::IsTypeForNapiValue(env, argv[1], napi_number)) {
             if (!ConvertFromJsValue(env, argv[1], topMissionId)) {
-                HILOG_ERROR("OnMoveMissionsToForeground Parse topMissionId failed");
+                TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToForeground Parse topMissionId failed");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);
             }
@@ -700,18 +701,18 @@ private:
 
     napi_value OnMoveMissionsToBackground(napi_env env, size_t argc, napi_value* argv)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s is called", __FUNCTION__);
         std::vector<int32_t> missionIds;
 
         if (argc < ARGC_ONE) {
-            HILOG_ERROR("OnMoveMissionsToBackground Not enough params");
+            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground Not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         uint32_t nativeArrayLen = 0;
         napi_get_array_length(env, argv[0], &nativeArrayLen);
         if (nativeArrayLen == 0) {
-            HILOG_ERROR("OnMoveMissionsToBackground MissionId is null");
+            TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground MissionId is null");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -720,7 +721,7 @@ private:
             int32_t missionId;
             napi_get_element(env, argv[0], i, &element);
             if (!ConvertFromJsValue(env, element, missionId)) {
-                HILOG_ERROR("OnMoveMissionsToBackground Parse topMissionId failed");
+                TAG_LOGE(AAFwkTag::MISSION, "OnMoveMissionsToBackground Parse topMissionId failed");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);
             }
@@ -760,18 +761,18 @@ private:
         }
 
         if (!AppExecFwk::IsTypeForNapiValue(env, argv[0], napi_string)) {
-            HILOG_ERROR("CheckOnOffType, Param 0 is not string");
+            TAG_LOGE(AAFwkTag::MISSION, "CheckOnOffType, Param 0 is not string");
             return false;
         }
 
         std::string type;
         if (!ConvertFromJsValue(env, argv[0], type)) {
-            HILOG_ERROR("CheckOnOffType, Parse on off type failed");
+            TAG_LOGE(AAFwkTag::MISSION, "CheckOnOffType, Parse on off type failed");
             return false;
         }
 
         if (type != ON_OFF_TYPE) {
-            HILOG_ERROR("CheckOnOffType, args[0] should be mission.");
+            TAG_LOGE(AAFwkTag::MISSION, "CheckOnOffType, args[0] should be mission.");
             return false;
         }
         return true;
@@ -792,9 +793,9 @@ private:
 
 napi_value JsMissionManagerInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::MISSION, "called");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_INFO("Invalid input parameters");
+        TAG_LOGI(AAFwkTag::MISSION, "Invalid input parameters");
         return nullptr;
     }
 

@@ -18,6 +18,7 @@
 #include "ability_business_error.h"
 #include "ability_manager_errors.h"
 #include "ability_runtime_error_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 #include "js_error_utils.h"
@@ -43,7 +44,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("JsUriPermMgr::Finalizer is called");
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "JsUriPermMgr::Finalizer is called");
         std::unique_ptr<JsUriPermMgr>(static_cast<JsUriPermMgr*>(data));
     }
 
@@ -60,33 +61,33 @@ public:
 private:
     napi_value OnGrantUriPermission(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("Grant Uri Permission start");
+        TAG_LOGD(AAFwkTag::URIPERMMGR, "Grant Uri Permission start");
         if (info.argc != argCountThree && info.argc != argCountFour) {
-            HILOG_ERROR("The number of parameter is invalid.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "The number of parameter is invalid.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
-            HILOG_ERROR("The uriStr is invalid.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "The uriStr is invalid.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         int flag = 0;
         if (!OHOS::AppExecFwk::UnwrapInt32FromJS2(env, info.argv[1], flag)) {
-            HILOG_ERROR("The flag is invalid.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "The flag is invalid.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         std::string targetBundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[argCountTwo], targetBundleName)) {
-            HILOG_ERROR("The targetBundleName is invalid.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "The targetBundleName is invalid.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-            HILOG_ERROR("This application is not system-app, can not use system-api.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "This application is not system-app, can not use system-api.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
             return CreateJsUndefined(env);
         }
@@ -124,25 +125,25 @@ private:
     {
         // only support 2 or 3 params (2 parameter and 1 optional callback)
         if (info.argc != argCountThree && info.argc != argCountTwo) {
-            HILOG_ERROR("Invalid arguments");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Invalid arguments");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
         std::string uriStr;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[0], uriStr)) {
-            HILOG_ERROR("invalid of the uriStr.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "invalid of the uriStr.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         std::string bundleName;
         if (!OHOS::AppExecFwk::UnwrapStringFromJS2(env, info.argv[1], bundleName)) {
-            HILOG_ERROR("The bundleName is invalid.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "The bundleName is invalid.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
         auto selfToken = IPCSkeleton::GetSelfTokenID();
         if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken)) {
-            HILOG_ERROR("can not use system-api, this application is not system-app.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "can not use system-api, this application is not system-app.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_NOT_SYSTEM_APP);
             return CreateJsUndefined(env);
         }
@@ -174,9 +175,9 @@ private:
 
 napi_value CreateJsUriPermMgr(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("CreateJsUriPermMgr is called");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "CreateJsUriPermMgr is called");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_INFO("Invalid input parameters");
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "Invalid input parameters");
         return nullptr;
     }
 

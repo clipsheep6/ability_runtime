@@ -20,6 +20,7 @@
 #include "app_mgr_proxy.h"
 #include "app_scheduler_interface.h"
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iapp_state_callback.h"
@@ -119,12 +120,13 @@ void AmsMgrStub::CreateMemberFuncMap()
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     if (code != static_cast<uint32_t>(IAmsMgr::Message::Get_BUNDLE_NAME_BY_PID)) {
-        HILOG_INFO("AmsMgrStub::OnReceived, code = %{public}u, flags= %{public}d.", code, option.GetFlags());
+        TAG_LOGI(AAFwkTag::APPMGR, "AmsMgrStub::OnReceived, code = %{public}u, flags= %{public}d.", code,
+            option.GetFlags());
     }
     std::u16string descriptor = AmsMgrStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is unequal to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is unequal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -151,19 +153,19 @@ ErrCode AmsMgrStub::HandleLoadAbility(MessageParcel &data, MessageParcel &reply)
     }
     std::shared_ptr<AbilityInfo> abilityInfo(data.ReadParcelable<AbilityInfo>());
     if (!abilityInfo) {
-        HILOG_ERROR("ReadParcelable<AbilityInfo> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<AbilityInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     std::shared_ptr<ApplicationInfo> appInfo(data.ReadParcelable<ApplicationInfo>());
     if (!appInfo) {
-        HILOG_ERROR("ReadParcelable<ApplicationInfo> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<ApplicationInfo> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 
     std::shared_ptr<AAFwk::Want> want(data.ReadParcelable<AAFwk::Want>());
     if (!want) {
-        HILOG_ERROR("ReadParcelable want failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable want failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     int32_t abilityRecordId = data.ReadInt32();
@@ -246,19 +248,19 @@ ErrCode AmsMgrStub::HandleKillProcessesByUserId(MessageParcel &data, MessageParc
 
 ErrCode AmsMgrStub::HandleKillProcessWithAccount(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::APPMGR, "enter");
 
     HITRACE_METER(HITRACE_TAG_APP);
 
     std::string bundleName = data.ReadString();
     int accountId = data.ReadInt32();
 
-    HILOG_INFO("bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
+    TAG_LOGI(AAFwkTag::APPMGR, "bundleName = %{public}s, accountId = %{public}d", bundleName.c_str(), accountId);
 
     int32_t result = KillProcessWithAccount(bundleName, accountId);
     reply.WriteInt32(result);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::APPMGR, "end");
 
     return NO_ERROR;
 }
@@ -287,7 +289,7 @@ ErrCode AmsMgrStub::HandleKillApplicationSelf(MessageParcel &data, MessageParcel
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t result = KillApplicationSelf();
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("result write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "result write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -317,7 +319,7 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByToken(MessageParcel &data, Mess
     auto token = data.ReadRemoteObject();
     GetRunningProcessInfoByToken(token, processInfo);
     if (reply.WriteParcelable(&processInfo)) {
-        HILOG_ERROR("process info write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "process info write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -329,7 +331,7 @@ int32_t AmsMgrStub::HandleGetRunningProcessInfoByPid(MessageParcel &data, Messag
     auto pid = static_cast<pid_t>(data.ReadInt32());
     GetRunningProcessInfoByPid(pid, processInfo);
     if (reply.WriteParcelable(&processInfo)) {
-        HILOG_ERROR("process info write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "process info write failed.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -347,13 +349,13 @@ int32_t AmsMgrStub::HandleStartSpecifiedAbility(MessageParcel &data, MessageParc
 {
     AAFwk::Want *want = data.ReadParcelable<AAFwk::Want>();
     if (want == nullptr) {
-        HILOG_ERROR("want is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "want is nullptr");
         return ERR_INVALID_VALUE;
     }
 
     AbilityInfo *abilityInfo = data.ReadParcelable<AbilityInfo>();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityInfo is nullptr.");
         delete want;
         return ERR_INVALID_VALUE;
     }
@@ -379,15 +381,15 @@ int32_t AmsMgrStub::HandleGetApplicationInfoByProcessID(MessageParcel &data, Mes
     bool debug;
     int32_t result = GetApplicationInfoByProcessID(pid, application, debug);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("write result error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write result error.");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteParcelable(&application)) {
-        HILOG_ERROR("write application info failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write application info failed");
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteBool(debug)) {
-        HILOG_ERROR("write debug info failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write debug info failed");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -424,16 +426,16 @@ int32_t AmsMgrStub::HandleGetBundleNameByPid(MessageParcel &data, MessageParcel 
 
 int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
-        HILOG_ERROR("App debug lister is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App debug lister is null.");
         return ERR_INVALID_VALUE;
     }
 
     auto result = RegisterAppDebugListener(appDebugLister);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -441,16 +443,16 @@ int32_t AmsMgrStub::HandleRegisterAppDebugListener(MessageParcel &data, MessageP
 
 int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto appDebugLister = iface_cast<IAppDebugListener>(data.ReadRemoteObject());
     if (appDebugLister == nullptr) {
-        HILOG_ERROR("App debug lister is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "App debug lister is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     auto result = UnregisterAppDebugListener(appDebugLister);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -458,16 +460,16 @@ int32_t AmsMgrStub::HandleUnregisterAppDebugListener(MessageParcel &data, Messag
 
 int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
-        HILOG_ERROR("Bundle name is empty.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
         return ERR_INVALID_VALUE;
     }
 
     auto result = AttachAppDebug(bundleName);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -475,16 +477,16 @@ int32_t AmsMgrStub::HandleAttachAppDebug(MessageParcel &data, MessageParcel &rep
 
 int32_t AmsMgrStub::HandleDetachAppDebug(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
-        HILOG_ERROR("Bundle name is empty.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
         return ERR_INVALID_VALUE;
     }
 
     auto result = DetachAppDebug(bundleName);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -572,16 +574,16 @@ int32_t AmsMgrStub::HandleClearNonPersistWaitingDebugFlag(MessageParcel &data, M
 
 int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto response = iface_cast<IAbilityDebugResponse>(data.ReadRemoteObject());
     if (response == nullptr) {
-        HILOG_ERROR("Response is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Response is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     auto result = RegisterAbilityDebugResponse(response);
     if (!reply.WriteInt32(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -589,16 +591,16 @@ int32_t AmsMgrStub::HandleRegisterAbilityDebugResponse(MessageParcel &data, Mess
 
 int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto bundleName = data.ReadString();
     if (bundleName.empty()) {
-        HILOG_ERROR("Bundle name is empty.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Bundle name is empty.");
         return ERR_INVALID_VALUE;
     }
 
     auto result = IsAttachDebug(bundleName);
     if (!reply.WriteBool(result)) {
-        HILOG_ERROR("Fail to write result.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
@@ -606,7 +608,7 @@ int32_t AmsMgrStub::HandleIsAttachDebug(MessageParcel &data, MessageParcel &repl
 
 int32_t AmsMgrStub::HandleSetAppAssertionPauseState(MessageParcel &data, MessageParcel &reply)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     auto pid = data.ReadInt32();
     auto flag = data.ReadBool();
     SetAppAssertionPauseState(pid, flag);

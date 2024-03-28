@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 
 #include "ability_manager_client.h"
 #include "ability_runtime/js_caller_complex.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_extension_context.h"
 #include "js_error_utils.h"
@@ -63,20 +64,20 @@ static int64_t g_serialNumber = 0;
 
 void RemoveConnection(int64_t connectId)
 {
-    HILOG_DEBUG("enter");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "enter");
     std::lock_guard guard(g_connectsMutex);
     auto item = std::find_if(g_connects.begin(), g_connects.end(),
     [&connectId](const auto &obj) {
         return connectId == obj.first.id;
     });
     if (item != g_connects.end()) {
-        HILOG_DEBUG("remove conn ability exist.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "remove conn ability exist.");
         if (item->second) {
             item->second->RemoveConnectionObject();
         }
         g_connects.erase(item);
     } else {
-        HILOG_DEBUG("remove conn ability not exist.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "remove conn ability not exist.");
     }
 }
 
@@ -87,7 +88,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_DEBUG("JsAbilityContext::Finalizer is called");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "JsAbilityContext::Finalizer is called");
         std::unique_ptr<JsServiceExtensionContext>(static_cast<JsServiceExtensionContext*>(data));
     }
 
@@ -167,10 +168,10 @@ private:
     static void ClearFailedCallConnection(
         const std::weak_ptr<ServiceExtensionContext>& serviceContext, const std::shared_ptr<CallerCallBack> &callback)
     {
-        HILOG_DEBUG("clear failed call of startup is called.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "clear failed call of startup is called.");
         auto context = serviceContext.lock();
         if (context == nullptr || callback == nullptr) {
-            HILOG_ERROR("clear failed call of startup input param is nullptr.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "clear failed call of startup input param is nullptr.");
             return;
         }
 
@@ -187,7 +188,7 @@ private:
         }
 
         if (ret != ERR_OK) {
-            HILOG_ERROR("AddFreeInstallObserver failed.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "AddFreeInstallObserver failed.");
         } else {
             // build a callback observer with last param
             std::string bundleName = want.GetElement().GetBundleName();
@@ -201,9 +202,9 @@ private:
     napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info, bool isStartRecent = false)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        HILOG_INFO("StartAbility");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbility");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Start ability failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -217,7 +218,7 @@ private:
         }
 
         if (isStartRecent) {
-            HILOG_DEBUG("OnStartRecentAbility is called");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartRecentAbility is called");
             want.SetParam(Want::PARAM_RESV_START_RECENT, true);
         }
 
@@ -253,9 +254,9 @@ private:
     napi_value OnStartAbilityAsCaller(napi_env env, NapiCallbackInfo& info)
     {
         HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-        HILOG_INFO("StartAbilityAsCaller");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityAsCaller");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Start ability as caller failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability as caller failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -270,10 +271,10 @@ private:
 
         NapiAsyncTask::CompleteCallback complete =
             [weak = context_, want, startOptions, unwrapArgc](napi_env env, NapiAsyncTask& task, int32_t status) {
-                HILOG_DEBUG("startAbility begin");
+                TAG_LOGD(AAFwkTag::SERVICE_EXT, "startAbility begin");
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
@@ -308,7 +309,7 @@ private:
         }
         ++unwrapArgc;
         if (info.argc > ARGC_ONE && CheckTypeForNapiValue(env, info.argv[1], napi_object)) {
-            HILOG_DEBUG("OnStartAbility start options is used.");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbility start options is used.");
             AppExecFwk::UnwrapStartOptions(env, info.argv[1], startOptions);
             unwrapArgc++;
         }
@@ -317,9 +318,9 @@ private:
 
     napi_value OnStartAbilityByCall(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("StartAbilityByCall");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityByCall");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Start ability by call failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability by call failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -338,20 +339,20 @@ private:
 
         auto context = context_.lock();
         if (context == nullptr) {
-            HILOG_ERROR("OnStartAbilityByCall context is nullptr");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall context is nullptr");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
 
         auto ret = context->StartAbilityByCall(want, calls->callerCallBack, accountId);
         if (ret) {
-            HILOG_ERROR("OnStartAbilityByCall is failed");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall is failed");
             ThrowErrorByNativeErr(env, ret);
             return CreateJsUndefined(env);
         }
 
         if (calls->remoteCallee == nullptr) {
-            HILOG_DEBUG("OnStartAbilityByCall async wait execute");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall async wait execute");
             NapiAsyncTask::ScheduleHighQos("JsAbilityContext::OnStartAbilityByCall", env,
                 CreateAsyncTaskWithLastParam(
                     env, nullptr, GetCallExecute(calls), GetCallComplete(calls), &retsult));
@@ -372,16 +373,16 @@ private:
         if (info.argc > static_cast<size_t>(INDEX_ONE)) {
             if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_number)) {
                 if (!ConvertFromJsValue(env, info.argv[1], accountId)) {
-                    HILOG_ERROR("check input param accountId failed");
+                    TAG_LOGE(AAFwkTag::SERVICE_EXT, "check input param accountId failed");
                     return false;
                 }
             } else {
-                HILOG_ERROR("input parameter type invalid");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "input parameter type invalid");
                 return false;
             }
         }
 
-        HILOG_INFO("CheckStartAbilityByCallInputParam, callee:%{public}s.%{public}s.",
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "CheckStartAbilityByCallInputParam, callee:%{public}s.%{public}s.",
             want.GetBundle().c_str(),
             want.GetElement().GetAbilityName().c_str());
         return true;
@@ -392,7 +393,7 @@ private:
         auto callComplete = [weak = context_, calldata = calls] (
             napi_env env, NapiAsyncTask& task, int32_t) {
             if (calldata->err != 0) {
-                HILOG_ERROR("OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callComplete err is %{public}d", calldata->err);
                 ClearFailedCallConnection(weak, calldata->callerCallBack);
                 task.Reject(env, CreateJsError(env, calldata->err, "callComplete err."));
                 return;
@@ -404,7 +405,7 @@ private:
                     const std::shared_ptr<CallerCallBack> &callback) -> ErrCode {
                     auto contextForRelease = weak.lock();
                     if (contextForRelease == nullptr) {
-                        HILOG_ERROR("releaseCallFunction, context is nullptr");
+                        TAG_LOGE(AAFwkTag::SERVICE_EXT, "releaseCallFunction, context is nullptr");
                         return -1;
                     }
                     return contextForRelease->ReleaseCall(callback);
@@ -413,13 +414,13 @@ private:
                     CreateJsCallerComplex(
                         env, releaseCallFunc, calldata->remoteCallee, calldata->callerCallBack));
             } else {
-                HILOG_ERROR("OnStartAbilityByCall callComplete params error %{public}s is nullptr",
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callComplete params error %{public}s is nullptr",
                     context == nullptr ? "context" :
                         (calldata->remoteCallee == nullptr ? "remoteCallee" : "callerCallBack"));
                 task.Reject(env, CreateJsError(env, -1, "Create Call Failed."));
             }
 
-            HILOG_DEBUG("OnStartAbilityByCall callComplete end");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callComplete end");
         };
         return callComplete;
     }
@@ -430,15 +431,15 @@ private:
             constexpr int callerTimeOut = 10; // 10s
             std::unique_lock<std::mutex> lock(calldata->mutexlock);
             if (calldata->remoteCallee != nullptr) {
-                HILOG_INFO("OnStartAbilityByCall callExecute callee isn`t null");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callExecute callee isn`t null");
                 return;
             }
 
             if (calldata->condition.wait_for(lock, std::chrono::seconds(callerTimeOut)) == std::cv_status::timeout) {
-                HILOG_ERROR("OnStartAbilityByCall callExecute waiting callee timeout");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callExecute waiting callee timeout");
                 calldata->err = -1;
             }
-            HILOG_DEBUG("OnStartAbilityByCall callExecute exit");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callExecute exit");
         };
         return callExecute;
     }
@@ -446,12 +447,12 @@ private:
     CallerCallBack::CallBackClosure GetCallBackDone(std::shared_ptr<StartAbilityByCallParameters> calls)
     {
         auto callBackDone = [calldata = calls] (const sptr<IRemoteObject> &obj) {
-            HILOG_DEBUG("OnStartAbilityByCall callBackDone mutexlock");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callBackDone mutexlock");
             std::unique_lock<std::mutex> lock(calldata->mutexlock);
-            HILOG_DEBUG("OnStartAbilityByCall callBackDone remoteCallee assignment");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callBackDone remoteCallee assignment");
             calldata->remoteCallee = obj;
             calldata->condition.notify_all();
-            HILOG_INFO("OnStartAbilityByCall callBackDone is called end");
+            TAG_LOGI(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall callBackDone is called end");
         };
         return callBackDone;
     }
@@ -459,16 +460,16 @@ private:
     CallerCallBack::OnReleaseClosure GetReleaseListen()
     {
         auto releaseListen = [](const std::string &str) {
-            HILOG_DEBUG("OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityByCall releaseListen is called %{public}s", str.c_str());
         };
         return releaseListen;
     }
 
     napi_value OnStartAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("StartAbilityWithAccount");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Start ability with account failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start ability with account failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -483,7 +484,7 @@ private:
 
         AAFwk::StartOptions startOptions;
         if (info.argc > ARGC_TWO && CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_object)) {
-            HILOG_DEBUG("OnStartAbilityWithAccount start options is used.");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnStartAbilityWithAccount start options is used.");
             AppExecFwk::UnwrapStartOptions(env, info.argv[INDEX_TWO], startOptions);
             unwrapArgc++;
         }
@@ -532,13 +533,13 @@ private:
 
     napi_value OnTerminateAbility(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("TerminateAbility");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "TerminateAbility");
 
         NapiAsyncTask::CompleteCallback complete =
             [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "Context is released"));
                     return;
                 }
@@ -560,10 +561,10 @@ private:
 
     napi_value OnConnectAbility(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("ConnectAbility called.");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "ConnectAbility called.");
         // Check params count
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Connect ability error, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Connect ability error, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -580,12 +581,13 @@ private:
             [weak = context_, want, connection, connectId](napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_ERROR("context is released");
+                    TAG_LOGE(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "Context is released"));
                     RemoveConnection(connectId);
                     return;
                 }
-                HILOG_DEBUG("ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
+                TAG_LOGD(
+                    AAFwkTag::SERVICE_EXT, "ConnectAbility connection:%{public}d", static_cast<int32_t>(connectId));
                 auto innerErrorCode = context->ConnectAbility(want, connection);
                 int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
                 if (errcode) {
@@ -602,10 +604,10 @@ private:
 
     napi_value OnConnectAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("ConnectAbilityWithAccount");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "ConnectAbilityWithAccount");
         // Check params count
         if (info.argc < ARGC_THREE) {
-            HILOG_ERROR("Connect ability failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Connect ability failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -625,12 +627,13 @@ private:
                 napi_env env, NapiAsyncTask& task, int32_t status) {
                     auto context = weak.lock();
                     if (!context) {
-                        HILOG_ERROR("context is released");
+                        TAG_LOGE(AAFwkTag::SERVICE_EXT, "context is released");
                         task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "Context is released"));
                         RemoveConnection(connectId);
                         return;
                     }
-                    HILOG_DEBUG("ConnectAbilityWithAccount connection:%{public}d", static_cast<int32_t>(connectId));
+                    TAG_LOGD(AAFwkTag::SERVICE_EXT, "ConnectAbilityWithAccount connection:%{public}d",
+                        static_cast<int32_t>(connectId));
                     auto innerErrorCode = context->ConnectAbilityWithAccount(want, accountId, connection);
                     int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(innerErrorCode));
                     if (errcode) {
@@ -649,7 +652,7 @@ private:
         sptr<JSServiceExtensionConnection>& connection, AAFwk::Want& want) const
     {
         if (!CheckTypeForNapiValue(env, value, napi_object)) {
-            HILOG_ERROR("Failed to get connection object");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get connection object");
             return false;
         }
         connection->SetJsConnectionObject(value);
@@ -666,15 +669,15 @@ private:
                 g_serialNumber = 0;
             }
         }
-        HILOG_DEBUG("Unable to find connection, make new one");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "Unable to find connection, make new one");
         return true;
     }
 
     napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("DisconnectAbility start");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "DisconnectAbility start");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Disconnect ability error, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Disconnect ability error, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -693,16 +696,16 @@ private:
                 napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_ONE, "Context is released"));
                     return;
                 }
                 if (connection == nullptr) {
-                    HILOG_WARN("connection null");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "connection null");
                     task.Reject(env, CreateJsError(env, ERROR_CODE_TWO, "not found connection"));
                     return;
                 }
-                HILOG_DEBUG("context->DisconnectAbility");
+                TAG_LOGD(AAFwkTag::SERVICE_EXT, "context->DisconnectAbility");
                 auto innerErrorCode = context->DisconnectAbility(want, connection);
                 if (innerErrorCode == 0) {
                     task.Resolve(env, CreateJsUndefined(env));
@@ -720,7 +723,8 @@ private:
 
     void FindConnection(AAFwk::Want& want, sptr<JSServiceExtensionConnection>& connection, int64_t& connectId) const
     {
-        HILOG_INFO("Disconnect ability begin, connection:%{public}d.", static_cast<int32_t>(connectId));
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "Disconnect ability begin, connection:%{public}d.",
+            static_cast<int32_t>(connectId));
         std::lock_guard guard(g_connectsMutex);
         auto item = std::find_if(g_connects.begin(),
             g_connects.end(),
@@ -731,16 +735,16 @@ private:
             // match id
             want = item->first.want;
             connection = item->second;
-            HILOG_DEBUG("find conn ability exist");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "find conn ability exist");
         }
         return;
     }
 
     napi_value OnStartExtensionAbility(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("StartExtensionAbility");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartExtensionAbility");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Start extension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start extension failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -754,7 +758,7 @@ private:
             [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
@@ -775,9 +779,9 @@ private:
 
     napi_value OnStartExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("StartExtensionAbilityWithAccount");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Stop extension error, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Stop extension error, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -793,7 +797,7 @@ private:
             [weak = context_, want, accountId](napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
@@ -814,9 +818,9 @@ private:
 
     napi_value OnStopExtensionAbility(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("StopExtensionAbility");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StopExtensionAbility");
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Start extension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Start extension failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -830,7 +834,7 @@ private:
             [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
@@ -851,9 +855,9 @@ private:
 
     napi_value OnStopExtensionAbilityWithAccount(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("StopExtensionAbilityWithAccount");
+        TAG_LOGI(AAFwkTag::SERVICE_EXT, "StopExtensionAbilityWithAccount");
         if (info.argc < ARGC_TWO) {
-            HILOG_ERROR("Stop extension failed, not enough params.");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Stop extension failed, not enough params.");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -861,7 +865,7 @@ private:
         int32_t accountId = -1;
         if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want) ||
             !AppExecFwk::UnwrapInt32FromJS2(env, info.argv[INDEX_ONE], accountId)) {
-            HILOG_DEBUG("Failed, input parameter type invalid");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "Failed, input parameter type invalid");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -870,7 +874,7 @@ private:
             [weak = context_, want, accountId](napi_env env, NapiAsyncTask& task, int32_t status) {
                 auto context = weak.lock();
                 if (!context) {
-                    HILOG_WARN("context is released");
+                    TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                     task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
                     return;
                 }
@@ -891,7 +895,7 @@ private:
 
     napi_value OnRequestModalUIExtension(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("called");
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "called");
 
         if (info.argc < ARGC_ONE) {
             ThrowTooFewParametersError(env);
@@ -900,7 +904,7 @@ private:
 
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
-            HILOG_ERROR("Failed to parse want!");
+            TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to parse want!");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -909,7 +913,7 @@ private:
             [weak = context_, want](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
             if (!context) {
-                HILOG_WARN("context is released");
+                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
@@ -933,14 +937,14 @@ private:
     {
         return [weak = context_, want, startOptions, useOption, userId, retCode,
             &observer = freeInstallObserver_]() {
-            HILOG_DEBUG("startAbility exec begin");
+            TAG_LOGD(AAFwkTag::SERVICE_EXT, "startAbility exec begin");
             if (!retCode) {
-                HILOG_ERROR("retCode null");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "retCode null");
                 return;
             }
             auto context = weak.lock();
             if (!context) {
-                HILOG_WARN("context is released");
+                TAG_LOGW(AAFwkTag::SERVICE_EXT, "context is released");
                 *retCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
                 return;
             }
@@ -961,12 +965,12 @@ private:
     {
         return [retCode](napi_env env, NapiAsyncTask& task, int32_t) {
             if (!retCode) {
-                HILOG_ERROR("StartAbility is success");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "StartAbility is success");
                 task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
                 return;
             }
             if (*retCode == 0) {
-                HILOG_INFO("StartAbility is success");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "StartAbility is success");
                 task.Resolve(env, CreateJsUndefined(env));
             } else {
                 task.Reject(env, CreateJsErrorByNativeErr(env, *retCode));
@@ -978,7 +982,7 @@ private:
 
 napi_value CreateJsServiceExtensionContext(napi_env env, std::shared_ptr<ServiceExtensionContext> context)
 {
-    HILOG_DEBUG("CreateJsServiceExtensionContext");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "CreateJsServiceExtensionContext");
     std::shared_ptr<OHOS::AppExecFwk::AbilityInfo> abilityInfo = nullptr;
     if (context) {
         abilityInfo = context->GetAbilityInfo();
@@ -1079,13 +1083,13 @@ int64_t JSServiceExtensionConnection::GetConnectionId()
 void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_DEBUG("OnAbilityConnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnAbilityConnectDone, resultCode:%{public}d", resultCode);
     wptr<JSServiceExtensionConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, remoteObject, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSServiceExtensionConnection> connectionSptr = connection.promote();
             if (!connectionSptr) {
-                HILOG_ERROR("connectionSptr nullptr");
+                TAG_LOGE(AAFwkTag::SERVICE_EXT, "connectionSptr nullptr");
                 return;
             }
             connectionSptr->HandleOnAbilityConnectDone(element, remoteObject, resultCode);
@@ -1100,7 +1104,7 @@ void JSServiceExtensionConnection::OnAbilityConnectDone(const AppExecFwk::Elemen
 void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::ElementName &element,
     const sptr<IRemoteObject> &remoteObject, int resultCode)
 {
-    HILOG_DEBUG("resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "resultCode:%{public}d", resultCode);
     // wrap ElementName
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
 
@@ -1108,18 +1112,18 @@ void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::
     napi_value napiRemoteObject = NAPI_ohos_rpc_CreateJsRemoteObject(env_, remoteObject);
     napi_value argv[] = {napiElementName, napiRemoteObject};
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr.");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "jsConnectionObject_ nullptr.");
         return;
     }
     napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-        HILOG_ERROR("error to get object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to get object");
         return;
     }
     napi_value methodOnConnect = nullptr;
     napi_get_named_property(env_, obj, "onConnect", &methodOnConnect);
     if (methodOnConnect == nullptr) {
-        HILOG_ERROR("Failed to get onConnect from object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onConnect from object");
         return;
     }
     napi_call_function(env_, obj, methodOnConnect, ARGC_TWO, argv, nullptr);
@@ -1127,13 +1131,13 @@ void JSServiceExtensionConnection::HandleOnAbilityConnectDone(const AppExecFwk::
 
 void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::ElementName &element, int resultCode)
 {
-    HILOG_DEBUG("OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     wptr<JSServiceExtensionConnection> connection = this;
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>
         ([connection, element, resultCode](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSServiceExtensionConnection> connectionSptr = connection.promote();
             if (!connectionSptr) {
-                HILOG_INFO("connectionSptr nullptr");
+                TAG_LOGI(AAFwkTag::SERVICE_EXT, "connectionSptr nullptr");
                 return;
             }
             connectionSptr->HandleOnAbilityDisconnectDone(element, resultCode);
@@ -1147,30 +1151,30 @@ void JSServiceExtensionConnection::OnAbilityDisconnectDone(const AppExecFwk::Ele
 void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFwk::ElementName &element,
     int resultCode)
 {
-    HILOG_INFO("HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
+    TAG_LOGI(AAFwkTag::SERVICE_EXT, "HandleOnAbilityDisconnectDone, resultCode:%{public}d", resultCode);
     napi_value napiElementName = OHOS::AppExecFwk::WrapElementName(env_, element);
     napi_value argv[] = {napiElementName};
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "jsConnectionObject_ nullptr");
         return;
     }
     napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-        HILOG_ERROR("error to get object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "error to get object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, obj, "onDisconnect", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onDisconnect from object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onDisconnect from object");
         return;
     }
 
     // release connect
     {
         std::lock_guard guard(g_connectsMutex);
-        HILOG_DEBUG("OnAbilityDisconnectDone g_connects.size:%{public}zu", g_connects.size());
+        TAG_LOGD(AAFwkTag::SERVICE_EXT, "OnAbilityDisconnectDone g_connects.size:%{public}zu", g_connects.size());
         std::string bundleName = element.GetBundleName();
         std::string abilityName = element.GetAbilityName();
         auto item = std::find_if(g_connects.begin(),
@@ -1184,7 +1188,8 @@ void JSServiceExtensionConnection::HandleOnAbilityDisconnectDone(const AppExecFw
         if (item != g_connects.end()) {
             // match bundlename && abilityname
             g_connects.erase(item);
-            HILOG_DEBUG("OnAbilityDisconnectDone erase g_connects.size:%{public}zu", g_connects.size());
+            TAG_LOGD(
+                AAFwkTag::SERVICE_EXT, "OnAbilityDisconnectDone erase g_connects.size:%{public}zu", g_connects.size());
         }
     }
     napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
@@ -1204,26 +1209,26 @@ void JSServiceExtensionConnection::RemoveConnectionObject()
 
 void JSServiceExtensionConnection::CallJsFailed(int32_t errorCode)
 {
-    HILOG_DEBUG("CallJsFailed begin");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "CallJsFailed begin");
     if (jsConnectionObject_ == nullptr) {
-        HILOG_ERROR("jsConnectionObject_ nullptr");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "jsConnectionObject_ nullptr");
         return;
     }
     napi_value obj = jsConnectionObject_->GetNapiValue();
     if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-        HILOG_ERROR("Wrong to get object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Wrong to get object");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, obj, "onFailed", &method);
     if (method == nullptr) {
-        HILOG_ERROR("Failed to get onFailed from object");
+        TAG_LOGE(AAFwkTag::SERVICE_EXT, "Failed to get onFailed from object");
         return;
     }
     napi_value argv[] = {CreateJsValue(env_, errorCode)};
     napi_call_function(env_, obj, method, ARGC_ONE, argv, nullptr);
-    HILOG_DEBUG("CallJsFailed end");
+    TAG_LOGD(AAFwkTag::SERVICE_EXT, "CallJsFailed end");
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

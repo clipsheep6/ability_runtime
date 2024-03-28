@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "napi_common_execute_result.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "insight_intent_execute_result.h"
 #include "napi_common_util.h"
@@ -27,15 +28,15 @@ namespace AbilityRuntime {
 using namespace OHOS::AppExecFwk;
 bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteResult &executeResult)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::JSNAPI, "called.");
 
     if (!IsTypeForNapiValue(env, param, napi_valuetype::napi_object)) {
-        HILOG_ERROR("UnwrapExecuteResult not object");
+        TAG_LOGE(AAFwkTag::JSNAPI, "UnwrapExecuteResult not object");
         return false;
     }
     int32_t code = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "code", code)) {
-        HILOG_ERROR("Intent result must contian a code.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Intent result must contian a code.");
         return false;
     }
     executeResult.code = code;
@@ -46,16 +47,16 @@ bool UnwrapExecuteResult(napi_env env, napi_value param, InsightIntentExecuteRes
         napi_valuetype valueType = napi_undefined;
         napi_typeof(env, result, &valueType);
         if (valueType != napi_object) {
-            HILOG_ERROR("Wrong argument type result.");
+            TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
             return false;
         }
         auto wp = std::make_shared<AAFwk::WantParams>();
         if (!AppExecFwk::UnwrapWantParams(env, result, *wp)) {
-            HILOG_ERROR("Wrong argument type result.");
+            TAG_LOGE(AAFwkTag::JSNAPI, "Wrong argument type result.");
             return false;
         }
         if (!executeResult.CheckResult(wp)) {
-            HILOG_ERROR("Invalid intent result.");
+            TAG_LOGE(AAFwkTag::JSNAPI, "Invalid intent result.");
             return false;
         }
         executeResult.result = wp;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "pending_want_common_event.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -33,11 +34,11 @@ void PendingWantCommonEvent::SetFinishedReceiver(const sptr<IWantReceiver> &fini
 
 void PendingWantCommonEvent::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
-    HILOG_INFO("Receive common event callback.");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "Receive common event callback.");
     if (finishedReceiver_ != nullptr) {
-        HILOG_INFO("PendingWantCommonEvent::OnReceiveEvent begin.");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "PendingWantCommonEvent::OnReceiveEvent begin.");
         finishedReceiver_->PerformReceive(data.GetWant(), data.GetCode(), "", wantParams_, false, false, 0);
-        HILOG_INFO("PendingWantCommonEvent::OnReceiveEvent end.");
+        TAG_LOGI(AAFwkTag::WANTAGENT, "PendingWantCommonEvent::OnReceiveEvent end.");
     }
 }
 }  // namespace AAFwk

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "form_extension.h"
 #include "form_mgr_errors.h"
 #include "form_supply_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_skeleton.h"
 
@@ -34,10 +35,10 @@ using namespace OHOS::AppExecFwk;
 int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJsInfo &formJsInfo, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
-        HILOG_ERROR("IFormSupply is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "IFormSupply is nullptr.");
         return ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED;
     }
 
@@ -49,7 +50,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
     connectWant.SetParam(Constants::PARAM_FORM_IDENTITY_KEY, std::to_string(formJsInfo.formId));
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_WARN("Permission denied.");
+        TAG_LOGW(AAFwkTag::FORM_EXT, "Permission denied.");
         FormProviderInfo formProviderInfo;
         connectWant.SetParam(Constants::PROVIDER_FLAG, ERR_APPEXECFWK_FORM_PERMISSION_DENY);
         return FormProviderClient::HandleAcquire(formProviderInfo, connectWant, callerToken);
@@ -67,7 +68,7 @@ int FormExtensionProviderClient::AcquireProviderFormInfo(const AppExecFwk::FormJ
 void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExecFwk::FormJsInfo &formJsInfo,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     Want connectWant(want);
     connectWant.SetParam(Constants::ACQUIRE_TYPE, want.GetIntParam(Constants::ACQUIRE_TYPE, 0));
     connectWant.SetParam(Constants::FORM_CONNECT_ID, want.GetIntParam(Constants::FORM_CONNECT_ID, 0));
@@ -78,7 +79,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
     FormProviderInfo formProviderInfo;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         connectWant.SetParam(Constants::PROVIDER_FLAG, ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY);
     } else {
         Want createWant(want);
@@ -101,7 +102,7 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
         }
 
         formProviderInfo = ownerFormExtension->OnCreate(createWant);
-        HILOG_DEBUG("FormJsInfo.formId: %{public}s, data: %{public}s, proxies size: %{public}zu.",
+        TAG_LOGD(AAFwkTag::FORM_EXT, "FormJsInfo.formId: %{public}s, data: %{public}s, proxies size: %{public}zu.",
             createWant.GetStringParam(Constants::PARAM_FORM_IDENTITY_KEY).c_str(),
             formProviderInfo.GetFormDataString().c_str(),
             formProviderInfo.GetFormProxies().size());
@@ -112,19 +113,19 @@ void FormExtensionProviderClient::AcquireFormExtensionProviderInfo(const AppExec
     }
     int error = FormProviderClient::HandleAcquire(formProviderInfo, connectWant, callerToken);
     if (error != ERR_OK) {
-        HILOG_ERROR("HandleAcquire failed with %{public}d.", error);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "HandleAcquire failed with %{public}d.", error);
         HandleResultCode(error, connectWant, callerToken);
     }
-    HILOG_DEBUG("called end.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -140,34 +141,34 @@ int FormExtensionProviderClient::NotifyFormDelete(const int64_t formId, const Wa
 void FormExtensionProviderClient::NotifyFormExtensionDelete(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     int errorCode = ERR_OK;
     auto hostToken = want.GetRemoteObject(Constants::PARAM_FORM_HOST_TOKEN);
     if (hostToken != nullptr) {
-        HILOG_DEBUG("remove provider caller.");
+        TAG_LOGD(AAFwkTag::FORM_EXT, "remove provider caller.");
         FormCallerMgr::GetInstance().RemoveFormProviderCaller(formId, hostToken);
         HandleResultCode(errorCode, want, callerToken);
         return;
     }
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnDestroy(formId);
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("called end.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &formIds, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -183,11 +184,11 @@ int FormExtensionProviderClient::NotifyFormsDelete(const std::vector<int64_t> &f
 void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<int64_t> &formIds,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         for (int64_t formId : formIds) {
@@ -196,16 +197,16 @@ void FormExtensionProviderClient::NotifyFormExtensionsDelete(const std::vector<i
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_DEBUG("called end.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -221,11 +222,11 @@ int FormExtensionProviderClient::NotifyFormUpdate(const int64_t formId, const Wa
 void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnUpdate(formId, want.GetParams());
@@ -234,16 +235,16 @@ void FormExtensionProviderClient::NotifyFormExtensionUpdate(const int64_t formId
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {
         HandleResultCode(errorCode, want, callerToken);
     }
-    HILOG_DEBUG("called end.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds, const int32_t formVisibleType,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -259,11 +260,11 @@ int FormExtensionProviderClient::EventNotify(const std::vector<int64_t> &formIds
 void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t> &formIds,
     const int32_t formVisibleType, const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         std::map<int64_t, int32_t> formEventsMap;
@@ -274,16 +275,16 @@ void FormExtensionProviderClient::EventNotifyExtension(const std::vector<int64_t
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("called end.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -299,27 +300,27 @@ int FormExtensionProviderClient::NotifyFormCastTempForm(const int64_t formId, co
 void FormExtensionProviderClient::NotifyFormExtensionCastTempForm(const int64_t formId, const Want &want,
     const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnCastToNormal(formId);
     }
 
     HandleResultCode(errorCode, want, callerToken);
-    HILOG_INFO("called end.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::string &message,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -335,11 +336,11 @@ int FormExtensionProviderClient::FireFormEvent(const int64_t formId, const std::
 void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, const std::string &message,
     const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     int errorCode = ERR_OK;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         errorCode = ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     } else {
         ownerFormExtension->OnEvent(formId, message);
@@ -348,16 +349,16 @@ void FormExtensionProviderClient::FireFormExtensionEvent(const int64_t formId, c
     if (want.HasParameter(Constants::FORM_CONNECT_ID)) {
         HandleResultCode(errorCode, want, callerToken);
     }
-    HILOG_INFO("called end.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called end.");
 }
 
 int FormExtensionProviderClient::AcquireState(const Want &wantArg, const std::string &provider, const Want &want,
                                               const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     std::pair<int, int> errorCode = CheckParam(want, callerToken);
     if (errorCode.first != ERR_OK) {
-        HILOG_ERROR("CheckParam failed with %{public}d.", errorCode.first);
+        TAG_LOGE(AAFwkTag::FORM_EXT, "CheckParam failed with %{public}d.", errorCode.first);
         return errorCode.second;
     }
 
@@ -374,22 +375,22 @@ void FormExtensionProviderClient::NotifyFormExtensionAcquireState(const Want &wa
                                                                   const Want &want,
                                                                   const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("called.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called.");
     FormState state = FormState::UNKNOWN;
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
     } else {
         state = ownerFormExtension->OnAcquireFormState(wantArg);
     }
     HandleAcquireStateResult(state, provider, wantArg, want, callerToken);
-    HILOG_INFO("called end.");
+    TAG_LOGI(AAFwkTag::FORM_EXT, "called end.");
 }
 
 void FormExtensionProviderClient::SetOwner(const std::shared_ptr<FormExtension> formExtension)
 {
     if (formExtension == nullptr) {
-        HILOG_ERROR("FormExtension is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "FormExtension is nullptr.");
         return;
     }
 
@@ -400,7 +401,7 @@ void FormExtensionProviderClient::SetOwner(const std::shared_ptr<FormExtension> 
 void FormExtensionProviderClient::ClearOwner(const std::shared_ptr<FormExtension> formExtension)
 {
     if (formExtension == nullptr) {
-        HILOG_ERROR("FormExtension is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "FormExtension is nullptr.");
         return;
     }
 
@@ -429,7 +430,7 @@ int FormExtensionProviderClient::HandleResultCode(int errorCode, const Want &wan
     } else {
         // If errorCode is ERR_OK return disconnectErrorCode.
         if (disconnectErrorCode != ERR_OK) {
-            HILOG_ERROR("disconnect error: %{public}d.", disconnectErrorCode);
+            TAG_LOGE(AAFwkTag::FORM_EXT, "disconnect error: %{public}d.", disconnectErrorCode);
         }
         return disconnectErrorCode;
     }
@@ -443,13 +444,13 @@ std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &
     }
     sptr<IFormSupply> formSupplyClient = iface_cast<IFormSupply>(callerToken);
     if (formSupplyClient == nullptr) {
-        HILOG_ERROR("IFormSupply is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "IFormSupply is nullptr.");
         return std::pair<ErrCode, ErrCode>(ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED,
             ERR_APPEXECFWK_FORM_BIND_PROVIDER_FAILED);
     }
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("Permission denied.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Permission denied.");
         int errorCode = HandleResultCode(ERR_APPEXECFWK_FORM_PERMISSION_DENY, want, callerToken);
         return std::pair<ErrCode, ErrCode>(ERR_APPEXECFWK_FORM_PERMISSION_DENY, errorCode);
     }
@@ -459,17 +460,17 @@ std::pair<ErrCode, ErrCode> FormExtensionProviderClient::CheckParam(const Want &
 int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const std::string &remoteDeviceId,
     const sptr<IRemoteObject> &formSupplyCallback, int64_t requestCode)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("Permission denied.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Permission denied.");
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
     std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
     auto formCall = iface_cast<IFormSupply>(formSupplyCallback);
     if (formCall == nullptr) {
-        HILOG_ERROR("IFormSupply is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "IFormSupply is nullptr.");
         return ERR_APPEXECFWK_FORM_NO_SUCH_ABILITY;
     }
 
@@ -487,10 +488,10 @@ int32_t FormExtensionProviderClient::AcquireShareFormData(int64_t formId, const 
 bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
     int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         return false;
     }
 
@@ -500,17 +501,17 @@ bool FormExtensionProviderClient::AcquireFormExtensionProviderShareFormInfo(
 int32_t FormExtensionProviderClient::AcquireFormData(int64_t formId, const sptr<IRemoteObject> &formSupplyCallback,
     int64_t requestCode)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
 
     if (!FormProviderClient::CheckIsSystemApp()) {
-        HILOG_ERROR("Permission denied.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Permission denied.");
         return ERR_APPEXECFWK_FORM_PERMISSION_DENY;
     }
 
     std::shared_ptr<EventHandler> mainHandler = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
     auto formCall = iface_cast<IFormSupply>(formSupplyCallback);
     if (formCall == nullptr) {
-        HILOG_ERROR("error, callback is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "error, callback is nullptr.");
         return ERR_APPEXECFWK_FORM_INVALID_PARAM;
     }
 
@@ -528,10 +529,10 @@ int32_t FormExtensionProviderClient::AcquireFormData(int64_t formId, const sptr<
 bool FormExtensionProviderClient::FormExtensionProviderAcquireFormData(
     int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::FORM_EXT, "called.");
     std::shared_ptr<FormExtension> ownerFormExtension = GetOwner();
     if (ownerFormExtension == nullptr) {
-        HILOG_ERROR("Owner is nullptr.");
+        TAG_LOGE(AAFwkTag::FORM_EXT, "Owner is nullptr.");
         return false;
     }
 

@@ -13,15 +13,28 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
-#define OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_DEMO_UI_EXTENSION_H
+#define OHOS_ABILITY_RUNTIME_JS_DEMO_UI_EXTENSION_H
 
-#include "ability_manager_errors.h"
+#include "demo_ui_extension.h"
+#include "runtime.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class StartupTaskExecutor {
+class JsDemoUIExtension : public DemoUIExtension,
+                          public std::enable_shared_from_this<JsDemoUIExtension> {
+public:
+    explicit JsDemoUIExtension(const std::unique_ptr<Runtime> &runtime);
+    ~JsDemoUIExtension() override;
+
+    /**
+     * @brief Create JsDemoUIExtension.
+     *
+     * @param runtime The runtime.
+     * @return The JsDemoUIExtension instance.
+     */
+    static JsDemoUIExtension *Create(const std::unique_ptr<Runtime> &runtime);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_STARTUP_TASK_EXECUTOR_H
+#endif // OHOS_ABILITY_RUNTIME_JS_DEMO_UI_EXTENSION_H

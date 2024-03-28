@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "hilog_tag_wrapper.h"
 #include "mock_ability_delegator_stub.h"
 
 namespace OHOS {
@@ -162,27 +163,27 @@ int MockAbilityDelegatorStub::StopServiceAbility(const Want& want, int32_t userI
 
 int MockAbilityDelegatorStub::GetTopAbility(sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("MockAbilityDelegatorStub::GetTopAbility is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::GetTopAbility is called");
     token = sptr<IRemoteObject>(new MockAbilityDelegatorStub);
     return OHOS::ERR_OK;
 }
 
 int MockAbilityDelegatorStub::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("MockAbilityDelegatorStub::DelegatorDoAbilityForeground is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::DelegatorDoAbilityForeground is called");
     return OHOS::ERR_OK;
 }
 
 int MockAbilityDelegatorStub::DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("MockAbilityDelegatorStub::DelegatorDoAbilityBackground is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::DelegatorDoAbilityBackground is called");
     return OHOS::ERR_OK;
 }
 
 int MockAbilityDelegatorStub::FinishUserTest(const std::string& msg,
     const int64_t& resultCode, const std::string& bundleName)
 {
-    HILOG_INFO("MockAbilityDelegatorStub::FinishUserTest is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub::FinishUserTest is called");
     finishFlag_ = true;
     return OHOS::ERR_OK;
 }
@@ -360,13 +361,13 @@ int MockAbilityDelegatorStub2::StartUserTest(const Want& want, const sptr<IRemot
 
 int MockAbilityDelegatorStub2::GetTopAbility(sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("MockAbilityDelegatorStub2::GetTopAbility is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::GetTopAbility is called");
     return OHOS::ERR_INVALID_VALUE;
 }
 
 AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility(bool isNeedLocalDeviceId)
 {
-    HILOG_INFO("GetTopAbility.");
+    TAG_LOGI(AAFwkTag::TEST, "GetTopAbility.");
     AppExecFwk::ElementName elementName = {};
 
     if (testcaseBranch_ == TESTCASE_BRANCH::BRANCH_2) {
@@ -375,7 +376,7 @@ AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility(bool isNeedLoca
         elementName = AppExecFwk::ElementName("deviceId", "com.example.myapplication",
             "com.example.myapplication.MainAbility", "entry");
     } else {
-        HILOG_INFO("Empty top ability.");
+        TAG_LOGI(AAFwkTag::TEST, "Empty top ability.");
     }
 
     return elementName;
@@ -383,20 +384,20 @@ AppExecFwk::ElementName MockAbilityDelegatorStub2::GetTopAbility(bool isNeedLoca
 
 int MockAbilityDelegatorStub2::DelegatorDoAbilityForeground(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("MockAbilityDelegatorStub2::DelegatorDoAbilityForeground is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::DelegatorDoAbilityForeground is called");
     return OHOS::ERR_INVALID_VALUE;
 }
 
 int MockAbilityDelegatorStub2::DelegatorDoAbilityBackground(const sptr<IRemoteObject>& token)
 {
-    HILOG_INFO("MockAbilityDelegatorStub2::DelegatorDoAbilityBackground is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::DelegatorDoAbilityBackground is called");
     return OHOS::ERR_INVALID_VALUE;
 }
 
 int MockAbilityDelegatorStub2::FinishUserTest(const std::string& msg,
     const int64_t& resultCode, const std::string& bundleName)
 {
-    HILOG_INFO("MockAbilityDelegatorStub2::FinishUserTest is called");
+    TAG_LOGI(AAFwkTag::TEST, "MockAbilityDelegatorStub2::FinishUserTest is called");
     finishFlag_ = false;
     return OHOS::ERR_INVALID_VALUE;
 }

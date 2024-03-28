@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "configuration_observer_stub.h"
 
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_types.h"
@@ -38,12 +39,12 @@ ConfigurationObserverStub::~ConfigurationObserverStub()
 int ConfigurationObserverStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("ConfigurationObserverStub::OnRemoteRequest, code = %{public}u, flags= %{public}d.",
+    TAG_LOGI(AAFwkTag::APPMGR, "ConfigurationObserverStub::OnRemoteRequest, code = %{public}u, flags= %{public}d.",
         code, option.GetFlags());
     std::u16string descriptor = ConfigurationObserverStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equivalent to remote");
+        TAG_LOGE(AAFwkTag::APPMGR, "local descriptor is not equivalent to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -54,7 +55,7 @@ int ConfigurationObserverStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
-    HILOG_INFO("ConfigurationObserverStub::OnRemoteRequest end");
+    TAG_LOGI(AAFwkTag::APPMGR, "ConfigurationObserverStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -66,7 +67,7 @@ int32_t ConfigurationObserverStub::HandleOnConfigurationUpdated(MessageParcel &d
     HITRACE_METER(HITRACE_TAG_APP);
     std::unique_ptr<Configuration> configuration(data.ReadParcelable<Configuration>());
     if (!configuration) {
-        HILOG_ERROR("ReadParcelable<Configuration> failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadParcelable<Configuration> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
 

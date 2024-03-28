@@ -1022,7 +1022,15 @@ ohos_shared_library("ui_extension_module") {
 
 config("share_extension_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/share_extension_ability" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/share_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+  ]
 }
 
 ohos_shared_library("share_extension") {
@@ -1064,7 +1072,15 @@ ohos_shared_library("share_extension") {
 
 config("action_extension_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/action_extension_ability" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/action_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+  ]
 }
 
 ohos_shared_library("action_extension") {
@@ -1126,6 +1142,10 @@ ohos_shared_library("share_extension_module") {
     "napi:ace_napi",
   ]
 
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
+
   relative_install_dir = "extensionability/"
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -1178,6 +1198,10 @@ ohos_shared_library("action_extension_module") {
     "napi:ace_napi",
   ]
 
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
+
   relative_install_dir = "extensionability/"
   subsystem_name = "ability"
   part_name = "ability_runtime"
@@ -1185,7 +1209,15 @@ ohos_shared_library("action_extension_module") {
 
 config("embedded_ui_extension_config") {
   visibility = [ ":*" ]
-  include_dirs = [ "${ability_runtime_path}/interfaces/kits/native/ability/native/embedded_ui_extension_ability" ]
+  include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/embedded_ui_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native/ui_extension_ability",
+    "${ability_runtime_path}/interfaces/kits/native/ability/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/ability/native",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/ability_runtime/context",
+  ]
 }
 
 config("embedded_ui_extension_module_config") {
@@ -1319,6 +1351,10 @@ ohos_shared_library("embedded_ui_extension_module") {
     "hilog:libhilog",
     "napi:ace_napi",
   ]
+
+  if (ability_runtime_graphics) {
+    external_deps += [ "window_manager:libwm" ]
+  }
 
   relative_install_dir = "extensionability/"
   subsystem_name = "ability"

@@ -26,6 +26,7 @@
 #include "ability_util.h"
 #include "appexecfwk_errors.h"
 #include "configuration.h"
+#include "hilog_tag_wrapper.h"
 #include "session_info.h"
 
 namespace OHOS {
@@ -34,7 +35,8 @@ namespace {
 #define PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(messageParcel, type, value) \
     do {                                                                  \
         if (!(messageParcel).Write##type(value)) {                        \
-            HILOG_ERROR("failed to write %{public}s", #value);            \
+            TAG_LOGE(AAFwkTag::ABILITYMGR,                                \
+            "failed to write %{public}s", #value);                        \
             return INNER_ERR;                                             \
         }                                                                 \
     } while (0)
@@ -45,7 +47,7 @@ constexpr int32_t MAX_AUTO_STARTUP_COUNT = 100;
 bool AbilityManagerProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AbilityManagerProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return false;
     }
     return true;
@@ -62,23 +64,23 @@ int AbilityManagerProxy::StartAbility(const Want &want, int32_t userId, int requ
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -98,12 +100,12 @@ AppExecFwk::ElementName AbilityManagerProxy::GetTopAbility(bool isNeedLocalDevic
 
     int error = SendRequest(AbilityManagerInterfaceCode::GET_TOP_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return {};
     }
     std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
     if (!name) {
-        HILOG_ERROR("Read info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Read info failed.");
         return {};
     }
     AppExecFwk::ElementName result = *name;
@@ -127,12 +129,12 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(sptr<IRemoteO
     }
     int error = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return {};
     }
     std::unique_ptr<AppExecFwk::ElementName> name(reply.ReadParcelable<AppExecFwk::ElementName>());
     if (!name) {
-        HILOG_ERROR("Read info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Read info failed.");
         return {};
     }
     AppExecFwk::ElementName result = *name;
@@ -150,35 +152,35 @@ int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSettin
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&abilityStartSetting)) {
-        HILOG_ERROR("abilityStartSetting write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityStartSetting write failed.");
         return INNER_ERR;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_SETTINGS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -196,31 +198,31 @@ int AbilityManagerProxy::StartAbility(
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("callerToken and flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken and flag write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_ADD_CALLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -238,35 +240,35 @@ int AbilityManagerProxy::StartAbilityWithSpecifyTokenId(
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("callerToken and flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken and flag write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(specifyTokenId)) {
-        HILOG_ERROR("specifyTokenId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "specifyTokenId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_WITH_SPECIFY_TOKENID, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -277,32 +279,32 @@ int32_t AbilityManagerProxy::StartAbilityByInsightIntent(const Want &want, const
 {
     MessageParcel data;
     if (callerToken == nullptr) {
-        HILOG_ERROR("invalid callertoken.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid callertoken.");
         return INNER_ERR;
     }
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("callerToken and flag write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken and flag write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteUint64(intentId)) {
-        HILOG_ERROR("intentId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "intentId write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
 
@@ -310,7 +312,7 @@ int32_t AbilityManagerProxy::StartAbilityByInsightIntent(const Want &want, const
     MessageOption option;
     int32_t error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_BY_INSIGHT_INTENT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed to start ability err: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start ability err: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -327,35 +329,35 @@ int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &star
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&startOptions)) {
-        HILOG_ERROR("startOptions write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "startOptions write failed.");
         return INNER_ERR;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -388,7 +390,7 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const sptr<IRemo
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, isSendDialogResult);
     int error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_BY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -424,7 +426,7 @@ int AbilityManagerProxy::StartAbilityAsCaller(const Want &want, const StartOptio
 
     error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_AS_CALLER_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -435,7 +437,7 @@ int AbilityManagerProxy::StartAbilityForResultAsCaller(
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
@@ -451,7 +453,7 @@ int AbilityManagerProxy::StartAbilityForResultAsCaller(
     MessageOption option;
     int error = SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -462,7 +464,7 @@ int AbilityManagerProxy::StartAbilityForResultAsCaller(const Want &want, const S
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &want);
@@ -480,7 +482,7 @@ int AbilityManagerProxy::StartAbilityForResultAsCaller(const Want &want, const S
     int error =
         SendRequest(AbilityManagerInterfaceCode::START_ABILITY_FOR_RESULT_AS_CALLER_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -491,32 +493,32 @@ int AbilityManagerProxy::CheckUISessionParams(MessageParcel &data, const sptr<IR
 {
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("callerToken and flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken and flag write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and sessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     return ERR_OK;
@@ -534,7 +536,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want,
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (CheckUISessionParams(data, callerToken, sessionInfo, userId, requestCode) == INNER_ERR) {
@@ -542,7 +544,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want,
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_ADD_CALLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -560,11 +562,11 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&startOptions)) {
-        HILOG_ERROR("startOptions write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "startOptions write failed.");
         return INNER_ERR;
     }
     if (CheckUISessionParams(data, callerToken, sessionInfo, userId, requestCode) == INNER_ERR) {
@@ -572,7 +574,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_UI_SESSION_ABILITY_FOR_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -589,31 +591,31 @@ int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRem
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("StartExtensionAbility, userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("StartExtensionAbility, extensionType write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, extensionType write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::START_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("StartExtensionAbility, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -626,7 +628,7 @@ int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
 
@@ -635,7 +637,7 @@ int AbilityManagerProxy::RequestModalUIExtension(const Want &want)
     MessageOption option;
     error = SendRequest(AbilityManagerInterfaceCode::REQUESET_MODAL_UIEXTENSION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("RequestModalUIExtension, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "RequestModalUIExtension, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -650,16 +652,16 @@ int AbilityManagerProxy::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("write token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteBool(isShow)) {
-        HILOG_ERROR("write isShow failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isShow failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CHANGE_ABILITY_VISIBILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -674,16 +676,16 @@ int AbilityManagerProxy::ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessio
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteParcelable(sessionInfo)) {
-        HILOG_ERROR("write sessionInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write sessionInfo failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteBool(isShow)) {
-        HILOG_ERROR("write isShow failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isShow failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -703,24 +705,24 @@ int AbilityManagerProxy::StartUIExtensionAbility(const sptr<SessionInfo> &extens
         "connect ability fail, extensionSessionInfo is nullptr");
     if (extensionSessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
-            HILOG_ERROR("flag and extensionSessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and extensionSessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("StartExtensionAbility, userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, userId write failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::START_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("StartExtensionAbility, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartExtensionAbility, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -736,18 +738,18 @@ int AbilityManagerProxy::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and sessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::START_UI_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -764,31 +766,31 @@ int AbilityManagerProxy::StopExtensionAbility(const Want &want, const sptr<IRemo
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(static_cast<int32_t>(extensionType))) {
-        HILOG_ERROR("extensionType write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionType write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::STOP_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -812,26 +814,26 @@ int AbilityManagerProxy::TerminateAbility(const sptr<IRemoteObject> &token,
     }
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("flag and token write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and token write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(resultCode) || !data.WriteParcelable(resultWant)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return INNER_ERR;
     }
     if (!data.WriteBool(flag)) {
-        HILOG_ERROR("data write flag failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write flag failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -853,24 +855,24 @@ int AbilityManagerProxy::TerminateUIExtensionAbility(const sptr<SessionInfo> &ex
         "connect ability fail, extensionSessionInfo is nullptr");
     if (extensionSessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
-            HILOG_ERROR("flag and extensionSessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and extensionSessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
 
     if (!data.WriteInt32(resultCode) || !data.WriteParcelable(resultWant)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::TERMINATE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -889,19 +891,19 @@ int AbilityManagerProxy::CloseUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
 
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and sessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::CLOSE_UI_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -918,16 +920,16 @@ int AbilityManagerProxy::SendResultToAbility(int32_t requestCode, int32_t result
         return INNER_ERR;
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(resultCode) || !data.WriteParcelable(&resultWant)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::SEND_RESULT_TO_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -945,18 +947,18 @@ int AbilityManagerProxy::MoveAbilityToBackground(const sptr<IRemoteObject> &toke
     }
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("flag and token write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and token write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     error = SendRequest(AbilityManagerInterfaceCode::MOVE_ABILITY_TO_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", error);
         return error;
     }
     return reply.ReadInt32();
@@ -970,13 +972,13 @@ int32_t AbilityManagerProxy::MoveUIAbilityToBackground(const sptr<IRemoteObject>
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return IPC_PROXY_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, RemoteObject, token);
     int32_t error = SendRequest(AbilityManagerInterfaceCode::MOVE_UI_ABILITY_TO_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1022,7 +1024,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, isQueryExtensionOnly);
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("%{public}s, Send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, Send request error: %{public}d", __func__, error);
         return error;
     }
     return reply.ReadInt32();
@@ -1063,14 +1065,14 @@ int AbilityManagerProxy::ConnectUIExtensionAbility(const Want &want, const sptr<
 
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     if (connectInfo != nullptr) {
         sptr<UIExtensionAbilityConnectInfo> replyInfo = reply.ReadParcelable<UIExtensionAbilityConnectInfo>();
         if (replyInfo != nullptr) {
             connectInfo->uiExtensionAbilityId = replyInfo->uiExtensionAbilityId;
-            HILOG_DEBUG("UIExtensionAbilityId is %{public}d.", connectInfo->uiExtensionAbilityId);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "UIExtensionAbilityId is %{public}d.", connectInfo->uiExtensionAbilityId);
         }
     }
     return reply.ReadInt32();
@@ -1083,20 +1085,20 @@ int AbilityManagerProxy::DisconnectAbility(sptr<IAbilityConnection> connect)
     MessageParcel reply;
     MessageOption option;
     if (connect == nullptr) {
-        HILOG_ERROR("disconnect ability fail, connect is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "disconnect ability fail, connect is nullptr");
         return ERR_INVALID_VALUE;
     }
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(connect->AsObject())) {
-        HILOG_ERROR("connect write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "connect write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::DISCONNECT_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1111,20 +1113,20 @@ sptr<IAbilityScheduler> AbilityManagerProxy::AcquireDataAbility(
     MessageOption option;
 
     if (!callerToken) {
-        HILOG_ERROR("invalid parameters for acquire data ability.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "invalid parameters for acquire data ability.");
         return nullptr;
     }
     if (!WriteInterfaceToken(data)) {
         return nullptr;
     }
     if (!data.WriteString(uri.ToString()) || !data.WriteBool(tryBind) || !data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return nullptr;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ACQUIRE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return nullptr;
     }
 
@@ -1146,13 +1148,13 @@ int AbilityManagerProxy::ReleaseDataAbility(
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(dataAbilityScheduler->AsObject()) || !data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::RELEASE_DATA_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1171,13 +1173,13 @@ int AbilityManagerProxy::AttachAbilityThread(const sptr<IAbilityScheduler> &sche
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(scheduler->AsObject()) || !data.WriteRemoteObject(token)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ATTACH_ABILITY_THREAD, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1194,17 +1196,17 @@ int AbilityManagerProxy::AbilityTransitionDone(const sptr<IRemoteObject> &token,
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token) || !data.WriteInt32(state)) {
-        HILOG_ERROR("token or state write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token or state write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteParcelable(&saveData)) {
-        HILOG_ERROR("saveData write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "saveData write failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_TRANSITION_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1224,31 +1226,31 @@ int AbilityManagerProxy::ScheduleConnectAbilityDone(
 
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("Failed to write flag and token.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag and token.");
             return ERR_INVALID_VALUE;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag.");
             return ERR_INVALID_VALUE;
         }
     }
 
     if (remoteObject) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(remoteObject)) {
-            HILOG_ERROR("Failed to write flag and remoteObject.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag and remoteObject.");
             return ERR_INVALID_VALUE;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag.");
             return ERR_INVALID_VALUE;
         }
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1265,13 +1267,13 @@ int AbilityManagerProxy::ScheduleDisconnectAbilityDone(const sptr<IRemoteObject>
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("token write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::DISCONNECT_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1288,13 +1290,13 @@ int AbilityManagerProxy::ScheduleCommandAbilityDone(const sptr<IRemoteObject> &t
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("token write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::COMMAND_ABILITY_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1315,25 +1317,25 @@ int AbilityManagerProxy::ScheduleCommandAbilityWindowDone(
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("token write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteParcelable(sessionInfo)) {
-        HILOG_ERROR("sessionInfo write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionInfo write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(winCmd)) {
-        HILOG_ERROR("winCmd write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "winCmd write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(abilityCmd)) {
-        HILOG_ERROR("abilityCmd write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityCmd write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::COMMAND_ABILITY_WINDOW_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1353,21 +1355,21 @@ void AbilityManagerProxy::DumpSysState(
     data.WriteString16(Str8ToStr16(args));
 
     if (!data.WriteBool(isClient)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ;
     }
     if (!data.WriteBool(isUserId)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ;
     }
     if (!data.WriteInt32(UserId)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::DUMPSYS_STATE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("AbilityManagerProxy: SendRequest err %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerProxy: SendRequest err %{public}d", error);
         return;
     }
     int32_t stackNum = reply.ReadInt32();
@@ -1391,7 +1393,7 @@ void AbilityManagerProxy::DumpState(const std::string &args, std::vector<std::st
 
     error = SendRequest(AbilityManagerInterfaceCode::DUMP_STATE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("AbilityManagerProxy: SendRequest err %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AbilityManagerProxy: SendRequest err %{public}d", error);
         return;
     }
     int32_t stackNum = reply.ReadInt32();
@@ -1412,17 +1414,17 @@ int AbilityManagerProxy::MinimizeAbility(const sptr<IRemoteObject> &token, bool 
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("token write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteBool(fromUser)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::MINIMIZE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1443,23 +1445,23 @@ int AbilityManagerProxy::MinimizeUIExtensionAbility(const sptr<SessionInfo> &ext
         "connect ability fail, extensionSessionInfo is nullptr");
     if (extensionSessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(extensionSessionInfo)) {
-            HILOG_ERROR("flag and extensionSessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and extensionSessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteBool(fromUser)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::MINIMIZE_UI_EXTENSION_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1477,23 +1479,23 @@ int AbilityManagerProxy::MinimizeUIAbilityBySCB(const sptr<SessionInfo> &session
     }
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and sessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteBool(fromUser)) {
-        HILOG_ERROR("fromUser write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fromUser write failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::MINIMIZE_UI_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("failed, Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed, Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1510,27 +1512,27 @@ int AbilityManagerProxy::StopServiceAbility(const Want &want, int32_t userId, co
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("Failed to write flag and token.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag and token.");
             return ERR_INVALID_VALUE;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag.");
             return ERR_INVALID_VALUE;
         }
     }
     error = SendRequest(AbilityManagerInterfaceCode::STOP_SERVICE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1541,14 +1543,14 @@ int AbilityManagerProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T>
 {
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        HILOG_ERROR("infoSize is too large");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "infoSize is too large");
         return ERR_INVALID_VALUE;
     }
 
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<T> info(reply.ReadParcelable<T>());
         if (!info) {
-            HILOG_ERROR("Read Parcelable infos failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Read Parcelable infos failed.");
             return ERR_INVALID_VALUE;
         }
         parcelableInfos.emplace_back(*info);
@@ -1568,25 +1570,25 @@ int AbilityManagerProxy::GetMissionSnapshot(const std::string& deviceId, int32_t
         return INNER_ERR;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("deviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteBool(isLowResolution)) {
-        HILOG_ERROR("isLowResolution write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "isLowResolution write failed.");
         return ERR_INVALID_VALUE;
     }
     error = SendRequest(AbilityManagerInterfaceCode::GET_MISSION_SNAPSHOT_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     std::unique_ptr<MissionSnapshot> info(reply.ReadParcelable<MissionSnapshot>());
     if (!info) {
-        HILOG_ERROR("readParcelableInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "readParcelableInfo failed.");
         auto errorCode = reply.ReadInt32();
         return errorCode ? errorCode : ERR_UNKNOWN_OBJECT;
     }
@@ -1605,17 +1607,17 @@ void AbilityManagerProxy::UpdateMissionSnapShot(const sptr<IRemoteObject> &token
         return;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("write token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed.");
         return;
     }
     if (!data.WriteParcelable(pixelMap.get())) {
-        HILOG_ERROR("write pixelMap failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write pixelMap failed.");
         return;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::UPDATE_MISSION_SNAPSHOT_FROM_WMS,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
 
@@ -1627,18 +1629,18 @@ void AbilityManagerProxy::EnableRecoverAbility(const sptr<IRemoteObject>& token)
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("AppRecovery WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteInterfaceToken failed.");
         return;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("AppRecovery WriteRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteRemoteObject failed.");
         return;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_RECOVERY_ENABLE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("AppRecovery Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery Send request error: %{public}d", error);
         return;
     }
     return;
@@ -1652,25 +1654,25 @@ void AbilityManagerProxy::ScheduleRecoverAbility(const sptr<IRemoteObject>& toke
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("AppRecovery WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteInterfaceToken failed.");
         return;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("AppRecovery WriteRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery WriteRemoteObject failed.");
         return;
     }
 
     data.WriteInt32(reason);
 
     if (!data.WriteParcelable(want)) {
-        HILOG_ERROR("AppRecovery write want failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery write want failed.");
         return;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::ABILITY_RECOVERY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("AppRecovery Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AppRecovery Send request error: %{public}d", error);
         return;
     }
     return;
@@ -1686,12 +1688,12 @@ int AbilityManagerProxy::KillProcess(const std::string &bundleName)
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        HILOG_ERROR("bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::KILL_PROCESS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1708,16 +1710,16 @@ int AbilityManagerProxy::ForceTimeoutForTest(const std::string &abilityName, con
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(abilityName))) {
-        HILOG_ERROR("abilityName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString16(Str8ToStr16(state))) {
-        HILOG_ERROR("abilityName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityName write failed.");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::FORCE_TIMEOUT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1734,16 +1736,16 @@ int AbilityManagerProxy::ClearUpApplicationData(const std::string &bundleName, c
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        HILOG_ERROR("bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::CLEAR_UP_APPLICATION_DATA, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1759,16 +1761,16 @@ int AbilityManagerProxy::UninstallApp(const std::string &bundleName, int32_t uid
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(bundleName))) {
-        HILOG_ERROR("bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(uid)) {
-        HILOG_ERROR("uid write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed.");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::UNINSTALL_APP, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1788,7 +1790,7 @@ int32_t AbilityManagerProxy::UpgradeApp(const std::string &bundleName, const int
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, String16, Str8ToStr16(exitMsg));
     int error = SendRequest(AbilityManagerInterfaceCode::UPGRADE_APP, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1804,23 +1806,23 @@ sptr<IWantSender> AbilityManagerProxy::GetWantSender(
         return nullptr;
     }
     if (!data.WriteParcelable(&wantSenderInfo)) {
-        HILOG_ERROR("wantSenderInfo write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantSenderInfo write failed.");
         return nullptr;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
             return nullptr;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return nullptr;
         }
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return nullptr;
     }
     sptr<IWantSender> wantSender = iface_cast<IWantSender>(reply.ReadRemoteObject());
@@ -1839,16 +1841,16 @@ int AbilityManagerProxy::SendWantSender(sptr<IWantSender> target, const SenderIn
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&senderInfo)) {
-        HILOG_ERROR("senderInfo write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "senderInfo write failed.");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SEND_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1863,12 +1865,12 @@ void AbilityManagerProxy::CancelWantSender(const sptr<IWantSender> &sender)
         return;
     }
     if (sender == nullptr || !data.WriteRemoteObject(sender->AsObject())) {
-        HILOG_ERROR("sender write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sender write failed.");
         return;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CANCEL_PENDING_WANT_SENDER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
     }
 }
@@ -1882,12 +1884,12 @@ int AbilityManagerProxy::GetPendingWantUid(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_UID, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -1902,12 +1904,12 @@ int AbilityManagerProxy::GetPendingWantUserId(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_USERID, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -1922,12 +1924,12 @@ std::string AbilityManagerProxy::GetPendingWantBundleName(const sptr<IWantSender
         return "";
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return "";
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return "";
     }
     return Str16ToStr8(reply.ReadString16());
@@ -1942,12 +1944,12 @@ int AbilityManagerProxy::GetPendingWantCode(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_CODE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -1962,12 +1964,12 @@ int AbilityManagerProxy::GetPendingWantType(const sptr<IWantSender> &target)
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_TYPE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -1982,16 +1984,16 @@ void AbilityManagerProxy::RegisterCancelListener(const sptr<IWantSender> &sender
         return;
     }
     if (sender == nullptr || !data.WriteRemoteObject(sender->AsObject())) {
-        HILOG_ERROR("sender write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sender write failed.");
         return;
     }
     if (receiver == nullptr || !data.WriteRemoteObject(receiver->AsObject())) {
-        HILOG_ERROR("receiver write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "receiver write failed.");
         return;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
     }
 }
@@ -2005,16 +2007,16 @@ void AbilityManagerProxy::UnregisterCancelListener(const sptr<IWantSender> &send
         return;
     }
     if (sender == nullptr || !data.WriteRemoteObject(sender->AsObject())) {
-        HILOG_ERROR("sender write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sender write failed.");
         return;
     }
     if (receiver == nullptr || !data.WriteRemoteObject(receiver->AsObject())) {
-        HILOG_ERROR("receiver write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "receiver write failed.");
         return;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_CANCEL_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
     }
 }
@@ -2028,21 +2030,21 @@ int AbilityManagerProxy::GetPendingRequestWant(const sptr<IWantSender> &target, 
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return INNER_ERR;
     }
     if (want == nullptr || !data.WriteParcelable(want.get())) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_REQUEST_WANT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     std::unique_ptr<Want> wantInfo(reply.ReadParcelable<Want>());
     if (!wantInfo) {
-        HILOG_ERROR("readParcelableInfo failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "readParcelableInfo failed");
         return INNER_ERR;
     }
     want = std::move(wantInfo);
@@ -2059,21 +2061,21 @@ int AbilityManagerProxy::GetWantSenderInfo(const sptr<IWantSender> &target, std:
         return INNER_ERR;
     }
     if (target == nullptr || !data.WriteRemoteObject(target->AsObject())) {
-        HILOG_ERROR("target write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "target write failed.");
         return INNER_ERR;
     }
     if (info == nullptr || !data.WriteParcelable(info.get())) {
-        HILOG_ERROR("info write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "info write failed.");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PENDING_WANT_SENDER_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     std::unique_ptr<WantSenderInfo> wantSenderInfo(reply.ReadParcelable<WantSenderInfo>());
     if (!wantSenderInfo) {
-        HILOG_ERROR("readParcelable Info failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "readParcelable Info failed");
         return INNER_ERR;
     }
     info = std::move(wantSenderInfo);
@@ -2087,12 +2089,12 @@ int AbilityManagerProxy::GetAppMemorySize()
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken faild");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken faild");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_APP_MEMORY_SIZE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2104,12 +2106,12 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken faild");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken faild");
         return false;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_RAM_CONSTRAINED_DEVICE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -2118,7 +2120,7 @@ bool AbilityManagerProxy::IsRamConstrainedDevice()
 int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const std::string &dstDeviceId,
     int32_t missionId, const sptr<IRemoteObject> &callBack, AAFwk::WantParams &wantParams)
 {
-    HILOG_INFO("amsProxy %{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "amsProxy %{public}s called.", __func__);
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -2126,29 +2128,29 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
         return INNER_ERR;
     }
     if (!data.WriteString(srcDeviceId)) {
-        HILOG_ERROR("srcDeviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(dstDeviceId)) {
-        HILOG_ERROR("dstDeviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "dstDeviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(callBack)) {
-        HILOG_ERROR("callBack write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callBack write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&wantParams)) {
-        HILOG_ERROR("wantParams write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2164,29 +2166,29 @@ int AbilityManagerProxy::ContinueMission(const std::string &srcDeviceId, const s
         return INNER_ERR;
     }
     if (!data.WriteString(srcDeviceId)) {
-        HILOG_ERROR("srcDeviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "srcDeviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(dstDeviceId)) {
-        HILOG_ERROR("dstDeviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "dstDeviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("missionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(callBack)) {
-        HILOG_ERROR("callBack write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callBack write failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&wantParams)) {
-        HILOG_ERROR("wantParams write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParams write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_MISSION_OF_BUNDLENAME, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2201,21 +2203,21 @@ int AbilityManagerProxy::ContinueAbility(const std::string &deviceId, int32_t mi
         return INNER_ERR;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("deviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteUint32(versionCode)) {
-        HILOG_ERROR("versionCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "versionCode write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CONTINUE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2230,21 +2232,21 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(abilityToken)) {
-        HILOG_ERROR("abilityToken write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityToken write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(status)) {
-        HILOG_ERROR("status write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "status write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::START_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2259,21 +2261,21 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
         return;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("deviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId write failed.");
         return;
     }
     if (!data.WriteInt32(sessionId)) {
-        HILOG_ERROR("sessionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "sessionId write failed.");
         return;
     }
     if (!data.WriteBool(isSuccess)) {
-        HILOG_ERROR("result write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "result write failed.");
         return;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
     }
 }
@@ -2287,17 +2289,17 @@ int AbilityManagerProxy::NotifyContinuationResult(int32_t missionId, int32_t res
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(result)) {
-        HILOG_ERROR("result write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "result write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_CONTINUATION_RESULT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2314,13 +2316,13 @@ int AbilityManagerProxy::LockMissionForCleanup(int32_t missionId)
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("lock mission by id , WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "lock mission by id , WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::LOCK_MISSION_FOR_CLEANUP, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("lock mission by id , error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "lock mission by id , error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2337,12 +2339,12 @@ int AbilityManagerProxy::UnlockMissionForCleanup(int32_t missionId)
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("unlock mission by id , WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "unlock mission by id , WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
     error = SendRequest(AbilityManagerInterfaceCode::UNLOCK_MISSION_FOR_CLEANUP, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("unlock mission by id , error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "unlock mission by id , error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2357,12 +2359,12 @@ void AbilityManagerProxy::SetLockedState(int32_t sessionId, bool lockedState)
     }
 
     if (!data.WriteInt32(sessionId)) {
-        HILOG_ERROR("lock abilityRecord by id , WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "lock abilityRecord by id , WriteInt32 fail.");
         return;
     }
 
     if (!data.WriteBool(lockedState)) {
-        HILOG_ERROR("WriteBool fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteBool fail.");
         return;
     }
 
@@ -2370,7 +2372,7 @@ void AbilityManagerProxy::SetLockedState(int32_t sessionId, bool lockedState)
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_SESSION_LOCKED_STATE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("lock or unlock abilityRecord by sessionId , error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "lock or unlock abilityRecord by sessionId , error: %d", error);
         return;
     }
     return;
@@ -2383,7 +2385,7 @@ int AbilityManagerProxy::RegisterMissionListener(const sptr<IMissionListener> &l
     MessageParcel reply;
     MessageOption option;
     if (!listener) {
-        HILOG_ERROR("register mission listener, listener is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "register mission listener, listener is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -2391,13 +2393,13 @@ int AbilityManagerProxy::RegisterMissionListener(const sptr<IMissionListener> &l
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("write mission listener failed when register mission listener.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write mission listener failed when register mission listener.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::REGISTER_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2406,7 +2408,7 @@ int AbilityManagerProxy::RegisterMissionListener(const sptr<IMissionListener> &l
 int AbilityManagerProxy::RegisterSessionHandler(const sptr<IRemoteObject> &object)
 {
     if (!object) {
-        HILOG_ERROR("register session handler, handler is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "register session handler, handler is nullptr");
         return ERR_INVALID_VALUE;
     }
     MessageParcel data;
@@ -2416,12 +2418,12 @@ int AbilityManagerProxy::RegisterSessionHandler(const sptr<IRemoteObject> &objec
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(object)) {
-        HILOG_ERROR("write session handler failed when register session handler.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write session handler failed when register session handler.");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::REGISTER_SESSION_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2437,18 +2439,18 @@ int AbilityManagerProxy::RegisterMissionListener(const std::string &deviceId,
         return INNER_ERR;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("deviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("listener write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_REMOTE_MISSION_LISTENER,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2464,17 +2466,17 @@ int AbilityManagerProxy::RegisterOnListener(const std::string &type,
         return INNER_ERR;
     }
     if (!data.WriteString(type)) {
-        HILOG_ERROR("type write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("listener write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_REMOTE_ON_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2490,17 +2492,17 @@ int AbilityManagerProxy::RegisterOffListener(const std::string &type,
         return INNER_ERR;
     }
     if (!data.WriteString(type)) {
-        HILOG_ERROR("type write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("listener write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_REMOTE_OFF_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2513,7 +2515,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
     MessageParcel reply;
     MessageOption option;
     if (!listener) {
-        HILOG_ERROR("unregister mission listener, listener is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "unregister mission listener, listener is nullptr");
         return ERR_INVALID_VALUE;
     }
 
@@ -2521,13 +2523,13 @@ int AbilityManagerProxy::UnRegisterMissionListener(const sptr<IMissionListener> 
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("write mission listener failed when unregister mission listener.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write mission listener failed when unregister mission listener.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_MISSION_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2544,21 +2546,21 @@ int AbilityManagerProxy::GetMissionInfos(const std::string& deviceId, int32_t nu
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(deviceId))) {
-        HILOG_ERROR("write deviceId failed when GetMissionInfos.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write deviceId failed when GetMissionInfos.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(numMax)) {
-        HILOG_ERROR("GetMissionInfos numMax write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfos numMax write failed.");
         return ERR_INVALID_VALUE;
     }
     error = SendRequest(AbilityManagerInterfaceCode::GET_MISSION_INFOS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetMissionInfos Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfos Send request error: %{public}d", error);
         return error;
     }
     error = GetParcelableInfos<MissionInfo>(reply, missionInfos);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetMissionInfos error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfos error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2575,22 +2577,22 @@ int AbilityManagerProxy::GetMissionInfo(const std::string& deviceId, int32_t mis
         return INNER_ERR;
     }
     if (!data.WriteString16(Str8ToStr16(deviceId))) {
-        HILOG_ERROR("write deviceId failed when GetMissionInfo.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write deviceId failed when GetMissionInfo.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("GetMissionInfo write missionId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfo write missionId failed.");
         return ERR_INVALID_VALUE;
     }
     error = SendRequest(AbilityManagerInterfaceCode::GET_MISSION_INFO_BY_ID, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetMissionInfo Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetMissionInfo Send request error: %{public}d", error);
         return error;
     }
 
     std::unique_ptr<MissionInfo> info(reply.ReadParcelable<MissionInfo>());
     if (!info) {
-        HILOG_ERROR("read missioninfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "read missioninfo failed.");
         return ERR_UNKNOWN_OBJECT;
     }
     missionInfo = *info;
@@ -2608,12 +2610,12 @@ int AbilityManagerProxy::CleanMission(int32_t missionId)
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("clean mission by id , WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "clean mission by id , WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
     error = SendRequest(AbilityManagerInterfaceCode::CLEAN_MISSION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("clean mission by id , error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "clean mission by id , error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2631,7 +2633,7 @@ int AbilityManagerProxy::CleanAllMissions()
     }
     error = SendRequest(AbilityManagerInterfaceCode::CLEAN_ALL_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("lock mission by id ,SendRequest error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "lock mission by id ,SendRequest error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2648,12 +2650,12 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId)
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("move mission to front , WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "move mission to front , WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
     error = SendRequest(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("move mission to front, SendRequest error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "move mission to front, SendRequest error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2670,16 +2672,16 @@ int AbilityManagerProxy::MoveMissionToFront(int32_t missionId, const StartOption
         return INNER_ERR;
     }
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("move mission to front , WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "move mission to front , WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteParcelable(&startOptions)) {
-        HILOG_ERROR("startOptions write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "startOptions write failed.");
         return INNER_ERR;
     }
     error = SendRequest(AbilityManagerInterfaceCode::MOVE_MISSION_TO_FRONT_BY_OPTIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("move mission to front, SendRequest error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "move mission to front, SendRequest error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2695,18 +2697,18 @@ int AbilityManagerProxy::MoveMissionsToForeground(const std::vector<int32_t>& mi
     }
 
     if (!data.WriteInt32Vector(missionIds)) {
-        HILOG_ERROR("mission id write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "mission id write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(topMissionId)) {
-        HILOG_ERROR("top mission id write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "top mission id write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_FOREGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("query front missionInfo failed: send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "query front missionInfo failed: send request error: %{public}d", error);
         return error;
     }
 
@@ -2723,18 +2725,18 @@ int AbilityManagerProxy::MoveMissionsToBackground(const std::vector<int32_t>& mi
     }
 
     if (!data.WriteInt32Vector(missionIds)) {
-        HILOG_ERROR("mission id write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "mission id write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::MOVE_MISSIONS_TO_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("query front missionInfo failed: send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "query front missionInfo failed: send request error: %{public}d", error);
         return error;
     }
 
     if (!reply.ReadInt32Vector(&result)) {
-        HILOG_ERROR("read result failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "read result failed");
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -2747,7 +2749,7 @@ int AbilityManagerProxy::StartUser(int userId, sptr<IUserCallback> callback)
         return INNER_ERR;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("StartUser:WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUser:WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
     if (!callback) {
@@ -2755,7 +2757,7 @@ int AbilityManagerProxy::StartUser(int userId, sptr<IUserCallback> callback)
     } else {
         data.WriteBool(true);
         if (!data.WriteRemoteObject(callback->AsObject())) {
-            HILOG_ERROR("write IUserCallback fail.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write IUserCallback fail.");
             return ERR_INVALID_VALUE;
         }
     }
@@ -2764,7 +2766,7 @@ int AbilityManagerProxy::StartUser(int userId, sptr<IUserCallback> callback)
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::START_USER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("StartUser:SendRequest error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StartUser:SendRequest error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2779,16 +2781,16 @@ int AbilityManagerProxy::SetMissionContinueState(const sptr<IRemoteObject> &toke
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("SetMissionContinueState write token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionContinueState write token failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt32(static_cast<int32_t>(state))) {
-        HILOG_ERROR("SetMissionContinueState write state failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionContinueState write state failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_MISSION_CONTINUE_STATE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("SetMissionContinueState Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionContinueState Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2801,7 +2803,7 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IUserCallback> &callbac
         return INNER_ERR;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("StopUser:WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StopUser:WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
 
@@ -2810,7 +2812,7 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IUserCallback> &callbac
     } else {
         data.WriteBool(true);
         if (!data.WriteRemoteObject(callback->AsObject())) {
-            HILOG_ERROR("write IUserCallback fail.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write IUserCallback fail.");
             return ERR_INVALID_VALUE;
         }
     }
@@ -2818,7 +2820,7 @@ int AbilityManagerProxy::StopUser(int userId, const sptr<IUserCallback> &callbac
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::STOP_USER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("StopUser:SendRequest error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "StopUser:SendRequest error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2834,12 +2836,12 @@ int AbilityManagerProxy::LogoutUser(int32_t userId)
         return INNER_ERR;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("LogoutUser:WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "LogoutUser:WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
     int error = SendRequest(AbilityManagerInterfaceCode::LOGOUT_USER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("LogoutUser:SendRequest error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "LogoutUser:SendRequest error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2855,16 +2857,16 @@ int AbilityManagerProxy::SetMissionLabel(const sptr<IRemoteObject> &token, const
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("SetMissionLabel write token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionLabel write token failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString16(Str8ToStr16(label))) {
-        HILOG_ERROR("SetMissionLabel write label failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionLabel write label failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_MISSION_LABEL, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("SetMissionLabel Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionLabel Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2874,7 +2876,7 @@ int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
     const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
     if (!token || !icon) {
-        HILOG_ERROR("SetMissionIcon abilitytoken or icon is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIcon abilitytoken or icon is invalid.");
         return ERR_INVALID_VALUE;
     }
 
@@ -2885,18 +2887,18 @@ int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("SetMissionIcon write token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIcon write token failed.");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteParcelable(icon.get())) {
-        HILOG_ERROR("SetMissionIcon write icon failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIcon write icon failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_MISSION_ICON, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("SetMissionIcon Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "SetMissionIcon Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -2905,23 +2907,23 @@ int AbilityManagerProxy::SetMissionIcon(const sptr<IRemoteObject> &token,
 int AbilityManagerProxy::RegisterWindowManagerServiceHandler(const sptr<IWindowManagerServiceHandler>& handler)
 {
     if (!handler) {
-        HILOG_ERROR("%{public}s: handler is nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: handler is nullptr.", __func__);
         return INNER_ERR;
     }
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s: write interface token failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: write interface token failed.", __func__);
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(handler->AsObject())) {
-        HILOG_ERROR("%{public}s: handler write failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: handler write failed.", __func__);
         return INNER_ERR;
     }
     MessageOption option;
     MessageParcel reply;
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_WMS_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("%{public}s: send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: send request error: %{public}d", __func__, error);
         return error;
     }
     return reply.ReadInt32();
@@ -2931,18 +2933,18 @@ void AbilityManagerProxy::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &a
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("%{public}s: write interface token failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: write interface token failed.", __func__);
         return;
     }
     if (!data.WriteRemoteObject(abilityToken)) {
-        HILOG_ERROR("%{public}s: abilityToken write failed.", __func__);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: abilityToken write failed.", __func__);
         return;
     }
     MessageOption option;
     MessageParcel reply;
     auto error = SendRequest(AbilityManagerInterfaceCode::COMPLETEFIRSTFRAMEDRAWING, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("%{public}s: send request error: %{public}d", __func__, error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: send request error: %{public}d", __func__, error);
     }
 }
 
@@ -2950,7 +2952,7 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
     sptr<IPrepareTerminateCallback> &callback)
 {
     if (!callback) {
-        HILOG_ERROR("callback is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr.");
         return INNER_ERR;
     }
     int error = 0;
@@ -2958,28 +2960,28 @@ int AbilityManagerProxy::PrepareTerminateAbility(const sptr<IRemoteObject> &toke
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-            HILOG_ERROR("write token failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("write token failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "write token failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("weite callback failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "weite callback failed.");
         return INNER_ERR;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("send request failed. error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "send request failed. error: %{public}d", error);
         return error;
     }
 
@@ -2992,21 +2994,21 @@ int AbilityManagerProxy::GetDialogSessionInfo(const std::string dialogSessionId,
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface fail.");
         return INNER_ERR;
     }
     if (!data.WriteString(dialogSessionId)) {
-        HILOG_ERROR("write dialogSessionId fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write dialogSessionId fail.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_DIALOG_SESSION_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension running info failed., error: %{public}d", error);
         return error;
     }
     info = reply.ReadParcelable<DialogSessionInfo>();
     if (!info) {
-        HILOG_ERROR("read IRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "read IRemoteObject failed.");
         return ERR_UNKNOWN_OBJECT;
     }
     return reply.ReadInt32();
@@ -3021,20 +3023,20 @@ int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string di
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString(dialogSessionId)) {
-        HILOG_ERROR("write dialogSessionId fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write dialogSessionId fail.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteBool(isAllow)) {
-        HILOG_ERROR("write dialogSessionId fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write dialogSessionId fail.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension running info failed., error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3053,12 +3055,12 @@ int AbilityManagerProxy::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> 
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_RUNNING_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Get ability running info, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get ability running info, error: %{public}d", error);
         return error;
     }
     error = GetParcelableInfos<AbilityRunningInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3075,18 +3077,18 @@ int AbilityManagerProxy::GetExtensionRunningInfos(int upperLimit, std::vector<Ex
     }
 
     if (!data.WriteInt32(upperLimit)) {
-        HILOG_ERROR("upperLimit write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "upperLimit write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_EXTENSION_RUNNING_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Get extension running info failed., error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get extension running info failed., error: %{public}d", error);
         return error;
     }
     error = GetParcelableInfos<ExtensionRunningInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3104,12 +3106,12 @@ int AbilityManagerProxy::GetProcessRunningInfos(std::vector<AppExecFwk::RunningP
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_PROCESS_RUNNING_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Get process running info, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get process running info, error: %{public}d", error);
         return error;
     }
     error = GetParcelableInfos<AppExecFwk::RunningProcessInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3117,33 +3119,33 @@ int AbilityManagerProxy::GetProcessRunningInfos(std::vector<AppExecFwk::RunningP
 
 int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool fixConflict, int64_t tag)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString(devId)) {
-        HILOG_ERROR("write deviceId fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write deviceId fail.");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteBool(fixConflict)) {
-        HILOG_ERROR("WriteBool fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteBool fail.");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteInt64(tag)) {
-        HILOG_ERROR("WriteInt64 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInt64 fail.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::START_SYNC_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3151,22 +3153,22 @@ int AbilityManagerProxy::StartSyncRemoteMissions(const std::string& devId, bool 
 
 int32_t AbilityManagerProxy::StopSyncRemoteMissions(const std::string& devId)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString(devId)) {
-        HILOG_ERROR("write deviceId fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write deviceId fail.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::STOP_SYNC_MISSIONS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3182,18 +3184,18 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
         return INNER_ERR;
     }
     if (!data.WriteString(deviceId)) {
-        HILOG_ERROR("deviceId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "deviceId write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("listener write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "listener write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_REMOTE_MISSION_LISTENER,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3202,7 +3204,7 @@ int AbilityManagerProxy::UnRegisterMissionListener(const std::string &deviceId,
 int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilityConnection> &connect,
     const sptr<IRemoteObject> &callerToken, int32_t accountId)
 {
-    HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall begin.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::StartAbilityByCall begin.");
     int error;
     MessageParcel data;
     MessageParcel reply;
@@ -3212,40 +3214,40 @@ int AbilityManagerProxy::StartAbilityByCall(const Want &want, const sptr<IAbilit
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return ERR_INVALID_VALUE;
     }
     if (connect == nullptr) {
-        HILOG_ERROR("resolve ability fail, connect is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "resolve ability fail, connect is nullptr");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteRemoteObject(connect->AsObject())) {
-        HILOG_ERROR("resolve write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "resolve write failed.");
         return ERR_INVALID_VALUE;
     }
     if (callerToken) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("Failed to write flag and callerToken.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag and callerToken.");
             return ERR_INVALID_VALUE;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write flag.");
             return ERR_INVALID_VALUE;
         }
     }
     if (!data.WriteInt32(accountId)) {
-        HILOG_ERROR("accountId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "accountId write failed.");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall SendRequest Call.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::StartAbilityByCall SendRequest Call.");
     error = SendRequest(AbilityManagerInterfaceCode::START_CALL_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
-    HILOG_DEBUG("AbilityManagerProxy::StartAbilityByCall end.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::StartAbilityByCall end.");
     return reply.ReadInt32();
 }
 
@@ -3256,11 +3258,11 @@ void AbilityManagerProxy::CallRequestDone(const sptr<IRemoteObject> &token, cons
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (token == nullptr) {
-        HILOG_ERROR("Call request done fail, ability token is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Call request done fail, ability token is nullptr.");
         return;
     }
     if (callStub == nullptr) {
-        HILOG_ERROR("Call request done fail, callStub is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Call request done fail, callStub is nullptr.");
         return;
     }
 
@@ -3268,16 +3270,16 @@ void AbilityManagerProxy::CallRequestDone(const sptr<IRemoteObject> &token, cons
         return;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("WriteRemoteObject fail, write token fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteRemoteObject fail, write token fail.");
         return;
     }
     if (!data.WriteRemoteObject(callStub)) {
-        HILOG_ERROR("WriteRemoteObject fail, write callStub fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteRemoteObject fail, write callStub fail.");
         return;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::CALL_REQUEST_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
     }
 }
@@ -3290,24 +3292,24 @@ int AbilityManagerProxy::ReleaseCall(
     MessageParcel reply;
     MessageOption option;
     if (connect == nullptr) {
-        HILOG_ERROR("release calll ability fail, connect is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "release calll ability fail, connect is nullptr");
         return ERR_INVALID_VALUE;
     }
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(connect->AsObject())) {
-        HILOG_ERROR("release ability connect write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "release ability connect write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteParcelable(&element)) {
-        HILOG_ERROR("element error.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "element error.");
         return ERR_INVALID_VALUE;
     }
 
     error = SendRequest(AbilityManagerInterfaceCode::RELEASE_CALL_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3322,13 +3324,13 @@ void AbilityManagerProxy::GetAbilityTokenByCalleeObj(const sptr<IRemoteObject> &
         return;
     }
     if (!data.WriteRemoteObject(callStub)) {
-        HILOG_ERROR("WriteRemoteObject fail, write callStub fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteRemoteObject fail, write callStub fail.");
         return;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
     }
     token = sptr<IRemoteObject>(reply.ReadRemoteObject());
@@ -3343,12 +3345,12 @@ int AbilityManagerProxy::RegisterSnapshotHandler(const sptr<ISnapshotHandler>& h
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(handler->AsObject())) {
-        HILOG_ERROR("snapshot: handler write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: handler write failed.");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::REGISTER_SNAPSHOT_HANDLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("snapshot: send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3358,7 +3360,7 @@ int AbilityManagerProxy::SetAbilityController(const sptr<AppExecFwk::IAbilityCon
     bool imAStabilityTest)
 {
     if (!abilityController) {
-        HILOG_ERROR("abilityController nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityController nullptr");
         return ERR_INVALID_VALUE;
     }
     MessageParcel data;
@@ -3368,16 +3370,16 @@ int AbilityManagerProxy::SetAbilityController(const sptr<AppExecFwk::IAbilityCon
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(abilityController->AsObject())) {
-        HILOG_ERROR("abilityController write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityController write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteBool(imAStabilityTest)) {
-        HILOG_ERROR("imAStabilityTest write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "imAStabilityTest write failed.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_ABILITY_CONTROLLER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3393,7 +3395,7 @@ bool AbilityManagerProxy::IsRunningInStabilityTest()
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_USER_A_STABILITY_TEST, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -3409,16 +3411,16 @@ int AbilityManagerProxy::StartUserTest(const Want &want, const sptr<IRemoteObjec
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(observer)) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "observer write failed.");
         return INNER_ERR;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::START_USER_TEST, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3435,21 +3437,21 @@ int AbilityManagerProxy::FinishUserTest(
         return INNER_ERR;
     }
     if (!data.WriteString(msg)) {
-        HILOG_ERROR("msg write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "msg write failed.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteInt64(resultCode)) {
-        HILOG_ERROR("resultCode:WriteInt64 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "resultCode:WriteInt64 fail.");
         return ERR_INVALID_VALUE;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::FINISH_USER_TEST, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3467,13 +3469,13 @@ int AbilityManagerProxy::GetTopAbility(sptr<IRemoteObject> &token)
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_TOP_ABILITY_TOKEN, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
     token = sptr<IRemoteObject>(reply.ReadRemoteObject());
     if (!token) {
-        HILOG_ERROR("read IRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "read IRemoteObject failed.");
         return ERR_UNKNOWN_OBJECT;
     }
 
@@ -3491,13 +3493,13 @@ int AbilityManagerProxy::CheckUIExtensionIsFocused(uint32_t uiExtensionTokenId, 
     }
 
     if (!data.WriteUint32(uiExtensionTokenId)) {
-        HILOG_ERROR("uiExtensionTokenId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uiExtensionTokenId write failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::CHECK_UI_EXTENSION_IS_FOCUSED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3516,14 +3518,14 @@ int AbilityManagerProxy::DelegatorDoAbilityForeground(const sptr<IRemoteObject> 
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_FOREGROUND,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3541,14 +3543,14 @@ int AbilityManagerProxy::DelegatorDoAbilityBackground(const sptr<IRemoteObject> 
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DELEGATOR_DO_ABILITY_BACKGROUND,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3566,18 +3568,18 @@ int AbilityManagerProxy::DoAbilityForeground(const sptr<IRemoteObject> &token, u
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteUint32(flag)) {
-        HILOG_ERROR("flag write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DO_ABILITY_FOREGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3595,18 +3597,18 @@ int AbilityManagerProxy::DoAbilityBackground(const sptr<IRemoteObject> &token, u
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return ERR_INVALID_VALUE;
     }
 
     if (!data.WriteUint32(flag)) {
-        HILOG_ERROR("flag write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DO_ABILITY_BACKGROUND, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3616,7 +3618,7 @@ int AbilityManagerProxy::DoAbilityBackground(const sptr<IRemoteObject> &token, u
 int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &token)
 {
     if (!token) {
-        HILOG_ERROR("token is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr.");
         return -1;
     }
 
@@ -3624,19 +3626,19 @@ int32_t AbilityManagerProxy::GetMissionIdByToken(const sptr<IRemoteObject> &toke
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("data interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data interface token failed.");
         return -1;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("data write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "data write failed.");
         return -1;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_MISSION_ID_BY_ABILITY_TOKEN,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return -1;
     }
 
@@ -3655,7 +3657,7 @@ int AbilityManagerProxy::BlockAmsService()
 
     auto error = SendRequest(AbilityManagerInterfaceCode::BLOCK_AMS_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("BlockAmsService error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "BlockAmsService error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3670,13 +3672,13 @@ int AbilityManagerProxy::BlockAbility(int32_t abilityRecordId)
         return INNER_ERR;
     }
     if (!data.WriteInt32(abilityRecordId)) {
-        HILOG_ERROR("pid WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pid WriteInt32 fail.");
         return ERR_INVALID_VALUE;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::BLOCK_ABILITY, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("BlockAbility error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "BlockAbility error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3693,7 +3695,7 @@ int AbilityManagerProxy::BlockAppService()
 
     auto error = SendRequest(AbilityManagerInterfaceCode::BLOCK_APP_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("BlockAmsService error: %d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "BlockAmsService error: %d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3706,34 +3708,34 @@ int AbilityManagerProxy::FreeInstallAbilityFromRemote(const Want &want, const sp
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(callback)) {
-        HILOG_ERROR("callback write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::FREE_INSTALL_ABILITY_FROM_REMOTE,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3746,18 +3748,18 @@ int AbilityManagerProxy::AddFreeInstallObserver(const sptr<AbilityRuntime::IFree
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "observer write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::ADD_FREE_INSTALL_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3769,23 +3771,23 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteStringVector(infos)) {
-        HILOG_ERROR("infos write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "infos write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("infos write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "infos write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::DUMP_ABILITY_INFO_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3795,12 +3797,12 @@ int AbilityManagerProxy::DumpAbilityInfoDone(std::vector<std::string> &infos, co
 int32_t AbilityManagerProxy::IsValidMissionIds(
     const std::vector<int32_t> &missionIds, std::vector<MissionValidResult> &results)
 {
-    HILOG_INFO("IsValidMissionIds Call. Quert size is %{public}zu", missionIds.size());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "IsValidMissionIds Call. Quert size is %{public}zu", missionIds.size());
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
@@ -3813,13 +3815,13 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
     auto error = SendRequest(AbilityManagerInterfaceCode::QUERY_MISSION_VAILD, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
     auto resultCode = reply.ReadInt32();
     if (resultCode != ERR_OK) {
-        HILOG_ERROR("Send request reply error: %{public}d", resultCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request reply error: %{public}d", resultCode);
         return resultCode;
     }
 
@@ -3827,7 +3829,7 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
     for (auto i = 0; i < infoSize && i < MAX_COUNT; ++i) {
         std::unique_ptr<MissionValidResult> info(reply.ReadParcelable<MissionValidResult>());
         if (!info) {
-            HILOG_ERROR("Read Parcelable result infos failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Read Parcelable result infos failed.");
             return INNER_ERR;
         }
         results.emplace_back(*info);
@@ -3838,33 +3840,33 @@ int32_t AbilityManagerProxy::IsValidMissionIds(
 
 int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid, int uid)
 {
-    HILOG_INFO("VerifyPermission Call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "VerifyPermission Call");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteString(permission)) {
-        HILOG_ERROR("permission write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "permission write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("pid write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "pid write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(uid)) {
-        HILOG_ERROR("uid write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uid write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::VERIFY_PERMISSION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -3873,9 +3875,9 @@ int AbilityManagerProxy::VerifyPermission(const std::string &permission, int pid
 
 int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_INFO("RequestDialogService Call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "RequestDialogService Call");
     if (!callerToken) {
-        HILOG_ERROR("callerToken is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is invalid.");
         return ERR_INVALID_CALLER;
     }
 
@@ -3887,18 +3889,18 @@ int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<I
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("infos write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "infos write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("request dialog service Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "request dialog service Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3906,9 +3908,9 @@ int32_t AbilityManagerProxy::RequestDialogService(const Want &want, const sptr<I
 
 int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &callerToken)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
     if (callerToken == nullptr) {
-        HILOG_ERROR("callerToken is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken is nullptr");
         return INNER_ERR;
     }
 
@@ -3920,13 +3922,13 @@ int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &cal
     }
 
     if (!data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("callerToken write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callerToken write failed.");
         return INNER_ERR;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::REPORT_DRAWN_COMPLETED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -3935,86 +3937,86 @@ int32_t AbilityManagerProxy::ReportDrawnCompleted(const sptr<IRemoteObject> &cal
 int32_t AbilityManagerProxy::AcquireShareData(
     const int32_t &missionId, const sptr<IAcquireShareDataCallback> &shareData)
 {
-    HILOG_INFO("AbilityManagerProxy::AcquireShareData start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::AcquireShareData start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(missionId)) {
-        HILOG_ERROR("missionId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "missionId write failed.");
         return INNER_ERR;
     }
 
     if (shareData == nullptr || !data.WriteRemoteObject(shareData->AsObject())) {
-        HILOG_ERROR("shareData write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "shareData write failed.");
         return INNER_ERR;
     }
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::ACQUIRE_SHARE_DATA, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("AcquireShareData fail to Send request, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "AcquireShareData fail to Send request, err: %{public}d.", error);
         return INNER_ERR;
     }
-    HILOG_INFO("AbilityManagerProxy::AcquireShareData end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::AcquireShareData end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::ShareDataDone(
     const sptr<IRemoteObject> &token, const int32_t &resultCode, const int32_t &uniqueId, WantParams &wantParam)
 {
-    HILOG_INFO("AbilityManagerProxy::ShareDataDone start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::ShareDataDone start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("token write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(resultCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(uniqueId)) {
-        HILOG_ERROR("uniqueId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uniqueId write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteParcelable(&wantParam)) {
-        HILOG_ERROR("wantParam write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "wantParam write failed.");
         return INNER_ERR;
     }
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::SHARE_DATA_DONE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("ShareDataDone fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "ShareDataDone fail to SendRequest, err: %{public}d.", error);
         return error;
     }
-    HILOG_INFO("AbilityManagerProxy::ShareDataDone end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::ShareDataDone end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &exitReason)
 {
-    HILOG_DEBUG("start.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
@@ -4022,46 +4024,46 @@ int32_t AbilityManagerProxy::ForceExitApp(const int32_t pid, const ExitReason &e
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::FORCE_EXIT_APP, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest, err: %{public}d.", error);
         return error;
     }
 
-    HILOG_DEBUG("end.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::RecordAppExitReason(const ExitReason &exitReason)
 {
-    HILOG_DEBUG("start.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Parcelable, &exitReason);
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_APP_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest, err: %{public}d.", error);
         return error;
     }
 
-    HILOG_DEBUG("end.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
 int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const ExitReason &exitReason)
 {
-    HILOG_DEBUG("start.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, pid);
@@ -4069,11 +4071,11 @@ int32_t AbilityManagerProxy::RecordProcessExitReason(const int32_t pid, const Ex
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::RECORD_PROCESS_EXIT_REASON, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("fail to SendRequest, err: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to SendRequest, err: %{public}d.", error);
         return error;
     }
 
-    HILOG_DEBUG("end.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "end.");
     return reply.ReadInt32();
 }
 
@@ -4081,11 +4083,11 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
         return;
     }
     if (!data.WriteRemoteObject(rootSceneSession)) {
-        HILOG_ERROR("WriteRemoteObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteRemoteObject failed.");
         return;
     }
 
@@ -4093,7 +4095,7 @@ void AbilityManagerProxy::SetRootSceneSession(const sptr<IRemoteObject> &rootSce
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::SET_ROOT_SCENE_SESSION, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
 
@@ -4101,17 +4103,17 @@ void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
         return;
     }
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and sessionInfo write failed.");
             return;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return;
         }
     }
@@ -4120,7 +4122,7 @@ void AbilityManagerProxy::CallUIAbilityBySCB(const sptr<SessionInfo> &sessionInf
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::CALL_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
 
@@ -4128,12 +4130,12 @@ void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
         return;
     }
 
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return;
     }
 
@@ -4141,7 +4143,7 @@ void AbilityManagerProxy::StartSpecifiedAbilityBySCB(const Want &want)
     MessageOption option(MessageOption::TF_ASYNC);
     auto error = SendRequest(AbilityManagerInterfaceCode::START_SPECIFIED_ABILITY_BY_SCB, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 }
 
@@ -4149,21 +4151,21 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteInterfaceToken failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("WriteWantObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteWantObject failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(resultCode)) {
-        HILOG_ERROR("resultCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "resultCode write failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
 
@@ -4171,7 +4173,7 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_SAVE_AS_RESULT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
     }
 
     return reply.ReadInt32();
@@ -4179,27 +4181,27 @@ int32_t AbilityManagerProxy::NotifySaveAsResult(const Want &want, int resultCode
 
 int32_t AbilityManagerProxy::SetSessionManagerService(const sptr<IRemoteObject> &sessionManagerService)
 {
-    HILOG_INFO("AbilityManagerProxy::SetSessionManagerService start.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::SetSessionManagerService start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(sessionManagerService)) {
-        HILOG_ERROR("token write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "token write failed.");
         return INNER_ERR;
     }
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::SET_SESSIONMANAGERSERVICE, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
-    HILOG_INFO("AbilityManagerProxy::SetSessionManagerService end.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "AbilityManagerProxy::SetSessionManagerService end.");
     return reply.ReadInt32();
 }
 
@@ -4207,7 +4209,7 @@ int32_t AbilityManagerProxy::RegisterIAbilityManagerCollaborator(
     int32_t type, const sptr<IAbilityManagerCollaborator> &impl)
 {
     if (!impl) {
-        HILOG_ERROR("impl is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "impl is nullptr");
         return ERR_INVALID_VALUE;
     }
     MessageParcel data;
@@ -4215,21 +4217,21 @@ int32_t AbilityManagerProxy::RegisterIAbilityManagerCollaborator(
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(type)) {
-        HILOG_ERROR("type write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type write failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(impl->AsObject())) {
-        HILOG_ERROR("impl write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "impl write failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::REGISTER_COLLABORATOR, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4242,17 +4244,17 @@ int32_t AbilityManagerProxy::UnregisterIAbilityManagerCollaborator(int32_t type)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(type)) {
-        HILOG_ERROR("type write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "type write failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_COLLABORATOR, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4265,17 +4267,17 @@ int32_t AbilityManagerProxy::RegisterAutoStartupSystemCallback(const sptr<IRemot
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(callback)) {
-        HILOG_ERROR("Callback write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback write failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4288,17 +4290,17 @@ int32_t AbilityManagerProxy::UnregisterAutoStartupSystemCallback(const sptr<IRem
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteRemoteObject(callback)) {
-        HILOG_ERROR("Callback write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback write failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_SYSTEM_CALLBACK, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4311,17 +4313,17 @@ int32_t AbilityManagerProxy::SetApplicationAutoStartup(const AutoStartupInfo &in
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write AutoStartupInfo failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4334,17 +4336,17 @@ int32_t AbilityManagerProxy::CancelApplicationAutoStartup(const AutoStartupInfo 
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write AutoStartupInfo failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4357,19 +4359,19 @@ int32_t AbilityManagerProxy::QueryAllAutoStartupApplications(std::vector<AutoSta
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::QUERY_ALL_AUTO_STARTUP_APPLICATION, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
 
     auto resultCode = reply.ReadInt32();
     if (resultCode != ERR_OK) {
-        HILOG_ERROR("Reply error: %{public}d.", resultCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Reply error: %{public}d.", resultCode);
         return resultCode;
     }
 
@@ -4377,7 +4379,7 @@ int32_t AbilityManagerProxy::QueryAllAutoStartupApplications(std::vector<AutoSta
     for (auto i = 0; i < infoSize && i < MAX_AUTO_STARTUP_COUNT; ++i) {
         std::unique_ptr<AutoStartupInfo> info(reply.ReadParcelable<AutoStartupInfo>());
         if (!info) {
-            HILOG_ERROR("Read Parcelable result infos failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Read Parcelable result infos failed.");
             return INNER_ERR;
         }
         infoList.emplace_back(*info);
@@ -4392,17 +4394,17 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (sessionInfo) {
         if (!data.WriteBool(true) || !data.WriteParcelable(sessionInfo)) {
-            HILOG_ERROR("flag and sessionInfo write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and sessionInfo write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
@@ -4410,7 +4412,7 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
     auto error = SendRequest(AbilityManagerInterfaceCode::PREPARE_TERMINATE_ABILITY_BY_SCB,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -4420,15 +4422,15 @@ int AbilityManagerProxy::PrepareTerminateAbilityBySCB(const sptr<SessionInfo> &s
 
 int32_t AbilityManagerProxy::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (listener == nullptr || !data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("Write listener failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write listener failed.");
         return INNER_ERR;
     }
 
@@ -4436,7 +4438,7 @@ int32_t AbilityManagerProxy::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebug
     MessageOption option(MessageOption::TF_SYNC);
     int32_t error = SendRequest(AbilityManagerInterfaceCode::REGISTER_APP_DEBUG_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed, err: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -4444,15 +4446,15 @@ int32_t AbilityManagerProxy::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebug
 
 int32_t AbilityManagerProxy::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (listener == nullptr || !data.WriteRemoteObject(listener->AsObject())) {
-        HILOG_ERROR("Write listener failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write listener failed.");
         return INNER_ERR;
     }
 
@@ -4460,7 +4462,7 @@ int32_t AbilityManagerProxy::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDeb
     MessageOption option(MessageOption::TF_SYNC);
     int32_t error = SendRequest(AbilityManagerInterfaceCode::UNREGISTER_APP_DEBUG_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed, err: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -4468,15 +4470,15 @@ int32_t AbilityManagerProxy::UnregisterAppDebugListener(sptr<AppExecFwk::IAppDeb
 
 int32_t AbilityManagerProxy::AttachAppDebug(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("bundleName write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleName write failed.");
         return INNER_ERR;
     }
 
@@ -4484,7 +4486,7 @@ int32_t AbilityManagerProxy::AttachAppDebug(const std::string &bundleName)
     MessageOption option;
     int32_t error = SendRequest(AbilityManagerInterfaceCode::ATTACH_APP_DEBUG, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed, err: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -4492,15 +4494,15 @@ int32_t AbilityManagerProxy::AttachAppDebug(const std::string &bundleName)
 
 int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundleName failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write bundleName failed.");
         return INNER_ERR;
     }
 
@@ -4508,7 +4510,7 @@ int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
     MessageOption option;
     int32_t error = SendRequest(AbilityManagerInterfaceCode::DETACH_APP_DEBUG, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed, err: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -4517,33 +4519,33 @@ int32_t AbilityManagerProxy::DetachAppDebug(const std::string &bundleName)
 int32_t AbilityManagerProxy::ExecuteIntent(uint64_t key,  const sptr<IRemoteObject> &callerToken,
     const InsightIntentExecuteParam &param)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteUint64(key)) {
-        HILOG_ERROR("Write key failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write key failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("failed to write callerToken.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to write callerToken.");
         return INNER_ERR;
     }
 
     if (!data.WriteParcelable(&param)) {
-        HILOG_ERROR("Write param failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write param failed.");
         return INNER_ERR;
     }
 
     int32_t error = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INTENT, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request failed, err: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed, err: %{public}d", error);
         return error;
     }
 
@@ -4557,18 +4559,18 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return true;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("WriteWantObject failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "WriteWantObject failed.");
         return true;
     }
 
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_ABILITY_CONTROLLER_START,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return true;
     }
     return reply.ReadBool();
@@ -4577,20 +4579,20 @@ bool AbilityManagerProxy::IsAbilityControllerStart(const Want &want)
 int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> &token, uint64_t intentId,
     const InsightIntentExecuteResult &result)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write remote object failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write remote object failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("Write token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt64(intentId) || !data.WriteParcelable(&result)) {
-        HILOG_ERROR("Write insight intent params failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write insight intent params failed.");
         return INNER_ERR;
     }
 
@@ -4598,7 +4600,7 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
     MessageOption option(MessageOption::TF_ASYNC);
     auto ret = SendRequest(AbilityManagerInterfaceCode::EXECUTE_INSIGHT_INTENT_DONE, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed with %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4606,7 +4608,7 @@ int32_t AbilityManagerProxy::ExecuteInsightIntentDone(const sptr<IRemoteObject> 
 
 int32_t AbilityManagerProxy::GetForegroundUIAbilities(std::vector<AppExecFwk::AbilityStateData> &list)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
         return ERR_FLATTEN_OBJECT;
@@ -4616,13 +4618,13 @@ int32_t AbilityManagerProxy::GetForegroundUIAbilities(std::vector<AppExecFwk::Ab
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_FOREGROUND_UI_ABILITIES, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request failed, error: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed, error: %{public}d.", error);
         return error;
     }
 
     auto errorCode = GetParcelableInfos<AppExecFwk::AbilityStateData>(reply, list);
     if (errorCode != NO_ERROR) {
-        HILOG_ERROR("Get foreground ui abilities error: %{public}d.", errorCode);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get foreground ui abilities error: %{public}d.", errorCode);
         return errorCode;
     }
     return reply.ReadInt32();
@@ -4634,21 +4636,21 @@ int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return false;
     }
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("Write uri failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write uri failed.");
         return false;
     }
     if (!data.WriteInt32(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write flag failed.");
         return false;
     }
 
     auto ret = SendRequest(AbilityManagerInterfaceCode::OPEN_FILE, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed with %{public}d", ret);
         return ret;
     }
     return reply.ReadFileDescriptor();
@@ -4657,25 +4659,25 @@ int32_t AbilityManagerProxy::OpenFile(const Uri& uri, uint32_t flag)
 int32_t AbilityManagerProxy::RequestAssertFaultDialog(
     const sptr<IRemoteObject> &callback, const AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("Request to display assert fault dialog.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Request to display assert fault dialog.");
     if (callback == nullptr) {
-        HILOG_ERROR("Params callback is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Params callback is nullptr.");
         return INNER_ERR;
     }
 
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteRemoteObject(callback)) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write callback failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteParcelable(&wantParams)) {
-        HILOG_ERROR("Want params write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Want params write failed.");
         return INNER_ERR;
     }
 
@@ -4683,7 +4685,7 @@ int32_t AbilityManagerProxy::RequestAssertFaultDialog(
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::REQUEST_ASSERT_FAULT_DIALOG, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed with %{public}d", ret);
         return ret;
     }
 
@@ -4692,20 +4694,20 @@ int32_t AbilityManagerProxy::RequestAssertFaultDialog(
 
 int32_t AbilityManagerProxy::NotifyDebugAssertResult(uint64_t assertFaultSessionId, AAFwk::UserStatus userStatus)
 {
-    HILOG_DEBUG("Notify user action result to assert fault callback.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Notify user action result to assert fault callback.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteUint64(assertFaultSessionId)) {
-        HILOG_ERROR("Write assertFaultSessionId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write assertFaultSessionId failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(static_cast<int32_t>(userStatus))) {
-        HILOG_ERROR("Write userStatus failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write userStatus failed.");
         return INNER_ERR;
     }
 
@@ -4713,7 +4715,7 @@ int32_t AbilityManagerProxy::NotifyDebugAssertResult(uint64_t assertFaultSession
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::NOTIFY_DEBUG_ASSERT_RESULT, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed with %{public}d", ret);
         return ret;
     }
 
@@ -4725,27 +4727,27 @@ int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sess
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     auto size = static_cast<int32_t>(sessionInfos.size());
     int32_t threshold = 512;
     if (size > threshold) {
-        HILOG_ERROR("Size of vector too large.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Size of vector too large.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     if (!data.WriteInt32(size)) {
-        HILOG_ERROR("Write size failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write size failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     for (const auto &info : sessionInfos) {
         if (!data.WriteParcelable(&info)) {
-            HILOG_ERROR("Write sessionInfo failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Write sessionInfo failed.");
             return ERR_NATIVE_IPC_PARCEL_FAILED;
         }
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("Write userId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write userId failed.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
 
@@ -4753,7 +4755,7 @@ int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sess
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::UPDATE_SESSION_INFO, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request failed with %{public}d", ret);
         return ret;
     }
     size = reply.ReadInt32();
@@ -4773,7 +4775,7 @@ ErrCode AbilityManagerProxy::SendRequest(AbilityManagerInterfaceCode code, Messa
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Remote() is NULL");
         return INNER_ERR;
     }
 
@@ -4784,15 +4786,15 @@ int32_t AbilityManagerProxy::SetApplicationAutoStartupByEDM(const AutoStartupInf
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write AutoStartupInfo failed.");
         return INNER_ERR;
     }
     if (!data.WriteBool(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write flag failed.");
         return INNER_ERR;
     }
 
@@ -4800,7 +4802,7 @@ int32_t AbilityManagerProxy::SetApplicationAutoStartupByEDM(const AutoStartupInf
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::SET_APPLICATION_AUTO_STARTUP_BY_EDM, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4810,15 +4812,15 @@ int32_t AbilityManagerProxy::CancelApplicationAutoStartupByEDM(const AutoStartup
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("Write AutoStartupInfo failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write AutoStartupInfo failed.");
         return INNER_ERR;
     }
     if (!data.WriteBool(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write flag failed.");
         return INNER_ERR;
     }
 
@@ -4826,7 +4828,7 @@ int32_t AbilityManagerProxy::CancelApplicationAutoStartupByEDM(const AutoStartup
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::CANCEL_APPLICATION_AUTO_STARTUP_BY_EDM, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4836,23 +4838,23 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     UIExtensionHostInfo &hostInfo, int32_t userId)
 {
     if (token == nullptr) {
-        HILOG_ERROR("Input param invalid.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input param invalid.");
         return ERR_INVALID_VALUE;
     }
 
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write remote object failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write remote object failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteBool(true) || !data.WriteRemoteObject(token)) {
-        HILOG_ERROR("Write flag and token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write flag and token failed.");
         return INNER_ERR;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("Write userId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write userId failed.");
         return INNER_ERR;
     }
 
@@ -4860,13 +4862,13 @@ int32_t AbilityManagerProxy::GetUIExtensionRootHostInfo(const sptr<IRemoteObject
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
 
     std::unique_ptr<UIExtensionHostInfo> info(reply.ReadParcelable<UIExtensionHostInfo>());
     if (info == nullptr) {
-        HILOG_ERROR("Get host info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get host info failed.");
         return INNER_ERR;
     }
     hostInfo = *info;
@@ -4879,16 +4881,16 @@ int32_t AbilityManagerProxy::RestartApp(const AAFwk::Want &want)
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return IPC_PROXY_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want write failed.");
         return IPC_PROXY_ERR;
     }
     auto ret = SendRequest(AbilityManagerInterfaceCode::RESTART_APP, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4898,23 +4900,23 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByAppId(const std::st
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return {};
     }
     if (!data.WriteString(appId)) {
-        HILOG_ERROR("Write appId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write appId failed.");
         return {};
     }
     MessageParcel reply;
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return {};
     }
     std::unique_ptr<AppExecFwk::ElementName> elementName(reply.ReadParcelable<AppExecFwk::ElementName>());
     if (elementName == nullptr) {
-        HILOG_ERROR("elementName is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "elementName is nullptr");
         return {};
     }
     return *elementName;
@@ -4925,34 +4927,34 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &o
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("Write want failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write want failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&options)) {
-        HILOG_ERROR("options write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "options write failed.");
         return INNER_ERR;
     }
     if (callerToken != nullptr) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-            HILOG_ERROR("flag and callerToken write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag and callerToken write failed.");
             return INNER_ERR;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("flag write failed.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "flag write failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(requestCode)) {
-        HILOG_ERROR("requestCode write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "requestCode write failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "userId write failed.");
         return INNER_ERR;
     }
 
@@ -4960,7 +4962,7 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &o
     MessageOption option;
     auto ret = SendRequest(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d.", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -4969,23 +4971,23 @@ int32_t AbilityManagerProxy::OpenAtomicService(Want& want, const StartOptions &o
 bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
     if (callerToken == nullptr) {
-        HILOG_ERROR("Input param invalid.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Input param invalid.");
         return false;
     }
 
     MessageParcel data;
     if (!WriteInterfaceToken (data)) {
-        HILOG_ERROR("Write remote object failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write remote object failed.");
         return false;
     }
 
     if (!data.WriteBool(true) || !data.WriteRemoteObject(callerToken)) {
-        HILOG_ERROR("Write flag and callerToken failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write flag and callerToken failed.");
         return false;
     }
 
     if (!data.WriteString(appId)) {
-        HILOG_ERROR("Write userId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write userId failed.");
         return false;
     }
 
@@ -4993,7 +4995,7 @@ bool AbilityManagerProxy::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken,
     MessageOption option;
     auto error = SendRequest(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return false;
     }
     return reply.ReadBool();

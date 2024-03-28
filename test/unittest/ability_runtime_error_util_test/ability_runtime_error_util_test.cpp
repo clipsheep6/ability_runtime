@@ -18,6 +18,7 @@
 #include "ability_runtime_error_util.h"
 #include "ecmascript/napi/include/jsnapi.h"
 #include "errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "native_engine/impl/ark/ark_native_engine.h"
 #include "native_engine/native_engine.h"
@@ -49,7 +50,7 @@ void AbilityRuntimeErrorUtilTest::SetUp()
     panda::RuntimeOption pandaOption;
     vm_ = panda::JSNApi::CreateJSVM(pandaOption);
     if (vm_ == nullptr) {
-        HILOG_ERROR("Create vm failed.");
+        TAG_LOGE(AAFwkTag::TEST, "Create vm failed.");
         return;
     }
 

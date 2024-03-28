@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_manager_service.h"
 #include "ability_util.h"
+#include "hilog_tag_wrapper.h"
 #include "uri_permission_manager_client.h"
 
 namespace OHOS {
@@ -32,7 +33,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
 {
     // env check
     if (taskHandler_ == nullptr) {
-        HILOG_ERROR("OnReceiveEvent failed, taskHandler is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, taskHandler is nullptr");
         return;
     }
     const Want& want = eventData.GetWant();
@@ -43,17 +44,17 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
     int uid = want.GetIntParam(KEY_UID, 0);
     // verify data
     if (action.empty() || bundleName.empty()) {
-        HILOG_ERROR("OnReceiveEvent failed, empty action/bundleName");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, empty action/bundleName");
         return;
     }
-    HILOG_DEBUG("OnReceiveEvent, action:%{public}s.", action.c_str());
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "OnReceiveEvent, action:%{public}s.", action.c_str());
 
     if (action == EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED) {
         // uninstall bundle
         HandleRemoveUriPermission(tokenId);
         HandleUpdatedModuleInfo(bundleName, uid);
         if (abilityAutoStartupService_ == nullptr) {
-            HILOG_ERROR("OnReceiveEvent failed, abilityAutoStartupService is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, abilityAutoStartupService is nullptr");
             return;
         }
         abilityAutoStartupService_->DeleteAutoStartupData(bundleName);
@@ -64,7 +65,7 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
         HandleUpdatedModuleInfo(bundleName, uid);
         HandleAppUpgradeCompleted(bundleName, uid);
         if (abilityAutoStartupService_ == nullptr) {
-            HILOG_ERROR("OnReceiveEvent failed, abilityAutoStartupService is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "OnReceiveEvent failed, abilityAutoStartupService is nullptr");
             return;
         }
         abilityAutoStartupService_->CheckAutoStartupData(bundleName, uid);
@@ -73,10 +74,10 @@ void AbilityBundleEventCallback::OnReceiveEvent(const EventFwk::CommonEventData 
 
 void AbilityBundleEventCallback::HandleRemoveUriPermission(uint32_t tokenId)
 {
-    HILOG_DEBUG("HandleRemoveUriPermission: %{public}i", tokenId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleRemoveUriPermission: %{public}i", tokenId);
     auto ret = IN_PROCESS_CALL(AAFwk::UriPermissionManagerClient::GetInstance().RevokeAllUriPermissions(tokenId));
     if (!ret) {
-        HILOG_ERROR("Revoke all uri permissions failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Revoke all uri permissions failed.");
     }
 }
 
@@ -86,7 +87,7 @@ void AbilityBundleEventCallback::HandleUpdatedModuleInfo(const std::string &bund
     auto task = [weakThis, bundleName, uid]() {
         sptr<AbilityBundleEventCallback> sharedThis = weakThis.promote();
         if (sharedThis == nullptr) {
-            HILOG_ERROR("sharedThis is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "sharedThis is nullptr.");
             return;
         }
         sharedThis->abilityEventHelper_.HandleModuleInfoUpdated(bundleName, uid);
@@ -100,13 +101,13 @@ void AbilityBundleEventCallback::HandleAppUpgradeCompleted(const std::string &bu
     auto task = [weakThis, bundleName, uid]() {
         sptr<AbilityBundleEventCallback> sharedThis = weakThis.promote();
         if (sharedThis == nullptr) {
-            HILOG_ERROR("sharedThis is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "sharedThis is nullptr.");
             return;
         }
 
         auto abilityMgr = DelayedSingleton<AbilityManagerService>::GetInstance();
         if (abilityMgr == nullptr) {
-            HILOG_ERROR("abilityMgr is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityMgr is nullptr.");
             return;
         }
         abilityMgr->AppUpgradeCompleted(bundleName, uid);

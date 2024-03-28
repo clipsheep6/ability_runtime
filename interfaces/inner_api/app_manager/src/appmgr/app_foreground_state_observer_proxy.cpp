@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_foreground_state_observer_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -27,7 +28,7 @@ AppForegroundStateObserverProxy::AppForegroundStateObserverProxy(const sptr<IRem
 bool AppForegroundStateObserverProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AppForegroundStateObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
     return true;
@@ -37,16 +38,16 @@ void AppForegroundStateObserverProxy::OnAppStateChanged(const AppStateData &appS
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write Token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write Token failed.");
         return;
     }
     if (!data.WriteParcelable(&appStateData)) {
-        HILOG_ERROR("Fail to write appStateData.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write appStateData.");
         return;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is NULL.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is NULL.");
         return;
     }
     MessageParcel reply;
@@ -54,7 +55,7 @@ void AppForegroundStateObserverProxy::OnAppStateChanged(const AppStateData &appS
     int32_t ret = remote->SendRequest(
         static_cast<uint32_t>(IAppForegroundStateObserver::Message::ON_APP_STATE_CHANGED), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d.", ret);
     }
 }
 } // namespace AppExecFwk

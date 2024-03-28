@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "uri_permission_manager_service.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -37,7 +38,7 @@ UriPermissionManagerService::~UriPermissionManagerService()
 
 void UriPermissionManagerService::OnStart()
 {
-    HILOG_INFO("UriPermissionManagerService start is triggered.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "UriPermissionManagerService start is triggered.");
     if (!Init()) {
         HILOG_ERROR("init failed.");
         return;
@@ -49,14 +50,14 @@ void UriPermissionManagerService::OnStart()
             HILOG_ERROR("fail to register to system ability manager");
             return;
         }
-        HILOG_INFO("register to system ability manager success");
+        TAG_LOGI(AAFwkTag::URIPERMMGR, "register to system ability manager success");
         registerToService_ = true;
     }
 }
 
 void UriPermissionManagerService::OnStop()
 {
-    HILOG_INFO("OnStop is called.");
+    TAG_LOGI(AAFwkTag::URIPERMMGR, "OnStop is called.");
     SelfClean();
 }
 
@@ -68,7 +69,7 @@ bool UriPermissionManagerService::IsServiceReady() const
 bool UriPermissionManagerService::Init()
 {
     if (ready_) {
-        HILOG_WARN("init more than one time.");
+        TAG_LOGW(AAFwkTag::URIPERMMGR, "init more than one time.");
         return true;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 
 #include "accesstoken_kit.h"
 #include "parameters.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -36,7 +37,7 @@ const std::string PROCESS_NAME = "processName";
 
 void ProxyAuthorizationUriConfig::LoadConfiguration()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "call");
     nlohmann::json jsonBuf;
     std::string deviceType = OHOS::system::GetDeviceType();
     if (deviceType == "2in1") {
@@ -74,7 +75,7 @@ bool ProxyAuthorizationUriConfig::IsAuthorizationUriAllowed(uint32_t fromTokenId
 void ProxyAuthorizationUriConfig::LoadAllowedList(const nlohmann::json &object)
 {
     if (!object.contains(PROXY_AUTHORIZATION_URI_NAME)) {
-        HILOG_ERROR("Proxy authorization uri config not existed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Proxy authorization uri config not existed.");
         return;
     }
 
@@ -94,7 +95,7 @@ void ProxyAuthorizationUriConfig::LoadAllowedList(const nlohmann::json &object)
 bool ProxyAuthorizationUriConfig::ReadFileInfoJson(const std::string &filePath, nlohmann::json &jsonBuf)
 {
     if (access(filePath.c_str(), F_OK) != 0) {
-        HILOG_DEBUG("%{public}s, not existed", filePath.c_str());
+        TAG_LOGD(AAFwkTag::URIPERMMGR, "%{public}s, not existed", filePath.c_str());
         return false;
     }
 
@@ -104,14 +105,14 @@ bool ProxyAuthorizationUriConfig::ReadFileInfoJson(const std::string &filePath, 
     in.open(filePath, std::ios_base::in);
     if (!in.is_open()) {
         strerror_r(errno, errBuf, sizeof(errBuf));
-        HILOG_ERROR("the file cannot be open due to  %{public}s", errBuf);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "the file cannot be open due to  %{public}s", errBuf);
         return false;
     }
 
     in.seekg(0, std::ios::end);
     int64_t size = in.tellg();
     if (size <= 0) {
-        HILOG_ERROR("the file is an empty file");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "the file is an empty file");
         in.close();
         return false;
     }
@@ -120,7 +121,7 @@ bool ProxyAuthorizationUriConfig::ReadFileInfoJson(const std::string &filePath, 
     jsonBuf = nlohmann::json::parse(in, nullptr, false);
     in.close();
     if (jsonBuf.is_discarded()) {
-        HILOG_ERROR("bad profile file");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "bad profile file");
         return false;
     }
 

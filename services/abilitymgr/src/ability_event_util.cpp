@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_event_util.h"
 #include "app_scheduler.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -22,7 +23,7 @@ namespace AAFwk {
 
 void AbilityEventUtil::HandleModuleInfoUpdated(const std::string &bundleName, const int uid)
 {
-    HILOG_DEBUG("HandleModuleInfoUpdated start.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "HandleModuleInfoUpdated start.");
     DelayedSingleton<AppScheduler>::GetInstance()->UpdateApplicationInfoInstalled(bundleName, uid);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "auto_fill_extension_module_loader.h"
 
 #include "auto_fill_extension.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -31,13 +32,13 @@ AutoFillExtensionModuleLoader::~AutoFillExtensionModuleLoader() = default;
 
 Extension *AutoFillExtensionModuleLoader::Create(const std::unique_ptr<Runtime> &runtime) const
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called");
     return AutoFillExtension::Create(runtime);
 }
 
 std::map<std::string, std::string> AutoFillExtensionModuleLoader::GetParams()
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called");
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of
     // extension_ability_info.h, 21 means autoFill/password extension.

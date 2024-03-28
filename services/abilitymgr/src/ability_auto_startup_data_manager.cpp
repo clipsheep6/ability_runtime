@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #include "errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 #include "types.h"
@@ -60,11 +61,11 @@ DistributedKv::Status AbilityAutoStartupDataManager::GetKvStore()
 
     DistributedKv::Status status = dataManager_.GetSingleKvStore(options, APP_ID, STORE_ID, kvStorePtr_);
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Return error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Return error: %{public}d.", status);
         return status;
     }
 
-    HILOG_DEBUG("Get kvStore success.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Get kvStore success.");
     return status;
 }
 
@@ -79,7 +80,7 @@ bool AbilityAutoStartupDataManager::CheckKvStore()
         if (status == DistributedKv::Status::SUCCESS && kvStorePtr_ != nullptr) {
             return true;
         }
-        HILOG_DEBUG("Try times: %{public}d.", tryTimes);
+        TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Try times: %{public}d.", tryTimes);
         usleep(CHECK_INTERVAL);
         tryTimes--;
     }
@@ -90,16 +91,16 @@ int32_t AbilityAutoStartupDataManager::InsertAutoStartupData(
     const AutoStartupInfo &info, bool isAutoStartup, bool isEdmForce)
 {
     if (info.bundleName.empty() || info.abilityName.empty()) {
-        HILOG_ERROR("Invalid value.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Invalid value.");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.", info.bundleName.c_str(),
-        info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -113,7 +114,7 @@ int32_t AbilityAutoStartupDataManager::InsertAutoStartupData(
     }
 
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Insert data to kvStore error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Insert data to kvStore error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
     return ERR_OK;
@@ -123,16 +124,16 @@ int32_t AbilityAutoStartupDataManager::UpdateAutoStartupData(
     const AutoStartupInfo &info, bool isAutoStartup, bool isEdmForce)
 {
     if (info.bundleName.empty() || info.abilityName.empty()) {
-        HILOG_WARN("Invalid value!");
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Invalid value!");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.", info.bundleName.c_str(),
-        info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -144,7 +145,7 @@ int32_t AbilityAutoStartupDataManager::UpdateAutoStartupData(
         status = kvStorePtr_->Delete(key);
     }
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Delete data from kvStore error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Delete data from kvStore error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
     DistributedKv::Value value = ConvertAutoStartupStatusToValue(isAutoStartup, isEdmForce, info.abilityTypeName);
@@ -153,7 +154,7 @@ int32_t AbilityAutoStartupDataManager::UpdateAutoStartupData(
         status = kvStorePtr_->Put(key, value);
     }
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Insert data to kvStore error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Insert data to kvStore error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
 
@@ -163,16 +164,16 @@ int32_t AbilityAutoStartupDataManager::UpdateAutoStartupData(
 int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const AutoStartupInfo &info)
 {
     if (info.bundleName.empty() || info.abilityName.empty()) {
-        HILOG_WARN("Invalid value!");
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Invalid value!");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.", info.bundleName.c_str(),
-        info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -185,7 +186,7 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const AutoStartupIn
     }
 
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Delete data from kvStore error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Delete data from kvStore error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
     return ERR_OK;
@@ -194,15 +195,15 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const AutoStartupIn
 int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const std::string &bundleName)
 {
     if (bundleName.empty()) {
-        HILOG_WARN("Invalid value!");
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Invalid value!");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s.", bundleName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s.", bundleName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -210,7 +211,7 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const std::string &
     std::vector<DistributedKv::Entry> allEntries;
     DistributedKv::Status status = kvStorePtr_->GetEntries(nullptr, allEntries);
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Get entries error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get entries error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
 
@@ -221,7 +222,7 @@ int32_t AbilityAutoStartupDataManager::DeleteAutoStartupData(const std::string &
                 status = kvStorePtr_->Delete(item.key);
             }
             if (status != DistributedKv::Status::SUCCESS) {
-                HILOG_ERROR("Delete data from kvStore error: %{public}d.", status);
+                TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Delete data from kvStore error: %{public}d.", status);
                 return ERR_INVALID_OPERATION;
             }
         }
@@ -234,17 +235,17 @@ AutoStartupStatus AbilityAutoStartupDataManager::QueryAutoStartupData(const Auto
 {
     AutoStartupStatus asustatus;
     if (info.bundleName.empty() || info.abilityName.empty()) {
-        HILOG_WARN("Invalid value!");
+        TAG_LOGW(AAFwkTag::AUTO_STARTUP, "Invalid value!");
         asustatus.code = ERR_INVALID_VALUE;
         return asustatus;
     }
 
-    HILOG_DEBUG("bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.", info.bundleName.c_str(),
-        info.moduleName.c_str(), info.abilityName.c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "bundleName: %{public}s, moduleName: %{public}s, abilityName: %{public}s.",
+        info.bundleName.c_str(), info.moduleName.c_str(), info.abilityName.c_str());
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             asustatus.code = ERR_NO_INIT;
             return asustatus;
         }
@@ -253,7 +254,7 @@ AutoStartupStatus AbilityAutoStartupDataManager::QueryAutoStartupData(const Auto
     std::vector<DistributedKv::Entry> allEntries;
     DistributedKv::Status status = kvStorePtr_->GetEntries(nullptr, allEntries);
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Get entries error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get entries error: %{public}d.", status);
         asustatus.code = ERR_INVALID_OPERATION;
         return asustatus;
     }
@@ -271,11 +272,11 @@ AutoStartupStatus AbilityAutoStartupDataManager::QueryAutoStartupData(const Auto
 
 int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vector<AutoStartupInfo> &infoList)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -283,7 +284,7 @@ int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vect
     std::vector<DistributedKv::Entry> allEntries;
     DistributedKv::Status status = kvStorePtr_->GetEntries(nullptr, allEntries);
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Get entries error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get entries error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
 
@@ -294,18 +295,18 @@ int32_t AbilityAutoStartupDataManager::QueryAllAutoStartupApplications(std::vect
             infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
         }
     }
-    HILOG_DEBUG("InfoList.size: %{public}zu.", infoList.size());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "InfoList.size: %{public}zu.", infoList.size());
     return ERR_OK;
 }
 
 int32_t AbilityAutoStartupDataManager::GetCurrentAppAutoStartupData(
     const std::string &bundleName, std::vector<AutoStartupInfo> &infoList)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "Called.");
     {
         std::lock_guard<std::mutex> lock(kvStorePtrMutex_);
         if (!CheckKvStore()) {
-            HILOG_ERROR("kvStore is nullptr.");
+            TAG_LOGE(AAFwkTag::AUTO_STARTUP, "kvStore is nullptr.");
             return ERR_NO_INIT;
         }
     }
@@ -313,7 +314,7 @@ int32_t AbilityAutoStartupDataManager::GetCurrentAppAutoStartupData(
     std::vector<DistributedKv::Entry> allEntries;
     DistributedKv::Status status = kvStorePtr_->GetEntries(nullptr, allEntries);
     if (status != DistributedKv::Status::SUCCESS) {
-        HILOG_ERROR("Get entries error: %{public}d.", status);
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Get entries error: %{public}d.", status);
         return ERR_INVALID_OPERATION;
     }
 
@@ -322,7 +323,7 @@ int32_t AbilityAutoStartupDataManager::GetCurrentAppAutoStartupData(
             infoList.emplace_back(ConvertAutoStartupInfoFromKeyAndValue(item.key, item.value));
         }
     }
-    HILOG_DEBUG("InfoList.size: %{public}zu.", infoList.size());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "InfoList.size: %{public}zu.", infoList.size());
     return ERR_OK;
 }
 
@@ -335,7 +336,7 @@ DistributedKv::Value AbilityAutoStartupDataManager::ConvertAutoStartupStatusToVa
         { JSON_KEY_TYPE_NAME, abilityTypeName },
     };
     DistributedKv::Value value(jsonObject.dump());
-    HILOG_DEBUG("value: %{public}s.", value.ToString().c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "value: %{public}s.", value.ToString().c_str());
     return value;
 }
 
@@ -344,7 +345,7 @@ void AbilityAutoStartupDataManager::ConvertAutoStartupStatusFromValue(
 {
     nlohmann::json jsonObject = nlohmann::json::parse(value.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        HILOG_ERROR("Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
         return;
     }
     if (jsonObject.contains(JSON_KEY_IS_AUTO_STARTUP) && jsonObject[JSON_KEY_IS_AUTO_STARTUP].is_boolean()) {
@@ -363,7 +364,7 @@ DistributedKv::Key AbilityAutoStartupDataManager::ConvertAutoStartupDataToKey(co
         { JSON_KEY_ABILITY_NAME, info.abilityName },
     };
     DistributedKv::Key key(jsonObject.dump());
-    HILOG_DEBUG("key: %{public}s.", key.ToString().c_str());
+    TAG_LOGD(AAFwkTag::AUTO_STARTUP, "key: %{public}s.", key.ToString().c_str());
     return key;
 }
 
@@ -373,7 +374,7 @@ AutoStartupInfo AbilityAutoStartupDataManager::ConvertAutoStartupInfoFromKeyAndV
     AutoStartupInfo info;
     nlohmann::json jsonObject = nlohmann::json::parse(key.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        HILOG_ERROR("Failed to parse jsonObject.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse jsonObject.");
         return info;
     }
 
@@ -391,7 +392,7 @@ AutoStartupInfo AbilityAutoStartupDataManager::ConvertAutoStartupInfoFromKeyAndV
 
     nlohmann::json jsonValueObject = nlohmann::json::parse(value.ToString(), nullptr, false);
     if (jsonValueObject.is_discarded()) {
-        HILOG_ERROR("Failed to parse jsonValueObject.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse jsonValueObject.");
         return info;
     }
 
@@ -406,7 +407,7 @@ bool AbilityAutoStartupDataManager::IsEqual(const DistributedKv::Key &key, const
 {
     nlohmann::json jsonObject = nlohmann::json::parse(key.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        HILOG_ERROR("Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
         return false;
     }
 
@@ -435,7 +436,7 @@ bool AbilityAutoStartupDataManager::IsEqual(const DistributedKv::Key &key, const
 {
     nlohmann::json jsonObject = nlohmann::json::parse(key.ToString(), nullptr, false);
     if (jsonObject.is_discarded()) {
-        HILOG_ERROR("Failed to parse json string.");
+        TAG_LOGE(AAFwkTag::AUTO_STARTUP, "Failed to parse json string.");
         return false;
     }
 

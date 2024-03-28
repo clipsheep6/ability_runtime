@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,22 +14,23 @@
  */
 
 #include "ability_lifecycle_observer_interface.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AppExecFwk {
 LifeCycle::Event LifeCycle::GetLifecycleState()
 {
-    HILOG_DEBUG("LifeCycle::GetLifecycleState: called");
+    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::GetLifecycleState: called");
     return state_;
 }
 
 void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    HILOG_DEBUG("LifeCycle::AddObserver: called");
+    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::AddObserver: called");
 
     if (observer == nullptr) {
-        HILOG_ERROR("LifeCycle::AddObserver: observer is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "LifeCycle::AddObserver: observer is null");
         return;
     }
 
@@ -38,9 +39,9 @@ void LifeCycle::AddObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 
 void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &want)
 {
-    HILOG_DEBUG("LifeCycle::DispatchLifecycle: event:%{public}d", event);
+    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::DispatchLifecycle: event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_FOREGROUND) && (event != LifeCycle::Event::ON_START)) {
-        HILOG_ERROR("event value error: event is %{public}d", event);
+        TAG_LOGE(AAFwkTag::ABILITY, "event value error: event is %{public}d", event);
         return;
     }
 
@@ -74,10 +75,10 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event, const Want &wan
 
 void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 {
-    HILOG_DEBUG("LifeCycle::DispatchLifecycle: event:%{public}d", event);
+    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::DispatchLifecycle: event:%{public}d", event);
     if ((event != LifeCycle::Event::ON_ACTIVE) && (event != LifeCycle::Event::ON_BACKGROUND) &&
         (event != LifeCycle::Event::ON_INACTIVE) && (event != LifeCycle::Event::ON_STOP)) {
-        HILOG_ERROR("event value error: event is %{public}d", event);
+        TAG_LOGE(AAFwkTag::ABILITY, "event value error: event is %{public}d", event);
         return;
     }
 
@@ -123,10 +124,10 @@ void LifeCycle::DispatchLifecycle(const LifeCycle::Event &event)
 
 void LifeCycle::RemoveObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    HILOG_DEBUG("LifeCycle::RemoveObserver: called");
+    TAG_LOGD(AAFwkTag::ABILITY, "LifeCycle::RemoveObserver: called");
 
     if (observer == nullptr) {
-        HILOG_ERROR("LifeCycle::RemoveObserver: observer is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "LifeCycle::RemoveObserver: observer is null");
         return;
     }
 

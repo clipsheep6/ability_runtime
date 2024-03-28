@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 #include <fstream>
 
 #include "accesstoken_kit.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
@@ -186,12 +187,12 @@ int32_t AccessibilityUtils::AddPermission()
     };
     uint64_t tokenId = GetAccessTokenId(&infoInstance);
     if (!tokenId) {
-        HILOG_ERROR("Set token failed.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Set token failed.");
         return -1;
     }
     int32_t setTokenResult = SetSelfTokenID(tokenId);
     if (setTokenResult != 0) {
-        HILOG_ERROR("Set token failed.");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Set token failed.");
         return -1;
     }
     return AccessTokenKit::ReloadNativeTokenInfo();

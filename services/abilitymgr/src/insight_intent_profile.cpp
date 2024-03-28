@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "insight_intent_profile.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
@@ -232,7 +233,7 @@ void from_json(const nlohmann::json &jsonObject, InsightIntentProfileInfoVec &in
 bool TransformToInsightIntentInfo(const InsightIntentProfileInfo &insightIntent, InsightIntentInfo &info)
 {
     if (insightIntent.intentName.empty()) {
-        HILOG_ERROR("Intent name invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Intent name invalid.");
         return false;
     }
 
@@ -262,7 +263,7 @@ bool TransformToInsightIntentInfo(const InsightIntentProfileInfo &insightIntent,
 
 bool TransformToInfos(const InsightIntentProfileInfoVec &profileInfos, std::vector<InsightIntentInfo> &intentInfos)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     for (const auto &insightIntent : profileInfos.insightIntents) {
         InsightIntentInfo info;
         if (!TransformToInsightIntentInfo(insightIntent, info)) {
@@ -276,10 +277,10 @@ bool TransformToInfos(const InsightIntentProfileInfoVec &profileInfos, std::vect
 
 bool InsightIntentProfile::TransformTo(const std::string &profileStr, std::vector<InsightIntentInfo> &intentInfos)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::INTENT, "called");
     auto jsonObject = nlohmann::json::parse(profileStr, nullptr, false);
     if (jsonObject.is_discarded()) {
-        HILOG_ERROR("Profile invalid.");
+        TAG_LOGE(AAFwkTag::INTENT, "Profile invalid.");
         return false;
     }
 
@@ -289,7 +290,7 @@ bool InsightIntentProfile::TransformTo(const std::string &profileStr, std::vecto
         g_parseResult = ERR_OK;
         profileInfos = jsonObject.get<InsightIntentProfileInfoVec>();
         if (g_parseResult != ERR_OK) {
-            HILOG_ERROR("g_parseResult is %{public}d", g_parseResult);
+            TAG_LOGE(AAFwkTag::INTENT, "g_parseResult is %{public}d", g_parseResult);
             int32_t ret = g_parseResult;
             // need recover parse result to ERR_OK
             g_parseResult = ERR_OK;

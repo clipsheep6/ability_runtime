@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_auto_fill_extension_util.h"
 #include "js_error_utils.h"
@@ -38,7 +39,7 @@ JsSaveRequestCallback::JsSaveRequestCallback(
 
 void JsSaveRequestCallback::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("Finalizer is called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Finalizer is called.");
     std::unique_ptr<JsSaveRequestCallback>(static_cast<JsSaveRequestCallback*>(data));
 }
 
@@ -54,47 +55,47 @@ napi_value JsSaveRequestCallback::SaveRequestFailed(napi_env env, napi_callback_
 
 napi_value JsSaveRequestCallback::OnSaveRequestSuccess(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_SUCESS);
     return CreateJsUndefined(env);
 }
 
 napi_value JsSaveRequestCallback::OnSaveRequestFailed(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED);
     return CreateJsUndefined(env);
 }
 
 void JsSaveRequestCallback::SendResultCodeAndViewData(const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (uiWindow_ == nullptr) {
-        HILOG_ERROR("UI window is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UI window is nullptr.");
         return;
     }
 
     AAFwk::Want want;
     auto ret = uiWindow_->TransferAbilityResult(resultCode, want);
     if (ret != Rosen::WMError::WM_OK) {
-        HILOG_ERROR("Transfer ability result failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
         return;
     }
 
     auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo_);
     if (errorCode != ERR_OK) {
-        HILOG_ERROR("Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
     }
 }
 
 napi_value JsSaveRequestCallback::CreateJsSaveRequestCallback(napi_env env,
     const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Object is null");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Object is null");
         return CreateJsUndefined(env);
     }
 

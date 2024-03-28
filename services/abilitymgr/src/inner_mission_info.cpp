@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "inner_mission_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "nlohmann/json.hpp"
 
@@ -66,7 +67,7 @@ bool InnerMissionInfo::FromJsonStr(const std::string &jsonStr)
     // Do not throw exceptions in nlohmann::json::parse
     nlohmann::json value = nlohmann::json::parse(jsonStr, nullptr, false);
     if (value.is_discarded()) {
-        HILOG_ERROR("failed to parse json sting: %{private}s.", jsonStr.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to parse json sting: %{private}s.", jsonStr.c_str());
         return false;
     }
 
@@ -166,7 +167,7 @@ void InnerMissionInfo::Dump(std::vector<std::string> &info) const
 bool InnerMissionInfo::CheckJsonNode(nlohmann::json &value, const std::string &node, JsonType jsonType)
 {
     if (value.find(node) == value.end()) {
-        HILOG_ERROR("node %{private}s not exists.", node.c_str());
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "node %{private}s not exists.", node.c_str());
         return false;
     }
 

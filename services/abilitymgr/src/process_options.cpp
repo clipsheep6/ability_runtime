@@ -15,6 +15,7 @@
 
 #include "process_options.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -44,11 +45,11 @@ ProcessOptions *ProcessOptions::Unmarshalling(Parcel &parcel)
 bool ProcessOptions::Marshalling(Parcel &parcel) const
 {
     if (!parcel.WriteInt32(static_cast<int32_t>(processMode))) {
-        HILOG_ERROR("Failed to write processMode");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write processMode");
         return false;
     }
     if (!parcel.WriteInt32(static_cast<int32_t>(startupVisibility))) {
-        HILOG_ERROR("Failed to write startupVisibility");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to write startupVisibility");
         return false;
     }
     return true;

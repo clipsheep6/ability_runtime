@@ -21,14 +21,31 @@
 #include "js_context_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
-#include "js_startup_task.h"
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
 #include "startup_manager.h"
+#include <algorithm>
+#include <cstring>
+#include <exception>
+#include <fstream>
+#include <iterator>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace OHOS {
 namespace AbilityRuntime {
+constexpr const char* PROFILE_FILE_PREFIX = "$profile:";
+constexpr const char* STARTUP_TASKS = "startupTasks";
+constexpr const char* NAME = "name";
+constexpr const char* SRC_ENTRY = "srcEntry";
+constexpr const char* DEPENDENCIES = "dependencies";
+constexpr const char* EXCLUDE_FROM_AUTO_START = "excludeFromAutoStart";
+constexpr const char* RUN_ON_THREAD = "runOnThread";
+constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
+constexpr const char* CONFIG_ENTRY = "configEntry";
+    
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
     HILOG_DEBUG("AttachAbilityStageContext");
@@ -330,22 +347,37 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
 
 int32_t JsAbilityStage::RunAutoStartupTask(bool &waitingForStartup)
 {
-    HILOG_DEBUG("called");
+    HILOG_DEBUG("called.");
     waitingForStartup = false;
     return ERR_OK;
 }
 
 int32_t JsAbilityStage::RunAutoStartupTaskInner(bool &waitingForStartup)
 {
-    int32_t result = RegisterStartupTaskFromProfile();
+    auto context = GetContext();
+    if (!context) {
+        HILOG_ERROR("context invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    auto hapModuleInfo = context->GetHapModuleInfo();
+    if (!hapModuleInfo) {
+        HILOG_ERROR("hapModuleInfo invalid.");
+        return ERR_INVALID_VALUE;
+    }
+    if (hapModuleInfo->moduleType != AppExecFwk::ModuleType::ENTRY ||
+    hapModuleInfo->appStartup.empty()) {
+        HILOG_DEBUG("not entry module or appStartup not exist.");
+        return ERR_INVALID_VALUE;
+    }
+
+    std::vector<JsStartupTask> jsStartupTasks;
+    int32_t result = RegisterStartupTaskFromProfile(jsStartupTasks);
     if (result != ERR_OK) {
-        waitingForStartup = false;
         return result;
     }
     std::shared_ptr<StartupTaskManager> startupTaskManager = nullptr;
     result = DelayedSingleton<StartupManager>::GetInstance()->BuildAutoStartupTaskManager(startupTaskManager);
     if (result != ERR_OK) {
-        waitingForStartup = false;
         return result;
     }
     startupTaskManager->Prepare();
@@ -354,17 +386,173 @@ int32_t JsAbilityStage::RunAutoStartupTaskInner(bool &waitingForStartup)
     return ERR_OK;
 }
 
-int32_t JsAbilityStage::RegisterStartupTaskFromProfile()
+int32_t JsAbilityStage::RegisterStartupTaskFromProfile(std::vector<JsStartupTask> &jsStartupTasks)
 {
-    // GetProfileInfoFromResourceManager
-    // AnalyzeProfileInfoAndRegisterStartupTask
-    // register test
-    std::shared_ptr<NativeReference> jsStartupTaskObj = nullptr;
-    std::shared_ptr<JsStartupTask> task = std::make_shared<JsStartupTask>("test", jsRuntime_, jsStartupTaskObj,
-        shellContextRef_);
-    task->Init();
-    DelayedSingleton<StartupManager>::GetInstance()->RegisterStartupTask("test", task);
+    HILOG_DEBUG("RegisterStartupTaskFromProfile called.");
+    std::vector<std::string> profileInfo;
+    if (!GetProfileInfoFromResourceManager(profileInfo)) {
+        HILOG_ERROR("appStartup config not exist.");
+        return ERR_INVALID_VALUE;
+    }
+    
+    if (!AnalyzeProfileInfoAndRegisterStartupTask(profileInfo, jsStartupTasks)) {
+        HILOG_ERROR("appStartup config not exist.");
+        return ERR_INVALID_VALUE;
+    }
+    
     return ERR_OK;
+}
+
+bool JsAbilityStage::GetProfileInfoFromResourceManager(std::vector<std::string> &profileInfo)
+{
+    HILOG_DEBUG("GetProfileInfoFromResourceManager called.");
+    auto context = GetContext();
+    if (!context) {
+        HILOG_ERROR("context is nullptr.");
+        return false;
+    }
+    
+    auto resMgr = context->GetResourceManager();
+    if (!resMgr) {
+        HILOG_ERROR("resMgr is nullptr.");
+        return false;
+    }
+    
+    auto hapModuleInfo = context->GetHapModuleInfo();
+    if (!hapModuleInfo) {
+        HILOG_ERROR("hapModuleInfo is nullptr.");
+        return false;
+    }
+    
+    jsRuntime_.UpdateModuleNameAndAssetPath(hapModuleInfo->moduleName);
+    bool isCompressed = !hapModuleInfo->hapPath.empty();
+    std::string appStartup = hapModuleInfo->appStartup;
+    if (appStartup.empty()) {
+        HILOG_ERROR("appStartup invalid.");
+        return false;
+    }
+    
+    GetResFromResMgr(appStartup, resMgr, isCompressed, profileInfo);
+    if (profileInfo.empty()) {
+        HILOG_ERROR("appStartup config not exist.");
+        return false;
+    }
+    return true;
+}
+
+std::unique_ptr<NativeReference> JsAbilityStage::LoadJsStartupTask(const std::string &srcEntry)
+{
+    HILOG_DEBUG("LoadJsStartupTask called.");
+    if (srcEntry.empty()) {
+        HILOG_ERROR("srcEntry invalid.");
+        return std::unique_ptr<NativeReference>();
+    }
+    auto context = GetContext();
+    if (!context) {
+        HILOG_ERROR("context is nullptr.");
+        return std::unique_ptr<NativeReference>();
+    }
+    auto hapModuleInfo = context->GetHapModuleInfo();
+    if (!hapModuleInfo) {
+        HILOG_ERROR("hapModuleInfo is nullptr.");
+        return std::unique_ptr<NativeReference>();
+    }
+
+    bool esmodule = hapModuleInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE;
+    std::string moduleName(hapModuleInfo->moduleName);
+    std::string srcPath(moduleName + "/" + srcEntry);
+    
+    auto pos = srcPath.rfind('.');
+    if (pos == std::string::npos) {
+        return std::unique_ptr<NativeReference>();
+    }
+    srcPath.erase(pos);
+    srcPath.append(".abc");
+    
+    std::unique_ptr<NativeReference> jsCode(
+        jsRuntime_.LoadModule(moduleName, srcPath, hapModuleInfo->hapPath, esmodule));
+    
+    return jsCode;
+}
+
+void JsAbilityStage::SetOptionalParameters(
+    const nlohmann::json &module,
+    JsStartupTask &jsStartupTask)
+{
+    HILOG_DEBUG("SetOptionalParameters called.");
+    if (module.contains(DEPENDENCIES) && module[DEPENDENCIES].is_array()) {
+        std::vector<std::string> dependencies;
+        for (const auto& dependency : module.at(DEPENDENCIES)) {
+            if (dependency.is_string()) {
+                dependencies.push_back(dependency.get<std::string>());
+            }
+        }
+        jsStartupTask.SetDependencies(dependencies);
+    }
+    
+    if (module.contains(EXCLUDE_FROM_AUTO_START) && module[EXCLUDE_FROM_AUTO_START].is_boolean()) {
+        jsStartupTask.SetIsAutoStartup(module.at(EXCLUDE_FROM_AUTO_START).get<bool>());
+    } else {
+        jsStartupTask.SetIsAutoStartup(true);
+    }
+    
+    // always true
+    jsStartupTask.SetIsAutoStartup(true);
+    
+    if (module.contains(WAIT_ON_MAIN_THREAD) && module[WAIT_ON_MAIN_THREAD].is_boolean()) {
+        jsStartupTask.SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());
+    } else {
+        jsStartupTask.SetWaitOnMainThread(false);
+    }
+}
+
+bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(
+    std::vector<std::string> &profileInfo,
+    std::vector<JsStartupTask> &jsStartupTasks)
+{
+    HILOG_DEBUG("AnalyzeProfileInfoAndRegisterStartupTask called.");
+    std::string startupInfo;
+    for (const std::string& info: profileInfo) {
+        startupInfo.append(info);
+    }
+    if (startupInfo.empty()) {
+        HILOG_ERROR("startupInfo invalid.");
+        return false;
+    }
+    
+    nlohmann::json startupInfoJson = nlohmann::json::parse(startupInfo, nullptr, false);
+    if (startupInfoJson.is_discarded()) {
+        HILOG_ERROR("Failed to parse json string.");
+        return false;
+    }
+    
+    if (!(startupInfoJson.contains(STARTUP_TASKS) && startupInfoJson[STARTUP_TASKS].is_array())) {
+        HILOG_ERROR("startupTasks invalid.");
+        return false;
+    }
+    for (const auto& module : startupInfoJson.at(STARTUP_TASKS).get<nlohmann::json>()) {
+        if (!module.contains(SRC_ENTRY) || !module[SRC_ENTRY].is_string() ||
+        !module.contains(NAME) || !module[NAME].is_string()) {
+            HILOG_ERROR("Invalid module data.");
+            return false;
+        }
+        
+        std::shared_ptr<NativeReference> startupJsRef = LoadJsStartupTask(module.at(SRC_ENTRY).get<std::string>());
+        if (startupJsRef == nullptr) {
+            HILOG_ERROR("load js appStartup tasks failed.");
+            return false;
+        }
+        
+        std::shared_ptr<NativeReference> contextJsRef = nullptr;
+        JsStartupTask jsStartupTask = JsStartupTask(
+            module.at(NAME).get<std::string>(),
+            jsRuntime_,
+            startupJsRef,
+            contextJsRef);
+        SetOptionalParameters(module, jsStartupTask);
+        jsStartupTasks.push_back(jsStartupTask);
+    }
+    return true;
 }
 
 napi_value JsAbilityStage::CallObjectMethod(const char* name, napi_value const * argv, size_t argc)
@@ -425,6 +613,105 @@ std::string JsAbilityStage::GetHapModuleProp(const std::string &propName) const
     }
     HILOG_ERROR("name = %{public}s", propName.c_str());
     return std::string();
+}
+
+bool JsAbilityStage::IsFileExisted(const std::string &filePath)
+{
+    if (filePath.empty()) {
+        HILOG_ERROR("the file is not existed due to empty file path.");
+        return false;
+    }
+
+    if (access(filePath.c_str(), F_OK) != 0) {
+        HILOG_ERROR("can not access the file: %{private}s, errno:%{public}d.", filePath.c_str(), errno);
+        return false;
+    }
+    return true;
+}
+
+bool JsAbilityStage::TransformFileToJsonString(const std::string &resPath, std::string &profile)
+{
+    if (!IsFileExisted(resPath)) {
+        HILOG_ERROR("the file is not existed.");
+        return false;
+    }
+    std::fstream in;
+    in.open(resPath, std::ios_base::in | std::ios_base::binary);
+    if (!in.is_open()) {
+        HILOG_ERROR("the file cannot be open errno:%{public}d.", errno);
+        return false;
+    }
+    in.seekg(0, std::ios::end);
+    int64_t size = in.tellg();
+    if (size <= 0) {
+        HILOG_ERROR("the file is an empty file, errno:%{public}d.", errno);
+        in.close();
+        return false;
+    }
+    in.seekg(0, std::ios::beg);
+    nlohmann::json profileJson = nlohmann::json::parse(in, nullptr, false);
+    if (profileJson.is_discarded()) {
+        HILOG_ERROR("bad profile file.");
+        in.close();
+        return false;
+    }
+    profile = profileJson.dump();
+    in.close();
+    return true;
+}
+
+bool JsAbilityStage::GetResFromResMgr(
+    const std::string &resName,
+    const std::shared_ptr<Global::Resource::ResourceManager> &resMgr,
+    bool isCompressed, std::vector<std::string> &profileInfo)
+{
+    if (resName.empty()) {
+        HILOG_ERROR("res name is empty.");
+        return false;
+    }
+    
+    size_t pos = resName.rfind(PROFILE_FILE_PREFIX);
+    if ((pos == std::string::npos) || (pos == resName.length() - strlen(PROFILE_FILE_PREFIX))) {
+        HILOG_ERROR("res name %{public}s is invalid.", resName.c_str());
+        return false;
+    }
+    std::string profileName = resName.substr(pos + strlen(PROFILE_FILE_PREFIX));
+        // hap is compressed status, get file content.
+    if (isCompressed) {
+        HILOG_DEBUG("compressed status.");
+        std::unique_ptr<uint8_t[]> fileContentPtr = nullptr;
+        size_t len = 0;
+        if (resMgr->GetProfileDataByName(profileName.c_str(), len, fileContentPtr) != Global::Resource::SUCCESS) {
+            HILOG_ERROR("GetProfileDataByName failed.");
+            return false;
+        }
+        if (fileContentPtr == nullptr || len == 0) {
+            HILOG_ERROR("invalid data.");
+            return false;
+        }
+        std::string rawData(fileContentPtr.get(), fileContentPtr.get() + len);
+        nlohmann::json profileJson = nlohmann::json::parse(rawData, nullptr, false);
+        if (profileJson.is_discarded()) {
+            HILOG_ERROR("bad profile file.");
+            return false;
+        }
+        profileInfo.emplace_back(profileJson.dump());
+        return true;
+    }
+    // hap is decompressed status, get file path then read file.
+    std::string resPath;
+    if (resMgr->GetProfileByName(profileName.c_str(), resPath) != Global::Resource::SUCCESS) {
+        HILOG_DEBUG("profileName cannot be found.");
+        return false;
+    }
+    HILOG_DEBUG("resPath is %{private}s.", resPath.c_str());
+    std::string profile;
+    if (!TransformFileToJsonString(resPath, profile)) {
+        HILOG_ERROR("Transform file to json string filed.");
+        return false;
+    }
+    profileInfo.emplace_back(profile);
+    return true;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

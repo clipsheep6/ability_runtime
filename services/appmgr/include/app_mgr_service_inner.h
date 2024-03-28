@@ -26,6 +26,7 @@
 #include "ability_debug_response_interface.h"
 #include "ability_foreground_state_observer_interface.h"
 #include "ability_info.h"
+#include "advanced_security_mode_manager.h"
 #include "app_death_recipient.h"
 #include "app_debug_listener_interface.h"
 #include "app_debug_manager.h"
@@ -686,7 +687,7 @@ public:
      *
      * @return ERR_OK, return back success，others fail.
      */
-    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation") const;
+    int32_t KillProcessByPid(const pid_t pid, const std::string& reason = "foundation");
 
     bool GetAppRunningStateByBundleName(const std::string &bundleName);
 
@@ -1133,7 +1134,7 @@ private:
      *
      * @return true, return back existed，others non-existent.
      */
-    bool ProcessExist(pid_t &pid);
+    bool ProcessExist(pid_t pid);
 
     /**
      * CheckAllProcessExist, Determine whether all processes exist .
@@ -1268,6 +1269,8 @@ private:
     int32_t NotifyAbilitysDebugChange(const std::string &bundleName, const bool &isAppDebug);
     int32_t NotifyAbilitysAssertDebugChange(const std::shared_ptr<AppRunningRecord> &appRecord, bool isAssertDebug);
 
+    void SetProcessJITState(const std::shared_ptr<AppRunningRecord> appRecord);
+
     bool JudgeSelfCalledByToken(const sptr<IRemoteObject> &token, const PageStateData &pageStateData);
 
     void ParseServiceExtMultiProcessWhiteList();
@@ -1343,6 +1346,7 @@ private:
     mutable std::map<int64_t, std::string> killedPorcessMap_;
     std::shared_ptr<AbilityRuntime::AppRunningStatusModule> appRunningStatusModule_;
     std::vector<std::string> serviceExtensionWhiteList_;
+    std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
 };
 }  // namespace AppExecFwk

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "js_dialog_request.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_dialog_request_callback.h"
@@ -33,16 +34,16 @@ constexpr int32_t RESULT_CANCEL = 1;
 
 napi_value ResultCodeInit(napi_env env)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::DIALOG, "called");
     if (env == nullptr) {
-        HILOG_ERROR("Invalid input parameters.");
+        TAG_LOGE(AAFwkTag::DIALOG, "Invalid input parameters.");
         return nullptr;
     }
 
     napi_value objValue = nullptr;
     napi_create_object(env, &objValue);
     if (objValue == nullptr) {
-        HILOG_ERROR("Failed to get object");
+        TAG_LOGE(AAFwkTag::DIALOG, "Failed to get object");
         return nullptr;
     }
 
@@ -59,7 +60,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("JsDialogRequest::Finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "JsDialogRequest::Finalizer is called");
         std::unique_ptr<JsDialogRequest>(static_cast<JsDialogRequest*>(data));
     }
 
@@ -76,23 +77,23 @@ public:
 private:
     napi_value OnGetRequestInfo(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::DIALOG, "%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Params not match");
+            TAG_LOGE(AAFwkTag::DIALOG, "Params not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
 
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
-            HILOG_ERROR("The input want is invalid.");
+            TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> callerToken = want.GetRemoteObject(RequestConstants::REQUEST_TOKEN_KEY);
         if (!callerToken) {
-            HILOG_ERROR("Can not get token from target want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Can not get token from target want.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -104,7 +105,7 @@ private:
         auto requestInfo = new RequestInfo(callerToken, left, top, width, height);
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(env, requestInfo);
         if (jsRequestInfo == nullptr) {
-            HILOG_ERROR("Can not wrap requestinfo from target request.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Can not wrap requestinfo from target request.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -114,30 +115,30 @@ private:
 
     napi_value OnGetRequestCallback(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_INFO("%{public}s is called", __FUNCTION__);
+        TAG_LOGI(AAFwkTag::DIALOG, "%{public}s is called", __FUNCTION__);
         if (info.argc < ARGC_ONE) {
-            HILOG_ERROR("Params is not match");
+            TAG_LOGE(AAFwkTag::DIALOG, "Params is not match");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
 
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
-            HILOG_ERROR("The input want is invalid.");
+            TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> remoteObj = want.GetRemoteObject(RequestConstants::REQUEST_CALLBACK_KEY);
         if (!remoteObj) {
-            HILOG_ERROR("Can not get callback from target want.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Can not get callback from target want.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
 
         sptr<IDialogRequestCallback> callback = iface_cast<IDialogRequestCallback>(remoteObj);
         if (!callback) {
-            HILOG_ERROR("Cast to IDialogRequestCallback failed.");
+            TAG_LOGE(AAFwkTag::DIALOG, "Cast to IDialogRequestCallback failed.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
             return CreateJsUndefined(env);
         }
@@ -148,9 +149,9 @@ private:
 
 napi_value JsDialogRequestInit(napi_env env, napi_value exportObj)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::DIALOG, "called");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_INFO("Invalid input parameters");
+        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input parameters");
         return nullptr;
     }
 

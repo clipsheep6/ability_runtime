@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "ui_extension_record.h"
 #include "ability_util.h"
 #include "extension_record_manager.h"
+#include "hilog_tag_wrapper.h"
 #include "session/host/include/zidl/session_interface.h"
 
 namespace OHOS {
@@ -34,7 +35,7 @@ bool UIExtensionRecord::ContinueToGetCallerToken()
 void UIExtensionRecord::Update(const AAFwk::AbilityRequest &abilityRequest)
 {
     if (abilityRecord_ == nullptr) {
-        HILOG_ERROR("abilityRecord_ is null");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord_ is null");
         return;
     }
     abilityRecord_->SetSessionInfo(abilityRequest.sessionInfo);

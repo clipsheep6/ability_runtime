@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "ability_monitor.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "js_ability_delegator_utils.h"
@@ -34,7 +35,7 @@ AbilityMonitor::AbilityMonitor(const std::string &name, const std::string &modul
 
 void AbilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -42,12 +43,12 @@ void AbilityMonitor::OnAbilityStart(const std::weak_ptr<NativeReference> &abilit
 
     jsMonitor_->OnAbilityCreate(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -55,12 +56,12 @@ void AbilityMonitor::OnAbilityForeground(const std::weak_ptr<NativeReference> &a
 
     jsMonitor_->OnAbilityForeground(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -68,12 +69,12 @@ void AbilityMonitor::OnAbilityBackground(const std::weak_ptr<NativeReference> &a
 
     jsMonitor_->OnAbilityBackground(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -81,13 +82,13 @@ void AbilityMonitor::OnAbilityStop(const std::weak_ptr<NativeReference> &ability
 
     jsMonitor_->OnAbilityDestroy(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &abilityObj)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -95,12 +96,12 @@ void AbilityMonitor::OnWindowStageCreate(const std::weak_ptr<NativeReference> &a
 
     jsMonitor_->OnWindowStageCreate(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -108,12 +109,12 @@ void AbilityMonitor::OnWindowStageRestore(const std::weak_ptr<NativeReference> &
 
     jsMonitor_->OnWindowStageRestore(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 
 void AbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &abilityObj)
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "enter");
 
     if (jsMonitor_ == nullptr) {
         return;
@@ -121,7 +122,7 @@ void AbilityMonitor::OnWindowStageDestroy(const std::weak_ptr<NativeReference> &
 
     jsMonitor_->OnWindowStageDestroy(abilityObj);
 
-    HILOG_INFO("end");
+    TAG_LOGI(AAFwkTag::DELEGATOR, "end");
 }
 }  // namespace AbilityDelegatorJs
 }  // namespace OHOS

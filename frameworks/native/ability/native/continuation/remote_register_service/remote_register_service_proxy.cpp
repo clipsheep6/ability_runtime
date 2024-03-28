@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "remote_register_service_proxy.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -27,10 +28,10 @@ namespace AppExecFwk {
 int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sptr<IRemoteObject> &token,
     const ExtraParams &extras, const sptr<IConnectCallback> &callback)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
 
     if (bundleName.empty() || token == nullptr || callback == nullptr) {
-        HILOG_ERROR("%{public}s param invalid", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s param invalid", __func__);
         return ERR_INVALID_DATA;
     }
 
@@ -38,7 +39,7 @@ int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sp
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteString(bundleName) ||
         !data.WriteRemoteObject(token) || !data.WriteInt32(1) || !extras.Marshalling(data) ||
         !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("%{public}s Failed to write transfer data.", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Failed to write transfer data.", __func__);
         return IPC_INVOKER_WRITE_TRANS_ERR;
     }
 
@@ -46,10 +47,10 @@ int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sp
     MessageOption option;
     int result = SendTransactCmd(COMMAND_REGISTER, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s SendRequest ok", __func__);
         return reply.ReadInt32();
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return IPC_INVOKER_TRANSLATE_ERR;
     }
 }
@@ -61,11 +62,11 @@ int RemoteRegisterServiceProxy::Register(const std::string &bundleName, const sp
  */
 bool RemoteRegisterServiceProxy::Unregister(int registerToken)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
 
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteInt32(registerToken)) {
-        HILOG_ERROR("%{public}s Failed to write transfer data.", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Failed to write transfer data.", __func__);
         return false;
     }
 
@@ -73,10 +74,10 @@ bool RemoteRegisterServiceProxy::Unregister(int registerToken)
     MessageOption option;
     int32_t result = SendTransactCmd(COMMAND_UNREGISTER, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s SendRequest ok", __func__);
         return reply.ReadInt32() == ERR_NONE;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return false;
     }
 }
@@ -90,12 +91,12 @@ bool RemoteRegisterServiceProxy::Unregister(int registerToken)
  */
 bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const std::string &deviceId, int status)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
 
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteInt32(registerToken) ||
         !data.WriteString(deviceId) || !data.WriteInt32(status)) {
-        HILOG_ERROR("%{public}s Failed to write transfer data.", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Failed to write transfer data.", __func__);
         return false;
     }
 
@@ -103,10 +104,10 @@ bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const st
     MessageOption option;
     int32_t result = SendTransactCmd(COMMAND_UPDATE_CONNECT_STATUS, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s SendRequest ok", __func__);
         return reply.ReadInt32() == ERR_NONE;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return false;
     }
 }
@@ -119,12 +120,12 @@ bool RemoteRegisterServiceProxy::UpdateConnectStatus(int registerToken, const st
  */
 bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraParams &extras)
 {
-    HILOG_INFO("%{public}s called", __func__);
+    TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s called", __func__);
 
     MessageParcel data;
     if (!data.WriteInterfaceToken(IRemoteRegisterService::GetDescriptor()) || !data.WriteInt32(registerToken) ||
         !data.WriteInt32(1) || !extras.Marshalling(data)) {
-        HILOG_ERROR("%{public}s Failed to write transfer data.", __func__);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s Failed to write transfer data.", __func__);
         return false;
     }
 
@@ -132,10 +133,10 @@ bool RemoteRegisterServiceProxy::ShowDeviceList(int registerToken, const ExtraPa
     MessageOption option;
     int32_t result = SendTransactCmd(COMMAND_SHOW_DEVICE_LIST, data, reply, option);
     if (result == ERR_NONE) {
-        HILOG_INFO("%{public}s SendRequest ok", __func__);
+        TAG_LOGI(AAFwkTag::CONTINUATION, "%{public}s SendRequest ok", __func__);
         return reply.ReadInt32() == ERR_NONE;
     } else {
-        HILOG_ERROR("%{public}s SendRequest error, result=%{public}d", __func__, result);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "%{public}s SendRequest error, result=%{public}d", __func__, result);
         return false;
     }
 }
@@ -145,7 +146,7 @@ int32_t RemoteRegisterServiceProxy::SendTransactCmd(uint32_t code, MessageParcel
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 

@@ -16,6 +16,7 @@
 #include "ability_debug_deal.h"
 
 #include "ability_record.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 
@@ -25,7 +26,7 @@ void AbilityDebugDeal::RegisterAbilityDebugResponse()
 {
     abilityDebugResponse_ = new (std::nothrow) AbilityDebugResponse(weak_from_this());
     if (abilityDebugResponse_ == nullptr) {
-        HILOG_ERROR("Ability debug response is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability debug response is nullptr.");
         return;
     }
 
@@ -34,11 +35,11 @@ void AbilityDebugDeal::RegisterAbilityDebugResponse()
 
 void AbilityDebugDeal::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            HILOG_ERROR("Ability record is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability record is nullptr.");
             continue;
         }
         abilityRecord->SetAttachDebug(true);
@@ -47,11 +48,11 @@ void AbilityDebugDeal::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObje
 
 void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
     for (auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            HILOG_ERROR("Ability record is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability record is nullptr.");
             continue;
         }
         abilityRecord->SetAttachDebug(false);
@@ -60,12 +61,12 @@ void AbilityDebugDeal::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObjec
 
 void AbilityDebugDeal::OnAbilitysAssertDebugChange(const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
 {
-    HILOG_DEBUG("Called. %{public}s", isAssertDebug ? "start assert debug" : "stop assert debug");
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called. %{public}s", isAssertDebug ? "start assert debug" : "stop assert debug");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     for (const auto &token : tokens) {
         auto abilityRecord = Token::GetAbilityRecordByToken(token);
         if (abilityRecord == nullptr) {
-            HILOG_ERROR("Ability record is nullptr.");
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability record is nullptr.");
             continue;
         }
         abilityRecord->SetAssertDebug(isAssertDebug);
@@ -75,13 +76,13 @@ void AbilityDebugDeal::OnAbilitysAssertDebugChange(const std::vector<sptr<IRemot
 void AbilityDebugResponse::OnAbilitysDebugStarted(const std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (tokens.empty()) {
-        HILOG_WARN("Tokens is empty.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Tokens is empty.");
         return;
     }
 
     auto deal = abilityDebugDeal_.lock();
     if (deal == nullptr) {
-        HILOG_ERROR("Ability debug deal object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability debug deal object is nullptr.");
         return;
     }
     deal->OnAbilitysDebugStarted(tokens);
@@ -90,13 +91,13 @@ void AbilityDebugResponse::OnAbilitysDebugStarted(const std::vector<sptr<IRemote
 void AbilityDebugResponse::OnAbilitysDebugStoped(const std::vector<sptr<IRemoteObject>> &tokens)
 {
     if (tokens.empty()) {
-        HILOG_WARN("Tokens is empty.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Tokens is empty.");
         return;
     }
 
     auto deal = abilityDebugDeal_.lock();
     if (deal == nullptr) {
-        HILOG_ERROR("Ability debug deal object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Ability debug deal object is nullptr.");
         return;
     }
     deal->OnAbilitysDebugStoped(tokens);
@@ -106,13 +107,13 @@ void AbilityDebugResponse::OnAbilitysAssertDebugChange(
     const std::vector<sptr<IRemoteObject>> &tokens, bool isAssertDebug)
 {
     if (tokens.empty()) {
-        HILOG_WARN("Tokens is empty.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Tokens is empty.");
         return;
     }
 
     auto deal = abilityDebugDeal_.lock();
     if (deal == nullptr) {
-        HILOG_ERROR("Ability debug deal object is nullptr.");
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Ability debug deal object is nullptr.");
         return;
     }
     deal->OnAbilitysAssertDebugChange(tokens, isAssertDebug);

@@ -447,6 +447,11 @@ enum {
      * Native error(2097237) for ability state check failed.
      */
     ERR_NATIVE_ABILITY_STATE_CHECK_FAILED,
+    
+    /**
+     * Native error(2097238) for kill process not exist.
+     */
+    ERR_KILL_PROCESS_NOT_EXIST,
 };
 
 enum {

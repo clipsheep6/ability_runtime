@@ -59,6 +59,7 @@ public:
         bool isJsFramework = false;
         bool isStageModel = true;
         bool isTestFramework = false;
+        bool jitEnabled = false;
         int32_t uid = -1;
         // ArkTsCard start
         bool isUnique = false;

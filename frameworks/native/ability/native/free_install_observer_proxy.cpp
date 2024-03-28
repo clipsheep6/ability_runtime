@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "free_install_observer_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -27,7 +28,7 @@ FreeInstallObserverProxy::FreeInstallObserverProxy(
 bool FreeInstallObserverProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(FreeInstallObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "write interface token failed.");
         return false;
     }
     return true;
@@ -45,20 +46,20 @@ void FreeInstallObserverProxy::OnInstallFinished(const std::string &bundleName, 
 
     if (!data.WriteString(bundleName) || !data.WriteString(abilityName) || !data.WriteString(startTime) ||
         !data.WriteInt32(resultCode)) {
-        HILOG_ERROR("params is wrong");
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "params is wrong");
         return;
     }
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::FREE_INSTALL, "Remote() is NULL");
         return;
     }
     int32_t ret = remote->SendRequest(
         IFreeInstallObserver::ON_INSTALL_FINISHED,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::FREE_INSTALL, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 }

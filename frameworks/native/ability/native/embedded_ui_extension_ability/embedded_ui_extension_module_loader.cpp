@@ -16,6 +16,7 @@
 #include "embedded_ui_extension_module_loader.h"
 
 #include "embedded_ui_extension.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -25,13 +26,13 @@ EmbeddedUIExtensionModuleLoader::~EmbeddedUIExtensionModuleLoader() = default;
 
 Extension *EmbeddedUIExtensionModuleLoader::Create(const std::unique_ptr<Runtime> &runtime) const
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called");
     return EmbeddedUIExtension::Create(runtime);
 }
 
 std::map<std::string, std::string> EmbeddedUIExtensionModuleLoader::GetParams()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called");
     std::map<std::string, std::string> params;
     // type means extension type in ExtensionAbilityType of extension_ability_info.h, 21 means embedded_ui_extension.
     params.insert(std::pair<std::string, std::string>("type", "21"));

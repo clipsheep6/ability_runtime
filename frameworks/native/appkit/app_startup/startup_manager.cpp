@@ -37,6 +37,74 @@ int32_t StartupManager::RegisterStartupTask(const std::string &name, const std::
 
 int32_t StartupManager::BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskManager> &startupTaskManager)
 {
+    startupTaskManager = std::make_shared<StartupTaskManager>(startupTaskManagerId);
+    for (auto &iter : startupTasks_) {
+        if (!iter.second->GetIsAutoStartup()) {
+            continue;
+        }
+        startupTaskManager->AddTask(iter.second);
+        // find dep and add
+    }
+    startupTaskManagerMap_.emplace(startupTaskManagerId, startupTaskManager);
+    startupTaskManagerId++;
+    return ERR_OK;
+}
+
+std::shared_ptr<StartupConfig> StartupManager::GetDefaultConfig() const
+{
+    return defaultConfig_;
+}
+
+int32_t StartupManager::RemoveAllResult()
+{
+    HILOG_DEBUG("called.");
+    for (auto &iter : startupTasks_) {
+        if (iter.second != nullptr) {
+            iter.second->RemoveResult();
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t StartupManager::RemoveResult(const std::string &name)
+{
+    HILOG_DEBUG("called, name: %{public}s", name.c_str());
+    auto findResult = startupTasks_.find(name);
+    if (findResult == startupTasks_.end() || findResult->second == nullptr) {
+        HILOG_ERROR("name: %{public}s, not found", name.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    findResult->second->RemoveResult();
+    return ERR_OK;
+}
+
+int32_t StartupManager::GetResult(const std::string &name, std::shared_ptr<StartupTaskResult> &result)
+{
+    HILOG_DEBUG("called, name: %{public}s", name.c_str());
+    auto findResult = startupTasks_.find(name);
+    if (findResult == startupTasks_.end() || findResult->second == nullptr) {
+        HILOG_ERROR("name: %{public}s, not found", name.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    StartupTask::State state = findResult->second->GetState();
+    if (state != StartupTask::State::INITIALIZED) {
+        HILOG_ERROR("name: %{public}s, not initialized", name.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    result = findResult->second->GetResult();
+    return ERR_OK;
+}
+
+int32_t StartupManager::IsInitialized(const std::string &name, bool &isInitialized)
+{
+    HILOG_DEBUG("called, name: %{public}s", name.c_str());
+    auto findResult = startupTasks_.find(name);
+    if (findResult == startupTasks_.end() || findResult->second == nullptr) {
+        HILOG_ERROR("name: %{public}s, not found", name.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    StartupTask::State state = findResult->second->GetState();
+    isInitialized = state == StartupTask::State::INITIALIZED;
     return ERR_OK;
 }
 } // namespace AbilityRuntime

@@ -32,6 +32,7 @@
 #include "extract_resource_manager.h"
 #include "file_path_utils.h"
 #include "hdc_register.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "hot_reloader.h"
@@ -105,7 +106,7 @@ static auto PermissionCheckFunc = []() {
 napi_value CanIUse(napi_env env, napi_callback_info info)
 {
     if (env == nullptr || info == nullptr) {
-        HILOG_ERROR("get syscap failed since env or callback info is nullptr.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "get syscap failed since env or callback info is nullptr.");
         return nullptr;
     }
     napi_value undefined = CreateJsUndefined(env);
@@ -114,14 +115,14 @@ napi_value CanIUse(napi_env env, napi_callback_info info)
     napi_value argv[1] = { nullptr };
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
     if (argc != 1) {
-        HILOG_ERROR("Get syscap failed with invalid parameter.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get syscap failed with invalid parameter.");
         return undefined;
     }
 
     napi_valuetype valueType = napi_undefined;
     napi_typeof(env, argv[0], &valueType);
     if (valueType != napi_string) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "%{public}s called. Params is invalid.", __func__);
         return undefined;
     }
 
@@ -142,31 +143,31 @@ void InitSyscapModule(napi_env env, napi_value globalObject)
 
 int32_t PrintVmLog(int32_t, int32_t, const char*, const char*, const char* message)
 {
-    HILOG_INFO("ArkLog: %{public}s", message);
+    TAG_LOGI(AAFwkTag::JSRUNTIME, "ArkLog: %{public}s", message);
     return 0;
 }
 
 napi_status CreateNapiEnv(napi_env *env)
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Called");
     if (env == nullptr) {
-        HILOG_ERROR("Invalid arg");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid arg");
         return napi_status::napi_invalid_arg;
     }
     auto options = JsRuntime::GetChildOptions();
     if (options == nullptr) {
-        HILOG_ERROR("options is null, it maybe application startup failed!");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "options is null, it maybe application startup failed!");
         return napi_status::napi_generic_failure;
     }
     std::shared_ptr<OHOS::JsEnv::JsEnvironment> jsEnv = nullptr;
     auto errCode = NativeRuntimeImpl::GetNativeRuntimeImpl().CreateJsEnv(*options, jsEnv);
     if (errCode != napi_status::napi_ok) {
-        HILOG_ERROR("CreateJsEnv failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "CreateJsEnv failed");
         return errCode;
     }
     *env = reinterpret_cast<napi_env>(jsEnv->GetNativeEngine());
     if (env == nullptr) {
-        HILOG_ERROR("CreateJsEnv failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "CreateJsEnv failed");
         return napi_status::napi_generic_failure;
     }
     return NativeRuntimeImpl::GetNativeRuntimeImpl().Init(*options, *env);
@@ -174,9 +175,9 @@ napi_status CreateNapiEnv(napi_env *env)
 
 napi_status DestroyNapiEnv(napi_env *env)
 {
-    HILOG_DEBUG("Called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Called");
     if (env == nullptr) {
-        HILOG_ERROR("Invalid arg");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Invalid arg");
         return napi_status::napi_invalid_arg;
     }
     auto errCode = NativeRuntimeImpl::GetNativeRuntimeImpl().RemoveJsEnv(*env);
@@ -192,12 +193,12 @@ std::atomic<bool> JsRuntime::hasInstance(false);
 std::shared_ptr<Runtime::Options> JsRuntime::childOptions_ = nullptr;
 JsRuntime::JsRuntime()
 {
-    HILOG_DEBUG("JsRuntime costructor.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime costructor.");
 }
 
 JsRuntime::~JsRuntime()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     Deinitialize();
     StopDebugMode();
 }
@@ -234,7 +235,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
 {
     CHECK_POINTER(jsEnv_);
     if (jsEnv_->GetDebugMode()) {
-        HILOG_INFO("Already in debug mode");
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "Already in debug mode");
         return;
     }
     // Set instance id to tid after the first instance.
@@ -242,7 +243,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
         instanceId_ = static_cast<uint32_t>(gettid());
     }
 
-    HILOG_DEBUG("Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
     const std::string bundleName = bundleName_;
@@ -254,10 +255,11 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
     }
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
         [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
-        HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
-            socketFd, option.c_str());
+            TAG_LOGI(AAFwkTag::JSRUNTIME,
+                "HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.", socketFd,
+                option.c_str());
         if (weak == nullptr) {
-            HILOG_ERROR("jsEnv is nullptr in hdc register callback");
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr in hdc register callback");
             return;
         }
         if (option.find(DEBUGGER) == std::string::npos) {
@@ -303,7 +305,7 @@ void JsRuntime::InitConsoleModule()
 
 bool JsRuntime::StartDebugger(bool needBreakPoint, uint32_t instanceId)
 {
-    HILOG_DEBUG("StartDebugger called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "StartDebugger called.");
     return true;
 }
 
@@ -315,11 +317,11 @@ void JsRuntime::StopDebugger()
 
 int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_t defaultValue)
 {
-    HILOG_DEBUG("profiler command parse %{public}s", command.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler command parse %{public}s", command.c_str());
     auto findPos = command.find("jsperf");
     if (findPos == std::string::npos) {
         // jsperf command not found, so not to do, return zero.
-        HILOG_DEBUG("jsperf command not found");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "jsperf command not found");
         return 0;
     }
 
@@ -328,7 +330,7 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     const std::regex regexJsperf(R"(^jsperf($|\s+($|\d*\s*($|nativeperf.*))))");
     std::match_results<std::string::const_iterator> matchResults;
     if (!std::regex_match(jsPerfStr, matchResults, regexJsperf)) {
-        HILOG_DEBUG("the order not match");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "the order not match");
         return defaultValue;
     }
 
@@ -336,7 +338,7 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     std::string jsperfResuflt;
     constexpr size_t matchResultIndex = 1;
     if (matchResults.size() < PARAM_TWO) {
-        HILOG_ERROR("no results need to be matched");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "no results need to be matched");
         return defaultValue;
     }
 
@@ -345,7 +347,7 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     const std::regex regexJsperfNum(R"(^\s*(\d+).*)");
     std::match_results<std::string::const_iterator> jsperfMatchResults;
     if (!std::regex_match(jsperfResuflt, jsperfMatchResults, regexJsperfNum)) {
-        HILOG_DEBUG("the jsperf results not match");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "the jsperf results not match");
         return defaultValue;
     }
 
@@ -353,13 +355,13 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     std::string interval;
     constexpr size_t matchNumResultIndex = 1;
     if (jsperfMatchResults.size() < PARAM_TWO) {
-        HILOG_ERROR("no results need to be matched");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "no results need to be matched");
         return defaultValue;
     }
 
     interval = jsperfMatchResults[matchNumResultIndex].str();
     if (interval.empty()) {
-        HILOG_DEBUG("match order result error");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "match order result error");
         return defaultValue;
     }
 
@@ -385,10 +387,10 @@ void JsRuntime::StartProfiler(
     }
     HdcRegister::Get().StartHdcRegister(bundleName_, inputProcessName, isDebugApp,
         [bundleName, needBreakPoint, instanceId, weak, isDebugApp](int socketFd, std::string option) {
-        HILOG_INFO("HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "HdcRegister callback is call, socket fd is %{public}d, option is %{public}s.",
             socketFd, option.c_str());
         if (weak == nullptr) {
-            HILOG_ERROR("jsEnv is nullptr in hdc register callback");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "jsEnv is nullptr in hdc register callback");
             return;
         }
         if (option.find(DEBUGGER) == std::string::npos) {
@@ -420,7 +422,7 @@ void JsRuntime::StartProfiler(
     panda::JSNApi::DebugOption debugOption = {ARK_DEBUGGER_LIB_PATH, isDebugApp ? needBreakPoint : false};
     ConnectServerManager::Get().StoreDebuggerInfo(
         instanceId_, reinterpret_cast<void*>(vm), debugOption, debuggerPostTask, isDebugApp);
-    HILOG_DEBUG("profiler:%{public}d interval:%{public}d.", profiler, interval);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "profiler:%{public}d interval:%{public}d.", profiler, interval);
     jsEnv_->StartProfiler(ARK_DEBUGGER_LIB_PATH, instanceId_, profiler, interval, gettid(), isDebugApp);
 }
 
@@ -428,14 +430,15 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
 {
     Extractor extractor(filePath);
     if (!extractor.Init()) {
-        HILOG_ERROR("GetFileBuffer, Extractor of %{private}s init failed.", filePath.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetFileBuffer, Extractor of %{private}s init failed.", filePath.c_str());
         return false;
     }
 
     std::vector<std::string> fileNames;
     extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
     if (fileNames.empty()) {
-        HILOG_WARN("GetFileBuffer, There's no abc file in hap or hqf %{private}s.", filePath.c_str());
+        TAG_LOGW(
+            AAFwkTag::JSRUNTIME, "GetFileBuffer, There's no abc file in hap or hqf %{private}s.", filePath.c_str());
         return true;
     }
 
@@ -443,7 +446,7 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
     fileFullName = filePath + "/" + fileName;
     std::ostringstream outStream;
     if (!extractor.ExtractByName(fileName, outStream)) {
-        HILOG_ERROR("GetFileBuffer, Extract %{public}s failed.", fileFullName.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "GetFileBuffer, Extract %{public}s failed.", fileFullName.c_str());
         return false;
     }
 
@@ -454,21 +457,21 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
 
 bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& hapPath)
 {
-    HILOG_DEBUG("LoadRepairPatch function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "LoadRepairPatch function called.");
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
     std::string patchFile;
     std::vector<uint8_t> patchBuffer;
     if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
-        HILOG_ERROR("LoadRepairPatch, get patch file buffer failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get patch file buffer failed.");
         return false;
     }
 
     std::string baseFile;
     std::vector<uint8_t> baseBuffer;
     if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
-        HILOG_ERROR("LoadRepairPatch, get base file buffer failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadRepairPatch, get base file buffer failed.");
         return false;
     }
 
@@ -483,46 +486,46 @@ bool JsRuntime::LoadRepairPatch(const std::string& hqfFile, const std::string& h
         resolvedHapPath = hapPath.substr(0, hspPosition) + MERGE_ABC_PATH;
     }
 
-    HILOG_DEBUG("LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "LoadRepairPatch, LoadPatch, patchFile: %{private}s, baseFile: %{private}s.",
         patchFile.c_str(), resolvedHapPath.c_str());
     auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
         resolvedHapPath, baseBuffer.data(), baseBuffer.size());
     if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
-        HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
         return false;
     }
 
-    HILOG_DEBUG("LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "LoadRepairPatch, Load patch %{private}s succeed.", patchFile.c_str());
     return true;
 }
 
 bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
 {
-    HILOG_DEBUG("UnLoadRepairPatch function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "UnLoadRepairPatch function called.");
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
 
     Extractor extractor(hqfFile);
     if (!extractor.Init()) {
-        HILOG_ERROR("UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "UnLoadRepairPatch, Extractor of %{private}s init failed.", hqfFile.c_str());
         return false;
     }
 
     std::vector<std::string> fileNames;
     extractor.GetSpecifiedTypeFiles(fileNames, ".abc");
     if (fileNames.empty()) {
-        HILOG_WARN("UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "UnLoadRepairPatch, There's no abc file in hqf %{private}s.", hqfFile.c_str());
         return true;
     }
 
     for (const auto &fileName : fileNames) {
         std::string patchFile = hqfFile + "/" + fileName;
-        HILOG_DEBUG("UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "UnLoadRepairPatch, UnloadPatch, patchFile: %{private}s.", patchFile.c_str());
         auto ret = panda::JSNApi::UnloadPatch(vm, patchFile);
         if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
-            HILOG_WARN("UnLoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
+            TAG_LOGW(AAFwkTag::JSRUNTIME, "UnLoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
         }
-        HILOG_DEBUG("UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "UnLoadRepairPatch, UnLoad patch %{private}s succeed.", patchFile.c_str());
     }
 
     return true;
@@ -530,21 +533,21 @@ bool JsRuntime::UnLoadRepairPatch(const std::string& hqfFile)
 
 bool JsRuntime::NotifyHotReloadPage()
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "function called.");
     Ace::HotReloader::HotReload();
     return true;
 }
 
 bool JsRuntime::LoadScript(const std::string& path, std::vector<uint8_t>* buffer, bool isBundle)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "function called.");
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
     return jsEnv_->LoadScript(path, buffer, isBundle);
 }
 
 bool JsRuntime::LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle)
 {
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "function called.");
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
     return jsEnv_->LoadScript(path, buffer, len, isBundle);
 }
@@ -552,9 +555,9 @@ bool JsRuntime::LoadScript(const std::string& path, uint8_t* buffer, size_t len,
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
     napi_env env, const std::string& moduleName, const napi_value* argv, size_t argc)
 {
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     if (env == nullptr) {
-        HILOG_INFO("JsRuntime::LoadSystemModule: invalid engine.");
+        TAG_LOGI(AAFwkTag::JSRUNTIME, "JsRuntime::LoadSystemModule: invalid engine.");
         return nullptr;
     }
 
@@ -568,7 +571,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
     napi_create_reference(env, propertyValue, 1, &tmpRef);
     methodRequireNapiRef_.reset(reinterpret_cast<NativeReference*>(tmpRef));
     if (!methodRequireNapiRef_) {
-        HILOG_ERROR("Failed to create reference for global.requireNapi");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to create reference for global.requireNapi");
         return nullptr;
     }
 
@@ -581,7 +584,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModuleByEngine(
     napi_value instanceValue = nullptr;
     napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to create object instance");
         return nullptr;
     }
 
@@ -612,6 +615,8 @@ void JsRuntime::PostPreload(const Options& options)
     }
     bool profileEnabled = OHOS::system::GetBoolParameter("ark.profile", false);
     postOption.SetEnableProfile(profileEnabled);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify PostFork, jitEnabled: %{public}d", options.jitEnabled);
+    postOption.SetEnableJIT(options.jitEnabled);
     panda::JSNApi::PostFork(vm, postOption);
     reinterpret_cast<NativeEngine*>(env)->ReinitUVLoop();
     uv_loop_s* loop = nullptr;
@@ -645,7 +650,7 @@ bool JsRuntime::Initialize(const Options& options)
 #endif
     if (!preloaded_) {
         if (!CreateJsEnv(options)) {
-            HILOG_ERROR("Create js environment failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Create js environment failed.");
             return false;
         }
         NativeCreateEnv::RegCreateNapiEnvCallback(CreateNapiEnv);
@@ -654,7 +659,7 @@ bool JsRuntime::Initialize(const Options& options)
         jsEnv_->StartMonitorJSHeapUsage();
     }
     apiTargetVersion_ = options.apiTargetVersion;
-    HILOG_DEBUG("Initialize: %{public}d.", apiTargetVersion_);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Initialize: %{public}d.", apiTargetVersion_);
     bool isModular = false;
     if (IsUseAbilityRuntime(options)) {
         auto env = GetNapiEnv();
@@ -688,12 +693,12 @@ bool JsRuntime::Initialize(const Options& options)
             napi_create_reference(env, propertyValue, 1, &tmpRef);
             methodRequireNapiRef_.reset(reinterpret_cast<NativeReference*>(tmpRef));
             if (!methodRequireNapiRef_) {
-                HILOG_ERROR("Failed to create reference for global.requireNapi");
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to create reference for global.requireNapi");
                 return false;
             }
-            HILOG_DEBUG("PreloadAce start.");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "PreloadAce start.");
             PreloadAce(options);
-            HILOG_DEBUG("PreloadAce end.");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "PreloadAce end.");
             nativeEngine->RegisterPermissionCheck(PermissionCheckFunc);
         }
 
@@ -731,7 +736,7 @@ bool JsRuntime::Initialize(const Options& options)
         InitSourceMap(operatorObj);
 
         if (options.isUnique) {
-            HILOG_DEBUG("Not supported TimerModule when form render");
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "Not supported TimerModule when form render");
         } else {
             InitTimerModule();
         }
@@ -741,7 +746,7 @@ bool JsRuntime::Initialize(const Options& options)
         SetRequestAotCallback();
 
         if (!InitLoop()) {
-            HILOG_ERROR("Initialize loop failed.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize loop failed.");
             return false;
         }
     }
@@ -761,7 +766,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     pandaOption.SetArkBundleName(bundleName);
     pandaOption.SetGcThreadNum(gcThreadNum);
     pandaOption.SetLongPauseTime(longPauseTime);
-    HILOG_DEBUG("JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "JSRuntime::Initialize ark properties = %{public}d bundlename = %{public}s",
         arkProperties, bundleName.c_str());
     pandaOption.SetGcType(panda::RuntimeOption::GC_TYPE::GEN_GC);
     pandaOption.SetGcPoolSize(DEFAULT_GC_POOL_SIZE);
@@ -772,6 +777,8 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     std::string asmOpcodeDisableRange = OHOS::system::GetParameter("persist.ark.asmopcodedisablerange", "");
     pandaOption.SetEnableAsmInterpreter(asmInterpreterEnabled);
     pandaOption.SetAsmOpcodeDisableRange(asmOpcodeDisableRange);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "ASMM JIT Verify CreateJsEnv, jitEnabled: %{public}d", options.jitEnabled);
+    pandaOption.SetEnableJIT(options.jitEnabled);
 
     if (IsUseAbilityRuntime(options)) {
         // aot related
@@ -783,7 +790,7 @@ bool JsRuntime::CreateJsEnv(const Options& options)
     OHOSJsEnvLogger::RegisterJsEnvLogger();
     jsEnv_ = std::make_shared<JsEnv::JsEnvironment>(std::make_unique<OHOSJsEnvironmentImpl>(options.eventRunner));
     if (jsEnv_ == nullptr || !jsEnv_->Initialize(pandaOption, static_cast<void*>(this))) {
-        HILOG_ERROR("Initialize js environment failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize js environment failed.");
         return false;
     }
 
@@ -809,7 +816,7 @@ void JsRuntime::PreloadAce(const Options& options)
 
 void JsRuntime::ReloadFormComponent()
 {
-    HILOG_DEBUG("Call.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Call.");
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     // ArkTsCard update condition, need to reload new component
@@ -819,7 +826,7 @@ void JsRuntime::ReloadFormComponent()
 void JsRuntime::DoCleanWorkAfterStageCleaned()
 {
     // Force gc. If the jsRuntime is destroyed, this task should not be executed.
-    HILOG_DEBUG("DoCleanWorkAfterStageCleaned begin");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "DoCleanWorkAfterStageCleaned begin");
     RemoveTask("ability_destruct_gc");
     auto gcTask = [this]() {
         panda::JSNApi::TriggerGC(GetEcmaVm(), panda::JSNApi::TRIGGER_GC_TYPE::FULL_GC);
@@ -835,16 +842,16 @@ bool JsRuntime::InitLoop()
 
 void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
 {
-    HILOG_DEBUG("Set library path.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Set library path.");
 
     if (appLibPaths.size() == 0) {
-        HILOG_WARN("There's no library path need to set.");
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "There's no library path need to set.");
         return;
     }
 
     auto moduleManager = NativeModuleManager::GetInstance();
     if (moduleManager == nullptr) {
-        HILOG_ERROR("Get module manager failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get module manager failed.");
         return;
     }
 
@@ -863,7 +870,7 @@ void JsRuntime::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> op
 
 void JsRuntime::Deinitialize()
 {
-    HILOG_DEBUG("JsRuntime deinitialize.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime deinitialize.");
     for (auto it = modules_.begin(); it != modules_.end(); it = modules_.erase(it)) {
         delete it->second;
         it->second = nullptr;
@@ -887,21 +894,21 @@ napi_value JsRuntime::LoadJsBundle(const std::string& path, const std::string& h
     napi_set_named_property(env, globalObj, "exports", exports);
 
     if (!RunScript(path, hapPath, useCommonChunk)) {
-        HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to run script: %{private}s", path.c_str());
         return nullptr;
     }
 
     napi_value exportsObj = nullptr;
     napi_get_named_property(env, globalObj, "exports", &exportsObj);
     if (exportsObj == nullptr) {
-        HILOG_ERROR("Failed to get exports objcect: %{private}s", path.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get exports objcect: %{private}s", path.c_str());
         return nullptr;
     }
 
     napi_value exportObj = nullptr;
     napi_get_named_property(env, exportsObj, "default", &exportObj);
     if (exportObj == nullptr) {
-        HILOG_ERROR("Failed to get default objcect: %{private}s", path.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get default objcect: %{private}s", path.c_str());
         return nullptr;
     }
 
@@ -912,7 +919,7 @@ napi_value JsRuntime::LoadJsModule(const std::string& path, const std::string& h
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!RunScript(path, hapPath, false)) {
-        HILOG_ERROR("Failed to run script: %{private}s", path.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to run script: %{private}s", path.c_str());
         return nullptr;
     }
 
@@ -920,7 +927,7 @@ napi_value JsRuntime::LoadJsModule(const std::string& path, const std::string& h
     CHECK_POINTER_AND_RETURN(vm, nullptr);
     panda::Local<panda::ObjectRef> exportObj = panda::JSNApi::GetExportObject(vm, path, "default");
     if (exportObj->IsNull()) {
-        HILOG_ERROR("Get export object failed");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get export object failed");
         return nullptr;
     }
 
@@ -933,7 +940,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     const std::string& hapPath, bool esmodule, bool useCommonChunk)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Load module(%{public}s, %{private}s, %{private}s, %{public}s)",
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Load module(%{public}s, %{private}s, %{private}s, %{public}s)",
         moduleName.c_str(), modulePath.c_str(), hapPath.c_str(), esmodule ? "true" : "false");
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, std::unique_ptr<NativeReference>());
@@ -964,7 +971,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
             fileName = std::regex_replace(fileName, pattern, "");
         } else {
             if (!MakeFilePath(codePath_, modulePath, fileName)) {
-                HILOG_ERROR("Failed to make module file path: %{private}s", modulePath.c_str());
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to make module file path: %{private}s", modulePath.c_str());
                 return std::unique_ptr<NativeReference>();
             }
         }
@@ -981,7 +988,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
     napi_value instanceValue = nullptr;
     napi_new_instance(env, classValue, 0, nullptr, &instanceValue);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -993,7 +1000,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadModule(const std::string& module
 std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     const std::string& moduleName, const napi_value* argv, size_t argc)
 {
-    HILOG_DEBUG("JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime::LoadSystemModule(%{public}s)", moduleName.c_str());
     napi_env env = GetNapiEnv();
     CHECK_POINTER_AND_RETURN(env, std::unique_ptr<NativeReference>());
 
@@ -1010,7 +1017,7 @@ std::unique_ptr<NativeReference> JsRuntime::LoadSystemModule(
     napi_value instanceValue = nullptr;
     napi_new_instance(env, classValue, argc, argv, &instanceValue);
     if (instanceValue == nullptr) {
-        HILOG_ERROR("Failed to create object instance");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to create object instance");
         return std::unique_ptr<NativeReference>();
     }
 
@@ -1024,7 +1031,6 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     auto vm = GetEcmaVm();
     CHECK_POINTER_AND_RETURN(vm, false);
-
     std::string commonsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/commons.abc";
     std::string vendorsPath = std::string(Constants::LOCAL_CODE_PATH) + "/" + moduleName_ + "/ets/vendors.abc";
     if (hapPath.empty()) {
@@ -1039,7 +1045,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     std::string loadPath = ExtractorUtil::GetLoadFilePath(hapPath);
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(loadPath, newCreate, true);
     if (!extractor) {
-        HILOG_ERROR("Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Get extractor failed. hapPath[%{private}s]", hapPath.c_str());
         return false;
     }
     if (newCreate) {
@@ -1055,14 +1061,14 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
         if (!extractor->IsHapCompress(modulePath) && useSafeMempry) {
             auto safeData = extractor->GetSafeData(modulePath);
             if (!safeData) {
-                HILOG_ERROR("Get abc file failed.");
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "Get abc file failed.");
                 return false;
             }
             return LoadScript(abcPath, safeData->GetDataPtr(), safeData->GetDataLen(), isBundle_);
         } else {
             std::ostringstream outStream;
             if (!extractor->GetFileBuffer(modulePath, outStream)) {
-                HILOG_ERROR("Get abc file failed");
+                TAG_LOGE(AAFwkTag::JSRUNTIME, "Get abc file failed");
                 return false;
             }
             const auto& outStr = outStream.str();
@@ -1081,7 +1087,7 @@ bool JsRuntime::RunScript(const std::string& srcPath, const std::string& hapPath
     std::string path = srcPath;
     if (!isBundle_) {
         if (moduleName_.empty()) {
-            HILOG_ERROR("moduleName is hole");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "moduleName is hole");
             return false;
         }
         path = BUNDLE_INSTALL_PATH + moduleName_ + MERGE_ABC_PATH;
@@ -1100,13 +1106,13 @@ bool JsRuntime::RunSandboxScript(const std::string& path, const std::string& hap
         fileName = std::regex_replace(fileName, pattern, "");
     } else {
         if (!MakeFilePath(codePath_, path, fileName)) {
-            HILOG_ERROR("Failed to make module file path: %{private}s", path.c_str());
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to make module file path: %{private}s", path.c_str());
             return false;
         }
     }
 
     if (!RunScript(fileName, hapPath)) {
-        HILOG_ERROR("Failed to run script: %{public}s", fileName.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to run script: %{public}s", fileName.c_str());
         return false;
     }
     return true;
@@ -1209,7 +1215,7 @@ void JsRuntime::NotifyApplicationState(bool isBackground)
     auto nativeEngine = GetNativeEnginePointer();
     CHECK_POINTER(nativeEngine);
     nativeEngine->NotifyApplicationState(isBackground);
-    HILOG_DEBUG("NotifyApplicationState, isBackground %{public}d.", isBackground);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "NotifyApplicationState, isBackground %{public}d.", isBackground);
 }
 
 bool JsRuntime::SuspendVM(uint32_t tid)
@@ -1275,7 +1281,7 @@ void JsRuntime::UpdateModuleNameAndAssetPath(const std::string& moduleName)
 
     auto vm = GetEcmaVm();
     if (!vm || moduleName.empty()) {
-        HILOG_ERROR("vm is nullptr or moduleName is empty");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "vm is nullptr or moduleName is empty");
         return;
     }
 
@@ -1302,23 +1308,24 @@ bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string&
 {
     // Source map relative path, FA: "/assets/js", Stage: "/ets"
     if (hapPath.empty()) {
-        HILOG_ERROR("hapPath is empty");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "hapPath is empty");
         return false;
     }
     bool newCreate = false;
     std::shared_ptr<Extractor> extractor = ExtractorUtil::GetExtractor(
         ExtractorUtil::GetLoadFilePath(hapPath), newCreate);
     if (extractor == nullptr) {
-        HILOG_ERROR("hap's path: %{public}s, get extractor failed", hapPath.c_str());
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "hap's path: %{public}s, get extractor failed", hapPath.c_str());
         return false;
     }
     std::unique_ptr<uint8_t[]> dataPtr = nullptr;
     size_t len = 0;
     if (!extractor->ExtractToBufByName(sourceMapPath, dataPtr, len)) {
-        HILOG_DEBUG("can't find source map, and switch to stage model.");
+        TAG_LOGD(AAFwkTag::JSRUNTIME, "can't find source map, and switch to stage model.");
         std::string tempPath = std::regex_replace(sourceMapPath, std::regex("ets"), "assets/js");
         if (!extractor->ExtractToBufByName(tempPath, dataPtr, len)) {
-            HILOG_DEBUG("get mergeSourceMapData fileBuffer failed, map path: %{private}s", tempPath.c_str());
+            TAG_LOGD(AAFwkTag::JSRUNTIME, "get mergeSourceMapData fileBuffer failed, map path: %{private}s",
+                tempPath.c_str());
             return false;
         }
     }
@@ -1345,7 +1352,7 @@ void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativ
     std::shared_ptr<NativeReference>&& sharedNativeRef)
 {
     if (uniqueNativeRef == nullptr && sharedNativeRef == nullptr) {
-        HILOG_WARN("native reference is invalid.");
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "native reference is invalid.");
         return;
     }
 
@@ -1356,13 +1363,13 @@ void JsRuntime::FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativ
 
     auto work = new (std::nothrow) uv_work_t;
     if (work == nullptr) {
-        HILOG_ERROR("new uv work failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "new uv work failed.");
         return;
     }
 
     auto cb = new (std::nothrow) JsNativeReferenceDeleterObject();
     if (cb == nullptr) {
-        HILOG_ERROR("new deleter object failed.");
+        TAG_LOGE(AAFwkTag::JSRUNTIME, "new deleter object failed.");
         delete work;
         work = nullptr;
         return;
@@ -1437,23 +1444,24 @@ void JsRuntime::SetRequestAotCallback()
     auto callback = [](const std::string& bundleName, const std::string& moduleName, int32_t triggerMode) -> int32_t {
         auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (systemAbilityMgr == nullptr) {
-            HILOG_ERROR("Failed to get system ability manager.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get system ability manager.");
             return ERR_INVALID_VALUE;
         }
 
         auto remoteObj = systemAbilityMgr->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
         if (remoteObj == nullptr) {
-            HILOG_ERROR("Remote object is nullptr.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Remote object is nullptr.");
             return ERR_INVALID_VALUE;
         }
 
         auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(remoteObj);
         if (bundleMgr == nullptr) {
-            HILOG_ERROR("Failed to get bundle manager.");
+            TAG_LOGE(AAFwkTag::JSRUNTIME, "Failed to get bundle manager.");
             return ERR_INVALID_VALUE;
         }
 
-        HILOG_DEBUG("Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d.",
+        TAG_LOGD(AAFwkTag::JSRUNTIME,
+            "Reset compile status, bundleName: %{public}s, moduleName: %{public}s, triggerMode: %{public}d.",
             bundleName.c_str(), moduleName.c_str(), triggerMode);
         return bundleMgr->ResetAOTCompileStatus(bundleName, moduleName, triggerMode);
     };
@@ -1463,7 +1471,7 @@ void JsRuntime::SetRequestAotCallback()
 
 void JsRuntime::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
 {
-    HILOG_DEBUG("Start.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Start.");
     CHECK_POINTER(jsEnv_);
     jsEnv_->SetDeviceDisconnectCallback(cb);
 }
@@ -1519,7 +1527,7 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
             systemKitsMap.emplace_back(hmsMap);
         }
     }
-    HILOG_DEBUG("The size of the map is %{public}zu", systemKitsMap.size());
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "The size of the map is %{public}zu", systemKitsMap.size());
     return systemKitsMap;
 }
 
@@ -1549,11 +1557,12 @@ void JsRuntime::SetChildOptions(const Options& options)
     childOptions_->apiTargetVersion = options.apiTargetVersion;
     childOptions_->packagePathStr = options.packagePathStr;
     childOptions_->assetBasePathStr = options.assetBasePathStr;
+    childOptions_->jitEnabled = options.jitEnabled;
 }
 
 std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return childOptions_;
 }
 } // namespace AbilityRuntime

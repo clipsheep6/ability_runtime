@@ -20,6 +20,7 @@
 
 #include "app_mgr_client.h"
 #include "fault_data.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {

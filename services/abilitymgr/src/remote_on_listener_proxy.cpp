@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 
 #include "remote_on_listener_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -29,29 +30,29 @@ void RemoteOnListenerProxy::OnCallback(const uint32_t continueState, const std::
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(RemoteOnListenerProxy::GetDescriptor())) {
-        HILOG_ERROR("NotifyMissionsChanged Write interface token failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyMissionsChanged Write interface token failed.");
         return;
     }
     if (!data.WriteUint32(continueState)) {
-        HILOG_ERROR("NotifyOnsChanged Write ContinueState failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyOnsChanged Write ContinueState failed.");
         return;
     }
     if (!data.WriteString(srcDeviceId)) {
-        HILOG_ERROR("NotifyOnsChanged Write srcDeviceId failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyOnsChanged Write srcDeviceId failed.");
         return;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("NotifyOnsChanged Write bundleName failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyOnsChanged Write bundleName failed.");
         return;
     }
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "remote object is nullptr.");
         return;
     }
     int result = remote->SendRequest(IRemoteOnListener::ON_CALLBACK, data, reply, option);
     if (result != NO_ERROR) {
-        HILOG_ERROR("NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "NotifyMissionsChanged SendRequest fail, error: %{public}d", result);
         return;
     }
 }

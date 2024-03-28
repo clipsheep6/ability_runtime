@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "dataobs_mgr_errors.h"
 #include "ipc_skeleton.h"
 #include "common_utils.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -42,19 +43,20 @@ DataObsManagerStub::~DataObsManagerStub() {}
 
 int DataObsManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
+    TAG_LOGD(AAFwkTag::DBOBSMGR, "code: %{public}d, flags: %{public}d, callingPid:%{public}d", code, option.GetFlags(),
         IPCSkeleton::GetCallingPid());
     std::u16string descriptor = DataObsManagerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
+        TAG_LOGE(AAFwkTag::DBOBSMGR,
+            "local descriptor is not equal to remote, descriptor: %{public}s, remoteDescriptor: %{public}s",
             CommonUtils::Anonymous(Str16ToStr8(descriptor)).c_str(),
             CommonUtils::Anonymous(Str16ToStr8(remoteDescriptor)).c_str());
         return ERR_INVALID_STATE;
     }
 
     if (code < TRANS_HEAD || code >= TRANS_BUTT || HANDLES[code] == nullptr) {
-        HILOG_ERROR("not support code:%{public}u, BUTT:%{public}d", code, TRANS_BUTT);
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "not support code:%{public}u, BUTT:%{public}d", code, TRANS_BUTT);
         return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
     return (this->*HANDLES[code])(data, reply);
@@ -64,7 +66,7 @@ int DataObsManagerStub::RegisterObserverInner(MessageParcel &data, MessageParcel
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        HILOG_ERROR("uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -79,7 +81,7 @@ int DataObsManagerStub::UnregisterObserverInner(MessageParcel &data, MessageParc
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        HILOG_ERROR("uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -94,7 +96,7 @@ int DataObsManagerStub::NotifyChangeInner(MessageParcel &data, MessageParcel &re
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        HILOG_ERROR("uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
         return IPC_STUB_INVALID_DATA_ERR;
     }
 
@@ -107,7 +109,7 @@ int32_t DataObsManagerStub::RegisterObserverExtInner(MessageParcel &data, Messag
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        HILOG_ERROR("uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
         return IPC_STUB_INVALID_DATA_ERR;
     }
     auto remote = data.ReadRemoteObject();
@@ -121,7 +123,7 @@ int32_t DataObsManagerStub::UnregisterObserverExtInner(MessageParcel &data, Mess
 {
     Uri uri(data.ReadString());
     if (uri.ToString().empty()) {
-        HILOG_ERROR("uri is invalid");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "uri is invalid");
         return IPC_STUB_INVALID_DATA_ERR;
     }
     auto remote = data.ReadRemoteObject();

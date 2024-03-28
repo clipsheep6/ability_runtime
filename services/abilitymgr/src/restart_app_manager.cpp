@@ -15,6 +15,7 @@
 
 #include "restart_app_manager.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -31,7 +32,7 @@ bool RestartAppManager::IsRestartAppFrequent(const RestartAppKeyType &key, time_
     constexpr int64_t MIN_RESTART_TIME = 10;
     auto it = restartAppHistory_.find(key);
     if ((it != restartAppHistory_.end()) && (it->second + MIN_RESTART_TIME > time)) {
-        HILOG_ERROR("Restart too frequently. Try again at least 10s later.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Restart too frequently. Try again at least 10s later.");
         return true;
     }
     return false;
@@ -40,7 +41,8 @@ bool RestartAppManager::IsRestartAppFrequent(const RestartAppKeyType &key, time_
 void RestartAppManager::AddRestartAppHistory(const RestartAppKeyType &key, time_t time)
 {
     std::lock_guard<ffrt::mutex> lock(restartAppMapLock_);
-    HILOG_DEBUG("Refresh history, bundleName=%{public}s, userId=%{public}d", key.bundleName.c_str(), key.userId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Refresh history, bundleName=%{public}s, userId=%{public}d", key.bundleName.c_str(),
+        key.userId);
     restartAppHistory_[key] = time;
 }
 }  // namespace AAFwk

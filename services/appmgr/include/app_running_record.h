@@ -737,6 +737,9 @@ public:
 
     void SetAssertionPauseFlag(bool flag);
     bool IsAssertionPause() const;
+    
+    void SetJITEnabled(const bool jitEnabled);
+    bool IsJITEnabled() const;
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -848,6 +851,7 @@ private:
     std::string perfCmd_;
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
+    bool jitEnabled_ = false;
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 

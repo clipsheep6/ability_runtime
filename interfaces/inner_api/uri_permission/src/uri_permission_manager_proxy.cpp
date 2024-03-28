@@ -16,6 +16,7 @@
 #include "uri_permission_manager_proxy.h"
 
 #include "ability_manager_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "parcel.h"
 
@@ -30,37 +31,37 @@ UriPermissionManagerProxy::UriPermissionManagerProxy(const sptr<IRemoteObject> &
 int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("Write uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(targetBundleName)) {
-        HILOG_ERROR("Write targetBundleName failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write targetBundleName failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(appIndex)) {
-        HILOG_ERROR("Write appIndex failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write appIndex failed.");
         return INNER_ERR;
     }
     if (!data.WriteUint32(initiatorTokenId)) {
-        HILOG_ERROR("Write initiatorTokenId failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write initiatorTokenId failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_GRANT_URI_PERMISSION, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fial, error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -69,43 +70,43 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
 int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::GrantUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteUint32(uriVec.size())) {
-        HILOG_ERROR("Write size of uriVec failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write size of uriVec failed.");
         return INNER_ERR;
     }
     for (const auto &uri : uriVec) {
         if (!data.WriteParcelable(&uri)) {
-            HILOG_ERROR("Write uri failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(targetBundleName)) {
-        HILOG_ERROR("Write targetBundleName failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write targetBundleName failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(appIndex)) {
-        HILOG_ERROR("Write appIndex failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write appIndex failed.");
         return INNER_ERR;
     }
     if (!data.WriteUint32(initiatorTokenId)) {
-        HILOG_ERROR("Write initiatorTokenId failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write initiatorTokenId failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fial, error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -114,47 +115,47 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
 int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
     const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (uriVec.size() > MAX_URI_COUNT) {
-        HILOG_ERROR("Exceeded maximum uri count.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Exceeded maximum uri count.");
         return INNER_ERR;
     }
     if (!data.WriteUint32(uriVec.size())) {
-        HILOG_ERROR("Write size of uriVec failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write size of uriVec failed.");
         return INNER_ERR;
     }
     for (const auto &uri : uriVec) {
         if (!data.WriteParcelable(&uri)) {
-            HILOG_ERROR("Write uri failed.");
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
             return INNER_ERR;
         }
     }
     if (!data.WriteInt32(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(targetBundleName)) {
-        HILOG_ERROR("Write targetBundleName failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write targetBundleName failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(appIndex)) {
-        HILOG_ERROR("Write appIndex failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write appIndex failed.");
         return INNER_ERR;
     }
     if (!data.WriteBool(isSystemAppCall)) {
-        HILOG_ERROR("Write isSystemAppCall failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write isSystemAppCall failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_BATCH_GRANT_URI_PERMISSION_FOR_2_IN_1, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fial, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fial, error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -162,41 +163,41 @@ int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> 
 
 void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken::AccessTokenID tokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::RevokeUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeUriPermission is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return;
     }
     if (!data.WriteInt32(tokenId)) {
-        HILOG_ERROR("Write AccessTokenID failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write AccessTokenID failed.");
         return;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fail, error: %{public}d", error);
     }
 }
 
 int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessToken::AccessTokenID tokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::RevokeAllUriPermissions is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeAllUriPermissions is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteInt32(tokenId)) {
-        HILOG_ERROR("Write AccessTokenID failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write AccessTokenID failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_REVOKE_ALL_URI_PERMISSION, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fail, error: %{public}d", error);
         return INNER_ERR;
     }
     return ERR_OK;
@@ -204,25 +205,25 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessTok
 
 int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::RevokeUriPermissionManually is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::RevokeUriPermissionManually is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return INNER_ERR;
     }
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("Write uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
         return INNER_ERR;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundleName failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write bundleName failed.");
         return INNER_ERR;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_REVOKE_URI_PERMISSION_MANUALLY, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fail, error: %{public}d", error);
         return INNER_ERR;
     }
     return reply.ReadInt32();
@@ -230,29 +231,29 @@ int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const
 
 bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t flag, uint32_t tokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::VerifyUriPermission is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::VerifyUriPermission is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return false;
     }
     if (!data.WriteParcelable(&uri)) {
-        HILOG_ERROR("Write uri failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
         return false;
     }
     if (!data.WriteInt32(flag)) {
-        HILOG_ERROR("Write flag failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return false;
     }
     if (!data.WriteInt32(tokenId)) {
-        HILOG_ERROR("Write tokenId failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write tokenId failed.");
         return false;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_VERIFY_URI_PERMISSION, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fail, error: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -260,21 +261,21 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
 
 bool UriPermissionManagerProxy::IsAuthorizationUriAllowed(uint32_t fromTokenId)
 {
-    HILOG_DEBUG("UriPermissionManagerProxy::IsAuthorizationUriAllowed is called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::IsAuthorizationUriAllowed is called.");
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return false;
     }
     if (!data.WriteInt32(fromTokenId)) {
-        HILOG_ERROR("Write fromTokenId failed.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write fromTokenId failed.");
         return false;
     }
     MessageParcel reply;
     MessageOption option;
     int error = SendTransactCmd(UriPermMgrCmd::ON_IS_Authorization_URI_ALLOWED, data, reply, option);
     if (error != ERR_OK) {
-        HILOG_ERROR("SendRequest fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fail, error: %{public}d", error);
         return false;
     }
     return reply.ReadBool();
@@ -285,13 +286,13 @@ int32_t UriPermissionManagerProxy::SendTransactCmd(uint32_t code, MessageParcel 
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "remote object is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return NO_ERROR;

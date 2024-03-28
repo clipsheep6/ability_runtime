@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "app_debug_listener_stub.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
@@ -41,11 +42,11 @@ AppDebugListenerStub::~AppDebugListenerStub()
 int AppDebugListenerStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_DEBUG("code = %{public}u, flags= %{public}d", code, option.GetFlags());
+    TAG_LOGD(AAFwkTag::APPMGR, "code = %{public}u, flags= %{public}d", code, option.GetFlags());
     std::u16string descriptor = AppDebugListenerStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        HILOG_ERROR("Local descriptor is not equal to remote.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Local descriptor is not equal to remote.");
         return ERR_INVALID_STATE;
     }
 
@@ -56,7 +57,7 @@ int AppDebugListenerStub::OnRemoteRequest(
             return (this->*memberFunc)(data, reply);
         }
     }
-    HILOG_DEBUG("AppDebugListenerStub::OnRemoteRequest end");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppDebugListenerStub::OnRemoteRequest end");
     return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
@@ -64,7 +65,7 @@ int32_t AppDebugListenerStub::HandleOnAppDebugStarted(MessageParcel &data, Messa
 {
     auto infoSize = data.ReadInt32();
     if (infoSize <= CYCLE_LIMIT_MIN || infoSize > CYCLE_LIMIT_MAX) {
-        HILOG_ERROR("Token size exceeds limit.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Token size exceeds limit.");
         return ERR_INVALID_DATA;
     }
 
@@ -72,7 +73,7 @@ int32_t AppDebugListenerStub::HandleOnAppDebugStarted(MessageParcel &data, Messa
     for (int32_t index = 0; index < infoSize; index++) {
         std::unique_ptr<AppDebugInfo> appDebugInfo(data.ReadParcelable<AppDebugInfo>());
         if (appDebugInfo == nullptr) {
-            HILOG_ERROR("Read app debug infos failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Read app debug infos failed.");
             return ERR_INVALID_DATA;
         }
         appDebugInfos.emplace_back(*appDebugInfo);
@@ -86,7 +87,7 @@ int32_t AppDebugListenerStub::HandleOnAppDebugStoped(MessageParcel &data, Messag
 {
     auto infoSize = data.ReadInt32();
     if (infoSize <= CYCLE_LIMIT_MIN || infoSize > CYCLE_LIMIT_MAX) {
-        HILOG_ERROR("Token size exceeds limit.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Token size exceeds limit.");
         return ERR_INVALID_DATA;
     }
 
@@ -94,7 +95,7 @@ int32_t AppDebugListenerStub::HandleOnAppDebugStoped(MessageParcel &data, Messag
     for (int32_t index = 0; index < infoSize; index++) {
         std::unique_ptr<AppDebugInfo> appDebugInfo(data.ReadParcelable<AppDebugInfo>());
         if (appDebugInfo == nullptr) {
-            HILOG_ERROR("Read app debug infos failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Read app debug infos failed.");
             return ERR_INVALID_DATA;
         }
         appDebugInfos.emplace_back(*appDebugInfo);

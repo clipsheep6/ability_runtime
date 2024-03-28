@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_dialog_session.h"
 
 #include "ability_manager_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "napi/native_api.h"
@@ -38,7 +39,7 @@ public:
 
     static void Finalizer(napi_env env, void* data, void* hint)
     {
-        HILOG_INFO("JsDialogSession::Finalizer is called");
+        TAG_LOGI(AAFwkTag::DIALOG, "JsDialogSession::Finalizer is called");
         std::unique_ptr<JsDialogSession>(static_cast<JsDialogSession*>(data));
     }
 
@@ -55,9 +56,9 @@ public:
 private:
     napi_value OnGetDialogSessionInfo(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < 1) {
-            HILOG_ERROR("not enough params");
+            TAG_LOGE(AAFwkTag::DIALOG, "not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -68,10 +69,10 @@ private:
         }
 
         sptr<AAFwk::DialogSessionInfo> dialogSessionInfo;
-        HILOG_DEBUG("GetDialogSessionInfo begin");
+        TAG_LOGD(AAFwkTag::DIALOG, "GetDialogSessionInfo begin");
         auto errcode = AbilityManagerClient::GetInstance()->GetDialogSessionInfo(dialogSessionId, dialogSessionInfo);
         if (errcode || dialogSessionInfo == nullptr) {
-            HILOG_ERROR("GetDialogSessionInfo error");
+            TAG_LOGE(AAFwkTag::DIALOG, "GetDialogSessionInfo error");
             return CreateJsUndefined(env);
         }
         return OHOS::AppExecFwk::WrapDialogSessionInfo(env, *dialogSessionInfo);
@@ -79,9 +80,9 @@ private:
 
     napi_value OnSendDialogResult(napi_env env, NapiCallbackInfo& info)
     {
-        HILOG_DEBUG("enter, argc = %{public}d", static_cast<int32_t>(info.argc));
+        TAG_LOGD(AAFwkTag::DIALOG, "enter, argc = %{public}d", static_cast<int32_t>(info.argc));
         if (info.argc < ARGC_THREE) {
-            HILOG_ERROR("not enough params");
+            TAG_LOGE(AAFwkTag::DIALOG, "not enough params");
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
@@ -92,7 +93,7 @@ private:
         }
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[1], want)) {
-            HILOG_ERROR("Failed to unwrap want");
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap want");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
         }
@@ -120,9 +121,9 @@ private:
 
 napi_value JsDialogSessionInit(napi_env env, napi_value exportObj)
 {
-    HILOG_INFO("JsDialogSessionInit is called");
+    TAG_LOGI(AAFwkTag::DIALOG, "JsDialogSessionInit is called");
     if (env == nullptr || exportObj == nullptr) {
-        HILOG_INFO("Invalid input parameters");
+        TAG_LOGI(AAFwkTag::DIALOG, "Invalid input parameters");
         return nullptr;
     }
 

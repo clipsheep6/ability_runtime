@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include <map>
 
 #include "data_ability_predicates.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_want.h"
 #include "napi_data_ability_helper.h"
@@ -31,7 +32,7 @@ napi_value DataAbilityOperationInit(napi_env env, napi_value exports)
     const int UPDATE = 2;
     const int DELETE = 3;
     const int ASSERT = 4;
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::FA, "called");
 
     napi_value dataAbilityOperationType = nullptr;
     napi_create_object(env, &dataAbilityOperationType);
@@ -51,9 +52,9 @@ napi_value DataAbilityOperationInit(napi_env env, napi_value exports)
 napi_value UnwrapDataAbilityOperation(
     std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        HILOG_ERROR("%{public}s, Params is invalid.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, Params is invalid.", __func__);
         return nullptr;
     }
 
@@ -64,28 +65,28 @@ napi_value UnwrapDataAbilityOperation(
 napi_value BuildDataAbilityOperation(
     std::shared_ptr<DataAbilityOperation> &dataAbilityOperation, napi_env env, napi_value param)
 {
-    HILOG_INFO("%{public}s start.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s start.", __func__);
 
     // get uri property
     std::string uriStr("");
     if (!UnwrapStringByPropertyName(env, param, "uri", uriStr)) {
-        HILOG_ERROR("%{public}s, uri is not exist.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, uri is not exist.", __func__);
         return nullptr;
     }
-    HILOG_INFO("%{public}s, uri:%{public}s", __func__, uriStr.c_str());
+    TAG_LOGI(AAFwkTag::FA, "%{public}s, uri:%{public}s", __func__, uriStr.c_str());
     std::shared_ptr<Uri> uri = std::make_shared<Uri>(uriStr);
 
     // get type property
     int type = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "type", type)) {
-        HILOG_ERROR("%{public}s, type:%{public}d is not exist.", __func__, type);
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, type:%{public}d is not exist.", __func__, type);
         return nullptr;
     }
-    HILOG_INFO("%{public}s, type:%{public}d", __func__, type);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s, type:%{public}d", __func__, type);
 
     std::shared_ptr<DataAbilityOperationBuilder> builder = nullptr;
     if (!GetDataAbilityOperationBuilder(builder, type, uri)) {
-        HILOG_ERROR("%{public}s, GetDataAbilityOperationBuilder failed.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, GetDataAbilityOperationBuilder failed.", __func__);
         return nullptr;
     }
 
@@ -105,7 +106,7 @@ napi_value BuildDataAbilityOperation(
     // get expectedcount property
     int expectedCount = 0;
     UnwrapInt32ByPropertyName(env, param, "expectedCount", expectedCount);
-    HILOG_INFO("%{public}s, expectedCount:%{public}d", __func__, expectedCount);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s, expectedCount:%{public}d", __func__, expectedCount);
     if (expectedCount > 0) {
         builder->WithExpectedCount(expectedCount);
     }
@@ -128,19 +129,19 @@ napi_value BuildDataAbilityOperation(
     builder->WithValueBackReferences(backReferences);
 
     if (builder != nullptr) {
-        HILOG_INFO("%{public}s, builder is not nullptr", __func__);
+        TAG_LOGI(AAFwkTag::FA, "%{public}s, builder is not nullptr", __func__);
         dataAbilityOperation = builder->Build();
     }
     napi_value result;
     NAPI_CALL(env, napi_create_int32(env, 1, &result));
-    HILOG_INFO("%{public}s end.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s end.", __func__);
     return result;
 }
 
 bool GetDataAbilityOperationBuilder(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, const int type, const std::shared_ptr<Uri> &uri)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
     switch (type) {
         case DataAbilityOperation::TYPE_INSERT:
             builder = DataAbilityOperation::NewInsertBuilder(uri);
@@ -155,7 +156,7 @@ bool GetDataAbilityOperationBuilder(
             builder = DataAbilityOperation::NewAssertBuilder(uri);
             break;
         default:
-            HILOG_ERROR("%{public}s, type:%{public}d is invalid.", __func__, type);
+            TAG_LOGE(AAFwkTag::FA, "%{public}s, type:%{public}d is invalid.", __func__, type);
             return false;
     }
     return true;
@@ -164,11 +165,11 @@ bool GetDataAbilityOperationBuilder(
 napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &param, napi_env env,
     napi_value valueBucketParam)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
     napi_value result;
 
     if (param == nullptr) {
-        HILOG_INFO("%{public}s input param is nullptr.", __func__);
+        TAG_LOGI(AAFwkTag::FA, "%{public}s input param is nullptr.", __func__);
         NAPI_CALL(env, napi_create_int32(env, 0, &result));
         return result;
     }
@@ -181,10 +182,10 @@ napi_value UnwrapValuesBucket(const std::shared_ptr<NativeRdb::ValuesBucket> &pa
 napi_value UnwrapDataAbilityPredicatesBackReferences(
     std::shared_ptr<DataAbilityOperationBuilder> &builder, napi_env env, napi_value predicatesBackReferencesParam)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s called.", __func__);
 
     if (!IsTypeForNapiValue(env, predicatesBackReferencesParam, napi_object)) {
-        HILOG_ERROR("%{public}s, predicatesBackReferencesParam is invalid.", __func__);
+        TAG_LOGE(AAFwkTag::FA, "%{public}s, predicatesBackReferencesParam is invalid.", __func__);
         return nullptr;
     }
 
@@ -194,7 +195,7 @@ napi_value UnwrapDataAbilityPredicatesBackReferences(
 
     NAPI_CALL(env, napi_get_property_names(env, predicatesBackReferencesParam, &jsProNameList));
     NAPI_CALL(env, napi_get_array_length(env, jsProNameList, &jsProCount));
-    HILOG_INFO("%{public}s, Property size=%{public}d.", __func__, jsProCount);
+    TAG_LOGI(AAFwkTag::FA, "%{public}s, Property size=%{public}d.", __func__, jsProCount);
 
     napi_value jsProName = nullptr;
     napi_value jsProValue = nullptr;
@@ -202,12 +203,12 @@ napi_value UnwrapDataAbilityPredicatesBackReferences(
         NAPI_CALL(env, napi_get_element(env, jsProNameList, index, &jsProName));
         std::string strProName = UnwrapStringFromJS(env, jsProName);
         int intProName = std::atoi(strProName.c_str());
-        HILOG_INFO("%{public}s, Property name=%{public}d.", __func__, intProName);
+        TAG_LOGI(AAFwkTag::FA, "%{public}s, Property name=%{public}d.", __func__, intProName);
         NAPI_CALL(env, napi_get_property(env, predicatesBackReferencesParam, jsProName, &jsProValue));
         NAPI_CALL(env, napi_typeof(env, jsProValue, &jsValueType));
         int32_t natValue32 = 0;
         if (napi_get_value_int32(env, jsProValue, &natValue32) == napi_ok) {
-            HILOG_INFO("%{public}s, Property value=%{public}d.", __func__, natValue32);
+            TAG_LOGI(AAFwkTag::FA, "%{public}s, Property value=%{public}d.", __func__, natValue32);
             builder->WithPredicatesBackReference(intProName, natValue32);
         }
     }

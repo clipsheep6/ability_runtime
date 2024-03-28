@@ -17,6 +17,7 @@
 #include "ability_util.h"
 #include "app_utils.h"
 #include "extension_record_manager.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -49,7 +50,7 @@ int32_t ExtensionRecordFactory::PreCheck(const AAFwk::AbilityRequest &abilityReq
     }
     if (preCheckFlag & PRE_CHECK_FLAG_CALLED_WITHIN_THE_BUNDLE) {
         if (hostBundleName != abilityRequest.abilityInfo.applicationName) {
-            HILOG_WARN("not called within bundle.");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "not called within bundle.");
             return ERR_INVALID_VALUE;
         }
         CHECK_POINTER_AND_RETURN(abilityRequest.sessionInfo, ERR_INVALID_VALUE);
@@ -58,13 +59,13 @@ int32_t ExtensionRecordFactory::PreCheck(const AAFwk::AbilityRequest &abilityReq
         CHECK_POINTER_AND_RETURN(callerAbilityRecord, ERR_INVALID_VALUE);
         AppExecFwk::AbilityInfo abilityInfo = callerAbilityRecord->GetAbilityInfo();
         if (abilityInfo.type != AbilityType::PAGE) {
-            HILOG_WARN("caller ability is not UIAbility.");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "caller ability is not UIAbility.");
             return ERR_INVALID_VALUE;
         }
     }
     if (preCheckFlag & PRE_CHECK_FLAG_MULTIPLE_PROCESSES) {
         if (!AppUtils::GetInstance().IsMultiProcessModel()) {
-            HILOG_WARN("not multi process model.");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "not multi process model.");
             return ERR_INVALID_VALUE;
         }
     }
@@ -113,7 +114,7 @@ int32_t ExtensionRecordFactory::CreateRecord(
 {
     std::shared_ptr<AAFwk::AbilityRecord> abilityRecord = AAFwk::AbilityRecord::CreateAbilityRecord(abilityRequest);
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("Failed to create ability record");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to create ability record");
         return ERR_NULL_OBJECT;
     }
     extensionRecord = std::make_shared<ExtensionRecord>(abilityRecord);

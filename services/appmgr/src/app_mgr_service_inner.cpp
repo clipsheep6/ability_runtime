@@ -230,7 +230,8 @@ AppMgrServiceInner::AppMgrServiceInner()
       appRunningManager_(std::make_shared<AppRunningManager>()),
       configuration_(std::make_shared<Configuration>()),
       appDebugManager_(std::make_shared<AppDebugManager>()),
-      appRunningStatusModule_(std::make_shared<AbilityRuntime::AppRunningStatusModule>())
+      appRunningStatusModule_(std::make_shared<AbilityRuntime::AppRunningStatusModule>()),
+      securityModeManager_(std::make_shared<AdvancedSecurityModeManager>())
 {}
 
 void AppMgrServiceInner::Init()
@@ -243,6 +244,9 @@ void AppMgrServiceInner::Init()
     DelayedSingleton<AppStateObserverManager>::GetInstance()->Init();
     DelayedSingleton<RenderStateObserverManager>::GetInstance()->Init();
     dfxTaskHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("dfx_freeze_task_queue");
+    if (securityModeManager_) {
+        securityModeManager_->Init();
+    }
 }
 
 AppMgrServiceInner::~AppMgrServiceInner()
@@ -1365,8 +1369,12 @@ void AppMgrServiceInner::GetRenderProcesses(const std::shared_ptr<AppRunningReco
     }
 }
 
-int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason) const
+int32_t AppMgrServiceInner::KillProcessByPid(const pid_t pid, const std::string& reason)
 {
+    if (!ProcessExist(pid)) {
+        TAG_LOGI(AAFwkTag::APPMGR, "KillProcessByPid, process not exists, pid: %{public}d", pid);
+        return AAFwk::ERR_KILL_PROCESS_NOT_EXIST;
+    }
     std::string killReason = KILL_PROCESS_REASON_PREFIX + reason;
     int32_t ret = -1;
     if (pid > 0) {
@@ -1429,7 +1437,7 @@ bool AppMgrServiceInner::GetAllPids(std::list<pid_t> &pids)
     return (pids.empty() ? false : true);
 }
 
-bool AppMgrServiceInner::ProcessExist(pid_t &pid)
+bool AppMgrServiceInner::ProcessExist(pid_t pid)
 {
     char pid_path[128] = {0};
     struct stat stat_buf;
@@ -2227,6 +2235,7 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.procName = processName;
     startMsg.accessTokenIdEx = bundleInfo.applicationInfo.accessTokenIdEx;
 
+    SetProcessJITState(appRecord);
     PerfProfile::GetInstance().SetAppForkStartTime(GetTickCount());
     pid_t pid = 0;
     TAG_LOGD(AAFwkTag::APPMGR, "bundleName: %{public}s.", bundleName.c_str());
@@ -2252,6 +2261,22 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     PerfProfile::GetInstance().SetAppForkEndTime(GetTickCount());
     SendProcessStartEvent(appRecord);
     ProcessAppDebug(appRecord, appRecord->IsDebugApp());
+}
+
+void AppMgrServiceInner::SetProcessJITState(const std::shared_ptr<AppRunningRecord> appRecord)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGD(AAFwkTag::APPMGR, "SetProcessJITState called.");
+    if (!appRecord) {
+        HILOG_ERROR("appRecord is nullptr.");
+        return;
+    }
+    if (!securityModeManager_) {
+        HILOG_ERROR("securityModeManager_ is nullptr.");
+        appRecord->SetJITEnabled(true);
+        return;
+    }
+    appRecord->SetJITEnabled(securityModeManager_->IsJITEnabled());
 }
 
 AppDebugInfo AppMgrServiceInner::MakeAppDebugInfo(
@@ -5356,7 +5381,8 @@ int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildPro
     childProcessRecord->SetPid(pid);
     childProcessRecord->SetUid(startMsg.uid);
     appRecord->AddChildProcessRecord(pid, childProcessRecord);
-    TAG_LOGI(AAFwkTag::APPMGR, "Start child process success, pid:%{public}d, uid:%{public}d", pid, startMsg.uid);
+    TAG_LOGI(AAFwkTag::APPMGR, "Start child process success, pid:%{public}d, hostPid:%{public}d, uid:%{public}d",
+        pid, childProcessRecord->GetHostPid(), startMsg.uid);
     return ERR_OK;
 }
 
@@ -5404,6 +5430,7 @@ int32_t AppMgrServiceInner::GetChildProcessInfo(const std::shared_ptr<ChildProce
     info.bundleName = appRecord->GetBundleName();
     info.processName = childProcessRecord->GetProcessName();
     info.srcEntry = childProcessRecord->GetSrcEntry();
+    info.jitEnabled = appRecord->IsJITEnabled();
     return ERR_OK;
 }
 
@@ -5462,9 +5489,13 @@ void AppMgrServiceInner::KillChildProcess(const std::shared_ptr<AppRunningRecord
     }
     for (auto iter : childRecordMap) {
         auto childRecord = iter.second;
-        if (childRecord && childRecord->GetPid() > 0) {
-            TAG_LOGD(AAFwkTag::APPMGR, "Kill child process when host died.");
-            KillProcessByPid(childRecord->GetPid(), "KillChildProcess");
+        if (!childRecord) {
+            continue;
+        }
+        auto childPid = childRecord->GetPid();
+        if (childPid > 0) {
+            TAG_LOGI(AAFwkTag::APPMGR, "Kill child process when host died, childPid:%{public}d.", childPid);
+            KillProcessByPid(childPid, "KillChildProcess");
         }
     }
 }

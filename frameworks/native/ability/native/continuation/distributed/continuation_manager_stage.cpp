@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include "bool_wrapper.h"
 #include "continuation_handler.h"
 #include "distributed_client.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "operation_builder.h"
 #include "string_ex.h"
@@ -49,9 +50,9 @@ bool ContinuationManagerStage::Init(const std::shared_ptr<AbilityRuntime::UIAbil
     const sptr<IRemoteObject> &continueToken, const std::shared_ptr<AbilityInfo> &abilityInfo,
     const std::shared_ptr<ContinuationHandlerStage> &continuationHandler)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
     ability_ = ability;
@@ -59,24 +60,24 @@ bool ContinuationManagerStage::Init(const std::shared_ptr<AbilityRuntime::UIAbil
     std::shared_ptr<AbilityRuntime::UIAbility> abilityTmp = nullptr;
     abilityTmp = ability_.lock();
     if (abilityTmp == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
     if (abilityTmp->GetAbilityInfo() == nullptr) {
-        HILOG_ERROR("AbilityInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "AbilityInfo is nullptr.");
         return false;
     }
     abilityInfo_ = abilityTmp->GetAbilityInfo();
 
     if (continueToken == nullptr) {
-        HILOG_ERROR("ContinueToken is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinueToken is nullptr.");
         return false;
     }
     continueToken_ = continueToken;
 
     continuationHandler_ = continuationHandler;
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
@@ -92,16 +93,16 @@ std::string ContinuationManagerStage::GetOriginalDeviceId()
 
 void ContinuationManagerStage::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     HandleContinueAbilityWithStack(deviceId, versionCode);
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 bool ContinuationManagerStage::HandleContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (!CheckAbilityToken()) {
-        HILOG_ERROR("CheckAbilityToken failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "CheckAbilityToken failed.");
         return false;
     }
 
@@ -110,43 +111,43 @@ bool ContinuationManagerStage::HandleContinueAbilityWithStack(const std::string 
     auto task = [continuationHandlerWeak = continuationHandler_, continueTokenWeak, deviceId, versionCode]() {
         auto continuationHandler = continuationHandlerWeak.lock();
         if (continuationHandler == nullptr) {
-            HILOG_ERROR("ContinuationHandler is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
             return;
         }
 
         auto continueToken = continueTokenWeak.promote();
         if (continueToken == nullptr) {
-            HILOG_ERROR("continueToken is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "continueToken is nullptr.");
             return;
         }
         continuationHandler->HandleStartContinuationWithStack(continueToken, deviceId, versionCode);
     };
     if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("PostTask failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask failed.");
         return false;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
 int32_t ContinuationManagerStage::OnStartAndSaveData(WantParams &wantParams)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     if (!ability->OnStartContinuation()) {
-        HILOG_ERROR("Ability rejected.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability rejected.");
         return CONTINUE_ABILITY_REJECTED;
     }
     if (!ability->OnSaveData(wantParams)) {
-        HILOG_ERROR("SaveData failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "SaveData failed.");
         return CONTINUE_SAVE_DATA_FAILED;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return ERR_OK;
 }
 
@@ -162,22 +163,22 @@ bool ContinuationManagerStage::IsContinuePageStack(const WantParams &wantParams)
 
 int32_t ContinuationManagerStage::OnContinueAndGetContent(WantParams &wantParams)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
-    HILOG_DEBUG("OnContinue begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "OnContinue begin.");
     int32_t status = ability->OnContinue(wantParams);
-    HILOG_DEBUG("OnContinue end, status: %{public}d.", status);
+    TAG_LOGD(AAFwkTag::CONTINUATION, "OnContinue end, status: %{public}d.", status);
     if (status != OnContinueResult::AGREE) {
         if (status == OnContinueResult::MISMATCH) {
-            HILOG_ERROR("OnContinue version mismatch.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "OnContinue version mismatch.");
             return CONTINUE_ON_CONTINUE_MISMATCH;
         }
-        HILOG_ERROR("OnContinue failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "OnContinue failed.");
         return CONTINUE_ON_CONTINUE_FAILED;
     }
 
@@ -185,27 +186,27 @@ int32_t ContinuationManagerStage::OnContinueAndGetContent(WantParams &wantParams
     if (IsContinuePageStack(wantParams)) {
         bool ret = GetContentInfo(wantParams);
         if (!ret) {
-            HILOG_ERROR("GetContentInfo failed");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "GetContentInfo failed");
             return CONTINUE_GET_CONTENT_FAILED;
         }
     }
 #endif
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return ERR_OK;
 }
 
 int32_t ContinuationManagerStage::OnContinue(WantParams &wantParams)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     auto ability = ability_.lock();
     auto abilityInfo = abilityInfo_.lock();
     if (ability == nullptr || abilityInfo == nullptr) {
-        HILOG_ERROR("Ability or abilityInfo is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability or abilityInfo is nullptr.");
         return ERR_INVALID_VALUE;
     }
 
     bool stageBased = abilityInfo->isStageBasedModel;
-    HILOG_DEBUG("Ability isStageBasedModel %{public}d.", stageBased);
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Ability isStageBasedModel %{public}d.", stageBased);
     if (!stageBased) {
         return OnStartAndSaveData(wantParams);
     }
@@ -215,41 +216,41 @@ int32_t ContinuationManagerStage::OnContinue(WantParams &wantParams)
 #ifdef SUPPORT_GRAPHICS
 bool ContinuationManagerStage::GetContentInfo(WantParams &wantParams)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
     std::string pageStack = ability->GetContentInfo();
     if (pageStack.empty()) {
-        HILOG_ERROR("GetContentInfo failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "GetContentInfo failed.");
         return false;
     }
-    HILOG_DEBUG("Ability pageStack: %{public}s.", pageStack.c_str());
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Ability pageStack: %{public}s.", pageStack.c_str());
     wantParams.SetParam(PAGE_STACK_PROPERTY_NAME, String::Box(pageStack));
 
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 #endif
 
 void ContinuationManagerStage::ContinueAbility(bool reversible, const std::string &deviceId)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to continueAbility.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability not available to continueAbility.");
         return;
     }
 
     if (progressState_ != ProgressState::INITIAL) {
-        HILOG_ERROR("Another request in progressState_: %{public}d.", progressState_);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Another request in progressState_: %{public}d.", progressState_);
         return;
     }
 
     if (continuationState_ != ContinuationState::LOCAL_RUNNING) {
-        HILOG_ERROR("Illegal continuation state %{public}d.", continuationState_);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Illegal continuation state %{public}d.", continuationState_);
         return;
     }
 
@@ -257,25 +258,25 @@ void ContinuationManagerStage::ContinueAbility(bool reversible, const std::strin
         reversible_ = reversible;
         ChangeProcessState(ProgressState::WAITING_SCHEDULE);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "end");
 }
 
 bool ContinuationManagerStage::ReverseContinueAbility()
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "begin");
     if (progressState_ != ProgressState::INITIAL) {
-        HILOG_ERROR("Failed progressState_ is %{public}d", progressState_);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Failed progressState_ is %{public}d", progressState_);
         return false;
     }
 
     if (continuationState_ != ContinuationState::REMOTE_RUNNING) {
-        HILOG_ERROR("Failed continuationState_ is %{public}d", continuationState_);
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Failed continuationState_ is %{public}d", continuationState_);
         return false;
     }
 
     std::shared_ptr<ContinuationHandlerStage> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("continuationHandler_ is nullptr");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "continuationHandler_ is nullptr");
         return false;
     }
 
@@ -284,39 +285,39 @@ bool ContinuationManagerStage::ReverseContinueAbility()
         ChangeProcessState(ProgressState::WAITING_SCHEDULE);
         RestoreStateWhenTimeout(TIMEOUT_MS_WAIT_REMOTE_NOTIFY_BACK, ProgressState::WAITING_SCHEDULE);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "end");
     return requestSuccess;
 }
 
 bool ContinuationManagerStage::StartContinuation()
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "begin");
     ChangeProcessState(ProgressState::IN_PROGRESS);
     bool result = DoScheduleStartContinuation();
     if (!result) {
         ChangeProcessState(ProgressState::INITIAL);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "end");
     return result;
 }
 
 bool ContinuationManagerStage::SaveData(WantParams &saveData)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "begin");
     bool result = DoScheduleSaveData(saveData);
     if (!result) {
         ChangeProcessState(ProgressState::INITIAL);
     } else {
         RestoreStateWhenTimeout(TIMEOUT_MS_WAIT_DMS_NOTIFY_CONTINUATION_COMPLETE, ProgressState::IN_PROGRESS);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "end");
     return result;
 }
 
 bool ContinuationManagerStage::RestoreData(
     const WantParams &restoreData, bool reversible, const std::string &originalDeviceId)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     ChangeProcessState(ProgressState::IN_PROGRESS);
     bool result = DoScheduleRestoreData(restoreData);
     if (reversible) {
@@ -324,29 +325,29 @@ bool ContinuationManagerStage::RestoreData(
     }
     originalDeviceId_ = originalDeviceId;
     ChangeProcessState(ProgressState::INITIAL);
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return result;
 }
 
 void ContinuationManagerStage::NotifyCompleteContinuation(
     const std::string &originDeviceId, int sessionId, bool success, const sptr<IRemoteObject> &reverseScheduler)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     AAFwk::AbilityManagerClient::GetInstance()->NotifyCompleteContinuation(originDeviceId, sessionId, success);
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 void ContinuationManagerStage::CompleteContinuation(int result)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to complete continuation.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability not available to complete continuation.");
         return;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return;
     }
 
@@ -360,12 +361,12 @@ void ContinuationManagerStage::CompleteContinuation(int result)
     if (!reversible_) {
         ability->TerminateAbility();
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 bool ContinuationManagerStage::RestoreFromRemote(const WantParams &restoreData)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     ChangeProcessState(ProgressState::IN_PROGRESS);
     bool result = DoRestoreFromRemote(restoreData);
     /*
@@ -376,56 +377,56 @@ bool ContinuationManagerStage::RestoreFromRemote(const WantParams &restoreData)
     if (result) {
         continuationState_ = ContinuationState::LOCAL_RUNNING;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return result;
 }
 
 bool ContinuationManagerStage::NotifyRemoteTerminated()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     continuationState_ = ContinuationState::LOCAL_RUNNING;
     ChangeProcessState(ProgressState::INITIAL);
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
     ability->OnRemoteTerminated();
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
 bool ContinuationManagerStage::CheckContinuationIllegal()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
     if (ability->GetState() >= AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED) {
-        HILOG_ERROR("Ability state is wrong: %{public}d.", ability->GetState());
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability state is wrong: %{public}d.", ability->GetState());
         return true;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return false;
 }
 
 bool ContinuationManagerStage::HandleContinueAbility(bool reversible, const std::string &deviceId)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
 
     if (!CheckAbilityToken()) {
-        HILOG_ERROR("CheckAbilityToken failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "CheckAbilityToken failed.");
         return false;
     }
 
     std::shared_ptr<ContinuationHandlerStage> continuationHandler = continuationHandler_.lock();
     if (continuationHandler == nullptr) {
-        HILOG_ERROR("ContinuationHandler is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
         return false;
     }
     continuationHandler->SetReversible(reversible);
@@ -435,23 +436,23 @@ bool ContinuationManagerStage::HandleContinueAbility(bool reversible, const std:
     auto task = [continuationHandlerWeak = continuationHandler_, continueTokeWeak, deviceId]() {
         auto continuationHandler = continuationHandlerWeak.lock();
         if (continuationHandler == nullptr) {
-            HILOG_ERROR("ContinuationHandler is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "ContinuationHandler is nullptr.");
             return;
         }
 
         auto continueToken = continueTokeWeak.promote();
         if (continueToken == nullptr) {
-            HILOG_ERROR("continueToken is nullptr.");
+            TAG_LOGE(AAFwkTag::CONTINUATION, "continueToken is nullptr.");
             return;
         }
         continuationHandler->HandleStartContinuation(continueToken, deviceId);
     };
     if (!mainHandler_->PostTask(task)) {
-        HILOG_ERROR("PostTask failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "PostTask failed.");
         return false;
     }
 
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
@@ -462,7 +463,8 @@ ContinuationManagerStage::ProgressState ContinuationManagerStage::GetProcessStat
 
 void ContinuationManagerStage::ChangeProcessState(const ProgressState &newState)
 {
-    HILOG_DEBUG("Begin progressState_: %{public}d, newState: %{public}d.", progressState_, newState);
+    TAG_LOGD(AAFwkTag::CONTINUATION,
+        "Begin progressState_: %{public}d, newState: %{public}d.", progressState_, newState);
     progressState_ = newState;
 }
 
@@ -470,88 +472,88 @@ void ContinuationManagerStage::ChangeProcessStateToInit()
 {
     if (mainHandler_ != nullptr) {
         mainHandler_->RemoveTask("Restore_State_When_Timeout");
-        HILOG_DEBUG("Restore_State_When_Timeout task removed.");
+        TAG_LOGD(AAFwkTag::CONTINUATION, "Restore_State_When_Timeout task removed.");
     }
     ChangeProcessState(ProgressState::INITIAL);
 }
 
 void ContinuationManagerStage::RestoreStateWhenTimeout(long timeoutInMs, const ProgressState &preState)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     InitMainHandlerIfNeed();
 
     auto timeoutTask = [continuationManager = shared_from_this(), preState]() {
-        HILOG_DEBUG(
+        TAG_LOGD(AAFwkTag::CONTINUATION,
             "preState = %{public}d, currentState = %{public}d", preState, continuationManager->GetProcessState());
         if (preState == continuationManager->GetProcessState()) {
             continuationManager->ChangeProcessState(ProgressState::INITIAL);
         }
     };
     mainHandler_->PostTask(timeoutTask, "Restore_State_When_Timeout", timeoutInMs);
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 void ContinuationManagerStage::InitMainHandlerIfNeed()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (mainHandler_ == nullptr) {
-        HILOG_DEBUG("Try to init main handler.");
+        TAG_LOGD(AAFwkTag::CONTINUATION, "Try to init main handler.");
         std::lock_guard<std::mutex> lock_l(lock_);
         if ((mainHandler_ == nullptr) && (EventRunner::GetMainEventRunner() != nullptr)) {
             mainHandler_ = std::make_shared<EventHandler>(EventRunner::GetMainEventRunner());
         }
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
 }
 
 bool ContinuationManagerStage::CheckAbilityToken()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (continueToken_ == nullptr) {
-        HILOG_ERROR("ContinueToken is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "ContinueToken is nullptr.");
         return false;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
 void ContinuationManagerStage::CheckDmsInterfaceResult(int result, const std::string &interfaceName)
 {
-    HILOG_DEBUG("interfaceName: %{public}s, result: %{public}d", interfaceName.c_str(), result);
+    TAG_LOGD(AAFwkTag::CONTINUATION, "interfaceName: %{public}s, result: %{public}d", interfaceName.c_str(), result);
 }
 
 bool ContinuationManagerStage::DoScheduleStartContinuation()
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to startContinuation.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability not available to startContinuation.");
         return false;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
     if (!ability->OnStartContinuation()) {
-        HILOG_ERROR("Failed to StartContinuation.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Failed to StartContinuation.");
         return false;
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return true;
 }
 
 bool ContinuationManagerStage::DoScheduleSaveData(WantParams &saveData)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to save data.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability not available to save data.");
         return false;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
@@ -562,23 +564,23 @@ bool ContinuationManagerStage::DoScheduleSaveData(WantParams &saveData)
     }
 
     if (!ret) {
-        HILOG_ERROR("Ability save data failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability save data failed.");
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return ret;
 }
 
 bool ContinuationManagerStage::DoScheduleRestoreData(const WantParams &restoreData)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     if (CheckContinuationIllegal()) {
-        HILOG_ERROR("Ability not available to restore data.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability not available to restore data.");
         return false;
     }
 
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
@@ -589,18 +591,18 @@ bool ContinuationManagerStage::DoScheduleRestoreData(const WantParams &restoreDa
 
     bool ret = ability->OnRestoreData(abilityRestoreData);
     if (!ret) {
-        HILOG_ERROR("Ability restore data failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability restore data failed.");
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return ret;
 }
 
 bool ContinuationManagerStage::DoRestoreFromRemote(const WantParams &restoreData)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "Begin.");
     std::shared_ptr<AbilityRuntime::UIAbility> ability = ability_.lock();
     if (ability == nullptr) {
-        HILOG_ERROR("Ability is nullptr.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability is nullptr.");
         return false;
     }
 
@@ -611,9 +613,9 @@ bool ContinuationManagerStage::DoRestoreFromRemote(const WantParams &restoreData
 
     bool ret = ability->OnRestoreData(abilityRestoreData);
     if (!ret) {
-        HILOG_ERROR("Ability restore data failed.");
+        TAG_LOGE(AAFwkTag::CONTINUATION, "Ability restore data failed.");
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::CONTINUATION, "End.");
     return ret;
 }
 } // namespace AppExecFwk

@@ -15,6 +15,7 @@
 
 #include "render_state_observer_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 
@@ -30,7 +31,7 @@ RenderStateObserverProxy::RenderStateObserverProxy(
 bool RenderStateObserverProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(RenderStateObserverProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed.");
         return false;
     }
     return true;
@@ -52,14 +53,14 @@ void RenderStateObserverProxy::OnRenderStateChanged(const RenderStateData &rende
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote() is NULL");
         return;
     }
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IRenderStateObserver::ON_RENDER_STATE_CHANGED),
         data, reply, option);
     if (ret != NO_ERROR || ret != ERR_INVALID_STUB) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return;
     }
 }
@@ -69,7 +70,7 @@ int32_t RenderStateObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 

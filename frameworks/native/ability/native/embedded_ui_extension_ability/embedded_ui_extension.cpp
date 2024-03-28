@@ -15,6 +15,7 @@
 
 #include "embedded_ui_extension.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_embedded_ui_extension.h"
 #include "runtime.h"
@@ -24,7 +25,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 EmbeddedUIExtension *EmbeddedUIExtension::Create(const std::unique_ptr<Runtime> &runtime)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::EMBEDDED_EXT, "called.");
     if (runtime == nullptr) {
         return new EmbeddedUIExtension();
     }
@@ -34,14 +35,6 @@ EmbeddedUIExtension *EmbeddedUIExtension::Create(const std::unique_ptr<Runtime> 
         default:
             return new (std::nothrow) EmbeddedUIExtension();
     }
-}
-
-void EmbeddedUIExtension::Init(const std::shared_ptr<AbilityLocalRecord> &record,
-    const std::shared_ptr<OHOSApplication> &application, std::shared_ptr<AbilityHandler> &handler,
-    const sptr<IRemoteObject> &token)
-{
-    HILOG_DEBUG("called.");
-    ExtensionBase<UIExtensionContext>::Init(record, application, handler, token);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

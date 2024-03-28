@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,7 @@
 
 #include "ability_manager_client.h"
 #include "accesstoken_kit.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_error_utils.h"
 #include "js_runtime_utils.h"
@@ -45,7 +46,7 @@ JsFillRequestCallback::JsFillRequestCallback(
 
 void JsFillRequestCallback::Finalizer(napi_env env, void* data, void *hint)
 {
-    HILOG_DEBUG("JsFillRequestCallback Finalizer is called");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "JsFillRequestCallback Finalizer is called");
     std::unique_ptr<JsFillRequestCallback>(static_cast<JsFillRequestCallback*>(data));
 }
 
@@ -66,9 +67,9 @@ napi_value JsFillRequestCallback::FillRequestCanceled(napi_env env, napi_callbac
 
 napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (info.argc < ARGC_ONE || !IsTypeForNapiValue(env, info.argv[INDEX_ZERO], napi_object)) {
-        HILOG_ERROR("Failed to parse viewData JsonString!");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Failed to parse viewData JsonString!");
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
@@ -78,7 +79,7 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
     JsAutoFillExtensionUtil::UnwrapFillResponse(env, info.argv[INDEX_ZERO], response);
     std::string jsonString = response.viewData.ToJsonString();
     if (jsonString.empty()) {
-        HILOG_ERROR("JsonString is empty");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "JsonString is empty");
         SendResultCodeAndViewData(
             JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED_INVALID_PARAM, "");
         return CreateJsUndefined(env);
@@ -90,14 +91,14 @@ napi_value JsFillRequestCallback::OnFillRequestSuccess(napi_env env, NapiCallbac
 
 napi_value JsFillRequestCallback::OnFillRequestFailed(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_FAILED, "");
     return CreateJsUndefined(env);
 }
 
 napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     SendResultCodeAndViewData(JsAutoFillExtensionUtil::AutoFillResultCode::CALLBACK_CANCEL, "");
     return CreateJsUndefined(env);
 }
@@ -105,9 +106,9 @@ napi_value JsFillRequestCallback::OnFillRequestCanceled(napi_env env, NapiCallba
 void JsFillRequestCallback::SendResultCodeAndViewData(
     const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode, const std::string &jsString)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     if (uiWindow_ == nullptr) {
-        HILOG_ERROR("UiWindow is nullptr.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "UiWindow is nullptr.");
         return;
     }
 
@@ -119,24 +120,24 @@ void JsFillRequestCallback::SendResultCodeAndViewData(
 
     auto ret = uiWindow_->TransferAbilityResult(resultCode, want);
     if (ret != Rosen::WMError::WM_OK) {
-        HILOG_ERROR("Transfer ability result failed.");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Transfer ability result failed.");
         return;
     }
 
     auto errorCode = AAFwk::AbilityManagerClient::GetInstance()->TerminateUIExtensionAbility(sessionInfo_);
     if (errorCode != ERR_OK) {
-        HILOG_ERROR("Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Terminate ui extension ability failed, errorCode: %{public}d", errorCode);
     }
 }
 
 napi_value JsFillRequestCallback::CreateJsFillRequestCallback(napi_env env,
     const sptr<AAFwk::SessionInfo> &sessionInfo, const sptr<Rosen::Window> &uiWindow)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_ERROR("Object is null");
+        TAG_LOGE(AAFwkTag::AUTOFILL_EXT, "Object is null");
         return CreateJsUndefined(env);
     }
 

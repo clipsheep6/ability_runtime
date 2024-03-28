@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,6 +32,7 @@
 #include "data_ability_result.h"
 #include "data_uri_utils.h"
 #include "event_report.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "if_system_ability_manager.h"
@@ -94,7 +95,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     std::shared_ptr<AbilityHandler> &handler, const sptr<IRemoteObject> &token)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     application_ = application;
     abilityInfo_ = abilityInfo;
     handler_ = handler;
@@ -118,7 +119,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
             sptr<ReverseContinuationSchedulerPrimary> primary = sptr<ReverseContinuationSchedulerPrimary>(
                 new (std::nothrow) ReverseContinuationSchedulerPrimary(continuationHandler, handler_));
             if (primary == nullptr) {
-                HILOG_ERROR("Create primary failed");
+                TAG_LOGE(AAFwkTag::ABILITY, "Create primary failed");
             } else {
                 continuationHandler_->SetPrimaryStub(primary);
                 continuationHandler_->SetAbilityInfo(abilityInfo_);
@@ -126,7 +127,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
         }
 
         // register displayid change callback
-        HILOG_DEBUG("Start RegisterDisplayListener");
+        TAG_LOGD(AAFwkTag::ABILITY, "Start RegisterDisplayListener");
         abilityDisplayListener_ = new AbilityDisplayListener(ability);
         Rosen::DisplayManager::GetInstance().RegisterDisplayListener(abilityDisplayListener_);
     }
@@ -138,7 +139,7 @@ void Ability::Init(const std::shared_ptr<AbilityInfo> &abilityInfo, const std::s
     if (abilityContext_ != nullptr) {
         abilityContext_->RegisterAbilityCallback(weak_from_this());
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::AttachAbilityContext(const std::shared_ptr<AbilityRuntime::AbilityContext> &abilityContext)
@@ -160,7 +161,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::OnStart failed abilityInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnStart failed abilityInfo_ is nullptr.");
         return;
     }
 
@@ -172,12 +173,13 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     if (sessionInfo != nullptr) {
         SetSessionToken(sessionInfo->sessionToken);
     }
-    HILOG_DEBUG("AbilityName is %{public}s.", abilityInfo_->name.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "AbilityName is %{public}s.", abilityInfo_->name.c_str());
 #ifdef SUPPORT_GRAPHICS
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         int32_t defualtDisplayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
         int32_t displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);
-        HILOG_DEBUG("abilityName:%{public}s, displayId:%{public}d", abilityInfo_->name.c_str(), displayId);
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityName:%{public}s, displayId:%{public}d",
+            abilityInfo_->name.c_str(), displayId);
         InitFAWindow(want, displayId);
 
         if (!UpdateResMgrAndConfiguration(displayId)) {
@@ -186,7 +188,7 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     if (!abilityInfo_->isStageBasedModel) {
@@ -196,22 +198,22 @@ void Ability::OnStart(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo)
     }
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_START, want);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnStop()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 #ifdef SUPPORT_GRAPHICS
     (void)Rosen::DisplayManager::GetInstance().UnregisterDisplayListener(abilityDisplayListener_);
     auto && window = GetWindow();
     if (window != nullptr) {
-        HILOG_DEBUG("Call UnregisterDisplayMoveListener");
+        TAG_LOGD(AAFwkTag::ABILITY, "Call UnregisterDisplayMoveListener");
         window->UnregisterDisplayMoveListener(abilityDisplayMoveListener_);
     }
     // Call JS Func(onWindowStageDestroy) and Release the scene.
@@ -221,16 +223,16 @@ void Ability::OnStop()
     }
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INITIAL);
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_STOP);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnStop(AbilityTransactionCallbackInfo<> *callbackInfo, bool &isAsyncCallback)
@@ -245,36 +247,36 @@ void Ability::OnStopCallback()
 
 void Ability::DestroyInstance()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 #ifdef SUPPORT_GRAPHICS
     // Release the window.
     if (abilityWindow_ != nullptr && abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         abilityWindow_->OnPostAbilityStop(); // Ability instance will been released when window destroy.
     }
 #endif
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnActive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 #ifdef SUPPORT_GRAPHICS
     bWindowFocus_ = true;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is null.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is null.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is null.");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -285,35 +287,35 @@ void Ability::OnActive()
     eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     if (setWant_ != nullptr) {
         eventInfo.callerBundleName = setWant_->GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-        HILOG_INFO("callerBundleName is %{public}s", eventInfo.callerBundleName.c_str());
+        TAG_LOGI(AAFwkTag::ABILITY, "callerBundleName is %{public}s", eventInfo.callerBundleName.c_str());
     } else {
-        HILOG_ERROR("setWant_ is nullptr, can not get callerBundleName.");
+        TAG_LOGE(AAFwkTag::ABILITY, "setWant_ is nullptr, can not get callerBundleName.");
     }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnInactive()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 #ifdef SUPPORT_GRAPHICS
     bWindowFocus_ = false;
 #endif
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_INACTIVE);
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr.");
         return;
     }
     AAFwk::EventInfo eventInfo;
@@ -323,44 +325,44 @@ void Ability::OnInactive()
     eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONINACTIVE,
         HiSysEventType::BEHAVIOR, eventInfo);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 bool Ability::IsRestoredInContinuation() const
 {
     if (abilityContext_ == nullptr) {
-        HILOG_ERROR("abilityContext_ is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityContext_ is null");
         return false;
     }
 
     if (launchParam_.launchReason != LaunchReason::LAUNCHREASON_CONTINUATION) {
-        HILOG_DEBUG("launchReason is %{public}d", launchParam_.launchReason);
+        TAG_LOGD(AAFwkTag::ABILITY, "launchReason is %{public}d", launchParam_.launchReason);
         return false;
     }
 
     if (abilityContext_->GetContentStorage() == nullptr) {
-        HILOG_DEBUG("not Restored In Continuation");
+        TAG_LOGD(AAFwkTag::ABILITY, "not Restored In Continuation");
         return false;
     }
 
-    HILOG_DEBUG("Is Restored In Continuation");
+    TAG_LOGD(AAFwkTag::ABILITY, "Is Restored In Continuation");
     return true;
 }
 
 bool Ability::ShouldRecoverState(const Want& want)
 {
     if (!want.GetBoolParam(Want::PARAM_ABILITY_RECOVERY_RESTART, false)) {
-        HILOG_INFO("AppRecovery not recovery restart");
+        TAG_LOGI(AAFwkTag::ABILITY, "AppRecovery not recovery restart");
         return false;
     }
 
     if (abilityContext_ == nullptr) {
-        HILOG_WARN("AppRecovery abilityContext_ is null");
+        TAG_LOGW(AAFwkTag::ABILITY, "AppRecovery abilityContext_ is null");
         return false;
     }
 
     if (abilityContext_->GetContentStorage() == nullptr) {
-        HILOG_WARN("AppRecovery abilityContext_ GetContentStorage is null");
+        TAG_LOGW(AAFwkTag::ABILITY, "AppRecovery abilityContext_ GetContentStorage is null");
         return false;
     }
 
@@ -369,11 +371,11 @@ bool Ability::ShouldRecoverState(const Want& want)
 
 void Ability::NotifyContinuationResult(const Want& want, bool success)
 {
-    HILOG_INFO("called");
+    TAG_LOGI(AAFwkTag::ABILITY, "called");
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    HILOG_DEBUG("Notify complete continuation.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Notify complete continuation.");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
@@ -381,76 +383,76 @@ void Ability::NotifyContinuationResult(const Want& want, bool success)
 sptr<IRemoteObject> Ability::OnConnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return nullptr;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
         return nullptr;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return nullptr;
 }
 
 void Ability::OnDisconnect(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode)
 {
-    HILOG_DEBUG("start");
+    TAG_LOGD(AAFwkTag::ABILITY, "start");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is null");
         return ERR_NULL_OBJECT;
     }
-    HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_ERROR("Ability type %{public}d mismatch.", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability type %{public}d mismatch.", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, requestCode);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return err;
 }
 
 ErrCode Ability::StartAbilityForResult(const Want &want, int requestCode, AbilityStartSetting abilityStartSetting)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
         return ERR_NULL_OBJECT;
     }
-    HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_ERROR("Ability type %{public}d mismatch.", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability type %{public}d mismatch.", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, requestCode, abilityStartSetting);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return err;
 }
 
 ErrCode Ability::StartAbility(const Want &want, AbilityStartSetting abilityStartSetting)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
         return ERR_NULL_OBJECT;
     }
-    HILOG_DEBUG("Ability type is %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability type is %{public}d", abilityInfo_->type);
     if (abilityInfo_->type != AppExecFwk::AbilityType::PAGE && abilityInfo_->type != AppExecFwk::AbilityType::SERVICE) {
-        HILOG_ERROR("Ability type %{public}d mismatch.", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability type %{public}d mismatch.", abilityInfo_->type);
         return ERR_INVALID_VALUE;
     }
     ErrCode err = AbilityContext::StartAbility(want, -1, abilityStartSetting);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return err;
 }
 
@@ -472,12 +474,12 @@ std::shared_ptr<AppExecFwk::PacMap> Ability::Call(
 
 void Ability::OnConfigurationUpdated(const Configuration &configuration)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     std::string language;
     std::string colormode;
@@ -486,7 +488,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     // Notify ResourceManager
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        HILOG_ERROR("Create res config failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Create res config failed.");
         return;
     }
     auto resourceManager = GetResourceManager();
@@ -496,7 +498,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
         if (!language.empty()) {
             UErrorCode status = U_ZERO_ERROR;
             icu::Locale locale = icu::Locale::forLanguageTag(language, status);
-            HILOG_DEBUG("get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
+            TAG_LOGD(AAFwkTag::ABILITY, "get Locale::forLanguageTag return[%{public}d].", static_cast<int>(status));
             if (status == U_ZERO_ERROR) {
                 resConfig->SetLocaleInfo(locale);
             }
@@ -509,7 +511,8 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
             resConfig->SetInputDevice(ConvertHasPointerDevice(hasPointerDevice));
         }
         resourceManager->UpdateResConfig(*resConfig);
-        HILOG_INFO("Notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{publis}d.",
+        TAG_LOGI(AAFwkTag::ABILITY,
+            "Notify ResourceManager, current colorMode: %{public}d, hasPointerDevice: %{publis}d.",
             resConfig->GetColorMode(), resConfig->GetInputDevice());
     }
 
@@ -518,7 +521,7 @@ void Ability::OnConfigurationUpdatedNotify(const Configuration &configuration)
     }
     // Notify Ability Subclass
     OnConfigurationUpdated(configuration);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::InitConfigurationProperties(const Configuration& changeConfiguration, std::string& language,
@@ -529,22 +532,22 @@ void Ability::InitConfigurationProperties(const Configuration& changeConfigurati
         language = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         colormode = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
         hasPointerDevice = changeConfiguration.GetItem(displayId, AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-        HILOG_INFO("displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s], "
+        TAG_LOGI(AAFwkTag::ABILITY, "displayId: [%{public}d], language: [%{public}s], colormode: [%{public}s], "
             "hasPointerDevice: [%{public}s]", displayId, language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
     } else {
         language = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
         colormode = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
         hasPointerDevice = changeConfiguration.GetItem(AAFwk::GlobalConfigurationKey::INPUT_POINTER_DEVICE);
-        HILOG_INFO("language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s]",
+        TAG_LOGI(AAFwkTag::ABILITY, "language: [%{public}s], colormode: [%{public}s], hasPointerDevice: [%{public}s]",
             language.c_str(), colormode.c_str(), hasPointerDevice.c_str());
     }
 }
 
 void Ability::OnMemoryLevel(int level)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (scene_ == nullptr) {
-        HILOG_DEBUG("WindowScene is null");
+        TAG_LOGD(AAFwkTag::ABILITY, "WindowScene is null");
         return;
     }
     scene_->NotifyMemoryLevel(level);
@@ -563,19 +566,19 @@ int Ability::Update(
 
 std::shared_ptr<OHOSApplication> Ability::GetApplication()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (application_ == nullptr) {
-        HILOG_ERROR("application_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "application_ is nullptr.");
         return nullptr;
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     return application_;
 }
 
 std::string Ability::GetAbilityName()
 {
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
         return "";
     }
 
@@ -585,7 +588,7 @@ std::string Ability::GetAbilityName()
 std::string Ability::GetModuleName()
 {
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
         return "";
     }
 
@@ -602,32 +605,32 @@ void Ability::OnAbilityResult(int requestCode, int resultCode, const Want &want)
 
 void Ability::OnBackPressed()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
         return;
     }
 
     if (abilityInfo_->isLauncherAbility == false) {
-        HILOG_DEBUG("The ability is not Launcher");
+        TAG_LOGD(AAFwkTag::ABILITY, "The ability is not Launcher");
         TerminateAbility();
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnNewWant(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnRestoreAbilityState(const PacMap &inState)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnSaveAbilityState(PacMap &outState)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnEventDispatch()
@@ -645,86 +648,86 @@ std::shared_ptr<AAFwk::Want> Ability::GetWant()
 
 void Ability::SetResult(int resultCode, const Want &resultData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr");
         return;
     }
-    HILOG_DEBUG("Ability type: %{public}d", abilityInfo_->type);
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability type: %{public}d", abilityInfo_->type);
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         AbilityContext::resultWant_ = resultData;
         AbilityContext::resultCode_ = resultCode;
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnCommand(const AAFwk::Want &want, bool restart, int startId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_INFO("restart: %{public}s, startId: %{public}d.", restart ? "true" : "false", startId);
+    TAG_LOGI(AAFwkTag::ABILITY, "restart: %{public}s, startId: %{public}d.", restart ? "true" : "false", startId);
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::ACTIVE);
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_ACTIVE);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::Dump(const std::string &extra)
 {
-    HILOG_DEBUG("Ability::Dump called");
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability::Dump called");
     // abilityInfo
-    HILOG_DEBUG("==============AbilityInfo==============");
+    TAG_LOGD(AAFwkTag::ABILITY, "==============AbilityInfo==============");
     if (abilityInfo_ != nullptr) {
-        HILOG_DEBUG("abilityInfo: package: %{public}s", abilityInfo_->package.c_str());
-        HILOG_DEBUG("abilityInfo: name: %{public}s", abilityInfo_->name.c_str());
-        HILOG_DEBUG("abilityInfo: label: %{public}s", abilityInfo_->label.c_str());
-        HILOG_DEBUG("abilityInfo: description: %{public}s", abilityInfo_->description.c_str());
-        HILOG_DEBUG("abilityInfo: iconPath: %{public}s", abilityInfo_->iconPath.c_str());
-        HILOG_DEBUG("abilityInfo: visible: %{public}d", abilityInfo_->visible);
-        HILOG_DEBUG("abilityInfo: kind: %{public}s", abilityInfo_->kind.c_str());
-        HILOG_DEBUG("abilityInfo: type: %{public}d", abilityInfo_->type);
-        HILOG_DEBUG("abilityInfo: orientation: %{public}d", abilityInfo_->orientation);
-        HILOG_DEBUG("abilityInfo: launchMode: %{public}d", abilityInfo_->launchMode);
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: package: %{public}s", abilityInfo_->package.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: name: %{public}s", abilityInfo_->name.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: label: %{public}s", abilityInfo_->label.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: description: %{public}s", abilityInfo_->description.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: iconPath: %{public}s", abilityInfo_->iconPath.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: visible: %{public}d", abilityInfo_->visible);
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: kind: %{public}s", abilityInfo_->kind.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: type: %{public}d", abilityInfo_->type);
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: orientation: %{public}d", abilityInfo_->orientation);
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: launchMode: %{public}d", abilityInfo_->launchMode);
         for (auto permission : abilityInfo_->permissions) {
-            HILOG_DEBUG("abilityInfo: permission: %{public}s", permission.c_str());
+            TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: permission: %{public}s", permission.c_str());
         }
-        HILOG_DEBUG("abilityInfo: bundleName: %{public}s", abilityInfo_->bundleName.c_str());
-        HILOG_DEBUG("abilityInfo: applicationName: %{public}s", abilityInfo_->applicationName.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: bundleName: %{public}s", abilityInfo_->bundleName.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo: applicationName: %{public}s", abilityInfo_->applicationName.c_str());
     } else {
-        HILOG_DEBUG("abilityInfo is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityInfo is nullptr");
     }
 
     // lifecycle_Event
-    HILOG_DEBUG("==============lifecycle_Event==============");
+    TAG_LOGD(AAFwkTag::ABILITY, "==============lifecycle_Event==============");
     if (lifecycle_ != nullptr) {
-        HILOG_DEBUG("lifecycle_Event: launchMode: %{public}d", lifecycle_->GetLifecycleState());
+        TAG_LOGD(AAFwkTag::ABILITY, "lifecycle_Event: launchMode: %{public}d", lifecycle_->GetLifecycleState());
     } else {
-        HILOG_DEBUG("lifecycle is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "lifecycle is nullptr");
     }
 
     // lifecycle_State
-    HILOG_DEBUG("==============lifecycle_State==============");
+    TAG_LOGD(AAFwkTag::ABILITY, "==============lifecycle_State==============");
     if (abilityLifecycleExecutor_ != nullptr) {
-        HILOG_DEBUG("lifecycle_State: launchMode: %{public}d", abilityLifecycleExecutor_->GetState());
+        TAG_LOGD(AAFwkTag::ABILITY, "lifecycle_State: launchMode: %{public}d", abilityLifecycleExecutor_->GetState());
     } else {
-        HILOG_DEBUG("abilityLifecycleExecutor is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "abilityLifecycleExecutor is nullptr");
     }
 
     // applicationInfo
-    HILOG_DEBUG("==============applicationInfo==============");
+    TAG_LOGD(AAFwkTag::ABILITY, "==============applicationInfo==============");
     std::shared_ptr<ApplicationInfo> ApplicationInfoPtr = GetApplicationInfo();
     if (ApplicationInfoPtr != nullptr) {
-        HILOG_DEBUG("applicationInfo: name: %{public}s", ApplicationInfoPtr->name.c_str());
-        HILOG_DEBUG("applicationInfo: bundleName: %{public}s", ApplicationInfoPtr->bundleName.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "applicationInfo: name: %{public}s", ApplicationInfoPtr->name.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "applicationInfo: bundleName: %{public}s", ApplicationInfoPtr->bundleName.c_str());
     } else {
-        HILOG_DEBUG("ApplicationInfoPtr is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "ApplicationInfoPtr is nullptr");
     }
 }
 
@@ -770,21 +773,21 @@ bool Ability::Reload(const Uri &uri, const PacMap &extras)
 
 int Ability::BatchInsert(const Uri &uri, const std::vector<NativeRdb::ValuesBucket> &values)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     int amount = 0;
     for (auto it = values.begin(); it != values.end(); it++) {
         if (Insert(uri, *it) >= 0) {
             amount++;
         }
     }
-    HILOG_DEBUG("Insert amount: %{public}d", amount);
+    TAG_LOGD(AAFwkTag::ABILITY, "Insert amount: %{public}d", amount);
     return amount;
 }
 
 void Ability::ContinueAbilityReversibly(const std::string &deviceId)
 {
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
         return;
     }
     continuationManager_->ContinueAbility(true, deviceId);
@@ -798,7 +801,7 @@ std::string Ability::GetOriginalDeviceId()
 ContinuationState Ability::GetContinuationState()
 {
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
         return ContinuationState::LOCAL_RUNNING;
     }
     return continuationManager_->GetContinuationState();
@@ -811,19 +814,19 @@ Uri Ability::DenormalizeUri(const Uri &uri)
 
 std::shared_ptr<LifeCycle> Ability::GetLifecycle()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return lifecycle_;
 }
 
 void Ability::RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (observer == nullptr) {
-        HILOG_ERROR("register ability lifecycle observer failed, observer is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "register ability lifecycle observer failed, observer is nullptr.");
         return;
     }
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("register ability lifecycle observer failed, lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "register ability lifecycle observer failed, lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->AddObserver(observer);
@@ -831,13 +834,13 @@ void Ability::RegisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleO
 
 void Ability::UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycleObserver> &observer)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (observer == nullptr) {
-        HILOG_ERROR("unregister ability lifecycle observer failed, observer is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "unregister ability lifecycle observer failed, observer is nullptr.");
         return;
     }
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("unregister ability lifecycle observer failed, lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "unregister ability lifecycle observer failed, lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->RemoveObserver(observer);
@@ -845,10 +848,10 @@ void Ability::UnregisterAbilityLifecycleObserver(const std::shared_ptr<ILifecycl
 
 AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return AbilityLifecycleExecutor::LifecycleState::UNINITIALIZED;
     }
 
@@ -857,15 +860,15 @@ AbilityLifecycleExecutor::LifecycleState Ability::GetState()
 
 ErrCode Ability::StartAbility(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return AbilityContext::StartAbility(want, -1);
 }
 
 void Ability::PostTask(std::function<void()> task, long delayTime)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     TaskHandlerClient::GetInstance()->PostTask(task, delayTime);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 int32_t Ability::OnContinue(WantParams &wantParams)
@@ -876,12 +879,12 @@ int32_t Ability::OnContinue(WantParams &wantParams)
 void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t versionCode)
 {
     if (deviceId.empty()) {
-        HILOG_ERROR("Continue ability failed. deviceId is empty");
+        TAG_LOGE(AAFwkTag::ABILITY, "Continue ability failed. deviceId is empty");
         return;
     }
 
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
         return;
     }
     continuationManager_->ContinueAbilityWithStack(deviceId, versionCode);
@@ -890,12 +893,12 @@ void Ability::ContinueAbilityWithStack(const std::string &deviceId, uint32_t ver
 void Ability::ContinueAbility(const std::string &deviceId)
 {
     if (deviceId.empty()) {
-        HILOG_ERROR("Continue ability failed. deviceId is empty");
+        TAG_LOGE(AAFwkTag::ABILITY, "Continue ability failed. deviceId is empty");
         return;
     }
 
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
         return;
     }
     continuationManager_->ContinueAbility(false, deviceId);
@@ -923,9 +926,9 @@ int32_t Ability::OnSaveState(int32_t reason, WantParams &wantParams)
 
 void Ability::OnCompleteContinuation(int result)
 {
-    HILOG_DEBUG("Change continuation state to initial");
+    TAG_LOGD(AAFwkTag::ABILITY, "Change continuation state to initial");
     if (continuationManager_ == nullptr) {
-        HILOG_ERROR("Continuation manager is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Continuation manager is nullptr.");
         return;
     }
 
@@ -938,7 +941,7 @@ void Ability::OnRemoteTerminated()
 void Ability::DispatchLifecycleOnForeground(const Want &want)
 {
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("abilityLifecycleExecutor_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityLifecycleExecutor_ is nullptr.");
         return;
     }
     if (abilityInfo_ != nullptr && abilityInfo_->isStageBasedModel) {
@@ -947,7 +950,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
         abilityLifecycleExecutor_->DispatchLifecycleState(AbilityLifecycleExecutor::LifecycleState::INACTIVE);
     }
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("lifecycle_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "lifecycle_ is nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_FOREGROUND, want);
@@ -956,7 +959,7 @@ void Ability::DispatchLifecycleOnForeground(const Want &want)
 bool Ability::VerifySupportForContinuation()
 {
     if (continuationManager_ == nullptr) {
-        HILOG_ERROR("Continuation manager is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Continuation manager is nullptr.");
         return false;
     }
     return true;
@@ -965,7 +968,7 @@ bool Ability::VerifySupportForContinuation()
 void Ability::HandleCreateAsContinuation(const Want &want)
 {
     if (!IsFlagExists(Want::FLAG_ABILITY_CONTINUATION, want.GetFlags())) {
-        HILOG_DEBUG("This's not continuated ability");
+        TAG_LOGD(AAFwkTag::ABILITY, "This's not continuated ability");
         return;
     }
 
@@ -973,7 +976,7 @@ void Ability::HandleCreateAsContinuation(const Want &want)
     bool reversible = false;
     reversible = IsFlagExists(Want::FLAG_ABILITY_CONTINUATION_REVERSIBLE, want.GetFlags());
     if (!VerifySupportForContinuation()) {
-        HILOG_ERROR("Don't support continuation.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Don't support continuation.");
         return;
     }
     bool success = continuationManager_->RestoreData(
@@ -985,21 +988,21 @@ void Ability::HandleCreateAsContinuation(const Want &want)
             new (std::nothrow) ReverseContinuationSchedulerReplica(handler_, ReplicaHandler));
 
         if (reverseContinuationSchedulerReplica_ == nullptr) {
-            HILOG_ERROR("Create reverseContinuationSchedulerReplica failed");
+            TAG_LOGE(AAFwkTag::ABILITY, "Create reverseContinuationSchedulerReplica failed");
             return;
         }
     }
 
     int sessionId = want.GetIntParam(DMS_SESSION_ID, DEFAULT_DMS_SESSION_ID);
     std::string originDeviceId = want.GetStringParam(DMS_ORIGIN_DEVICE_ID);
-    HILOG_DEBUG("Notify complete continuation.");
+    TAG_LOGD(AAFwkTag::ABILITY, "Notify complete continuation.");
     continuationManager_->NotifyCompleteContinuation(
         originDeviceId, sessionId, success, reverseContinuationSchedulerReplica_);
 }
 
 void Ability::HandleCreateAsRecovery(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 bool Ability::IsFlagExists(unsigned int flag, unsigned int flagSet)
@@ -1022,11 +1025,11 @@ int Ability::StartBackgroundRunning(const AbilityRuntime::WantAgent::WantAgent &
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("Failed to get bundleMgrHelper.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Failed to get bundleMgrHelper.");
         return ERR_NULL_OBJECT;
     }
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("The ability info is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "The ability info is nullptr.");
         return ERR_INVALID_VALUE;
     }
     Want want;
@@ -1056,13 +1059,13 @@ int Ability::StopBackgroundRunning()
 
 void Ability::SetStartAbilitySetting(std::shared_ptr<AbilityStartSetting> setting)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     setting_ = setting;
 }
 
 void Ability::SetLaunchParam(const AAFwk::LaunchParam &launchParam)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     launchParam_ = launchParam;
 }
 
@@ -1074,44 +1077,45 @@ const AAFwk::LaunchParam& Ability::GetLaunchParam() const
 std::vector<std::shared_ptr<DataAbilityResult>> Ability::ExecuteBatch(
     const std::vector<std::shared_ptr<DataAbilityOperation>> &operations)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     std::vector<std::shared_ptr<DataAbilityResult>> results;
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo is nullptr");
         return results;
     }
     if (abilityInfo_->type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("data ability type failed, current type: %{public}d", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "data ability type failed, current type: %{public}d", abilityInfo_->type);
         return results;
     }
     size_t len = operations.size();
-    HILOG_DEBUG("operation is nullptr, len %{public}zu", len);
+    TAG_LOGD(AAFwkTag::ABILITY, "operation is nullptr, len %{public}zu", len);
     for (size_t i = 0; i < len; i++) {
         std::shared_ptr<DataAbilityOperation> operation = operations[i];
         if (operation == nullptr) {
-            HILOG_DEBUG("operation is nullptr, create DataAbilityResult");
+            TAG_LOGD(AAFwkTag::ABILITY, "operation is nullptr, create DataAbilityResult");
             results.push_back(std::make_shared<DataAbilityResult>(0));
             continue;
         }
         ExecuteOperation(operation, results, i);
     }
-    HILOG_DEBUG("end, %{public}zu", results.size());
+    TAG_LOGD(AAFwkTag::ABILITY, "end, %{public}zu", results.size());
     return results;
 }
 void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
     std::vector<std::shared_ptr<DataAbilityResult>> &results, int index)
 {
-    HILOG_DEBUG("exec start, index=%{public}d", index);
+    TAG_LOGD(AAFwkTag::ABILITY, "exec start, index=%{public}d", index);
     if (abilityInfo_->type != AppExecFwk::AbilityType::DATA) {
-        HILOG_ERROR("exec data ability type failed, current type: %{public}d", abilityInfo_->type);
+        TAG_LOGE(AAFwkTag::ABILITY, "exec data ability type failed, current type: %{public}d", abilityInfo_->type);
         return;
     }
     if (index < 0) {
-        HILOG_ERROR("exec operation result index should not below zero, current index: %{public}d", index);
+        TAG_LOGE(AAFwkTag::ABILITY, "exec operation result index should not below zero, current index: %{public}d",
+            index);
         return;
     }
     if (operation == nullptr) {
-        HILOG_WARN("exec operation is nullptr, create DataAbilityResult");
+        TAG_LOGW(AAFwkTag::ABILITY, "exec operation is nullptr, create DataAbilityResult");
         results.push_back(std::make_shared<DataAbilityResult>(0));
         return;
     }
@@ -1120,27 +1124,27 @@ void Ability::ExecuteOperation(std::shared_ptr<DataAbilityOperation> &operation,
     std::shared_ptr<NativeRdb::ValuesBucket> valuesBucket = ParseValuesBucketReference(results, operation, index);
     auto predicates = ParsePredictionArgsReference(results, operation, index);
     if (operation->IsInsertOperation()) {
-        HILOG_DEBUG("exec IsInsertOperation");
+        TAG_LOGD(AAFwkTag::ABILITY, "exec IsInsertOperation");
         numRows = Insert(*(operation->GetUri().get()), *valuesBucket);
     } else if (operation->IsDeleteOperation() && predicates) {
-        HILOG_DEBUG("exec IsDeleteOperation");
+        TAG_LOGD(AAFwkTag::ABILITY, "exec IsDeleteOperation");
         numRows = Delete(*(operation->GetUri().get()), *predicates);
     } else if (operation->IsUpdateOperation() && predicates) {
-        HILOG_DEBUG("exec IsUpdateOperation");
+        TAG_LOGD(AAFwkTag::ABILITY, "exec IsUpdateOperation");
         numRows = Update(*(operation->GetUri().get()), *valuesBucket, *predicates);
     } else if (operation->IsAssertOperation() && predicates) {
-        HILOG_DEBUG("exec IsAssertOperation");
+        TAG_LOGD(AAFwkTag::ABILITY, "exec IsAssertOperation");
         std::vector<std::string> columns;
         auto queryResult = Query(*(operation->GetUri().get()), columns, *predicates);
         if (queryResult == nullptr) {
-            HILOG_ERROR("exec Query retval is nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY, "exec Query retval is nullptr");
             results.push_back(std::make_shared<DataAbilityResult>(0));
             return;
         }
         (void)CheckAssertQueryResult(queryResult, operation->GetValuesBucket());
         queryResult->Close();
     } else {
-        HILOG_ERROR("exec Expected bad type %{public}d", operation->GetType());
+        TAG_LOGE(AAFwkTag::ABILITY, "exec Expected bad type %{public}d", operation->GetType());
     }
     if (operation->GetExpectedCount() == numRows) {
         if (operation->GetUri() != nullptr) {
@@ -1156,7 +1160,7 @@ std::shared_ptr<NativeRdb::DataAbilityPredicates> Ability::ParsePredictionArgsRe
     int numRefs)
 {
     if (operation == nullptr) {
-        HILOG_ERROR("intput is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "intput is nullptr");
         return nullptr;
     }
 
@@ -1169,24 +1173,24 @@ std::shared_ptr<NativeRdb::DataAbilityPredicates> Ability::ParsePredictionArgsRe
     strPredicatesList.clear();
     std::shared_ptr<NativeRdb::DataAbilityPredicates> predicates = operation->GetDataAbilityPredicates();
     if (predicates == nullptr) {
-        HILOG_DEBUG("operation->GetDataAbilityPredicates is nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "operation->GetDataAbilityPredicates is nullptr");
     } else {
-        HILOG_DEBUG("operation->GetDataAbilityPredicates isn`t nullptr");
+        TAG_LOGD(AAFwkTag::ABILITY, "operation->GetDataAbilityPredicates isn`t nullptr");
         strPredicatesList = predicates->GetWhereArgs();
     }
 
     if (strPredicatesList.empty()) {
-        HILOG_ERROR("operation->GetDataAbilityPredicates()->GetWhereArgs()"
+        TAG_LOGE(AAFwkTag::ABILITY, "operation->GetDataAbilityPredicates()->GetWhereArgs()"
                  "error strList is empty()");
     }
 
     for (auto iterMap : predicatesBackReferencesMap) {
-        HILOG_DEBUG("predicatesBackReferencesMap first:%{public}d second:%{public}d",
+        TAG_LOGD(AAFwkTag::ABILITY, "predicatesBackReferencesMap first:%{public}d second:%{public}d",
             iterMap.first,
             iterMap.second);
         int tempCount = ChangeRef2Value(results, numRefs, iterMap.second);
         if (tempCount < 0) {
-            HILOG_ERROR("tempCount:%{public}d", tempCount);
+            TAG_LOGE(AAFwkTag::ABILITY, "tempCount:%{public}d", tempCount);
             continue;
         }
         std::string strPredicates = std::to_string(tempCount);
@@ -1205,7 +1209,7 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
     int numRefs)
 {
     if (operation == nullptr) {
-        HILOG_ERROR("intput is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "intput is nullptr");
         return nullptr;
     }
     if (operation->GetValuesBucketReferences() == nullptr) {
@@ -1223,10 +1227,10 @@ std::shared_ptr<NativeRdb::ValuesBucket> Ability::ParseValuesBucketReference(
 
     for (auto itermap : valuesMapReferences) {
         std::string key = itermap.first;
-        HILOG_DEBUG("key is %{public}s", key.c_str());
+        TAG_LOGD(AAFwkTag::ABILITY, "key is %{public}s", key.c_str());
         NativeRdb::ValueObject obj;
         if (!operation->GetValuesBucketReferences()->GetObject(key, obj)) {
-            HILOG_ERROR("operation->GetValuesBucketReferences()->GetObject error");
+            TAG_LOGE(AAFwkTag::ABILITY, "operation->GetValuesBucketReferences()->GetObject error");
             continue;
         }
         switch (obj.GetType()) {
@@ -1261,10 +1265,10 @@ void Ability::ParseIntValue(const NativeRdb::ValueObject &obj, const std::string
 {
     int val = 0;
     if (obj.GetInt(val) != 0) {
-        HILOG_ERROR("ValueObject->GetInt() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetInt() error");
         return;
     }
-    HILOG_DEBUG("retValueBucket->PutInt(%{public}s, %{public}d)", key.c_str(), val);
+    TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutInt(%{public}s, %{public}d)", key.c_str(), val);
     retValueBucket.PutInt(key, val);
 }
 
@@ -1273,10 +1277,10 @@ void Ability::ParseDoubleValue(const NativeRdb::ValueObject &obj, const std::str
 {
     double val = 0.0;
     if (obj.GetDouble(val) != 0) {
-        HILOG_ERROR("ValueObject->GetDouble() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetDouble() error");
         return;
     }
-    HILOG_DEBUG("retValueBucket->PutDouble(%{public}s, %{public}f)", key.c_str(), val);
+    TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutDouble(%{public}s, %{public}f)", key.c_str(), val);
     retValueBucket.PutDouble(key, val);
 }
 
@@ -1285,10 +1289,10 @@ void Ability::ParseStringValue(const NativeRdb::ValueObject &obj, const std::str
 {
     std::string val = "";
     if (obj.GetString(val) != 0) {
-        HILOG_ERROR("ValueObject->GetString() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetString() error");
         return;
     }
-    HILOG_DEBUG("retValueBucket->PutString(%{public}s, %{public}s)", key.c_str(), val.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutString(%{public}s, %{public}s)", key.c_str(), val.c_str());
     retValueBucket.PutString(key, val);
 }
 
@@ -1297,10 +1301,10 @@ void Ability::ParseBlobValue(const NativeRdb::ValueObject &obj, const std::strin
 {
     std::vector<uint8_t> val;
     if (obj.GetBlob(val) != 0) {
-        HILOG_ERROR("ValueObject->GetBlob() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetBlob() error");
         return;
     }
-    HILOG_DEBUG("retValueBucket->PutBlob(%{public}s, %{public}zu)", key.c_str(), val.size());
+    TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutBlob(%{public}s, %{public}zu)", key.c_str(), val.size());
     retValueBucket.PutBlob(key, val);
 }
 
@@ -1309,10 +1313,10 @@ void Ability::ParseBoolValue(const NativeRdb::ValueObject &obj, const std::strin
 {
     bool val = false;
     if (obj.GetBool(val) != 0) {
-        HILOG_ERROR("ValueObject->GetBool() error");
+        TAG_LOGE(AAFwkTag::ABILITY, "ValueObject->GetBool() error");
         return;
     }
-    HILOG_DEBUG("retValueBucket->PutBool(%{public}s, %{public}s)", key.c_str(), val ? "true" : "false");
+    TAG_LOGD(AAFwkTag::ABILITY, "retValueBucket->PutBool(%{public}s, %{public}s)", key.c_str(), val ? "true" : "false");
     retValueBucket.PutBool(key, val);
 }
 
@@ -1320,18 +1324,19 @@ int Ability::ChangeRef2Value(std::vector<std::shared_ptr<DataAbilityResult>> &re
 {
     int retval = -1;
     if (index >= numRefs) {
-        HILOG_ERROR("Ability::ChangeRef2Value index >= numRefs");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::ChangeRef2Value index >= numRefs");
         return retval;
     }
 
     if (index >= static_cast<int>(results.size())) {
-        HILOG_ERROR("Ability::ChangeRef2Value index:%{public}d >= results.size():%{public}zu", index, results.size());
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::ChangeRef2Value index:%{public}d >= results.size():%{public}zu",
+            index, results.size());
         return retval;
     }
 
     std::shared_ptr<DataAbilityResult> refResult = results[index];
     if (refResult == nullptr) {
-        HILOG_ERROR("Ability::ChangeRef2Value No.%{public}d refResult is null", index);
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::ChangeRef2Value No.%{public}d refResult is null", index);
         return retval;
     }
 
@@ -1348,49 +1353,49 @@ bool Ability::CheckAssertQueryResult(std::shared_ptr<NativeRdb::AbsSharedResultS
     std::shared_ptr<NativeRdb::ValuesBucket> &&valuesBucket)
 {
     if (queryResult == nullptr) {
-        HILOG_ERROR("Ability::CheckAssertQueryResult intput queryResult is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult intput queryResult is null");
         return true;
     }
 
     if (valuesBucket == nullptr) {
-        HILOG_ERROR("Ability::CheckAssertQueryResult intput valuesBucket is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult intput valuesBucket is null");
         return true;
     }
 
     std::map<std::string, NativeRdb::ValueObject> valuesMap;
     valuesBucket->GetAll(valuesMap);
     if (valuesMap.empty()) {
-        HILOG_ERROR("Ability::CheckAssertQueryResult valuesMap is empty");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult valuesMap is empty");
         return true;
     }
     int count = 0;
     if (queryResult->GetRowCount(count) != 0) {
-        HILOG_ERROR("Ability::CheckAssertQueryResult GetRowCount is 0");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult GetRowCount is 0");
         return true;
     }
 
     for (auto iterMap : valuesMap) {
         std::string strObject;
         if (iterMap.second.GetString(strObject) != 0) {
-            HILOG_ERROR("Ability::CheckAssertQueryResult GetString strObject is error");
+            TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult GetString strObject is error");
             continue;
         }
         if (strObject.empty()) {
-            HILOG_ERROR("Ability::CheckAssertQueryResult strObject is empty");
+            TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult strObject is empty");
             continue;
         }
         for (int i = 0; i < count; ++i) {
             std::string strName;
             if (queryResult->GetString(i, strName) != 0) {
-                HILOG_ERROR("Ability::CheckAssertQueryResult GetString strName is error");
+                TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult GetString strName is error");
                 continue;
             }
             if (strName.empty()) {
-                HILOG_ERROR("Ability::CheckAssertQueryResult strName is empty");
+                TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult strName is empty");
                 continue;
             }
             if (strName == strObject) {
-                HILOG_ERROR("Ability::CheckAssertQueryResult strName same to strObject");
+                TAG_LOGE(AAFwkTag::ABILITY, "Ability::CheckAssertQueryResult strName same to strObject");
                 continue;
             }
 
@@ -1408,16 +1413,16 @@ sptr<IRemoteObject> Ability::CallRequest()
 
 ErrCode Ability::StartFeatureAbilityForResult(const Want &want, int requestCode, FeatureAbilityTask &&task)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
     ErrCode err = StartAbilityForResult(want, requestCode);
-    HILOG_DEBUG("ret: %{public}d", err);
+    TAG_LOGD(AAFwkTag::ABILITY, "ret: %{public}d", err);
     return err;
 }
 
 void Ability::OnFeatureAbilityResult(int requestCode, int resultCode, const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     auto callback = resultCallbacks_.find(requestCode);
     if (callback != resultCallbacks_.end()) {
         if (callback->second) {
@@ -1425,7 +1430,7 @@ void Ability::OnFeatureAbilityResult(int requestCode, int resultCode, const Want
         }
         resultCallbacks_.erase(requestCode);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 bool Ability::IsUseNewStartUpRule()
@@ -1439,7 +1444,7 @@ bool Ability::IsUseNewStartUpRule()
 
 void Ability::EnableAbilityRecovery(const std::shared_ptr<AbilityRecovery>& abilityRecovery)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 int32_t Ability::OnShare(WantParams &wantParams)
@@ -1455,26 +1460,26 @@ bool Ability::PrintDrawnCompleted()
 
 void Ability::OnSceneCreated()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnSceneRestored()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::onSceneDestroyed()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnForeground(const Want &want)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     DoOnForeground(want);
     DispatchLifecycleOnForeground(want);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = want.GetElement().GetBundleName();
     eventInfo.moduleName = want.GetElement().GetModuleName();
@@ -1483,7 +1488,7 @@ void Ability::OnForeground(const Want &want)
     if (abilityInfo_ != nullptr) {
         eventInfo.bundleType = static_cast<int32_t>(abilityInfo_->applicationInfo.bundleType);
     } else {
-        HILOG_ERROR("abilityInfo_ is nullptr, can not get bundleType.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr, can not get bundleType.");
     }
     AAFwk::EventReport::SendAbilityEvent(AAFwk::EventName::ABILITY_ONFOREGROUND,
         HiSysEventType::BEHAVIOR, eventInfo);
@@ -1492,29 +1497,29 @@ void Ability::OnForeground(const Want &want)
 void Ability::OnBackground()
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("abilityInfo_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityInfo_ is nullptr.");
         return;
     }
     if (abilityInfo_->type == AppExecFwk::AbilityType::PAGE) {
         if (abilityInfo_->isStageBasedModel) {
             if (scene_ != nullptr) {
-                HILOG_DEBUG("GoBackground sceneFlag:%{public}d.", sceneFlag_);
+                TAG_LOGD(AAFwkTag::ABILITY, "GoBackground sceneFlag:%{public}d.", sceneFlag_);
                 scene_->GoBackground(sceneFlag_);
             }
         } else {
             if (abilityWindow_ == nullptr) {
-                HILOG_ERROR("Ability::OnBackground error. abilityWindow_ == nullptr.");
+                TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnBackground error. abilityWindow_ == nullptr.");
                 return;
             }
-            HILOG_DEBUG("OnPostAbilityBackground sceneFlag:%{public}d.", sceneFlag_);
+            TAG_LOGD(AAFwkTag::ABILITY, "OnPostAbilityBackground sceneFlag:%{public}d.", sceneFlag_);
             abilityWindow_->OnPostAbilityBackground(sceneFlag_);
         }
     }
 
     if (abilityLifecycleExecutor_ == nullptr) {
-        HILOG_ERROR("Ability::OnBackground error. abilityLifecycleExecutor_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnBackground error. abilityLifecycleExecutor_ == nullptr.");
         return;
     }
 
@@ -1525,11 +1530,11 @@ void Ability::OnBackground()
     }
 
     if (lifecycle_ == nullptr) {
-        HILOG_ERROR("Ability::OnBackground error. lifecycle_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::OnBackground error. lifecycle_ == nullptr.");
         return;
     }
     lifecycle_->DispatchLifecycle(LifeCycle::Event::ON_BACKGROUND);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
     AAFwk::EventInfo eventInfo;
     eventInfo.bundleName = abilityInfo_->bundleName;
     eventInfo.moduleName = abilityInfo_->moduleName;
@@ -1541,40 +1546,40 @@ void Ability::OnBackground()
 
 bool Ability::OnBackPress()
 {
-    HILOG_DEBUG("call");
-    return false;
+    TAG_LOGD(AAFwkTag::ABILITY, "call");
+    return true;
 }
 
 bool Ability::OnPrepareTerminate()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITY, "call");
     return false;
 }
 
 void Ability::OnKeyDown(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_DEBUG("Ability::OnKeyDown called");
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnKeyDown called");
 }
 
 void Ability::OnKeyUp(const std::shared_ptr<MMI::KeyEvent>& keyEvent)
 {
-    HILOG_DEBUG("Ability::OnKeyUp called");
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnKeyUp called");
     auto code = keyEvent->GetKeyCode();
     if (code == MMI::KeyEvent::KEYCODE_BACK) {
-        HILOG_DEBUG("Ability::OnKey Back key pressed.");
+        TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnKey Back key pressed.");
         OnBackPressed();
     }
 }
 
 void Ability::OnPointerEvent(std::shared_ptr<MMI::PointerEvent>& pointerEvent)
 {
-    HILOG_DEBUG("Ability::OnTouchEvent called");
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability::OnTouchEvent called");
 }
 
 void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 {
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability window is nullptr.");
         return;
     }
     abilityWindow_->SetSessionToken(sessionToken_);
@@ -1584,7 +1589,7 @@ void Ability::InitWindow(int32_t displayId, sptr<Rosen::WindowOption> option)
 const sptr<Rosen::Window> Ability::GetWindow()
 {
     if (abilityWindow_ == nullptr) {
-        HILOG_DEBUG("Ability window is nullptr.");
+        TAG_LOGD(AAFwkTag::ABILITY, "Ability window is nullptr.");
         return nullptr;
     }
     return abilityWindow_->GetWindow();
@@ -1598,7 +1603,7 @@ std::shared_ptr<Rosen::WindowScene> Ability::GetScene()
 bool Ability::HasWindowFocus()
 {
     if (abilityInfo_ == nullptr) {
-        HILOG_ERROR("Ability::HasWindowFocus abilityInfo_ == nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::HasWindowFocus abilityInfo_ == nullptr");
         return false;
     }
 
@@ -1611,18 +1616,19 @@ bool Ability::HasWindowFocus()
 
 void Ability::SetShowOnLockScreen(bool showOnLockScreen)
 {
-    HILOG_DEBUG("SetShowOnLockScreen come, showOnLockScreen is %{public}d", showOnLockScreen);
+    TAG_LOGD(AAFwkTag::ABILITY, "SetShowOnLockScreen come, showOnLockScreen is %{public}d", showOnLockScreen);
     showOnLockScreen_ = showOnLockScreen;
     sptr<Rosen::Window> window = nullptr;
     if (abilityWindow_ == nullptr || (window = abilityWindow_->GetWindow()) == nullptr) {
-        HILOG_ERROR("SetShowOnLockScreen come, window is null");
+        TAG_LOGE(AAFwkTag::ABILITY, "SetShowOnLockScreen come, window is null");
         return;
     }
-    HILOG_DEBUG("SetShowOnLockScreen come, addWindowFlag, showOnLockScreen is %{public}d", showOnLockScreen);
+    TAG_LOGD(AAFwkTag::ABILITY, "SetShowOnLockScreen come, addWindowFlag, showOnLockScreen is %{public}d",
+        showOnLockScreen);
     if (showOnLockScreen) {
         window->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
         if (abilityInfo_ == nullptr) {
-            HILOG_ERROR("Ability::SetShowOnLockScreen abilityInfo_ == nullptr");
+            TAG_LOGE(AAFwkTag::ABILITY, "Ability::SetShowOnLockScreen abilityInfo_ == nullptr");
             return;
         }
         AAFwk::EventInfo eventInfo;
@@ -1662,14 +1668,14 @@ void Ability::OnTopActiveAbilityChanged(bool topActive)
 
 FormProviderInfo Ability::OnCreate(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     FormProviderInfo formProviderInfo;
     return formProviderInfo;
 }
 
 bool Ability::OnShare(int64_t formId, AAFwk::WantParams &wantParams)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     return false;
 }
 
@@ -1702,12 +1708,12 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 {
     sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
     if (option == nullptr) {
-        HILOG_ERROR("Ability::GetWindowOption option is null.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::GetWindowOption option is null.");
         return nullptr;
     }
     auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
         AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
-    HILOG_DEBUG("Ability::GetWindowOption window mode is %{public}d.", windowMode);
+    TAG_LOGD(AAFwkTag::ABILITY, "Ability::GetWindowOption window mode is %{public}d.", windowMode);
     option->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
     bool showOnLockScreen = false;
     if (abilityInfo_) {
@@ -1719,13 +1725,13 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
         }
     }
     if (showOnLockScreen_ || showOnLockScreen) {
-        HILOG_DEBUG("Ability::GetWindowOption come, add window flag WINDOW_FLAG_SHOW_WHEN_LOCKED.");
+        TAG_LOGD(AAFwkTag::ABILITY, "Ability::GetWindowOption come, add window flag WINDOW_FLAG_SHOW_WHEN_LOCKED.");
         option->AddWindowFlag(Rosen::WindowFlag::WINDOW_FLAG_SHOW_WHEN_LOCKED);
     }
 
     if (want.GetElement().GetBundleName() == LAUNCHER_BUNDLE_NAME &&
         want.GetElement().GetAbilityName() == LAUNCHER_ABILITY_NAME) {
-        HILOG_DEBUG("Set window type for launcher");
+        TAG_LOGD(AAFwkTag::ABILITY, "Set window type for launcher");
         option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_DESKTOP);
     }
     return option;
@@ -1734,25 +1740,25 @@ sptr<Rosen::WindowOption> Ability::GetWindowOption(const Want &want)
 void Ability::DoOnForeground(const Want& want)
 {
     if (abilityWindow_ == nullptr) {
-        HILOG_DEBUG("Ability window is nullptr.");
+        TAG_LOGD(AAFwkTag::ABILITY, "Ability window is nullptr.");
         return;
     }
 
-    HILOG_DEBUG("sceneFlag: %{public}d.", sceneFlag_);
+    TAG_LOGD(AAFwkTag::ABILITY, "sceneFlag: %{public}d.", sceneFlag_);
     auto window = abilityWindow_->GetWindow();
     if (window != nullptr && want.HasParameter(Want::PARAM_RESV_WINDOW_MODE)) {
         auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
             AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        HILOG_DEBUG("set window mode = %{public}d.", windowMode);
+        TAG_LOGD(AAFwkTag::ABILITY, "set window mode = %{public}d.", windowMode);
     }
     abilityWindow_->OnPostAbilityForeground(sceneFlag_);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 int Ability::GetCurrentWindowMode()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     auto windowMode = static_cast<int>(Rosen::WindowMode::WINDOW_MODE_UNDEFINED);
     if (scene_ == nullptr) {
         return windowMode;
@@ -1766,26 +1772,26 @@ int Ability::GetCurrentWindowMode()
 
 ErrCode Ability::SetMissionLabel(const std::string &label)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_ERROR("invalid ability info.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid ability info.");
         return -1;
     }
 
     // stage mode
     if (abilityInfo_->isStageBasedModel) {
         if (scene_ == nullptr) {
-            HILOG_ERROR("get window scene failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
             return -1;
         }
         auto window = scene_->GetMainWindow();
         if (window == nullptr) {
-            HILOG_ERROR("get window scene failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
             return -1;
         }
 
         if (window->SetAPPWindowLabel(label) != OHOS::Rosen::WMError::WM_OK) {
-            HILOG_ERROR("SetAPPWindowLabel failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "SetAPPWindowLabel failed.");
             return -1;
         }
         return ERR_OK;
@@ -1793,7 +1799,7 @@ ErrCode Ability::SetMissionLabel(const std::string &label)
 
     // fa mode
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("abilityWindow is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityWindow is nullptr.");
         return -1;
     }
     return abilityWindow_->SetMissionLabel(label);
@@ -1801,26 +1807,26 @@ ErrCode Ability::SetMissionLabel(const std::string &label)
 
 ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &icon)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (!abilityInfo_ || abilityInfo_->type != AppExecFwk::AbilityType::PAGE) {
-        HILOG_ERROR("invalid ability info, can not set mission icon.");
+        TAG_LOGE(AAFwkTag::ABILITY, "invalid ability info, can not set mission icon.");
         return -1;
     }
 
     // stage mode
     if (abilityInfo_->isStageBasedModel) {
         if (scene_ == nullptr) {
-            HILOG_ERROR("get window scene failed, can not set mission icon.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed, can not set mission icon.");
             return -1;
         }
         auto window = scene_->GetMainWindow();
         if (window == nullptr) {
-            HILOG_ERROR("get window scene failed, can not set mission icon.");
+            TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed, can not set mission icon.");
             return -1;
         }
 
         if (window->SetAPPWindowIcon(icon) != OHOS::Rosen::WMError::WM_OK) {
-            HILOG_ERROR("SetAPPWindowIcon failed.");
+            TAG_LOGE(AAFwkTag::ABILITY, "SetAPPWindowIcon failed.");
             return -1;
         }
         return ERR_OK;
@@ -1828,7 +1834,7 @@ ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &ic
 
     // fa mode
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("abilityWindow is nullptr, can not set mission icon.");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityWindow is nullptr, can not set mission icon.");
         return -1;
     }
     return abilityWindow_->SetMissionIcon(icon);
@@ -1836,33 +1842,34 @@ ErrCode Ability::SetMissionIcon(const std::shared_ptr<OHOS::Media::PixelMap> &ic
 
 void Ability::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITY, "call");
     if (scene_ == nullptr) {
-        HILOG_ERROR("get window scene failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
         return;
     }
     auto window = scene_->GetMainWindow();
     if (window == nullptr) {
-        HILOG_ERROR("get window scene failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
         return;
     }
     left = window->GetRect().posX_;
     top = window->GetRect().posY_;
     width = static_cast<int32_t>(window->GetRect().width_);
     height = static_cast<int32_t>(window->GetRect().height_);
-    HILOG_INFO("left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d", left, top, width, height);
+    TAG_LOGI(AAFwkTag::ABILITY, "left: %{public}d, top: %{public}d, width: %{public}d, height: %{public}d",
+        left, top, width, height);
 }
 
 Ace::UIContent* Ability::GetUIContent()
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITY, "call");
     if (scene_ == nullptr) {
-        HILOG_ERROR("get window scene failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window scene failed.");
         return nullptr;
     }
     auto window = scene_->GetMainWindow();
     if (window == nullptr) {
-        HILOG_ERROR("get window failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "get window failed.");
         return nullptr;
     }
     return window->GetUIContent();
@@ -1870,22 +1877,22 @@ Ace::UIContent* Ability::GetUIContent()
 
 void Ability::OnCreate(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnDestroy(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 void Ability::OnChange(Rosen::DisplayId displayId)
 {
-    HILOG_DEBUG("displayId: %{public}" PRIu64"", displayId);
+    TAG_LOGD(AAFwkTag::ABILITY, "displayId: %{public}" PRIu64"", displayId);
 
     // Get display
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (!display) {
-        HILOG_ERROR("Get display by displayId %{public}" PRIu64" failed.", displayId);
+        TAG_LOGE(AAFwkTag::ABILITY, "Get display by displayId %{public}" PRIu64" failed.", displayId);
         return;
     }
 
@@ -1901,7 +1908,7 @@ void Ability::OnChange(Rosen::DisplayId displayId)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            HILOG_INFO("Notify ResourceManager, Density: %{public}f, Direction: %{public}d",
+            TAG_LOGI(AAFwkTag::ABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
@@ -1912,19 +1919,19 @@ void Ability::OnChange(Rosen::DisplayId displayId)
     newConfig.AddItem(displayId, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
     if (application_ == nullptr) {
-        HILOG_ERROR("application_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "application_ is nullptr.");
         return;
     }
 
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
-        HILOG_ERROR("configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "configuration is nullptr.");
         return;
     }
 
     std::vector<std::string> changeKeyV;
     configuration->CompareDifferent(changeKeyV, newConfig);
-    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
+    TAG_LOGD(AAFwkTag::ABILITY, "changeKeyV size :%{public}zu", changeKeyV.size());
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
@@ -1933,20 +1940,21 @@ void Ability::OnChange(Rosen::DisplayId displayId)
         handler_->PostTask(task, "Ability:OnChange");
 
         auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(newConfig);
-        HILOG_INFO("Update display config %{public}s for all windows.", diffConfiguration->GetName().c_str());
+        TAG_LOGI(AAFwkTag::ABILITY, "Update display config %{public}s for all windows.",
+            diffConfiguration->GetName().c_str());
         Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
     }
 
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::ABILITY, "end");
 }
 
 void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 {
-    HILOG_INFO("from displayId %{public}" PRIu64" to %{public}" PRIu64".", from, to);
+    TAG_LOGI(AAFwkTag::ABILITY, "from displayId %{public}" PRIu64" to %{public}" PRIu64".", from, to);
 
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(to);
     if (!display) {
-        HILOG_ERROR("Get display by displayId %{public}" PRIu64" failed.", to);
+        TAG_LOGE(AAFwkTag::ABILITY, "Get display by displayId %{public}" PRIu64" failed.", to);
         return;
     }
 
@@ -1962,7 +1970,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
             resConfig->SetScreenDensity(density);
             resConfig->SetDirection(ConvertDirection(height, width));
             resourceManager->UpdateResConfig(*resConfig);
-            HILOG_INFO("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
+            TAG_LOGI(AAFwkTag::ABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
                 resConfig->GetScreenDensity(), resConfig->GetDirection());
         }
     }
@@ -1973,19 +1981,19 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
     newConfig.AddItem(to, ConfigurationInner::APPLICATION_DENSITYDPI, GetDensityStr(density));
 
     if (application_ == nullptr) {
-        HILOG_ERROR("application_ is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "application_ is nullptr.");
         return;
     }
 
     std::vector<std::string> changeKeyV;
     auto configuration = application_->GetConfiguration();
     if (!configuration) {
-        HILOG_ERROR("configuration is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "configuration is nullptr.");
         return;
     }
 
     configuration->CompareDifferent(changeKeyV, newConfig);
-    HILOG_DEBUG("changeKeyV size :%{public}zu", changeKeyV.size());
+    TAG_LOGD(AAFwkTag::ABILITY, "changeKeyV size :%{public}zu", changeKeyV.size());
     if (!changeKeyV.empty()) {
         configuration->Merge(changeKeyV, newConfig);
         auto task = [ability = shared_from_this(), configuration = *configuration]() {
@@ -1997,7 +2005,7 @@ void Ability::OnDisplayMove(Rosen::DisplayId from, Rosen::DisplayId to)
 
 void Ability::RequestFocus(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityWindow_ == nullptr) {
         return;
     }
@@ -2006,21 +2014,21 @@ void Ability::RequestFocus(const Want &want)
         auto windowMode = want.GetIntParam(Want::PARAM_RESV_WINDOW_MODE,
             AbilityWindowConfiguration::MULTI_WINDOW_DISPLAY_UNDEFINED);
         window->SetWindowMode(static_cast<Rosen::WindowMode>(windowMode));
-        HILOG_DEBUG("set window mode = %{public}d.", windowMode);
+        TAG_LOGD(AAFwkTag::ABILITY, "set window mode = %{public}d.", windowMode);
     }
     abilityWindow_->OnPostAbilityForeground(sceneFlag_);
 }
 
 void Ability::SetWakeUpScreen(bool wakeUp)
 {
-    HILOG_DEBUG("FA mode::SetWakeUpScreen wakeUp:%{public}d.", wakeUp);
+    TAG_LOGD(AAFwkTag::ABILITY, "FA mode::SetWakeUpScreen wakeUp:%{public}d.", wakeUp);
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("SetWakeUpScreen error. abilityWindow_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "SetWakeUpScreen error. abilityWindow_ == nullptr.");
         return;
     }
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
-        HILOG_ERROR("window nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window nullptr.");
         return;
     }
     window->SetTurnScreenOn(wakeUp);
@@ -2028,14 +2036,14 @@ void Ability::SetWakeUpScreen(bool wakeUp)
 
 void Ability::SetDisplayOrientation(int orientation)
 {
-    HILOG_DEBUG("FA mode, orientation: %{public}d", orientation);
+    TAG_LOGD(AAFwkTag::ABILITY, "FA mode, orientation: %{public}d", orientation);
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability window is nullptr.");
         return;
     }
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
-        HILOG_ERROR("window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window is nullptr.");
         return;
     }
     if (orientation == static_cast<int>(DisplayOrientation::FOLLOWRECENT)) {
@@ -2047,54 +2055,54 @@ void Ability::SetDisplayOrientation(int orientation)
         }
     }
     if (orientation == static_cast<int>(DisplayOrientation::LANDSCAPE)) {
-        HILOG_DEBUG("Set LANDSCAPE");
+        TAG_LOGD(AAFwkTag::ABILITY, "Set LANDSCAPE");
         window->SetRequestedOrientation(Rosen::Orientation::HORIZONTAL);
     } else if (orientation == static_cast<int>(DisplayOrientation::PORTRAIT)) {
-        HILOG_DEBUG("Set PORTRAIT");
+        TAG_LOGD(AAFwkTag::ABILITY, "Set PORTRAIT");
         window->SetRequestedOrientation(Rosen::Orientation::VERTICAL);
     } else {
-        HILOG_DEBUG("Set UNSPECIFIED");
+        TAG_LOGD(AAFwkTag::ABILITY, "Set UNSPECIFIED");
         window->SetRequestedOrientation(Rosen::Orientation::UNSPECIFIED);
     }
 }
 
 int Ability::GetDisplayOrientation()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability::GetDisplayOrientation error. abilityWindow_ == nullptr.");
         return -1;
     }
-    HILOG_DEBUG("FA mode");
+    TAG_LOGD(AAFwkTag::ABILITY, "FA mode");
     auto window = abilityWindow_->GetWindow();
     if (window == nullptr) {
-        HILOG_ERROR("window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "window is nullptr.");
         return -1;
     }
     auto orientation = window->GetRequestedOrientation();
     if (orientation == Rosen::Orientation::HORIZONTAL) {
-        HILOG_DEBUG("Get window orientation: LANDSCAPE");
+        TAG_LOGD(AAFwkTag::ABILITY, "Get window orientation: LANDSCAPE");
         return static_cast<int>(DisplayOrientation::LANDSCAPE);
     }
     if (orientation == Rosen::Orientation::VERTICAL) {
-        HILOG_DEBUG("Get window orientation: PORTRAIT");
+        TAG_LOGD(AAFwkTag::ABILITY, "Get window orientation: PORTRAIT");
         return static_cast<int>(DisplayOrientation::PORTRAIT);
     }
-    HILOG_DEBUG("Get window orientation: UNSPECIFIED");
+    TAG_LOGD(AAFwkTag::ABILITY, "Get window orientation: UNSPECIFIED");
     return 0;
 }
 
 void Ability::ContinuationRestore(const Want &want)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY, "called");
 }
 
 int Ability::CreateModalUIExtension(const Want &want)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITY, "call");
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
-        HILOG_ERROR("abilitycontext is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilitycontext is nullptr");
         return ERR_INVALID_VALUE;
     }
     return abilityContextImpl->CreateModalUIExtensionWithApp(want);
@@ -2110,7 +2118,7 @@ void Ability::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
     SetSessionToken(sessionToken);
     if (abilityWindow_ == nullptr) {
-        HILOG_ERROR("Ability window is nullptr.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Ability window is nullptr.");
         return;
     }
     abilityWindow_->SetSessionToken(sessionToken);
@@ -2124,10 +2132,11 @@ void Ability::InitFAWindow(const Want &want, int32_t displayId)
     }
 
     if (abilityWindow_ != nullptr) {
-        HILOG_DEBUG("Get window from abilityWindow.");
+        TAG_LOGD(AAFwkTag::ABILITY, "Get window from abilityWindow.");
         auto window = abilityWindow_->GetWindow();
         if (window) {
-            HILOG_DEBUG("Call RegisterDisplayMoveListener, windowId: %{public}d", window->GetWindowId());
+            TAG_LOGD(AAFwkTag::ABILITY, "Call RegisterDisplayMoveListener, windowId: %{public}d",
+                window->GetWindowId());
             abilityDisplayMoveListener_ = new AbilityDisplayMoveListener(weak_from_this());
             window->RegisterDisplayMoveListener(abilityDisplayMoveListener_);
         }
@@ -2138,7 +2147,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
 {
     auto display = Rosen::DisplayManager::GetInstance().GetDisplayById(displayId);
     if (!display) {
-        HILOG_INFO("The display is invliad.");
+        TAG_LOGI(AAFwkTag::ABILITY, "The display is invliad.");
         return true;
     }
     float density = display->GetVirtualPixelRatio();
@@ -2158,7 +2167,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
 
     std::unique_ptr<Global::Resource::ResConfig> resConfig(Global::Resource::CreateResConfig());
     if (resConfig == nullptr) {
-        HILOG_ERROR("Create resource config failed.");
+        TAG_LOGE(AAFwkTag::ABILITY, "Create resource config failed.");
         return false;
     }
     auto resourceManager = GetResourceManager();
@@ -2167,7 +2176,7 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
         resConfig->SetScreenDensity(density);
         resConfig->SetDirection(ConvertDirection(height, width));
         resourceManager->UpdateResConfig(*resConfig);
-        HILOG_DEBUG("Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
+        TAG_LOGD(AAFwkTag::ABILITY, "Notify ResourceManager, Density: %{public}f, Direction: %{public}d.",
             resConfig->GetScreenDensity(), resConfig->GetDirection());
     }
     return true;
@@ -2175,10 +2184,10 @@ bool Ability::UpdateResMgrAndConfiguration(int32_t displayId)
 
 void Ability::EraseUIExtension(int32_t sessionId)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::ABILITY, "call");
     auto abilityContextImpl = GetAbilityContext();
     if (abilityContextImpl == nullptr) {
-        HILOG_ERROR("abilityContext is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY, "abilityContext is nullptr");
         return;
     }
     abilityContextImpl->EraseUIExtension(sessionId);

@@ -20,6 +20,7 @@
 #include "ability_manager_client.h"
 #include "mock_ability_token.h"
 #include "mock_native_token.h"
+#include "scene_board_judgement.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -92,14 +93,16 @@ HWTEST_F(UIExtensionGetHostInfoTest, GetUIExtensionRootHostInfo_0300, TestSize.L
     AppExecFwk::MockNativeToken::SetNativeToken();
 
     sptr<IRemoteObject> token = nullptr;
-    auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
-    EXPECT_EQ(ret, ERR_OK);
+    if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        auto ret = AbilityManagerClient::GetInstance()->GetTopAbility(token);
+        EXPECT_EQ(ret, ERR_OK);
 
-    UIExtensionHostInfo hostInfo;
-    ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
-    // cause top ability isn't a uiextension ability.
-    EXPECT_EQ(ret, ERR_INVALID_VALUE);
-    TAG_LOGI(AAFwkTag::TEST, "Get host info uri: %{public}s", hostInfo.elementName_.GetURI().c_str());
+        UIExtensionHostInfo hostInfo;
+        ret = AAFwk::AbilityManagerClient::GetInstance()->GetUIExtensionRootHostInfo(token, hostInfo);
+        // cause top ability isn't a uiextension ability.
+        EXPECT_EQ(ret, ERR_INVALID_VALUE);
+        TAG_LOGI(AAFwkTag::TEST, "Get host info uri: %{public}s", hostInfo.elementName_.GetURI().c_str());
+    }
 
     SetSelfTokenID(currentID);
     TAG_LOGI(AAFwkTag::TEST, "end.");

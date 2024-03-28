@@ -16,6 +16,7 @@
 #include "app_mgr_proxy.h"
 
 #include "appexecfwk_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "ipc_types.h"
@@ -30,7 +31,7 @@ AppMgrProxy::AppMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAppMgr
 bool AppMgrProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AppMgrProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed");
         return false;
     }
     return true;
@@ -45,12 +46,12 @@ void AppMgrProxy::AttachApplication(const sptr<IRemoteObject> &obj)
         return;
     }
     if (!data.WriteRemoteObject(obj.GetRefPtr())) {
-        HILOG_ERROR("Failed to write remote object");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write remote object");
         return;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_ATTACH_APPLICATION, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -65,7 +66,7 @@ void AppMgrProxy::ApplicationForegrounded(const int32_t recordId)
     data.WriteInt32(recordId);
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -80,7 +81,7 @@ void AppMgrProxy::ApplicationBackgrounded(const int32_t recordId)
     data.WriteInt32(recordId);
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -95,7 +96,7 @@ void AppMgrProxy::ApplicationTerminated(const int32_t recordId)
     data.WriteInt32(recordId);
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_APPLICATION_TERMINATED, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -108,12 +109,12 @@ void AppMgrProxy::AbilityCleaned(const sptr<IRemoteObject> &token)
         return;
     }
     if (!data.WriteRemoteObject(token.GetRefPtr())) {
-        HILOG_ERROR("Failed to write token");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
         return;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_ABILITY_CLEANED, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
@@ -130,7 +131,7 @@ sptr<IAmsMgr> AppMgrProxy::GetAmsMgr()
     sptr<IRemoteObject> object = reply.ReadRemoteObject();
     sptr<IAmsMgr> amsMgr = iface_cast<IAmsMgr>(object);
     if (!amsMgr) {
-        HILOG_ERROR("ams instance is nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "Ability manager service instance is nullptr. ");
         return nullptr;
     }
     return amsMgr;
@@ -145,16 +146,16 @@ int32_t AppMgrProxy::ClearUpApplicationData(const std::string &bundleName, const
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("parcel WriteString failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteString failed");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "userId write failed.");
         return ERR_INVALID_VALUE;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -169,12 +170,12 @@ int32_t AppMgrProxy::ClearUpApplicationDataBySelf(int32_t userId)
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "userId write failed.");
         return ERR_INVALID_VALUE;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_CLEAR_UP_APPLICATION_DATA_BY_SELF, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -193,7 +194,7 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     }
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     int result = reply.ReadInt32();
@@ -213,7 +214,7 @@ int32_t AppMgrProxy::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
     }
     auto error = GetParcelableInfos<RenderProcessInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     int result = reply.ReadInt32();
@@ -229,13 +230,13 @@ int32_t AppMgrProxy::JudgeSandboxByPid(pid_t pid, bool &isSandbox)
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("Pid write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Pid write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::JUDGE_SANDBOX_BY_PID,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     isSandbox = reply.ReadBool();
@@ -257,7 +258,7 @@ int32_t AppMgrProxy::GetProcessRunningInfosByUserId(std::vector<RunningProcessIn
     }
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     int result = reply.ReadInt32();
@@ -292,7 +293,7 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
     data.WriteInt32(level);
     int32_t ret = SendRequest(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
     int result = reply.ReadInt32();
     return result;
@@ -300,7 +301,7 @@ int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
 
 int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
-    HILOG_DEBUG("AppMgrProxy::DumpHeapMemory.");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppMgrProxy::DumpHeapMemory.");
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
@@ -311,13 +312,13 @@ int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
     MessageOption option(MessageOption::TF_SYNC);
     int32_t ret = SendRequest(AppMgrInterfaceCode::DUMP_HEAP_MEMORY_PROCESS, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("AppMgrProxy SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrProxy SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
 
     std::unique_ptr<MallocInfo> info(reply.ReadParcelable<MallocInfo>());
     if (info == nullptr) {
-        HILOG_ERROR("MallocInfo ReadParcelable nullptr");
+        TAG_LOGE(AAFwkTag::APPMGR, "MallocInfo ReadParcelable nullptr");
         return ERR_NULL_OBJECT;
     }
     mallocInfo = *info;
@@ -326,7 +327,7 @@ int32_t AppMgrProxy::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocI
 
 int32_t AppMgrProxy::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
 {
-    HILOG_DEBUG("AppMgrProxy::DumpJsHeapMemory.");
+    TAG_LOGD(AAFwkTag::APPMGR, "AppMgrProxy::DumpJsHeapMemory.");
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
@@ -334,13 +335,14 @@ int32_t AppMgrProxy::DumpJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info)
     }
 
     if (!data.WriteParcelable(&info)) {
-        HILOG_ERROR("info write failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "info write failed");
         return ERR_FLATTEN_OBJECT;
     }
     MessageOption option(MessageOption::TF_SYNC);
     int32_t ret = SendRequest(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("AppMgrProxy SendRequest DUMP_JSHEAP_MEMORY_PROCESS is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR,
+            "AppMgrProxy SendRequest DUMP_JSHEAP_MEMORY_PROCESS is failed, error code: %{public}d", ret);
         return ret;
     }
     return ret;
@@ -351,7 +353,7 @@ bool AppMgrProxy::SendTransactCmd(AppMgrInterfaceCode code, MessageParcel &data,
     MessageOption option(MessageOption::TF_SYNC);
     int32_t result = SendRequest(code, data, reply, option);
     if (result != NO_ERROR) {
-        HILOG_ERROR("receive error transact code %{public}d in transact cmd %{public}d", result, code);
+        TAG_LOGE(AAFwkTag::APPMGR, "receive error transact code %{public}d in transact cmd %{public}d", result, code);
         return false;
     }
     return true;
@@ -362,17 +364,17 @@ void AppMgrProxy::AddAbilityStageDone(const int32_t recordId)
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return;
     }
 
     if (!data.WriteInt32(recordId)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want write failed.");
         return;
     }
 
     if (!SendTransactCmd(AppMgrInterfaceCode::APP_ADD_ABILITY_STAGE_INFO_DONE, data, reply)) {
-        HILOG_ERROR("SendTransactCmd failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd failed");
         return;
     }
     return;
@@ -383,24 +385,24 @@ void AppMgrProxy::StartupResidentProcess(const std::vector<AppExecFwk::BundleInf
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return;
     }
 
     if (!data.WriteInt32(bundleInfos.size())) {
-        HILOG_ERROR("write bundle info size failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write bundle info size failed.");
         return;
     }
 
     for (auto &bundleInfo : bundleInfos) {
         if (!data.WriteParcelable(&bundleInfo)) {
-            HILOG_ERROR("write bundle info failed");
+            TAG_LOGE(AAFwkTag::APPMGR, "write bundle info failed");
             return;
         }
     }
 
     if (!SendTransactCmd(AppMgrInterfaceCode::STARTUP_RESIDENT_PROCESS, data, reply)) {
-        HILOG_ERROR("SendTransactCmd failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd failed");
         return;
     }
     return;
@@ -411,18 +413,18 @@ int AppMgrProxy::GetParcelableInfos(MessageParcel &reply, std::vector<T> &parcel
 {
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        HILOG_ERROR("infoSize is too large");
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
         return ERR_INVALID_VALUE;
     }
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<T> info(reply.ReadParcelable<T>());
         if (!info) {
-            HILOG_ERROR("Read Parcelable infos failed");
+            TAG_LOGE(AAFwkTag::APPMGR, "Read Parcelable infos failed");
             return ERR_INVALID_VALUE;
         }
         parcelableInfos.emplace_back(*info);
     }
-    HILOG_DEBUG("get parcelable infos success");
+    TAG_LOGD(AAFwkTag::APPMGR, "get parcelable infos success");
     return NO_ERROR;
 }
 
@@ -430,10 +432,10 @@ int AppMgrProxy::RegisterApplicationStateObserver(
     const sptr<IApplicationStateObserver> &observer, const std::vector<std::string> &bundleNameList)
 {
     if (!observer) {
-        HILOG_ERROR("observer null");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer null");
         return ERR_INVALID_VALUE;
     }
-    HILOG_DEBUG("RegisterApplicationStateObserver start");
+    TAG_LOGD(AAFwkTag::APPMGR, "RegisterApplicationStateObserver start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -441,18 +443,18 @@ int AppMgrProxy::RegisterApplicationStateObserver(
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteStringVector(bundleNameList)) {
-        HILOG_ERROR("bundleNameList write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "bundleNameList write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     auto error = SendRequest(AppMgrInterfaceCode::REGISTER_APPLICATION_STATE_OBSERVER,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -462,10 +464,10 @@ int AppMgrProxy::UnregisterApplicationStateObserver(
     const sptr<IApplicationStateObserver> &observer)
 {
     if (!observer) {
-        HILOG_ERROR("observer null");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer null");
         return ERR_INVALID_VALUE;
     }
-    HILOG_DEBUG("UnregisterApplicationStateObserver start");
+    TAG_LOGD(AAFwkTag::APPMGR, "UnregisterApplicationStateObserver start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -473,14 +475,14 @@ int AppMgrProxy::UnregisterApplicationStateObserver(
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_APPLICATION_STATE_OBSERVER,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -488,9 +490,9 @@ int AppMgrProxy::UnregisterApplicationStateObserver(
 
 int32_t AppMgrProxy::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (observer == nullptr) {
-        HILOG_ERROR("Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
         return ERR_INVALID_VALUE;
     }
 
@@ -499,14 +501,14 @@ int32_t AppMgrProxy::RegisterAbilityForegroundStateObserver(const sptr<IAbilityF
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("Observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
     MessageOption option;
     auto error = SendRequest(AppMgrInterfaceCode::REGISTER_ABILITY_FOREGROUND_STATE_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -514,9 +516,9 @@ int32_t AppMgrProxy::RegisterAbilityForegroundStateObserver(const sptr<IAbilityF
 
 int32_t AppMgrProxy::UnregisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (observer == nullptr) {
-        HILOG_ERROR("Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
         return ERR_INVALID_VALUE;
     }
 
@@ -525,14 +527,14 @@ int32_t AppMgrProxy::UnregisterAbilityForegroundStateObserver(const sptr<IAbilit
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("Observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
     MessageOption option;
     auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_ABILITY_FOREGROUND_STATE_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d.", error);
         return error;
     }
     return reply.ReadInt32();
@@ -549,18 +551,18 @@ int AppMgrProxy::GetForegroundApplications(std::vector<AppStateData> &list)
     auto error = SendRequest(AppMgrInterfaceCode::GET_FOREGROUND_APPLICATIONS,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetForegroundApplications fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "GetForegroundApplications fail, error: %{public}d", error);
         return error;
     }
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        HILOG_ERROR("infoSize is too large");
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
         return ERR_INVALID_VALUE;
     }
     for (int32_t i = 0; i < infoSize; i++) {
         std::unique_ptr<AppStateData> info(reply.ReadParcelable<AppStateData>());
         if (!info) {
-            HILOG_ERROR("Read Parcelable infos failed.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Read Parcelable infos failed.");
             return ERR_INVALID_VALUE;
         }
         list.emplace_back(*info);
@@ -579,24 +581,24 @@ int AppMgrProxy::StartUserTestProcess(
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(observer)) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteParcelable(&bundleInfo)) {
-        HILOG_ERROR("bundleInfo write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "bundleInfo write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("userId write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "userId write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::START_USER_TEST_PROCESS, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -612,20 +614,20 @@ int AppMgrProxy::FinishUserTest(const std::string &msg, const int64_t &resultCod
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteString(msg)) {
-        HILOG_ERROR("msg write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "msg write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt64(resultCode)) {
-        HILOG_ERROR("resultCode:WriteInt32 fail.");
+        TAG_LOGE(AAFwkTag::APPMGR, "resultCode:WriteInt32 fail.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("bundleName write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "bundleName write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::FINISH_USER_TEST, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -636,17 +638,17 @@ void AppMgrProxy::ScheduleAcceptWantDone(const int32_t recordId, const AAFwk::Wa
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return;
     }
 
     if (!data.WriteInt32(recordId) || !data.WriteParcelable(&want) || !data.WriteString(flag)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want write failed.");
         return;
     }
 
     if (!SendTransactCmd(AppMgrInterfaceCode::SCHEDULE_ACCEPT_WANT_DONE, data, reply)) {
-        HILOG_ERROR("SendTransactCmd failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd failed");
         return;
     }
 }
@@ -657,17 +659,17 @@ void AppMgrProxy::ScheduleNewProcessRequestDone(const int32_t recordId, const AA
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return;
     }
 
     if (!data.WriteInt32(recordId) || !data.WriteParcelable(&want) || !data.WriteString(flag)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want write failed.");
         return;
     }
 
     if (!SendTransactCmd(AppMgrInterfaceCode::SCHEDULE_NEW_PROCESS_REQUEST_DONE, data, reply)) {
-        HILOG_ERROR("SendTransactCmd failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd failed");
         return;
     }
 }
@@ -687,7 +689,7 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
     }
     int32_t infoSize = reply.ReadInt32();
     if (infoSize > CYCLE_LIMIT) {
-        HILOG_ERROR("infoSize is too large");
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
         return ERR_INVALID_VALUE;
     }
     for (int32_t i = 0; i < infoSize; i++) {
@@ -699,25 +701,25 @@ int AppMgrProxy::GetAbilityRecordsByProcessID(const int pid, std::vector<sptr<IR
 
 int AppMgrProxy::PreStartNWebSpawnProcess()
 {
-    HILOG_INFO("PreStartNWebSpawnProcess");
+    TAG_LOGI(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return ERR_FLATTEN_OBJECT;
     }
 
     int32_t ret = SendRequest(AppMgrInterfaceCode::PRE_START_NWEBSPAWN_PROCESS,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("PreStartNWebSpawnProcess failed, result: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess failed, result: %{public}d", ret);
         return ret;
     }
 
     auto result = reply.ReadInt32();
     if (result != 0) {
-        HILOG_WARN("PreStartNWebSpawnProcess failed, result: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "PreStartNWebSpawnProcess failed, result: %{public}d", ret);
         return ret;
     }
     return 0;
@@ -728,9 +730,8 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
                                     int32_t crashFd, pid_t &renderPid)
 {
     if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 || crashFd <= 0) {
-        HILOG_ERROR("Invalid params, renderParam:%{private}s, ipcFd:%{public}d, "
-                    "sharedFd:%{public}d, crashFd:%{public}d",
-                    renderParam.c_str(), ipcFd, sharedFd, crashFd);
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, renderParam:%{private}s, ipcFd:%{public}d, "
+            "sharedFd:%{public}d, crashFd:%{public}d", renderParam.c_str(), ipcFd, sharedFd, crashFd);
         return -1;
     }
 
@@ -738,36 +739,33 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return ERR_FLATTEN_OBJECT;
     }
 
     if (!data.WriteString(renderParam)) {
-        HILOG_ERROR("want paramSize failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want paramSize failed.");
         return -1;
     }
 
     if (!data.WriteFileDescriptor(ipcFd) || !data.WriteFileDescriptor(sharedFd) ||
         !data.WriteFileDescriptor(crashFd)) {
-        HILOG_ERROR("want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
-                    "crashFd:%{public}d",
-                    ipcFd, sharedFd, crashFd);
+        TAG_LOGE(AAFwkTag::APPMGR, "want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
+            "crashFd:%{public}d", ipcFd, sharedFd, crashFd);
         return -1;
     }
 
     int32_t ret = SendRequest(AppMgrInterfaceCode::START_RENDER_PROCESS, data,
         reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN(
-            "StartRenderProcess SendRequest is failed, error code: %{public}d",
-            ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "StartRenderProcess SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
 
     auto result = reply.ReadInt32();
     renderPid = reply.ReadInt32();
     if (result != 0) {
-        HILOG_WARN("StartRenderProcess failed, result: %{public}d", result);
+        TAG_LOGW(AAFwkTag::APPMGR, "StartRenderProcess failed, result: %{public}d", result);
         return result;
     }
     return 0;
@@ -776,11 +774,11 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
 void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler)
 {
     if (!renderScheduler) {
-        HILOG_ERROR("renderScheduler is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "renderScheduler is null");
         return;
     }
 
-    HILOG_DEBUG("AttachRenderProcess start");
+    TAG_LOGD(AAFwkTag::APPMGR, "AttachRenderProcess start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -788,12 +786,12 @@ void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler
         return;
     }
     if (!data.WriteRemoteObject(renderScheduler)) {
-        HILOG_ERROR("renderScheduler write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "renderScheduler write failed.");
         return;
     }
 
     if (!SendTransactCmd(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS, data, reply)) {
-        HILOG_ERROR("SendTransactCmd ATTACH_RENDER_PROCESS failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd ATTACH_RENDER_PROCESS failed");
         return;
     }
 }
@@ -804,24 +802,25 @@ int AppMgrProxy::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return ERR_FLATTEN_OBJECT;
     }
 
     if (!data.WriteInt32(renderPid)) {
-        HILOG_ERROR("write renderPid failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write renderPid failed.");
         return -1;
     }
 
     int32_t ret = SendRequest(AppMgrInterfaceCode::GET_RENDER_PROCESS_TERMINATION_STATUS, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("GetRenderProcessTerminationStatus SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "GetRenderProcessTerminationStatus SendRequest is failed, error code: %{public}d",
+            ret);
         return ret;
     }
 
     auto result = reply.ReadInt32();
     if (result != 0) {
-        HILOG_WARN("GetRenderProcessTerminationStatus failed, result: %{public}d", result);
+        TAG_LOGW(AAFwkTag::APPMGR, "GetRenderProcessTerminationStatus failed, result: %{public}d", result);
         return result;
     }
     status = reply.ReadInt32();
@@ -830,7 +829,7 @@ int AppMgrProxy::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
 
 int32_t AppMgrProxy::UpdateConfiguration(const Configuration &config)
 {
-    HILOG_INFO("AppMgrProxy UpdateConfiguration");
+    TAG_LOGI(AAFwkTag::APPMGR, "AppMgrProxy UpdateConfiguration");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
@@ -838,12 +837,12 @@ int32_t AppMgrProxy::UpdateConfiguration(const Configuration &config)
         return ERR_INVALID_DATA;
     }
     if (!data.WriteParcelable(&config)) {
-        HILOG_ERROR("parcel config failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel config failed");
         return ERR_INVALID_DATA;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::UPDATE_CONFIGURATION, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -855,18 +854,18 @@ int32_t AppMgrProxy::GetConfiguration(Configuration &config)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_SYNC);
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("parcel data failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel data failed");
         return ERR_INVALID_DATA;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::GET_CONFIGURATION, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
 
     std::unique_ptr<Configuration> info(reply.ReadParcelable<Configuration>());
     if (!info) {
-        HILOG_ERROR("read configuration failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "read configuration failed.");
         return ERR_UNKNOWN_OBJECT;
     }
     config = *info;
@@ -876,10 +875,10 @@ int32_t AppMgrProxy::GetConfiguration(Configuration &config)
 int32_t AppMgrProxy::RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer)
 {
     if (!observer) {
-        HILOG_ERROR("observer null");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer null");
         return ERR_INVALID_VALUE;
     }
-    HILOG_DEBUG("RegisterConfigurationObserver start");
+    TAG_LOGD(AAFwkTag::APPMGR, "RegisterConfigurationObserver start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -888,14 +887,14 @@ int32_t AppMgrProxy::RegisterConfigurationObserver(const sptr<IConfigurationObse
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     auto error = SendRequest(AppMgrInterfaceCode::REGISTER_CONFIGURATION_OBSERVER,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -903,7 +902,7 @@ int32_t AppMgrProxy::RegisterConfigurationObserver(const sptr<IConfigurationObse
 
 int32_t AppMgrProxy::UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer)
 {
-    HILOG_DEBUG("UnregisterConfigurationObserver start");
+    TAG_LOGD(AAFwkTag::APPMGR, "UnregisterConfigurationObserver start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
@@ -912,14 +911,14 @@ int32_t AppMgrProxy::UnregisterConfigurationObserver(const sptr<IConfigurationOb
     }
 
     if (!data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("observer write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "observer write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_CONFIGURATION_OBSERVER,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -938,7 +937,7 @@ int AppMgrProxy::BlockAppService()
 
     int32_t ret = SendRequest(AppMgrInterfaceCode::BLOCK_APP_SERVICE, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -948,15 +947,15 @@ int AppMgrProxy::BlockAppService()
 bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
         return false;
     }
 
@@ -965,7 +964,7 @@ bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
     auto ret = SendRequest(AppMgrInterfaceCode::GET_APP_RUNNING_STATE,
         data, reply, option);
     if (ret != 0) {
-        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return false;
     }
 
@@ -975,20 +974,20 @@ bool AppMgrProxy::GetAppRunningStateByBundleName(const std::string &bundleName)
 int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("NotifyLoadRepairPatch, function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "NotifyLoadRepairPatch, function called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("NotifyLoadRepairPatch, Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "NotifyLoadRepairPatch, Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("NotifyLoadRepairPatch, Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "NotifyLoadRepairPatch, Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -997,7 +996,7 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const 
     auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH,
         data, reply, option);
     if (ret != 0) {
-        HILOG_WARN("NotifyLoadRepairPatch, Send request failed with error code %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "NotifyLoadRepairPatch, Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -1007,20 +1006,20 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const 
 int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -1029,7 +1028,7 @@ int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sp
     auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE,
         data, reply, option);
     if (ret != 0) {
-        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -1039,30 +1038,30 @@ int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sp
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
 int32_t AppMgrProxy::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask)
 {
-    HILOG_DEBUG("SetContinuousTaskProcess start.");
+    TAG_LOGD(AAFwkTag::APPMGR, "SetContinuousTaskProcess start.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("uid write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "uid write failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteBool(isContinuousTask)) {
-        HILOG_ERROR("isContinuousTask write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "isContinuousTask write failed.");
         return ERR_INVALID_DATA;
     }
 
     auto ret = SendRequest(AppMgrInterfaceCode::SET_CONTINUOUSTASK_PROCESS,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -1073,20 +1072,20 @@ int32_t AppMgrProxy::SetContinuousTaskProcess(int32_t pid, bool isContinuousTask
 int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Notify unload patch, Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Notify unload patch, Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Notify unload patch, Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Notify unload patch, Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
     if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
-        HILOG_ERROR("Write callback failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write callback failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -1095,7 +1094,7 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, cons
     auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH,
         data, reply, option);
     if (ret != 0) {
-        HILOG_WARN("Notify unload patch, Send request failed with error code %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "Notify unload patch, Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -1105,14 +1104,14 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, cons
 bool AppMgrProxy::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("function called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return false;
     }
     if (!data.WriteString(bundleName) || !data.WriteUint32(versionCode)) {
-        HILOG_ERROR("Write bundle name or version code failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name or version code failed.");
         return false;
     }
 
@@ -1121,7 +1120,7 @@ bool AppMgrProxy::IsSharedBundleRunning(const std::string &bundleName, uint32_t 
     auto ret = SendRequest(AppMgrInterfaceCode::IS_SHARED_BUNDLE_RUNNING,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return false;
     }
 
@@ -1132,11 +1131,11 @@ int32_t AppMgrProxy::StartNativeProcessForDebugger(const AAFwk::Want &want)
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteParcelable(&want)) {
-        HILOG_ERROR("want write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "want write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1145,7 +1144,7 @@ int32_t AppMgrProxy::StartNativeProcessForDebugger(const AAFwk::Want &want)
     auto ret = SendRequest(AppMgrInterfaceCode::START_NATIVE_PROCESS_FOR_DEBUGGER,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
 
@@ -1159,18 +1158,18 @@ int32_t AppMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
     MessageOption option;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("pid write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "pid write failed.");
         return ERR_INVALID_DATA;
     }
 
     auto ret = SendRequest(AppMgrInterfaceCode::GET_BUNDLE_NAME_BY_PID, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("Send request failed with error code %{public}d.", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
     bundleName = reply.ReadString();
@@ -1180,16 +1179,16 @@ int32_t AppMgrProxy::GetBundleNameByPid(const int pid, std::string &bundleName, 
 
 int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
     MessageParcel data;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     if (!data.WriteParcelable(&faultData)) {
-        HILOG_ERROR("Write FaultData error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write FaultData error.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1198,7 +1197,7 @@ int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
     auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_APP_FAULT,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -1207,16 +1206,16 @@ int32_t AppMgrProxy::NotifyAppFault(const FaultData &faultData)
 
 int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
     MessageParcel data;
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     if (!data.WriteParcelable(&faultData)) {
-        HILOG_ERROR("Write FaultDataBySA error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write FaultDataBySA error.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1225,7 +1224,7 @@ int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
     auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_APP_FAULT_BY_SA,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
@@ -1234,24 +1233,24 @@ int32_t AppMgrProxy::NotifyAppFaultBySA(const AppFaultDataBySA &faultData)
 
 int32_t AppMgrProxy::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySize)
 {
-    HILOG_DEBUG("GetProcessMemoryByPid start");
+    TAG_LOGD(AAFwkTag::APPMGR, "GetProcessMemoryByPid start");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("write pid failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write pid failed.");
         return ERR_INVALID_DATA;
     }
 
     auto ret = SendRequest(AppMgrInterfaceCode::GET_PROCESS_MEMORY_BY_PID,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
     memorySize = reply.ReadInt32();
@@ -1262,21 +1261,21 @@ int32_t AppMgrProxy::GetProcessMemoryByPid(const int32_t pid, int32_t &memorySiz
 int32_t AppMgrProxy::GetRunningProcessInformation(
     const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info)
 {
-    HILOG_DEBUG("GetRunningProcessInformation start");
+    TAG_LOGD(AAFwkTag::APPMGR, "GetRunningProcessInformation start");
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("write bundleName failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write bundleName failed.");
         return ERR_INVALID_DATA;
     }
 
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("write userId failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "write userId failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -1284,13 +1283,13 @@ int32_t AppMgrProxy::GetRunningProcessInformation(
     auto ret = SendRequest(AppMgrInterfaceCode::GET_PIDS_BY_BUNDLENAME,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code %{public}d.", ret);
         return ret;
     }
 
     auto error = GetParcelableInfos<RunningProcessInfo>(reply, info);
     if (error != NO_ERROR) {
-        HILOG_ERROR("GetParcelableInfos fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
         return error;
     }
     int result = reply.ReadInt32();
@@ -1299,25 +1298,25 @@ int32_t AppMgrProxy::GetRunningProcessInformation(
 
 int32_t AppMgrProxy::ChangeAppGcState(pid_t pid, int32_t state)
 {
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "called.");
     MessageParcel data;
     MessageParcel reply;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     MessageOption option(MessageOption::TF_ASYNC);
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("Pid write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Pid write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(state)) {
-        HILOG_ERROR("State write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "State write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     int32_t ret = SendRequest(AppMgrInterfaceCode::CHANGE_APP_GC_STATE, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     return NO_ERROR;
@@ -1325,28 +1324,28 @@ int32_t AppMgrProxy::ChangeAppGcState(pid_t pid, int32_t state)
 
 int32_t AppMgrProxy::NotifyPageShow(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
 {
-    HILOG_DEBUG("call");
+    TAG_LOGD(AAFwkTag::APPMGR, "call");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("Failed to write token");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
         return ERR_INVALID_DATA;
     }
     if (!data.WriteParcelable(&pageStateData)) {
-        HILOG_ERROR("Write PageStateData error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write PageStateData error.");
         return ERR_FLATTEN_OBJECT;
     }
 
     auto error = SendRequest(AppMgrInterfaceCode::NOTIFY_PAGE_SHOW,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -1355,28 +1354,28 @@ int32_t AppMgrProxy::NotifyPageShow(const sptr<IRemoteObject> &token, const Page
 
 int32_t AppMgrProxy::NotifyPageHide(const sptr<IRemoteObject> &token, const PageStateData &pageStateData)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteRemoteObject(token)) {
-        HILOG_ERROR("Failed to write token");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write token");
         return ERR_INVALID_DATA;
     }
     if (!data.WriteParcelable(&pageStateData)) {
-        HILOG_ERROR("Write PageStateData error.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write PageStateData error.");
         return ERR_FLATTEN_OBJECT;
     }
 
     auto error = SendRequest(AppMgrInterfaceCode::NOTIFY_PAGE_HIDE,
         data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
 
@@ -1388,7 +1387,7 @@ int32_t AppMgrProxy::SendRequest(AppMgrInterfaceCode code, MessageParcel &data, 
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote() is NULL");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote() is NULL");
         return ERR_NULL_OBJECT;
     }
 
@@ -1399,11 +1398,11 @@ int32_t AppMgrProxy::RegisterAppRunningStatusListener(const sptr<IRemoteObject> 
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (listener == nullptr || !data.WriteRemoteObject(listener)) {
-        HILOG_ERROR("Write listener failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write listener failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1411,7 +1410,7 @@ int32_t AppMgrProxy::RegisterAppRunningStatusListener(const sptr<IRemoteObject> 
     MessageOption option;
     auto error = SendRequest(AppMgrInterfaceCode::REGISTER_APP_RUNNING_STATUS_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1421,11 +1420,11 @@ int32_t AppMgrProxy::UnregisterAppRunningStatusListener(const sptr<IRemoteObject
 {
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (listener == nullptr || !data.WriteRemoteObject(listener)) {
-        HILOG_ERROR("Write listener failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write listener failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1433,7 +1432,7 @@ int32_t AppMgrProxy::UnregisterAppRunningStatusListener(const sptr<IRemoteObject
     MessageOption option;
     auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_APP_RUNNING_STATUS_LISTENER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1446,7 +1445,7 @@ int32_t AppMgrProxy::RegisterAppForegroundStateObserver(const sptr<IAppForegroun
         return ERR_FLATTEN_OBJECT;
     }
     if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("Observer is null or Write Remote failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null or Write Remote failed.");
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
@@ -1454,13 +1453,13 @@ int32_t AppMgrProxy::RegisterAppForegroundStateObserver(const sptr<IAppForegroun
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
     auto error = remote->SendRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::REGISTER_APP_FOREGROUND_STATE_OBSERVER), data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d.", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d.", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1473,7 +1472,7 @@ int32_t AppMgrProxy::UnregisterAppForegroundStateObserver(const sptr<IAppForegro
         return ERR_FLATTEN_OBJECT;
     }
     if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("Observer is null or Write Remote failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null or Write Remote failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1482,13 +1481,13 @@ int32_t AppMgrProxy::UnregisterAppForegroundStateObserver(const sptr<IAppForegro
 
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
     auto error = remote->SendRequest(
         static_cast<uint32_t>(AppMgrInterfaceCode::UNREGISTER_APP_FOREGROUND_STATE_OBSERVER), data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1497,15 +1496,15 @@ int32_t AppMgrProxy::UnregisterAppForegroundStateObserver(const sptr<IAppForegro
 int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &isRunning)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     isRunning = false;
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("Write bundle name failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write bundle name failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -1514,7 +1513,7 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
     auto ret = SendRequest(AppMgrInterfaceCode::IS_APPLICATION_RUNNING,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);
         return ret;
     }
 
@@ -1524,18 +1523,18 @@ int32_t AppMgrProxy::IsApplicationRunning(const std::string &bundleName, bool &i
 
 int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &childPid)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (srcEntry.empty()) {
-        HILOG_ERROR("Invalid params, srcEntry:%{private}s", srcEntry.c_str());
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, srcEntry:%{private}s", srcEntry.c_str());
         return ERR_INVALID_VALUE;
     }
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteString(srcEntry)) {
-        HILOG_ERROR("Write param srcEntry failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write param srcEntry failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1543,7 +1542,7 @@ int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &child
     MessageOption option;
     int32_t ret = SendRequest(AppMgrInterfaceCode::START_CHILD_PROCESS, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("StartChildProcess SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "StartChildProcess SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     auto result = reply.ReadInt32();
@@ -1555,17 +1554,17 @@ int32_t AppMgrProxy::StartChildProcess(const std::string &srcEntry, pid_t &child
 
 int32_t AppMgrProxy::GetChildProcessInfoForSelf(ChildProcessInfo &info)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return ERR_FLATTEN_OBJECT;
     }
     MessageParcel reply;
     MessageOption option;
     int32_t ret = SendRequest(AppMgrInterfaceCode::GET_CHILD_PROCCESS_INFO_FOR_SELF, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("GetChildProcessInfoForSelf SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "GetChildProcessInfoForSelf SendRequest is failed, error code: %{public}d", ret);
         return ret;
     }
     auto result = reply.ReadInt32();
@@ -1578,50 +1577,50 @@ int32_t AppMgrProxy::GetChildProcessInfoForSelf(ChildProcessInfo &info)
 
 void AppMgrProxy::AttachChildProcess(const sptr<IRemoteObject> &childScheduler)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!childScheduler) {
-        HILOG_ERROR("childScheduler is null");
+        TAG_LOGE(AAFwkTag::APPMGR, "childScheduler is null");
         return;
     }
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return;
     }
     if (!data.WriteRemoteObject(childScheduler.GetRefPtr())) {
-        HILOG_ERROR("Failed to write remote object");
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write remote object");
         return;
     }
     MessageParcel reply;
     MessageOption option;
     int32_t ret = SendRequest(AppMgrInterfaceCode::ATTACH_CHILD_PROCESS, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("AttachChildProcess SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "AttachChildProcess SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 void AppMgrProxy::ExitChildProcessSafely()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("WriteInterfaceToken failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
         return;
     }
     MessageParcel reply;
     MessageOption option;
     int32_t ret = SendRequest(AppMgrInterfaceCode::EXIT_CHILD_PROCESS_SAFELY, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("ExitChildProcessSafely SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "ExitChildProcessSafely SendRequest is failed, error code: %{public}d", ret);
     }
 }
 
 bool AppMgrProxy::IsFinalAppProcess()
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
 
@@ -1630,7 +1629,7 @@ bool AppMgrProxy::IsFinalAppProcess()
     auto ret = SendRequest(AppMgrInterfaceCode::IS_FINAL_APP_PROCESS,
         data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);
         return false;
     }
 
@@ -1639,14 +1638,14 @@ bool AppMgrProxy::IsFinalAppProcess()
 
 int32_t AppMgrProxy::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
     if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("Observer is null or Write Remote failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null or Write Remote failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1655,7 +1654,7 @@ int32_t AppMgrProxy::RegisterRenderStateObserver(const sptr<IRenderStateObserver
 
     auto error = SendRequest(AppMgrInterfaceCode::REGISTER_RENDER_STATUS_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1663,14 +1662,14 @@ int32_t AppMgrProxy::RegisterRenderStateObserver(const sptr<IRenderStateObserver
 
 int32_t AppMgrProxy::UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
     if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
-        HILOG_ERROR("Observer is null or Write Remote failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null or Write Remote failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1679,7 +1678,7 @@ int32_t AppMgrProxy::UnregisterRenderStateObserver(const sptr<IRenderStateObserv
 
     auto error = SendRequest(AppMgrInterfaceCode::UNREGISTER_RENDER_STATUS_OBSERVER, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1687,18 +1686,18 @@ int32_t AppMgrProxy::UnregisterRenderStateObserver(const sptr<IRenderStateObserv
 
 int32_t AppMgrProxy::UpdateRenderState(pid_t renderPid, int32_t state)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return ERR_INVALID_DATA;
     }
     if (!data.WriteInt32(renderPid)) {
-        HILOG_ERROR("RenderPid write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "RenderPid write failed.");
         return ERR_FLATTEN_OBJECT;
     }
     if (!data.WriteInt32(state)) {
-        HILOG_ERROR("State write failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "State write failed.");
         return ERR_FLATTEN_OBJECT;
     }
 
@@ -1707,7 +1706,7 @@ int32_t AppMgrProxy::UpdateRenderState(pid_t renderPid, int32_t state)
 
     auto error = SendRequest(AppMgrInterfaceCode::UPDATE_RENDER_STATUS, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
@@ -1715,21 +1714,21 @@ int32_t AppMgrProxy::UpdateRenderState(pid_t renderPid, int32_t state)
 
 int32_t AppMgrProxy::SignRestartAppFlag(const std::string &bundleName)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return IPC_PROXY_ERR;
     }
     if (!data.WriteString(bundleName)) {
-        HILOG_ERROR("parcel WriteString failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteString failed");
         return IPC_PROXY_ERR;
     }
     auto ret = SendRequest(AppMgrInterfaceCode::SIGN_RESTART_APP_FLAG, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);
         return ret;
     }
     return reply.ReadInt32();
@@ -1783,27 +1782,27 @@ int32_t AppMgrProxy::RequestTerminateApplication()
 
 int32_t AppMgrProxy::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return IPC_PROXY_ERR;
     }
     if (!data.WriteInt32(pid)) {
-        HILOG_ERROR("parcel WriteInt32 failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel WriteInt32 failed");
         return IPC_PROXY_ERR;
     }
     auto ret = SendRequest(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request is failed, error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request is failed, error code: %{public}d", ret);
         return ret;
     }
     auto result = reply.ReadInt32();
     if (result == ERR_OK) {
         appRunningUniqueId = reply.ReadString();
-        HILOG_DEBUG("appRunningUniqueId = %{public}s", appRunningUniqueId.c_str());
+        TAG_LOGD(AAFwkTag::APPMGR, "appRunningUniqueId = %{public}s", appRunningUniqueId.c_str());
     }
     return result;
 }

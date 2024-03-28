@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "configuration.h"
 #include "ipc_types.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,7 +29,7 @@ AppStateCallbackProxy::AppStateCallbackProxy(const sptr<IRemoteObject> &impl) : 
 bool AppStateCallbackProxy::WriteInterfaceToken(MessageParcel &data)
 {
     if (!data.WriteInterfaceToken(AppStateCallbackProxy::GetDescriptor())) {
-        HILOG_ERROR("write interface token failed");
+        TAG_LOGE(AAFwkTag::APPMGR, "write interface token failed");
         return false;
     }
     return true;
@@ -36,7 +37,7 @@ bool AppStateCallbackProxy::WriteInterfaceToken(MessageParcel &data)
 
 void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject> &token, const AbilityState state)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "begin");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -46,12 +47,12 @@ void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 
     if (token) {
         if (!data.WriteBool(true) || !data.WriteRemoteObject(token.GetRefPtr())) {
-            HILOG_ERROR("Failed to write flag and token");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write flag and token");
             return;
         }
     } else {
         if (!data.WriteBool(false)) {
-            HILOG_ERROR("Failed to write flag");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to write flag");
             return;
         }
     }
@@ -61,14 +62,14 @@ void AppStateCallbackProxy::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_ABILITY_REQUEST_DONE), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
 void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData &appProcessData)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::APPMGR, "begin");
     MessageParcel data;
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
@@ -79,9 +80,9 @@ void AppStateCallbackProxy::OnAppStateChanged(const AppProcessData &appProcessDa
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_APP_STATE_CHANGED), data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_WARN("SendRequest is failed, error code: %{public}d", ret);
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::APPMGR, "end");
 }
 
 void AppStateCallbackProxy::NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId)
@@ -90,21 +91,21 @@ void AppStateCallbackProxy::NotifyConfigurationChange(const AppExecFwk::Configur
     MessageParcel reply;
     MessageOption option;
     if (!WriteInterfaceToken(data)) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write interface token failed.");
         return;
     }
     if (!data.WriteParcelable(&config)) {
-        HILOG_ERROR("Write config failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write config failed.");
         return;
     }
     if (!data.WriteInt32(userId)) {
-        HILOG_ERROR("Write usr failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Write usr failed.");
         return;
     }
     auto error = SendTransactCmd(
         static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_CONFIG_CHANGE), data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send config error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send config error: %{public}d", error);
     }
 }
 
@@ -113,13 +114,13 @@ int32_t AppStateCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &dat
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("Remote is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     auto ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("Send request failed with error code: %{public}d", ret);
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request failed with error code: %{public}d", ret);
         return ret;
     }
     return ret;

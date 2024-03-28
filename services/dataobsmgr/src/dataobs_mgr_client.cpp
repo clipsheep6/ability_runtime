@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include <thread>
 #include "dataobs_mgr_client.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -123,19 +124,19 @@ Status DataObsMgrClient::Connect()
 
     sptr<ISystemAbilityManager> systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        HILOG_ERROR("fail to get Registry");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get Registry");
         return GET_DATAOBS_SERVICE_FAILED;
     }
 
     auto remoteObject = systemManager->GetSystemAbility(DATAOBS_MGR_SERVICE_SA_ID);
     if (remoteObject == nullptr) {
-        HILOG_ERROR("fail to get systemAbility");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get systemAbility");
         return GET_DATAOBS_SERVICE_FAILED;
     }
 
     dataObsManger_ = iface_cast<IDataObsMgr>(remoteObject);
     if (dataObsManger_ == nullptr) {
-        HILOG_ERROR("fail to get IDataObsMgr");
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "fail to get IDataObsMgr");
         return GET_DATAOBS_SERVICE_FAILED;
     }
     sptr<ServiceDeathRecipient> serviceDeathRecipient(new (std::nothrow) ServiceDeathRecipient(GetInstance()));

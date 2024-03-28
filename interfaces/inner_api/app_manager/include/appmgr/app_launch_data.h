@@ -172,6 +172,16 @@ public:
         return perfCmd_;
     }
 
+    inline void SetJITEnabled(const bool jitEnabled)
+    {
+        jitEnabled_ = jitEnabled;
+    }
+
+    inline bool IsJITEnabled() const
+    {
+        return jitEnabled_;
+    }
+
     /**
      * @brief read this Sequenceable object from a Parcel.
      *
@@ -204,6 +214,7 @@ private:
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
     bool debugApp_ = false;
     std::string perfCmd_;
+    bool jitEnabled_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

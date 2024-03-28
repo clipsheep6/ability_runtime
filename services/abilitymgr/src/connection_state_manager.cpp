@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 
 #include "app_mgr_interface.h"
 #include "connection_observer_errors.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -58,14 +59,14 @@ void ConnectionStateManager::Init(const std::shared_ptr<TaskHandlerWrap> &handle
     }
     handler_ = handler;
     if (!handler) {
-        HILOG_WARN("eventhandler is invalid");
+        TAG_LOGW(AAFwkTag::CONNECTION, "eventhandler is invalid");
         InitAppStateObserver();
         return;
     }
     auto initConnectionStateManagerTask = [weak = weak_from_this()]() {
         auto self = weak.lock();
         if (!self) {
-            HILOG_WARN("invalid self pointer");
+            TAG_LOGW(AAFwkTag::CONNECTION, "invalid self pointer");
             return;
         }
         self->InitAppStateObserver();
@@ -100,13 +101,13 @@ void ConnectionStateManager::AddConnection(std::shared_ptr<ConnectionRecord> con
     }
 
     if (!connectionRecord) {
-        HILOG_ERROR("connection record is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "connection record is invalid");
         return;
     }
 
     ConnectionData connectionData;
     if (!AddConnectionInner(connectionRecord, connectionData)) {
-        HILOG_DEBUG("add connection, no need to notify observers");
+        TAG_LOGD(AAFwkTag::CONNECTION, "add connection, no need to notify observers");
         return;
     }
     controller->NotifyExtensionConnected(connectionData);
@@ -121,7 +122,7 @@ void ConnectionStateManager::RemoveConnection(std::shared_ptr<ConnectionRecord> 
     }
 
     if (!connectionRecord) {
-        HILOG_ERROR("connection record is invalid when remove connection");
+        TAG_LOGE(AAFwkTag::CONNECTION, "connection record is invalid when remove connection");
         return;
     }
 
@@ -133,7 +134,7 @@ void ConnectionStateManager::RemoveConnection(std::shared_ptr<ConnectionRecord> 
 
     ConnectionData connectionData;
     if (!RemoveConnectionInner(connectionRecord, connectionData)) {
-        HILOG_DEBUG("remove connection, no need to notify observers");
+        TAG_LOGD(AAFwkTag::CONNECTION, "remove connection, no need to notify observers");
         return;
     }
     controller->NotifyExtensionDisconnected(connectionData);
@@ -148,7 +149,7 @@ void ConnectionStateManager::AddDataAbilityConnection(const DataAbilityCaller &c
 
     ConnectionData connectionData;
     if (!AddDataAbilityConnectionInner(caller, record, connectionData)) {
-        HILOG_WARN("add data ability onnection, no need to notify observers");
+        TAG_LOGW(AAFwkTag::CONNECTION, "add data ability onnection, no need to notify observers");
         return;
     }
     observerController_->NotifyExtensionConnected(connectionData);
@@ -163,7 +164,7 @@ void ConnectionStateManager::RemoveDataAbilityConnection(const DataAbilityCaller
 
     ConnectionData connectionData;
     if (!RemoveDataAbilityConnectionInner(caller, record, connectionData)) {
-        HILOG_WARN("remove data ability, no need to notify observers");
+        TAG_LOGW(AAFwkTag::CONNECTION, "remove data ability, no need to notify observers");
         return;
     }
     observerController_->NotifyExtensionDisconnected(connectionData);
@@ -177,12 +178,12 @@ bool ConnectionStateManager::CheckDataAbilityConnectionParams(const DataAbilityC
     }
 
     if (!record) {
-        HILOG_ERROR("data ability record is invalid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "data ability record is invalid");
         return false;
     }
 
     if (caller.callerPid == 0) {
-        HILOG_ERROR("data ability, invalid caller pid");
+        TAG_LOGE(AAFwkTag::CONNECTION, "data ability, invalid caller pid");
         return false;
     }
 
@@ -192,20 +193,20 @@ bool ConnectionStateManager::CheckDataAbilityConnectionParams(const DataAbilityC
 void ConnectionStateManager::HandleDataAbilityDied(const std::shared_ptr<DataAbilityRecord> &record)
 {
     if (!record) {
-        HILOG_ERROR("invalid data ability.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid data ability.");
         return;
     }
 
     auto token = record->GetToken();
     if (!token) {
-        HILOG_ERROR("invalid data ability token.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "invalid data ability token.");
         return;
     }
 
     std::vector<AbilityRuntime::ConnectionData> allData;
     HandleDataAbilityDiedInner(token, allData);
     if (allData.empty()) {
-        HILOG_WARN("allConnectionData is empty.");
+        TAG_LOGW(AAFwkTag::CONNECTION, "allConnectionData is empty.");
         return;
     }
 
@@ -222,7 +223,7 @@ void ConnectionStateManager::HandleDataAbilityDied(const std::shared_ptr<DataAbi
 void ConnectionStateManager::HandleDataAbilityCallerDied(int32_t callerPid)
 {
     if (callerPid <= 0) {
-        HILOG_WARN("invalid data ability caller pid.");
+        TAG_LOGW(AAFwkTag::CONNECTION, "invalid data ability caller pid.");
         return;
     }
 
@@ -262,7 +263,7 @@ void ConnectionStateManager::AddDlpAbility(const std::shared_ptr<AbilityRecord> 
 
     DlpStateData dlpData;
     if (!HandleDlpAbilityInner(dlpAbility, true, dlpData)) {
-        HILOG_DEBUG("no need to report dlp opened connection state.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "no need to report dlp opened connection state.");
         return;
     }
     controller->NotifyDlpAbilityOpened(dlpData);
@@ -277,7 +278,7 @@ void ConnectionStateManager::RemoveDlpAbility(const std::shared_ptr<AbilityRecor
 
     DlpStateData dlpData;
     if (!HandleDlpAbilityInner(dlpAbility, false, dlpData)) {
-        HILOG_DEBUG("no need to report dlp closed connection state.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "no need to report dlp closed connection state.");
         return;
     }
     controller->NotifyDlpAbilityClosed(dlpData);
@@ -309,7 +310,7 @@ void ConnectionStateManager::GetConnectionData(std::vector<AbilityRuntime::Conne
     std::lock_guard guard(stateLock_);
     for (const auto &stateItem : connectionStates_) {
         if (!stateItem.second) {
-            HILOG_WARN("Unexpected null");
+            TAG_LOGW(AAFwkTag::CONNECTION, "Unexpected null");
             continue;
         }
 
@@ -317,7 +318,7 @@ void ConnectionStateManager::GetConnectionData(std::vector<AbilityRuntime::Conne
         stateItem.second->GenerateAllConnectionData(allConnectionData);
         connectionData.insert(connectionData.end(), allConnectionData.begin(), allConnectionData.end());
     }
-    HILOG_DEBUG("GetConnectionData: %{public}zu", connectionData.size());
+    TAG_LOGD(AAFwkTag::CONNECTION, "GetConnectionData: %{public}zu", connectionData.size());
 }
 
 bool ConnectionStateManager::AddConnectionInner(std::shared_ptr<ConnectionRecord> connectionRecord,
@@ -337,7 +338,7 @@ bool ConnectionStateManager::AddConnectionInner(std::shared_ptr<ConnectionRecord
     }
 
     if (!targetItem) {
-        HILOG_ERROR("failed to find target connection state item.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "failed to find target connection state item.");
         return false;
     }
 
@@ -351,13 +352,13 @@ bool ConnectionStateManager::RemoveConnectionInner(std::shared_ptr<ConnectionRec
     std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(callerPid);
     if (it == connectionStates_.end()) {
-        HILOG_WARN("can not find target item, connection caller pid:%{public}d.", callerPid);
+        TAG_LOGW(AAFwkTag::CONNECTION, "can not find target item, connection caller pid:%{public}d.", callerPid);
         return false;
     }
 
     auto targetItem = it->second;
     if (!targetItem) {
-        HILOG_ERROR("failed to find target connection state item.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "failed to find target connection state item.");
         return false;
     }
 
@@ -372,14 +373,14 @@ void ConnectionStateManager::HandleCallerDied(int32_t callerPid)
 {
     auto connectionStateItem = RemoveDiedCaller(callerPid);
     if (!connectionStateItem) {
-        HILOG_DEBUG("no connectionStateItem, may already handled.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "no connectionStateItem, may already handled.");
         return;
     }
 
     std::vector<AbilityRuntime::ConnectionData> allConnectionData;
     connectionStateItem->GenerateAllConnectionData(allConnectionData);
     if (allConnectionData.empty()) {
-        HILOG_WARN("allConnectionData is empty.");
+        TAG_LOGW(AAFwkTag::CONNECTION, "allConnectionData is empty.");
         return;
     }
 
@@ -398,7 +399,7 @@ std::shared_ptr<ConnectionStateItem> ConnectionStateManager::RemoveDiedCaller(in
     std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(callerPid);
     if (it == connectionStates_.end()) {
-        HILOG_WARN("connection caller pid:%{public}d.", callerPid);
+        TAG_LOGW(AAFwkTag::CONNECTION, "connection caller pid:%{public}d.", callerPid);
         return nullptr;
     }
     auto stateItem = it->second;
@@ -423,7 +424,7 @@ bool ConnectionStateManager::AddDataAbilityConnectionInner(const DataAbilityCall
     }
 
     if (!targetItem) {
-        HILOG_ERROR("failed to find target connection state item.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "failed to find target connection state item.");
         return false;
     }
 
@@ -436,13 +437,13 @@ bool ConnectionStateManager::RemoveDataAbilityConnectionInner(const DataAbilityC
     std::lock_guard<ffrt::mutex> guard(stateLock_);
     auto it = connectionStates_.find(caller.callerPid);
     if (it == connectionStates_.end()) {
-        HILOG_WARN("can not find target item, connection caller pid:%{public}d.", caller.callerPid);
+        TAG_LOGW(AAFwkTag::CONNECTION, "can not find target item, connection caller pid:%{public}d.", caller.callerPid);
         return false;
     }
 
     auto targetItem = it->second;
     if (!targetItem) {
-        HILOG_ERROR("failed to find target data ability state item.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "failed to find target data ability state item.");
         return false;
     }
 
@@ -481,25 +482,25 @@ bool ConnectionStateManager::HandleDlpAbilityInner(const std::shared_ptr<Ability
     bool isAdd, AbilityRuntime::DlpStateData &dlpData)
 {
     if (!dlpAbility) {
-        HILOG_DEBUG("invalid dlp ability.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "invalid dlp ability.");
         return false;
     }
 
     if (dlpAbility->GetAppIndex() == 0) {
-        HILOG_DEBUG("this is not dlp ability, do not report connection stat.");
+        TAG_LOGD(AAFwkTag::CONNECTION, "this is not dlp ability, do not report connection stat.");
         return false;
     }
 
     std::lock_guard<ffrt::mutex> guard(dlpLock_);
     auto it = dlpItems_.find(dlpAbility->GetOwnerMissionUserId());
     if (it == dlpItems_.end()) {
-        HILOG_WARN("no dlp manager, invalid state.");
+        TAG_LOGW(AAFwkTag::CONNECTION, "no dlp manager, invalid state.");
         return false;
     }
 
     auto dlpItem = it->second;
     if (!dlpItem) {
-        HILOG_WARN("invalid dlpItem.");
+        TAG_LOGW(AAFwkTag::CONNECTION, "invalid dlpItem.");
         return false;
     }
 
@@ -518,12 +519,12 @@ void ConnectionStateManager::InitAppStateObserver()
 
     sptr<OHOS::AppExecFwk::IAppMgr> appManager = GetAppMgr();
     if (!appManager) {
-        HILOG_WARN("%{public}s app manager nullptr! retry:%{public}d", __func__, retry_);
+        TAG_LOGW(AAFwkTag::CONNECTION, "%{public}s app manager nullptr! retry:%{public}d", __func__, retry_);
         if (retry_ < MAX_RETRY && handler_) {
             auto initConnectionStateManagerTask = [weak = weak_from_this()]() {
                 auto self = weak.lock();
                 if (!self) {
-                    HILOG_WARN("invalid self pointer");
+                    TAG_LOGW(AAFwkTag::CONNECTION, "invalid self pointer");
                     return;
                 }
                 self->InitAppStateObserver();
@@ -539,7 +540,7 @@ void ConnectionStateManager::InitAppStateObserver()
     });
     int32_t err = appManager->RegisterApplicationStateObserver(appStateObserver_);
     if (err != 0) {
-        HILOG_ERROR("%{public}s register to appmanager failed. err:%{public}d", __func__, err);
+        TAG_LOGE(AAFwkTag::CONNECTION, "%{public}s register to appmanager failed. err:%{public}d", __func__, err);
         appStateObserver_ = nullptr;
         return;
     }

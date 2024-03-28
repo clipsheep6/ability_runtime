@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 #include "system_memory_attr.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,7 +29,7 @@ bool SystemMemoryAttr::ReadFromParcel(Parcel &parcel)
     parcel.ReadInt64(threshold_);
     isSysInlowMem_ = parcel.ReadBool();
 
-    HILOG_DEBUG("SystemMemoryAttr::ReadFromParcel %{public}zu %{public}zu %{public}zu %{public}s",
+    TAG_LOGD(AAFwkTag::APPMGR, "SystemMemoryAttr::ReadFromParcel %{public}zu %{public}zu %{public}zu %{public}s",
         static_cast<size_t>(availSysMem_),
         static_cast<size_t>(totalSysMem_),
         static_cast<size_t>(threshold_),
@@ -58,7 +59,7 @@ bool SystemMemoryAttr::Marshalling(Parcel &parcel) const
     parcel.WriteInt64(threshold_);
     parcel.WriteBool(isSysInlowMem_);
 
-    HILOG_DEBUG("SystemMemoryAttr::Marshalling %{public}zu %{public}zu %{public}zu %{public}s",
+    TAG_LOGD(AAFwkTag::APPMGR, "SystemMemoryAttr::Marshalling %{public}zu %{public}zu %{public}zu %{public}s",
         static_cast<size_t>(availSysMem_),
         static_cast<size_t>(totalSysMem_),
         static_cast<size_t>(threshold_),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "napi_common_start_options.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
@@ -34,26 +35,26 @@ bool UnwrapProcessOptions(napi_env env, napi_value param, std::shared_ptr<AAFwk:
     auto option = std::make_shared<AAFwk::ProcessOptions>();
     int32_t processMode = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "processMode", processMode)) {
-        HILOG_ERROR("Unwrap processMode failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap processMode failed.");
         return false;
     }
     option->processMode = AAFwk::ProcessOptions::ConvertInt32ToProcessMode(processMode);
     if (option->processMode == AAFwk::ProcessMode::UNSPECIFIED) {
-        HILOG_ERROR("Convert processMode failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Convert processMode failed.");
         return false;
     }
     int32_t startupVisibility = 0;
     if (!UnwrapInt32ByPropertyName(env, param, "startupVisibility", startupVisibility)) {
-        HILOG_ERROR("Unwrap startupVisibility failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap startupVisibility failed.");
         return false;
     }
     option->startupVisibility = AAFwk::ProcessOptions::ConvertInt32ToStartupVisibility(startupVisibility);
     if (option->startupVisibility == AAFwk::StartupVisibility::UNSPECIFIED) {
-        HILOG_ERROR("Convert startupVisibility failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Convert startupVisibility failed.");
         return false;
     }
     processOptions = option;
-    HILOG_INFO("processMode:%{public}d, startupVisibility:%{public}d",
+    TAG_LOGI(AAFwkTag::JSNAPI, "processMode:%{public}d, startupVisibility:%{public}d",
         static_cast<int32_t>(processOptions->processMode),
         static_cast<int32_t>(processOptions->startupVisibility));
     return true;
@@ -63,7 +64,7 @@ bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::
 {
     UnwrapStartOptions(env, param, startOptions);
     if (!UnwrapProcessOptions(env, param, startOptions.processOptions)) {
-        HILOG_ERROR("Unwrap processOptions failed.");
+        TAG_LOGE(AAFwkTag::JSNAPI, "Unwrap processOptions failed.");
         return false;
     }
     return true;
@@ -71,10 +72,10 @@ bool UnwrapStartOptionsWithProcessOption(napi_env env, napi_value param, AAFwk::
 
 bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &startOptions)
 {
-    HILOG_INFO("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called.", __func__);
 
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);
         return false;
     }
 
@@ -85,7 +86,7 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
 
     int32_t displayId = 0;
     if (UnwrapInt32ByPropertyName(env, param, "displayId", displayId)) {
-        HILOG_INFO("get display id ok displayId %{public}d", displayId);
+        TAG_LOGI(AAFwkTag::JSNAPI, "get display id ok displayId %{public}d", displayId);
         startOptions.SetDisplayID(displayId);
     }
 
@@ -124,7 +125,7 @@ bool UnwrapStartOptions(napi_env env, napi_value param, AAFwk::StartOptions &sta
 bool UnwrapStartOptionsAndWant(napi_env env, napi_value param, AAFwk::StartOptions &startOptions, AAFwk::Want &want)
 {
     if (!IsTypeForNapiValue(env, param, napi_object)) {
-        HILOG_INFO("%{public}s called. Params is invalid.", __func__);
+        TAG_LOGI(AAFwkTag::JSNAPI, "%{public}s called. Params is invalid.", __func__);
         return false;
     }
     napi_value jsValue = GetPropertyValueByPropertyName(env, param, "parameters", napi_object);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "shell_command_result.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -22,12 +23,12 @@ namespace AAFwk {
 bool ShellCommandResult::Marshalling(Parcel& parcel) const
 {
     if (!parcel.WriteInt32(exitCode)) {
-        HILOG_ERROR("Failed to write exitCode");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to write exitCode");
         return false;
     }
 
     if (!parcel.WriteString(stdResult)) {
-        HILOG_ERROR("Failed to write stdResult");
+        TAG_LOGE(AAFwkTag::AA_TOOL, "Failed to write stdResult");
         return false;
     }
 

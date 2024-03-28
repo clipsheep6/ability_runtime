@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "connection_observer_proxy.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "ipc_types.h"
 #include "message_parcel.h"
@@ -27,20 +28,20 @@ void ConnectionObserverProxy::OnExtensionConnected(const ConnectionData& connect
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::CONNECTION, "called");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteParcelable(&connectionData)) {
-        HILOG_ERROR("Write ConnectionData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write ConnectionData error.");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_EXTENSION_CONNECTED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("OnExtensionConnected sned request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnExtensionConnected sned request fail, error: %{public}d", error);
         return;
     }
 }
@@ -51,20 +52,20 @@ void ConnectionObserverProxy::OnExtensionDisconnected(const ConnectionData& conn
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_DEBUG("called.");
+    TAG_LOGD(AAFwkTag::CONNECTION, "called.");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteParcelable(&connectionData)) {
-        HILOG_ERROR("Write ConnectionData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write ConnectionData error.");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_EXTENSION_DISCONNECTED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("OnExtensionDisconnected send request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnExtensionDisconnected send request fail, error: %{public}d", error);
         return;
     }
 }
@@ -75,20 +76,20 @@ void ConnectionObserverProxy::OnDlpAbilityOpened(const DlpStateData& dlpData)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_INFO("ConnectionObserverProxy OnDlpAbilityOpened.");
+    TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverProxy OnDlpAbilityOpened.");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteParcelable(&dlpData)) {
-        HILOG_ERROR("Write DlpStateData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write DlpStateData error.");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_DLP_ABILITY_OPENED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("OnDlpAbilityOpened send request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityOpened send request fail, error: %{public}d", error);
         return;
     }
 }
@@ -99,20 +100,20 @@ void ConnectionObserverProxy::OnDlpAbilityClosed(const DlpStateData& dlpData)
     MessageParcel reply;
     MessageOption option(MessageOption::TF_ASYNC);
 
-    HILOG_INFO("ConnectionObserverProxy OnDlpAbilityClosed.");
+    TAG_LOGI(AAFwkTag::CONNECTION, "ConnectionObserverProxy OnDlpAbilityClosed.");
     if (!data.WriteInterfaceToken(IConnectionObserver::GetDescriptor())) {
-        HILOG_ERROR("Write interface token failed.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write interface token failed.");
         return;
     }
 
     if (!data.WriteParcelable(&dlpData)) {
-        HILOG_ERROR("Write DlpStateData error.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "Write DlpStateData error.");
         return;
     }
 
     int error = SendTransactCmd(IConnectionObserver::ON_DLP_ABILITY_CLOSED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("OnDlpAbilityClosed send request fail, error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::CONNECTION, "OnDlpAbilityClosed send request fail, error: %{public}d", error);
         return;
     }
 }
@@ -122,13 +123,13 @@ int32_t ConnectionObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &d
 {
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        HILOG_ERROR("remote object is nullptr.");
+        TAG_LOGE(AAFwkTag::CONNECTION, "remote object is nullptr.");
         return ERR_NULL_OBJECT;
     }
 
     int32_t ret = remote->SendRequest(code, data, reply, option);
     if (ret != NO_ERROR) {
-        HILOG_ERROR("SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
+        TAG_LOGE(AAFwkTag::CONNECTION, "SendRequest failed. code is %{public}d, ret is %{public}d.", code, ret);
         return ret;
     }
     return NO_ERROR;

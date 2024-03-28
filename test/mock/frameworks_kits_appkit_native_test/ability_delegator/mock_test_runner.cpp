@@ -14,6 +14,7 @@
  */
 
 #include "mock_test_runner.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -23,13 +24,13 @@ bool MockTestRunner::runFlag_ = false;
 
 void MockTestRunner::Prepare()
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::TEST, "enter");
     prepareFlag_ = true;
 }
 
 void MockTestRunner::Run()
 {
-    HILOG_INFO("enter");
+    TAG_LOGI(AAFwkTag::TEST, "enter");
     runFlag_ = true;
 }
 } // namespace AppExecFwk

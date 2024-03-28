@@ -349,6 +349,7 @@ group("unittest") {
     "ability_timeout_test",
     "ability_token_proxy_test:unittest",
     "ability_token_stub_test:unittest",
+    "advanced_security_mode_manager_test:unittest",
     "ams_ability_running_record_test:unittest",
     "ams_app_death_recipient_test:unittest",
     "ams_app_life_cycle_test:unittest",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include "ability_manager_client.h"
 #undef private
 #include "ability_manager_interface.h"
+#include "hilog_tag_wrapper.h"
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -164,7 +165,7 @@ HWTEST_F(AaCommandTest, Aa_Command_0500, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Ability_Command_Test_3400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Ability_Command_Test_3400 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -181,7 +182,7 @@ HWTEST_F(AaCommandTest, Aa_Command_0600, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_0700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_0700 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -198,7 +199,7 @@ HWTEST_F(AaCommandTest, Aa_Command_0700, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0800, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_0800 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_0800 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -215,7 +216,7 @@ HWTEST_F(AaCommandTest, Aa_Command_0800, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_0900, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_0900 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_0900 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -232,7 +233,7 @@ HWTEST_F(AaCommandTest, Aa_Command_0900, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1000, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1000 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1000 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -250,7 +251,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1000, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1100, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1100 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1100 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -268,7 +269,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1100, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1200, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1200 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1200 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -286,7 +287,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1200, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1300, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1300 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1300 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -304,7 +305,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1300, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1400, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1400 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1400 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -322,7 +323,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1400, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1500, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1500 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1500 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -340,7 +341,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1500, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1600, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1600 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1600 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -358,7 +359,7 @@ HWTEST_F(AaCommandTest, Aa_Command_1600, Function | MediumTest | Level1)
  */
 HWTEST_F(AaCommandTest, Aa_Command_1700, Function | MediumTest | Level1)
 {
-    HILOG_INFO("Aa_Command_1700 is called");
+    TAG_LOGI(AAFwkTag::TEST, "Aa_Command_1700 is called");
     char* argv[] = { (char*)TOOL_NAME.c_str() };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 

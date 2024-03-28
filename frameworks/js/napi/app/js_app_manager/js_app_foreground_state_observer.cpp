@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 #include "js_app_foreground_state_observer.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_app_manager_utils.h"
 #include "js_runtime_utils.h"
@@ -27,9 +28,9 @@ JSAppForegroundStateObserver::JSAppForegroundStateObserver(napi_env env) : env_(
 
 void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStateData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!valid_) {
-        HILOG_ERROR("The app manager may has destoryed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "The app manager may has destoryed.");
         return;
     }
     wptr<JSAppForegroundStateObserver> self = this;
@@ -37,7 +38,7 @@ void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStat
         [self, appStateData](napi_env env, NapiAsyncTask &task, int32_t status) {
             sptr<JSAppForegroundStateObserver> jsObserver = self.promote();
             if (jsObserver == nullptr) {
-                HILOG_ERROR("Js Observer Sptr is nullptr.");
+                TAG_LOGE(AAFwkTag::APPMGR, "Js Observer Sptr is nullptr.");
                 return;
             }
             jsObserver->HandleOnAppStateChanged(appStateData);
@@ -49,7 +50,7 @@ void JSAppForegroundStateObserver::OnAppStateChanged(const AppStateData &appStat
 
 void JSAppForegroundStateObserver::HandleOnAppStateChanged(const AppStateData &appStateData)
 {
-    HILOG_DEBUG("Called.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     std::lock_guard<std::mutex> lock(jsObserverObjectSetLock_);
     for (auto &item : jsObserverObjectSet_) {
         napi_value obj = item->GetNapiValue();
@@ -61,30 +62,30 @@ void JSAppForegroundStateObserver::HandleOnAppStateChanged(const AppStateData &a
 void JSAppForegroundStateObserver::CallJsFunction(
     const napi_value value, const char *methodName, const napi_value *argv, const size_t argc)
 {
-    HILOG_DEBUG("Begin.");
+    TAG_LOGD(AAFwkTag::APPMGR, "Begin.");
     if (value == nullptr) {
-        HILOG_ERROR("value is nullptr.");
+        TAG_LOGE(AAFwkTag::APPMGR, "value is nullptr.");
         return;
     }
 
     napi_value method = nullptr;
     napi_get_named_property(env_, value, methodName, &method);
     if (method == nullptr) {
-        HILOG_ERROR("Get name from object Failed.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Get name from object Failed.");
         return;
     }
     napi_value callResult = nullptr;
     napi_status status = napi_call_function(env_, value, method, argc, argv, &callResult);
     if (status != napi_ok) {
-        HILOG_ERROR("Call Js Function failed %{public}d.", status);
+        TAG_LOGE(AAFwkTag::APPMGR, "Call Js Function failed %{public}d.", status);
     }
-    HILOG_DEBUG("End.");
+    TAG_LOGD(AAFwkTag::APPMGR, "End.");
 }
 
 void JSAppForegroundStateObserver::AddJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        HILOG_ERROR("Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
         return;
     }
 
@@ -94,7 +95,7 @@ void JSAppForegroundStateObserver::AddJsObserverObject(const napi_value &jsObser
         napi_create_reference(env_, jsObserverObject, 1, &ref);
         jsObserverObjectSet_.emplace(std::shared_ptr<NativeReference>(reinterpret_cast<NativeReference *>(ref)));
     } else {
-        HILOG_DEBUG("Observer is exists.");
+        TAG_LOGD(AAFwkTag::APPMGR, "Observer is exists.");
     }
 }
 
@@ -107,7 +108,7 @@ void JSAppForegroundStateObserver::RemoveAllJsObserverObjects()
 void JSAppForegroundStateObserver::RemoveJsObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        HILOG_ERROR("Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
         return;
     }
 
@@ -121,20 +122,20 @@ void JSAppForegroundStateObserver::RemoveJsObserverObject(const napi_value &jsOb
 std::shared_ptr<NativeReference> JSAppForegroundStateObserver::GetObserverObject(const napi_value &jsObserverObject)
 {
     if (jsObserverObject == nullptr) {
-        HILOG_ERROR("Observer is null.");
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
         return nullptr;
     }
 
     std::lock_guard<std::mutex> lock(jsObserverObjectSetLock_);
     for (auto &observer : jsObserverObjectSet_) {
         if (observer == nullptr) {
-            HILOG_ERROR("Invalid observer.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Invalid observer.");
             continue;
         }
 
         napi_value value = observer->GetNapiValue();
         if (value == nullptr) {
-            HILOG_ERROR("Failed to get object.");
+            TAG_LOGE(AAFwkTag::APPMGR, "Failed to get object.");
             continue;
         }
 
