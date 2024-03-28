@@ -45,6 +45,7 @@ ohos_unittest("js_auto_fill_extension_test") {
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
+    "ability_base:session_info",
     "ability_base:view_data",
     "ability_base:want",
     "ability_runtime:ability_manager",

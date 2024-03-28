@@ -24,14 +24,23 @@
 namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
-class JsAutoFillExtensionContext {
+class JsAutoFillExtensionContext final {
 public:
-    JsAutoFillExtensionContext() = default;
+    explicit JsAutoFillExtensionContext(const std::shared_ptr<AutoFillExtensionContext> &context) : context_(context) {}
     virtual ~JsAutoFillExtensionContext() = default;
 
     static void Finalizer(napi_env env, void *data, void *hint);
+    static napi_value ReloadInModal(napi_env env, napi_callback_info info);
     static napi_value CreateJsAutoFillExtensionContext(
         napi_env env, const std::shared_ptr<AutoFillExtensionContext> &context);
+    std::shared_ptr<AutoFillExtensionContext> GetAutoFillExtensionContext()
+    {
+        return context_.lock();
+    }
+
+private:
+    napi_value OnReloadInModal(napi_env env, NapiCallbackInfo &info);
+    std::weak_ptr<AutoFillExtensionContext> context_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

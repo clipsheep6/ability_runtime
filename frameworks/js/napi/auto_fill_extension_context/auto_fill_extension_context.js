@@ -19,6 +19,10 @@ class AutoFillExtensionContext extends ExtensionContext {
   constructor(obj) {
     super(obj);
   }
+
+  reloadInModal(customData) {
+    return this.__context_impl__.reloadInModal(customData);
+  }
 }
 
 export default AutoFillExtensionContext;

@@ -18,6 +18,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "napi_common_util.h"
+#include "napi_common_want.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -30,6 +31,8 @@ constexpr const char *VIEW_DATA_PAGE_NODE_INFOS = "pageNodeInfos";
 constexpr const char *VIEW_DATA_VIEW_DATA = "viewData";
 constexpr const char *VIEW_DATA_TYPE = "type";
 constexpr const char *VIEW_DATA_PAGE_RECT = "pageRect";
+constexpr const char *CUSTOM_DATA_CUSTOM_DATA = "customData";
+constexpr const char *CUSTOM_DATA_DATA = "data";
 constexpr const char *PAGE_INFO_ID = "id";
 constexpr const char *PAGE_INFO_DEPTH = "depth";
 constexpr const char *PAGE_INFO_AUTOFILLTYPE = "autoFillType";
@@ -41,6 +44,7 @@ constexpr const char *PAGE_INFO_ENABLEAUTOFILL = "enableAutoFill";
 constexpr const char *PAGE_INFO_IS_FOCUS = "isFocus";
 constexpr const char *PAGE_INFO_PAGE_NODE_RECT = "rect";
 constexpr const char *WANT_PARAMS_VIEW_DATA = "ohos.ability.params.viewData";
+constexpr const char *WANT_PARAMS_CUSTOM_DATA = "ohos.ability.params.customData";
 constexpr const char *WANT_PARAMS_AUTO_FILL_TYPE_KEY = "ability.want.params.AutoFillType";
 constexpr const char *WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY = "ohos.ability.params.popupWindow";
 constexpr const char *WANT_PARAMS_IS_POPUP = "isPopup";
@@ -86,6 +90,17 @@ napi_value JsAutoFillExtensionUtil::WrapViewData(const napi_env env, const Abili
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_PAGE_RECT, jsValue);
 
     SetPropertyValueByPropertyName(env, jsObject, VIEW_DATA_PAGE_NODE_INFOS, jsArray);
+    return jsObject;
+}
+
+napi_value JsAutoFillExtensionUtil::WrapCustomData(const napi_env env, const AAFwk::WantParams &param)
+{
+    HILOG_DEBUG("Called.");
+    napi_value jsObject = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &jsObject));
+    napi_value jsValue = nullptr;
+    jsValue = WrapWantParams(env, param);
+    SetPropertyValueByPropertyName(env, jsObject, CUSTOM_DATA_DATA, jsValue);
     return jsObject;
 }
 
@@ -261,6 +276,22 @@ napi_value JsAutoFillExtensionUtil::WrapFillRequest(const AAFwk::Want &want, con
 
         napi_value jsValue = AppExecFwk::WrapBoolToJS(env, isPopup);
         SetPropertyValueByPropertyName(env, jsObject, WANT_PARAMS_IS_POPUP, jsValue);
+    }
+
+    if (want.HasParameter(WANT_PARAMS_CUSTOM_DATA)) {
+        std::string customDataString = want.GetStringParam(WANT_PARAMS_CUSTOM_DATA);
+        if (customDataString.empty()) {
+            HILOG_ERROR("Custom data is empty.");
+            return jsObject;
+        }
+        if (!AAFwk::WantParamWrapper::ValidateStr(customDataString)) {
+            HILOG_ERROR("Custom data string is invalid.");
+            return jsObject;
+        }
+        AAFwk::WantParams param = AAFwk::WantParamWrapper::ParseWantParams(customDataString);
+        napi_value customValue = nullptr;
+        customValue = WrapCustomData(env, param);
+        SetPropertyValueByPropertyName(env, jsObject, CUSTOM_DATA_CUSTOM_DATA, customValue);
     }
     return jsObject;
 }

@@ -17,13 +17,28 @@
 #define OHOS_ABILITY_RUNTIME_AUTO_FILL_EXTENSION_CONTEXT_H
 
 #include "extension_context.h"
+#include "js_auto_fill_extension_util.h"
+#include "session_info.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
+class IAutoFillExtensionCallback {
+public:
+    virtual int32_t OnReloadInModal(const sptr<AAFwk::SessionInfo> &sessionInfo, const CustomData &customData) = 0;
+};
+
 class AutoFillExtensionContext : public ExtensionContext {
 public:
     AutoFillExtensionContext() = default;
     virtual ~AutoFillExtensionContext() = default;
+
+    void SetAutoFillExtensionCallback(const std::weak_ptr<IAutoFillExtensionCallback> &autoFillExtensionCallback);
+    void SetSessionInfo(const wptr<AAFwk::SessionInfo> &sessionInfo);
+    int32_t ReloadInModal(const CustomData &customData);
+
+private:
+    std::weak_ptr<IAutoFillExtensionCallback> autoFillExtensionCallback_;
+    wptr<AAFwk::SessionInfo> sessionInfo_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
