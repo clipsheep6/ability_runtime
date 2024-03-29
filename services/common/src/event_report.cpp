@@ -39,6 +39,7 @@ constexpr const char *EVENT_KEY_STARTUP_EXTENSION_TYPE = "STARTUP_EXTENSION_TYPE
 constexpr const char *EVENT_KEY_CALLER_BUNDLE_NAME = "CALLER_BUNDLE_NAME";
 constexpr const char *EVENT_KEY_CALLER_UID = "CALLER_UID";
 constexpr const char *EVENT_KEY_CALLER_PROCESS_NAME = "CALLER_PROCESS_NAME";
+constexpr const char *EVENT_KEY_CALLER_PROCESS_ID = "CALLER_PROCESS_ID";
 constexpr const char *EVENT_KEY_EXIT_TIME = "EXIT_TIME";
 constexpr const char *EVENT_KEY_EXIT_RESULT = "EXIT_RESULT";
 constexpr const char *EVENT_KEY_EXIT_PID = "EXIT_PID";
@@ -51,6 +52,9 @@ constexpr const char *EVENT_KEY_URI = "URI";
 constexpr const char *EVENT_KEY_RESTART_TIME = "RESTART_TIME";
 constexpr const char *EVENT_KEY_APP_UID = "APP_UID";
 constexpr const char *EVENT_KEY_PROCESS_TYPE = "PROCESS_TYPE";
+constexpr const char *EVENT_KEY_TIME = "TIME";
+constexpr const char *EVENT_KEY_PID = "PID";
+constexpr const char *INVALID_EVENT_NAME = "INVALIDEVENTNAME";
 const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_ABILITY_ERROR, "START_ABILITY_ERROR"),
     std::map<EventName, std::string>::value_type(EventName::TERMINATE_ABILITY_ERROR, "TERMINATE_ABILITY_ERROR"),
@@ -88,48 +92,12 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
 
 void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
-    constexpr int32_t defaultVal = -1;
     std::string name = ConvertEventName(eventName);
-    if (name == "INVALIDEVENTNAME") {
+    if (name == INVALID_EVENT_NAME) {
         HILOG_ERROR("invalid eventName");
         return;
     }
     switch (eventName) {
-        case EventName::PROCESS_START:
-            if (eventInfo.extensionType == defaultVal) {
-                HiSysEventWrite(
-                    HiSysEvent::Domain::AAFWK,
-                    name,
-                    type,
-                    EVENT_KEY_STARTUP_TIME, eventInfo.time,
-                    EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
-                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
-                    EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
-                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
-            } else {
-                HiSysEventWrite(
-                    HiSysEvent::Domain::AAFWK,
-                    name,
-                    type,
-                    EVENT_KEY_STARTUP_TIME, eventInfo.time,
-                    EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
-                    EVENT_KEY_STARTUP_EXTENSION_TYPE, eventInfo.extensionType,
-                    EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
-                    EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                    EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
-                    EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName);
-            }
-            break;
-        case EventName::PROCESS_EXIT:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_EXIT_TIME, eventInfo.time,
-                EVENT_KEY_EXIT_RESULT, eventInfo.exitResult,
-                EVENT_KEY_EXIT_PID, eventInfo.pid);
-            break;
         case EventName::APP_STARTUP_TYPE:
             HiSysEventWrite(
                 HiSysEvent::Domain::AAFWK,
@@ -141,33 +109,6 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
                 EVENT_KEY_START_TYPE, eventInfo.startType);
-            break;
-        case EventName::APP_FOREGROUND:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_APP_PID, eventInfo.pid,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
-                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
-                EVENT_KEY_PROCESS_NAME, eventInfo.processName,
-                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
-                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
-                EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
-            break;
-        case EventName::APP_BACKGROUND:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_APP_PID, eventInfo.pid,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
-                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
-                EVENT_KEY_PROCESS_NAME, eventInfo.processName,
-                EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
-                EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
             break;
         case EventName::DRAWN_COMPLETED:
             HILOG_INFO("HiSysEvent name: DRAWN_COMPLETED, bundleName: %{public}s, abilityName: %{public}s",
@@ -181,22 +122,6 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
                 EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
                 EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
                 EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-            break;
-        case EventName::APP_LAUNCH:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_APP_PID, eventInfo.pid,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_VERSION_NAME, eventInfo.versionName,
-                EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
-                EVENT_KEY_PROCESS_NAME, eventInfo.processName,
-                EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
-                EVENT_KEY_CALLER_VERSION_NAME, eventInfo.callerVersionName,
-                EVENT_KEY_CALLER_VERSION_CODE, eventInfo.callerVersionCode,
-                EVENT_KEY_CALLER_UID, eventInfo.callerUid,
-                EVENT_KEY_CALLER_STATE, eventInfo.callerState);
             break;
         default:
             HiSysEventWrite(
@@ -215,7 +140,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
 void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     std::string name = ConvertEventName(eventName);
-    if (name == "INVALIDEVENTNAME") {
+    if (name == INVALID_EVENT_NAME) {
         HILOG_ERROR("invalid eventName");
         return;
     }
@@ -293,36 +218,11 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
 void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     std::string name = ConvertEventName(eventName);
-    if (name == "INVALIDEVENTNAME") {
+    if (name == INVALID_EVENT_NAME) {
         HILOG_ERROR("invalid eventName");
         return;
     }
     switch (eventName) {
-        case EventName::DISCONNECT_SERVICE:
-            HiSysEventWrite(HiSysEvent::Domain::AAFWK, name, type);
-            break;
-        case EventName::CONNECT_SERVICE:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_USERID, eventInfo.userId,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
-            break;
-        case EventName::START_SERVICE:
-        case EventName::STOP_SERVICE:
-            HiSysEventWrite(
-                HiSysEvent::Domain::AAFWK,
-                name,
-                type,
-                EVENT_KEY_USERID, eventInfo.userId,
-                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
-                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
-                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
-                EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType);
-            break;
         case EventName::START_EXTENSION_ERROR:
         case EventName::STOP_EXTENSION_ERROR:
         case EventName::CONNECT_SERVICE_ERROR:
@@ -347,7 +247,7 @@ void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType 
 void EventReport::SendKeyEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
     std::string name = ConvertEventName(eventName);
-    if (name == "INVALIDEVENTNAME") {
+    if (name == INVALID_EVENT_NAME) {
         HILOG_ERROR("invalid eventName");
         return;
     }
@@ -388,13 +288,220 @@ void EventReport::SendKeyEvent(const EventName &eventName, HiSysEventType type, 
     }
 }
 
+void EventReport::SendAppLaunchEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_APP_PID, eventInfo.pid,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+        EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+        EVENT_KEY_CALLER_VERSION_NAME, eventInfo.callerVersionName,
+        EVENT_KEY_CALLER_VERSION_CODE, eventInfo.callerVersionCode,
+        EVENT_KEY_CALLER_UID, eventInfo.callerUid,
+        EVENT_KEY_CALLER_STATE, eventInfo.callerState);
+}
+
+void EventReport::SendAppForegroundEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_APP_PID, eventInfo.pid,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+        EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+        EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+        EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
+}
+
+void EventReport::SendAppBackgroundEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_APP_PID, eventInfo.pid,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_VERSION_NAME, eventInfo.versionName,
+        EVENT_KEY_VERSION_CODE, eventInfo.versionCode,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
+        EVENT_KEY_PROCESS_TYPE, eventInfo.processType);
+}
+
+void EventReport::SendProcessStartEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    constexpr int32_t defaultVal = -1;
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    if (eventInfo.extensionType == defaultVal) {
+        HiSysEventWrite(
+            HiSysEvent::Domain::AAFWK,
+            name,
+            HiSysEventType::BEHAVIOR,
+            EVENT_KEY_STARTUP_TIME, eventInfo.time,
+            EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
+            EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+            EVENT_KEY_CALLER_UID, eventInfo.callerUid,
+            EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
+            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+            EVENT_KEY_PID, eventInfo.pid,
+            EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+            EVENT_KEY_CALLER_PROCESS_ID, eventInfo.callerPid);
+    } else {
+        HiSysEventWrite(
+            HiSysEvent::Domain::AAFWK,
+            name,
+            HiSysEventType::BEHAVIOR,
+            EVENT_KEY_STARTUP_TIME, eventInfo.time,
+            EVENT_KEY_STARTUP_ABILITY_TYPE, eventInfo.abilityType,
+            EVENT_KEY_STARTUP_EXTENSION_TYPE, eventInfo.extensionType,
+            EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName,
+            EVENT_KEY_CALLER_UID, eventInfo.callerUid,
+            EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName,
+            EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+            EVENT_KEY_PID, eventInfo.pid,
+            EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+            EVENT_KEY_CALLER_PROCESS_ID, eventInfo.callerPid);
+    }
+}
+
+void EventReport::SendProcessExitEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_EXIT_TIME, eventInfo.time,
+        EVENT_KEY_EXIT_RESULT, eventInfo.exitResult,
+        EVENT_KEY_EXIT_PID, eventInfo.pid,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType);
+}
+
+void EventReport::SendStartServiceEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_TIME, eventInfo.time,
+        EVENT_KEY_USERID, eventInfo.userId,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType,
+        EVENT_KEY_PID, eventInfo.pid,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_CALLER_PROCESS_ID, eventInfo.callerPid,
+        EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
+}
+
+void EventReport::SendStopServiceEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_USERID, eventInfo.userId,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_EXTENSION_TYPE, eventInfo.extensionType,
+        EVENT_KEY_TIME, eventInfo.time,
+        EVENT_KEY_PID, eventInfo.pid,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_CALLER_PROCESS_ID, eventInfo.callerPid,
+        EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
+}
+
+void EventReport::SendConnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(
+        HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_TIME, eventInfo.time,
+        EVENT_KEY_USERID, eventInfo.userId,
+        EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+        EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+        EVENT_KEY_ABILITY_NAME, eventInfo.abilityName,
+        EVENT_KEY_PID, eventInfo.pid,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_CALLER_PROCESS_ID, eventInfo.callerPid,
+        EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
+}
+
+void EventReport::SendDisconnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo)
+{
+    std::string name = ConvertEventName(eventName);
+    if (name == INVALID_EVENT_NAME) {
+        HILOG_ERROR("invalid eventName");
+        return;
+    }
+    HiSysEventWrite(HiSysEvent::Domain::AAFWK,
+        name,
+        HiSysEventType::BEHAVIOR,
+        EVENT_KEY_TIME, eventInfo.time,
+        EVENT_KEY_PID, eventInfo.pid,
+        EVENT_KEY_PROCESS_NAME, eventInfo.processName,
+        EVENT_KEY_CALLER_PROCESS_ID, eventInfo.callerPid,
+        EVENT_KEY_CALLER_PROCESS_NAME, eventInfo.callerProcessName);
+}
+
 std::string EventReport::ConvertEventName(const EventName &eventName)
 {
     auto it = eventNameToStrMap_.find(eventName);
     if (it != eventNameToStrMap_.end()) {
         return it->second;
     }
-    return "INVALIDEVENTNAME";
+    return INVALID_EVENT_NAME;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

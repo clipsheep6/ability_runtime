@@ -1233,9 +1233,9 @@ private:
     void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
 
-    void SendProcessExitEvent(pid_t pid);
+    void SendProcessExitEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
-    void SendProcessExitEventTask(pid_t pid, time_t exitTime, int32_t count);
+    void SendProcessExitEventTask(const std::shared_ptr<AppRunningRecord> &appRecord, time_t exitTime, int32_t count);
 
     void UpDateStartupType(const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType);
 

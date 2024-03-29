@@ -713,7 +713,7 @@ void AppMgrServiceInner::ApplicationForegrounded(const int32_t recordId)
     } else {
         TAG_LOGE(AAFwkTag::APPMGR, "callerRecord is nullptr, can not get callerBundleName.");
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_FOREGROUND, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppForegroundEvent(AAFwk::EventName::APP_FOREGROUND, eventInfo);
 }
 
 void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
@@ -754,7 +754,7 @@ void AppMgrServiceInner::ApplicationBackgrounded(const int32_t recordId)
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
     eventInfo.processType = static_cast<int32_t>(appRecord->GetProcessType());
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_BACKGROUND, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppBackgroundEvent(AAFwk::EventName::APP_BACKGROUND, eventInfo);
 }
 
 void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
@@ -917,47 +917,56 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
     return result;
 }
 
-void AppMgrServiceInner::SendProcessExitEventTask(pid_t pid, time_t exitTime, int32_t count)
+void AppMgrServiceInner::SendProcessExitEventTask(
+    const std::shared_ptr<AppRunningRecord> &appRecord, time_t exitTime, int32_t count)
 {
+    if (appRecord == nullptr) {
+        HILOG_ERROR("appRecord is nullptr");
+        return;
+    }
+    if (appRecord->GetPriorityObject() == nullptr) {
+        HILOG_ERROR("Get priority object is nullptr.");
+        return;
+    }
+    auto pid = appRecord->GetPriorityObject()->GetPid();
     auto exitResult = !ProcessExist(pid);
     constexpr int32_t EXIT_SUCESS = 0;
     constexpr int32_t EXIT_FAILED = -1;
+    AAFwk::EventInfo eventInfo;
+    eventInfo.time = exitTime;
+    eventInfo.pid = pid;
+    eventInfo.processName = appRecord->GetProcessName();
+    eventInfo.extensionType = static_cast<int32_t>(appRecord->GetExtensionType());
 
     if (exitResult) {
-        AAFwk::EventInfo eventInfo;
-        eventInfo.time = exitTime;
         eventInfo.exitResult = EXIT_SUCESS;
-        eventInfo.pid = pid;
-        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        AAFwk::EventReport::SendProcessExitEvent(AAFwk::EventName::PROCESS_EXIT, eventInfo);
         TAG_LOGI(AAFwkTag::APPMGR, "time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
     }
 
     if (--count <= 0) {
-        AAFwk::EventInfo eventInfo;
-        eventInfo.time = exitTime;
         eventInfo.exitResult = EXIT_FAILED;
-        eventInfo.pid = pid;
-        AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_EXIT, HiSysEventType::BEHAVIOR, eventInfo);
+        AAFwk::EventReport::SendProcessExitEvent(AAFwk::EventName::PROCESS_EXIT, eventInfo);
         TAG_LOGI(AAFwkTag::APPMGR, "time : %{public}" PRId64 ", exitResult : %{public}d, pid : %{public}d",
             eventInfo.time, eventInfo.exitResult, eventInfo.pid);
         return;
     }
 
-    auto sendEventTask = [inner = shared_from_this(), pid, exitTime, count] () {
-        inner->SendProcessExitEventTask(pid, exitTime, count);
+    auto sendEventTask = [inner = shared_from_this(), appRecord, exitTime, count] () {
+        inner->SendProcessExitEventTask(appRecord, exitTime, count);
     };
     taskHandler_->SubmitTask(sendEventTask, PROCESS_EXIT_EVENT_TASK, KILL_PROCESS_DELAYTIME_MICRO_SECONDS);
 }
 
-void AppMgrServiceInner::SendProcessExitEvent(pid_t pid)
+void AppMgrServiceInner::SendProcessExitEvent(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
     time_t currentTime;
     time(&currentTime);
     constexpr int32_t RETRY_COUNT = 5;
-    SendProcessExitEventTask(pid, currentTime, RETRY_COUNT);
+    SendProcessExitEventTask(appRecord, currentTime, RETRY_COUNT);
     return;
 }
 
@@ -2390,7 +2399,8 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
         TAG_LOGI(AAFwkTag::APPMGR, "Abilities nullptr!");
     }
 
-    auto callerAppRecord = GetAppRunningRecordByPid(appRecord->GetCallerPid());
+    eventInfo.callerPid = appRecord->GetCallerPid() == -1 ? IPCSkeleton::GetCallingPid() : appRecord->GetCallerPid();
+    auto callerAppRecord = GetAppRunningRecordByPid(eventInfo.callerPid);
     if (callerAppRecord == nullptr) {
         Security::AccessToken::NativeTokenInfo nativeTokenInfo = {};
         auto token = appRecord->GetCallerTokenId() == -1 ?
@@ -2409,7 +2419,13 @@ bool AppMgrServiceInner::SendProcessStartEvent(const std::shared_ptr<AppRunningR
     if (!appRecord->GetBundleName().empty()) {
         eventInfo.bundleName = appRecord->GetBundleName();
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::PROCESS_START, HiSysEventType::BEHAVIOR, eventInfo);
+    eventInfo.processName = appRecord->GetProcessName();
+    if (appRecord->GetPriorityObject() == nullptr) {
+        HILOG_ERROR("appRecord's priorityObject is null");
+    } else {
+        eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
+    }
+    AAFwk::EventReport::SendProcessStartEvent(AAFwk::EventName::PROCESS_START, eventInfo);
     TAG_LOGD(AAFwkTag::APPMGR, "%{public}s. time : %{public}" PRId64 ", abilityType : %{public}d, bundle : %{public}s,\
         uid : %{public}d, process : %{public}s",
         __func__, eventInfo.time, eventInfo.abilityType, eventInfo.callerBundleName.c_str(), eventInfo.callerUid,
@@ -2560,9 +2576,7 @@ void AppMgrServiceInner::ClearAppRunningData(const std::shared_ptr<AppRunningRec
     KillChildProcess(appRecord);
     KillAttachedChildProcess(appRecord);
 
-    if (appRecord->GetPriorityObject() != nullptr) {
-        SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
-    }
+    SendProcessExitEvent(appRecord);
 
     if (!appRunningManager_->CheckAppRunningRecordIsExistByBundleName(appRecord->GetBundleName())) {
         OnAppStopped(appRecord);
@@ -2688,10 +2702,10 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
     OnAppStateChanged(appRecord, ApplicationState::APP_STATE_TERMINATED, false, false);
     pid_t pid = appRecord->GetPriorityObject()->GetPid();
     if (pid > 0) {
-        auto timeoutTask = [pid, innerService = shared_from_this()]() {
+        auto timeoutTask = [appRecord, pid, innerService = shared_from_this()]() {
             TAG_LOGI(AAFwkTag::APPMGR, "KillProcessByPid %{public}d", pid);
             int32_t result = innerService->KillProcessByPid(pid, "TerminateApplication");
-            innerService->SendProcessExitEvent(pid);
+            innerService->SendProcessExitEvent(appRecord);
             if (result < 0) {
                 TAG_LOGE(AAFwkTag::APPMGR, "KillProcessByPid kill process is fail");
                 return;
@@ -5197,11 +5211,7 @@ void AppMgrServiceInner::ApplicationTerminatedSendProcessEvent(const std::shared
     appDebugManager_->RemoveAppDebugInfo(info);
 
     TAG_LOGD(AAFwkTag::APPMGR, "Application is terminated.");
-    if (appRecord->GetPriorityObject() == nullptr) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Get priority object is nullptr.");
-        return;
-    }
-    SendProcessExitEvent(appRecord->GetPriorityObject()->GetPid());
+    SendProcessExitEvent(appRecord);
 }
 
 void AppMgrServiceInner::ClearAppRunningDataForKeepAlive(const std::shared_ptr<AppRunningRecord> &appRecord)
@@ -5633,7 +5643,7 @@ void AppMgrServiceInner::SendAppLaunchEvent(const std::shared_ptr<AppRunningReco
             eventInfo.callerVersionCode = callerApplicationInfo->versionCode;
         }
     }
-    AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_LAUNCH, HiSysEventType::BEHAVIOR, eventInfo);
+    AAFwk::EventReport::SendAppLaunchEvent(AAFwk::EventName::APP_LAUNCH, eventInfo);
 }
 
 bool AppMgrServiceInner::IsFinalAppProcessByBundleName(const std::string &bundleName)
