@@ -924,6 +924,10 @@ public:
      */
     ErrCode PrepareTerminateAbility(sptr<IRemoteObject> token, sptr<IPrepareTerminateCallback> callback);
 
+    ErrCode RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate);
+
+    ErrCode KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids);
+
     /**
      * @brief Register auto start up callback for system api.
      * @param callback The point of JsAbilityAutoStartupCallBack.
@@ -1393,13 +1397,6 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     int32_t RestartApp(const AAFwk::Want &want);
-
-    /**
-     * @brief Obtains elementName by appId.
-     * @param appId The ID of the application to which this bundle belongs.
-     * @return Returns ElementName.
-     */
-    AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId);
 
     /**
      * Pop-up launch of full-screen atomic service.

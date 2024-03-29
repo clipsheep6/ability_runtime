@@ -114,6 +114,10 @@ public:
      */
     virtual void KillProcessesByUserId(int32_t userId) = 0;
 
+    virtual void KillProcessesByPids(std::vector<int32_t> &pids) {}
+
+    virtual void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken) {}
+
     /**
      * KillProcessWithAccount, call KillProcessWithAccount() through proxy object,
      * kill the process.
@@ -328,6 +332,9 @@ public:
         START_SPECIFIED_PROCESS,
         SET_APP_ASSERT_PAUSE_STATE,
         CLEAR_PROCESS_BY_TOKEN,
+        REGISTER_ABILITY_MS_DELEGATE,
+        KILL_PROCESSES_BY_PIDS,
+        ATTACH_PID_TO_PARENT,
     };
 };
 }  // namespace AppExecFwk

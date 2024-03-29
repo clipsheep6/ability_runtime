@@ -64,6 +64,10 @@
 #endif
 
 namespace OHOS {
+namespace AbilityRuntime {
+class IStatusBarDelegate;
+}
+
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
@@ -1256,6 +1260,16 @@ public:
         return 0;
     }
 
+    virtual int32_t RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
+    {
+        return 0;
+    }
+
+    virtual int32_t KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
+    {
+        return 0;
+    }
+
     /**
      * @brief Register auto start up callback for system api.
      * @param callback The point of JsAbilityAutoStartupCallBack.
@@ -1443,16 +1457,6 @@ public:
     virtual int32_t RestartApp(const AAFwk::Want &want)
     {
         return 0;
-    }
-
-    /**
-     * @brief Obtains elementName by appId.
-     * @param appId The ID of the application to which this bundle belongs.
-     * @return Returns ElementName.
-     */
-    virtual AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId)
-    {
-        return {};
     }
 
     /**

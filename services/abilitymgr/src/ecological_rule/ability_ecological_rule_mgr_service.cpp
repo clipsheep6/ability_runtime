@@ -125,8 +125,13 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     }
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
+#if BINDER_IPC_32BIT
     TAG_LOGD(
         AAFwkTag::ECOLOGICAL_RULE, "[ERMS-DFX] EvaluateResolveInfos interface cost %{public}lld mirco seconds.", cost);
+#else
+    TAG_LOGD(
+        AAFwkTag::ECOLOGICAL_RULE, "[ERMS-DFX] EvaluateResolveInfos interface cost %{public}ld mirco seconds.", cost);
+#endif
     return res;
 }
 
@@ -149,8 +154,13 @@ int32_t AbilityEcologicalRuleMgrServiceClient::QueryStartExperience(const OHOS::
             rule.sceneCode.c_str(), (*(rule.replaceWant)).ToString().c_str());
     }
     int64_t cost = GetCurrentTimeMicro() - start;
+#if BINDER_IPC_32BIT
     TAG_LOGD(
         AAFwkTag::ECOLOGICAL_RULE, "[ERMS-DFX] QueryStartExperience interface cost %{public}lld mirco seconds.", cost);
+#else
+    TAG_LOGD(
+        AAFwkTag::ECOLOGICAL_RULE, "[ERMS-DFX] QueryStartExperience interface cost %{public}ld mirco seconds.", cost);
+#endif
     return res;
 }
 
@@ -179,11 +189,6 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
         return ERR_FAILED;
     }
 
-    if (!data.WriteParcelable(&callerInfo)) {
-        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerInfo failed");
-        return ERR_FAILED;
-    }
-
     if (!data.WriteInt32(type)) {
         TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write type failed");
         return ERR_FAILED;
@@ -199,6 +204,11 @@ int32_t AbilityEcologicalRuleMgrServiceProxy::EvaluateResolveInfos(const Want &w
             TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write abilityInfo failed");
             return ERR_FAILED;
         }
+    }
+
+    if (!data.WriteParcelable(&callerInfo)) {
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerInfo failed");
+        return ERR_FAILED;
     }
 
     MessageOption option = { MessageOption::TF_SYNC };

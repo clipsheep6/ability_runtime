@@ -27,8 +27,10 @@
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iability_info_callback.h"
+#include "in_process_call_wrapper.h"
 #include "mission_info.h"
 #include "process_options.h"
+#include "scene_board/status_bar_delegate_manager.h"
 #include "session_info.h"
 #include "session_manager_lite.h"
 
@@ -222,6 +224,10 @@ int UIAbilityLifecycleManager::AttachAbilityThread(const sptr<IAbilityScheduler>
     FreezeUtil::GetInstance().DeleteLifecycleEvent(flow);
 
     abilityRecord->SetScheduler(scheduler);
+    if (DoProcessAttachment(abilityRecord) != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "do process attachment failed.");
+        return ERR_INVALID_VALUE;
+    }
     if (abilityRecord->IsStartedByCall()) {
         if (abilityRecord->GetWant().GetBoolParam(Want::PARAM_RESV_CALL_TO_FOREGROUND, false)) {
             abilityRecord->SetStartToForeground(true);
@@ -617,7 +623,8 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetUIAbilityRecordBySe
 int32_t UIAbilityLifecycleManager::NotifySCBToMinimizeUIAbility(const std::shared_ptr<AbilityRecord> abilityRecord,
     const sptr<IRemoteObject> token)
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifySCBToMinimizeUIAbility.");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "NotifySCBToMinimizeUIAbility:%{public}s.",
+        abilityRecord->GetWant().GetElement().GetURI().c_str());
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto sceneSessionManager = Rosen::SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_NULL_OBJECT);
@@ -1732,7 +1739,6 @@ bool UIAbilityLifecycleManager::PrepareTerminateAbility(const std::shared_ptr<Ab
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    std::lock_guard<ffrt::mutex> guard(sessionLock_);
     if (abilityRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "ability record is null");
         return false;
@@ -2070,6 +2076,88 @@ int UIAbilityLifecycleManager::MoveMissionToFront(int32_t sessionId, std::shared
     return static_cast<int>(rootSceneSession_->PendingSessionActivation(sessionInfo));
 }
 
+std::shared_ptr<StatusBarDelegateManager> UIAbilityLifecycleManager::GetStatusBarDelegateManager()
+{
+    std::lock_guard<ffrt::mutex> lock(statusBarDelegateManagerLock_);
+    if (statusBarDelegateManager_ == nullptr) {
+        statusBarDelegateManager_ = std::make_shared<StatusBarDelegateManager>();
+    }
+    return statusBarDelegateManager_;
+}
+
+int32_t UIAbilityLifecycleManager::RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
+{
+    auto statusBarDelegateManager = GetStatusBarDelegateManager();
+    CHECK_POINTER_AND_RETURN(statusBarDelegateManager, ERR_INVALID_VALUE);
+    return statusBarDelegateManager->RegisterStatusBarDelegate(delegate);
+}
+
+bool UIAbilityLifecycleManager::IsCallerInStatusBar()
+{
+    auto statusBarDelegateManager = GetStatusBarDelegateManager();
+    CHECK_POINTER_AND_RETURN(statusBarDelegateManager, false);
+    return statusBarDelegateManager->IsCallerInStatusBar();
+}
+
+int32_t UIAbilityLifecycleManager::DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord)
+{
+    auto statusBarDelegateManager = GetStatusBarDelegateManager();
+    CHECK_POINTER_AND_RETURN(statusBarDelegateManager, ERR_INVALID_VALUE);
+    return statusBarDelegateManager->DoProcessAttachment(abilityRecord);
+}
+
+int32_t UIAbilityLifecycleManager::KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "do prepare terminate.");
+    std::vector<int32_t> pidsToKill;
+    for (const auto& pid: pids) {
+        bool needKillProcess = true;
+        std::unordered_set<std::shared_ptr<AbilityRecord>> abilitysToTerminate;
+        std::vector<sptr<IRemoteObject>> tokens;
+        IN_PROCESS_CALL_WITHOUT_RET(
+            DelayedSingleton<AppScheduler>::GetInstance()->GetAbilityRecordsByProcessID(pid, tokens));
+        for (const auto& token: tokens) {
+            auto abilityRecord = Token::GetAbilityRecordByToken(token);
+            if (PrepareTerminateAbility(abilityRecord)) {
+                TAG_LOGI(AAFwkTag::ABILITYMGR, "Terminate is blocked.");
+                needKillProcess = false;
+                continue;
+            }
+            abilitysToTerminate.emplace(abilityRecord);
+        }
+        if (needKillProcess) {
+            pidsToKill.push_back(pid);
+        } else if (!abilitysToTerminate.empty()) {
+            BatchCloseUIAbility(abilitysToTerminate);
+        }
+    }
+    if (!pidsToKill.empty()) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "kill process.");
+        IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->KillProcessesByPids(pidsToKill));
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "end.");
+    return ERR_OK;
+}
+
+void UIAbilityLifecycleManager::BatchCloseUIAbility(std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet)
+{
+    auto closeTask = [ self = shared_from_this(), abilitySet]() {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "The abilities need to be closed.");
+        if (self == nullptr) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "The manager is nullptr.");
+            return;
+        }
+        for (const auto& ability : abilitySet) {
+            self->CloseUIAbility(ability, -1, nullptr, false);
+        }
+    };
+    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
+    if (taskHandler != nullptr) {
+        taskHandler->SubmitTask(closeTask, TaskQoS::USER_INTERACTIVE);
+    }
+}
+
 int UIAbilityLifecycleManager::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -2151,20 +2239,7 @@ int32_t UIAbilityLifecycleManager::UpdateSessionInfoBySCB(std::list<SessionInfo>
         sessionIds.emplace_back(info.persistentId);
     }
 
-    auto closeTask = [ self = shared_from_this(), abilitySet]() {
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "The abilities need to be closed.");
-        if (self == nullptr) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "The manager is nullptr.");
-            return;
-        }
-        for (auto ability : abilitySet) {
-            self->CloseUIAbility(ability, -1, nullptr, false);
-        }
-    };
-    auto taskHandler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
-    if (taskHandler != nullptr) {
-        taskHandler->SubmitTask(closeTask, TaskQoS::USER_INTERACTIVE);
-    }
+    BatchCloseUIAbility(abilitySet);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "The end of updating session info.");
     return ERR_OK;
 }

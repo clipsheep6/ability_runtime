@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "application_state_change_callback.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_data_struct_converter.h"
 #include "js_runtime_utils.h"
@@ -31,20 +32,20 @@ void JsApplicationStateChangeCallback::CallJsMethodInnerCommon(
 {
     for (auto &callback : callbacks) {
         if (!callback) {
-            HILOG_ERROR("Invalid jsCallback");
+            TAG_LOGE(AAFwkTag::APPKIT, "Invalid jsCallback");
             continue;
         }
 
         auto obj = callback->GetNapiValue();
         if (!CheckTypeForNapiValue(env_, obj, napi_object)) {
-            HILOG_ERROR("Failed to get object");
+            TAG_LOGE(AAFwkTag::APPKIT, "Failed to get object");
             continue;
         }
 
         napi_value method = nullptr;
         napi_get_named_property(env_, obj, methodName.data(), &method);
         if (method == nullptr) {
-            HILOG_ERROR("Failed to get %{public}s from object", methodName.data());
+            TAG_LOGE(AAFwkTag::APPKIT, "Failed to get %{public}s from object", methodName.data());
             continue;
         }
         napi_call_function(env_, obj, method, 0, nullptr, nullptr);
@@ -53,7 +54,7 @@ void JsApplicationStateChangeCallback::CallJsMethodInnerCommon(
 
 void JsApplicationStateChangeCallback::CallJsMethod(const std::string &methodName)
 {
-    HILOG_DEBUG("MethodName = %{public}s", methodName.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "MethodName = %{public}s", methodName.c_str());
     std::weak_ptr<JsApplicationStateChangeCallback> thisWeakPtr(shared_from_this());
     std::unique_ptr<NapiAsyncTask::CompleteCallback> complete = std::make_unique<NapiAsyncTask::CompleteCallback>(
         [thisWeakPtr, methodName, callbacks = callbacks_]
@@ -83,7 +84,7 @@ void JsApplicationStateChangeCallback::NotifyApplicationBackground()
 void JsApplicationStateChangeCallback::Register(napi_value jsCallback)
 {
     if (env_ == nullptr || jsCallback == nullptr) {
-        HILOG_ERROR("env or jsCallback is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "env or jsCallback is nullptr");
         return;
     }
     napi_ref ref = nullptr;
@@ -94,20 +95,20 @@ void JsApplicationStateChangeCallback::Register(napi_value jsCallback)
 bool JsApplicationStateChangeCallback::UnRegister(napi_value jsCallback)
 {
     if (jsCallback == nullptr) {
-        HILOG_INFO("jsCallback is nullptr, delete all callback.");
+        TAG_LOGI(AAFwkTag::APPKIT, "jsCallback is nullptr, delete all callback.");
         callbacks_.clear();
         return true;
     }
 
     for (auto &callback : callbacks_) {
         if (!callback) {
-            HILOG_ERROR("Invalid jsCallback");
+            TAG_LOGE(AAFwkTag::APPKIT, "Invalid jsCallback");
             continue;
         }
 
         napi_value value = callback->GetNapiValue();
         if (value == nullptr) {
-            HILOG_ERROR("Failed to get object");
+            TAG_LOGE(AAFwkTag::APPKIT, "Failed to get object");
             continue;
         }
 

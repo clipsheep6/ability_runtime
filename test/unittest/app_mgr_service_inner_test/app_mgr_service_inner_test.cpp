@@ -20,6 +20,7 @@
 #include "app_running_record.h"
 #include "remote_client_manager.h"
 #undef private
+#include "ability_manager_errors.h"
 #include "app_scheduler.h"
 #include "appspawn_util.h"
 #include "event_handler.h"
@@ -1043,7 +1044,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_001, TestSize.Level0)
     EXPECT_NE(appMgrServiceInner, nullptr);
 
     int result = appMgrServiceInner->KillProcessByPid(0, "KillProcessByPid_001");
-    EXPECT_EQ(result, -1);
+    EXPECT_EQ(result, AAFwk::ERR_KILL_PROCESS_NOT_EXIST);
 
     result = appMgrServiceInner->KillProcessByPid(1, "KillProcessByPid_001");
     EXPECT_EQ(result, 0);
@@ -1073,7 +1074,7 @@ HWTEST_F(AppMgrServiceInnerTest, KillProcessByPid_002, TestSize.Level0)
     appRunningManager->appRunningRecordMap_.emplace(recordId_, appRecord);
 
     int result = appMgrServiceInner->KillProcessByPid(pid, "KillProcessByPid_002");
-    EXPECT_EQ(result, -1);
+    EXPECT_EQ(result, AAFwk::ERR_KILL_PROCESS_NOT_EXIST);
 
     TAG_LOGI(AAFwkTag::TEST, "KillProcessByPid_002 end");
 }

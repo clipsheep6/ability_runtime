@@ -120,6 +120,10 @@ public:
      */
     virtual void KillProcessesByUserId(int32_t userId) override;
 
+    virtual void KillProcessesByPids(std::vector<int32_t> &pids) override;
+
+    virtual void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken) override;
+
     /**
      * KillProcessWithAccount, call KillProcessWithAccount() through proxy object, kill the
      * process.

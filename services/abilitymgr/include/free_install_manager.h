@@ -164,6 +164,10 @@ private:
     void PostTimeoutTask(const Want &want);
     void HandleTimeoutTask(const std::string &bundleName, const std::string &abilityName, const std::string &startTime);
     void RemoveTimeoutTask(const std::string &bundleName, const std::string &abilityName, const std::string &startTime);
+
+    void StartAbilityByFreeInstall(FreeInstallInfo &info, std::string &bundleName, std::string &abilityName,
+        std::string &startTime);
+    int32_t UpdateElementName(Want &want, int32_t userId) const;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -88,6 +88,7 @@
 #include "start_ability_handler/start_ability_sandbox_savefile.h"
 #include "start_options.h"
 #include "start_ability_utils.h"
+#include "status_bar_delegate_interface.h"
 #include "string_ex.h"
 #include "string_wrapper.h"
 #include "int_wrapper.h"
@@ -1726,17 +1727,6 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
         "request dialog service, start service extension,name is %{public}s.", abilityInfo.name.c_str());
     ReportEventToSuspendManager(abilityInfo);
     return connectManager->StartAbility(abilityRequest);
-}
-
-AppExecFwk::ElementName AbilityManagerService::GetElementNameByAppId(const std::string &appId)
-{
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bms is invalid.");
-        return {};
-    }
-    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
-    return launchWant.GetElement();
 }
 
 int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, const StartOptions &options,
@@ -5634,7 +5624,7 @@ int AbilityManagerService::ClearUpApplicationData(const std::string &bundleName,
 
 int AbilityManagerService::UninstallApp(const std::string &bundleName, int32_t uid)
 {
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Uninstall app, bundleName: %{public}s, uid=%{public}d", bundleName.c_str(), uid);
     return UninstallAppInner(bundleName, uid, false, "");
 }
 
@@ -8363,6 +8353,11 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
+    if (system::GetBoolParameter(DEVELOPER_MODE_STATE, false) &&
+        PermissionVerification::GetInstance()->VerifyShellStartExtensionType(static_cast<int32_t>(extensionType))) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "CheckCallOtherExtensionPermission, allow aa start with debug mode.");
+        return ERR_OK;
+    }
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }
@@ -9012,6 +9007,32 @@ void AbilityManagerService::GetConnectManagerAndUIExtensionBySessionInfo(const s
     }
 }
 
+int32_t AbilityManagerService::RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    if (uiAbilityLifecycleManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uiAbilityLifecycleManager is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return uiAbilityLifecycleManager_->RegisterStatusBarDelegate(delegate);
+}
+
+int32_t AbilityManagerService::KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
+{
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sceneboard called, not allowed.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    if (uiAbilityLifecycleManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "uiAbilityLifecycleManager is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    return uiAbilityLifecycleManager_->KillProcessWithPrepareTerminate(pids);
+}
+
 int32_t AbilityManagerService::RegisterAutoStartupSystemCallback(const sptr<IRemoteObject> &callback)
 {
     if (abilityAutoStartupService_ == nullptr) {
@@ -9141,16 +9162,17 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
         return ERR_NOT_SELF_APPLICATION;
     }
 
-    if (startOptions.processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM &&
-        !IsCallerInStatusBar()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not in status bar in NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM mode.");
-        return ERR_START_OPTIONS_CHECK_FAILED;
-    }
-
     if (uiAbilityLifecycleManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "uiAbilityLifecycleManager_ is nullptr");
         return ERR_INVALID_VALUE;
     }
+
+    if (startOptions.processOptions->processMode == ProcessMode::NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM &&
+        !uiAbilityLifecycleManager_->IsCallerInStatusBar()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Caller is not in status bar in NEW_PROCESS_ATTACH_TO_STATUS_BAR_ITEM mode.");
+        return ERR_START_OPTIONS_CHECK_FAILED;
+    }
+
     auto abilityRecords = uiAbilityLifecycleManager_->GetAbilityRecordsByName(element);
     if (!abilityRecords.empty() && abilityRecords[0] &&
         abilityRecords[0]->GetAbilityInfo().launchMode != AppExecFwk::LaunchMode::STANDARD) {
@@ -9159,12 +9181,6 @@ int32_t AbilityManagerService::CheckProcessOptions(const Want &want, const Start
     }
 
     return ERR_OK;
-}
-
-bool AbilityManagerService::IsCallerInStatusBar()
-{
-    // Add function implementation later
-    return true;
 }
 
 int32_t AbilityManagerService::RegisterAppDebugListener(sptr<AppExecFwk::IAppDebugListener> listener)

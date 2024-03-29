@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "bundle_constants.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
@@ -130,7 +131,7 @@ void to_json(nlohmann::json &jsonObject, const Metadata &metadata)
 
 void to_json(nlohmann::json &jsonObject, const AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("AbilityInfo to_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "AbilityInfo to_json begin");
     jsonObject = nlohmann::json {
         {JSON_KEY_NAME, abilityInfo.name},
         {JSON_KEY_LABEL, abilityInfo.label},
@@ -287,13 +288,14 @@ void from_json(const nlohmann::json &jsonObject, Metadata &metadata)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_DEBUG("read Ability Metadata from database error, error code : %{public}d", parseResult);
+        TAG_LOGD(
+            AAFwkTag::ABILITY_SIM, "read Ability Metadata from database error, error code : %{public}d", parseResult);
     }
 }
 
 void from_json(const nlohmann::json &jsonObject, AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("AbilityInfo from_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "AbilityInfo from_json begin");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<std::string>(jsonObject,

@@ -200,6 +200,10 @@ public:
      */
     void KillProcessesByUserId(int32_t userId);
 
+    void KillProcessesByPids(std::vector<int32_t> &pids);
+
+    void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken);
+
     /**
      * convert ability state to app ability state.
      *

@@ -42,6 +42,9 @@ public:
     {
         return nullptr;
     }
+
+    std::shared_ptr<AbilityRuntime::AutoFillManager> autoFillManager_ =
+        std::make_shared<AbilityRuntime::AutoFillManager>();
 };
 
 class MockModalUIExtensionProxy : public Ace::ModalUIExtensionProxy {
@@ -60,6 +63,19 @@ void AutoFillManagerTest::SetUp()
 
 void AutoFillManagerTest::TearDown()
 {}
+
+/**
+ * @tc.name: ReloadInModal_0100
+ * @tc.desc: Js auto fill extension ReloadInModal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AutoFillManagerTest, ReloadInModal_0100, TestSize.Level1)
+{
+    AbilityRuntime::AutoFill::ReloadInModalRequest request;
+    ASSERT_NE(autoFillManager_, nullptr);
+    auto ret = autoFillManager_->ReloadInModal(request);
+    EXPECT_EQ(ret, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
+}
 
 /*
  * Feature: AutoFillManager

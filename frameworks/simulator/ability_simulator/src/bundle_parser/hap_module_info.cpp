@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "hap_module_info.h"
 
 #include "bundle_constants.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
@@ -99,7 +100,7 @@ void from_json(const nlohmann::json &jsonObject, PreloadItem &preloadItem)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("read PreloadItem from database error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "read PreloadItem from database error, error code : %{public}d", parseResult);
     }
 }
 
@@ -150,7 +151,7 @@ void from_json(const nlohmann::json &jsonObject, ProxyData &proxyData)
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("read ProxyData from database error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "read ProxyData from database error, error code : %{public}d", parseResult);
     }
 }
 
@@ -606,7 +607,7 @@ void from_json(const nlohmann::json &jsonObject, HapModuleInfo &hapModuleInfo)
         parseResult,
         ArrayType::STRING);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("HapModuleInfo from_json error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "HapModuleInfo from_json error, error code : %{public}d", parseResult);
     }
 }
 }  // namespace AppExecFwk

@@ -181,6 +181,20 @@ void AppScheduler::KillProcessesByUserId(int32_t userId)
     appMgrClient_->KillProcessesByUserId(userId);
 }
 
+void AppScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->KillProcessesByPids(pids);
+}
+
+void AppScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "called.");
+    CHECK_POINTER(appMgrClient_);
+    appMgrClient_->AttachPidToParent(token, callerToken);
+}
+
 AppAbilityState AppScheduler::ConvertToAppAbilityState(const int32_t state)
 {
     AppExecFwk::AbilityState abilityState = static_cast<AppExecFwk::AbilityState>(state);

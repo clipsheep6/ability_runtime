@@ -29,7 +29,7 @@ enum AutoFillWindowType {
     POPUP_WINDOW
 };
 }
-class AutoFillExtensionCallback {
+class AutoFillExtensionCallback : public std::enable_shared_from_this<AutoFillExtensionCallback> {
 public:
     AutoFillExtensionCallback() = default;
     ~AutoFillExtensionCallback() = default;
@@ -48,12 +48,17 @@ public:
     void SetUIContent(Ace::UIContent *uiContent);
     void SetEventId(uint32_t eventId);
     void SetWindowType(const AutoFill::AutoFillWindowType &autoFillWindowType);
+    void SetExtensionType(bool isSmartAutoFill);
+    void SetAutoFillType(const AbilityBase::AutoFillType &autoFillType);
+    void SetViewData(const AbilityBase::ViewData &viewData);
+    AbilityBase::ViewData GetViewData();
     void HandleTimeOut();
 
 private:
     void SendAutoFillSucess(const AAFwk::Want &want);
     void SendAutoFillFailed(int32_t errCode);
     void CloseModalUIExtension();
+    void HandleReloadInModal(const AAFwk::WantParams &wantParams);
 
     std::shared_ptr<IFillRequestCallback> fillCallback_;
     std::shared_ptr<ISaveRequestCallback> saveCallback_;
@@ -61,6 +66,10 @@ private:
     Ace::UIContent *uiContent_ = nullptr;
     uint32_t eventId_ = 0;
     AutoFill::AutoFillWindowType autoFillWindowType_ = AutoFill::AutoFillWindowType::MODAL_WINDOW;
+    AbilityBase::ViewData viewData_;
+    bool isReloadInModal_ = false;
+    bool isSmartAutoFill_ = false;
+    AbilityBase::AutoFillType autoFillType_ = AbilityBase::AutoFillType::UNSPECIFIED;
 };
 } // AbilityRuntime
 } // OHOS

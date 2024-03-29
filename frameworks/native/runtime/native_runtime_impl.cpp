@@ -178,7 +178,7 @@ napi_status NativeRuntimeImpl::AddEnv(napi_env env, std::shared_ptr<JsEnv::JsEnv
         return napi_status::napi_create_ark_runtime_too_many_envs;
     }
     threadIds_.insert(threadId);
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "add threadId %{public}zu", threadId);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "add threadId %{public}d", threadId);
     auto it = envMap_.find(env);
     if (it == envMap_.end()) {
         envMap_[env] = jsEnv;
@@ -191,7 +191,7 @@ napi_status NativeRuntimeImpl::RemoveJsEnv(napi_env env)
 {
     std::lock_guard<std::mutex> lock(envMutex_);
     pid_t threadId = gettid();
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "remove threadId %{public}zu", threadId);
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "remove threadId %{public}d", threadId);
     threadIds_.erase(threadId);
     auto it = envMap_.find(env);
     if (it != envMap_.end()) {

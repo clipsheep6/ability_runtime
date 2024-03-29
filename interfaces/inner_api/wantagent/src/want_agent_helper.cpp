@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "want_agent_helper.h"
 
 #include "ability_runtime_error_util.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "want_params_wrapper.h"
 #include "pending_want.h"
@@ -58,26 +59,26 @@ unsigned int WantAgentHelper::FlagsTransformer(const std::vector<WantAgentConsta
                 break;
             case WantAgentConstant::Flags::REPLACE_ELEMENT:
                 wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
-                WANT_AGENT_LOGE("Invalid flag:REPLACE_ELEMENT.");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid flag:REPLACE_ELEMENT.");
                 break;
             case WantAgentConstant::Flags::REPLACE_ACTION:
                 wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
-                WANT_AGENT_LOGE("Invalid flag:REPLACE_ACTION.");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid flag:REPLACE_ACTION.");
                 break;
             case WantAgentConstant::Flags::REPLACE_URI:
                 wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
-                WANT_AGENT_LOGE("Invalid flag:REPLACE_URI.");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid flag:REPLACE_URI.");
                 break;
             case WantAgentConstant::Flags::REPLACE_ENTITIES:
                 wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
-                WANT_AGENT_LOGE("Invalid flag:REPLACE_ENTITIES.");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid flag:REPLACE_ENTITIES.");
                 break;
             case WantAgentConstant::Flags::REPLACE_BUNDLE:
                 wantFlags |= static_cast<unsigned int>(FLAG_UPDATE_CURRENT);
-                WANT_AGENT_LOGE("Invalid flag:REPLACE_BUNDLE.");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "Invalid flag:REPLACE_BUNDLE.");
                 break;
             default:
-                WANT_AGENT_LOGE("WantAgentHelper::flags is error.");
+                TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::flags is error.");
                 break;
         }
     }
@@ -89,23 +90,23 @@ ErrCode WantAgentHelper::GetWantAgent(
     const WantAgentInfo &paramsInfo, std::shared_ptr<WantAgent> &wantAgent)
 {
     if (context == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::vector<std::shared_ptr<Want>> wants = paramsInfo.GetWants();
     if (wants.empty()) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
-    HILOG_DEBUG("bundle:%{public}s; ability:%{public}s",
+    TAG_LOGD(AAFwkTag::WANTAGENT, "bundle:%{public}s; ability:%{public}s",
         wants[0]->GetElement().GetBundleName().c_str(),
         wants[0]->GetElement().GetAbilityName().c_str());
 
     unsigned int flags = FlagsTransformer(paramsInfo.GetFlags());
     if (flags == 0) {
-        WANT_AGENT_LOGE("WantAgentHelper::flags invalid.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::flags invalid.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -131,13 +132,13 @@ ErrCode WantAgentHelper::GetWantAgent(
             result = PendingWant::GetCommonEvent(context, requestCode, wants[0], flags, pendingWant);
             break;
         default:
-            WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent operation type is error.");
+            TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent operation type is error.");
             result = ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
             break;
     }
 
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent the wants does not meet the requirements.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent the wants does not meet the requirements.");
         return result;
     }
     wantAgent = std::make_shared<WantAgent>(pendingWant);
@@ -148,13 +149,13 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
 {
     std::vector<std::shared_ptr<Want>> wants = paramsInfo.GetWants();
     if (wants.empty()) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
         return nullptr;
     }
 
     std::shared_ptr<Want> want = wants[0];
     if (want == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent invalid input param.");
         return nullptr;
     }
 
@@ -165,7 +166,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
         wantsInfo.want.SetParams(*paramsInfo.GetExtraInfo());
     }
 
-    HILOG_INFO("bundle:%{public}s; ability:%{public}s",
+    TAG_LOGI(AAFwkTag::WANTAGENT, "bundle:%{public}s; ability:%{public}s",
         wantsInfo.want.GetElement().GetBundleName().c_str(),
         wantsInfo.want.GetElement().GetAbilityName().c_str());
 
@@ -178,7 +179,7 @@ std::shared_ptr<WantAgent> WantAgentHelper::GetWantAgent(const WantAgentInfo &pa
     sptr<IWantSender> target = nullptr;
     WantAgentClient::GetInstance().GetWantSender(wantSenderInfo, nullptr, target);
     if (target == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWantAgent target is nullptr.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWantAgent target is nullptr.");
         return nullptr;
     }
     std::shared_ptr<WantAgent> agent = std::make_shared<WantAgent>(std::make_shared<PendingWant>(target));
@@ -198,9 +199,9 @@ WantAgentConstant::OperationType WantAgentHelper::GetType(std::shared_ptr<WantAg
 ErrCode WantAgentHelper::TriggerWantAgent(std::shared_ptr<WantAgent> agent,
     const std::shared_ptr<CompletedCallback> &callback, const TriggerInfo &paramsInfo)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::TriggerWantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::TriggerWantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
@@ -215,9 +216,9 @@ ErrCode WantAgentHelper::TriggerWantAgent(std::shared_ptr<WantAgent> agent,
 ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
     WantAgentConstant::OperationType type, const sptr<CompletedDispatcher> &callBack, const TriggerInfo &paramsInfo)
 {
-    HILOG_INFO("call");
+    TAG_LOGI(AAFwkTag::WANTAGENT, "call");
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::Send invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::Send invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -232,13 +233,13 @@ ErrCode WantAgentHelper::Send(const std::shared_ptr<PendingWant> &pendingWant,
 ErrCode WantAgentHelper::Cancel(const std::shared_ptr<WantAgent> &agent)
 {
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::Cancel WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::Cancel WantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::Cancel PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::Cancel PendingWant invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -260,15 +261,15 @@ ErrCode WantAgentHelper::IsEquals(
 
 ErrCode WantAgentHelper::GetBundleName(const std::shared_ptr<WantAgent> &agent, std::string &bundleName)
 {
-    WANT_AGENT_LOGD("WantAgentHelper::GetBundleName");
+    TAG_LOGD(AAFwkTag::WANTAGENT, "WantAgentHelper::GetBundleName");
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetBundleName WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetBundleName WantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetBundleName PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetBundleName PendingWant invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -278,13 +279,13 @@ ErrCode WantAgentHelper::GetBundleName(const std::shared_ptr<WantAgent> &agent, 
 ErrCode WantAgentHelper::GetUid(const std::shared_ptr<WantAgent> &agent, int32_t &uid)
 {
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetUid WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetUid WantAgent invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetUid PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetUid PendingWant invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
 
@@ -294,13 +295,13 @@ ErrCode WantAgentHelper::GetUid(const std::shared_ptr<WantAgent> &agent, int32_t
 std::shared_ptr<Want> WantAgentHelper::GetWant(const std::shared_ptr<WantAgent> &agent)
 {
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWant WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWant WantAgent invalid input param.");
         return nullptr;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::GetWant PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::GetWant PendingWant invalid input param.");
         return nullptr;
     }
 
@@ -311,13 +312,13 @@ void WantAgentHelper::RegisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const std::shared_ptr<WantAgent> &agent)
 {
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::RegisterCancelListener WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::RegisterCancelListener WantAgent invalid input param.");
         return;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::RegisterCancelListener PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::RegisterCancelListener PendingWant invalid input param.");
         return;
     }
 
@@ -328,13 +329,13 @@ void WantAgentHelper::UnregisterCancelListener(
     const std::shared_ptr<CancelListener> &cancelListener, const std::shared_ptr<WantAgent> &agent)
 {
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::UnregisterCancelListener WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::UnregisterCancelListener WantAgent invalid input param.");
         return;
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::UnregisterCancelListener PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::UnregisterCancelListener PendingWant invalid input param.");
         return;
     }
 
@@ -344,19 +345,19 @@ void WantAgentHelper::UnregisterCancelListener(
 std::string WantAgentHelper::ToString(const std::shared_ptr<WantAgent> &agent)
 {
     if (agent == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::ToString WantAgent invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::ToString WantAgent invalid input param.");
         return "";
     }
 
     std::shared_ptr<PendingWant> pendingWant = agent->GetPendingWant();
     if (pendingWant == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::ToString PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::ToString PendingWant invalid input param.");
         return "";
     }
 
     std::shared_ptr<WantSenderInfo> info = pendingWant->GetWantSenderInfo(pendingWant->GetTarget());
     if (info == nullptr) {
-        WANT_AGENT_LOGE("WantAgentHelper::ToString WantSenderInfo invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgentHelper::ToString WantSenderInfo invalid input param.");
         return "";
     }
     nlohmann::json jsonObject;
@@ -459,7 +460,7 @@ std::vector<WantAgentConstant::Flags> WantAgentHelper::ParseFlags(nlohmann::json
 ErrCode WantAgentHelper::GetType(const std::shared_ptr<WantAgent> &agent, int32_t &operType)
 {
     if ((agent == nullptr) || (agent->GetPendingWant() == nullptr)) {
-        WANT_AGENT_LOGE("WantAgent or PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgent or PendingWant invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT;
     }
 
@@ -469,7 +470,7 @@ ErrCode WantAgentHelper::GetType(const std::shared_ptr<WantAgent> &agent, int32_
 ErrCode WantAgentHelper::GetWant(const std::shared_ptr<WantAgent> &agent, std::shared_ptr<AAFwk::Want> &want)
 {
     if ((agent == nullptr) || (agent->GetPendingWant() == nullptr)) {
-        WANT_AGENT_LOGE("WantAgent or PendingWant invalid input param.");
+        TAG_LOGE(AAFwkTag::WANTAGENT, "WantAgent or PendingWant invalid input param.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_WANTAGENT;
     }
 

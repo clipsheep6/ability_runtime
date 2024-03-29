@@ -63,11 +63,6 @@ const int COMMAND_WINDOW_TIMEOUT_MULTIPLE = 5;
 const int UI_EXTENSION_CONSUME_SESSION_TIMEOUT_MULTIPLE = 10;
 #endif
 const int32_t AUTO_DISCONNECT_INFINITY = -1;
-const std::unordered_map<std::string, std::string> trustMap = {
-    { AbilityConfig::SCENEBOARD_BUNDLE_NAME, AbilityConfig::SCENEBOARD_ABILITY_NAME },
-    { AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME },
-    { AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_ABILITY_NAME }
-};
 const std::unordered_set<std::string> FROZEN_WHITE_LIST {
     "com.huawei.hmos.huaweicast"
 };
@@ -76,8 +71,17 @@ constexpr char ABILITY_NAME_ASSERT_FAULT_DIALOG[] = "AssertFaultDialog";
 
 bool IsSpecialAbility(const AppExecFwk::AbilityInfo &abilityInfo)
 {
-    auto it = trustMap.find(abilityInfo.bundleName);
-    return (it != trustMap.end() && it->second == abilityInfo.name);
+    std::vector<std::pair<std::string, std::string>> trustAbilities{
+        { AbilityConfig::SCENEBOARD_BUNDLE_NAME, AbilityConfig::SCENEBOARD_ABILITY_NAME },
+        { AbilityConfig::SYSTEM_UI_BUNDLE_NAME, AbilityConfig::SYSTEM_UI_ABILITY_NAME },
+        { AbilityConfig::LAUNCHER_BUNDLE_NAME, AbilityConfig::LAUNCHER_ABILITY_NAME }
+    };
+    for (const auto &pair : trustAbilities) {
+        if (pair.first == abilityInfo.bundleName && pair.second == abilityInfo.name) {
+            return true;
+        }
+    }
+    return false;
 }
 
 std::mutex g_keepAliveAbilitiesMutex;

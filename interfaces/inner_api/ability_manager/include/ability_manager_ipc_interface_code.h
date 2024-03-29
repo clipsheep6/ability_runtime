@@ -232,9 +232,6 @@ enum class AbilityManagerInterfaceCode {
     // Get forgeround UI abilities(75)
     GET_FOREGROUND_UI_ABILITIES = 75,
 
-    // Obtains elementName by appId(76)
-    GET_ELEMENT_NAME_BY_APP_ID = 76,
-
     // Pop-up launch of full-screen atomic service(77)
     OPEN_ATOMIC_SERVICE = 77,
 
@@ -470,6 +467,9 @@ enum class AbilityManagerInterfaceCode {
     OPEN_FILE = 4055,
 
     GET_ABILITY_TOKEN = 5001,
+
+    REGISTER_STATUS_BAR_DELEGATE = 5100,
+    KILL_PROCESS_WITH_PREPARE_TERMINATE = 5101,
 
     FORCE_EXIT_APP = 6001,
     RECORD_APP_EXIT_REASON = 6002,

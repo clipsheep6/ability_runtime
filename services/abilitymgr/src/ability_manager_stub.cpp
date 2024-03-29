@@ -28,6 +28,7 @@
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
 #include "session_info.h"
+#include "status_bar_delegate_interface.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -35,6 +36,7 @@ using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 namespace {
 const std::u16string extensionDescriptor = u"ohos.aafwk.ExtensionManager";
 constexpr int32_t CYCLE_LIMIT = 1000;
+constexpr int32_t MAX_KILL_PROCESS_PID_COUNT = 100;
 } // namespace
 AbilityManagerStub::AbilityManagerStub()
 {
@@ -379,6 +381,10 @@ void AbilityManagerStub::ThirdStepInit()
 
 void AbilityManagerStub::FourthStepInit()
 {
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_STATUS_BAR_DELEGATE)] =
+        &AbilityManagerStub::RegisterStatusBarDelegateInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::KILL_PROCESS_WITH_PREPARE_TERMINATE)] =
+        &AbilityManagerStub::KillProcessWithPrepareTerminateInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_AUTO_STARTUP_SYSTEM_CALLBACK)] =
         &AbilityManagerStub::RegisterAutoStartupSystemCallbackInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_AUTO_STARTUP_SYSTEM_CALLBACK)] =
@@ -404,8 +410,6 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::GetForegroundUIAbilitiesInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::RESTART_APP)] =
         &AbilityManagerStub::RestartAppInner;
-    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_ELEMENT_NAME_BY_APP_ID)] =
-        &AbilityManagerStub::GetElementNameByAppIdInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::OPEN_ATOMIC_SERVICE)] =
         &AbilityManagerStub::OpenAtomicServiceInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::IS_EMBEDDED_OPEN_ALLOWED)] =
@@ -2744,6 +2748,36 @@ int AbilityManagerStub::PrepareTerminateAbilityBySCBInner(MessageParcel &data, M
     return result;
 }
 
+int32_t AbilityManagerStub::RegisterStatusBarDelegateInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto delegate = iface_cast<AbilityRuntime::IStatusBarDelegate>(data.ReadRemoteObject());
+    if (delegate == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "delegate is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    int32_t result = RegisterStatusBarDelegate(delegate);
+    reply.WriteInt32(result);
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::KillProcessWithPrepareTerminateInner(MessageParcel &data, MessageParcel &reply)
+{
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_KILL_PROCESS_PID_COUNT) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Invalid size.");
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<int32_t> pids;
+    for (uint32_t i = 0; i < size; i++) {
+        pids.emplace_back(data.ReadInt32());
+    }
+    int32_t result = KillProcessWithPrepareTerminate(pids);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "KillProcessWithPrepareTerminate failed.");
+    }
+    return NO_ERROR;
+}
+
 int32_t AbilityManagerStub::RegisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> callback = data.ReadRemoteObject();
@@ -3177,17 +3211,6 @@ int32_t AbilityManagerStub::RestartAppInner(MessageParcel &data, MessageParcel &
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "fail to write result.");
         return IPC_STUB_ERR;
-    }
-    return ERR_OK;
-}
-
-int32_t AbilityManagerStub::GetElementNameByAppIdInner(MessageParcel &data, MessageParcel &reply)
-{
-    std::string appId = data.ReadString();
-    auto elementName = GetElementNameByAppId(appId);
-    if (!reply.WriteParcelable(&elementName)) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write want error");
-        return ERR_INVALID_VALUE;
     }
     return ERR_OK;
 }

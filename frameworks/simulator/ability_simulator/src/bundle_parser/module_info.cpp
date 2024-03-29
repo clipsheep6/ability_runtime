@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "module_info.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
@@ -64,7 +65,8 @@ void from_json(const nlohmann::json &jsonObject, ModuleInfo &moduleInfo)
         parseResult,
         ArrayType::STRING);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("read module moduleInfo from jsonObject error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM,
+            "read module moduleInfo from jsonObject error, error code : %{public}d", parseResult);
     }
 }
 } // namespace AppExecFwk

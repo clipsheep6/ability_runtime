@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "appexecfwk_errors.h"
 #include "app_log_wrapper.h"
 #include "bundle_constants.h"
+#include "hilog_tag_wrapper.h"
 #include "ipc_skeleton.h"
 #include "service_info.h"
 #include "tokenid_kit.h"
@@ -29,12 +30,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 ServiceRouterMgrStub::ServiceRouterMgrStub()
 {
-    APP_LOGD("ServiceRouterMgrStub instance is created");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub instance is created");
 }
 
 ServiceRouterMgrStub::~ServiceRouterMgrStub()
 {
-    APP_LOGD("ServiceRouterMgrStub instance is destroyed");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub instance is destroyed");
 }
 
 int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply,
@@ -43,7 +44,7 @@ int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
     std::u16string descriptor = ServiceRouterMgrStub::GetDescriptor();
     std::u16string remoteDescriptor = data.ReadInterfaceToken();
     if (descriptor != remoteDescriptor) {
-        APP_LOGE("local descriptor is not equal to remote");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "local descriptor is not equal to remote");
         return ERR_INVALID_STATE;
     }
 
@@ -53,37 +54,37 @@ int ServiceRouterMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, Me
         case static_cast<uint32_t>(IServiceRouterManager::Message::QUERY_PURPOSE_INFOS):
             return HandleQueryPurposeInfos(data, reply);
         default:
-            APP_LOGW("ServiceRouterMgrStub receives unknown code, code = %{public}d", code);
+            TAG_LOGW(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub receives unknown code, code = %{public}d", code);
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
 }
 
 int ServiceRouterMgrStub::HandleQueryBusinessAbilityInfos(MessageParcel &data, MessageParcel &reply)
 {
-    APP_LOGD("ServiceRouterMgrStub handle query service infos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle query service infos");
     if (!VerifySystemApp()) {
-        APP_LOGE("verify system app failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "verify system app failed");
         return ERR_BUNDLE_MANAGER_SYSTEM_API_DENIED;
     }
     if (!VerifyCallingPermission(Constants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
-        APP_LOGE("verify GET_BUNDLE_INFO_PRIVILEGED failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "verify GET_BUNDLE_INFO_PRIVILEGED failed");
         return ERR_BUNDLE_MANAGER_PERMISSION_DENIED;
     }
 
     std::unique_ptr<BusinessAbilityFilter> filter(data.ReadParcelable<BusinessAbilityFilter>());
     if (filter == nullptr) {
-        APP_LOGE("ReadParcelable<filter> failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "ReadParcelable<filter> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     std::vector<BusinessAbilityInfo> infos;
     int ret = QueryBusinessAbilityInfos(*filter, infos);
     if (!reply.WriteInt32(ret)) {
-        APP_LOGE("write ret failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "write ret failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (ret == ERR_OK) {
         if (!WriteParcelableVector<BusinessAbilityInfo>(infos, reply)) {
-            APP_LOGE("QueryBusinessAbilityInfos write failed");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryBusinessAbilityInfos write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
@@ -92,26 +93,26 @@ int ServiceRouterMgrStub::HandleQueryBusinessAbilityInfos(MessageParcel &data, M
 
 int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessageParcel &reply)
 {
-    APP_LOGD("ServiceRouterMgrStub handle query purpose infos");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle query purpose infos");
     if (!VerifyCallingPermission(Constants::PERMISSION_GET_BUNDLE_INFO_PRIVILEGED)) {
-        APP_LOGE("verify GET_BUNDLE_INFO_PRIVILEGED failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "verify GET_BUNDLE_INFO_PRIVILEGED failed");
         return ERR_BUNDLE_MANAGER_PERMISSION_DENIED;
     }
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        APP_LOGE("ReadParcelable<want> failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "ReadParcelable<want> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     std::string purposeName = data.ReadString();
     std::vector<PurposeInfo> infos;
     int ret = QueryPurposeInfos(*want, purposeName, infos);
     if (!reply.WriteInt32(ret)) {
-        APP_LOGE("write ret failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "write ret failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     if (ret == ERR_OK) {
         if (!WriteParcelableVector<PurposeInfo>(infos, reply)) {
-            APP_LOGE("QueryPurposeInfos write failed");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "QueryPurposeInfos write failed");
             return ERR_APPEXECFWK_PARCEL_ERROR;
         }
     }
@@ -120,7 +121,7 @@ int ServiceRouterMgrStub::HandleQueryPurposeInfos(MessageParcel &data, MessagePa
 
 int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, MessageParcel &reply)
 {
-    APP_LOGD("ServiceRouterMgrStub handle start ui extension ability");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle start ui extension ability");
     sptr<SessionInfo> sessionInfo = nullptr;
     if (data.ReadBool()) {
         sessionInfo = data.ReadParcelable<SessionInfo>();
@@ -128,7 +129,7 @@ int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, Mes
     int32_t userId = data.ReadInt32();
     int32_t result = StartUIExtensionAbility(sessionInfo, userId);
     if (!reply.WriteInt32(result)) {
-        APP_LOGE("write result failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "write result failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     return ERR_OK;
@@ -136,10 +137,10 @@ int ServiceRouterMgrStub::HandleStartUIExtensionAbility(MessageParcel &data, Mes
 
 int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, MessageParcel &reply)
 {
-    APP_LOGD("ServiceRouterMgrStub handle connect ui extension ability");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ServiceRouterMgrStub handle connect ui extension ability");
     std::unique_ptr<Want> want(data.ReadParcelable<Want>());
     if (want == nullptr) {
-        APP_LOGE("ReadParcelable<want> failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "ReadParcelable<want> failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     sptr<IAbilityConnection> callback = nullptr;
@@ -153,7 +154,7 @@ int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, M
     int32_t userId = data.ReadInt32();
     int32_t result = ConnectUIExtensionAbility(*want, callback, sessionInfo, userId);
     if (!reply.WriteInt32(result)) {
-        APP_LOGE("write result failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "write result failed");
         return ERR_APPEXECFWK_PARCEL_ERROR;
     }
     return ERR_OK;
@@ -161,7 +162,7 @@ int ServiceRouterMgrStub::HandleConnectUIExtensionAbility(MessageParcel &data, M
 
 bool ServiceRouterMgrStub::VerifyCallingPermission(const std::string &permissionName)
 {
-    APP_LOGD("VerifyCallingPermission permission %{public}s", permissionName.c_str());
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "VerifyCallingPermission permission %{public}s", permissionName.c_str());
     OHOS::Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     OHOS::Security::AccessToken::ATokenTypeEnum tokenType =
         OHOS::Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
@@ -170,7 +171,7 @@ bool ServiceRouterMgrStub::VerifyCallingPermission(const std::string &permission
     }
     int32_t ret = OHOS::Security::AccessToken::AccessTokenKit::VerifyAccessToken(callerToken, permissionName);
     if (ret == OHOS::Security::AccessToken::PermissionState::PERMISSION_DENIED) {
-        APP_LOGE("PERMISSION_DENIED: %{public}s", permissionName.c_str());
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "PERMISSION_DENIED: %{public}s", permissionName.c_str());
         return false;
     }
     return true;
@@ -178,7 +179,7 @@ bool ServiceRouterMgrStub::VerifyCallingPermission(const std::string &permission
 
 bool ServiceRouterMgrStub::VerifySystemApp()
 {
-    APP_LOGD("verifying systemApp");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "verifying systemApp");
     Security::AccessToken::AccessTokenID callerToken = IPCSkeleton::GetCallingTokenID();
     Security::AccessToken::ATokenTypeEnum tokenType =
         Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
@@ -188,7 +189,7 @@ bool ServiceRouterMgrStub::VerifySystemApp()
     }
     uint64_t accessTokenIdEx = IPCSkeleton::GetCallingFullTokenID();
     if (!Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(accessTokenIdEx)) {
-        APP_LOGE("non-system app calling system api");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "non-system app calling system api");
         return false;
     }
     return true;
@@ -198,13 +199,13 @@ template <typename T>
 bool ServiceRouterMgrStub::WriteParcelableVector(std::vector<T> &parcelableVector, Parcel &reply)
 {
     if (!reply.WriteInt32(parcelableVector.size())) {
-        APP_LOGE("write ParcelableVector size failed");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "write ParcelableVector size failed");
         return false;
     }
 
     for (auto &parcelable : parcelableVector) {
         if (!reply.WriteParcelable(&parcelable)) {
-            APP_LOGE("write ParcelableVector failed");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "write ParcelableVector failed");
             return false;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,6 +34,7 @@
 #include "js_auto_fill_extension_context.h"
 #undef private
 #undef protected
+#include "js_auto_fill_extension_util.h"
 #include "js_runtime.h"
 #include "mock_ability_token.h"
 #include "ohos_application.h"
@@ -173,6 +174,24 @@ HWTEST_F(JsAutoFillExtensionTest, OnStart_0100, TestSize.Level1)
     EXPECT_NE(resourceManager, nullptr);
     auto appConfig = applicationContext_->GetConfiguration();
     EXPECT_NE(appConfig, nullptr);
+}
+
+/**
+ * @tc.name: OnReloadInModal_0100
+ * @tc.desc: Js auto fill extension OnReloadInModal.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsAutoFillExtensionTest, OnReloadInModal_0100, TestSize.Level1)
+{
+    CustomData customData;
+    ASSERT_NE(jsAutoFillExtension_, nullptr);
+    jsAutoFillExtension_->isPopup_ = true;
+    auto ret = jsAutoFillExtension_->OnReloadInModal(nullptr, customData);
+    EXPECT_EQ(ret, ERR_NULL_OBJECT);
+
+    sptr<AAFwk::SessionInfo> sessionInfo = new AAFwk::SessionInfo();
+    ret = jsAutoFillExtension_->OnReloadInModal(sessionInfo, customData);
+    EXPECT_EQ(ret, ERR_NULL_OBJECT);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

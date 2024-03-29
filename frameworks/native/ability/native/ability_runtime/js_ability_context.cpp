@@ -61,6 +61,7 @@ namespace {
 static std::map<ConnectionKey, sptr<JSAbilityConnection>, KeyCompare> g_connects;
 std::mutex gConnectsLock_;
 int64_t g_serialNumber = 0;
+const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 
 // This function has to be called from engine thread
 void RemoveConnection(int64_t connectId)
@@ -1980,17 +1981,9 @@ napi_value JsAbilityContext::OnOpenAtomicService(napi_env env, NapiCallbackInfo&
         }
     }
 
-    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetElementNameByAppId(appId);
-    std::string bundleName = elementName.GetBundleName();
-    std::string abilityName = elementName.GetAbilityName();
-    if (bundleName.empty() || abilityName.empty()) {
-        TAG_LOGE(AAFwkTag::CONTEXT, "bundleName: %{public}s, abilityName: %{public}s",
-            bundleName.c_str(), abilityName.c_str());
-        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_ID);
-        return CreateJsUndefined(env);
-    }
-
-    want.SetElement(elementName);
+    std::string bundleName = ATOMIC_SERVICE_PREFIX + appId;
+    HILOG_DEBUG("bundleName: %{public}s.", bundleName.c_str());
+    want.SetBundle(bundleName);
     return OpenAtomicServiceInner(env, info, want, startOptions);
 }
 

@@ -17,6 +17,7 @@
 
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "js_error_utils.h"
 #include "js_extension_context.h"
 #include "napi/native_api.h"
 #include "napi_common_want.h"
@@ -24,10 +25,70 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+constexpr int32_t INDEX_ZERO = 0;
+constexpr size_t ARGC_ONE = 1;
+}
 void JsAutoFillExtensionContext::Finalizer(napi_env env, void *data, void *hint)
 {
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     std::unique_ptr<JsAutoFillExtensionContext>(static_cast<JsAutoFillExtensionContext*>(data));
+}
+
+napi_value JsAutoFillExtensionContext::ReloadInModal(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsAutoFillExtensionContext, OnReloadInModal);
+}
+
+napi_value JsAutoFillExtensionContext::OnReloadInModal(napi_env env, NapiCallbackInfo &info)
+{
+    HILOG_DEBUG("Called.");
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("Not enough params");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    napi_value jsCustomData = GetPropertyValueByPropertyName(env, info.argv[INDEX_ZERO], "data", napi_object);
+    CustomData customData;
+    if (jsCustomData == nullptr || !AppExecFwk::UnwrapWantParams(env, jsCustomData, customData.data)) {
+        HILOG_ERROR("Parse custom data failed.");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    auto retVal = std::make_shared<int32_t>(0);
+    NapiAsyncTask::ExecuteCallback execute = [weak = context_, customData, ret = retVal, env]() {
+        auto context = weak.lock();
+        if (context == nullptr) {
+            HILOG_ERROR("Context is nullptr.");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
+            return;
+        }
+        if (ret == nullptr) {
+            HILOG_ERROR("The param is invalid.");
+            return;
+        }
+        *ret = context->ReloadInModal(customData);
+    };
+
+    NapiAsyncTask::CompleteCallback complete = [ret = retVal](napi_env env, NapiAsyncTask &task, int32_t status) {
+        if (ret == nullptr) {
+            HILOG_ERROR("The param is invalid.");
+            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+            return;
+        }
+        if (*ret != ERR_OK) {
+            HILOG_ERROR("Failed error is %{public}d.", *ret);
+            task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(*ret)));
+            return;
+        }
+        task.ResolveWithNoError(env, CreateJsUndefined(env));
+    };
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsAutoFillExtensionContext::OnReloadInModal",
+        env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
+    return result;
 }
 
 napi_value JsAutoFillExtensionContext::CreateJsAutoFillExtensionContext(
@@ -40,8 +101,11 @@ napi_value JsAutoFillExtensionContext::CreateJsAutoFillExtensionContext(
     }
     napi_value objValue = CreateJsExtensionContext(env, context, abilityInfo);
 
-    auto jsContext = std::make_unique<JsAutoFillExtensionContext>();
+    auto jsContext = std::make_unique<JsAutoFillExtensionContext>(context);
     napi_wrap(env, objValue, jsContext.release(), Finalizer, nullptr, nullptr);
+
+    const char *moduleName = "JsAutoFillExtensionContext";
+    BindNativeFunction(env, objValue, "reloadInModal", moduleName, ReloadInModal);
 
     return objValue;
 }

@@ -139,6 +139,11 @@ public:
      */
     virtual AppMgrResultCode KillProcessesByUserId(int32_t userId);
 
+    virtual AppMgrResultCode KillProcessesByPids(std::vector<int32_t> &pids);
+
+    virtual AppMgrResultCode AttachPidToParent(const sptr<IRemoteObject> &token,
+        const sptr<IRemoteObject> &callerToken);
+
     /**
      * UpdateApplicationInfoInstalled, call UpdateApplicationInfoInstalled() through proxy object,
      * update the application info after new module installed.

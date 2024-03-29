@@ -29,6 +29,7 @@
 #include "scene_board_judgement.h"
 #include "session_info.h"
 #include "session_manager_lite.h"
+#include "status_bar_delegate_interface.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "ws_common.h"
@@ -331,7 +332,8 @@ ErrCode AbilityManagerClient::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "abilityName: %{public}s.", sessionInfo->want.GetElement().GetAbilityName().c_str());
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Start UIAbility by SCB: %{public}s.",
+        sessionInfo->want.GetElement().GetURI().c_str());
     return abms->StartUIAbilityBySCB(sessionInfo);
 }
 
@@ -444,7 +446,8 @@ ErrCode AbilityManagerClient::MinimizeUIAbilityBySCB(sptr<SessionInfo> sessionIn
     }
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "call");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Minimize UIAbility by SCB: %{public}s",
+        sessionInfo->want.GetElement().GetURI().c_str());
     return abms->MinimizeUIAbilityBySCB(sessionInfo, fromUser);
 }
 
@@ -1582,6 +1585,22 @@ ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type
     return abms->UnregisterIAbilityManagerCollaborator(type);
 }
 
+ErrCode AbilityManagerClient::RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterStatusBarDelegate(delegate);
+}
+
+ErrCode AbilityManagerClient::KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->KillProcessWithPrepareTerminate(pids);
+}
+
 ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
@@ -1761,17 +1780,6 @@ int32_t AbilityManagerClient::RestartApp(const AAFwk::Want &want)
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_INVALID_VALUE(abms);
     return abms->RestartApp(want);
-}
-
-AppExecFwk::ElementName AbilityManagerClient::GetElementNameByAppId(const std::string &appId)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
-    auto abms = GetAbilityManager();
-    if (abms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
-        return {};
-    }
-    return abms->GetElementNameByAppId(appId);
 }
 
 int32_t AbilityManagerClient::OpenAtomicService(Want& want, const StartOptions &options,
