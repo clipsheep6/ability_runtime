@@ -37,11 +37,6 @@ std::vector<std::string> StartupTask::GetDependencies() const
     return dependencies_;
 }
 
-bool StartupTask::GetIsManualDispatch() const
-{
-    return isManualDispatch_;
-}
-
 bool StartupTask::GetCallCreateOnMainThread() const
 {
     return callCreateOnMainThread_;
@@ -52,19 +47,14 @@ bool StartupTask::GetWaitOnMainThread() const
     return waitOnMainThread_;
 }
 
-bool StartupTask::GetIsAutoStartup() const
+bool StartupTask::GetIsExcludeFromAutoStart() const
 {
-    return isAutoStartup_;
+    return isExcludeFromAutoStart_;
 }
 
 void StartupTask::SetDependencies(const std::vector<std::string> &dependencies)
 {
     dependencies_ = dependencies;
-}
-
-void StartupTask::SetIsManualDispatch(bool isManualDispatch)
-{
-    isManualDispatch_ = isManualDispatch;
 }
 
 void StartupTask::SetCallCreateOnMainThread(bool callCreateOnMainThread)
@@ -77,9 +67,9 @@ void StartupTask::SetWaitOnMainThread(bool waitOnMainThread)
     waitOnMainThread_ = waitOnMainThread;
 }
 
-void StartupTask::SetIsAutoStartup(bool isAutoStartup)
+void StartupTask::SetIsExcludeFromAutoStart(bool excludeFromAutoStart)
 {
-    isAutoStartup_ = isAutoStartup;
+    isExcludeFromAutoStart_ = excludeFromAutoStart;
 }
 
 void StartupTask::SaveResult(const std::shared_ptr<StartupTaskResult> &result)
@@ -131,7 +121,7 @@ std::string StartupTask::DumpDependencies() const
     return dumpResult;
 }
 
-uint32_t StartupTask::getDependenceCount() const
+uint32_t StartupTask::getDependenciesCount() const
 {
     return dependencies_.size();
 }

@@ -17,8 +17,9 @@
 #define OHOS_ABILITY_RUNTIME_STARTUP_TASK_RESULT_H
 
 #include <string>
-#include "ability_manager_errors.h"
+
 #include "ability_transaction_callback_info.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -35,6 +36,10 @@ public:
 
     virtual ~StartupTaskResult();
 
+    void SetResult(int32_t resultCode, const std::string &resultMessage = "");
+
+    void SetResultMessage(const std::string &resultMessage);
+
     int32_t GetResultCode() const;
 
     std::string GetResultMessage() const;
@@ -44,6 +49,21 @@ public:
 private:
     int32_t resultCode_ = ERR_OK;
     std::string resultMessage_;
+};
+using OnCompletedCallbackFunc = std::function<void(const std::shared_ptr<StartupTaskResult> &)>;
+class OnCompletedCallback {
+public:
+    explicit OnCompletedCallback(OnCompletedCallbackFunc callbackFunc);
+
+    ~OnCompletedCallback();
+
+    void Call(const std::shared_ptr<StartupTaskResult> &result);
+
+    bool IsCalled() const;
+
+private:
+    OnCompletedCallbackFunc callbackFunc_;
+    bool isCalled_ = false;
 };
 using StartupTaskResultCallback = AppExecFwk::AbilityTransactionCallbackInfo<const std::shared_ptr<StartupTaskResult>>;
 } // namespace AbilityRuntime

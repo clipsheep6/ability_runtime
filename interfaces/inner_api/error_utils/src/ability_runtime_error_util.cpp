@@ -150,8 +150,6 @@ const std::map<int32_t, std::string> ERROR_MSG_MAP = {
         "Restart too frequently. Try again at least 10s later." },
     { ERR_ABILITY_RUNTIME_EXTERNAL_NOT_SYSTEM_HSP,
         "The input bundleName and moduleName is not system HSP" },
-    { ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP,
-        "Failed to execute startup task." },
 };
 }
 

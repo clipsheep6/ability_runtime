@@ -16,9 +16,11 @@
 #ifndef OHOS_ABILITY_RUNTIME_STARTUP_CONFIG_H
 #define OHOS_ABILITY_RUNTIME_STARTUP_CONFIG_H
 
-#include "ability_manager_errors.h"
+#include <memory>
+
 #include "startup_listener.h"
 #include "startup_task_result.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -26,7 +28,7 @@ class StartupConfig {
 public:
     StartupConfig();
 
-    ~StartupConfig();
+    virtual ~StartupConfig();
 
     explicit StartupConfig(int32_t awaitTimeoutMs);
 
@@ -34,12 +36,15 @@ public:
 
     explicit StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<StartupListener> &listener);
 
+    virtual int32_t Init();
+
     int32_t GetAwaitTimeoutMs() const;
 
-    int32_t ListenerOnCompleted(const StartupTaskResult &result);
+    int32_t ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result);
 
-private:
-    int32_t awaitTimeoutMs_ = 10000; // 10s
+protected:
+    static constexpr int32_t DEFAULT_AWAIT_TIMEOUT_MS = 10000; // 10s
+    int32_t awaitTimeoutMs_ = DEFAULT_AWAIT_TIMEOUT_MS;
     std::shared_ptr<StartupListener> listener_;
 };
 } // namespace AbilityRuntime

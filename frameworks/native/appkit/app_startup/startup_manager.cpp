@@ -15,9 +15,7 @@
 
 #include "startup_manager.h"
 
-#include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
-
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -30,7 +28,7 @@ int32_t StartupManager::RegisterStartupTask(const std::string &name, const std::
     auto result = startupTasks_.emplace(name, startupTask);
     if (!result.second) {
         HILOG_ERROR("Failed to register startup task, name: %{public}s already exist.", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     return ERR_OK;
 }
@@ -39,15 +37,32 @@ int32_t StartupManager::BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskM
 {
     startupTaskManager = std::make_shared<StartupTaskManager>(startupTaskManagerId);
     for (auto &iter : startupTasks_) {
-        if (!iter.second->GetIsAutoStartup()) {
+        if (iter.second->GetIsExcludeFromAutoStart()) {
             continue;
         }
         startupTaskManager->AddTask(iter.second);
-        // find dep and add
     }
+    startupTaskManager->SetConfig(defaultConfig_);
     startupTaskManagerMap_.emplace(startupTaskManagerId, startupTaskManager);
     startupTaskManagerId++;
     return ERR_OK;
+}
+
+int32_t StartupManager::OnStartupTaskManagerComplete(uint32_t id)
+{
+    auto result = startupTaskManagerMap_.find(id);
+    if (result == startupTaskManagerMap_.end()) {
+        HILOG_ERROR("StartupTaskManager id: %{public}u not found.", id);
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    HILOG_DEBUG("erase StartupTaskManager id: %{public}u", id);
+    startupTaskManagerMap_.erase(result);
+    return ERR_OK;
+}
+
+void StartupManager::SetDefaultConfig(const std::shared_ptr<StartupConfig> &config)
+{
+    defaultConfig_ = config;
 }
 
 std::shared_ptr<StartupConfig> StartupManager::GetDefaultConfig() const
@@ -72,7 +87,7 @@ int32_t StartupManager::RemoveResult(const std::string &name)
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
         HILOG_ERROR("name: %{public}s, not found", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     findResult->second->RemoveResult();
     return ERR_OK;
@@ -84,12 +99,12 @@ int32_t StartupManager::GetResult(const std::string &name, std::shared_ptr<Start
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
         HILOG_ERROR("name: %{public}s, not found", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     StartupTask::State state = findResult->second->GetState();
     if (state != StartupTask::State::INITIALIZED) {
         HILOG_ERROR("name: %{public}s, not initialized", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     result = findResult->second->GetResult();
     return ERR_OK;
@@ -101,7 +116,7 @@ int32_t StartupManager::IsInitialized(const std::string &name, bool &isInitializ
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
         HILOG_ERROR("name: %{public}s, not found", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     StartupTask::State state = findResult->second->GetState();
     isInitialized = state == StartupTask::State::INITIALIZED;

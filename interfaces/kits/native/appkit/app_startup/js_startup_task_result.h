@@ -40,5 +40,4 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-
 #endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_RESULT_H

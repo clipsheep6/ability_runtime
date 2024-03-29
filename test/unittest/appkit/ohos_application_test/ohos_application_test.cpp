@@ -851,7 +851,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_010
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0100 start.";
     ohosApplication_->OnStart();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = nullptr;
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(abilityRecord == nullptr);
     const PacMap outState;
     ohosApplication_->OnAbilitySaveState(outState);
@@ -869,7 +871,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_020
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200 start.";
     std::shared_ptr<AbilityLocalRecord> abilityRecord = nullptr;
     std::shared_ptr<AbilityInfo> abilityInfo = nullptr;
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(abilityInfo == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0200 end.";
 }
@@ -886,7 +890,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_030
     std::shared_ptr<AbilityInfo> info = nullptr;
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     EXPECT_TRUE(ohosApplication_->abilityStages_.empty());
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0300 end.";
 }
 
@@ -904,7 +910,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_040
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     auto want = std::make_shared<AAFwk::Want>();
     abilityRecord->SetWant(want);
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0400 end.";
 }
@@ -924,7 +932,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_050
     EXPECT_TRUE(ohosApplication_->abilityStages_.empty());
     std::shared_ptr<AbilityRuntime::AbilityStage> abilityStages = std::make_shared<AbilityRuntime::AbilityStage>();
     ohosApplication_->abilityStages_.emplace(moduleName, abilityStages);
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_FALSE(ohosApplication_->abilityStages_.empty());
     EXPECT_TRUE(abilityStages != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0500 end.";
@@ -942,8 +952,10 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_060
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     info->moduleName = "entry";
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
-    ohosApplication_->AddAbilityStage(abilityRecord);
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(token == nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0600 end.";
 }
@@ -960,7 +972,9 @@ HWTEST_F(OHOSApplicationTest, AppExecFwk_OHOSApplicationTest_AddAbilityStage_070
     std::shared_ptr<AbilityInfo> info = std::make_shared<AbilityInfo>();
     std::shared_ptr<AbilityLocalRecord> abilityRecord = std::make_shared<AbilityLocalRecord>(info, token);
     abilityRecord->token_ = new (std::nothrow) Notification::MockIRemoteObject();
-    ohosApplication_->AddAbilityStage(abilityRecord);
+    auto callback = [](const std::shared_ptr<AbilityRuntime::Context> &) {};
+    bool isAsyncCallback = false;
+    ohosApplication_->AddAbilityStage(abilityRecord, callback, isAsyncCallback);
     EXPECT_TRUE(token != nullptr);
     GTEST_LOG_(INFO) << "AppExecFwk_OHOSApplicationTest_AddAbilityStage_0700 end.";
 }

@@ -15,7 +15,6 @@
 
 #include "js_startup_task_executor.h"
 
-#include "ability_runtime_error_util.h"
 #include "hilog_wrapper.h"
 #include "js_runtime_utils.h"
 #include "js_startup_task_result.h"
@@ -25,7 +24,7 @@
 namespace OHOS {
 namespace AbilityRuntime {
 int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
-    const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+    const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
     std::unique_ptr<StartupTaskResultCallback> callback)
 {
     HandleScope handleScope(jsRuntime);
@@ -40,40 +39,40 @@ int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
 }
 
 int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
-    const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+    const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
     std::unique_ptr<StartupTaskResultCallback> callback)
 {
     return ERR_OK;
 }
 
-int32_t JsStartupTaskExecutor::CallStartupInit(napi_env env, const std::shared_ptr<NativeReference> &startup,
+int32_t JsStartupTaskExecutor::CallStartupInit(napi_env env, const std::unique_ptr<NativeReference> &startup,
     const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
     napi_value &returnVal)
 {
     if (startup == nullptr || context == nullptr) {
-        ReplyFailed(std::move(callback), ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+        ReplyFailed(std::move(callback), ERR_STARTUP_INTERNAL_ERROR,
             "startup task is null or context is null.");
-        return ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR;
+        return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value startupValue = startup->GetNapiValue();
     if (!CheckTypeForNapiValue(env, startupValue, napi_object)) {
-        ReplyFailed(std::move(callback), ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
+        ReplyFailed(std::move(callback), ERR_STARTUP_INTERNAL_ERROR,
             "startup task is not napi object.");
-        return ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR;
+        return ERR_STARTUP_INTERNAL_ERROR;
     }
     napi_value startupInit = nullptr;
     napi_get_named_property(env, startupValue, "init", &startupInit);
     if (startupInit == nullptr) {
-        ReplyFailed(std::move(callback), ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP,
+        ReplyFailed(std::move(callback), ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP,
             "failed to get property init from startup task.");
-        return ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     bool isCallable = false;
     napi_is_callable(env, startupInit, &isCallable);
     if (!isCallable) {
-        ReplyFailed(std::move(callback), ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP,
+        ReplyFailed(std::move(callback), ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP,
             "startup task init is not callable.");
-        return ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
     napi_value argv[1] = { context->GetNapiValue() };
     napi_call_function(env, startupValue, startupInit, 1, argv, &returnVal);
@@ -86,9 +85,9 @@ int32_t JsStartupTaskExecutor::HandleReturnVal(napi_env env, napi_value returnVa
     bool isPromise = false;
     napi_is_promise(env, returnVal, &isPromise);
     if (!isPromise) {
-        ReplyFailed(std::move(callback), ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP,
+        ReplyFailed(std::move(callback), ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP,
             "the return value of startup task init is not promise.");
-        return ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
     }
 
     auto *callbackPtr = callback.release();
@@ -132,7 +131,7 @@ napi_value JsStartupTaskExecutor::RejectResultCallback(napi_env env, napi_callba
     void *data = nullptr;
     napi_get_cb_info(env, info, nullptr, nullptr, nullptr, &data);
     auto *callback = static_cast<StartupTaskResultCallback *>(data);
-    ReplyFailed(callback, ERR_ABILITY_RUNTIME_EXTERNAL_STARTUP_FAILED_TO_EXECUTE_STARTUP,
+    ReplyFailed(callback, ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP,
         "the promise of startup task init is reject.");
     return nullptr;
 }

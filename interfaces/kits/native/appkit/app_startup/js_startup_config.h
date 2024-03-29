@@ -13,27 +13,33 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_STARTUP_LISTENER_H
-#define OHOS_ABILITY_RUNTIME_STARTUP_LISTENER_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_CONFIG_H
+#define OHOS_ABILITY_RUNTIME_JS_STARTUP_CONFIG_H
 
-#include <functional>
+#include <memory>
 
-#include "startup_task_result.h"
+#include "js_runtime.h"
+#include "startup_config.h"
 #include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class StartupListener {
+class JsStartupConfig : public StartupConfig {
 public:
-    explicit StartupListener(const std::shared_ptr<OnCompletedCallback> &callback);
+    JsStartupConfig(JsRuntime &jsRuntime, std::unique_ptr<NativeReference> &configEntryJsRef);
 
-    ~StartupListener();
+    ~JsStartupConfig() override;
 
-    void OnCompleted(const std::shared_ptr<StartupTaskResult> &result);
+    int32_t Init() override;
 
 private:
-    std::shared_ptr<OnCompletedCallback> onCompletedCallback_;
+    JsRuntime &jsRuntime_;
+    std::unique_ptr<NativeReference> configEntryJsRef_;
+
+    void InitAwaitTimeout(napi_env env, napi_value config);
+    void InitListener(napi_env env, napi_value config);
+    static napi_value BuildResult(napi_env env, const std::shared_ptr<StartupTaskResult> &result);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_STARTUP_LISTENER_H
+#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_CONFIG_H

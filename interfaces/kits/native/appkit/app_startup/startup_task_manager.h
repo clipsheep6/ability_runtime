@@ -18,14 +18,16 @@
 
 #include <map>
 #include <memory>
-#include "ability_manager_errors.h"
+#include <string>
+
 #include "startup_config.h"
 #include "startup_task.h"
 #include "startup_task_dispatcher.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class StartupTaskManager {
+class StartupTaskManager : public std::enable_shared_from_this<StartupTaskManager> {
 public:
     explicit StartupTaskManager(uint32_t startupTaskManagerId);
 
@@ -37,13 +39,17 @@ public:
 
     int32_t Prepare();
 
-    int32_t Run();
+    int32_t Run(const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback);
 
 private:
     uint32_t startupTaskManagerId_ = 0;
     std::shared_ptr<StartupConfig> config_;
     std::shared_ptr<StartupTaskDispatcher> dispatcher_;
     std::map<std::string, std::shared_ptr<StartupTask>> tasks_;
+
+    void CallListenerOnCompleted(int32_t result, const std::string &resultMessage = "");
+    void AddAsyncTimeoutTimer();
+    void CancelAsyncTimeoutTimer();
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

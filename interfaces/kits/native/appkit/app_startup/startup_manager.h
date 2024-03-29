@@ -18,11 +18,13 @@
 
 #include <map>
 #include <memory>
-#include "ability_manager_errors.h"
+#include <string>
+
 #include "singleton.h"
 #include "startup_config.h"
 #include "startup_task.h"
 #include "startup_task_manager.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -33,6 +35,10 @@ public:
     int32_t RegisterStartupTask(const std::string &name, const std::shared_ptr<StartupTask> &startupTask);
 
     int32_t BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskManager> &startupTaskManager);
+
+    int32_t OnStartupTaskManagerComplete(uint32_t id);
+
+    void SetDefaultConfig(const std::shared_ptr<StartupConfig> &config);
 
     std::shared_ptr<StartupConfig> GetDefaultConfig() const;
 
@@ -53,4 +59,4 @@ private:
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_MANAGER_H
+#endif // OHOS_ABILITY_RUNTIME_STARTUP_MANAGER_H

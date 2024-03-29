@@ -53,7 +53,7 @@ public:
 
     void OnMemoryLevel(int32_t level) override;
 
-    int32_t RunAutoStartupTask(bool &waitingForStartup) override;
+    int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback) override;
 
 private:
     napi_value CallObjectMethod(const char* name, napi_value const * argv = nullptr, size_t argc = 0);
@@ -64,19 +64,19 @@ private:
 
     static bool UseCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo);
 
-    int32_t RunAutoStartupTaskInner(bool &waitingForStartup);
+    int32_t RunAutoStartupTaskInner(const std::function<void()> &callback, bool &isAsyncCallback);
 
     int32_t RegisterStartupTaskFromProfile(std::vector<JsStartupTask> &jsStartupTasks);
     
     bool GetProfileInfoFromResourceManager(std::vector<std::string> &profileInfo);
     
-    bool AnalyzeProfileInfoAndRegisterStartupTask(
-        std::vector<std::string> &profileInfo,
-        std::vector<JsStartupTask> &jsStartupTasks);
-    
+    bool AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<std::string> &profileInfo);
+
     void SetOptionalParameters(const nlohmann::json &module, JsStartupTask &jsStartupTask);
     
-    std::unique_ptr<NativeReference> LoadJsStartupTask(const std::string &srcEntry);
+    std::unique_ptr<NativeReference> LoadJsSrcEntry(const std::string &srcEntry);
+
+    bool LoadJsStartupConfig(const std::string &srcEntry);
     
     bool GetResFromResMgr(
         const std::string &resName,

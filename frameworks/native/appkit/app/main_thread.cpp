@@ -1846,10 +1846,25 @@ void MainThread::HandleLaunchAbility(const std::shared_ptr<AbilityLocalRecord> &
         return;
     }
 
-    auto& runtime = application_->GetRuntime();
     mainThreadState_ = MainThreadState::RUNNING;
-    std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(abilityRecord);
+    auto callback = [this, abilityRecord](const std::shared_ptr<AbilityRuntime::Context> &stageContext) {
+        SetProcessExtensionType(abilityRecord);
+        auto& runtime = application_->GetRuntime();
+        UpdateRuntimeModuleChecker(runtime);
+#ifdef APP_ABILITY_USE_TWO_RUNNER
+        AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);
+#else
+        AbilityThread::AbilityThreadMain(application_, abilityRecord, mainHandler_->GetEventRunner(), stageContext);
+#endif
+    };
+    bool isAsyncCallback = false;
+    std::shared_ptr<AbilityRuntime::Context> stageContext = application_->AddAbilityStage(
+        abilityRecord, callback, isAsyncCallback);
+    if (isAsyncCallback) {
+        return;
+    }
     SetProcessExtensionType(abilityRecord);
+    auto& runtime = application_->GetRuntime();
     UpdateRuntimeModuleChecker(runtime);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     AbilityThread::AbilityThreadMain(application_, abilityRecord, stageContext);

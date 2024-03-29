@@ -13,20 +13,28 @@
  * limitations under the License.
  */
 
-#include "startup_listener.h"
+#ifndef OHOS_ABILITY_RUNTIME_STARTUP_UTILS_H
+#define OHOS_ABILITY_RUNTIME_STARTUP_UTILS_H
+
+#include <string>
+
+#include "errors.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-StartupListener::StartupListener(const std::shared_ptr<OnCompletedCallback> &callback) : onCompletedCallback_(callback)
-{}
+enum {
+    ERR_STARTUP_INVALID_VALUE = 401,
+    ERR_STARTUP_INTERNAL_ERROR = 16000050,
+    ERR_STARTUP_DEPENDENCY_NOT_FOUND = 28800001,
+    ERR_STARTUP_CIRCULAR_DEPENDENCY = 28800002,
+    ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP = 28800003,
+    ERR_STARTUP_TIMEOUT = 28800004,
+};
 
-StartupListener::~StartupListener() = default;
-
-void StartupListener::OnCompleted(const std::shared_ptr<StartupTaskResult> &result)
-{
-    if (onCompletedCallback_ != nullptr) {
-        onCompletedCallback_->Call(result);
-    }
-}
+class StartupUtils {
+public:
+    static std::string GetErrorMessage(int32_t errCode);
+};
 } // namespace AbilityRuntime
 } // namespace OHOS
+#endif // OHOS_ABILITY_RUNTIME_STARTUP_UTILS_H
