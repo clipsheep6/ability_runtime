@@ -278,5 +278,32 @@ HWTEST_F(AutoFillManagerTest, HandleTimeOut_0100, TestSize.Level1)
     EXPECT_EQ(manager.extensionCallbacks_.size(), 0);
     manager.extensionCallbacks_.clear();
 }
+
+/*
+ * Feature: AutoFillManager
+ * Function: ConvertAutoFillWindowType
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify Based on whether the requestType value can correctly convert
+ * the windowType and extension types.
+ */
+HWTEST_F(AutoFillManagerTest, ConvertAutoFillWindowType_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, ConvertAutoFillWindowType_0100, TestSize.Level1";
+    AbilityRuntime::AutoFill::AutoFillRequest autoFillRequest;
+    autoFillRequest.autoFillCommand = AbilityRuntime::AutoFill::AutoFillCommand::FILL;
+    autoFillRequest.autoFillType = AbilityBase::AutoFillType::PASSWORD;
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    bool isSmartAutoFill = false;
+    auto autoFillWindowType = manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill);
+    EXPECT_EQ(isSmartAutoFill, false);
+
+    autoFillRequest.autoFillCommand = AbilityRuntime::AutoFill::AutoFillCommand::SAVE;
+    autoFillRequest.autoFillType = AbilityBase::AutoFillType::PERSON_FULL_NAME;
+    autoFillWindowType = manager.ConvertAutoFillWindowType(autoFillRequest, isSmartAutoFill);
+    EXPECT_EQ(isSmartAutoFill, true);
+    EXPECT_EQ(autoFillWindowType, AbilityRuntime::AutoFill::AutoFillWindowType::MODAL_WINDOW);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
