@@ -2257,7 +2257,7 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option = {MessageOption::TF_ASYNC};
     if (!WriteInterfaceToken(data)) {
         return;
     }
@@ -2273,8 +2273,9 @@ void AbilityManagerProxy::NotifyCompleteContinuation(const std::string &deviceId
         TAG_LOGE(AAFwkTag::ABILITYMGR, "result write failed.");
         return;
     }
-
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest NotifyCompleteContinuation begin");
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_COMPLETE_CONTINUATION, data, reply, option);
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest NotifyCompleteContinuation end");
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return;
