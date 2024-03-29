@@ -25,6 +25,44 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+void PostTaskToHandler(void* handler, uv_io_cb func, void* data, int priority)
+{
+    HILOG_DEBUG("Enter.");
+    if (!handler || !func || !data) {
+        HILOG_ERROR("Invalid parameters!");
+        return;
+    }
+    uv_parm_t* uvData = static_cast<uv_parm_t*>(data);
+    uv_work_t* work = uvData->work;
+    int status = uvData->status;
+
+    auto task = [func, work, status]() {
+        HILOG_DEBUG("Do uv work.");
+        func(work, status);
+        HILOG_DEBUG("Do uv work end.");
+    };
+
+    auto eventHandler = static_cast<AppExecFwk::EventHandler*>(handler);
+    AppExecFwk::EventQueue::Priority prio = AppExecFwk::EventQueue::Priority::IMMEDIATE;
+    switch (priority) {
+        case uv_qos_t::uv_qos_user_initiated:
+            prio = AppExecFwk::EventQueue::Priority::IMMEDIATE;
+            break;
+        case uv_qos_t::uv_qos_utility:
+            prio = AppExecFwk::EventQueue::Priority::LOW;
+            break;
+        case uv_qos_t::uv_qos_background:
+            prio = AppExecFwk::EventQueue::Priority::IDLE;
+            break;
+        default:
+            prio = AppExecFwk::EventQueue::Priority::HIGH;
+            break;
+    }
+    eventHandler->PostTask(task, prio);
+    HILOG_DEBUG("PostTask end.");
+}
+}
 OHOSJsEnvironmentImpl::OHOSJsEnvironmentImpl()
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
@@ -99,6 +137,8 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
     if (eventHandler_ != nullptr) {
         uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
+        HILOG_DEBUG("uv_register_task_to_event");
+        uv_register_task_to_event(uvLoop, PostTaskToHandler, eventHandler_.get());
     }
 
     return true;
@@ -112,6 +152,7 @@ void OHOSJsEnvironmentImpl::DeInitLoop(NativeEngine* engine)
     if (fd >= 0 && eventHandler_ != nullptr) {
         eventHandler_->RemoveFileDescriptorListener(fd);
     }
+    uv_unregister_task_to_event(uvLoop);
     RemoveTask(TIMER_TASK);
 }
 
