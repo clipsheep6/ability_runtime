@@ -14,7 +14,7 @@
             "bundleName": "com.ohos.medialibrary.medialibrarydata"
         },
         {
-            "bundleName": "com.ohos.ringtonelibrary.ringtoneextension"
+            "bundleName": "com.ohos.ringtonelibrary.ringtonelibrarydata"
         },
         {
             "bundleName": "com.ohos.filepicker"
