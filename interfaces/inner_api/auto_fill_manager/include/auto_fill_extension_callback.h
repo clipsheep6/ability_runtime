@@ -59,7 +59,6 @@ private:
     void SendAutoFillFailed(int32_t errCode);
     void CloseModalUIExtension();
     void HandleReloadInModal(const AAFwk::WantParams &wantParams);
-
     std::shared_ptr<IFillRequestCallback> fillCallback_;
     std::shared_ptr<ISaveRequestCallback> saveCallback_;
     int32_t sessionId_;

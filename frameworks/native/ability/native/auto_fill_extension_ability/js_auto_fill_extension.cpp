@@ -48,12 +48,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr size_t ARGC_ONE = 1;
-constexpr size_t ARGC_TWO = 2;
+constexpr size_t    ARGC_TWO = 2;
 constexpr size_t ARGC_THREE = 3;
 constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillCmd";
 constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
 constexpr const char *WANT_PARAMS_CUSTOM_DATA = "ohos.ability.params.customData";
-constexpr const char *WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY = "ohos.ability.params.popupWindow";
+constexpr const char    *WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY = "ohos.ability.params.popupWindow";
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {
@@ -89,7 +89,7 @@ napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
             delete static_cast<std::weak_ptr<AutoFillExtensionContext> *>(data);
         },
         nullptr, nullptr);
-    return contextObj;
+    return  contextObj;
 }
 
 JsAutoFillExtension *JsAutoFillExtension::Create(const std::unique_ptr<Runtime> &runtime)
