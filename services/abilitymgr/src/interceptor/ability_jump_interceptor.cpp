@@ -37,7 +37,7 @@ const std::string JUMP_DIALOG_TARGET_LABEL_ID = "interceptor_targetLabelId";
 }
 ErrCode AbilityJumpInterceptor::DoProcess(AbilityInterceptorParam param)
 {
-    if (!param.isForeground) {
+    if (!param.isWithUI) {
         HILOG_INFO("This startup is not foreground, keep going.");
         return ERR_OK;
     }

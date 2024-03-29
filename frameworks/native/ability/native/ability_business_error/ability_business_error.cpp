@@ -72,7 +72,7 @@ constexpr const char* ERROR_MSG_WUKONG_MODE_CANT_MOVE_STATE =
 constexpr const char* ERROR_MSG_START_OPTIONS_CHECK_FAILED = "Start options check failed.";
 constexpr const char* ERROR_MSG_ABILITY_ALREADY_RUNNING = "Ability already running.";
 constexpr const char* ERROR_MSG_NOT_SUPPORT_CROSS_APP_START =
-    "The application is not allow jumping to other applications.";
+    "The application is not allow jumping to other applications when api version is above 11.";
 constexpr const char* ERROR_MSG_CANNOT_MATCH_ANY_COMPONENT = "Can not match any component.";
 
 // follow ERR_BUNDLE_MANAGER_BUNDLE_NOT_EXIST of appexecfwk_errors.h in bundle_framework
@@ -176,6 +176,7 @@ static std::unordered_map<int32_t, AbilityErrorCode> INNER_TO_JS_ERROR_CODE_MAP 
     {ERR_WUKONG_MODE_CANT_MOVE_STATE, AbilityErrorCode::ERROR_CODE_WUKONG_MODE_CANT_MOVE_STATE},
     {ERR_OPERATION_NOT_SUPPORTED_ON_CURRENT_DEVICE, AbilityErrorCode::ERROR_CODE_OPERATION_NOT_SUPPORTED},
     {ERR_IMPLICIT_START_ABILITY_FAIL, AbilityErrorCode::ERROR_CODE_CANNOT_MATCH_ANY_COMPONENT},
+    {ERR_START_OTHER_APP_FAILED, AbilityErrorCode::ERROR_CODE_NOT_SUPPORT_CROSS_APP_START}
 };
 }
 
