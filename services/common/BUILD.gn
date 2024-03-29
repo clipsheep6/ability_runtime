@@ -110,10 +110,14 @@ ohos_shared_library("app_util") {
   public_configs = [ ":common_config" ]
   include_dirs = [ "include" ]
 
-  sources = [ "src/app_utils.cpp" ]
+  sources = [
+    "src/app_utils.cpp",
+    "src/ability_manager_radar.cpp"
+  ]
 
   external_deps = [
     "hilog:libhilog",
+    "hisysevent:libhisysevent",
     "init:libbegetutil",
   ]
 
