@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,7 @@
 namespace OHOS {
 namespace AAFwk {
 class SessionInfo;
+class StatusBarDelegateManager;
 struct AbilityRunningInfo;
 struct MissionValidResult;
 
@@ -316,6 +317,10 @@ public:
     int32_t UpdateSessionInfoBySCB(std::list<SessionInfo> &sessionInfos, int32_t userId,
         std::vector<int32_t> &sessionIds);
 
+    int32_t RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate);
+    bool IsCallerInStatusBar();
+    int32_t KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids);
+
     int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow);
 
     int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow);
@@ -388,6 +393,9 @@ private:
     void CheckSpecified(AbilityRequest &abilityRequest, std::shared_ptr<AbilityRecord> uiAbilityRecord);
     void SendKeyEvent(AbilityRequest &abilityRequest) const;
     bool CheckPid(const std::shared_ptr<AbilityRecord> abilityRecord, const int32_t pid) const;
+    std::shared_ptr<StatusBarDelegateManager> GetStatusBarDelegateManager();
+    int32_t DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord);
+    void BatchCloseUIAbility(std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
 
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
@@ -398,6 +406,8 @@ private:
     std::queue<AbilityRequest> abilityQueue_;
     std::queue<SpecifiedInfo> specifiedInfoQueue_;
     sptr<ISessionHandler> handler_;
+    ffrt::mutex statusBarDelegateManagerLock_;
+    std::shared_ptr<StatusBarDelegateManager> statusBarDelegateManager_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

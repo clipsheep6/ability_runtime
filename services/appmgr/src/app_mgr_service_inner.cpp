@@ -170,7 +170,6 @@ const std::string SYSTEM_BASIC = "system_basic";
 const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
-const char* WANT_PARAMS_ATTACHE_TO_PARENT = "ohos.ability.params.attachToParent";
 const std::string KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
 
 constexpr int32_t ROOT_UID = 0;
@@ -325,12 +324,6 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
     MakeProcessName(abilityInfo, appInfo, hapModuleInfo, appIndex, processName);
     TAG_LOGD(AAFwkTag::APPMGR, "processName = %{public}s", processName.c_str());
 
-    bool needAttachToParent = false;
-    if (want) {
-        needAttachToParent = want->GetBoolParam(WANT_PARAMS_ATTACHE_TO_PARENT, false);
-        want->RemoveParam(WANT_PARAMS_ATTACHE_TO_PARENT);
-    }
-
     std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
     std::string specifiedProcessFlag = "";
@@ -365,10 +358,6 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
         }
         SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
         auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
-        if (needAttachToParent && callRecord == nullptr) {
-            TAG_LOGE(AAFwkTag::APPMGR, "parent is not exist.");
-            return;
-        }
         if (callRecord != nullptr) {
             auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
             TAG_LOGD(AAFwkTag::APPMGR, "req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
@@ -378,13 +367,6 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
         int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
         StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
             appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag);
-        if (needAttachToParent) {
-            auto pid = appRecord->GetPriorityObject()->GetPid();
-            if (pid > 0) {
-                appRecord->SetParentAppRecord(callRecord);
-                callRecord->AddChildAppRecord(pid, appRecord);
-            }
-        }
         std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
         bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
         (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
@@ -1790,6 +1772,47 @@ void AppMgrServiceInner::KillProcessesByUserId(int32_t userId)
             return;
         }
     }
+}
+
+void AppMgrServiceInner::KillProcessesByPids(std::vector<int32_t> &pids)
+{
+    for (const auto& pid: pids) {
+        auto appRecord = GetAppRunningRecordByPid(pid);
+        if (appRecord == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
+            return;
+        }
+        auto result = KillProcessByPid(pid, "KillProcessesByPids");
+        if (result < 0) {
+            TAG_LOGW(AAFwkTag::APPMGR, "KillProcessByPid is failed. pid: %{public}d", pid);
+        }
+    }
+}
+
+void AppMgrServiceInner::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    auto appRecord = GetAppRunningRecordByAbilityToken(token);
+    if (appRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityRecord is nullptr");
+        return;
+    }
+    auto pid = appRecord->GetPriorityObject()->GetPid();
+    if (pid <= 0) {
+        TAG_LOGE(AAFwkTag::APPMGR, "invalid pid");
+        return;
+    }
+    auto callRecord = GetAppRunningRecordByAbilityToken(callerToken);
+    if (callRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "callRecord is nullptr");
+        auto result = KillProcessByPid(pid, "AttachPidToParent");
+        if (result < 0) {
+            TAG_LOGW(AAFwkTag::APPMGR, "KillProcessByPid is failed. pid: %{public}d", pid);
+        }
+        return;
+    }
+    appRecord->SetParentAppRecord(callRecord);
+    callRecord->AddChildAppRecord(pid, appRecord);
 }
 
 void AppMgrServiceInner::StartAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,

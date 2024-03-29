@@ -52,6 +52,8 @@ private:
     int32_t HandleAbilityBehaviorAnalysis(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessByAbilityToken(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessesByUserId(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleKillProcessesByPids(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleAttachPidToParent(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillProcessWithAccount(MessageParcel &data, MessageParcel &reply);
     int32_t HandleKillApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleAbilityAttachTimeOut(MessageParcel &data, MessageParcel &reply);

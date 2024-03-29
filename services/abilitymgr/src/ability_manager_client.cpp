@@ -29,6 +29,7 @@
 #include "scene_board_judgement.h"
 #include "session_info.h"
 #include "session_manager_lite.h"
+#include "status_bar_delegate_interface.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "ws_common.h"
@@ -1582,6 +1583,22 @@ ErrCode AbilityManagerClient::UnregisterIAbilityManagerCollaborator(int32_t type
     auto abms = GetAbilityManager();
     CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
     return abms->UnregisterIAbilityManagerCollaborator(type);
+}
+
+ErrCode AbilityManagerClient::RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->RegisterStatusBarDelegate(delegate);
+}
+
+ErrCode AbilityManagerClient::KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "Called.");
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    return abms->KillProcessWithPrepareTerminate(pids);
 }
 
 ErrCode AbilityManagerClient::RegisterAutoStartupSystemCallback(sptr<IRemoteObject> callback)

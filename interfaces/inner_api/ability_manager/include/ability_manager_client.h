@@ -924,6 +924,10 @@ public:
      */
     ErrCode PrepareTerminateAbility(sptr<IRemoteObject> token, sptr<IPrepareTerminateCallback> callback);
 
+    ErrCode RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate);
+
+    ErrCode KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids);
+
     /**
      * @brief Register auto start up callback for system api.
      * @param callback The point of JsAbilityAutoStartupCallBack.

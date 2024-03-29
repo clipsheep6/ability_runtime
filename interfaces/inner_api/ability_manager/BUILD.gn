@@ -25,6 +25,7 @@ config("ability_manager_public_config") {
   ]
   include_dirs = [
     "include/",
+    "include/status_bar_delegate",
     "${eventhandler_path}/interfaces/inner_api",
     "${ability_base_kits_path}/configuration/include",
     "${ability_base_kits_path}/uri/include",
@@ -111,6 +112,8 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/want_sender_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/wants_info.cpp",
+    "src/status_bar_delegate/status_bar_delegate_proxy.cpp",
+    "src/status_bar_delegate/status_bar_delegate_stub.cpp",
     "src/window_manager_service_handler_proxy.cpp",
     "src/window_manager_service_handler_stub.cpp",
   ]

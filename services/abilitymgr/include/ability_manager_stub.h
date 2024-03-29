@@ -251,6 +251,9 @@ private:
     int32_t RegisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterIAbilityManagerCollaboratorInner(MessageParcel &data, MessageParcel &reply);
 
+    int32_t RegisterStatusBarDelegateInner(MessageParcel &data, MessageParcel &reply);
+    int32_t KillProcessWithPrepareTerminateInner(MessageParcel &data, MessageParcel &reply);
+
     int32_t RegisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterAutoStartupSystemCallbackInner(MessageParcel &data, MessageParcel &reply);
     int32_t SetApplicationAutoStartupInner(MessageParcel &data, MessageParcel &reply);

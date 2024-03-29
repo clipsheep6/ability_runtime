@@ -64,6 +64,10 @@
 #endif
 
 namespace OHOS {
+namespace AbilityRuntime {
+class IStatusBarDelegate;
+}
+
 namespace AAFwk {
 using AutoStartupInfo = AbilityRuntime::AutoStartupInfo;
 using InsightIntentExecuteParam = AppExecFwk::InsightIntentExecuteParam;
@@ -1252,6 +1256,16 @@ public:
      * @return 0 or else.
     */
     virtual int32_t UnregisterIAbilityManagerCollaborator(int32_t type)
+    {
+        return 0;
+    }
+
+    virtual int32_t RegisterStatusBarDelegate(sptr<AbilityRuntime::IStatusBarDelegate> delegate)
+    {
+        return 0;
+    }
+
+    virtual int32_t KillProcessWithPrepareTerminate(const std::vector<int32_t>& pids)
     {
         return 0;
     }

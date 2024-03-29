@@ -40,6 +40,8 @@ const std::string TASK_STOP_ALL_PROCESS = "StopAllProcessTask";
 const std::string TASK_ABILITY_BEHAVIOR_ANALYSIS = "AbilityBehaviorAnalysisTask";
 const std::string TASK_KILL_PROCESS_BY_ABILITY_TOKEN = "KillProcessByAbilityTokenTask";
 const std::string TASK_KILL_PROCESSES_BY_USERID = "KillProcessesByUserIdTask";
+const std::string TASK_KILL_PROCESSES_BY_PIDS = "KillProcessesByPids";
+const std::string TASK_ATTACH_PID_TO_PARENT = "AttachPidToParent";
 const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
 const std::string TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
 };  // namespace
@@ -201,6 +203,42 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
     std::function<void()> killProcessesByUserIdFunc =
         std::bind(&AppMgrServiceInner::KillProcessesByUserId, amsMgrServiceInner_, userId);
     amsHandler_->SubmitTask(killProcessesByUserIdFunc, TASK_KILL_PROCESSES_BY_USERID);
+}
+
+void AmsMgrScheduler::KillProcessesByPids(std::vector<int32_t> &pids)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t pid = getpid();
+    if (callingPid != pid) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
+        return;
+    }
+
+    std::function<void()> killProcessesByPidsFunc =
+        std::bind(&AppMgrServiceInner::KillProcessesByPids, amsMgrServiceInner_, pids);
+    amsHandler_->SubmitTask(killProcessesByPidsFunc, TASK_KILL_PROCESSES_BY_PIDS);
+}
+
+void AmsMgrScheduler::AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken)
+{
+    if (!IsReady()) {
+        return;
+    }
+
+    pid_t callingPid = IPCSkeleton::GetCallingPid();
+    pid_t pid = getpid();
+    if (callingPid != pid) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not allow other process to call.");
+        return;
+    }
+
+    std::function<void()> attachPidToParentFunc =
+        std::bind(&AppMgrServiceInner::AttachPidToParent, amsMgrServiceInner_, token, callerToken);
+    amsHandler_->SubmitTask(attachPidToParentFunc, TASK_ATTACH_PID_TO_PARENT);
 }
 
 int32_t AmsMgrScheduler::KillProcessWithAccount(const std::string &bundleName, const int accountId)

@@ -171,6 +171,10 @@ public:
      */
     virtual void KillProcessesByUserId(int32_t userId);
 
+    virtual void KillProcessesByPids(std::vector<int32_t> &pids);
+
+    virtual void AttachPidToParent(const sptr<IRemoteObject> &token, const sptr<IRemoteObject> &callerToken);
+
     /**
      * AttachApplication, get all the information needed to start the Application
      * (data related to the Application ).

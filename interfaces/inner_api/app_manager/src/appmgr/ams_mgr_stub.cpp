@@ -32,6 +32,7 @@ namespace OHOS {
 namespace AppExecFwk {
 namespace {
 constexpr int32_t MAX_APP_DEBUG_COUNT = 100;
+constexpr int32_t MAX_KILL_PROCESS_PID_COUNT = 100;
 }
 AmsMgrStub::AmsMgrStub()
 {
@@ -115,6 +116,10 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleSetAppAssertionPauseState;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN)] =
         &AmsMgrStub::HandleClearProcessByToken;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::KILL_PROCESSES_BY_PIDS)] =
+        &AmsMgrStub::HandleKillProcessesByPids;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ATTACH_PID_TO_PARENT)] =
+        &AmsMgrStub::HandleAttachPidToParent;
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -243,6 +248,32 @@ ErrCode AmsMgrStub::HandleKillProcessesByUserId(MessageParcel &data, MessageParc
     int32_t userId = data.ReadInt32();
 
     KillProcessesByUserId(userId);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleKillProcessesByPids(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    auto size = data.ReadUint32();
+    if (size == 0 || size > MAX_KILL_PROCESS_PID_COUNT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid size.");
+        return ERR_INVALID_VALUE;
+    }
+    std::vector<int32_t> pids;
+    for (uint32_t i = 0; i < size; i++) {
+        pids.emplace_back(data.ReadInt32());
+    }
+
+    KillProcessesByPids(pids);
+    return NO_ERROR;
+}
+
+ErrCode AmsMgrStub::HandleAttachPidToParent(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    sptr<IRemoteObject> token = data.ReadRemoteObject();
+    sptr<IRemoteObject> callerToken = data.ReadRemoteObject();
+    AttachPidToParent(token, callerToken);
     return NO_ERROR;
 }
 

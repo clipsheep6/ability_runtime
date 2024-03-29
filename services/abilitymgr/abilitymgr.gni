@@ -96,6 +96,7 @@ abilityms_files = [
   "src/remote_mission_listener_stub.cpp",
   "src/mission_list_manager.cpp",
   "src/mission_list.cpp",
+  "src/scene_board/status_bar_delegate_manager.cpp",
   "src/scene_board/ui_ability_lifecycle_manager.cpp",
 
   #connection observer
