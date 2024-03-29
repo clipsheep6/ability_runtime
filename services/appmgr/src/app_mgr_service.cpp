@@ -55,6 +55,7 @@ const std::string TASK_ATTACH_RENDER_PROCESS = "AttachRenderTask";
 const std::string TASK_ATTACH_CHILD_PROCESS = "AttachChildProcessTask";
 const std::string TASK_EXIT_CHILD_PROCESS_SAFELY = "ExitChildProcessSafelyTask";
 const std::string FOUNDATION_PROCESS = "foundation";
+constexpr int32_t USER_UID = 2000;
 }  // namespace
 
 REGISTER_SYSTEM_ABILITY_BY_ID(AppMgrService, APP_MGR_SERVICE_ID, true);
@@ -293,7 +294,7 @@ int32_t AppMgrService::ClearUpApplicationData(const std::string &bundleName, con
         return ERR_INVALID_OPERATION;
     }
     int32_t callingUid = IPCSkeleton::GetCallingUid();
-    if (callingUid != 0 || userId < 0) {
+    if ((callingUid != 0 && callingUid != USER_UID) || userId < 0) {
         std::string callerBundleName;
         auto result = IN_PROCESS_CALL(bundleMgrHelper->GetNameForUid(callingUid, callerBundleName));
         if (result != ERR_OK) {
