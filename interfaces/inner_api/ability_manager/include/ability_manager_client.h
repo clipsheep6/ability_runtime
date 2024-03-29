@@ -1395,13 +1395,6 @@ public:
     int32_t RestartApp(const AAFwk::Want &want);
 
     /**
-     * @brief Obtains elementName by appId.
-     * @param appId The ID of the application to which this bundle belongs.
-     * @return Returns ElementName.
-     */
-    AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId);
-
-    /**
      * Pop-up launch of full-screen atomic service.
      *
      * @param want The want with parameters.

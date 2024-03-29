@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 #include "test_runner.h"
 
 #include "bundle_mgr_helper.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "runner_runtime/js_test_runner.h"
 #include "runtime.h"
@@ -32,12 +33,12 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
 
     auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
-        HILOG_ERROR("The bundleMgrHelper is nullptr.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "The bundleMgrHelper is nullptr.");
         return nullptr;
     }
 
     if (!args) {
-        HILOG_ERROR("Invalid ability delegator args.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Invalid ability delegator args.");
         return nullptr;
     }
 
@@ -50,7 +51,7 @@ std::unique_ptr<TestRunner> TestRunner::Create(const std::unique_ptr<AbilityRunt
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) +
         static_cast<int32_t>(GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) != ERR_OK) {
-        HILOG_ERROR("Failed to get bundle info.");
+        TAG_LOGE(AAFwkTag::DELEGATOR, "Failed to get bundle info.");
         return nullptr;
     }
 

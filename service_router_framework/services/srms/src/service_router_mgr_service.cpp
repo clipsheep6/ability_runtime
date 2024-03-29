@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "bundle_constants.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "hilog_tag_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
@@ -47,30 +48,30 @@ const bool REGISTER_RESULT =
 
 ServiceRouterMgrService::ServiceRouterMgrService() : SystemAbility(SERVICE_ROUTER_MGR_SERVICE_ID, true)
 {
-    APP_LOGD("SRMS instance create");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRMS instance create");
 }
 
 ServiceRouterMgrService::~ServiceRouterMgrService()
 {
-    APP_LOGD("SRMS instance destroy");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "SRMS instance destroy");
 }
 
 void ServiceRouterMgrService::OnStart()
 {
-    APP_LOGI("SRMS starting...");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "SRMS starting...");
     Init();
     bool ret = Publish(this);
     if (!ret) {
-        APP_LOGE("Publish SRMS failed!");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "Publish SRMS failed!");
         return;
     }
     DelayUnloadTask();
-    APP_LOGI("SRMS start success.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "SRMS start success.");
 }
 
 void ServiceRouterMgrService::OnStop()
 {
-    APP_LOGI("Stop SRMS.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "Stop SRMS.");
 }
 
 void ServiceRouterMgrService::Init()
@@ -83,35 +84,35 @@ void ServiceRouterMgrService::Init()
 void ServiceRouterMgrService::DelayUnloadTask()
 {
     if (handler_ == nullptr) {
-        APP_LOGI("DelayUnloadTask, handler_ is nullptr");
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "DelayUnloadTask, handler_ is nullptr");
         return;
     }
 
     std::lock_guard<std::mutex> lock(delayTaskMutex_);
     handler_->RemoveTask(TASK_NAME);
     auto task = [this]() {
-        APP_LOGI("UnloadSA start.");
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "UnloadSA start.");
         sptr<ISystemAbilityManager> saManager =
             OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
         if (saManager == nullptr) {
-            APP_LOGE("UnloadSA, GetSystemAbilityManager is null.");
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "UnloadSA, GetSystemAbilityManager is null.");
             return;
         }
         int32_t result = saManager->UnloadSystemAbility(OHOS::SERVICE_ROUTER_MGR_SERVICE_ID);
         if (result != ERR_OK) {
-            APP_LOGE("UnloadSA, UnloadSystemAbility result: %{public}d", result);
+            TAG_LOGE(AAFwkTag::SER_ROUTER, "UnloadSA, UnloadSystemAbility result: %{public}d", result);
             return;
         }
-        APP_LOGI("UnloadSA success.");
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "UnloadSA success.");
     };
     handler_->PostTask(task, TASK_NAME, UNLOAD_DELAY_TIME);
 }
 
 bool ServiceRouterMgrService::LoadAllBundleInfos()
 {
-    APP_LOGD("LoadAllBundleInfos start");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "LoadAllBundleInfos start");
     bool ret = ServiceRouterDataMgr::GetInstance().LoadAllBundleInfos();
-    APP_LOGD("LoadAllBundleInfos end");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "LoadAllBundleInfos end");
     return ret;
 }
 
@@ -120,12 +121,12 @@ bool ServiceRouterMgrService::InitEventRunnerAndHandler()
     std::lock_guard<std::mutex> lock(mutex_);
     runner_ = EventRunner::Create(NAME_SERVICE_ROUTER_MGR_SERVICE);
     if (runner_ == nullptr) {
-        APP_LOGE("%{public}s fail, Failed to init due to create runner error", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s fail, Failed to init due to create runner error", __func__);
         return false;
     }
     handler_ = std::make_shared<EventHandler>(runner_);
     if (handler_ == nullptr) {
-        APP_LOGE("%{public}s fail, Failed to init due to create handler error", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s fail, Failed to init due to create handler error", __func__);
         return false;
     }
     return true;
@@ -134,7 +135,7 @@ bool ServiceRouterMgrService::InitEventRunnerAndHandler()
 bool ServiceRouterMgrService::ServiceRouterMgrService::SubscribeCommonEvent()
 {
     if (eventSubscriber_ != nullptr) {
-        APP_LOGI("subscribeCommonEvent already subscribed.");
+        TAG_LOGI(AAFwkTag::SER_ROUTER, "subscribeCommonEvent already subscribed.");
         return true;
     }
     EventFwk::MatchingSkills matchingSkills;
@@ -148,17 +149,17 @@ bool ServiceRouterMgrService::ServiceRouterMgrService::SubscribeCommonEvent()
     eventSubscriber_ = std::make_shared<SrCommonEventSubscriber>(subscribeInfo);
     eventSubscriber_->SetEventHandler(handler_);
     if (!EventFwk::CommonEventManager::SubscribeCommonEvent(eventSubscriber_)) {
-        APP_LOGE("subscribeCommonEvent subscribed failure.");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "subscribeCommonEvent subscribed failure.");
         return false;
     };
-    APP_LOGI("subscribeCommonEvent subscribed success.");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "subscribeCommonEvent subscribed success.");
     return true;
 }
 
 int32_t ServiceRouterMgrService::QueryBusinessAbilityInfos(const BusinessAbilityFilter &filter,
     std::vector< BusinessAbilityInfo> &businessAbilityInfos)
 {
-    APP_LOGD("coldStart:");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "coldStart:");
     DelayUnloadTask();
     return ServiceRouterDataMgr::GetInstance().QueryBusinessAbilityInfos(filter, businessAbilityInfos);
 }
@@ -166,14 +167,14 @@ int32_t ServiceRouterMgrService::QueryBusinessAbilityInfos(const BusinessAbility
 int32_t ServiceRouterMgrService::QueryPurposeInfos(const Want &want, const std::string purposeName,
     std::vector<PurposeInfo> &purposeInfos)
 {
-    APP_LOGD("coldStart:");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "coldStart:");
     DelayUnloadTask();
     return ServiceRouterDataMgr::GetInstance().QueryPurposeInfos(want, purposeName, purposeInfos);
 }
 
 int32_t ServiceRouterMgrService::StartUIExtensionAbility(const sptr<SessionInfo> &sessionInfo, int32_t userId)
 {
-    APP_LOGD("StartUIExtensionAbility start:");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "StartUIExtensionAbility start:");
     DelayUnloadTask();
     return IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartUIExtensionAbility(sessionInfo, userId));
 }
@@ -181,7 +182,7 @@ int32_t ServiceRouterMgrService::StartUIExtensionAbility(const sptr<SessionInfo>
 int32_t ServiceRouterMgrService::ConnectUIExtensionAbility(const Want &want, const sptr<IAbilityConnection> &connect,
     const sptr<SessionInfo> &sessionInfo, int32_t userId)
 {
-    APP_LOGD("ConnectUIExtensionAbility start:");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "ConnectUIExtensionAbility start:");
     DelayUnloadTask();
     return IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->
         ConnectUIExtensionAbility(want, connect, sessionInfo, userId));

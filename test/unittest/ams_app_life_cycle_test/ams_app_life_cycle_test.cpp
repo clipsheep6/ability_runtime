@@ -18,6 +18,8 @@
 
 #include <unistd.h>
 #include <gtest/gtest.h>
+
+#include "ability_manager_errors.h"
 #include "iremote_object.h"
 #include "refbase.h"
 #include "app_launch_data.h"
@@ -1452,7 +1454,7 @@ HWTEST_F(AmsAppLifeCycleTest, KillProcessByPid001, TestSize.Level1)
 
     if (pid == 0) {
         int32_t ret = serviceInner_->KillProcessByPid(pid, "KillProcessByPid001");
-        EXPECT_EQ(-1, ret);
+        EXPECT_EQ(AAFwk::ERR_KILL_PROCESS_NOT_EXIST, ret);
     }
 }
 
@@ -1466,7 +1468,7 @@ HWTEST_F(AmsAppLifeCycleTest, KillProcessByPid001, TestSize.Level1)
 HWTEST_F(AmsAppLifeCycleTest, KillProcessByPid002, TestSize.Level1)
 {
     int32_t ret = serviceInner_->KillProcessByPid(-1, "KillProcessByPid002");
-    EXPECT_EQ(-1, ret);
+    EXPECT_EQ(AAFwk::ERR_KILL_PROCESS_NOT_EXIST, ret);
 }
 
 /*

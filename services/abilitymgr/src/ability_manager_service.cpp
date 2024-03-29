@@ -1728,17 +1728,6 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     return connectManager->StartAbility(abilityRequest);
 }
 
-AppExecFwk::ElementName AbilityManagerService::GetElementNameByAppId(const std::string &appId)
-{
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bms is invalid.");
-        return {};
-    }
-    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
-    return launchWant.GetElement();
-}
-
 int32_t AbilityManagerService::OpenAtomicService(AAFwk::Want& want, const StartOptions &options,
     sptr<IRemoteObject> callerToken, int32_t requestCode, int32_t userId)
 {
@@ -8363,6 +8352,11 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
 
     auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
     TAG_LOGD(AAFwkTag::ABILITYMGR, "OtherExtension type: %{public}d.", static_cast<int32_t>(extensionType));
+    if (system::GetBoolParameter(DEVELOPER_MODE_STATE, false) &&
+        PermissionVerification::GetInstance()->VerifyShellStartExtensionType(static_cast<int32_t>(extensionType))) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "CheckCallOtherExtensionPermission, allow aa start with debug mode.");
+        return ERR_OK;
+    }
     if (extensionType == AppExecFwk::ExtensionAbilityType::WINDOW) {
         return ERR_OK;
     }

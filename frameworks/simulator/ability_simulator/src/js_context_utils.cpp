@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "js_context_utils.h"
 
 #include <iostream>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "js_application_context_utils.h"
 #include "js_data_converter.h"
@@ -66,7 +67,7 @@ protected:
 
 void JsBaseContext::Finalizer(napi_env env, void *data, void *hint)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     std::unique_ptr<JsBaseContext>(static_cast<JsBaseContext*>(data));
 }
 
@@ -88,19 +89,19 @@ napi_value JsBaseContext::SwitchArea(napi_env env, napi_callback_info info)
 napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo &info)
 {
     if (info.argc == 0) {
-        HILOG_ERROR("Not enough params");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Not enough params");
         return CreateJsUndefined(env);
     }
 
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
 
     int mode = 0;
     if (!ConvertFromJsValue(env, info.argv[0], mode)) {
-        HILOG_ERROR("Parse mode failed");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Parse mode failed");
         return CreateJsUndefined(env);
     }
 
@@ -108,7 +109,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo &info)
 
     napi_value object = info.thisVar;
     if (object == nullptr) {
-        HILOG_ERROR("object is nullptr");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "object is nullptr");
         return CreateJsUndefined(env);
     }
     BindNativeProperty(env, object, "cacheDir", GetCacheDir);
@@ -141,7 +142,7 @@ napi_value JsBaseContext::OnGetArea(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     int area = context->GetArea();
@@ -157,7 +158,7 @@ napi_value JsBaseContext::OnGetCacheDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetCacheDir();
@@ -173,7 +174,7 @@ napi_value JsBaseContext::OnGetTempDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetTempDir();
@@ -189,7 +190,7 @@ napi_value JsBaseContext::OnGetResourceDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetResourceDir();
@@ -205,7 +206,7 @@ napi_value JsBaseContext::OnGetFilesDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetFilesDir();
@@ -221,7 +222,7 @@ napi_value JsBaseContext::OnGetDistributedFilesDir(napi_env env, NapiCallbackInf
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetDistributedFilesDir();
@@ -237,7 +238,7 @@ napi_value JsBaseContext::OnGetDatabaseDir(napi_env env, NapiCallbackInfo &info)
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetDatabaseDir();
@@ -253,7 +254,7 @@ napi_value JsBaseContext::OnGetPreferencesDir(napi_env env, NapiCallbackInfo &in
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetPreferencesDir();
@@ -269,7 +270,7 @@ napi_value JsBaseContext::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo &inf
 {
     auto context = context_.lock();
     if (!context) {
-        HILOG_WARN("context is already released");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "context is already released");
         return CreateJsUndefined(env);
     }
     std::string path = context->GetBundleCodeDir();
@@ -278,7 +279,7 @@ napi_value JsBaseContext::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo &inf
 
 napi_value JsBaseContext::OnGetApplicationContext(napi_env env, NapiCallbackInfo &info)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     napi_value value = JsApplicationContextUtils::CreateJsApplicationContext(env, context_.lock());
     auto systemModule = JsRuntime::LoadSystemModuleByEngine(env, "application.ApplicationContext", &value, 1);
     if (systemModule == nullptr) {
@@ -294,7 +295,7 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     napi_value object = nullptr;
     napi_create_object(env, &object);
     if (object == nullptr) {
-        HILOG_WARN("invalid object.");
+        TAG_LOGW(AAFwkTag::ABILITY_SIM, "invalid object.");
         return object;
     }
 

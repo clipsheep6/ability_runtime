@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 #include "common_func.h"
 #include "bundle_errors.h"
 #include "business_error.h"
+#include "hilog_tag_wrapper.h"
 #include "ipc_skeleton.h"
 #include "iservice_registry.h"
 #include "napi_arg.h"
@@ -132,17 +133,17 @@ static void ConvertBusinessAbilityInfos(napi_env env, const std::vector<Business
 static ErrCode InnerQueryBusinessAbilityInfos(AbilityInfosCallbackInfo *info)
 {
     if (info == nullptr) {
-        APP_LOGE("CallbackInfo is null");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "CallbackInfo is null");
         return ERROR_BUNDLE_SERVICE_EXCEPTION;
     }
     auto serviceRouterMgr = ServiceRouterMgrHelper::GetInstance().GetServiceRouterMgr();
     if (serviceRouterMgr == nullptr) {
-        APP_LOGE("can not get serviceRouterMgr");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "can not get serviceRouterMgr");
         return ERROR_BUNDLE_SERVICE_EXCEPTION;
     }
 
     auto ret = serviceRouterMgr->QueryBusinessAbilityInfos(info->filter, info->businessAbilityInfos);
-    APP_LOGI("InnerQueryBusinessAbilityInfos ErrCode : %{public}d", ret);
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "InnerQueryBusinessAbilityInfos ErrCode : %{public}d", ret);
     return CommonFunc::ConvertErrCode(ret);
 }
 
@@ -181,10 +182,10 @@ static bool ParseBusinessAbilityInfo(napi_env env, napi_value args, BusinessAbil
 
 void QueryBusinessAbilityInfosExec(napi_env env, void *data)
 {
-    APP_LOGD("QueryServiceInfosExec start");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "QueryServiceInfosExec start");
     AbilityInfosCallbackInfo *asyncCallbackInfo = reinterpret_cast<AbilityInfosCallbackInfo*>(data);
     if (asyncCallbackInfo == nullptr) {
-        APP_LOGE("%{public}s, asyncCallbackInfo == nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "%{public}s, asyncCallbackInfo == nullptr.", __func__);
         return;
     }
     asyncCallbackInfo->err = InnerQueryBusinessAbilityInfos(asyncCallbackInfo);
@@ -192,10 +193,10 @@ void QueryBusinessAbilityInfosExec(napi_env env, void *data)
 
 void QueryBusinessAbilityInfosComplete(napi_env env, napi_status status, void *data)
 {
-    APP_LOGD("QueryBusinessAbilityInfosComplete start");
+    TAG_LOGD(AAFwkTag::SER_ROUTER, "QueryBusinessAbilityInfosComplete start");
     AbilityInfosCallbackInfo *asyncCallbackInfo = reinterpret_cast<AbilityInfosCallbackInfo*>(data);
     if (asyncCallbackInfo == nullptr) {
-        APP_LOGE("asyncCallbackInfo is null in %{public}s", __func__);
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "asyncCallbackInfo is null in %{public}s", __func__);
         return;
     }
     napi_value result[2] = {0};
@@ -224,7 +225,7 @@ void QueryBusinessAbilityInfosComplete(napi_env env, napi_status status, void *d
 
 napi_value QueryBusinessAbilityInfos(napi_env env, napi_callback_info info)
 {
-    APP_LOGI("NAPI_QueryBusinessAbilityInfos start");
+    TAG_LOGI(AAFwkTag::SER_ROUTER, "NAPI_QueryBusinessAbilityInfos start");
     NapiArg args(env, info);
     if (!args.Init(ARGS_SIZE_ONE, ARGS_SIZE_TWO)) {
         BusinessError::ThrowTooFewParametersError(env, ERROR_PARAM_CHECK_ERROR);
@@ -250,7 +251,7 @@ napi_value QueryBusinessAbilityInfos(napi_env env, napi_callback_info info)
             }
         }
     } else {
-        APP_LOGE("parameters error");
+        TAG_LOGE(AAFwkTag::SER_ROUTER, "parameters error");
         BusinessError::ThrowTooFewParametersError(env, ERROR_PARAM_CHECK_ERROR);
         return nullptr;
     }

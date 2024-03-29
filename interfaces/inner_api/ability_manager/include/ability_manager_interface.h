@@ -1446,16 +1446,6 @@ public:
     }
 
     /**
-     * @brief Obtains elementName by appId.
-     * @param appId The ID of the application to which this bundle belongs.
-     * @return Returns ElementName.
-     */
-    virtual AppExecFwk::ElementName GetElementNameByAppId(const std::string &appId)
-    {
-        return {};
-    }
-
-    /**
      * @brief Pop-up launch of full-screen atomic service.
      * @param want The want with parameters.
      * @param callerToken caller ability token.

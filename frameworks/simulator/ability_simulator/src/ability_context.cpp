@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "ability_context.h"
 
 #include <cstring>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -54,31 +55,31 @@ void AbilityContext::SetOptions(const Options &options)
 {
     options_ = options;
 
-    HILOG_DEBUG("Options.bundleName: %{public}s", options.bundleName.c_str());
-    HILOG_DEBUG("Options.moduleName: %{public}s", options.moduleName.c_str());
-    HILOG_DEBUG("Options.modulePath: %{public}s", options.modulePath.c_str());
-    HILOG_DEBUG("Options.resourcePath: %{public}s", options.resourcePath.c_str());
-    HILOG_DEBUG("Options.debugPort: %{public}d", options.debugPort);
-    HILOG_DEBUG("Options.assetPath: %{public}s", options.assetPath.c_str());
-    HILOG_DEBUG("Options.systemResourcePath: %{public}s", options.systemResourcePath.c_str());
-    HILOG_DEBUG("Options.appResourcePath: %{public}s", options.appResourcePath.c_str());
-    HILOG_DEBUG("Options.containerSdkPath: %{public}s", options.containerSdkPath.c_str());
-    HILOG_DEBUG("Options.url: %{public}s", options.url.c_str());
-    HILOG_DEBUG("Options.language: %{public}s", options.language.c_str());
-    HILOG_DEBUG("Options.region: %{public}s", options.region.c_str());
-    HILOG_DEBUG("Options.script: %{public}s", options.script.c_str());
-    HILOG_DEBUG("Options.themeId: %{public}d", options.themeId);
-    HILOG_DEBUG("Options.deviceWidth: %{public}d", options.deviceWidth);
-    HILOG_DEBUG("Options.deviceHeight: %{public}d", options.deviceHeight);
-    HILOG_DEBUG("Options.isRound: %{public}d", options.themeId);
-    HILOG_DEBUG("Options.compatibleVersion: %{public}d", options.compatibleVersion);
-    HILOG_DEBUG("Options.installationFree: %{public}d", options.installationFree);
-    HILOG_DEBUG("Options.labelId: %{public}d", options.labelId);
-    HILOG_DEBUG("Options.compileMode: %{public}s", options.compileMode.c_str());
-    HILOG_DEBUG("Options.pageProfile: %{public}s", options.pageProfile.c_str());
-    HILOG_DEBUG("Options.targetVersion: %{public}d", options.targetVersion);
-    HILOG_DEBUG("Options.releaseType: %{public}s", options.releaseType.c_str());
-    HILOG_DEBUG("Options.enablePartialUpdate: %{public}d", options.enablePartialUpdate);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.bundleName: %{public}s", options.bundleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.moduleName: %{public}s", options.moduleName.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.modulePath: %{public}s", options.modulePath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.resourcePath: %{public}s", options.resourcePath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.debugPort: %{public}d", options.debugPort);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.assetPath: %{public}s", options.assetPath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.systemResourcePath: %{public}s", options.systemResourcePath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.appResourcePath: %{public}s", options.appResourcePath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.containerSdkPath: %{public}s", options.containerSdkPath.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.url: %{public}s", options.url.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.language: %{public}s", options.language.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.region: %{public}s", options.region.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.script: %{public}s", options.script.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.themeId: %{public}d", options.themeId);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.deviceWidth: %{public}d", options.deviceWidth);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.deviceHeight: %{public}d", options.deviceHeight);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.isRound: %{public}d", options.themeId);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.compatibleVersion: %{public}d", options.compatibleVersion);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.installationFree: %{public}d", options.installationFree);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.labelId: %{public}d", options.labelId);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.compileMode: %{public}s", options.compileMode.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.pageProfile: %{public}s", options.pageProfile.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.targetVersion: %{public}d", options.targetVersion);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.releaseType: %{public}s", options.releaseType.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Options.enablePartialUpdate: %{public}d", options.enablePartialUpdate);
 }
 
 std::string AbilityContext::GetBundleName()

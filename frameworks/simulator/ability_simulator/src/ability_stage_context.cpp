@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@
 #include "ability_stage_context.h"
 
 #include <cstring>
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -187,9 +188,9 @@ std::string AbilityStageContext::GetDistributedFilesDir()
 
 void AbilityStageContext::SwitchArea(int mode)
 {
-    HILOG_DEBUG("called, mode:%{public}d.", mode);
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called, mode:%{public}d.", mode);
     if (mode < 0 || mode >= static_cast<int>(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0]))) {
-        HILOG_ERROR("mode is invalid.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "mode is invalid.");
         return;
     }
     currArea_ = CONTEXT_ELS[mode];
@@ -197,7 +198,7 @@ void AbilityStageContext::SwitchArea(int mode)
 
 int AbilityStageContext::GetArea()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "called");
     int mode = -1;
     for (int i = 0; i < static_cast<int>(sizeof(CONTEXT_ELS) / sizeof(CONTEXT_ELS[0])); i++) {
         if (currArea_ == CONTEXT_ELS[i]) {
@@ -206,7 +207,7 @@ int AbilityStageContext::GetArea()
         }
     }
     if (mode == -1) {
-        HILOG_ERROR("Not find mode.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Not find mode.");
         return EL_DEFAULT;
     }
     return mode;
@@ -230,11 +231,11 @@ std::string AbilityStageContext::GetPreviewPath()
 
 bool AbilityStageContext::Access(const std::string &path)
 {
-    HILOG_DEBUG("Access: dir: %{public}s", path.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Access: dir: %{public}s", path.c_str());
     std::unique_ptr<uv_fs_t, decltype(AbilityStageContext::FsReqCleanup)*> access_req = {
         new uv_fs_t, AbilityStageContext::FsReqCleanup };
     if (!access_req) {
-        HILOG_ERROR("Failed to request heap memory.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to request heap memory.");
         return false;
     }
 
@@ -243,29 +244,29 @@ bool AbilityStageContext::Access(const std::string &path)
 
 void AbilityStageContext::Mkdir(const std::string &path)
 {
-    HILOG_DEBUG("Mkdir: dir: %{public}s", path.c_str());
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "Mkdir: dir: %{public}s", path.c_str());
     std::unique_ptr<uv_fs_t, decltype(AbilityStageContext::FsReqCleanup)*> mkdir_req = {
         new uv_fs_t, AbilityStageContext::FsReqCleanup };
     if (!mkdir_req) {
-        HILOG_ERROR("Failed to request heap memory.");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to request heap memory.");
         return;
     }
 
     int ret = uv_fs_mkdir(nullptr, mkdir_req.get(), path.c_str(), DIR_DEFAULT_PERM, nullptr);
     if (ret < 0) {
-        HILOG_ERROR("Failed to create directory");
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to create directory");
     }
 }
 
 bool AbilityStageContext::CreateMultiDir(const std::string &path)
 {
     if (path.empty()) {
-        HILOG_DEBUG("path is empty");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "path is empty");
         return false;
     }
 
     if (Access(path)) {
-        HILOG_DEBUG("path is already exist");
+        TAG_LOGD(AAFwkTag::ABILITY_SIM, "path is already exist");
         return true;
     }
 

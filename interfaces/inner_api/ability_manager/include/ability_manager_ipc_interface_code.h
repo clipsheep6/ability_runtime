@@ -232,9 +232,6 @@ enum class AbilityManagerInterfaceCode {
     // Get forgeround UI abilities(75)
     GET_FOREGROUND_UI_ABILITIES = 75,
 
-    // Obtains elementName by appId(76)
-    GET_ELEMENT_NAME_BY_APP_ID = 76,
-
     // Pop-up launch of full-screen atomic service(77)
     OPEN_ATOMIC_SERVICE = 77,
 

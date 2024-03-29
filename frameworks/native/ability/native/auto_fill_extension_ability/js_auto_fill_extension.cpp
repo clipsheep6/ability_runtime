@@ -54,7 +54,6 @@ constexpr const char *WANT_PARAMS_AUTO_FILL_CMD = "ohos.ability.params.autoFillC
 constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
 constexpr const char *WANT_PARAMS_CUSTOM_DATA = "ohos.ability.params.customData";
 constexpr const char    *WANT_PARAMS_AUTO_FILL_POPUP_WINDOW_KEY = "ohos.ability.params.popupWindow";
-
 }
 napi_value AttachAutoFillExtensionContext(napi_env env, void *value, void *)
 {

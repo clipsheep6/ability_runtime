@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "bundle_constants.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "json_util.h"
 #include "nlohmann/json.hpp"
@@ -52,7 +53,7 @@ const std::string UID = "uid";
 }; // namespace
 void to_json(nlohmann::json &jsonObject, const ExtensionAbilityInfo &extensionInfo)
 {
-    HILOG_DEBUG("ExtensionAbilityInfo to_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ExtensionAbilityInfo to_json begin");
     jsonObject = nlohmann::json {
         {Constants::BUNDLE_NAME, extensionInfo.bundleName},
         {Constants::MODULE_NAME, extensionInfo.moduleName},
@@ -83,7 +84,7 @@ void to_json(nlohmann::json &jsonObject, const ExtensionAbilityInfo &extensionIn
 
 void from_json(const nlohmann::json &jsonObject, ExtensionAbilityInfo &extensionInfo)
 {
-    HILOG_DEBUG("ExtensionAbilityInfo from_json begin");
+    TAG_LOGD(AAFwkTag::ABILITY_SIM, "ExtensionAbilityInfo from_json begin");
     const auto &jsonObjectEnd = jsonObject.end();
     int32_t parseResult = ERR_OK;
     GetValueIfFindKey<std::string>(jsonObject,
@@ -279,7 +280,7 @@ void from_json(const nlohmann::json &jsonObject, ExtensionAbilityInfo &extension
         parseResult,
         ArrayType::NOT_ARRAY);
     if (parseResult != ERR_OK) {
-        HILOG_ERROR("ExtensionAbilityInfo from_json error, error code : %{public}d", parseResult);
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "ExtensionAbilityInfo from_json error, error code : %{public}d", parseResult);
     }
 }
 }  // namespace AppExecFwk

@@ -13,23 +13,24 @@
  * limitations under the License.
  */
 #include "dms_sa_client.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
 DmsSaClient &DmsSaClient::GetInstance()
 {
-    HILOGI("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
     static DmsSaClient instance;
     return instance;
 }
 
 bool DmsSaClient::SubscribeDmsSA()
 {
-    HILOGI("%{public}s called.", __func__);
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called.", __func__);
     sptr<DmsSystemAbilityStatusChange> callback(new DmsSystemAbilityStatusChange());
     int32_t ret = saMgrProxy_->SubscribeSystemAbility(DISTRIBUTED_SCHED_SA_ID, callback);
     if (ret != ERR_OK) {
-        HILOGE("Failed to subscribe system ability DISTRIBUTED_SCHED_SA_ID ret:%{public}d", ret);
+        TAG_LOGE(AAFwkTag::MISSION, "Failed to subscribe system ability DISTRIBUTED_SCHED_SA_ID ret:%{public}d", ret);
         return false;
     }
     return true;
@@ -37,10 +38,10 @@ bool DmsSaClient::SubscribeDmsSA()
 
 int32_t DmsSaClient::AddListener(const std::string& type, const sptr<IRemoteOnListener>& listener)
 {
-    HILOGI("%{public}s called, the type is %{public}s", __func__, type.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called, the type is %{public}s", __func__, type.c_str());
     saMgrProxy_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (saMgrProxy_ == nullptr) {
-        HILOGE("fail to get saMgrProxy.");
+        TAG_LOGE(AAFwkTag::MISSION, "fail to get saMgrProxy.");
         return INNER_ERR;
     }
     if (saMgrProxy_->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID)) {
@@ -60,7 +61,7 @@ int32_t DmsSaClient::AddListener(const std::string& type, const sptr<IRemoteOnLi
 
 int32_t DmsSaClient::DelListener(const std::string& type, const sptr<IRemoteOnListener>& listener)
 {
-    HILOGI("%{public}s called, the type is %{public}s", __func__, type.c_str());
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called, the type is %{public}s", __func__, type.c_str());
     if (saMgrProxy_->CheckSystemAbility(DISTRIBUTED_SCHED_SA_ID)) {
         AbilityManagerClient::GetInstance()->RegisterOffListener(type, listener);
     }
@@ -71,58 +72,60 @@ int32_t DmsSaClient::DelListener(const std::string& type, const sptr<IRemoteOnLi
 
 void DmsSaClient::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    HILOGI("%{public}s called, the systemAbilityId is %{public}d", __func__, systemAbilityId);
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called, the systemAbilityId is %{public}d", __func__, systemAbilityId);
     std::lock_guard<std::mutex> lock(eventMutex_);
     if (systemAbilityId == DISTRIBUTED_SCHED_SA_ID) {
-        HILOGI("%{public}s listeners size: %{public}zu .", __func__, listeners_.size());
+        TAG_LOGI(AAFwkTag::MISSION, "%{public}s listeners size: %{public}zu .", __func__, listeners_.size());
         for (auto& listener : listeners_) {
             AbilityManagerClient::GetInstance()->RegisterOnListener(listener.first, listener.second);
         }
     } else {
-        HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %{public}d", systemAbilityId);
+        TAG_LOGE(AAFwkTag::MISSION, "SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %{public}d",
+            systemAbilityId);
     }
 }
 
 void DmsSaClient::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
 {
-    HILOGI("%{public}s called, the systemAbilityId is %{public}d", __func__, systemAbilityId);
+    TAG_LOGI(AAFwkTag::MISSION, "%{public}s called, the systemAbilityId is %{public}d", __func__, systemAbilityId);
     std::lock_guard<std::mutex> lock(eventMutex_);
     if (systemAbilityId == DISTRIBUTED_SCHED_SA_ID) {
         for (auto& listener : listeners_) {
             AbilityManagerClient::GetInstance()->RegisterOffListener(listener.first, listener.second);
         }
     } else {
-        HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %{public}d", systemAbilityId);
+        TAG_LOGE(AAFwkTag::MISSION, "SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %{public}d",
+            systemAbilityId);
     }
 }
 
 DmsSystemAbilityStatusChange::DmsSystemAbilityStatusChange()
 {
-    HILOGI("DmsSystemAbilityStatusChange create");
+    TAG_LOGI(AAFwkTag::MISSION, "DmsSystemAbilityStatusChange create");
 }
 
 DmsSystemAbilityStatusChange::~DmsSystemAbilityStatusChange()
 {
-    HILOGI("DmsSystemAbilityStatusChange delete");
+    TAG_LOGI(AAFwkTag::MISSION, "DmsSystemAbilityStatusChange delete");
 }
 
 void DmsSystemAbilityStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
-    HILOGI("OnAddSystemAbility called, the systemAbilityId is %d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::MISSION, "OnAddSystemAbility called, the systemAbilityId is %d", systemAbilityId);
     if (systemAbilityId != DISTRIBUTED_SCHED_SA_ID) {
-        HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %d", systemAbilityId);
+        TAG_LOGE(AAFwkTag::MISSION, "SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %d", systemAbilityId);
         return;
     }
 
     DmsSaClient::GetInstance().OnAddSystemAbility(systemAbilityId, deviceId);
-    HILOGI("OnAddSystemAbility called end, the systemAbilityId is %d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::MISSION, "OnAddSystemAbility called end, the systemAbilityId is %d", systemAbilityId);
 }
 
 void DmsSystemAbilityStatusChange::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
-    HILOGI("OnRemoveSystemAbility called, the systemAbilityId is %d", systemAbilityId);
+    TAG_LOGI(AAFwkTag::MISSION, "OnRemoveSystemAbility called, the systemAbilityId is %d", systemAbilityId);
     if (systemAbilityId != DISTRIBUTED_SCHED_SA_ID) {
-        HILOGE("SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %d", systemAbilityId);
+        TAG_LOGE(AAFwkTag::MISSION, "SystemAbilityId must be DISTRIBUTED_SCHED_SA_ID,but it is %d", systemAbilityId);
         return;
     }
 }
