@@ -26,6 +26,13 @@ using OHOS::AppExecFwk::AppStateData;
 using OHOS::AppExecFwk::AbilityStateData;
 using OHOS::AppExecFwk::ProcessData;
 using OHOS::AppExecFwk::RunningProcessInfo;
+enum JsAppProcessState {
+    STATE_CREATE,
+    STATE_FOREGROUND,
+    STATE_ACTIVE,
+    STATE_BACKGROUND,
+    STATE_DESTROY
+};
 napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData);
 napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilityStateData);
 napi_value CreateJsProcessData(napi_env env, const ProcessData &processData);
@@ -34,6 +41,8 @@ napi_value CreateJsRunningProcessInfoArray(napi_env env, const std::vector<Runni
 napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &info);
 napi_value ApplicationStateInit(napi_env env);
 napi_value ProcessStateInit(napi_env env);
+JsAppProcessState ConvertToJsAppProcessState(
+    const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused);
 }  // namespace AbilityRuntime
 }  // namespace OHOS
 #endif // OHOS_ABILITY_RUNTIME_JS_APP_MANAGER_UTILS_H

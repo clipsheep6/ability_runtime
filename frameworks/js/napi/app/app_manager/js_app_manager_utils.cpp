@@ -116,8 +116,36 @@ napi_value CreateJsProcessRunningInfo(napi_env env, const RunningProcessInfo &in
     napi_set_named_property(env, object, "pid", CreateJsValue(env, info.pid_));
     napi_set_named_property(env, object, "uid", CreateJsValue(env, info.uid_));
     napi_set_named_property(env, object, "bundleNames", CreateNativeArray(env, info.bundleNames));
-    napi_set_named_property(env, object, "state", CreateJsValue(env, info.state_));
+    napi_set_named_property(env, object, "state", CreateJsValue(env,
+        ConvertToJsAppProcessState(info.state_, info.isFocused)));
     return object;
+}
+
+JsAppProcessState ConvertToJsAppProcessState(
+    const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused)
+{
+    JsAppProcessState processState;
+    switch (appProcessState) {
+        case AppExecFwk::AppProcessState::APP_STATE_CREATE:
+        case AppExecFwk::AppProcessState::APP_STATE_READY:
+            processState = STATE_CREATE;
+            break;
+        case AppExecFwk::AppProcessState::APP_STATE_FOREGROUND:
+            processState = isFocused ? STATE_ACTIVE : STATE_FOREGROUND;
+            break;
+        case AppExecFwk::AppProcessState::APP_STATE_BACKGROUND:
+            processState = STATE_BACKGROUND;
+            break;
+        case AppExecFwk::AppProcessState::APP_STATE_TERMINATED:
+        case AppExecFwk::AppProcessState::APP_STATE_END:
+            processState = STATE_DESTROY;
+            break;
+        default:
+            HILOG_ERROR("Process state is invalid.");
+            processState = STATE_DESTROY;
+            break;
+    }
+    return processState;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS
