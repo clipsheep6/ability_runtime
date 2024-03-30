@@ -20,6 +20,7 @@
 #include <memory>
 #include <string>
 
+#include "event_handler.h"
 #include "startup_config.h"
 #include "startup_task.h"
 #include "startup_task_dispatcher.h"
@@ -29,7 +30,8 @@ namespace OHOS {
 namespace AbilityRuntime {
 class StartupTaskManager : public std::enable_shared_from_this<StartupTaskManager> {
 public:
-    explicit StartupTaskManager(uint32_t startupTaskManagerId);
+    explicit StartupTaskManager(uint32_t startupTaskManagerId,
+        std::map<std::string, std::shared_ptr<StartupTask>> autoStartupTasks);
 
     ~StartupTaskManager();
 
@@ -46,10 +48,12 @@ private:
     std::shared_ptr<StartupConfig> config_;
     std::shared_ptr<StartupTaskDispatcher> dispatcher_;
     std::map<std::string, std::shared_ptr<StartupTask>> tasks_;
+    std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
 
     void CallListenerOnCompleted(int32_t result, const std::string &resultMessage = "");
     void AddAsyncTimeoutTimer();
     void CancelAsyncTimeoutTimer();
+    void OnTimeout();
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

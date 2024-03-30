@@ -64,8 +64,6 @@ private:
 
     static bool UseCommonChunk(const AppExecFwk::HapModuleInfo& hapModuleInfo);
 
-    int32_t RunAutoStartupTaskInner(const std::function<void()> &callback, bool &isAsyncCallback);
-
     int32_t RegisterStartupTaskFromProfile(std::vector<JsStartupTask> &jsStartupTasks);
     
     bool GetProfileInfoFromResourceManager(std::vector<std::string> &profileInfo);

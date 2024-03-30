@@ -351,11 +351,6 @@ int32_t JsAbilityStage::RunAutoStartupTask(const std::function<void()> &callback
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     isAsyncCallback = false;
-    return ERR_OK;
-}
-
-int32_t JsAbilityStage::RunAutoStartupTaskInner(const std::function<void()> &callback, bool &isAsyncCallback)
-{
     auto context = GetContext();
     if (!context) {
         HILOG_ERROR("context invalid.");
@@ -377,18 +372,22 @@ int32_t JsAbilityStage::RunAutoStartupTaskInner(const std::function<void()> &cal
     if (result != ERR_OK) {
         return result;
     }
+    std::shared_ptr<StartupManager> startupManager = DelayedSingleton<StartupManager>::GetInstance();
+    if (startupManager == nullptr) {
+        HILOG_ERROR("failed to get startupManager.");
+        return ERR_INVALID_VALUE;
+    }
     std::shared_ptr<StartupTaskManager> startupTaskManager = nullptr;
-    result = DelayedSingleton<StartupManager>::GetInstance()->BuildAutoStartupTaskManager(startupTaskManager);
+    result = startupManager->BuildAutoStartupTaskManager(startupTaskManager);
     if (result != ERR_OK) {
         return result;
     }
     result = startupTaskManager->Prepare();
     if (result != ERR_OK) {
-        isAsyncCallback = false;
         return result;
     }
     auto runAutoStartupCallback = std::make_shared<OnCompletedCallback>(
-        [callback](const std::shared_ptr<StartupTaskResult> &result) {
+        [callback](const std::shared_ptr<StartupTaskResult> &) {
             HILOG_INFO("RunAutoStartupCallback");
             callback();
         });
@@ -497,15 +496,21 @@ bool JsAbilityStage::LoadJsStartupConfig(const std::string &srcEntry)
         HILOG_ERROR("fail to load config src entry.");
         return false;
     }
-    std::shared_ptr<StartupConfig> startupConfig = std::make_shared<JsStartupConfig>(jsRuntime_, startupConfigEntry);
+    auto env = jsRuntime_.GetNapiEnv();
+    std::shared_ptr<JsStartupConfig> startupConfig = std::make_shared<JsStartupConfig>(env);
     if (startupConfig == nullptr) {
         HILOG_ERROR("startupConfig is null.");
         return false;
     }
-    if (startupConfig->Init() != ERR_OK) {
+    if (startupConfig->Init(startupConfigEntry) != ERR_OK) {
         return false;
     }
-    DelayedSingleton<StartupManager>::GetInstance()->SetDefaultConfig(startupConfig);
+    std::shared_ptr<StartupManager> startupManager = DelayedSingleton<StartupManager>::GetInstance();
+    if (startupManager == nullptr) {
+        HILOG_ERROR("failed to get startupManager.");
+        return false;
+    }
+    startupManager->SetDefaultConfig(startupConfig);
     return true;
 }
 

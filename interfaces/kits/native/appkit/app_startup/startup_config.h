@@ -36,14 +36,13 @@ public:
 
     explicit StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<StartupListener> &listener);
 
-    virtual int32_t Init();
-
     int32_t GetAwaitTimeoutMs() const;
 
     int32_t ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result);
 
-protected:
     static constexpr int32_t DEFAULT_AWAIT_TIMEOUT_MS = 10000; // 10s
+
+protected:
     int32_t awaitTimeoutMs_ = DEFAULT_AWAIT_TIMEOUT_MS;
     std::shared_ptr<StartupListener> listener_;
 };

@@ -25,14 +25,14 @@ namespace OHOS {
 namespace AbilityRuntime {
 class StartupListener {
 public:
-    explicit StartupListener(const std::shared_ptr<OnCompletedCallback> &callback);
+    explicit StartupListener(OnCompletedCallbackFunc &callback);
 
     ~StartupListener();
 
     void OnCompleted(const std::shared_ptr<StartupTaskResult> &result);
 
 private:
-    std::shared_ptr<OnCompletedCallback> onCompletedCallback_;
+    OnCompletedCallbackFunc onCompletedCallback_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

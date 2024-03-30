@@ -303,6 +303,9 @@ public:
 
     void SetAppEnv(const std::vector<AppEnvironment>& appEnvironments);
 
+    void AutoStartupDone(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AbilityRuntime::AbilityStage> &abilityStage, const std::string &moduleName);
+
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);
     void UpdateAppContextResMgr(const Configuration &config);

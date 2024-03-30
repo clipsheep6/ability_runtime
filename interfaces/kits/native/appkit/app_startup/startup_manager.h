@@ -36,6 +36,9 @@ public:
 
     int32_t BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskManager> &startupTaskManager);
 
+    int32_t BuildStartupTaskManager(const std::vector<std::string> &inputDependencies,
+        std::shared_ptr<StartupTaskManager> &startupTaskManager);
+
     int32_t OnStartupTaskManagerComplete(uint32_t id);
 
     void SetDefaultConfig(const std::shared_ptr<StartupConfig> &config);
@@ -50,12 +53,18 @@ public:
 
     int32_t IsInitialized(const std::string &name, bool &isInitialized);
 
+    int32_t PostMainThreadTask(const std::function<void()> &task);
+
 private:
     uint32_t startupTaskManagerId = 0;
     std::map<uint32_t, std::shared_ptr<StartupTaskManager>> startupTaskManagerMap_;
     // read only after initialization
     std::map<std::string, std::shared_ptr<StartupTask>> startupTasks_;
     std::shared_ptr<StartupConfig> defaultConfig_;
+    std::shared_ptr<AppExecFwk::EventHandler> mainHandler_;
+
+    int32_t AddStartupTask(const std::string &name,
+        std::map<std::string, std::shared_ptr<StartupTask>> &taskMap);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

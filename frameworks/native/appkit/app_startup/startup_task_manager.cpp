@@ -21,7 +21,9 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-StartupTaskManager::StartupTaskManager(uint32_t startupTaskManagerId) : startupTaskManagerId_(startupTaskManagerId)
+StartupTaskManager::StartupTaskManager(uint32_t startupTaskManagerId,
+    std::map<std::string, std::shared_ptr<StartupTask>> tasks)
+    : startupTaskManagerId_(startupTaskManagerId), tasks_(std::move(tasks))
 {}
 
 StartupTaskManager::~StartupTaskManager()
@@ -62,6 +64,10 @@ int32_t StartupTaskManager::Prepare()
     if (startupSortResult == nullptr) {
         HILOG_ERROR("startupSortResult is nullptr.");
         CallListenerOnCompleted(ERR_STARTUP_INTERNAL_ERROR);
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    if (tasks_.empty()) {
+        HILOG_ERROR("no tasks.");
         return ERR_STARTUP_INTERNAL_ERROR;
     }
     dispatcher_ = std::make_shared<StartupTaskDispatcher>(tasks_, startupSortResult);
@@ -122,10 +128,41 @@ void StartupTaskManager::CallListenerOnCompleted(int32_t result, const std::stri
 
 void StartupTaskManager::AddAsyncTimeoutTimer()
 {
+    mainHandler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("failed to get mainHandler_");
+        return;
+    }
+    int32_t timeoutMs = StartupConfig::DEFAULT_AWAIT_TIMEOUT_MS;
+    if (config_ != nullptr) {
+        timeoutMs = config_->GetAwaitTimeoutMs();
+    }
+    HILOG_DEBUG("id: %{public}d, add timeout timer: %{public}d", startupTaskManagerId_, timeoutMs);
+    auto callback = [weak = weak_from_this()]() {
+        auto startupTaskManager = weak.lock();
+        if (startupTaskManager == nullptr) {
+            HILOG_ERROR("startupTaskManager is nullptr.");
+            return;
+        }
+        startupTaskManager->OnTimeout();
+    };
+    mainHandler_->PostTask(callback, "StartupTaskManager_" + std::to_string(startupTaskManagerId_), timeoutMs);
 }
 
 void StartupTaskManager::CancelAsyncTimeoutTimer()
 {
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("failed to get mainHandler_");
+        return;
+    }
+    HILOG_DEBUG("id: %{public}d, cancel timeout timer", startupTaskManagerId_);
+    mainHandler_->RemoveTask("StartupTaskManager_" + std::to_string(startupTaskManagerId_));
+}
+
+void StartupTaskManager::OnTimeout()
+{
+    CallListenerOnCompleted(ERR_STARTUP_TIMEOUT, StartupUtils::GetErrorMessage(ERR_STARTUP_TIMEOUT));
+    DelayedSingleton<StartupManager>::GetInstance()->OnStartupTaskManagerComplete(startupTaskManagerId_);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

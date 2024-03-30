@@ -26,19 +26,23 @@ namespace OHOS {
 namespace AbilityRuntime {
 class JsStartupConfig : public StartupConfig {
 public:
-    JsStartupConfig(JsRuntime &jsRuntime, std::unique_ptr<NativeReference> &configEntryJsRef);
+    JsStartupConfig(napi_env env);
 
     ~JsStartupConfig() override;
 
-    int32_t Init() override;
+    int32_t Init(std::unique_ptr<NativeReference> &configEntryJsRef);
+
+    int32_t Init(napi_value config);
+
+    static napi_value GetConfigFromEntry(napi_env env, std::unique_ptr<NativeReference> &configEntryJsRef);
+
+    static napi_value BuildResult(napi_env env, const std::shared_ptr<StartupTaskResult> &result);
 
 private:
-    JsRuntime &jsRuntime_;
-    std::unique_ptr<NativeReference> configEntryJsRef_;
+    napi_env env_;
 
     void InitAwaitTimeout(napi_env env, napi_value config);
     void InitListener(napi_env env, napi_value config);
-    static napi_value BuildResult(napi_env env, const std::shared_ptr<StartupTaskResult> &result);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

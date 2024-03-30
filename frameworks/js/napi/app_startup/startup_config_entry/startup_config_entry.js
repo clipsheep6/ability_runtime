@@ -15,7 +15,7 @@
 
 class StartupConfigEntry {
   onConfig() {
-    return {}
+    return {};
   }
 }
 

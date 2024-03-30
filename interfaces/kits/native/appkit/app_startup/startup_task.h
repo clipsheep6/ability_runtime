@@ -60,7 +60,7 @@ public:
 
     void SaveResult(const std::shared_ptr<StartupTaskResult> &result);
 
-    void RemoveResult();
+    int32_t RemoveResult();
 
     std::shared_ptr<StartupTaskResult> GetResult() const;
 
@@ -71,6 +71,10 @@ public:
 
     State GetState() const;
 
+    int32_t AddExtraCallback(std::unique_ptr<StartupTaskResultCallback> callback);
+
+    void CallExtraCallback(const std::shared_ptr<StartupTaskResult> &result);
+
 protected:
     std::string name_;
     std::vector<std::string> dependencies_;
@@ -79,6 +83,7 @@ protected:
     bool isExcludeFromAutoStart_ = false;
     std::shared_ptr<StartupTaskResult> result_;
     State state_ = State::INVALID;
+    std::vector<std::unique_ptr<StartupTaskResultCallback>> extraCallbacks_;
 
     std::string DumpDependencies() const;
 };

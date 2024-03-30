@@ -48,6 +48,7 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
             return;
         }
         startupTask->SaveResult(result);
+        startupTask->CallExtraCallback(result);
     });
     HILOG_DEBUG("%{public}s, RunOnMainThread", name_.c_str());
     return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));

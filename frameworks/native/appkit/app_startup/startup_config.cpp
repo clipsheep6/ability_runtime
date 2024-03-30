@@ -31,11 +31,6 @@ StartupConfig::StartupConfig(int32_t awaitTimeoutMs, const std::shared_ptr<Start
     : awaitTimeoutMs_(awaitTimeoutMs), listener_(listener)
 {}
 
-int32_t StartupConfig::Init()
-{
-    return ERR_OK;
-}
-
 int32_t StartupConfig::GetAwaitTimeoutMs() const
 {
     return awaitTimeoutMs_;

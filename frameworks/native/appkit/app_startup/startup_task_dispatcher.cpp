@@ -15,7 +15,9 @@
 
 #include "startup_task_dispatcher.h"
 
+#include "event_handler.h"
 #include "hilog_wrapper.h"
+#include "startup_manager.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -23,7 +25,10 @@ StartupTaskDispatcher::StartupTaskDispatcher(const std::map<std::string, std::sh
     const std::shared_ptr<StartupSortResult> &sortResult) : tasks_(tasks), sortResult_(sortResult)
 {}
 
-StartupTaskDispatcher::~StartupTaskDispatcher() = default;
+StartupTaskDispatcher::~StartupTaskDispatcher()
+{
+    HILOG_DEBUG("deconstruct");
+}
 
 int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &completedCallback,
     const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback)
@@ -156,12 +161,19 @@ int32_t StartupTaskDispatcher::RunTaskInit(const std::string &name, const std::s
         }
         startupTaskDispatcher->Dispatch(name, result);
     });
-
-    int32_t result = task->RunTaskInit(std::move(callback));
-    if (result != ERR_OK) {
-        return result;
+    StartupTask::State state = task->GetState();
+    if (state == StartupTask::State::CREATED) {
+        return task->RunTaskInit(std::move(callback));
+    } else if (state == StartupTask::State::INITIALIZED) {
+        callback->Call(task->GetResult());
+        return ERR_OK;
+    } else if (state == StartupTask::State::INITIALIZING) {
+        return task->AddExtraCallback(std::move(callback));
+    } else {
+        // state: INVALID
+        HILOG_ERROR("%{public}s task state is: INVALID", name.c_str());
+        return ERR_STARTUP_INTERNAL_ERROR;
     }
-    return ERR_OK;
 }
 
 void StartupTaskDispatcher::OnError(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
@@ -172,9 +184,12 @@ void StartupTaskDispatcher::OnError(const std::string &name, const std::shared_p
     if (completedCallback_ != nullptr) {
         completedCallback_->Call(result);
     }
-    if (mainThreadAwaitCallback_ != nullptr) {
-        mainThreadAwaitCallback_->Call(result);
-    }
+    DelayedSingleton<StartupManager>::GetInstance()->PostMainThreadTask(
+        [mainThreadAwaitCallback = mainThreadAwaitCallback_, result]() {
+            if (mainThreadAwaitCallback != nullptr) {
+                mainThreadAwaitCallback->Call(result);
+            }
+        });
 }
 
 void StartupTaskDispatcher::OnError(int32_t errorCode, const std::string &errorMessage)
@@ -184,9 +199,12 @@ void StartupTaskDispatcher::OnError(int32_t errorCode, const std::string &errorM
     if (completedCallback_ != nullptr) {
         completedCallback_->Call(result);
     }
-    if (mainThreadAwaitCallback_ != nullptr) {
-        mainThreadAwaitCallback_->Call(result);
-    }
+    DelayedSingleton<StartupManager>::GetInstance()->PostMainThreadTask(
+        [mainThreadAwaitCallback = mainThreadAwaitCallback_, result]() {
+            if (mainThreadAwaitCallback != nullptr) {
+                mainThreadAwaitCallback->Call(result);
+            }
+        });
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

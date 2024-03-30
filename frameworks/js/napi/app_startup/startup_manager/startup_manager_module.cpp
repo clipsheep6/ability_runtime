@@ -13,20 +13,16 @@
  * limitations under the License.
  */
 
-#include "startup_listener.h"
+#include "js_startup_manager.h"
+#include "napi/native_api.h"
 
-namespace OHOS {
-namespace AbilityRuntime {
-StartupListener::StartupListener(OnCompletedCallbackFunc &callback) : onCompletedCallback_(std::move(callback))
-{}
+static napi_module _module = {
+    .nm_version = 0,
+    .nm_register_func = OHOS::AbilityRuntime::JsStartupManagerInit,
+    .nm_modname = "app.appstartup.startupManager",
+};
 
-StartupListener::~StartupListener() = default;
-
-void StartupListener::OnCompleted(const std::shared_ptr<StartupTaskResult> &result)
+extern "C" __attribute__((constructor)) void NAPI_app_ability_startupmanager_AutoRegister(void)
 {
-    if (onCompletedCallback_ != nullptr) {
-        onCompletedCallback_(result);
-    }
+    napi_module_register(&_module);
 }
-} // namespace AbilityRuntime
-} // namespace OHOS

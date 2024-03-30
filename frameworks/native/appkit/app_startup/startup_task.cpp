@@ -87,10 +87,15 @@ void StartupTask::SaveResult(const std::shared_ptr<StartupTaskResult> &result)
     }
 }
 
-void StartupTask::RemoveResult()
+int32_t StartupTask::RemoveResult()
 {
+    if (state_ != State::INITIALIZED) {
+        HILOG_ERROR("%{public}s, the result is not init", name_.c_str());
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
     result_ = nullptr;
     state_ = State::CREATED;
+    return ERR_OK;
 }
 
 std::shared_ptr<StartupTaskResult> StartupTask::GetResult() const
@@ -124,6 +129,27 @@ std::string StartupTask::DumpDependencies() const
 uint32_t StartupTask::getDependenciesCount() const
 {
     return dependencies_.size();
+}
+
+int32_t StartupTask::AddExtraCallback(std::unique_ptr<StartupTaskResultCallback> callback)
+{
+    if (state_ != State::INITIALIZING) {
+        HILOG_ERROR("state is not INITIALIZING");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    // extra callback will called while init done
+    extraCallbacks_.emplace_back(std::move(callback));
+    return ERR_OK;
+}
+
+void StartupTask::CallExtraCallback(const std::shared_ptr<StartupTaskResult> &result)
+{
+    for (auto &callback : extraCallbacks_) {
+        if (callback != nullptr) {
+            callback->Call(result);
+        }
+    }
+    extraCallbacks_.clear();
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
