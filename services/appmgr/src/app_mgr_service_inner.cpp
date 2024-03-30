@@ -2122,6 +2122,12 @@ void AppMgrServiceInner::SetAppEnvInfo(const BundleInfo &bundleInfo, AppSpawnSta
     } else {
         startMsg.appEnv.emplace(TSAN_FLAG_NAME, std::to_string(0));
     }
+
+    if (!bundleInfo.applicationInfo.appEnvironments.empty()) {
+        for (const auto& appEnvironment : bundleInfo.applicationInfo.appEnvironments) {
+            startMsg.appEnv.emplace(appEnvironment.name, appEnvironment.value);
+        }
+    }
 }
 
 void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
