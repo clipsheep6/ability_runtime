@@ -14,32 +14,43 @@
 */
 #include <limits>
 #include "dataobs_mgr_changeinfo.h"
+#include "dataobs_utils.h"
 #include "securec.h"
 
 namespace OHOS {
 namespace AAFwk {
-bool ChangeInfo::Marshalling(const ChangeInfo &input, MessageParcel &data)
+using Value = std::variant<std::monostate, int64_t, double, std::string, bool, std::vector<uint8_t>>;
+using VBucket = std::map<std::string, Value>;
+using VBuckets = std::vector<VBucket>;
+bool ChangeInfo::Marshalling(const ChangeInfo &input, MessageParcel &parcel)
 {
-    if (!data.WriteUint32(static_cast<uint32_t>(input.changeType_))) {
+    if (!parcel.WriteUint32(static_cast<uint32_t>(input.changeType_))) {
         return false;
     }
 
     if (input.uris_.size() > std::numeric_limits<uint32_t>::max() ||
-        !data.WriteUint32(static_cast<uint32_t>(input.uris_.size()))) {
+        !parcel.WriteUint32(static_cast<uint32_t>(input.uris_.size()))) {
         return false;
     }
 
     for (auto const &uri : input.uris_) {
-        if (!data.WriteString(uri.ToString())) {
+        if (!parcel.WriteString(uri.ToString())) {
             return false;
         }
     }
 
-    if (!data.WriteUint32(input.size_)) {
+    if (!parcel.WriteUint32(input.size_)) {
         return false;
     }
 
-    return input.size_ == 0 || data.WriteBuffer(input.data_, input.size_);
+    if (!(input.size_ == 0 || parcel.WriteBuffer(input.data_, input.size_))) {
+        return false;
+    }
+
+    if (!DataObsUtils::Marshal(parcel, input.valueBuckets_)) {
+        return false;
+    }
+    return true;
 }
 
 bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
@@ -75,10 +86,15 @@ bool ChangeInfo::Unmarshalling(ChangeInfo &output, MessageParcel &parcel)
     if (size > 0 && data == nullptr) {
         return false;
     }
+    VBuckets buckets;
+    if (!(DataObsUtils::Unmarshal(parcel, buckets))) {
+        return false;
+    }
     output.changeType_ = static_cast<ChangeType>(changeType);
     std::swap(output.uris_, uris);
     output.data_ = const_cast<uint8_t*>(data);
     output.size_ = size;
+    output.valueBuckets_ = std::move(buckets);
     return true;
 }
 } // namespace AAFwk
