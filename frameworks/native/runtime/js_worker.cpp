@@ -51,6 +51,7 @@ namespace AbilityRuntime {
 namespace {
 constexpr int64_t ASSET_FILE_MAX_SIZE = 32 * 1024 * 1024;
 constexpr int32_t API8 = 8;
+constexpr int32_t API12 = 12;
 const std::string BUNDLE_NAME_FLAG = "@bundle:";
 const std::string CACHE_DIRECTORY = "el2";
 const int PATH_THREE = 3;
@@ -254,7 +255,7 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
 
 bool AssetHelper::GetSafeData(const std::string& ami, uint8_t** buff, size_t* buffSize)
 {
-    TAG_LOGD(AAFwkTag::JSRUNTIME, "Use secure mem.");
+    TAG_LOGD(AAFwkTag::JSRUNTIME, "Get secure mem.");
     std::string resolvedPath;
     resolvedPath.reserve(PATH_MAX);
     resolvedPath.resize(PATH_MAX - 1);
@@ -302,9 +303,17 @@ bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* bu
 {
     // Current function is a private, validity of workerInfo_ has been checked by caller.
     bool apiSatisfy = workerInfo_->apiTargetVersion == 0 || workerInfo_->apiTargetVersion > API8;
-    if (workerInfo_->isStageModel && !isRestricted && apiSatisfy && GetSafeData(ami, buff, buffSize)) {
-        useSecureMem = true;
-        return true;
+    if (workerInfo_->isStageModel && !isRestricted && apiSatisfy) {
+        if (workerInfo_->apiTargetVersion >= API12) {
+            useSecureMem = true;
+            return GetSafeData(ami, buff, buffSize);
+        } else if (GetSafeData(ami, buff, buffSize)) {
+            useSecureMem = true;
+            return true;
+        } else {
+            // If api version less than 12 and get secure mem failed, try get normal mem.
+            TAG_LOGW(AAFwkTag::JSRUNTIME, "Get secure mem failed, file %{private}s.", ami.c_str());
+        }
     }
 
     char path[PATH_MAX];
@@ -409,11 +418,23 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
         if (workerInfo_->isStageModel && !isRestricted && apiSatisfy && !extractor->IsHapCompress(realfilePath)) {
             TAG_LOGD(AAFwkTag::JSRUNTIME, "Use secure mem.");
             auto safeData = extractor->GetSafeData(realfilePath);
-            if (safeData != nullptr) {
+            if (workerInfo_->apiTargetVersion >= API12) {
+                useSecureMem = true;
+                if (safeData == nullptr) {
+                    TAG_LOGE(AAFwkTag::JSRUNTIME, "Get secure mem failed, file %{private}s.", filePath.c_str());
+                    return false;
+                }
                 *buff = safeData->GetDataPtr();
                 *buffSize = safeData->GetDataLen();
-                useSecureMem = true;
                 return true;
+            } else if (safeData != nullptr) {
+                useSecureMem = true;
+                *buff = safeData->GetDataPtr();
+                *buffSize = safeData->GetDataLen();
+                return true;
+            } else {
+                // If api version less than 12 and get secure mem failed, try get normal mem.
+                TAG_LOGW(AAFwkTag::JSRUNTIME, "Get secure mem failed, file %{private}s.", filePath.c_str());
             }
         }
         if (!extractor->ExtractToBufByName(realfilePath, dataPtr, fileLen)) {
