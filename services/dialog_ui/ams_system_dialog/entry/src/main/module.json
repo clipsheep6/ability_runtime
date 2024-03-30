@@ -89,6 +89,9 @@
       },
       {
         "name": "ohos.permission.NOTIFY_DEBUG_ASSERT_RESULT"
+      },
+      {
+        "name": "ohos.permission.GET_BUNDLE_RESOURCES"
       }
     ]
   }
