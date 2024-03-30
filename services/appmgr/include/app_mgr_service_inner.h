@@ -1279,6 +1279,16 @@ private:
     void NotifyAppRunningStatusEvent(
         const std::string &bundle, int32_t uid, AbilityRuntime::RunningStatus runningStatus);
 
+    /**
+     * To Prevent process being killed when ability is starting in an existing process,
+     * we need notify memmgr to increase process priority.
+     *
+     * @param appRecord Current app running record.
+     *
+     * @return Whether improve priority succeed.
+     */
+    bool NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRunningRecord> appRecord);
+
 private:
     /**
      * Notify application status.

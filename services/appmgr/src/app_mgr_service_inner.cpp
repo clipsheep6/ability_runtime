@@ -54,6 +54,8 @@
 #ifdef SUPPORT_GRAPHICS
 #include "locale_config.h"
 #endif
+#include "mem_mgr_client.h"
+#include "mem_mgr_process_state_info.h"
 #include "os_account_manager_wrapper.h"
 #include "parameter.h"
 #include "parameters.h"
@@ -336,6 +338,10 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
     }
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
+    if (appRecord && isUIAbility) {
+        NotifyMemMgrPriorityChanged(appRecord);
+    }
+
     if (!appRecord) {
         TAG_LOGD(AAFwkTag::APPMGR, "appRecord null");
         bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
@@ -5814,6 +5820,37 @@ int32_t AppMgrServiceInner::GetAppRunningUniqueIdByPid(pid_t pid, std::string &a
         return ERR_NO_INIT;
     }
     return appRunningManager_->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+}
+
+bool AppMgrServiceInner::NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRunningRecord> appRecord)
+{
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
+        return false;
+    }
+    auto priorityObject = appRecord->GetPriorityObject();
+    if (!priorityObject) {
+        TAG_LOGE(AAFwkTag::APPMGR, "priorityObject is nullptr.");
+        return false;
+    }
+    int32_t pid = priorityObject->GetPid();
+    int32_t uid = appRecord->GetUid();
+    TAG_LOGI(AAFwkTag::APPMGR, "NotifyMemMgrPriorityChanged, pid:%{public}d, uid:%{public}d", pid, uid);
+
+    Memory::MemMgrProcessStateInfo info;
+    info.pid_ = pid;
+    info.uid_ = uid;
+    info.reason_ = Memory::ProcPriorityUpdateReason::START_ABILITY;
+    int32_t result = ERR_OK;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+        result = Memory::MemMgrClient::GetInstance().NotifyProcessStateChangedAsync(info);
+    }
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "NotifyPriorityChangedSync error, result:%{public}d.", result);
+        return false;
+    }
+    return true;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

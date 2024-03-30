@@ -69,6 +69,7 @@
             "input",
             "ipc",
             "kv_store",
+            "memmgr",
             "memmgr_plugin",
             "memory_utils",
             "napi",
