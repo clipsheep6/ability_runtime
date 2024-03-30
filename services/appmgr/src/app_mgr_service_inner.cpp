@@ -1513,6 +1513,7 @@ std::shared_ptr<AppRunningRecord> AppMgrServiceInner::CreateAppRunningRecord(spt
         appRecord->SetCallerUid(want->GetIntParam(Want::PARAM_RESV_CALLER_UID, -1));
         appRecord->SetCallerTokenId(want->GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, -1));
         appRecord->SetAssignTokenId(want->GetIntParam("specifyTokenId", 0));
+        appRecord->SetNativeStart(want->GetBoolParam("native", false));
     }
 
     if (preToken) {

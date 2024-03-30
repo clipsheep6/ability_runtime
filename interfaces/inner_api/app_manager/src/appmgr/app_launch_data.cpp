@@ -103,6 +103,11 @@ bool AppLaunchData::Marshalling(Parcel &parcel) const
         return false;
     }
 
+    if (!parcel.WriteBool(isNativeStart_)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to write native flag.");
+        return false;
+    }
+
     return true;
 }
 
@@ -145,6 +150,7 @@ bool AppLaunchData::ReadFromParcel(Parcel &parcel)
     debugApp_ = parcel.ReadBool();
     perfCmd_ = parcel.ReadString();
     jitEnabled_ = parcel.ReadBool();
+    isNativeStart_ = parcel.ReadBool();
     return true;
 }
 
@@ -224,6 +230,16 @@ bool UserTestRecord::ReadFromParcel(Parcel &parcel)
     isFinished = parcel.ReadBool();
     userId = parcel.ReadInt32();
     return true;
+}
+
+void AppLaunchData::SetNativeStart(bool isNativeStart)
+{
+    isNativeStart_ = isNativeStart;
+}
+
+bool AppLaunchData::isNativeStart() const
+{
+    return isNativeStart_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -31,6 +31,7 @@ int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 void SetJsFramework();
+void SetNativeStart(bool isNativeStart);
 
 class AssetHelper final {
 public:

@@ -203,6 +203,18 @@ public:
      * @param inParcel Indicates the Parcel object into which the Sequenceable object has been marshaled.
      */
     static AppLaunchData *Unmarshalling(Parcel &parcel);
+    /**
+     * @brief Setting is aa start with native.
+     *
+     * @param isNativeStart, is aa start with native.
+     */
+    void SetNativeStart(bool isNativeStart);
+    /**
+     * @brief Obtains is native start.
+     *
+     * @return Returns is native start.
+     */
+    bool isNativeStart() const;
 
 private:
     ApplicationInfo applicationInfo_;
@@ -215,6 +227,7 @@ private:
     bool debugApp_ = false;
     std::string perfCmd_;
     bool jitEnabled_ = false;
+    bool isNativeStart_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

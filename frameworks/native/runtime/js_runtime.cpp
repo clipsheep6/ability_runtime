@@ -231,7 +231,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     return instance;
 }
 
-void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebugApp)
+void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebugApp, bool isNativeStart)
 {
     CHECK_POINTER(jsEnv_);
     if (jsEnv_->GetDebugMode()) {
@@ -246,6 +246,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
+    SetNativeStart(isNativeStart);
     const std::string bundleName = bundleName_;
     uint32_t instanceId = instanceId_;
     auto weak = jsEnv_;
@@ -368,8 +369,8 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     return std::stoi(interval);
 }
 
-void JsRuntime::StartProfiler(
-    const std::string &perfCmd, bool needBreakPoint, const std::string &processName, bool isDebugApp)
+void JsRuntime::StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
+    bool isDebugApp, bool isNativeStart)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
@@ -378,6 +379,7 @@ void JsRuntime::StartProfiler(
 
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
+    SetNativeStart(isNativeStart);
     const std::string bundleName = bundleName_;
     auto weak = jsEnv_;
     uint32_t instanceId = instanceId_;

@@ -725,6 +725,18 @@ public:
      * @param AssignTokenId, the assign tokenId.
      */
     void SetAssignTokenId(int32_t tokenId);
+    /**
+     * @brief Setting is aa start with native.
+     *
+     * @param isNativeStart, is aa start with native.
+     */
+    void SetNativeStart(bool isNativeStart);
+    /**
+     * @brief Obtains is native start.
+     *
+     * @return Returns is native start.
+     */
+    bool isNativeStart() const;
 
     void SetRestartAppFlag(bool isRestartApp);
     bool GetRestartAppFlag() const;
@@ -879,6 +891,7 @@ private:
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
+    bool isNativeStart_ = false;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

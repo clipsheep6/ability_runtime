@@ -536,7 +536,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
     bool needBreakPoint = true;
     bool debugApp = true;
     const std::string processName = "test";
-    jsRuntime->StartDebugMode(needBreakPoint, processName, debugApp);
+    jsRuntime->StartDebugMode(needBreakPoint, processName, debugApp, false);
     EXPECT_TRUE(jsRuntime != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "StartDebugMode end");
@@ -993,7 +993,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
     const std::string perfCmd = "profile jsperf 100";
     bool debugApp = true;
     const std::string processName = "test";
-    jsRuntime->StartProfiler(perfCmd, needBreakPoint, processName, debugApp);
+    jsRuntime->StartProfiler(perfCmd, needBreakPoint, processName, debugApp, false);
     ASSERT_NE(jsRuntime, nullptr);
 }
 

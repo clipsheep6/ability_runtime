@@ -1375,9 +1375,11 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
             perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
             HILOG_DEBUG("perfCmd is %{public}s", perfCmd.c_str());
-            runtime->StartProfiler(perfCmd, appLaunchData.GetDebugApp(), processName, appInfo.debug);
+            runtime->StartProfiler(perfCmd, appLaunchData.GetDebugApp(), processName, appInfo.debug,
+                appLaunchData.isNativeStart());
         } else {
-            runtime->StartDebugMode(appLaunchData.GetDebugApp(), processName, appInfo.debug);
+            runtime->StartDebugMode(appLaunchData.GetDebugApp(), processName, appInfo.debug,
+                appLaunchData.isNativeStart());
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;

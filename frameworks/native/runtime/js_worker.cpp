@@ -66,6 +66,7 @@ constexpr char ARK_DEBUGGER_LIB_PATH[] = "/system/lib64/platformsdk/libark_debug
 bool g_debugMode = false;
 bool g_debugApp = false;
 bool g_jsFramework = false;
+bool g_nativeStart = false;
 std::mutex g_mutex;
 }
 
@@ -97,6 +98,10 @@ void InitWorkerFunc(NativeEngine* nativeEngine)
         auto instanceId = gettid();
         std::string instanceName = "workerThread_" + std::to_string(instanceId);
         bool needBreakPoint = ConnectServerManager::Get().AddInstance(instanceId, instanceId, instanceName);
+        if (g_nativeStart) {
+            TAG_LOGD(AAFwkTag::APPMGR, "native is true, set needBreakPoint = false.");
+            needBreakPoint = false;
+        }
         auto workerPostTask = [nativeEngine](std::function<void()>&& callback) {
             nativeEngine->CallDebuggerPostTaskFunc(std::move(callback));
         };
@@ -546,6 +551,11 @@ void SetDebuggerApp(bool isDebugApp)
 void SetJsFramework()
 {
     g_jsFramework = true;
+}
+
+void SetNativeStart(bool isNativeStart)
+{
+    g_nativeStart = isNativeStart;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
