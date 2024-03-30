@@ -25,17 +25,19 @@ void MockNativeToken::SetNativeToken()
     int permission3 = 3;
     int permission4 = 4;
     int permission5 = 5;
+    int permission6 = 6;
     uint64_t tokenId;
-    const char** perms = new const char* [6];
+    const char** perms = new const char* [7];
     perms[permission] = "ohos.permission.DISTRIBUTED_DATASYNC";
     perms[permission1] = "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS";
     perms[permission2] = "ohos.permission.UPDATE_CONFIGURATION";
     perms[permission3] = "ohos.permission.GET_RUNNING_INFO";
     perms[permission4] = "ohos.permission.MANAGE_MISSIONS";
     perms[permission5] = "ohos.permission.CLEAN_BACKGROUND_PROCESSES";
+    perms[permission6] = "ohos.permission.RUNNING_STATE_OBSERVER";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
-        .permsNum = 6,
+        .permsNum = 7,
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
