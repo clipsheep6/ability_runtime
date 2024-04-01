@@ -16,6 +16,8 @@
 #ifndef OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H
 #define OHOS_ABILITY_RUNTIME_APP_SPAWN_CLIENT_H
 
+#include <mutex>
+
 #include "nocopyable.h"
 #include "app_spawn_msg_wrapper.h"
 #include "app_spawn_socket.h"
@@ -115,6 +117,7 @@ private:
 private:
     std::shared_ptr<AppSpawnSocket> socket_;
     SpawnConnectionState state_ = SpawnConnectionState::STATE_NOT_CONNECT;
+    std::mutex socketLock_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -84,6 +84,7 @@ ErrCode AppSpawnClient::PreStartNWebSpawnProcessImpl()
     }
 
     // openconnection failed, return fail
+    std::lock_guard<std::mutex> lock(socketLock_);
     ErrCode result = OpenConnection();
     if (FAILED(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "connect to nwebspawn failed!");
@@ -117,6 +118,7 @@ ErrCode AppSpawnClient::StartProcess(const AppSpawnStartMsg &startMsg, pid_t &pi
 ErrCode AppSpawnClient::StartProcessImpl(const AppSpawnStartMsg &startMsg, pid_t &pid)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    std::lock_guard<std::mutex> lock(socketLock_);
     ErrCode result = OpenConnection();
     // open connection failed, return fail
     if (FAILED(result)) {
@@ -203,6 +205,7 @@ ErrCode AppSpawnClient::GetRenderProcessTerminationStatus(const AppSpawnStartMsg
         return ERR_APPEXECFWK_BAD_APPSPAWN_SOCKET;
     }
 
+    std::lock_guard<std::mutex> lock(socketLock_);
     ErrCode result = OpenConnection();
     // open connection failed, return fail
     if (FAILED(result)) {
