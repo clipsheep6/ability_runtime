@@ -348,9 +348,23 @@ HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEvent_001, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_001 start");
     auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
     EXPECT_NE(appMgrServiceInner, nullptr);
-    pid_t pid = -1;
-    appMgrServiceInner->SendProcessExitEvent(pid);
+    std::shared_ptr<AppRunningRecord> appRecord;
+    appMgrServiceInner->SendProcessExitEvent(appRecord);
     TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_001 end");
+}
+
+/**
+ * @tc.name: SendProcessExitEvent_002
+ * @tc.desc: Verify that the SendProcessExitEvent interface calls normally
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SendProcessExitEvent_002, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_002 start");
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    EXPECT_NE(appMgrServiceInner, nullptr);
+    appMgrServiceInner->SendProcessExitEvent(nullptr);
+    TAG_LOGI(AAFwkTag::TEST, "SendProcessExitEvent_002 end");
 }
 
 /**

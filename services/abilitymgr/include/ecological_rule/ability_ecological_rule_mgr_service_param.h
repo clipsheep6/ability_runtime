@@ -69,10 +69,14 @@ struct AbilityCallerInfo : public Parcelable {
     std::string targetLinkFeature = "";
     int32_t targetLinkType = LINK_TYPE_INVALID;
     int32_t callerAbilityType = 0L;
+    int32_t embedded = 0;
+    std::string callerAppProvisionType;
+    std::string targetAppProvisionType;
 
     bool ReadFromParcel(Parcel &parcel);
 
     bool Marshalling(Parcel &parcel) const override;
+    bool DoMarshallingOne(Parcel& parcel) const;
 
     static AbilityCallerInfo *Unmarshalling(Parcel &parcel);
 

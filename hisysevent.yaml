@@ -182,6 +182,11 @@ START_SERVICE:
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
   EXTENSION_TYPE: {type: INT32, desc: extension type}
+  TIME: {type: INT64, desc: start service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
 
 STOP_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: stop serviceExtensionAbility}
@@ -190,6 +195,11 @@ STOP_SERVICE:
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
   EXTENSION_TYPE: {type: INT32, desc: extension type}
+  TIME: {type: INT64, desc: stop service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
 
 CONNECT_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: connect serviceAbility}
@@ -197,9 +207,19 @@ CONNECT_SERVICE:
   BUNDLE_NAME: {type: STRING, desc: bundle name}
   MODULE_NAME: {type: STRING, desc: module name}
   ABILITY_NAME: {type: STRING, desc: ability name}
+  TIME: {type: INT64, desc: connect service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
 
 DISCONNECT_SERVICE:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: ability, desc: disconnect serviceAbility}
+  TIME: {type: INT64, desc: disconnect service time}
+  PID: {type: INT32, desc: processId}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
+  CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
 
 # app behavior event
 
@@ -279,13 +299,18 @@ PROCESS_START:
   CALLER_BUNDLE_NAME: {type: STRING, desc: caller bundle name}
   CALLER_UID: {type: INT32, desc: caller uid}
   CALLER_PROCESS_NAME: {type: STRING, desc: caller process name}
+  CALLER_PROCESS_ID: {type: INT32, desc: caller processId}
   BUNDLE_NAME: {type: STRING, desc: bundle name}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  PID: {type: INT32, desc: processId}
 
 PROCESS_EXIT:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: application process exit event reporting}
   EXIT_TIME: {type: INT64, desc: process exit time}
   EXIT_RESULT: {type: INT32, desc: process exit result}
   EXIT_PID: {type: INT32, desc: pid}
+  PROCESS_NAME: {type: STRING, desc: process name}
+  EXTENSION_TYPE: {type: INT32, desc: process exit extension type}
 
 DRAWN_COMPLETED:
   __BASE: {type: BEHAVIOR, level: MINOR, tag: app, desc: drawn completed event reporting}

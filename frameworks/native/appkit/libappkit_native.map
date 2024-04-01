@@ -22,11 +22,15 @@
       *ApplicationLoader*;
       *AppMgrDeathRecipient*;
       *GetDataPath*;
+      *JsStartupConfig*;
       *MainHandlerDumper*;
       *MainThread*;
       *OHOSApplication*;
+      *OnCompletedCallback*;
       *StartupManager*;
+      *StartupTaskManager*;
       *StartupTaskResult*;
+      *StartupUtils*;
       *Watchdog*;
     };
   local:

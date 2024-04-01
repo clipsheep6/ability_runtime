@@ -38,7 +38,7 @@ ErrCode ControlInterceptor::DoProcess(AbilityInterceptorParam param)
     if (CheckControl(param.want, param.userId, controlRule)) {
         HILOG_INFO("The target application is intercpted. %{public}s", controlRule.controlMessage.c_str());
 #ifdef SUPPORT_GRAPHICS
-        if (!param.isForeground || controlRule.controlWant == nullptr) {
+        if (!param.isWithUI || controlRule.controlWant == nullptr) {
             HILOG_ERROR("Can not start control want");
             return AbilityUtil::EdmErrorType(controlRule.isEdm);
         }

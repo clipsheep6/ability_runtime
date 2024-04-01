@@ -18,8 +18,8 @@
 
 #include <deque>
 #include <map>
+#include <memory>
 #include <string>
-#include <vector>
 
 #include "startup_task.h"
 
@@ -28,8 +28,9 @@ namespace AbilityRuntime {
 class StartupSortResult {
 public:
     StartupSortResult() = default;
+
     ~StartupSortResult() = default;
-    std::map<std::string, std::shared_ptr<StartupTask>> startupMap_;
+
     std::map<std::string, std::vector<std::string>> startupChildrenMap_;
     std::deque<std::string> zeroDequeResult_;
 };

@@ -33,12 +33,15 @@ public:
     EcologicalRuleInterceptor() = default;
     ~EcologicalRuleInterceptor() = default;
     ErrCode DoProcess(AbilityInterceptorParam param) override;
+    bool DoProcess(Want &want, int32_t userId);
     virtual void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler) override
     {
         return;
     };
+
 private:
     void GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId);
+    void InitErmsCallerInfo(Want &want, ErmsCallerInfo &callerInfo) const;
 };
 } // namespace AAFwk
 } // namespace OHOS

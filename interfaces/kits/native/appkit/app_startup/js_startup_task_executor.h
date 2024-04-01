@@ -16,24 +16,24 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_EXECUTOR_H
 #define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_EXECUTOR_H
 
-#include "ability_manager_errors.h"
 #include "js_runtime.h"
-#include "js_startup_task_result.h"
+#include "startup_task_result.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsStartupTaskExecutor {
 public:
     static int32_t RunOnMainThread(JsRuntime &jsRuntime,
-        const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+        const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
         std::unique_ptr<StartupTaskResultCallback> callback);
 
     static int32_t RunOnTaskPool(JsRuntime &jsRuntime,
-        const std::shared_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
+        const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
         std::unique_ptr<StartupTaskResultCallback> callback);
 
 private:
-    static int32_t CallStartupInit(napi_env env, const std::shared_ptr<NativeReference> &startup,
+    static int32_t CallStartupInit(napi_env env, const std::unique_ptr<NativeReference> &startup,
         const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
         napi_value &returnVal);
 

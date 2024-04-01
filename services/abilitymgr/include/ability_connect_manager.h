@@ -27,6 +27,7 @@
 #include "event_handler_wrap.h"
 #include "ability_record.h"
 #include "ability_running_info.h"
+#include "event_report.h"
 #include "extension_config.h"
 #include "extension_running_info.h"
 #include "connection_record.h"
@@ -529,6 +530,7 @@ private:
         const AbilityRequest &abilityRequest, const sptr<UIExtensionAbilityConnectInfo> &connectInfo,
         std::shared_ptr<AbilityRecord> &targetService, bool &isLoadedAbility);
     void HandleNotifyAssertFaultDialogDied(const std::shared_ptr<AbilityRecord> &abilityRecord);
+    EventInfo BuildEventInfo(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
 private:
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";

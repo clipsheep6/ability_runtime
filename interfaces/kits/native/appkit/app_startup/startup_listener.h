@@ -18,23 +18,21 @@
 
 #include <functional>
 
-#include "ability_manager_errors.h"
 #include "startup_task_result.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-using OnCompletedCallback = std::function<void(const StartupTaskResult &)>;
-
 class StartupListener {
 public:
-    explicit StartupListener(const OnCompletedCallback &callback);
+    explicit StartupListener(OnCompletedCallbackFunc &callback);
 
     ~StartupListener();
 
-    void OnCompleted(const StartupTaskResult &result);
+    void OnCompleted(const std::shared_ptr<StartupTaskResult> &result);
 
 private:
-    OnCompletedCallback onCompletedCallback_;
+    OnCompletedCallbackFunc onCompletedCallback_;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

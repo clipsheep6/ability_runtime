@@ -36,7 +36,7 @@ int32_t StartupConfig::GetAwaitTimeoutMs() const
     return awaitTimeoutMs_;
 }
 
-int32_t StartupConfig::ListenerOnCompleted(const StartupTaskResult &result)
+int32_t StartupConfig::ListenerOnCompleted(const std::shared_ptr<StartupTaskResult> &result)
 {
     if (listener_ != nullptr) {
         listener_->OnCompleted(result);

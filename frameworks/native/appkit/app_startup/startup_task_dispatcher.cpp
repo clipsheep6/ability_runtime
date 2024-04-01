@@ -15,7 +15,196 @@
 
 #include "startup_task_dispatcher.h"
 
+#include "event_handler.h"
+#include "hilog_wrapper.h"
+#include "startup_manager.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
+StartupTaskDispatcher::StartupTaskDispatcher(const std::map<std::string, std::shared_ptr<StartupTask>> &tasks,
+    const std::shared_ptr<StartupSortResult> &sortResult) : tasks_(tasks), sortResult_(sortResult)
+{}
+
+StartupTaskDispatcher::~StartupTaskDispatcher()
+{
+    HILOG_DEBUG("deconstruct");
+}
+
+int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &completedCallback,
+    const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback)
+{
+    if (sortResult_ == nullptr) {
+        HILOG_ERROR("sortResult_ is nullptr");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    for (auto &iter : tasks_) {
+        if (iter.second == nullptr) {
+            HILOG_ERROR("startup task %{public}s is nullptr", iter.first.c_str());
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        inDegreeMap_.emplace(iter.first, iter.second->getDependenciesCount());
+        if (iter.second->GetWaitOnMainThread()) {
+            mainThreadAwaitCount_++;
+        }
+    }
+    tasksCount_ = tasks_.size();
+    completedCallback_ = completedCallback;
+    mainThreadAwaitCallback_ = mainThreadAwaitCallback;
+
+    for (auto &iter : sortResult_->zeroDequeResult_) {
+        auto findResult = tasks_.find(iter);
+        if (findResult == tasks_.end()) {
+            HILOG_ERROR("startup task not found %{public}s", iter.c_str());
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        if (findResult->second == nullptr) {
+            HILOG_ERROR("startup task %{public}s is nullptr", iter.c_str());
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        int32_t result = RunTaskInit(iter, findResult->second);
+        if (result != ERR_OK) {
+            return result;
+        }
+    }
+    return ERR_OK;
+}
+
+void StartupTaskDispatcher::Dispatch(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
+{
+    HILOG_DEBUG("run startup task %{public}s dispatch.", name.c_str());
+    if (result == nullptr) {
+        OnError(ERR_STARTUP_INTERNAL_ERROR, name + ": result is null");
+        return;
+    }
+    if (result->GetResultCode() != ERR_OK) {
+        OnError(name, result);
+        return;
+    }
+    auto findResult = tasks_.find(name);
+    if (findResult == tasks_.end() || findResult->second == nullptr) {
+        OnError(ERR_STARTUP_INTERNAL_ERROR, name + " not found");
+        return;
+    }
+    if (NotifyChildren(name, result) != ERR_OK) {
+        return;
+    }
+
+    if (findResult->second->GetWaitOnMainThread()) {
+        mainThreadAwaitCount_--;
+        HILOG_DEBUG("mainThreadAwaitCount_ %{public}d.", mainThreadAwaitCount_);
+        if (mainThreadAwaitCount_ == 0) {
+            if (mainThreadAwaitCallback_ != nullptr) {
+                mainThreadAwaitCallback_->Call(result);
+            }
+        }
+    }
+    tasksCount_--;
+    HILOG_DEBUG("tasksCount_ %{public}d.", tasksCount_);
+    if (tasksCount_ == 0) {
+        if (completedCallback_ != nullptr) {
+            completedCallback_->Call(result);
+        }
+    }
+}
+
+int32_t StartupTaskDispatcher::NotifyChildren(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
+{
+    if (sortResult_ == nullptr) {
+        OnError(ERR_STARTUP_INTERNAL_ERROR, name + ": sort result is null");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    auto findResult = sortResult_->startupChildrenMap_.find(name);
+    if (findResult == sortResult_->startupChildrenMap_.end()) {
+        OnError(ERR_STARTUP_INTERNAL_ERROR, name + " is not found");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    std::vector<std::shared_ptr<StartupTask>> zeroInDegree;
+    for (auto &child : findResult->second) {
+        auto childFindResult = inDegreeMap_.find(child);
+        if (childFindResult == inDegreeMap_.end()) {
+            OnError(ERR_STARTUP_INTERNAL_ERROR, child + "is not found in inDegreeMap_.");
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        auto childStartupTask = tasks_.find(child);
+        if (childStartupTask == tasks_.end()) {
+            OnError(ERR_STARTUP_INTERNAL_ERROR, child + "is not found in tasks_.");
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        if (childStartupTask->second == nullptr) {
+            OnError(ERR_STARTUP_INTERNAL_ERROR, child + " task is null.");
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        childStartupTask->second->RunTaskOnDependencyCompleted(name, result);
+        childFindResult->second--;
+        if (childFindResult->second == 0) {
+            zeroInDegree.emplace_back(childStartupTask->second);
+        }
+    }
+    for (auto &iter : zeroInDegree) {
+        int32_t runResult = RunTaskInit(iter->GetName(), iter);
+        if (runResult != ERR_OK) {
+            return runResult;
+        }
+    }
+    return ERR_OK;
+}
+
+int32_t StartupTaskDispatcher::RunTaskInit(const std::string &name, const std::shared_ptr<StartupTask> &task)
+{
+    HILOG_DEBUG("run startup task %{public}s init.", name.c_str());
+    std::unique_ptr<StartupTaskResultCallback> callback = std::make_unique<StartupTaskResultCallback>();
+    callback->Push([weak = weak_from_this(), name](const std::shared_ptr<StartupTaskResult> &result) {
+        auto startupTaskDispatcher = weak.lock();
+        if (startupTaskDispatcher == nullptr) {
+            HILOG_DEBUG("startupTaskDispatcher may have been release due to previous error.");
+            return;
+        }
+        startupTaskDispatcher->Dispatch(name, result);
+    });
+    StartupTask::State state = task->GetState();
+    if (state == StartupTask::State::CREATED) {
+        return task->RunTaskInit(std::move(callback));
+    } else if (state == StartupTask::State::INITIALIZED) {
+        callback->Call(task->GetResult());
+        return ERR_OK;
+    } else if (state == StartupTask::State::INITIALIZING) {
+        return task->AddExtraCallback(std::move(callback));
+    } else {
+        // state: INVALID
+        HILOG_ERROR("%{public}s task state is: INVALID", name.c_str());
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+}
+
+void StartupTaskDispatcher::OnError(const std::string &name, const std::shared_ptr<StartupTaskResult> &result)
+{
+    HILOG_ERROR("%{public}s failed, %{public}d", name.c_str(), result->GetResultCode());
+    std::string resultMessage = name + ": " + result->GetResultMessage();
+    result->SetResultMessage(resultMessage);
+    if (completedCallback_ != nullptr) {
+        completedCallback_->Call(result);
+    }
+    DelayedSingleton<StartupManager>::GetInstance()->PostMainThreadTask(
+        [mainThreadAwaitCallback = mainThreadAwaitCallback_, result]() {
+            if (mainThreadAwaitCallback != nullptr) {
+                mainThreadAwaitCallback->Call(result);
+            }
+        });
+}
+
+void StartupTaskDispatcher::OnError(int32_t errorCode, const std::string &errorMessage)
+{
+    HILOG_ERROR("%{public}s", errorMessage.c_str());
+    auto result = std::make_shared<StartupTaskResult>(errorCode, errorMessage);
+    if (completedCallback_ != nullptr) {
+        completedCallback_->Call(result);
+    }
+    DelayedSingleton<StartupManager>::GetInstance()->PostMainThreadTask(
+        [mainThreadAwaitCallback = mainThreadAwaitCallback_, result]() {
+            if (mainThreadAwaitCallback != nullptr) {
+                mainThreadAwaitCallback->Call(result);
+            }
+        });
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

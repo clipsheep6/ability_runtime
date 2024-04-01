@@ -19,6 +19,7 @@
 #include <climits>
 #include <cstdlib>
 #include <fstream>
+#include <mutex>
 #include <regex>
 
 #include <atomic>
@@ -191,6 +192,7 @@ napi_status DestroyNapiEnv(napi_env *env)
 
 std::atomic<bool> JsRuntime::hasInstance(false);
 std::shared_ptr<Runtime::Options> JsRuntime::childOptions_ = nullptr;
+std::mutex childOptionsMutex_;
 JsRuntime::JsRuntime()
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime costructor.");
@@ -231,7 +233,7 @@ std::unique_ptr<JsRuntime> JsRuntime::Create(const Options& options)
     return instance;
 }
 
-void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebugApp)
+void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebugApp, bool isNativeStart)
 {
     CHECK_POINTER(jsEnv_);
     if (jsEnv_->GetDebugMode()) {
@@ -246,6 +248,7 @@ void JsRuntime::StartDebugMode(bool needBreakPoint, const std::string &processNa
     TAG_LOGD(AAFwkTag::JSRUNTIME, "Ark VM is starting debug mode [%{public}s]", needBreakPoint ? "break" : "normal");
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
+    SetNativeStart(isNativeStart);
     const std::string bundleName = bundleName_;
     uint32_t instanceId = instanceId_;
     auto weak = jsEnv_;
@@ -368,8 +371,8 @@ int32_t JsRuntime::JsperfProfilerCommandParse(const std::string &command, int32_
     return std::stoi(interval);
 }
 
-void JsRuntime::StartProfiler(
-    const std::string &perfCmd, bool needBreakPoint, const std::string &processName, bool isDebugApp)
+void JsRuntime::StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
+    bool isDebugApp, bool isNativeStart)
 {
     CHECK_POINTER(jsEnv_);
     if (JsRuntime::hasInstance.exchange(true, std::memory_order_relaxed)) {
@@ -378,6 +381,7 @@ void JsRuntime::StartProfiler(
 
     StartDebuggerInWorkerModule();
     SetDebuggerApp(isDebugApp);
+    SetNativeStart(isNativeStart);
     const std::string bundleName = bundleName_;
     auto weak = jsEnv_;
     uint32_t instanceId = instanceId_;
@@ -1533,6 +1537,7 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
 
 void JsRuntime::SetChildOptions(const Options& options)
 {
+    std::lock_guard<std::mutex> lock(childOptionsMutex_);
     if (childOptions_ == nullptr) {
         childOptions_ = std::make_shared<Options>();
     }
@@ -1562,6 +1567,7 @@ void JsRuntime::SetChildOptions(const Options& options)
 
 std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
 {
+    std::lock_guard<std::mutex> lock(childOptionsMutex_);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return childOptions_;
 }

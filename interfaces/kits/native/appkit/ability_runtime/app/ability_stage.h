@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_STAGE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_STAGE_H
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -54,7 +55,7 @@ public:
     bool ContainsAbility() const;
     virtual void OnConfigurationUpdated(const AppExecFwk::Configuration& configuration);
     virtual void OnMemoryLevel(int level);
-    virtual int32_t RunAutoStartupTask(bool &waitingForStartup);
+    virtual int32_t RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback);
 
 private:
     std::shared_ptr<Context> context_;

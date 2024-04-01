@@ -15,28 +15,33 @@
 
 #include "startup_task_manager.h"
 
-#include "ability_manager_errors.h"
 #include "hilog_wrapper.h"
+#include "startup_manager.h"
+#include "startup_topologysort.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-
-StartupTaskManager::StartupTaskManager(uint32_t startupTaskManagerId) : startupTaskManagerId_(startupTaskManagerId)
+StartupTaskManager::StartupTaskManager(uint32_t startupTaskManagerId,
+    std::map<std::string, std::shared_ptr<StartupTask>> tasks)
+    : startupTaskManagerId_(startupTaskManagerId), tasks_(std::move(tasks))
 {}
 
-StartupTaskManager::~StartupTaskManager() = default;
+StartupTaskManager::~StartupTaskManager()
+{
+    HILOG_DEBUG("id: %{public}u deconstruct", startupTaskManagerId_);
+}
 
 int32_t StartupTaskManager::AddTask(const std::shared_ptr<StartupTask> &task)
 {
     if (task == nullptr) {
         HILOG_ERROR("Invalid task.");
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     std::string name = task->GetName();
     auto result = tasks_.emplace(name, task);
     if (!result.second) {
         HILOG_ERROR("Failed to add task, name: %{public}s already exist.", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     return ERR_OK;
 }
@@ -50,22 +55,114 @@ int32_t StartupTaskManager::SetConfig(const std::shared_ptr<StartupConfig> &conf
 int32_t StartupTaskManager::Prepare()
 {
     HILOG_DEBUG("id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
-    // sort
-    dispatcher_ = std::make_shared<StartupTaskDispatcher>();
+    std::shared_ptr<StartupSortResult> startupSortResult = nullptr;
+    int32_t result = StartupTopologySort::Sort(tasks_, startupSortResult);
+    if (result != ERR_OK) {
+        CallListenerOnCompleted(result);
+        return result;
+    }
+    if (startupSortResult == nullptr) {
+        HILOG_ERROR("startupSortResult is nullptr.");
+        CallListenerOnCompleted(ERR_STARTUP_INTERNAL_ERROR);
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    if (tasks_.empty()) {
+        HILOG_ERROR("no tasks.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    dispatcher_ = std::make_shared<StartupTaskDispatcher>(tasks_, startupSortResult);
     return ERR_OK;
 }
 
-int32_t StartupTaskManager::Run()
+int32_t StartupTaskManager::Run(const std::shared_ptr<OnCompletedCallback> &mainThreadAwaitCallback)
 {
     HILOG_DEBUG("id: %{public}u, task number: %{public}zu", startupTaskManagerId_, tasks_.size());
-    for (auto &iter : tasks_) {
-        if (iter.second == nullptr) {
-            continue;
+    if (dispatcher_ == nullptr) {
+        HILOG_ERROR("dispatcher_ is nullptr.");
+        CallListenerOnCompleted(ERR_STARTUP_INTERNAL_ERROR);
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    AddAsyncTimeoutTimer();
+    auto completedCallback = std::make_shared<OnCompletedCallback>(
+        [weak = weak_from_this()](const std::shared_ptr<StartupTaskResult> &result) {
+            auto startupTaskManager = weak.lock();
+            if (startupTaskManager == nullptr) {
+                HILOG_ERROR("startupTaskManager is nullptr.");
+                return;
+            }
+            startupTaskManager->CancelAsyncTimeoutTimer();
+            if (result == nullptr) {
+                HILOG_ERROR("result is nullptr.");
+                return;
+            }
+            startupTaskManager->CallListenerOnCompleted(result->GetResultCode(), result->GetResultMessage());
+        });
+
+    int32_t result = dispatcher_->Run(completedCallback, mainThreadAwaitCallback);
+    if (result != ERR_OK) {
+        CancelAsyncTimeoutTimer();
+        if (!completedCallback->IsCalled()) {
+            CallListenerOnCompleted(result);
         }
-        std::unique_ptr<StartupTaskResultCallback> callback = std::make_unique<StartupTaskResultCallback>();
-        iter.second->RunTaskInit(std::move(callback));
+        return result;
     }
     return ERR_OK;
+}
+
+void StartupTaskManager::CallListenerOnCompleted(int32_t result, const std::string &resultMessage)
+{
+    if (config_ == nullptr) {
+        HILOG_INFO("id: %{public}u, config is null, result: %{public}d", startupTaskManagerId_, result);
+        return;
+    }
+    HILOG_DEBUG("id: %{public}u, complete, result: %{public}d", startupTaskManagerId_, result);
+    if (resultMessage.empty()) {
+        auto startupTaskResult = std::make_shared<StartupTaskResult>(result, StartupUtils::GetErrorMessage(result));
+        config_->ListenerOnCompleted(startupTaskResult);
+    } else {
+        auto startupTaskResult = std::make_shared<StartupTaskResult>(result, resultMessage);
+        config_->ListenerOnCompleted(startupTaskResult);
+    }
+    DelayedSingleton<StartupManager>::GetInstance()->OnStartupTaskManagerComplete(startupTaskManagerId_);
+}
+
+void StartupTaskManager::AddAsyncTimeoutTimer()
+{
+    mainHandler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("failed to get mainHandler_");
+        return;
+    }
+    int32_t timeoutMs = StartupConfig::DEFAULT_AWAIT_TIMEOUT_MS;
+    if (config_ != nullptr) {
+        timeoutMs = config_->GetAwaitTimeoutMs();
+    }
+    HILOG_DEBUG("id: %{public}d, add timeout timer: %{public}d", startupTaskManagerId_, timeoutMs);
+    auto callback = [weak = weak_from_this()]() {
+        auto startupTaskManager = weak.lock();
+        if (startupTaskManager == nullptr) {
+            HILOG_ERROR("startupTaskManager is nullptr.");
+            return;
+        }
+        startupTaskManager->OnTimeout();
+    };
+    mainHandler_->PostTask(callback, "StartupTaskManager_" + std::to_string(startupTaskManagerId_), timeoutMs);
+}
+
+void StartupTaskManager::CancelAsyncTimeoutTimer()
+{
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("failed to get mainHandler_");
+        return;
+    }
+    HILOG_DEBUG("id: %{public}d, cancel timeout timer", startupTaskManagerId_);
+    mainHandler_->RemoveTask("StartupTaskManager_" + std::to_string(startupTaskManagerId_));
+}
+
+void StartupTaskManager::OnTimeout()
+{
+    CallListenerOnCompleted(ERR_STARTUP_TIMEOUT, StartupUtils::GetErrorMessage(ERR_STARTUP_TIMEOUT));
+    DelayedSingleton<StartupManager>::GetInstance()->OnStartupTaskManagerComplete(startupTaskManagerId_);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

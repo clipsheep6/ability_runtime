@@ -15,6 +15,8 @@
 
 #include "startup_task_result.h"
 
+#include "hilog_wrapper.h"
+
 namespace OHOS {
 namespace AbilityRuntime {
 StartupTaskResult::StartupTaskResult() = default;
@@ -24,6 +26,17 @@ StartupTaskResult::~StartupTaskResult() = default;
 StartupTaskResult::StartupTaskResult(int32_t resultCode, const std::string &resultMessage)
     : resultCode_(resultCode), resultMessage_(resultMessage)
 {}
+
+void StartupTaskResult::SetResult(int32_t resultCode, const std::string &resultMessage)
+{
+    resultCode_ = resultCode;
+    resultMessage_ = resultMessage;
+}
+
+void StartupTaskResult::SetResultMessage(const std::string &resultMessage)
+{
+    resultMessage_ = resultMessage;
+}
 
 int32_t StartupTaskResult::GetResultCode() const
 {
@@ -38,6 +51,31 @@ std::string StartupTaskResult::GetResultMessage() const
 StartupTaskResult::ResultType StartupTaskResult::GetResultType() const
 {
     return ResultType::INVALID;
+}
+
+OnCompletedCallback::OnCompletedCallback(OnCompletedCallbackFunc callbackFunc)
+    : callbackFunc_(std::move(callbackFunc))
+{}
+
+OnCompletedCallback::~OnCompletedCallback() = default;
+
+void OnCompletedCallback::Call(const std::shared_ptr<StartupTaskResult> &result)
+{
+    if (isCalled_) {
+        HILOG_DEBUG("the callback already is called");
+        return;
+    }
+    if (callbackFunc_ == nullptr) {
+        HILOG_ERROR("the callback is null");
+        return;
+    }
+    callbackFunc_(result);
+    isCalled_ = true;
+}
+
+bool OnCompletedCallback::IsCalled() const
+{
+    return isCalled_;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

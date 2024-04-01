@@ -1102,21 +1102,6 @@ HWTEST_F(AbilityManagerServiceThirdTest, OpenAtomicService_001, TestSize.Level1)
 
 /*
  * Feature: AbilityManagerService
- * Function: IsEmbeddedOpenAllowedInner
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService IsEmbeddedOpenAllowedInner
- */
-HWTEST_F(AbilityManagerServiceThirdTest, IsEmbeddedOpenAllowedInner_001, TestSize.Level1)
-{
-    auto abilityMs = std::make_shared<AbilityManagerService>();
-    EXPECT_NE(abilityMs, nullptr);
-    std::string appId = "";
-    auto isAllowed = abilityMs->IsEmbeddedOpenAllowedInner(nullptr, appId, nullptr);
-    EXPECT_FALSE(isAllowed);
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: RestartApp
  * FunctionPoints: AbilityManagerService RestartApp
  */

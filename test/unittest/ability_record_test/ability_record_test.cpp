@@ -2241,6 +2241,39 @@ HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermission_005, TestSize.Level
     abilityRecord->GrantUriPermission(want, targetBundleName, false, 0);
 }
 
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermissionForServiceExtension
+ * SubFunction: GrantUriPermissionForServiceExtension
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermissionForServiceExtension
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermissionForServiceExtension_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::SERVICE;
+    auto ret = abilityRecord->GrantUriPermissionForServiceExtension();
+    EXPECT_TRUE(ret);
+}
+
+/*
+ * Feature: AbilityRecord
+ * Function: GrantUriPermissionForServiceExtension
+ * SubFunction: GrantUriPermissionForServiceExtension
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify AbilityRecord GrantUriPermissionForServiceExtension
+ */
+HWTEST_F(AbilityRecordTest, AbilityRecord_GrantUriPermissionForServiceExtension_002, TestSize.Level1)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = GetAbilityRecord();
+    EXPECT_NE(abilityRecord, nullptr);
+    abilityRecord->abilityInfo_.extensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
+    auto ret = abilityRecord->GrantUriPermissionForServiceExtension();
+    EXPECT_FALSE(ret);
+}
 
 /*
  * Feature: AbilityRecord

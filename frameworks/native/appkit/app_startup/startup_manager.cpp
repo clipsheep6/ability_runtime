@@ -15,13 +15,16 @@
 
 #include "startup_manager.h"
 
-#include "ability_manager_errors.h"
-#include "hilog_wrapper.h"
+#include <set>
 
+#include "hilog_wrapper.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-StartupManager::StartupManager() = default;
+StartupManager::StartupManager()
+{
+    mainHandler_ = std::make_shared<AppExecFwk::EventHandler>(AppExecFwk::EventRunner::GetMainEventRunner());
+}
 
 StartupManager::~StartupManager() = default;
 
@@ -30,24 +33,98 @@ int32_t StartupManager::RegisterStartupTask(const std::string &name, const std::
     auto result = startupTasks_.emplace(name, startupTask);
     if (!result.second) {
         HILOG_ERROR("Failed to register startup task, name: %{public}s already exist.", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     return ERR_OK;
 }
 
 int32_t StartupManager::BuildAutoStartupTaskManager(std::shared_ptr<StartupTaskManager> &startupTaskManager)
 {
-    startupTaskManager = std::make_shared<StartupTaskManager>(startupTaskManagerId);
+    std::map<std::string, std::shared_ptr<StartupTask>> autoStartupTasks;
+    std::set<std::string> dependenciesSet;
     for (auto &iter : startupTasks_) {
-        if (!iter.second->GetIsAutoStartup()) {
+        if (iter.second == nullptr) {
+            HILOG_ERROR("startup task is null");
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        if (iter.second->GetIsExcludeFromAutoStart()) {
             continue;
         }
-        startupTaskManager->AddTask(iter.second);
-        // find dep and add
+        autoStartupTasks.emplace(iter.first, iter.second);
+        auto dependencies = iter.second->GetDependencies();
+        for (auto &dep : dependencies) {
+            dependenciesSet.insert(dep);
+        }
     }
+    for (auto &dep : dependenciesSet) {
+        if (autoStartupTasks.find(dep) != autoStartupTasks.end()) {
+            continue;
+        }
+        HILOG_INFO("try to add excludeFromAutoStart task: %{public}s", dep.c_str());
+        AddStartupTask(dep, autoStartupTasks);
+    }
+
+    HILOG_DEBUG("autoStartupTasksManager build, id: %{public}u, tasks num: %{public}zu",
+        startupTaskManagerId, autoStartupTasks.size());
+    startupTaskManager = std::make_shared<StartupTaskManager>(startupTaskManagerId, autoStartupTasks);
+    startupTaskManager->SetConfig(defaultConfig_);
     startupTaskManagerMap_.emplace(startupTaskManagerId, startupTaskManager);
     startupTaskManagerId++;
     return ERR_OK;
+}
+
+int32_t StartupManager::BuildStartupTaskManager(const std::vector<std::string> &inputDependencies,
+    std::shared_ptr<StartupTaskManager> &startupTaskManager)
+{
+    std::map<std::string, std::shared_ptr<StartupTask>> currentStartupTasks;
+    std::set<std::string> dependenciesSet;
+    for (auto &iter : inputDependencies) {
+        auto findResult = startupTasks_.find(iter);
+        if (findResult == startupTasks_.end()) {
+            HILOG_ERROR("startup task %{public}s not found", iter.c_str());
+            return ERR_STARTUP_DEPENDENCY_NOT_FOUND;
+        }
+        if (findResult->second == nullptr) {
+            HILOG_ERROR("%{public}s startup task is null", iter.c_str());
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        currentStartupTasks.emplace(iter, findResult->second);
+        auto dependencies = findResult->second->GetDependencies();
+        for (auto &dep : dependencies) {
+            dependenciesSet.insert(dep);
+        }
+    }
+
+    for (auto &dep : dependenciesSet) {
+        if (currentStartupTasks.find(dep) != currentStartupTasks.end()) {
+            continue;
+        }
+        AddStartupTask(dep, currentStartupTasks);
+    }
+    HILOG_DEBUG("startupTasksManager build, id: %{public}u, tasks num: %{public}zu",
+        startupTaskManagerId, currentStartupTasks.size());
+    startupTaskManager = std::make_shared<StartupTaskManager>(startupTaskManagerId, currentStartupTasks);
+    startupTaskManager->SetConfig(defaultConfig_);
+    startupTaskManagerMap_.emplace(startupTaskManagerId, startupTaskManager);
+    startupTaskManagerId++;
+    return ERR_OK;
+}
+
+int32_t StartupManager::OnStartupTaskManagerComplete(uint32_t id)
+{
+    auto result = startupTaskManagerMap_.find(id);
+    if (result == startupTaskManagerMap_.end()) {
+        HILOG_ERROR("StartupTaskManager id: %{public}u not found.", id);
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    HILOG_DEBUG("erase StartupTaskManager id: %{public}u", id);
+    startupTaskManagerMap_.erase(result);
+    return ERR_OK;
+}
+
+void StartupManager::SetDefaultConfig(const std::shared_ptr<StartupConfig> &config)
+{
+    defaultConfig_ = config;
 }
 
 std::shared_ptr<StartupConfig> StartupManager::GetDefaultConfig() const
@@ -72,10 +149,9 @@ int32_t StartupManager::RemoveResult(const std::string &name)
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
         HILOG_ERROR("name: %{public}s, not found", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
-    findResult->second->RemoveResult();
-    return ERR_OK;
+    return findResult->second->RemoveResult();
 }
 
 int32_t StartupManager::GetResult(const std::string &name, std::shared_ptr<StartupTaskResult> &result)
@@ -84,12 +160,12 @@ int32_t StartupManager::GetResult(const std::string &name, std::shared_ptr<Start
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
         HILOG_ERROR("name: %{public}s, not found", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     StartupTask::State state = findResult->second->GetState();
     if (state != StartupTask::State::INITIALIZED) {
         HILOG_ERROR("name: %{public}s, not initialized", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     result = findResult->second->GetResult();
     return ERR_OK;
@@ -101,10 +177,53 @@ int32_t StartupManager::IsInitialized(const std::string &name, bool &isInitializ
     auto findResult = startupTasks_.find(name);
     if (findResult == startupTasks_.end() || findResult->second == nullptr) {
         HILOG_ERROR("name: %{public}s, not found", name.c_str());
-        return ERR_INVALID_VALUE;
+        return ERR_STARTUP_INVALID_VALUE;
     }
     StartupTask::State state = findResult->second->GetState();
     isInitialized = state == StartupTask::State::INITIALIZED;
+    return ERR_OK;
+}
+
+int32_t StartupManager::PostMainThreadTask(const std::function<void()> &task)
+{
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("failed to get mainHandler_");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    mainHandler_->PostTask(task);
+    return ERR_OK;
+}
+
+int32_t StartupManager::AddStartupTask(const std::string &name,
+    std::map<std::string, std::shared_ptr<StartupTask>> &taskMap)
+{
+    auto isAdded = taskMap.find(name);
+    if (isAdded != taskMap.end()) {
+        // already added
+        return ERR_OK;
+    }
+    std::stack<std::string> taskStack;
+    taskStack.push(name);
+    while (!taskStack.empty()) {
+        auto taskName = taskStack.top();
+        taskStack.pop();
+        auto findResult = startupTasks_.find(taskName);
+        if (findResult == startupTasks_.end()) {
+            HILOG_ERROR("startup task not found %{public}s", taskName.c_str());
+            return ERR_STARTUP_DEPENDENCY_NOT_FOUND;
+        }
+        taskMap.emplace(taskName, findResult->second);
+        if (findResult->second == nullptr) {
+            HILOG_ERROR("startup task is null, %{public}s", taskName.c_str());
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        auto dependencies = findResult->second->GetDependencies();
+        for (auto &dep : dependencies) {
+            if (taskMap.find(dep) == taskMap.end()) {
+                taskStack.push(dep);
+            }
+        }
+    }
     return ERR_OK;
 }
 } // namespace AbilityRuntime

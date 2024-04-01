@@ -16,6 +16,7 @@
 #ifndef OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H
 #define OHOS_ABILITY_RUNTIME_OHOS_APPLICATION_H
 
+#include <functional>
 #include <string>
 #include <list>
 #include <memory>
@@ -220,7 +221,8 @@ public:
      * @return abilityStage context
      */
     std::shared_ptr<AbilityRuntime::Context> AddAbilityStage(
-        const std::shared_ptr<AbilityLocalRecord> &abilityRecord);
+        const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::function<void(const std::shared_ptr<AbilityRuntime::Context> &)> &callback, bool &isAsyncCallback);
 
     /**
      *
@@ -300,6 +302,9 @@ public:
     void CleanUselessTempData();
 
     void SetAppEnv(const std::vector<AppEnvironment>& appEnvironments);
+
+    void AutoStartupDone(const std::shared_ptr<AbilityLocalRecord> &abilityRecord,
+        const std::shared_ptr<AbilityRuntime::AbilityStage> &abilityStage, const std::string &moduleName);
 
 private:
     void DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo);

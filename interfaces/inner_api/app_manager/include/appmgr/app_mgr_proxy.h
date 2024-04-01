@@ -20,6 +20,7 @@
 #include "app_mgr_interface.h"
 #include "bundle_info.h"
 #include "iremote_proxy.h"
+#include "memory_level_info.h"
 #include "want.h"
 #include "app_jsheap_mem_info.h"
 
@@ -154,6 +155,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int32_t NotifyMemoryLevel(int32_t level) override;
+
+    /**
+     * NotifyProcMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities the current memory level.
+     *
+     * @param procLevelMap ,<pid, level> map;
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap) override;
 
     /**
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.

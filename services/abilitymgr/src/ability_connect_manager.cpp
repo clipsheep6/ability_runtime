@@ -398,6 +398,8 @@ int AbilityConnectManager::StopServiceAbilityLocked(const AbilityRequest &abilit
     }
 
     TerminateRecord(abilityRecord);
+    EventInfo eventInfo = BuildEventInfo(abilityRecord);
+    EventReport::SendStopServiceEvent(EventName::STOP_SERVICE, eventInfo);
     return ERR_OK;
 }
 
@@ -642,6 +644,9 @@ int AbilityConnectManager::DisconnectAbilityLocked(const sptr<IAbilityConnection
             if (result != ERR_OK) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "Disconnect ability fail , ret = %{public}d.", result);
                 break;
+            } else {
+                EventInfo eventInfo = BuildEventInfo(abilityRecord);
+                EventReport::SendDisconnectServiceEvent(EventName::DISCONNECT_SERVICE, eventInfo);
             }
         }
     }
@@ -878,6 +883,12 @@ int AbilityConnectManager::ScheduleConnectAbilityDoneLocked(
         DelayedSingleton<AppScheduler>::GetInstance()->UpdateExtensionState(
             token, AppExecFwk::ExtensionState::EXTENSION_STATE_CONNECTED);
     }
+    EventInfo eventInfo = BuildEventInfo(abilityRecord);
+    eventInfo.userId = userId_;
+    eventInfo.bundleName = abilityRecord->GetAbilityInfo().bundleName;
+    eventInfo.moduleName = abilityRecord->GetAbilityInfo().moduleName;
+    eventInfo.abilityName = abilityRecord->GetAbilityInfo().name;
+    EventReport::SendConnectServiceEvent(EventName::CONNECT_SERVICE, eventInfo);
 
     abilityRecord->SetConnRemoteObject(remoteObject);
     // There may be multiple callers waiting for the connection result
@@ -963,6 +974,8 @@ int AbilityConnectManager::ScheduleCommandAbilityDoneLocked(const sptr<IRemoteOb
             abilityRecord->GetAbilityState());
         return INVALID_CONNECTION_STATE;
     }
+    EventInfo eventInfo = BuildEventInfo(abilityRecord);
+    EventReport::SendStartServiceEvent(EventName::START_SERVICE, eventInfo);
     // complete command and pop waiting start ability from queue.
     CompleteCommandAbility(abilityRecord);
 
@@ -2706,6 +2719,35 @@ void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
         }
         abilityRecord->SetRestartAppFlag(true);
     }
+}
+
+EventInfo AbilityConnectManager::BuildEventInfo(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    EventInfo eventInfo;
+    if (abilityRecord == nullptr) {
+        HILOG_ERROR("build eventInfo failed, abilityRecord is nullptr");
+        return eventInfo;
+    }
+    AppExecFwk::RunningProcessInfo processInfo;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByToken(abilityRecord->GetToken(), processInfo);
+    eventInfo.pid = processInfo.pid_;
+    eventInfo.processName = processInfo.processName_;
+    eventInfo.time = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+    auto callerPid = abilityRecord->GetWant().GetIntParam(Want::PARAM_RESV_CALLER_PID, -1);
+    eventInfo.callerPid = callerPid == -1 ? IPCSkeleton::GetCallingPid() : callerPid;
+    DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(eventInfo.callerPid, processInfo);
+    eventInfo.callerPid = processInfo.pid_;
+    eventInfo.callerProcessName = processInfo.processName_;
+    if (!abilityRecord->IsCreateByConnect()) {
+        auto abilityInfo = abilityRecord->GetAbilityInfo();
+        eventInfo.extensionType = static_cast<int32_t>(abilityInfo.extensionAbilityType);
+        eventInfo.userId = userId_;
+        eventInfo.bundleName = abilityInfo.bundleName;
+        eventInfo.moduleName = abilityInfo.moduleName;
+        eventInfo.abilityName = abilityInfo.name;
+    }
+    return eventInfo;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

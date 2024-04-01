@@ -330,6 +330,15 @@ public:
     virtual int32_t NotifyMemoryLevel(int32_t level);
 
     /**
+     * NotifyProcMemoryLevel, Notify applications background the current memory level.
+     *
+     * @param procLevelMap , <pid_t, MemoryLevel>.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap);
+
+    /**
      * DumpHeapMemory, get the application's memory info.
      * Get the application's memory allocation info.
      *
@@ -1247,9 +1256,9 @@ private:
     void SendAppStartupTypeEvent(const std::shared_ptr<AppRunningRecord> &appRecord,
         const std::shared_ptr<AbilityInfo> &abilityInfo, const AppStartType startType);
 
-    void SendProcessExitEvent(pid_t pid);
+    void SendProcessExitEvent(const std::shared_ptr<AppRunningRecord> &appRecord);
 
-    void SendProcessExitEventTask(pid_t pid, time_t exitTime, int32_t count);
+    void SendProcessExitEventTask(const std::shared_ptr<AppRunningRecord> &appRecord, time_t exitTime, int32_t count);
 
     void UpDateStartupType(const std::shared_ptr<AbilityInfo> &info, int32_t &abilityType, int32_t &extensionType);
 
@@ -1292,6 +1301,16 @@ private:
      */
     void NotifyAppRunningStatusEvent(
         const std::string &bundle, int32_t uid, AbilityRuntime::RunningStatus runningStatus);
+
+    /**
+     * To Prevent process being killed when ability is starting in an existing process,
+     * we need notify memmgr to increase process priority.
+     *
+     * @param appRecord Current app running record.
+     *
+     * @return Whether improve priority succeed.
+     */
+    bool NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRunningRecord> appRecord);
 
 private:
     /**

@@ -600,16 +600,19 @@ private:
         }
 
         auto token = uiAbilityContext->GetToken();
-
-        NapiAsyncTask::CompleteCallback complete = [token, appId](napi_env env, NapiAsyncTask &task, int32_t status) {
-            auto isAllowed = AbilityManagerClient::GetInstance()->IsEmbeddedOpenAllowed(token, appId);
-            task.Resolve(env, CreateJsValue(env, isAllowed));
+        auto sharedResult = std::make_shared<bool>(false);
+        NapiAsyncTask::ExecuteCallback execute = [sharedResult, token, appId]() {
+            *sharedResult = AbilityManagerClient::GetInstance()->IsEmbeddedOpenAllowed(token, appId);
         };
 
-        napi_value lastParam = (info.argc > ARGC_TWO) ?info. argv[ARGC_TWO] : nullptr;
+        NapiAsyncTask::CompleteCallback complete = [sharedResult](napi_env env, NapiAsyncTask &task, int32_t status) {
+            task.Resolve(env, CreateJsValue(env, *sharedResult));
+        };
+
+        napi_value lastParam = (info.argc > ARGC_TWO) ? info. argv[ARGC_TWO] : nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JsAbilityManager::OnIsEmbeddedOpenAllowed", env,
-            CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+            CreateAsyncTaskWithLastParam(env, lastParam, std::move(execute), std::move(complete), &result));
         return result;
     }
 };

@@ -87,6 +87,7 @@ ohos_unittest("AmsRecentAppListTest") {
     "init:libbeget_proxy",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
+    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
   ]
 

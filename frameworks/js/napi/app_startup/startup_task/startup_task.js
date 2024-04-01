@@ -17,10 +17,6 @@ class StartupTask {
   onDependenceCompleted(dependence, result) {
     console.log('onDependenceCompleted');
   }
-
-  isManualDispatch() {
-    return false;
-  }
 }
 
 export default StartupTask;

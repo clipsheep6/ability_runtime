@@ -13,28 +13,28 @@
  * limitations under the License.
  */
 
-
 #include "startup_topologysort.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-std::shared_ptr<StartupSortResult> StartupTopologySort::Sort(std::vector<std::shared_ptr<StartupTask>> vectors)
+int32_t StartupTopologySort::Sort(const std::map<std::string, std::shared_ptr<StartupTask>> &startupMap,
+    std::shared_ptr<StartupSortResult> &startupSortResult)
 {
-    std::shared_ptr<StartupSortResult> startupSortResult = std::make_shared<StartupSortResult>();
+    startupSortResult = std::make_shared<StartupSortResult>();
     if (startupSortResult == nullptr) {
         HILOG_ERROR("Create StartupSortResult obj fail.");
-        return nullptr;
+        return ERR_STARTUP_INTERNAL_ERROR;
     }
     std::deque<std::string> zeroDeque;
     std::map<std::string, std::uint32_t> inDegreeMap;
-    for (auto up : vectors) {
-        if (up == nullptr) {
+    for (auto &iter : startupMap) {
+        if (iter.second == nullptr) {
             HILOG_ERROR("StartupTask is nullptr.");
-            return nullptr;
+            return ERR_STARTUP_INTERNAL_ERROR;
         }
-        if (SortZeroDeque(up, inDegreeMap, zeroDeque, startupSortResult) != ERR_OK) {
-            HILOG_ERROR("StartupTask is add.");
-            return nullptr;
+        int32_t result = SortZeroDeque(iter.second, startupMap, inDegreeMap, zeroDeque, startupSortResult);
+        if (result != ERR_OK) {
+            return result;
         }
     }
 
@@ -43,59 +43,61 @@ std::shared_ptr<StartupSortResult> StartupTopologySort::Sort(std::vector<std::sh
     while (!zeroDeque.empty()) {
         std::string key = zeroDeque.front();
         zeroDeque.pop_front();
-        auto it = startupSortResult->startupMap_.find(key);
-        if (it != startupSortResult->startupMap_.end()) {
-            if (it->second->GetCallCreateOnMainThread()) {
-                mainStartupCount++;
-            } else {
-                threadStartupCount++;
-            }
+        auto it = startupMap.find(key);
+        if (it == startupMap.end()) {
+            HILOG_ERROR("startup not found: %{public}s", key.c_str());
+            return ERR_STARTUP_INTERNAL_ERROR;
+        }
+        if (it->second->GetCallCreateOnMainThread()) {
+            mainStartupCount++;
         } else {
-            HILOG_ERROR("Dependency does not exist.");
-            return nullptr;
+            threadStartupCount++;
         }
 
-        std::vector<std::string> &childStartVector = startupSortResult->startupChildrenMap_[key];
-        for (std::string dep: childStartVector) {
-            inDegreeMap[dep]--;
-            if (inDegreeMap[dep] == 0) {
-                zeroDeque.push_back(dep);
+        std::vector<std::string> &childrenStartupVector = startupSortResult->startupChildrenMap_[key];
+        for (auto &child : childrenStartupVector) {
+            inDegreeMap[child]--;
+            if (inDegreeMap[child] == 0) {
+                zeroDeque.push_back(child);
             }
         }
     }
 
-    if (mainStartupCount + threadStartupCount != vectors.size()) {
-        HILOG_ERROR("Circle dependencies.");
-        return nullptr;
+    if (mainStartupCount + threadStartupCount != startupMap.size()) {
+        HILOG_ERROR("circular dependency, main: %{public}u, thread: %{public}u, startupMap %{public}zu",
+            mainStartupCount, threadStartupCount, startupMap.size());
+        return ERR_STARTUP_CIRCULAR_DEPENDENCY;
     }
-    return startupSortResult;
+    HILOG_DEBUG("main: %{public}u, thread: %{public}u", mainStartupCount, threadStartupCount);
+    return ERR_OK;
 }
 
 int32_t StartupTopologySort::SortZeroDeque(const std::shared_ptr<StartupTask> &startup,
-    std::map<std::string, std::uint32_t> &inDegreeMap,
-    std::deque<std::string> &zeroDeque, std::shared_ptr<StartupSortResult> &startupSortResult)
+    const std::map<std::string, std::shared_ptr<StartupTask>> &startupMap,
+    std::map<std::string, std::uint32_t> &inDegreeMap, std::deque<std::string> &zeroDeque,
+    std::shared_ptr<StartupSortResult> &startupSortResult)
 {
     std::string key = startup->GetName();
-    auto it = startupSortResult->startupMap_.find(key);
-    if (it == startupSortResult->startupMap_.end()) {
-        startupSortResult->startupMap_.emplace(key, startup);
-        inDegreeMap.emplace(key, startup->getDependenceCount());
-
-        std::vector<std::string> depenedcies = startup->GetDependencies();
-        if (depenedcies.empty()) {
-            zeroDeque.push_back(key);
-            startupSortResult->zeroDequeResult_.push_back(key);
-        } else {
-            for (auto parentName : depenedcies) {
-                auto &childStartVector = startupSortResult->startupChildrenMap_[parentName];
-                childStartVector.push_back(key);
-            }
-        }
-        return ERR_OK;
-    }  else {
-        HILOG_ERROR("StartupTask is add.");
-        return ERR_INVALID_VALUE;
+    auto result = inDegreeMap.emplace(key, startup->getDependenciesCount());
+    if (!result.second) {
+        HILOG_ERROR("%{public}s, failed to emplace to inDegreeMap.", key.c_str());
+        return ERR_STARTUP_INTERNAL_ERROR;
     }
+    std::vector<std::string> dependencies = startup->GetDependencies();
+    if (dependencies.empty()) {
+        zeroDeque.push_back(key);
+        startupSortResult->zeroDequeResult_.push_back(key);
+    } else {
+        for (auto &parentName : dependencies) {
+            if (startupMap.find(parentName) == startupMap.end()) {
+                HILOG_ERROR("%{public}s, failed to find dep: %{public}s.", key.c_str(), parentName.c_str());
+                return ERR_STARTUP_DEPENDENCY_NOT_FOUND;
+            }
+            auto &childStartVector = startupSortResult->startupChildrenMap_[parentName];
+            childStartVector.push_back(key);
+        }
+    }
+    return ERR_OK;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

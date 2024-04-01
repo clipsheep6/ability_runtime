@@ -28,6 +28,7 @@
 #include "ipc_skeleton.h"
 #include "ipc_types.h"
 #include "iremote_object.h"
+#include "memory_level_info.h"
 #include "want.h"
 #include "app_jsheap_mem_info.h"
 
@@ -53,6 +54,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllRunningProcesses;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL)] =
         &AppMgrStub::HandleNotifyMemoryLevel;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_PROC_MEMORY_LEVEL)] =
+        &AppMgrStub::HandleNotifyProcMemoryLevel;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_USER_ID)] =
         &AppMgrStub::HandleGetProcessRunningInfosByUserId;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ADD_ABILITY_STAGE_INFO_DONE)] =
@@ -374,6 +377,20 @@ int32_t AppMgrStub::HandleNotifyMemoryLevel(MessageParcel &data, MessageParcel &
     HITRACE_METER(HITRACE_TAG_APP);
     int32_t level = data.ReadInt32();
     auto result = NotifyMemoryLevel(level);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyProcMemoryLevel(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::unique_ptr<MemoryLevelInfo> memoryLevelInfo(data.ReadParcelable<MemoryLevelInfo>());
+    if (memoryLevelInfo.get() == nullptr) {
+        return ERR_INVALID_VALUE;
+    }
+    auto result = NotifyProcMemoryLevel(memoryLevelInfo->GetProcLevelMap());
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
     }

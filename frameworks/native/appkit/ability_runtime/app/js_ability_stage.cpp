@@ -22,6 +22,7 @@
 #include "js_context_utils.h"
 #include "js_runtime.h"
 #include "js_runtime_utils.h"
+#include "js_startup_config.h"
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
@@ -346,15 +347,10 @@ void JsAbilityStage::OnMemoryLevel(int32_t level)
     TAG_LOGD(AAFwkTag::APPKIT, "end");
 }
 
-int32_t JsAbilityStage::RunAutoStartupTask(bool &waitingForStartup)
+int32_t JsAbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
-    waitingForStartup = false;
-    return ERR_OK;
-}
-
-int32_t JsAbilityStage::RunAutoStartupTaskInner(bool &waitingForStartup)
-{
+    isAsyncCallback = false;
     auto context = GetContext();
     if (!context) {
         HILOG_ERROR("context invalid.");
@@ -376,14 +372,31 @@ int32_t JsAbilityStage::RunAutoStartupTaskInner(bool &waitingForStartup)
     if (result != ERR_OK) {
         return result;
     }
+    std::shared_ptr<StartupManager> startupManager = DelayedSingleton<StartupManager>::GetInstance();
+    if (startupManager == nullptr) {
+        HILOG_ERROR("failed to get startupManager.");
+        return ERR_INVALID_VALUE;
+    }
     std::shared_ptr<StartupTaskManager> startupTaskManager = nullptr;
-    result = DelayedSingleton<StartupManager>::GetInstance()->BuildAutoStartupTaskManager(startupTaskManager);
+    result = startupManager->BuildAutoStartupTaskManager(startupTaskManager);
     if (result != ERR_OK) {
         return result;
     }
-    startupTaskManager->Prepare();
-    startupTaskManager->Run();
-    waitingForStartup = true;
+    result = startupTaskManager->Prepare();
+    if (result != ERR_OK) {
+        return result;
+    }
+    auto runAutoStartupCallback = std::make_shared<OnCompletedCallback>(
+        [callback](const std::shared_ptr<StartupTaskResult> &) {
+            HILOG_INFO("RunAutoStartupCallback");
+            callback();
+        });
+    result = startupTaskManager->Run(runAutoStartupCallback);
+    if (result != ERR_OK) {
+        isAsyncCallback = runAutoStartupCallback->IsCalled();
+        return result;
+    }
+    isAsyncCallback = true;
     return ERR_OK;
 }
 
@@ -396,7 +409,7 @@ int32_t JsAbilityStage::RegisterStartupTaskFromProfile(std::vector<JsStartupTask
         return ERR_INVALID_VALUE;
     }
     
-    if (!AnalyzeProfileInfoAndRegisterStartupTask(profileInfo, jsStartupTasks)) {
+    if (!AnalyzeProfileInfoAndRegisterStartupTask(profileInfo)) {
         HILOG_ERROR("appStartup config not exist.");
         return ERR_INVALID_VALUE;
     }
@@ -441,22 +454,22 @@ bool JsAbilityStage::GetProfileInfoFromResourceManager(std::vector<std::string> 
     return true;
 }
 
-std::unique_ptr<NativeReference> JsAbilityStage::LoadJsStartupTask(const std::string &srcEntry)
+std::unique_ptr<NativeReference> JsAbilityStage::LoadJsSrcEntry(const std::string &srcEntry)
 {
-    HILOG_DEBUG("LoadJsStartupTask called.");
+    HILOG_DEBUG("call.");
     if (srcEntry.empty()) {
         HILOG_ERROR("srcEntry invalid.");
-        return std::unique_ptr<NativeReference>();
+        return nullptr;
     }
     auto context = GetContext();
     if (!context) {
         HILOG_ERROR("context is nullptr.");
-        return std::unique_ptr<NativeReference>();
+        return nullptr;
     }
     auto hapModuleInfo = context->GetHapModuleInfo();
     if (!hapModuleInfo) {
         HILOG_ERROR("hapModuleInfo is nullptr.");
-        return std::unique_ptr<NativeReference>();
+        return nullptr;
     }
 
     bool esmodule = hapModuleInfo->compileMode == AppExecFwk::CompileMode::ES_MODULE;
@@ -465,7 +478,7 @@ std::unique_ptr<NativeReference> JsAbilityStage::LoadJsStartupTask(const std::st
     
     auto pos = srcPath.rfind('.');
     if (pos == std::string::npos) {
-        return std::unique_ptr<NativeReference>();
+        return nullptr;
     }
     srcPath.erase(pos);
     srcPath.append(".abc");
@@ -474,6 +487,31 @@ std::unique_ptr<NativeReference> JsAbilityStage::LoadJsStartupTask(const std::st
         jsRuntime_.LoadModule(moduleName, srcPath, hapModuleInfo->hapPath, esmodule));
     
     return jsCode;
+}
+
+bool JsAbilityStage::LoadJsStartupConfig(const std::string &srcEntry)
+{
+    std::unique_ptr<NativeReference> startupConfigEntry = LoadJsSrcEntry(srcEntry);
+    if (startupConfigEntry == nullptr) {
+        HILOG_ERROR("fail to load config src entry.");
+        return false;
+    }
+    auto env = jsRuntime_.GetNapiEnv();
+    std::shared_ptr<JsStartupConfig> startupConfig = std::make_shared<JsStartupConfig>(env);
+    if (startupConfig == nullptr) {
+        HILOG_ERROR("startupConfig is null.");
+        return false;
+    }
+    if (startupConfig->Init(startupConfigEntry) != ERR_OK) {
+        return false;
+    }
+    std::shared_ptr<StartupManager> startupManager = DelayedSingleton<StartupManager>::GetInstance();
+    if (startupManager == nullptr) {
+        HILOG_ERROR("failed to get startupManager.");
+        return false;
+    }
+    startupManager->SetDefaultConfig(startupConfig);
+    return true;
 }
 
 void JsAbilityStage::SetOptionalParameters(
@@ -490,26 +528,24 @@ void JsAbilityStage::SetOptionalParameters(
         }
         jsStartupTask.SetDependencies(dependencies);
     }
-    
+
     if (module.contains(EXCLUDE_FROM_AUTO_START) && module[EXCLUDE_FROM_AUTO_START].is_boolean()) {
-        jsStartupTask.SetIsAutoStartup(module.at(EXCLUDE_FROM_AUTO_START).get<bool>());
+        jsStartupTask.SetIsExcludeFromAutoStart(module.at(EXCLUDE_FROM_AUTO_START).get<bool>());
     } else {
-        jsStartupTask.SetIsAutoStartup(true);
+        jsStartupTask.SetIsExcludeFromAutoStart(false);
     }
-    
+
     // always true
-    jsStartupTask.SetIsAutoStartup(true);
+    jsStartupTask.SetCallCreateOnMainThread(true);
     
     if (module.contains(WAIT_ON_MAIN_THREAD) && module[WAIT_ON_MAIN_THREAD].is_boolean()) {
         jsStartupTask.SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());
     } else {
-        jsStartupTask.SetWaitOnMainThread(false);
+        jsStartupTask.SetWaitOnMainThread(true);
     }
 }
 
-bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(
-    std::vector<std::string> &profileInfo,
-    std::vector<JsStartupTask> &jsStartupTasks)
+bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<std::string> &profileInfo)
 {
     HILOG_DEBUG("AnalyzeProfileInfoAndRegisterStartupTask called.");
     std::string startupInfo;
@@ -520,17 +556,27 @@ bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(
         HILOG_ERROR("startupInfo invalid.");
         return false;
     }
-    
+
     nlohmann::json startupInfoJson = nlohmann::json::parse(startupInfo, nullptr, false);
     if (startupInfoJson.is_discarded()) {
         HILOG_ERROR("Failed to parse json string.");
         return false;
     }
-    
+
+    if (!(startupInfoJson.contains(CONFIG_ENTRY) && startupInfoJson[CONFIG_ENTRY].is_string())) {
+        HILOG_ERROR("no config entry.");
+        return false;
+    }
+    if (!LoadJsStartupConfig(startupInfoJson.at(CONFIG_ENTRY).get<std::string>())) {
+        HILOG_ERROR("failed to load config entry.");
+        return false;
+    }
+
     if (!(startupInfoJson.contains(STARTUP_TASKS) && startupInfoJson[STARTUP_TASKS].is_array())) {
         HILOG_ERROR("startupTasks invalid.");
         return false;
     }
+    std::vector<std::shared_ptr<JsStartupTask>> jsStartupTasks;
     for (const auto& module : startupInfoJson.at(STARTUP_TASKS).get<nlohmann::json>()) {
         if (!module.contains(SRC_ENTRY) || !module[SRC_ENTRY].is_string() ||
         !module.contains(NAME) || !module[NAME].is_string()) {
@@ -538,20 +584,19 @@ bool JsAbilityStage::AnalyzeProfileInfoAndRegisterStartupTask(
             return false;
         }
         
-        std::shared_ptr<NativeReference> startupJsRef = LoadJsStartupTask(module.at(SRC_ENTRY).get<std::string>());
+        std::unique_ptr<NativeReference> startupJsRef = LoadJsSrcEntry(module.at(SRC_ENTRY).get<std::string>());
         if (startupJsRef == nullptr) {
             HILOG_ERROR("load js appStartup tasks failed.");
             return false;
         }
-        
-        std::shared_ptr<NativeReference> contextJsRef = nullptr;
-        JsStartupTask jsStartupTask = JsStartupTask(
-            module.at(NAME).get<std::string>(),
-            jsRuntime_,
-            startupJsRef,
-            contextJsRef);
-        SetOptionalParameters(module, jsStartupTask);
+
+        auto jsStartupTask = std::make_shared<JsStartupTask>(
+            module.at(NAME).get<std::string>(), jsRuntime_, startupJsRef, shellContextRef_);
+        SetOptionalParameters(module, *jsStartupTask);
         jsStartupTasks.push_back(jsStartupTask);
+    }
+    for (auto &iter : jsStartupTasks) {
+        DelayedSingleton<StartupManager>::GetInstance()->RegisterStartupTask(iter->GetName(), iter);
     }
     return true;
 }

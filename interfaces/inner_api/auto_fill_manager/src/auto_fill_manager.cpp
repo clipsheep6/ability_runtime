@@ -29,6 +29,7 @@ namespace AbilityRuntime {
 namespace {
 const std::string WANT_PARAMS_EXTENSION_TYPE = "autoFill/password";
 const std::string WANT_PARAMS_SMART_EXTENSION_TYPE = "autoFill/smart";
+const std::string AUTO_FILL_START_POPUP_WINDOW = "persist.sys.abilityms.autofill.is_passwd_popup_window";
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 constexpr static char WANT_PARAMS_CUSTOM_DATA_KEY[] = "ohos.ability.params.customData";
 constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.autoFillCmd";
@@ -300,7 +301,11 @@ AutoFill::AutoFillWindowType AutoFillManager::ConvertAutoFillWindowType(const Au
     } else if (autoFillType == AbilityBase::AutoFillType::PASSWORD ||
         autoFillType == AbilityBase::AutoFillType::USER_NAME ||
         autoFillType == AbilityBase::AutoFillType::NEW_PASSWORD) {
-        autoFillWindowType = AutoFill::AutoFillWindowType::MODAL_WINDOW;
+        if (system::GetBoolParameter(AUTO_FILL_START_POPUP_WINDOW, false)) {
+            autoFillWindowType = AutoFill::AutoFillWindowType::POPUP_WINDOW;
+        } else {
+            autoFillWindowType = AutoFill::AutoFillWindowType::MODAL_WINDOW;
+        }
         isSmartAutoFill = false;
     }
 

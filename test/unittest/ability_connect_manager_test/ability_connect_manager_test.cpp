@@ -3209,5 +3209,22 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_SignRestartAppFlag_001, Test
     connectManager->serviceMap_.emplace("second", abilityRecord2);
     connectManager->SignRestartAppFlag(bundleName);
 }
+
+/*
+ * Feature: AbilityConnectManager
+ * Function: BuildEventInfo
+ * CaseDescription: Verify AbilityConnectManager BuildEventInfo
+ */
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_BuildEventInfo_001, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+
+    connectManager->BuildEventInfo(nullptr);
+    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
+    connectManager->BuildEventInfo(abilityRecord);
+    abilityRecord->SetCreateByConnectMode(true);
+    connectManager->BuildEventInfo(abilityRecord);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

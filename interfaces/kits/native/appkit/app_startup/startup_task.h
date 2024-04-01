@@ -20,8 +20,8 @@
 #include <vector>
 #include <memory>
 
-#include "ability_manager_errors.h"
 #include "startup_task_result.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -42,44 +42,48 @@ public:
 
     std::vector<std::string> GetDependencies() const;
 
-    bool GetIsManualDispatch() const;
-
     bool GetCallCreateOnMainThread() const;
 
     bool GetWaitOnMainThread() const;
 
-    bool GetIsAutoStartup() const;
+    bool GetIsExcludeFromAutoStart() const;
 
     void SetDependencies(const std::vector<std::string> &dependencies);
-
-    void SetIsManualDispatch(bool isManualDispatch);
 
     void SetCallCreateOnMainThread(bool callCreateOnMainThread);
 
     void SetWaitOnMainThread(bool waitOnMainThread);
 
-    void SetIsAutoStartup(bool isAutoStartup);
-    uint32_t getDependenceCount() const;
+    void SetIsExcludeFromAutoStart(bool excludeFromAutoStart);
+
+    uint32_t getDependenciesCount() const;
 
     void SaveResult(const std::shared_ptr<StartupTaskResult> &result);
 
-    void RemoveResult();
+    int32_t RemoveResult();
 
     std::shared_ptr<StartupTaskResult> GetResult() const;
 
     virtual int32_t RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback) = 0;
 
+    virtual int32_t RunTaskOnDependencyCompleted(const std::string &name,
+        const std::shared_ptr<StartupTaskResult> &result) = 0;
+
     State GetState() const;
+
+    int32_t AddExtraCallback(std::unique_ptr<StartupTaskResultCallback> callback);
+
+    void CallExtraCallback(const std::shared_ptr<StartupTaskResult> &result);
 
 protected:
     std::string name_;
     std::vector<std::string> dependencies_;
-    bool isManualDispatch_ = false;
     bool callCreateOnMainThread_ = true;
     bool waitOnMainThread_ = true;
-    bool isAutoStartup_ = true;
+    bool isExcludeFromAutoStart_ = false;
     std::shared_ptr<StartupTaskResult> result_;
     State state_ = State::INVALID;
+    std::vector<std::unique_ptr<StartupTaskResultCallback>> extraCallbacks_;
 
     std::string DumpDependencies() const;
 };

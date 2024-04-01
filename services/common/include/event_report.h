@@ -50,6 +50,8 @@ struct EventInfo {
     std::string callerVersionName;
     std::string uri;
     int32_t processType = -1;
+    int32_t callerPid = -1;
+    int64_t duration = 0;
 };
 
 enum class EventName {
@@ -102,6 +104,15 @@ public:
     static void SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
     static void SendKeyEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo);
+    static void SendAppLaunchEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendAppForegroundEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendAppBackgroundEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendProcessStartEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendProcessExitEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendStartServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendStopServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendConnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
+    static void SendDisconnectServiceEvent(const EventName &eventName, const EventInfo &eventInfo);
 
 private:
     static std::string ConvertEventName(const EventName &eventName);

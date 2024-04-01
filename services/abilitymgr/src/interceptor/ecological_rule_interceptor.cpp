@@ -65,7 +65,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
-    if (param.isForeground && rule.replaceWant) {
+    if (!param.isWithUI && rule.replaceWant) {
         (const_cast<Want &>(param.want)) = *rule.replaceWant;
         (const_cast<Want &>(param.want)).SetParam("queryWantFromErms", true);
     }
@@ -73,35 +73,60 @@ ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
     return ERR_ECOLOGICAL_CONTROL_STATUS;
 }
 
+bool EcologicalRuleInterceptor::DoProcess(Want &want, int32_t userId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME) == want.GetElement().GetBundleName()) {
+        HILOG_DEBUG("The same bundle, do not intercept.");
+        return true;
+    }
+    std::string supportErms = OHOS::system::GetParameter(ABILITY_SUPPORT_ECOLOGICAL_RULEMGRSERVICE, "true");
+    if (supportErms == "false") {
+        HILOG_ERROR("Abilityms not support Erms between applications.");
+        return true;
+    }
+
+    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
+    CHECK_POINTER_AND_RETURN(bundleMgrHelper, false);
+    Want launchWant;
+    auto errCode = IN_PROCESS_CALL(bundleMgrHelper->GetLaunchWantForBundle(want.GetBundle(), launchWant, userId));
+    if (errCode != ERR_OK) {
+        HILOG_ERROR("GetLaunchWantForBundle returns %{public}d.", errCode);
+        return false;
+    }
+    want.SetElement(launchWant.GetElement());
+
+    AppExecFwk::ApplicationInfo targetAppInfo;
+    bool getCallerResult = IN_PROCESS_CALL(bundleMgrHelper->GetApplicationInfo(want.GetBundle(),
+        AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, targetAppInfo));
+    if (!getCallerResult) {
+        HILOG_ERROR("Get targetApplicationInfo failed.");
+        return false;
+    }
+    want.SetParam("send_to_erms_targetAppProvisionType", targetAppInfo.appProvisionType);
+    want.SetParam("send_to_erms_targetBundleType", static_cast<int32_t>(targetAppInfo.bundleType));
+
+    ErmsCallerInfo callerInfo;
+    GetEcologicalCallerInfo(want, callerInfo, userId);
+    ExperienceRule rule;
+    auto ret = IN_PROCESS_CALL(AbilityEcologicalRuleMgrServiceClient::GetInstance()->QueryStartExperience(want,
+        callerInfo, rule));
+    if (ret != ERR_OK) {
+        HILOG_DEBUG("check ecological rule failed, keep going.");
+        return true;
+    }
+    return rule.isAllow;
+}
+
 void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCallerInfo &callerInfo, int32_t userId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
-    callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
-    callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
-    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
-    callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
-    callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
-    callerInfo.targetLinkFeature = want.GetStringParam("send_to_erms_targetLinkFeature");
-    callerInfo.targetAppDistType = want.GetStringParam("send_to_erms_targetAppDistType");
-    (const_cast<Want &>(want)).RemoveParam("send_to_erms_targetLinkFeature");
-    (const_cast<Want &>(want)).RemoveParam("send_to_erms_targetAppDistType");
-    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
-        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
+    InitErmsCallerInfo(const_cast<Want &>(want), callerInfo);
 
     auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
     if (bundleMgrHelper == nullptr) {
         HILOG_ERROR("The bundleMgrHelper is nullptr.");
         return;
-    }
-
-    auto targetBundleType = static_cast<AppExecFwk::BundleType>(want.GetIntParam("send_to_erms_targetBundleType", -1));
-    (const_cast<Want &>(want)).RemoveParam("send_to_erms_targetBundleType");
-    if (targetBundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        HILOG_DEBUG("the target type  is atomic service");
-        callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
-    } else if (targetBundleType == AppExecFwk::BundleType::APP) {
-        HILOG_DEBUG("the target type is app");
-        callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     }
 
     std::string callerBundleName;
@@ -115,7 +140,10 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         AppExecFwk::ApplicationFlag::GET_BASIC_APPLICATION_INFO, userId, callerAppInfo));
     if (!getCallerResult) {
         HILOG_DEBUG("Get callerAppInfo failed.");
-    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        return;
+    }
+    callerInfo.callerAppProvisionType = callerAppInfo.appProvisionType;
+    if (callerAppInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
         HILOG_DEBUG("the caller type  is atomic service");
         callerInfo.callerAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
     } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP) {
@@ -124,6 +152,34 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         if (callerInfo.packageName == "" && callerAppInfo.name == BUNDLE_NAME_SCENEBOARD) {
             callerInfo.packageName = BUNDLE_NAME_SCENEBOARD;
         }
+    }
+}
+
+void EcologicalRuleInterceptor::InitErmsCallerInfo(Want &want, ErmsCallerInfo &callerInfo) const
+{
+    callerInfo.packageName = want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME);
+    callerInfo.uid = want.GetIntParam(Want::PARAM_RESV_CALLER_UID, IPCSkeleton::GetCallingUid());
+    callerInfo.pid = want.GetIntParam(Want::PARAM_RESV_CALLER_PID, IPCSkeleton::GetCallingPid());
+    callerInfo.targetAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
+    callerInfo.targetLinkFeature = want.GetStringParam("send_to_erms_targetLinkFeature");
+    callerInfo.targetAppDistType = want.GetStringParam("send_to_erms_targetAppDistType");
+    want.RemoveParam("send_to_erms_targetLinkFeature");
+    want.RemoveParam("send_to_erms_targetAppDistType");
+    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
+        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
+    callerInfo.embedded = want.GetIntParam("send_to_erms_embedded", 0);
+    callerInfo.targetAppProvisionType = want.GetStringParam("send_to_erms_targetAppProvisionType");
+
+    auto targetBundleType = want.GetIntParam("send_to_erms_targetBundleType", -1);
+    want.RemoveParam("send_to_erms_targetBundleType");
+    if (targetBundleType == static_cast<int32_t>(AppExecFwk::BundleType::ATOMIC_SERVICE)) {
+        HILOG_DEBUG("the target type  is atomic service");
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_ATOM_SERVICE;
+    }
+    if (targetBundleType == static_cast<int32_t>(AppExecFwk::BundleType::APP)) {
+        HILOG_DEBUG("the target type is app");
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
     }
 }
 } // namespace AAFwk

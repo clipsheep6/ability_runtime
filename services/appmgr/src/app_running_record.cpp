@@ -432,6 +432,7 @@ void AppRunningRecord::LaunchApplication(const Configuration &config)
     launchData.SetDebugApp(isDebugApp_);
     launchData.SetPerfCmd(perfCmd_);
     launchData.SetJITEnabled(jitEnabled_);
+    launchData.SetNativeStart(isNativeStart_);
 
     TAG_LOGD(AAFwkTag::APPMGR, "app is %{public}s.", GetName().c_str());
     appLifeCycleDeal_->LaunchApplication(launchData, config);
@@ -2030,6 +2031,16 @@ bool AppRunningRecord::IsAssertionPause() const
 bool AppRunningRecord::IsDebugging() const
 {
     return isDebugApp_ || isAssertPause_;
+}
+
+void AppRunningRecord::SetNativeStart(bool isNativeStart)
+{
+    isNativeStart_ = isNativeStart;
+}
+
+bool AppRunningRecord::isNativeStart() const
+{
+    return isNativeStart_;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

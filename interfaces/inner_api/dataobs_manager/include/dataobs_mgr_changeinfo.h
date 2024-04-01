@@ -16,6 +16,7 @@
 #define OHOS_ABILITY_RUNTIME_DATAOBS_MGR_CHANGENOTIFICATION_H
 
 #include <list>
+#include <map>
 #include "uri.h"
 #include "message_parcel.h"
 
@@ -29,14 +30,18 @@ struct ChangeInfo {
         OTHER,
         INVAILD,
     };
+    using Value = std::variant<std::monostate, int64_t, double, std::string, bool, std::vector<uint8_t>>;
+    using VBucket = std::map<std::string, Value>;
+    using VBuckets = std::vector<VBucket>;
 
-    static bool Marshalling(const ChangeInfo &input, MessageParcel &data);
-    static bool Unmarshalling(ChangeInfo &output, MessageParcel &data);
+    static bool Marshalling(const ChangeInfo &input, MessageParcel &parcel);
+    static bool Unmarshalling(ChangeInfo &output, MessageParcel &parcel);
 
     ChangeType changeType_ = INVAILD;
     mutable std::list<Uri> uris_ = {};
     void *data_ = nullptr;
     uint32_t size_ = 0;
+    VBuckets valueBuckets_ = {};
     static constexpr int LIST_MAX_COUNT = 3000;
 };
 } // namespace AAFwk

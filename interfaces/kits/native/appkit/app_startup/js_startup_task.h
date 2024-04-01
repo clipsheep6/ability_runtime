@@ -16,18 +16,18 @@
 #ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
 #define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
 
-#include "ability_manager_errors.h"
 #include "js_runtime.h"
 #include "js_startup_task_executor.h"
 #include "js_startup_task_result.h"
 #include "startup_task.h"
+#include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 class JsStartupTask : public StartupTask {
 public:
     JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
-        std::shared_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef_);
+        std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef_);
 
     ~JsStartupTask() override;
 
@@ -35,10 +35,16 @@ public:
 
     int32_t RunTaskInit(std::unique_ptr<StartupTaskResultCallback> callback) override;
 
+    int32_t RunTaskOnDependencyCompleted(const std::string &dependencyName,
+        const std::shared_ptr<StartupTaskResult> &result) override;
+
 private:
     JsRuntime &jsRuntime_;
-    std::shared_ptr<NativeReference> startupJsRef_;
+    std::unique_ptr<NativeReference> startupJsRef_;
     std::shared_ptr<NativeReference> contextJsRef_;
+
+    static napi_value GetDependencyResult(napi_env env, const std::string &dependencyName,
+        const std::shared_ptr<StartupTaskResult> &result);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS

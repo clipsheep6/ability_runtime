@@ -113,10 +113,10 @@ void AbilityStage::OnMemoryLevel(int level)
     TAG_LOGD(AAFwkTag::APPKIT, "%{public}s called.", __func__);
 }
 
-int32_t AbilityStage::RunAutoStartupTask(bool &waitingForStartup)
+int32_t AbilityStage::RunAutoStartupTask(const std::function<void()> &callback, bool &isAsyncCallback)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "called");
-    waitingForStartup = false;
+    isAsyncCallback = false;
     return ERR_OK;
 }
 }  // namespace AbilityRuntime
