@@ -716,45 +716,6 @@ ErrCode BundleMgrHelper::GetJsonProfile(ProfileType profileType, const std::stri
     return bundleMgr->GetJsonProfile(profileType, bundleName, moduleName, profile, userId);
 }
 
-Want BundleMgrHelper::GetLaunchWantByAppId(const std::string &appId, int32_t userId)
-{
-    auto bundleMgr = Connect();
-    if (bundleMgr == nullptr) {
-        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
-        return {};
-    }
-
-    auto bundleName = ParseBundleNameByAppId(appId);
-    TAG_LOGI(AAFwkTag::BUNDLEMGRHELPER, "bundleName is %{public}s.", bundleName.c_str());
-    AppExecFwk::BundleInfo bundleInfo;
-    bool ret = bundleMgr->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_DEFAULT, bundleInfo, userId);
-    if (!ret) {
-        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The GetBundleInfo returns false.");
-        return {};
-    }
-    if (bundleInfo.appId != appId) {
-        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The appId is invalid.");
-        return {};
-    }
-    Want launchWant;
-    auto queryRet = bundleMgr->GetLaunchWantForBundle(bundleName, launchWant, userId);
-    if (queryRet != ERR_OK) {
-        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "The method returns err:%{public}d.", queryRet);
-        return {};
-    }
-    return launchWant;
-}
-
-std::string BundleMgrHelper::ParseBundleNameByAppId(const std::string &appId) const
-{
-    size_t base = 89;
-    if (appId.size() <= base) {
-        return "";
-    }
-    size_t count = appId.size() - base;
-    return appId.substr(0, count);
-}
-
 ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, Want &want, int32_t userId)
 {
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");

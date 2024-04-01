@@ -186,6 +186,7 @@ constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
 const std::string UIEXTENSION_MODAL_TYPE = "ability.want.params.modalType";
+const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
@@ -901,6 +902,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         if (freeInstallManager_ == nullptr) {
             return ERR_INVALID_VALUE;
         }
+        (const_cast<Want &>(want)).RemoveParam("send_to_erms_embedded");
         Want localWant = want;
         if (!localWant.GetDeviceId().empty()) {
             localWant.SetDeviceId("");
@@ -1137,6 +1139,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
             TAG_LOGE(AAFwkTag::ABILITYMGR, "can not start remote free install");
             return ERR_INVALID_VALUE;
         }
+        (const_cast<Want &>(want)).RemoveParam("send_to_erms_embedded");
         Want localWant = want;
         UpdateCallerInfo(localWant, callerToken);
         return freeInstallManager_->StartFreeInstall(localWant, validUserId, requestCode, callerToken, true);
@@ -1397,6 +1400,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
             TAG_LOGE(AAFwkTag::ABILITYMGR, "can not start remote free install");
             return ERR_INVALID_VALUE;
         }
+        (const_cast<Want &>(want)).RemoveParam("send_to_erms_embedded");
         Want localWant = want;
         if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
@@ -5401,6 +5405,7 @@ int AbilityManagerService::GenerateAbilityRequest(
     request.want.SetModuleName(request.abilityInfo.moduleName);
     request.want.SetParam("send_to_erms_targetBundleType",
         static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
+    request.want.SetParam("send_to_erms_targetAppProvisionType", request.abilityInfo.applicationInfo.appProvisionType);
     request.want.SetParam("send_to_erms_targetAppDistType", request.abilityInfo.applicationInfo.appDistributionType);
 
     if (want.GetBoolParam(Want::PARAM_RESV_START_RECENT, false) &&
@@ -5440,7 +5445,7 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
             abilityInfoFlag, userId, extensionInfos));
     }
     if (extensionInfos.size() <= 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "GenerateAbilityRequest error. Get extension info failed.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "GenerateExtensionAbilityRequest error. Get extension info failed.");
         return RESOLVE_ABILITY_ERR;
     }
 
@@ -5464,8 +5469,11 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
     request.appInfo = request.abilityInfo.applicationInfo;
     request.uid = request.appInfo.uid;
     TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "GenerateAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
+        "GenerateExtensionAbilityRequest end, app name: %{public}s, bundle name: %{public}s, uid: %{public}d.",
         request.appInfo.name.c_str(), request.appInfo.bundleName.c_str(), request.uid);
+    request.want.SetParam("send_to_erms_targetBundleType",
+        static_cast<int>(request.abilityInfo.applicationInfo.bundleType));
+    request.want.SetParam("send_to_erms_targetAppProvisionType", request.abilityInfo.applicationInfo.appProvisionType);
 
     TAG_LOGD(AAFwkTag::ABILITYMGR,
         "GenerateExtensionAbilityRequest, moduleName: %{public}s.", request.abilityInfo.moduleName.c_str());
@@ -9938,6 +9946,7 @@ int32_t AbilityManagerService::SignRestartAppFlag(int32_t userId, const std::str
 
 bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken, const std::string &appId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (!AppUtils::GetInstance().IsLaunchEmbededUIAbility()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "device type is not allowd.");
         return false;
@@ -9965,47 +9974,18 @@ bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToke
         TAG_LOGE(AAFwkTag::ABILITYMGR, "The caller not foreground.");
         return false;
     }
-    return IsEmbeddedOpenAllowedInner(callerToken, appId, callerAbility);
-}
-
-bool AbilityManagerService::IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> callerToken, const std::string &appId,
-    std::shared_ptr<AbilityRecord> callerAbility)
-{
-    auto bms = GetBundleManager();
-    if (bms == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bms is invalid.");
+    std::string bundleName = ATOMIC_SERVICE_PREFIX + appId;
+    Want want;
+    want.SetBundle(bundleName);
+    want.SetParam("send_to_erms_embedded", 1);
+    int32_t ret = freeInstallManager_->StartFreeInstall(want, GetUserId(), 0, callerToken, false);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "The target is not allowed to free install.");
         return false;
     }
-    auto launchWant = IN_PROCESS_CALL(bms->GetLaunchWantByAppId(appId, GetUserId()));
-    std::string bundleName = launchWant.GetElement().GetBundleName();
-    std::string abilityName = launchWant.GetElement().GetAbilityName();
-    if (bundleName.empty() || abilityName.empty()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR,
-            "bundleName: %{public}s, abilityName: %{public}s", bundleName.c_str(), abilityName.c_str());
-        return false;
-    }
-    AppExecFwk::ApplicationInfo appInfo;
-    bool ans = IN_PROCESS_CALL(bms->GetApplicationInfo(bundleName, AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT,
-        GetUserId(), appInfo));
-    if (!ans) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to get application info.");
-        return false;
-    }
-    if (appInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "The target is not atomic service.");
-        return false;
-    }
-    launchWant.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
-    launchWant.SetParam("send_to_erms_targetBundleType", static_cast<int32_t>(appInfo.bundleType));
+    want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
     auto erms = std::make_shared<EcologicalRuleInterceptor>();
-    AbilityInterceptorParam interceptorParam = AbilityInterceptorParam(launchWant, 0,
-        GetUserId(), true, callerToken);
-    auto queryRet = erms->DoProcess(interceptorParam);
-    if (queryRet == ERR_OK) {
-        return true;
-    }
-    TAG_LOGE(AAFwkTag::ABILITYMGR, "The erms returns err:%{public}d.", queryRet);
-    return false;
+    return erms->DoProcess(want, GetUserId());
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1991,8 +1991,6 @@ private:
     int32_t SignRestartAppFlag(int32_t userId, const std::string &bundleName);
     int32_t CheckRestartAppWant(const AAFwk::Want &want);
 
-    bool IsEmbeddedOpenAllowedInner(sptr<IRemoteObject> callerToken, const std::string &appId,
-        std::shared_ptr<AbilityRecord> callerAbility);
     int32_t CheckDebugAssertPermission();
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 

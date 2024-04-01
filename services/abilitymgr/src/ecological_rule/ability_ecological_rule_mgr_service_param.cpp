@@ -131,10 +131,36 @@ AbilityCallerInfo *AbilityCallerInfo::Unmarshalling(Parcel &in)
         return nullptr;
     }
 
+    info->embedded = in.ReadInt32();
+    info->callerAppProvisionType = in.ReadString();
+    info->targetAppProvisionType = in.ReadString();
     return info;
 }
 
 bool AbilityCallerInfo::Marshalling(Parcel &parcel) const
+{
+    if (!DoMarshallingOne(parcel)) {
+        return false;
+    }
+
+    if (!parcel.WriteInt32(embedded)) {
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write embedded failed");
+        return false;
+    }
+
+    if (!parcel.WriteString(callerAppProvisionType)) {
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write callerAppProvisionType failed");
+        return false;
+    }
+
+    if (!parcel.WriteString(targetAppProvisionType)) {
+        TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write targetAppProvisionType failed");
+        return false;
+    }
+    return true;
+}
+
+bool AbilityCallerInfo::DoMarshallingOne(Parcel &parcel) const
 {
     if (!parcel.WriteString(packageName)) {
         TAG_LOGE(AAFwkTag::ECOLOGICAL_RULE, "write packageName failed");
@@ -194,7 +220,9 @@ std::string AbilityCallerInfo::ToString() const
         ",pid:" + std::to_string(pid) + ",callerAppType:" + std::to_string(callerAppType) +
         ",targetAppType:" + std::to_string(targetAppType) + ",callerModelType:" + std::to_string(callerModelType) +
         ",targetAppDistType:" + targetAppDistType + ",targetLinkFeature:" + targetLinkFeature + ",targetLinkType:" +
-        std::to_string(targetLinkType) + ",callerAbilityType:" + std::to_string(callerAbilityType) + "}";
+        std::to_string(targetLinkType) + ",callerAbilityType:" + std::to_string(callerAbilityType) + ",embedded:" +
+        std::to_string(embedded) + ",callerAppProvisionType:" + callerAppProvisionType + ",targetAppProvisionType:" +
+        targetAppProvisionType + "}";
     return str;
 }
 } // namespace EcologicalRuleMgrService
