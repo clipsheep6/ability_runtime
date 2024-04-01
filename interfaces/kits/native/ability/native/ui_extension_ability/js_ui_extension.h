@@ -19,6 +19,7 @@
 #include "configuration.h"
 #include "js_ui_extension_content_session.h"
 #include "ui_extension.h"
+#include <mutex>
 #include <unordered_set>
 
 class NativeReference;
@@ -195,6 +196,7 @@ private:
     JsRuntime& jsRuntime_;
     std::unique_ptr<NativeReference> jsObj_;
     std::shared_ptr<NativeReference> shellContextRef_ = nullptr;
+    std::mutex uiWindowMutex_;
     std::map<uint64_t, sptr<Rosen::Window>> uiWindowMap_;
     std::set<uint64_t> foregroundWindows_;
     std::map<uint64_t, std::shared_ptr<NativeReference>> contentSessions_;

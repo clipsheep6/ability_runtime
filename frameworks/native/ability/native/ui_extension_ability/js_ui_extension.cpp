@@ -521,6 +521,7 @@ void JsUIExtension::OnCommandWindowDone(const sptr<AAFwk::SessionInfo> &sessionI
         return;
     }
     AAFwk::AbilityCommand abilityCmd;
+    std::lock_guard<std::mutex> lock(uiWindowMutex_);
     if (uiWindowMap_.empty()) {
         abilityCmd = AAFwk::ABILITY_CMD_DESTROY;
     } else if (foregroundWindows_.empty()) {
@@ -541,7 +542,7 @@ void JsUIExtension::OnInsightIntentExecuteDone(const sptr<AAFwk::SessionInfo> &s
         TAG_LOGE(AAFwkTag::UI_EXT, "Invalid sessionInfo.");
         return;
     }
-
+    std::lock_guard<std::mutex> lock(uiWindowMutex_);
     TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     auto res = uiWindowMap_.find(componentId);
@@ -627,7 +628,7 @@ bool JsUIExtension::HandleSessionCreate(const AAFwk::Want &want, const sptr<AAFw
         TAG_LOGE(AAFwkTag::UI_EXT, "Invalid sessionInfo.");
         return false;
     }
-
+    std::lock_guard<std::mutex> lock(uiWindowMutex_);
     TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ", element: %{public}s.",
         sessionInfo->uiExtensionComponentId, want.GetElement().GetURI().c_str());
     auto compId = sessionInfo->uiExtensionComponentId;
@@ -703,6 +704,7 @@ void JsUIExtension::ForegroundWindow(const AAFwk::Want &want, const sptr<AAFwk::
         TAG_LOGE(AAFwkTag::UI_EXT, "HandleSessionCreate failed.");
         return;
     }
+    std::lock_guard<std::mutex> lock(uiWindowMutex_);
     TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     auto& uiWindow = uiWindowMap_[componentId];
@@ -720,7 +722,7 @@ void JsUIExtension::BackgroundWindow(const sptr<AAFwk::SessionInfo> &sessionInfo
         TAG_LOGE(AAFwkTag::UI_EXT, "Invalid sessionInfo.");
         return;
     }
-
+    std::lock_guard<std::mutex> lock(uiWindowMutex_);
     TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {
@@ -742,7 +744,7 @@ void JsUIExtension::DestroyWindow(const sptr<AAFwk::SessionInfo> &sessionInfo)
         TAG_LOGE(AAFwkTag::UI_EXT, "Invalid sessionInfo.");
         return;
     }
-
+    std::lock_guard<std::mutex> lock(uiWindowMutex_);
     TAG_LOGD(AAFwkTag::UI_EXT, "UIExtension component id: %{public}" PRId64 ".", sessionInfo->uiExtensionComponentId);
     auto componentId = sessionInfo->uiExtensionComponentId;
     if (uiWindowMap_.find(componentId) == uiWindowMap_.end()) {

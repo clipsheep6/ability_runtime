@@ -19,6 +19,7 @@
 #include <climits>
 #include <cstdlib>
 #include <fstream>
+#include <mutex>
 #include <regex>
 
 #include <atomic>
@@ -191,6 +192,7 @@ napi_status DestroyNapiEnv(napi_env *env)
 
 std::atomic<bool> JsRuntime::hasInstance(false);
 std::shared_ptr<Runtime::Options> JsRuntime::childOptions_ = nullptr;
+std::mutex childOptionsMutex_;
 JsRuntime::JsRuntime()
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "JsRuntime costructor.");
@@ -1535,6 +1537,7 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
 
 void JsRuntime::SetChildOptions(const Options& options)
 {
+    std::lock_guard<std::mutex> lock(childOptionsMutex_);
     if (childOptions_ == nullptr) {
         childOptions_ = std::make_shared<Options>();
     }
@@ -1564,6 +1567,7 @@ void JsRuntime::SetChildOptions(const Options& options)
 
 std::shared_ptr<Runtime::Options> JsRuntime::GetChildOptions()
 {
+    std::lock_guard<std::mutex> lock(childOptionsMutex_);
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     return childOptions_;
 }
