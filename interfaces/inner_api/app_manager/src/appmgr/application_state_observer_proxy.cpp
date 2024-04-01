@@ -198,7 +198,7 @@ void ApplicationStateObserverProxy::OnAppStateChanged(const AppStateData &appSta
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_APP_STATE_CHANGED),
         data, reply, option);
-    if (ret != NO_ERROR || ret != ERR_INVALID_STUB) {
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
         TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d, , bundleName: %{public}s",
             ret, appStateData.bundleName.c_str());
     }
@@ -255,7 +255,7 @@ void ApplicationStateObserverProxy::OnPageShow(const PageStateData &pageStateDat
     int32_t ret = SendTransactCmd(
         static_cast<uint32_t>(IApplicationStateObserver::Message::TRANSACT_ON_PAGE_SHOW),
         data, reply, option);
-    if (ret != NO_ERROR || ret != ERR_INVALID_STUB) {
+    if (ret != NO_ERROR && ret != ERR_INVALID_STUB) {
         TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d, bundleName: %{public}s",
             ret, pageStateData.bundleName.c_str());
     }
