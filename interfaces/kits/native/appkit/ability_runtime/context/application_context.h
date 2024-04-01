@@ -116,9 +116,10 @@ private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;
     static std::vector<std::shared_ptr<EnvironmentCallback>> envCallbacks_;
-    static std::weak_ptr<ApplicationStateChangeCallback> applicationStateCallback_;
+    static std::vector<std::weak_ptr<ApplicationStateChangeCallback>> applicationStateCallback_;
     std::recursive_mutex callbackLock_;
     std::recursive_mutex envCallbacksLock_;
+    std::recursive_mutex applicationStateCallbackLock_;
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
     std::string appRunningUniqueId_;

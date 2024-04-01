@@ -27,7 +27,7 @@ namespace OHOS {
 namespace AbilityRuntime {
 std::vector<std::shared_ptr<AbilityLifecycleCallback>> ApplicationContext::callbacks_;
 std::vector<std::shared_ptr<EnvironmentCallback>> ApplicationContext::envCallbacks_;
-std::weak_ptr<ApplicationStateChangeCallback> ApplicationContext::applicationStateCallback_;
+std::vector<std::weak_ptr<ApplicationStateChangeCallback>> ApplicationContext::applicationStateCallback_;
 
 std::shared_ptr<ApplicationContext> ApplicationContext::GetInstance()
 {
@@ -98,7 +98,8 @@ void ApplicationContext::UnregisterEnvironmentCallback(
 void ApplicationContext::RegisterApplicationStateChangeCallback(
     const std::weak_ptr<ApplicationStateChangeCallback> &applicationStateChangeCallback)
 {
-    applicationStateCallback_ = applicationStateChangeCallback;
+    std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
+    applicationStateCallback_.push_back(applicationStateChangeCallback);
 }
 
 void ApplicationContext::DispatchOnAbilityCreate(const std::shared_ptr<NativeReference> &ability)
@@ -255,24 +256,24 @@ void ApplicationContext::DispatchMemoryLevel(const int level)
 
 void ApplicationContext::NotifyApplicationForeground()
 {
-    auto callback = applicationStateCallback_.lock();
-    if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "applicationStateCallback is nullptr");
-        return;
+    std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
+    for (auto callback : applicationStateCallback_) {
+        auto callbackSptr = callback.lock();
+        if (callbackSptr != nullptr) {
+            callbackSptr->NotifyApplicationForeground();
+        }
     }
-
-    callback->NotifyApplicationForeground();
 }
 
 void ApplicationContext::NotifyApplicationBackground()
 {
-    auto callback = applicationStateCallback_.lock();
-    if (callback == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "applicationStateCallback is nullptr");
-        return;
+    std::lock_guard<std::recursive_mutex> lock(applicationStateCallbackLock_);
+    for (auto callback : applicationStateCallback_) {
+        auto callbackSptr = callback.lock();
+        if (callbackSptr != nullptr) {
+            callbackSptr->NotifyApplicationBackground();
+        }
     }
-
-    callback->NotifyApplicationBackground();
 }
 
 std::string ApplicationContext::GetBundleName() const

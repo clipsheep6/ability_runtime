@@ -1049,11 +1049,9 @@ HWTEST_F(ApplicationContextTest, GetCacheDir_0100, TestSize.Level1)
 HWTEST_F(ApplicationContextTest, RegisterApplicationStateChangeCallback_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "RegisterApplicationStateChangeCallback_0100 start";
-    context_->applicationStateCallback_.reset();
     std::shared_ptr<MockApplicationStateChangeCallback> applicationStateCallback = nullptr;
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
-    auto callback = context_->applicationStateCallback_.lock();
-    EXPECT_EQ(callback, nullptr);
+    EXPECT_EQ(1, context_->applicationStateCallback_.size());
     GTEST_LOG_(INFO) << "RegisterApplicationStateChangeCallback_0100 end";
 }
 
@@ -1066,15 +1064,13 @@ HWTEST_F(ApplicationContextTest, RegisterApplicationStateChangeCallback_0100, Te
 HWTEST_F(ApplicationContextTest, NotifyApplicationForeground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 start";
-    auto callback = context_->applicationStateCallback_.lock();
-    EXPECT_EQ(callback, nullptr);
 
     auto applicationStateCallback = std::make_shared<MockApplicationStateChangeCallback>();
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
     EXPECT_CALL(*applicationStateCallback, NotifyApplicationForeground()).Times(1);
     context_->NotifyApplicationForeground();
-    callback = context_->applicationStateCallback_.lock();
-    EXPECT_NE(callback, nullptr);
+    auto callback = context_->applicationStateCallback_[0];
+    EXPECT_NE(callback.lock(), nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 end";
 }
 
@@ -1087,15 +1083,13 @@ HWTEST_F(ApplicationContextTest, NotifyApplicationForeground_0100, TestSize.Leve
 HWTEST_F(ApplicationContextTest, NotifyApplicationBackground_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 start";
-    auto callback = context_->applicationStateCallback_.lock();
-    EXPECT_EQ(callback, nullptr);
 
     auto applicationStateCallback = std::make_shared<MockApplicationStateChangeCallback>();
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
     EXPECT_CALL(*applicationStateCallback, NotifyApplicationBackground()).Times(1);
     context_->NotifyApplicationBackground();
-    callback = context_->applicationStateCallback_.lock();
-    EXPECT_NE(callback, nullptr);
+    auto callback = context_->applicationStateCallback_[0];
+    EXPECT_NE(callback.lock(), nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 end";
 }
 
