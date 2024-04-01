@@ -59,6 +59,7 @@ ohos_unittest("js_auto_fill_extension_test") {
     "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "resource_management:global_resmgr",

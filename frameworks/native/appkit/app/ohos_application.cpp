@@ -36,6 +36,7 @@
 #include "iservice_registry.h"
 #include "runtime.h"
 #include "system_ability_definition.h"
+#include "syspara/parameter.h"
 #include "ui_ability.h"
 #ifdef SUPPORT_GRAPHICS
 #include "window.h"
@@ -43,6 +44,9 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+    constexpr const char* PERSIST_DARKMODE_KEY = "persist.ace.darkmode";
+}
 REGISTER_APPLICATION(OHOSApplication, OHOSApplication)
 constexpr int32_t APP_ENVIRONMENT_OVERWRITE = 1;
 
@@ -420,7 +424,7 @@ void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<Elements
  *
  * @param config Indicates the new Configuration object.
  */
-void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
+void OHOSApplication::OnConfigurationUpdated(Configuration config)
 {
     HILOG_DEBUG("called");
     if (!abilityRecordMgr_ || !configuration_) {
@@ -442,7 +446,16 @@ void OHOSApplication::OnConfigurationUpdated(const Configuration &config)
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0) {
         HILOG_DEBUG("colorMode is auto");
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
-        return;
+        constexpr int buffSize = 64;
+        char valueGet[buffSize] = { 0 };
+        auto res = GetParameter(PERSIST_DARKMODE_KEY, colorMode.c_str(), valueGet, buffSize);
+        if (res <= 0) {
+            HILOG_ERROR("get parameter failed.");
+            return;
+        }
+        colorMode = valueGet;
+        HILOG_INFO("colorMode is: [%{public}s]", colorMode.c_str());
+        config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, colorMode);
     }
     if (!colorMode.empty() && colorModeIsSetByApp.empty()) {
         if (!globalColorModeIsSetByApp.empty() && globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) {
