@@ -2446,6 +2446,60 @@ HWTEST_F(MainThreadTest, GetNativeLibPath_0400, TestSize.Level1)
 }
 
 /**
+ * @tc.name: AssertFaultPauseMainThreadDetection_0100
+ * @tc.desc: Fault pause main thread detection.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, AssertFaultPauseMainThreadDetection_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto ret = mainThread_->AssertFaultPauseMainThreadDetection();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AssertFaultResumeMainThreadDetection_0100
+ * @tc.desc: Pause main thread detection.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, AssertFaultResumeMainThreadDetection_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto ret = mainThread_->AssertFaultResumeMainThreadDetection();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleInitAssertFaultTask_0100
+ * @tc.desc: Schedule Gc state chage.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, HandleInitAssertFaultTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    bool isDebugModule = true;
+    bool isDebugApp = true;
+    auto ret = mainThread_->HandleInitAssertFaultTask(isDebugModule, isDebugApp);
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: HandleInitAssertFaultTask_0100
+ * @tc.desc: Schedule Gc state chage.
+ * @tc.type: FUNC
+ * @tc.require: issuesI85VVU
+ */
+HWTEST_F(MainThreadTest, HandleInitAssertFaultTask_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    auto ret = mainThread_->HandleCancelAssertFaultTask();
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: ScheduleChangeAppGcState_0100
  * @tc.desc: Schedule Gc state chage.
  * @tc.type: FUNC

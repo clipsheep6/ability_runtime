@@ -1669,6 +1669,68 @@ HWTEST_F(AbilityManagerServiceFirstTest, CancelApplicationAutoStartup_0200, Test
 }
 
 /**
+ * @tc.name: AbilityManagerServiceFirstTest_CheckDebugAssertPermission_0100
+ * @tc.desc: Test the state of CheckDebugAssertPermission
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, CheckDebugAssertPermission_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest CheckDebugAssertPermission_0100 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    auto res = abilityMs_->CheckDebugAssertPermission();
+    EXPECT_EQ(res, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
+    HILOG_INFO("AbilityManagerServiceSecondTest CheckDebugAssertPermission_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_RequestAssertFaultDialog_0100
+ * @tc.desc: Test the state of RequestAssertFaultDialog
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, RequestAssertFaultDialog_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest RequestAssertFaultDialog_0100 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    sptr<IRemoteObject> callback = nullptr;
+    AAFwk::WantParams wantParams;
+    auto res = abilityMs_->RequestAssertFaultDialog(callback, wantParams);
+    EXPECT_EQ(res, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
+    HILOG_INFO("AbilityManagerServiceSecondTest RequestAssertFaultDialog_0100 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_RequestAssertFaultDialog_0200
+ * @tc.desc: Test the state of RequestAssertFaultDialog
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, RequestAssertFaultDialog_0200, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest RequestAssertFaultDialog_0200 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    EXPECT_NE(callback, nullptr);
+    AAFwk::WantParams wantParams;
+    auto res = abilityMs_->RequestAssertFaultDialog(callback, wantParams);
+    EXPECT_EQ(res, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
+    HILOG_INFO("AbilityManagerServiceSecondTest RequestAssertFaultDialog_0200 end");
+}
+
+/**
+ * @tc.name: AbilityManagerServiceFirstTest_NotifyDebugAssertResult_0100
+ * @tc.desc: Test the state of NotifyDebugAssertResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceFirstTest, NotifyDebugAssertResult_0100, TestSize.Level1)
+{
+    HILOG_INFO("AbilityManagerServiceSecondTest NotifyDebugAssertResult_0100 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    uint64_t assertFaultSessionId = 1;
+    auto res = abilityMs_->NotifyDebugAssertResult(assertFaultSessionId, AAFwk::UserStatus::ASSERT_TERMINATE);
+    EXPECT_EQ(res, ERR_NOT_SUPPORTED_PRODUCT_TYPE);
+    HILOG_INFO("AbilityManagerServiceSecondTest NotifyDebugAssertResult_0100 end");
+}
+
+/**
  * @tc.name: AbilityManagerServiceFirstTest_QueryAllAutoStartupApplications_0100
  * @tc.desc: Test the state of QueryAllAutoStartupApplications
  * @tc.type: FUNC

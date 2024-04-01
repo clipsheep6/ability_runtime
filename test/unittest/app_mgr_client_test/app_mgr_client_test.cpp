@@ -967,6 +967,35 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_IsFinalAppProcess_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: SetAppAssertionPauseState_001
+ * @tc.desc: IsFinalAppProcess.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SetAppAssertionPauseState_001, TestSize.Level0)
+{
+    HILOG_INFO("SetAppAssertionPauseState_001 start");
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+    int32_t pid = 100;
+    bool flag = true;
+    appMgrClient->SetAppAssertionPauseState(pid, flag);
+    HILOG_INFO("SetAppAssertionPauseState_001 end");
+}
+
+/**
+ * @tc.name: AppMgrClient_SetAppAssertionPauseState_001
+ * @tc.desc: SetAppAssertionPauseState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_SetAppAssertionPauseState_001, TestSize.Level0)
+{
+    HILOG_INFO("AppMgrClient_SetAppAssertionPauseState_001 start");
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    appMgrClient->SetAppAssertionPauseState(INIT_VALUE, false);
+    HILOG_INFO("AppMgrClient_SetAppAssertionPauseState_001 end");
+}
+
+/**
  * @tc.name: AppMgrClient_ClearProcessByToken_001
  * @tc.desc: ClearProcessByToken.
  * @tc.type: FUNC

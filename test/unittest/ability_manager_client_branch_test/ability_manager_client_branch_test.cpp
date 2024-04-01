@@ -2483,6 +2483,35 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetUIExtensionRoot
 }
 
 /**
+ * @tc.name: AbilityManagerClient_RequestAssertFaultDialog_0100
+ * @tc.desc: RequestAssertFaultDialog
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_RequestAssertFaultDialog_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "RequestAssertFaultDialog_0100 start";
+    sptr<IRemoteObject> callback = nullptr;
+    WantParams wantParams;
+    auto result = client_->RequestAssertFaultDialog(callback, wantParams);
+    EXPECT_EQ(result,  DEFAULT_INVAL_VALUE);
+    GTEST_LOG_(INFO) << "RequestAssertFaultDialog_0100 end";
+}
+
+/**
+ * @tc.name: AbilityManagerClient_NotifyDebugAssertResult_0100
+ * @tc.desc: NotifyDebugAssertResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_NotifyDebugAssertResult_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "NotifyDebugAssertResult_0100 start";
+    uint64_t assertFaultSessionId = 1;
+    auto res = client_->NotifyDebugAssertResult(assertFaultSessionId, AAFwk::UserStatus::ASSERT_TERMINATE);
+    EXPECT_EQ(res, DEFAULT_INVAL_VALUE);
+    GTEST_LOG_(INFO) << "NotifyDebugAssertResult_0100 end";
+}
+
+/**
  * @tc.name: AbilityManagerClient_RestartApp_0100
  * @tc.desc: RestartApp
  * @tc.type: FUNC

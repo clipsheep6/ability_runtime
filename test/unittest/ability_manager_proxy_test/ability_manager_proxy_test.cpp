@@ -2709,6 +2709,63 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_GetUIExtensionRootHostInfo
 }
 
 /**
+ * @tc.name: AbilityManagerProxy_RequestAssertFaultDialog_0100
+ * @tc.desc: RequestAssertFaultDialog
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RequestAssertFaultDialog_0100, TestSize.Level1)
+{
+    HILOG_INFO("begin");
+
+    OHOS::sptr<IRemoteObject> callback = nullptr;
+    AAFwk::WantParams wantParams;
+    auto res = proxy_->RequestAssertFaultDialog(callback, wantParams);
+    EXPECT_EQ(res, INNER_ERR);
+
+    HILOG_INFO("end");
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_RequestAssertFaultDialog_0200
+ * @tc.desc: RequestAssertFaultDialog
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_RequestAssertFaultDialog_0200, TestSize.Level1)
+{
+    HILOG_INFO("begin");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    OHOS::sptr<IRemoteObject> callback = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    AAFwk::WantParams wantParams;
+    EXPECT_NE(callback, nullptr);
+    auto res = proxy_->RequestAssertFaultDialog(callback, wantParams);
+    EXPECT_EQ(res, NO_ERROR);
+
+    HILOG_INFO("end");
+}
+
+/**
+ * @tc.name: AbilityManagerProxy_NotifyDebugAssertResult_0100
+ * @tc.desc: NotifyDebugAssertResult
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_NotifyDebugAssertResult_0100, TestSize.Level1)
+{
+    HILOG_INFO("begin");
+
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    uint64_t assertFaultSessionId = 1;
+    auto res = proxy_->NotifyDebugAssertResult(assertFaultSessionId, AAFwk::UserStatus::ASSERT_TERMINATE);
+    EXPECT_EQ(res, NO_ERROR);
+
+    HILOG_INFO("end");
+}
+
+/**
  * @tc.name: AbilityManagerProxy_RestartApp_0100
  * @tc.desc: RestartApp
  * @tc.type: FUNC

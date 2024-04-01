@@ -232,6 +232,27 @@ HWTEST_F(AmsMgrStubTest, HandleDetachAppDebug_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.name: HandleSetAppAssertionPauseState_0100
+ * @tc.desc: Handle set app assertion pause state.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrStubTest, HandleSetAppAssertionPauseState_0100, TestSize.Level1)
+{
+    EXPECT_NE(mockAmsMgrScheduler_, nullptr);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    WriteInterfaceToken(data);
+    int32_t pid = 100;
+    bool flag = true;
+    data.WriteInt32(pid);
+    data.WriteBool(pid);
+    auto result = mockAmsMgrScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAmsMgr::Message::CLEAR_PROCESS_BY_TOKEN), data, reply, option);
+    EXPECT_EQ(result, ERR_OK);
+}
+
+/**
  * @tc.name: HandleRegisterAbilityDebugResponse_0100
  * @tc.desc: Handle register ability debug response.
  * @tc.type: FUNC

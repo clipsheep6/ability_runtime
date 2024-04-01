@@ -2770,6 +2770,32 @@ HWTEST_F(AbilityManagerStubTest, GetUIExtensionRootHostInfo_0100, TestSize.Level
 }
 
 /**
+ * @tc.name: RequestAssertFaultDialogInner_0100
+ * @tc.desc: Test the state of RequestAssertFaultDialogInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, RequestAssertFaultDialogInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->RequestAssertFaultDialogInner(data, reply);
+    EXPECT_EQ(res, ERR_NULL_OBJECT);
+}
+
+/**
+ * @tc.name: NotifyDebugAssertResultInner_0100
+ * @tc.desc: Test the state of NotifyDebugAssertResultInner
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerStubTest, NotifyDebugAssertResultInner_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    auto res = stub_->NotifyDebugAssertResultInner(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
  * @tc.name: RestartAppInner_0100
  * @tc.desc: RestartAppInner
  * @tc.type: FUNC

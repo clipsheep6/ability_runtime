@@ -931,6 +931,46 @@ HWTEST_F(AmsMgrSchedulerTest, DetachAppDebug_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: SetAppAssertionPauseState_001
+ * @tc.desc: Test the state of SetAppAssertionPauseState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, SetAppAssertionPauseState_001, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    amsMgrScheduler->SetAppAssertionPauseState(0, false);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+}
+
+/**
+ * @tc.name: SetAppAssertionPauseState_002
+ * @tc.desc: Test the state of SetAppAssertionPauseState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, SetAppAssertionPauseState_002, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    amsMgrScheduler->amsMgrServiceInner_ = GetMockAppMgrServiceInner();
+    amsMgrScheduler->SetAppAssertionPauseState(0, false);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+}
+
+/**
+ * @tc.name: SetAppAssertionPauseState_003
+ * @tc.desc: Test the state of SetAppAssertionPauseState
+ * @tc.type: FUNC
+ */
+HWTEST_F(AmsMgrSchedulerTest, SetAppAssertionPauseState_003, TestSize.Level0)
+{
+    auto amsMgrScheduler = std::make_unique<AmsMgrScheduler>(nullptr, nullptr);
+    amsMgrScheduler->amsHandler_ = GetAmsTaskHandler();
+    amsMgrScheduler->SetAppAssertionPauseState(0, false);
+    EXPECT_NE(amsMgrScheduler, nullptr);
+}
+
+/**
  * @tc.name: RegisterAbilityDebugResponse_001
  * @tc.desc: Test the state of RegisterAbilityDebugResponse
  * @tc.type: FUNC

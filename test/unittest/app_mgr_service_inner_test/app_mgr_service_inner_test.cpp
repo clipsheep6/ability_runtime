@@ -4078,6 +4078,18 @@ HWTEST_F(AppMgrServiceInnerTest, RegisterRenderStateObserver_0200, TestSize.Leve
 }
 
 /**
+ * @tc.name: SetAppAssertionPauseState_0100
+ * @tc.desc: set app assertion pause state
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, SetAppAssertionPauseState_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    appMgrServiceInner->SetAppAssertionPauseState(0, false);
+    EXPECT_NE(appMgrServiceInner, nullptr);
+}
+
+/**
  * @tc.name: UnregisterRenderStateObserver_0100
  * @tc.desc: Test unregister by nullptr.
  * @tc.type: FUNC

@@ -81,6 +81,20 @@ void AbilityMgrServiceDialogTest::SetUp()
 void AbilityMgrServiceDialogTest::TearDown() {}
 
 /*
+ * @tc.number    : GetAssertFaultDialogWant_0100
+ * @tc.name      : AbilityMgrServiceDialogTest
+ * @tc.desc      : 1.Test GetAssertFaultDialogWant
+ */
+HWTEST_F(AbilityMgrServiceDialogTest, GetAssertFaultDialogWant_0100, TestSize.Level1)
+{
+    HILOG_INFO("GetAssertFaultDialogWant_0100 start");
+    Want want;
+    bool result = systemDialogScheduler_->GetAssertFaultDialogWant(want);
+    EXPECT_EQ(result, false);
+    HILOG_INFO("GetAssertFaultDialogWant_0100 end");
+}
+
+/*
  * @tc.number    : AbilityMgrServiceDialog_0100
  * @tc.name      : AbilityMgrServiceDialog
  * @tc.desc      : 1.Test TipsDialog
