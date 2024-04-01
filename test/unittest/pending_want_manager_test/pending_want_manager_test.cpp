@@ -183,7 +183,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0100, TestSize.Level1)
     wantSenderInfo.flags = 0;
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
-    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr, -1), nullptr);
 }
 
 /*
@@ -199,7 +199,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0300, TestSize.Level1)
     wantSenderInfo.flags = 0;
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
-    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr, -1), nullptr);
 }
 
 /*
@@ -215,7 +215,7 @@ HWTEST_F(PendingWantManagerTest, PendingWantManagerTest_0400, TestSize.Level1)
     wantSenderInfo.flags = 0;
     pendingManager_ = std::make_shared<PendingWantManager>();
     EXPECT_NE(pendingManager_, nullptr);
-    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr), nullptr);
+    EXPECT_NE(pendingManager_->GetWantSender(callingUid, uid, isSystemApp, wantSenderInfo, nullptr, -1), nullptr);
 }
 
 /*

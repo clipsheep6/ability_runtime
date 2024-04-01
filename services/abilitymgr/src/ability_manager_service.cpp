@@ -3888,7 +3888,7 @@ sptr<IWantSender> AbilityManagerService::GetWantSender(
     }
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "bundleName = %{public}s", wantSenderInfo.bundleName.c_str());
-    return pendingWantManager_->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken);
+    return pendingWantManager_->GetWantSender(callerUid, appUid, isSystemApp, wantSenderInfo, callerToken, userId);
 }
 
 int AbilityManagerService::SendWantSender(sptr<IWantSender> target, const SenderInfo &senderInfo)
@@ -7157,24 +7157,9 @@ void AbilityManagerService::InitDataAbilityManager(int32_t userId, bool switchUs
 
 void AbilityManagerService::InitPendWantManager(int32_t userId, bool switchUser)
 {
-    bool find = false;
-    {
-        std::lock_guard<ffrt::mutex> lock(managersMutex_);
-        auto it = pendingWantManagers_.find(userId);
-        find = (it != pendingWantManagers_.end());
-        if (find) {
-            if (switchUser) {
-                pendingWantManager_ = it->second;
-            }
-        }
-    }
-    if (!find) {
-        auto manager = std::make_shared<PendingWantManager>();
-        std::unique_lock<ffrt::mutex> lock(managersMutex_);
-        pendingWantManagers_.emplace(userId, manager);
-        if (switchUser) {
-            pendingWantManager_ = manager;
-        }
+    std::lock_guard<ffrt::mutex> lock(managersMutex_);
+    if (pendingWantManager_ == nullptr) {
+        pendingWantManager_ = std::make_shared<PendingWantManager>();
     }
 }
 
