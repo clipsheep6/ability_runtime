@@ -250,7 +250,7 @@ std::map<int, std::set<int>> AppfreezeManager::BinderParser(std::ifstream& fin, 
             return "";
         };
 
-        if (strList.size() == 7) { // 7: valid array size
+        if (strList.size() >= 7) { // 7: valid array size
             // 2: peer id,
             std::string server = SplitPhase(strList[2], 0);
             // 0: local id,
