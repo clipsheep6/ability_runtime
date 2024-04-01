@@ -29,6 +29,7 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SHARE,
     AppExecFwk::ExtensionAbilityType::ACTION,
     AppExecFwk::ExtensionAbilityType::EMBEDDED_UI,
+    AppExecFwk::ExtensionAbilityType::INSIGHT_INTENT_UI,
     AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD,
     AppExecFwk::ExtensionAbilityType::UI,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
