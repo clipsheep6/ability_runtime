@@ -141,6 +141,7 @@ void ConnectionRecord::CompleteConnect(int resultCode)
     if (remoteObject == nullptr) {
         HILOG_WARN("extension returned null object: %{public}s", element.GetURI().c_str());
         if (handler) {
+            SetConnectState(ConnectionState::DISCONNECTING);
             handler->SubmitTask([service = targetService_]() {
                 DelayedSingleton<AbilityManagerService>::GetInstance()->ScheduleDisconnectAbilityDone(
                     service->GetToken());
