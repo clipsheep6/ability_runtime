@@ -176,5 +176,24 @@ HWTEST_F(AppSchedulerHostTest, HandleDetachAppDebug_002, TestSize.Level1)
     auto result = mockAppScheduler_->OnRemoteRequest(UNKNOWN_CODE, data, reply, option);
     EXPECT_EQ(result, IPC_STUB_UNKNOW_TRANS_ERR);
 }
+
+/**
+ * @tc.name: HandleScheduleRequestTerminateProcess_001
+ * @tc.desc: Request terminate process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, HandleScheduleRequestTerminateProcess_001, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, ScheduleRequestTerminateProcess()).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+
+    auto result = mockAppScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_REQUEST_TERMINATE_PROCESS), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

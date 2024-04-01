@@ -113,5 +113,19 @@ HWTEST_F(AppSchedulerProxyTest, DetachAppDebug_001, TestSize.Level1)
     EXPECT_CALL(*mockAppScheduler_, DetachAppDebug()).Times(1);
     appSchedulerProxy->DetachAppDebug();
 }
+
+/**
+ * @tc.name: ScheduleRequestTerminateProcess_001
+ * @tc.desc: Verify that DetachAppDebug interface calls normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerProxyTest, ScheduleRequestTerminateProcess_001, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    sptr<AppSchedulerProxy> appSchedulerProxy = new AppSchedulerProxy(mockAppScheduler_);
+    EXPECT_NE(appSchedulerProxy, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, ScheduleRequestTerminateProcess()).Times(1);
+    appSchedulerProxy->ScheduleRequestTerminateProcess();
+}
 } // namespace AppExecFwk
 } // namespace OHOS
