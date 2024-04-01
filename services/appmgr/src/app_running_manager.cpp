@@ -717,6 +717,51 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
     return ERR_OK;
 }
 
+int32_t AppRunningManager::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
+{
+    std::unordered_set<int32_t> frozenPids;
+#ifdef EFFICIENCY_MANAGER_ENABLE
+    std::unordered_map<int32_t, std::unordered_map<int32_t, bool>> appSuspendState;
+    SuspendManager::SuspendManagerClient::GetInstance().GetAllSuspendState(appSuspendState);
+    if (appSuspendState.empty()) {
+        TAG_LOGW(AAFwkTag::APPMGR, "Get app state empty");
+    }
+    for (auto &[uid, pids] : appSuspendState) {
+        for (auto &[pid, isFrozen] : pids) {
+            if (isFrozen) {
+                frozenPids.insert(pid);
+            }
+        }
+    }
+#endif
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (!appRecord) {
+            TAG_LOGE(AAFwkTag::APPMGR, "appRecord null");
+            continue;
+        }
+        auto priorityObject = appRecord->GetPriorityObject();
+        if (!priorityObject) {
+            TAG_LOGW(AAFwkTag::APPMGR, "priorityObject null");
+            continue;
+        }
+        auto pid = priorityObject->GetPid();
+        if (frozenPids.count(pid) == 0) {
+            auto it = procLevelMap.find(pid);
+            if (it == procLevelMap.end()) {
+                TAG_LOGW(AAFwkTag::APPMGR, "proc[pid=%{public}d] is not found in procLevelMap.", pid);
+            } else {
+                TAG_LOGD(AAFwkTag::APPMGR, "proc[pid=%{public}d] memory level = %{public}d", pid, it->second);
+                appRecord->ScheduleMemoryLevel(it->second);
+            }
+        } else {
+            TAG_LOGD(AAFwkTag::APPMGR, "proc[pid=%{public}d] is frozen", pid);
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppRunningManager::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)
 {
     std::shared_ptr<AppRunningRecord> appRecord;

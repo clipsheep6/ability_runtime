@@ -132,6 +132,7 @@ const std::string SERVICE_EXTENSION = ":ServiceExtension";
 const std::string KEEP_ALIVE = ":KeepAlive";
 const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
 const std::string TSAN_FLAG_NAME = "tsanEnabled";
+const std::string MEMMGR_PROC_NAME = "memmgrservice";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -1261,11 +1262,12 @@ int32_t AppMgrServiceInner::GetAllRenderProcesses(std::vector<RenderProcessInfo>
 
 int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
 {
-    TAG_LOGI(AAFwkTag::APPMGR, "AppMgrServiceInner start");
+    TAG_LOGI(AAFwkTag::APPMGR, "start");
 
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not SA %{public}s", __func__);
+    bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
+        MEMMGR_PROC_NAME);
+    if (!isMemmgrCall) {
+        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
         return ERR_INVALID_VALUE;
     }
     if (!(level == OHOS::AppExecFwk::MemoryLevel::MEMORY_LEVEL_MODERATE ||
@@ -1280,6 +1282,24 @@ int32_t AppMgrServiceInner::NotifyMemoryLevel(int32_t level)
     }
 
     return appRunningManager_->NotifyMemoryLevel(level);
+}
+
+int32_t AppMgrServiceInner::NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "start");
+
+    bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
+        MEMMGR_PROC_NAME);
+    if (!isMemmgrCall) {
+        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
+        return ERR_INVALID_VALUE;
+    }
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager nullptr!");
+        return ERR_INVALID_VALUE;
+    }
+
+    return appRunningManager_->NotifyProcMemoryLevel(procLevelMap);
 }
 
 int32_t AppMgrServiceInner::DumpHeapMemory(const int32_t pid, OHOS::AppExecFwk::MallocInfo &mallocInfo)

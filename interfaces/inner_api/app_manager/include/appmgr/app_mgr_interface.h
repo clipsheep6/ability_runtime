@@ -34,6 +34,7 @@
 #include "iremote_broker.h"
 #include "iremote_object.h"
 #include "irender_state_observer.h"
+#include "memory_level_info.h"
 #include "page_state_data.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
@@ -173,6 +174,15 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual int NotifyMemoryLevel(int32_t level) = 0;
+
+    /**
+     * NotifyProcMemoryLevel, call NotifyMemoryLevel() through proxy project.
+     * Notify abilities the current memory level.
+     *
+     * @param procLevelMap ,<pid, level> map
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t NotifyProcMemoryLevel(const std::map<pid_t, MemoryLevel> &procLevelMap) = 0;
 
     /**
      * DumpHeapMemory, call DumpHeapMemory() through proxy project.
