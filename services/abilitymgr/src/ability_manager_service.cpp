@@ -5449,6 +5449,12 @@ int AbilityManagerService::GenerateExtensionAbilityRequest(
         return RESOLVE_ABILITY_ERR;
     }
 
+    return InitialAbilityRequest(request, extensionInfos);
+}
+
+int32_t AbilityManagerService::InitialAbilityRequest(AbilityRequest &request,
+    const std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) const
+{
     AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
     if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "extensionInfo empty.");
@@ -8486,6 +8492,15 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
         // CallerAbility is not foreground, so check process state
         DelayedSingleton<AppScheduler>::GetInstance()->
             GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
+        if (IsDelegatorCall(processInfo, abilityRequest)) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "The call is from AbilityDelegator, allow background-call.");
+            isBackgroundCall = false;
+            return ERR_OK;
+        }
+        auto abilityState = callerAbility->GetAbilityState();
+        if (abilityState == AbilityState::BACKGROUND || abilityState == AbilityState::BACKGROUNDING) {
+            return ERR_OK;
+        }
     } else {
         auto callerPid = IPCSkeleton::GetCallingPid();
         DelayedSingleton<AppScheduler>::GetInstance()->GetRunningProcessInfoByPid(callerPid, processInfo);
@@ -8501,7 +8516,12 @@ int AbilityManagerService::IsCallFromBackground(const AbilityRequest &abilityReq
             return ERR_INVALID_VALUE;
         }
     }
+    return SetBackgroundCall(processInfo, abilityRequest, isBackgroundCall);
+}
 
+int32_t AbilityManagerService::SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
+    const AbilityRequest &abilityRequest, bool &isBackgroundCall) const
+{
     if (IsDelegatorCall(processInfo, abilityRequest)) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "The call is from AbilityDelegator, allow background-call.");
         isBackgroundCall = false;
@@ -8541,7 +8561,7 @@ bool AbilityManagerService::IsTargetPermission(const Want &want) const
 }
 
 inline bool AbilityManagerService::IsDelegatorCall(
-    const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest)
+    const AppExecFwk::RunningProcessInfo &processInfo, const AbilityRequest &abilityRequest) const
 {
     /*  To make sure the AbilityDelegator is not counterfeited
      *   1. The caller-process must be test-process
