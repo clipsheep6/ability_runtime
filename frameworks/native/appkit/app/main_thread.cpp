@@ -94,6 +94,11 @@
 #include <dirent.h>
 #include <dlfcn.h>
 #endif
+
+#ifdef ABILITY_RUNTIME_USE_APS_FUNC
+#include <aps_game_fps_controller.h>
+#endif // ABILITY_RUNTIME_USE_APS_FUNC
+
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
 namespace AppExecFwk {
@@ -948,6 +953,12 @@ bool MainThread::InitCreate(
     }
 
     applicationInfo_ = std::make_shared<ApplicationInfo>(appInfo);
+    // c30045783 Game Frame Rate Reduction Scheme
+#ifdef ABILITY_RUNTIME_USE_APS_FUNC
+    std::string pkgName = applicationInfo_->name;
+    auto task = [pkgName](){ Rosen::ApsGameFpsController::GetInstance().RegisterGameFpsListen(pkgName); };
+    ffrt::submit(task);
+#endif
     if (applicationInfo_ == nullptr) {
         HILOG_ERROR("create applicationInfo_ failed");
         return false;

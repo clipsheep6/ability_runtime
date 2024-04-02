@@ -85,6 +85,7 @@ declare_args() {
   ability_fault_and_exit_test = false
   ability_command_for_test = false
   ability_runtime_feature_coverage = false
+  ability_runtime_use_aps = false
   ability_runtime_auto_fill_ability =
       "com.ohos.passwordbox/entry/AutoFillAbility"
   ability_runtime_smart_auto_fill_ability =
@@ -151,5 +152,12 @@ declare_args() {
     hichecker_enabled = true
   } else {
     hichecker_enabled = false
+  }
+
+  if (defined(global_parts_info) && 
+      defined(global_parts_info.graphic_graphic_2d_ext)) {
+        ability_runtime_use_aps = true
+  } else {
+    ability_runtime_use_aps = false
   }
 }

@@ -218,6 +218,10 @@ ohos_shared_library("appkit_native") {
     ]
   }
 
+  if (uability_runtime_use_aps) {
+    external_deps += [ "graphic_2d_ext:libaps_client" ]
+  }
+
   defines = []
   if (is_asan) {
     defines += [ "SUPPORT_ASAN" ]
@@ -236,6 +240,10 @@ ohos_shared_library("appkit_native") {
       defined(global_parts_info.resourceschedule_memmgr_plugin)) {
     defines += [ "IMAGE_PURGEABLE_PIXELMAP" ]
     external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
+  }
+
+  if (uability_runtime_use_aps) {
+    defines += [ "ABILITY_RUNTIME_USE_APS_FUNC" ]
   }
 
   innerapi_tags = [ "platformsdk" ]

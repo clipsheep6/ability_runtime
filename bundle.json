@@ -83,7 +83,8 @@
             "storage_service",
             "toolchain",
             "webview",
-            "window_manager"
+            "window_manager",
+            "graphic_2d_ext"
   ],
           "third_party": [
             "icu",
