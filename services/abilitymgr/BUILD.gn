@@ -68,10 +68,6 @@ config("abilityms_config") {
 
   defines = []
 
-  if (is_asan) {
-    defines += [ "SUPPORT_ASAN" ]
-  }
-
   if (ability_command_for_test) {
     defines += [ "ABILITY_COMMAND_FOR_TEST" ]
   }
@@ -203,10 +199,7 @@ ohos_shared_library("abilityms") {
   }
 
   if (ability_runtime_graphics) {
-    deps += [
-      "//third_party/icu/icu4c:shared_icuuc",
-      "//third_party/libjpeg-turbo:turbojpeg_static",
-    ]
+    deps += [ "//third_party/icu/icu4c:shared_icuuc" ]
 
     external_deps += [
       "ability_base:session_info",

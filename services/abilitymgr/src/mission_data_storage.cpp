@@ -19,55 +19,24 @@
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "image_packer.h"
 #include "image_source.h"
 #include "media_errors.h"
 #include "mission_info_mgr.h"
 #ifdef SUPPORT_GRAPHICS
 #include <cstdio>
-#include <setjmp.h>
-#include "jpeglib.h"
 #include "securec.h"
 #endif
 
 namespace OHOS {
 namespace AAFwk {
-#ifdef SUPPORT_GRAPHICS
-constexpr int32_t RGB565_PIXEL_BYTES = 2;
-constexpr int32_t RGB888_PIXEL_BYTES = 3;
-constexpr int32_t RGBA8888_PIXEL_BYTES = 4;
-
-constexpr uint8_t B_INDEX = 0;
-constexpr uint8_t G_INDEX = 1;
-constexpr uint8_t R_INDEX = 2;
-constexpr uint8_t SHIFT_2_BIT = 2;
-constexpr uint8_t SHITF_3_BIT = 3;
-constexpr uint8_t SHIFT_5_BIT = 5;
-constexpr uint8_t SHIFT_8_BIT = 8;
-constexpr uint8_t SHIFT_11_BIT = 11;
-constexpr uint8_t SHIFT_16_BIT = 16;
-
-constexpr uint16_t RGB565_MASK_BLUE = 0xF800;
-constexpr uint16_t RGB565_MASK_GREEN = 0x07E0;
-constexpr uint16_t RGB565_MASK_RED = 0x001F;
-constexpr uint32_t RGBA8888_MASK_BLUE = 0x000000FF;
-constexpr uint32_t RGBA8888_MASK_GREEN = 0x0000FF00;
-constexpr uint32_t RGBA8888_MASK_RED = 0x00FF0000;
-
-const mode_t MODE = 0770;
-
-struct mission_error_mgr : public jpeg_error_mgr {
-    jmp_buf environment;
-};
-
-METHODDEF(void) mission_error_exit(j_common_ptr cinfo)
-{
-    if (cinfo == nullptr || cinfo->err == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s param is invalid.", __func__);
-        return;
-    }
-    auto err = static_cast<mission_error_mgr*>(cinfo->err);
-    longjmp(err->environment, 1);
+namespace {
+constexpr const char* IMAGE_FORMAT = "image/jpeg";
+constexpr uint8_t IMAGE_QUALITY = 75;
 }
+#ifdef SUPPORT_GRAPHICS
+constexpr int32_t RGB888_PIXEL_BYTES = 3;
+const mode_t MODE = 0770;
 #endif
 
 MissionDataStorage::MissionDataStorage(int userId)
@@ -272,19 +241,14 @@ void MissionDataStorage::SaveSnapshotFile(int32_t missionId, const std::shared_p
             return;
         }
         if (memset_s(data, dataLength, 0xff, dataLength) == EOK) {
-            WriteRgb888ToJpeg(filePath.c_str(), snapshot->GetWidth(), snapshot->GetHeight(), data);
+            Media::SourceOptions sourceOptions;
+            uint32_t errCode = 0;
+            auto imageSource = Media::ImageSource::CreateImageSource(data, dataLength, sourceOptions, errCode);
+            WriteToJpeg(filePath, *imageSource);
         }
         free(data);
     } else {
-        if (snapshot->GetPixelFormat() == Media::PixelFormat::RGB_565) {
-            SaveRGB565Image(snapshot, filePath.c_str());
-        } else if (snapshot->GetPixelFormat() == Media::PixelFormat::RGBA_8888) {
-            SaveRGBA8888Image(snapshot, filePath.c_str());
-        } else if (snapshot->GetPixelFormat() == Media::PixelFormat::RGB_888) {
-            WriteRgb888ToJpeg(filePath.c_str(), snapshot->GetWidth(), snapshot->GetHeight(), snapshot->GetPixels());
-        } else {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: invalid pixel format.");
-        }
+        WriteToJpeg(filePath, *snapshot);
     }
 }
 
@@ -440,130 +404,26 @@ std::unique_ptr<Media::PixelMap> MissionDataStorage::GetPixelMap(int missionId, 
     return pixelMapPtr;
 }
 
-void MissionDataStorage::WriteRgb888ToJpeg(const char* fileName, uint32_t width, uint32_t height, const uint8_t* data)
+template<typename T>
+void MissionDataStorage::WriteToJpeg(const std::string &filePath, T &snapshot) const
 {
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "file:%{public}s", fileName);
-    if (data == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: data error, nullptr!\n");
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "file:%{public}s", filePath.c_str());
+    OHOS::Media::PackOption option;
+    option.format = IMAGE_FORMAT;
+    option.quality = IMAGE_QUALITY;
+    Media::ImagePacker imagePacker;
+    uint32_t err = imagePacker.StartPacking(filePath, option);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to StartPacking %{public}d.", err);
         return;
     }
-
-    FILE *file = fopen(fileName, "wb");
-    if (file == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: open file [%s] error, nullptr!\n", fileName);
+    err = imagePacker.AddImage(snapshot);
+    if (err != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to AddImage %{public}d.", err);
         return;
     }
-
-    struct jpeg_compress_struct jpeg;
-    struct mission_error_mgr jerr;
-    jpeg.err = jpeg_std_error(&jerr);
-    jerr.error_exit = mission_error_exit;
-    if (setjmp(jerr.environment)) {
-        jpeg_destroy_compress(&jpeg);
-        (void)fclose(file);
-        file = nullptr;
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "snapshot: lib jpeg exit with error!");
-        return;
-    }
-
-    jpeg_create_compress(&jpeg);
-    jpeg.image_width = width;
-    jpeg.image_height = height;
-    jpeg.input_components = RGB888_PIXEL_BYTES;
-    jpeg.in_color_space = JCS_RGB;
-    jpeg_set_defaults(&jpeg);
-
-    constexpr int32_t quality = 75;
-    jpeg_set_quality(&jpeg, quality, TRUE);
-
-    jpeg_stdio_dest(&jpeg, file);
-    jpeg_start_compress(&jpeg, TRUE);
-    JSAMPROW rowPointer[1];
-    for (uint32_t i = 0; i < jpeg.image_height; i++) {
-        rowPointer[0] = const_cast<uint8_t *>(data + i * jpeg.image_width * RGB888_PIXEL_BYTES);
-        (void)jpeg_write_scanlines(&jpeg, rowPointer, 1);
-    }
-
-    jpeg_finish_compress(&jpeg);
-    (void)fclose(file);
-    file = nullptr;
-    jpeg_destroy_compress(&jpeg);
-}
-
-// only valid for little-endian order.
-bool MissionDataStorage::RGB565ToRGB888(const uint16_t *rgb565Buf, int32_t rgb565Size,
-    uint8_t *rgb888Buf, int32_t rgb888Size)
-{
-    if (rgb565Buf == nullptr || rgb565Size <= 0 || rgb888Buf == nullptr || rgb888Size <= 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: params are invalid.", __func__);
-        return false;
-    }
-
-    if (rgb888Size < rgb565Size * RGB888_PIXEL_BYTES) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: rgb888Size are invalid.", __func__);
-        return false;
-    }
-
-    for (int32_t i = 0; i < rgb565Size; i++) {
-        rgb888Buf[i * RGB888_PIXEL_BYTES + R_INDEX] = (rgb565Buf[i] & RGB565_MASK_RED);
-        rgb888Buf[i * RGB888_PIXEL_BYTES + G_INDEX] = (rgb565Buf[i] & RGB565_MASK_GREEN) >> SHIFT_5_BIT;
-        rgb888Buf[i * RGB888_PIXEL_BYTES + B_INDEX] = (rgb565Buf[i] & RGB565_MASK_BLUE) >> SHIFT_11_BIT;
-        rgb888Buf[i * RGB888_PIXEL_BYTES + R_INDEX] <<= SHITF_3_BIT;
-        rgb888Buf[i * RGB888_PIXEL_BYTES + G_INDEX] <<= SHIFT_2_BIT;
-        rgb888Buf[i * RGB888_PIXEL_BYTES + B_INDEX] <<= SHITF_3_BIT;
-    }
-
-    return true;
-}
-
-bool MissionDataStorage::RGBA8888ToRGB888(const uint32_t *rgba8888Buf, int32_t rgba8888Size,
-    uint8_t *rgb888Buf, int32_t rgb888Size)
-{
-    if (rgba8888Buf == nullptr || rgba8888Size <= 0 || rgb888Buf == nullptr || rgb888Size <= 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: params are invalid.", __func__);
-        return false;
-    }
-
-    if (rgb888Size < rgba8888Size * RGB888_PIXEL_BYTES) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s: rgb888Size are invalid.", __func__);
-        return false;
-    }
-
-    for (int32_t i = 0; i < rgba8888Size; i++) {
-        rgb888Buf[i * RGB888_PIXEL_BYTES + R_INDEX] = (rgba8888Buf[i] & RGBA8888_MASK_RED) >> SHIFT_16_BIT;
-        rgb888Buf[i * RGB888_PIXEL_BYTES + G_INDEX] = (rgba8888Buf[i] & RGBA8888_MASK_GREEN) >> SHIFT_8_BIT;
-        rgb888Buf[i * RGB888_PIXEL_BYTES + B_INDEX] = rgba8888Buf[i] & RGBA8888_MASK_BLUE;
-    }
-
-    return true;
-}
-
-void MissionDataStorage::SaveRGB565Image(const std::shared_ptr<Media::PixelMap> &frame, const char* fileName)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s was called.", __func__);
-    int32_t rgb888Size = (frame->GetByteCount() / RGB565_PIXEL_BYTES) * RGB888_PIXEL_BYTES;
-    uint8_t *rgb888 = new uint8_t[rgb888Size];
-    const uint16_t *rgb565Data = reinterpret_cast<const uint16_t *>(frame->GetPixels());
-    auto ret = RGB565ToRGB888(rgb565Data, frame->GetByteCount() / RGB565_PIXEL_BYTES, rgb888, rgb888Size);
-    if (ret) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "snapshot: convert rgb565 to rgb888 successfully.");
-        WriteRgb888ToJpeg(fileName, frame->GetWidth(), frame->GetHeight(), rgb888);
-    }
-    delete [] rgb888;
-}
-
-void MissionDataStorage::SaveRGBA8888Image(const std::shared_ptr<Media::PixelMap> &frame, const char* fileName)
-{
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s was called.", __func__);
-    int32_t rgb888Size = (frame->GetByteCount() / RGBA8888_PIXEL_BYTES) * RGB888_PIXEL_BYTES;
-    uint8_t *rgb888 = new uint8_t[rgb888Size];
-    const uint32_t *rgba8888Data = reinterpret_cast<const uint32_t *>(frame->GetPixels());
-    auto ret = RGBA8888ToRGB888(rgba8888Data, frame->GetByteCount() / RGBA8888_PIXEL_BYTES, rgb888, rgb888Size);
-    if (ret) {
-        TAG_LOGD(AAFwkTag::ABILITYMGR, "snapshot: convert rgba8888 to rgb888 successfully.");
-        WriteRgb888ToJpeg(fileName, frame->GetWidth(), frame->GetHeight(), rgb888);
-    }
-    delete [] rgb888;
+    int64_t packedSize = 0;
+    imagePacker.FinalizePacking(packedSize);
 }
 #endif
 }  // namespace AAFwk
