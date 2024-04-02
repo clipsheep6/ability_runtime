@@ -1656,11 +1656,13 @@ int AbilityRecord::GetRequestCode() const
 
 void AbilityRecord::SetResult(const std::shared_ptr<AbilityResult> &result)
 {
+    std::lock_guard guard(resultLock_);
     result_ = result;
 }
 
 std::shared_ptr<AbilityResult> AbilityRecord::GetResult() const
 {
+    std::lock_guard guard(resultLock_);
     return result_;
 }
 
@@ -1669,11 +1671,12 @@ void AbilityRecord::SendResult(bool isSandboxApp, uint32_t tokeId)
     TAG_LOGI(AAFwkTag::ABILITYMGR, "ability:%{public}s.", abilityInfo_.name.c_str());
     std::lock_guard<ffrt::mutex> guard(lock_);
     CHECK_POINTER(scheduler_);
-    CHECK_POINTER(result_);
-    GrantUriPermission(result_->resultWant_, applicationInfo_.bundleName, isSandboxApp, tokeId);
-    scheduler_->SendResult(result_->requestCode_, result_->resultCode_, result_->resultWant_);
+    auto result = GetResult();
+    CHECK_POINTER(result);
+    GrantUriPermission(result->resultWant_, applicationInfo_.bundleName, isSandboxApp, tokeId);
+    scheduler_->SendResult(result->requestCode_, result->resultCode_, result->resultWant_);
     // reset result to avoid send result next time
-    result_.reset();
+    SetResult(nullptr);
 }
 
 void AbilityRecord::SendSandboxSavefileResult(const Want &want, int resultCode, int requestCode)
