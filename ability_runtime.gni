@@ -156,7 +156,7 @@ declare_args() {
 
   if (defined(global_parts_info) && 
       defined(global_parts_info.graphic_graphic_2d_ext)) {
-        ability_runtime_use_aps = true
+    ability_runtime_use_aps = true
   } else {
     ability_runtime_use_aps = false
   }

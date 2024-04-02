@@ -956,7 +956,7 @@ bool MainThread::InitCreate(
     // c30045783 Game Frame Rate Reduction Scheme
 #ifdef ABILITY_RUNTIME_USE_APS_FUNC
     std::string pkgName = applicationInfo_->name;
-    auto task = [pkgName](){ Rosen::ApsGameFpsController::GetInstance().RegisterGameFpsListen(pkgName); };
+    auto task = [pkgName]() { Rosen::ApsGameFpsController::GetInstance().RegisterGameFpsListen(pkgName); };
     ffrt::submit(task);
 #endif
     if (applicationInfo_ == nullptr) {
