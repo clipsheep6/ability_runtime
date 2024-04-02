@@ -645,6 +645,50 @@ napi_value JsApplicationContextUtils::OnSetLanguage(napi_env env, NapiCallbackIn
     return CreateJsUndefined(env);
 }
 
+napi_value JsApplicationContextUtils::PreloadUIExtensionAbility(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(
+        env, info, JsApplicationContextUtils, OnPreloadUIExtensionAbility, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnPreloadUIExtensionAbility(napi_env env, napi_callback_info info)
+{
+    HILOG_DEBUG("called");
+    if (info.argc < ARGC_ONE) {
+        HILOG_ERROR("OnPreloadUIExtensionAbility params error!");
+        ThrowTooFewParametersError(env);
+        return CreateJsUndefined(env);
+    }
+
+    AAFwk::Want want;
+    if (!AppExecFwk::UnwrapWant(env, info.argv[INDEX_ZERO], want)) {
+        HILOG_ERROR("Parse want failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+
+    auto errcode = AAFwk::AbilityManagerClient::GetInstance()->RequestModalUIExtension(want);
+    [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
+        auto context = applicationContext.lock();
+        if (!context) {
+            task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
+                "applicationContext if already released."));
+            return;
+        }
+        if (errcode == ERR_OK) {
+            task.Resolve(env, CreateJsUndefined(env));
+        } else {
+            HILOG_ERROR("JsApplicationContextUtils::OnPreloadUIExtensionAbility is failed %{public}d", errcode);
+            task.Reject(env, CreateJsErrorByNativeErr(env, errcode));
+        }
+    };
+    napi_value lastParam = (info.argc > ARGC_ONE) ? info.argv[ARGC_ONE] : nullptr;
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JSServiceExtensionContext::OnPreloadUIExtensionAbility",
+        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
 napi_value JsApplicationContextUtils::ClearUpApplicationData(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_WITH_NAME_AND_CALL(
@@ -1366,6 +1410,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeFunction(env, object, "setLanguage", MD_NAME, JsApplicationContextUtils::SetLanguage);
     BindNativeFunction(env, object, "clearUpApplicationData", MD_NAME,
         JsApplicationContextUtils::ClearUpApplicationData);
+    BindNativeFunction(env, object, "preloadUIExtensionAbility", MD_NAME,
+        JsApplicationContextUtils::PreloadUIExtensionAbility);
     BindNativeFunction(env, object, "getProcessRunningInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
