@@ -45,6 +45,11 @@ void ApplicationContext::AttachContextImpl(const std::shared_ptr<ContextImpl> &c
     contextImpl_ = contextImpl;
 }
 
+void ApplicationContext::AttachExtensionContext(const std::shared_ptr<ExtensionContext> &extensionContext)
+{
+    extensionContext_ = extensionContext;
+}
+
 void ApplicationContext::RegisterAbilityLifecycleCallback(
     const std::shared_ptr<AbilityLifecycleCallback> &abilityLifecycleCallback)
 {
@@ -350,17 +355,35 @@ std::shared_ptr<AppExecFwk::HapModuleInfo> ApplicationContext::GetHapModuleInfo(
 
 std::string ApplicationContext::GetBundleCodeDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetBundleCodeDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetBundleCodeDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetBundleCodeDir();
+    }
+    return "";
 }
 
 std::string ApplicationContext::GetCacheDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetCacheDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetCacheDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetCacheDir();
+    }
+    return "";
 }
 
 std::string ApplicationContext::GetTempDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetTempDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetTempDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetTempDir();
+    }
+    return "";
 }
 
 void ApplicationContext::GetAllTempDir(std::vector<std::string> &tempPaths)
@@ -374,12 +397,24 @@ void ApplicationContext::GetAllTempDir(std::vector<std::string> &tempPaths)
 
 std::string ApplicationContext::GetResourceDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetResourceDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetResourceDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetResourceDir();
+    }
+    return "";
 }
 
 std::string ApplicationContext::GetFilesDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetFilesDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetFilesDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetFilesDir();
+    }
+    return "";
 }
 
 void ApplicationContext::KillProcessBySelf()
@@ -406,12 +441,24 @@ bool ApplicationContext::PrintDrawnCompleted()
 
 std::string ApplicationContext::GetDatabaseDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetDatabaseDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetDatabaseDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetDatabaseDir();
+    }
+    return "";
 }
 
 std::string ApplicationContext::GetPreferencesDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetPreferencesDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetPreferencesDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetPreferencesDir();
+    }
+    return "";
 }
 
 int32_t ApplicationContext::GetSystemDatabaseDir(const std::string &groupId, bool checkExist, std::string &databaseDir)
@@ -429,7 +476,13 @@ int32_t ApplicationContext::GetSystemPreferencesDir(const std::string &groupId, 
 
 std::string ApplicationContext::GetGroupDir(std::string groupId)
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetGroupDir(groupId) : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetGroupDir(groupId);
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetGroupDir(groupId);
+    }
+    return "";
 }
 
 int32_t ApplicationContext::RestartApp(const AAFwk::Want& want)
@@ -446,7 +499,13 @@ int32_t ApplicationContext::RestartApp(const AAFwk::Want& want)
 
 std::string ApplicationContext::GetDistributedFilesDir()
 {
-    return (contextImpl_ != nullptr) ? contextImpl_->GetDistributedFilesDir() : "";
+    if (contextImpl_ != nullptr && extensionContext_ != nullptr){
+        return extensionContext_->GetDistributedFilesDir();
+    }
+    if (contextImpl_ != nullptr) {
+        return contextImpl_->GetDistributedFilesDir();
+    }
+    return "";
 }
 
 sptr<IRemoteObject> ApplicationContext::GetToken()

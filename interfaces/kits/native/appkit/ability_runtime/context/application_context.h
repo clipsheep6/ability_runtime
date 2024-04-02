@@ -24,6 +24,7 @@
 #include "context.h"
 #include "context_impl.h"
 #include "environment_callback.h"
+#include "extension_context.h"
 namespace OHOS {
 namespace AAFwk {
 class Want;
@@ -100,6 +101,7 @@ public:
     int32_t RestartApp(const AAFwk::Want& want);
 
     void AttachContextImpl(const std::shared_ptr<ContextImpl> &contextImpl);
+    void AttachExtensionContext(const std::shared_ptr<ExtensionContext> &extensionContext);
 
     static std::shared_ptr<ApplicationContext> GetInstance();
 
@@ -123,6 +125,7 @@ private:
     bool applicationInfoUpdateFlag_ = false;
     AppConfigUpdateCallback appConfigChangeCallback_ = nullptr;
     std::string appRunningUniqueId_;
+    std::shared_ptr<ExtensionContext> extensionContext_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

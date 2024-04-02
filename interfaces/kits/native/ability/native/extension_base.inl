@@ -48,6 +48,8 @@ std::shared_ptr<C> ExtensionBase<C>::CreateAndInitContext(const std::shared_ptr<
     context->SetApplicationInfo(appContext->GetApplicationInfo());
     context->SetResourceManager(appContext->GetResourceManager());
     context->SetParentContext(appContext);
+    // 读取配置 是否独立沙箱
+    context->SetIsolatedExtension(true);
     if (record == nullptr) {
         TAG_LOGE(AAFwkTag::EXT, "ServiceExtension::CreateAndInitContext record is nullptr");
         return context;

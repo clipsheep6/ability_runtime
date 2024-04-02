@@ -25,6 +25,7 @@
 #include "js_ability_auto_startup_callback.h"
 #include "native_engine/native_engine.h"
 #include "running_process_info.h"
+#include "extension_context.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -111,7 +112,7 @@ public:
     static napi_value SetLanguage(napi_env env, napi_callback_info info);
     static napi_value ClearUpApplicationData(napi_env env, napi_callback_info info);
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
-    static napi_value CreateJsApplicationContext(napi_env env);
+    static napi_value CreateJsApplicationContext(napi_env env, const std::shared_ptr<ExtensionContext> &extensionContext = nullptr);
     static napi_value RestartApp(napi_env env, napi_callback_info info);
 
 protected:
@@ -129,11 +130,13 @@ private:
     static void BindNativeApplicationContext(napi_env env, napi_value object);
     static JsAppProcessState ConvertToJsAppProcessState(
         const AppExecFwk::AppProcessState &appProcessState, const bool &isFocused);
+    void AttachExtensionContext(const std::shared_ptr<ExtensionContext> &extensionContext);
     std::shared_ptr<JsAbilityLifecycleCallback> callback_;
     std::shared_ptr<JsEnvironmentCallback> envCallback_;
     std::shared_ptr<JsApplicationStateChangeCallback> applicationStateCallback_;
     std::mutex applicationStateCallbackLock_;
     sptr<JsAbilityAutoStartupCallBack> jsAutoStartupCallback_;
+    std::shared_ptr<ExtensionContext> extensionContext_;
 };
 }  // namespace AbilityRuntime
 }  // namespace OHOS

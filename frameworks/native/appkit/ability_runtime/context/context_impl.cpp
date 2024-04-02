@@ -71,6 +71,7 @@ const std::string ContextImpl::CONTEXT_FILES("/files");
 const std::string ContextImpl::CONTEXT_HAPS("/haps");
 const std::string ContextImpl::CONTEXT_ELS[] = {"el1", "el2", "el3", "el4"};
 const std::string ContextImpl::CONTEXT_RESOURCE_END = "/resources/resfile";
+const std::string ContextImpl::CONTEXT_EXTENSION("extension");
 Global::Resource::DeviceType ContextImpl::deviceType_ = Global::Resource::DeviceType::DEVICE_NOT_SET;
 const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 const int32_t TYPE_RESERVE = 1;
@@ -102,6 +103,9 @@ std::string ContextImpl::GetBundleCodeDir()
     } else {
         dir = LOCAL_CODE_PATH;
     }
+    if (isIsolatedExtension_) {
+        dir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     CreateDirIfNotExist(dir, MODE);
     TAG_LOGD(AAFwkTag::APPKIT, "dir:%{public}s", dir.c_str());
     return dir;
@@ -110,6 +114,9 @@ std::string ContextImpl::GetBundleCodeDir()
 std::string ContextImpl::GetCacheDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_CACHE;
+    if (isIsolatedExtension_) {
+        dir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     CreateDirIfNotExist(dir, MODE);
     TAG_LOGD(AAFwkTag::APPKIT, "dir:%{public}s", dir.c_str());
     return dir;
@@ -152,6 +159,9 @@ int32_t ContextImpl::GetDatabaseDirWithCheck(bool checkExist, std::string &datab
         databaseDir = databaseDir + CONTEXT_FILE_SEPARATOR +
                       ((GetHapModuleInfo() == nullptr) ? "" : GetHapModuleInfo()->moduleName);
     }
+    if (isIsolatedExtension_) {
+        databaseDir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     CreateDirIfNotExistWithCheck(databaseDir, 0, checkExist);
     return ERR_OK;
 }
@@ -190,6 +200,9 @@ std::string ContextImpl::GetDatabaseDir()
 int32_t ContextImpl::GetPreferencesDirWithCheck(bool checkExist, std::string &preferencesDir)
 {
     preferencesDir = GetBaseDir() + CONTEXT_FILE_SEPARATOR + CONTEXT_PREFERENCES;
+    if (isIsolatedExtension_) {
+        preferencesDir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     CreateDirIfNotExistWithCheck(preferencesDir, MODE, checkExist);
     return ERR_OK;
 }
@@ -244,7 +257,11 @@ int32_t ContextImpl::GetGroupDirWithCheck(const std::string &groupId, bool check
         return ERR_INVALID_VALUE;
     }
     std::string uuid = groupDirGet.substr(groupDirGet.rfind('/'));
-    groupDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_GROUP + uuid;
+    if (isIsolatedExtension_) {
+        groupDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_GROUP + uuid;
+    } else {
+        groupDir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION + CONTEXT_FILE_SEPARATOR + CONTEXT_GROUP + uuid;
+    }
     CreateDirIfNotExistWithCheck(groupDir, MODE, true);
     return ERR_OK;
 }
@@ -260,6 +277,9 @@ std::string ContextImpl::GetGroupDir(std::string groupId)
 std::string ContextImpl::GetTempDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_TEMP;
+    if (isIsolatedExtension_) {
+        dir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     CreateDirIfNotExist(dir, MODE);
     TAG_LOGD(AAFwkTag::APPKIT, "dir:%{public}s", dir.c_str());
     return dir;
@@ -302,8 +322,10 @@ std::string ContextImpl::GetResourceDir()
     if (hapModuleInfoPtr == nullptr || hapModuleInfoPtr->moduleName.empty()) {
         return "";
     }
-    std::string dir = std::string(LOCAL_CODE_PATH) + CONTEXT_FILE_SEPARATOR +
-        hapModuleInfoPtr->moduleName + CONTEXT_RESOURCE_END;
+    std::string dir = std::string(LOCAL_CODE_PATH) + CONTEXT_FILE_SEPARATOR + hapModuleInfoPtr->moduleName + CONTEXT_RESOURCE_END;
+    if (isIsolatedExtension_) {
+        dir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     if (OHOS::FileExists(dir)) {
         return dir;
     }
@@ -313,6 +335,9 @@ std::string ContextImpl::GetResourceDir()
 std::string ContextImpl::GetFilesDir()
 {
     std::string dir = GetBaseDir() + CONTEXT_FILES;
+    if (isIsolatedExtension_) {
+        dir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
+    }
     CreateDirIfNotExist(dir, MODE);
     TAG_LOGD(AAFwkTag::APPKIT, "dir:%{public}s", dir.c_str());
     return dir;
@@ -332,6 +357,9 @@ std::string ContextImpl::GetDistributedFilesDir()
         } else {
             dir = CONTEXT_DATA_STORAGE + currArea_ + CONTEXT_FILE_SEPARATOR + CONTEXT_DISTRIBUTEDFILES;
         }
+    }
+    if (isIsolatedExtension_) {
+        dir += CONTEXT_FILE_SEPARATOR + CONTEXT_EXTENSION;
     }
     CreateDirIfNotExist(dir, 0);
     TAG_LOGD(AAFwkTag::APPKIT, "dir:%{public}s", dir.c_str());
@@ -1202,6 +1230,16 @@ void ContextImpl::ClearUpApplicationData()
         TAG_LOGE(AAFwkTag::APPKIT, "Delete bundle side user data by self is fail.");
         return;
     }
+}
+
+void ContextImpl::SetIsolatedExtension(bool isIsolatedExtension)
+{
+    isIsolatedExtension_ = true;
+}
+
+bool ContextImpl::GetIsolatedExtension()
+{
+    return isIsolatedExtension_;
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

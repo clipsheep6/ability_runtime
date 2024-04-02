@@ -1300,7 +1300,7 @@ bool JsApplicationContextUtils::CheckCallerIsSystemApp()
     return true;
 }
 
-napi_value JsApplicationContextUtils::CreateJsApplicationContext(napi_env env)
+napi_value JsApplicationContextUtils::CreateJsApplicationContext(napi_env env, const std::shared_ptr<ExtensionContext> &extensionContext)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "start");
     napi_value object = nullptr;
@@ -1314,6 +1314,7 @@ napi_value JsApplicationContextUtils::CreateJsApplicationContext(napi_env env)
         return object;
     }
 
+    applicationContext->AttachExtensionContext(extensionContext);
     auto jsApplicationContextUtils = std::make_unique<JsApplicationContextUtils>(applicationContext);
     SetNamedNativePointer(env, object, APPLICATION_CONTEXT_NAME, jsApplicationContextUtils.release(),
         JsApplicationContextUtils::Finalizer);

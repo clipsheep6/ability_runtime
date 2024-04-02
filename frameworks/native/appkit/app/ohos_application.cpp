@@ -738,6 +738,8 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     stageContext->SetParentContext(abilityRuntimeContext_);
     stageContext->InitHapModuleInfo(hapModuleInfo);
     stageContext->SetConfiguration(GetConfiguration());
+    // 当前stage是否有独立沙箱 遍历moduleInfo
+    stageContext->SetIsolatedExtension(true);
     auto moduleInfo = stageContext->GetHapModuleInfo();
     if (moduleInfo == nullptr) {
         HILOG_ERROR("moduleInfo is nullptr");
