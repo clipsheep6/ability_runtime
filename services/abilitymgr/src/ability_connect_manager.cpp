@@ -368,7 +368,11 @@ int AbilityConnectManager::TerminateAbilityLocked(const sptr<IRemoteObject> &tok
         connectManager->HandleStopTimeoutTask(abilityRecord);
     };
     abilityRecord->Terminate(timeoutTask);
-    AddUIExtensionAbilityRecordToTerminatedList(abilityRecord);
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        AddUIExtensionAbilityRecordToTerminatedList(abilityRecord);
+    } else {
+        RemoveUIExtensionAbilityRecord(abilityRecord);
+    }
 
     return ERR_OK;
 }
@@ -1348,8 +1352,8 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
         uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
         HILOG_DEBUG("Start load timeout.");
         uiExtensionAbilityRecordMgr_->LoadTimeout(abilityRecord->GetUIExtensionAbilityId());
+        PrintTimeOutLog(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
     }
-    PrintTimeOutLog(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
     auto connectingList = abilityRecord->GetConnectingRecordList();
     for (auto &connectRecord : connectingList) {
         if (connectRecord == nullptr) {
@@ -1437,8 +1441,8 @@ void AbilityConnectManager::HandleStopTimeoutTask(const std::shared_ptr<AbilityR
         uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
         HILOG_DEBUG("Start terminate timeout.");
         uiExtensionAbilityRecordMgr_->TerminateTimeout(abilityRecord->GetUIExtensionAbilityId());
+        PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
     }
-    PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
     TerminateDone(abilityRecord);
 }
 
@@ -1685,7 +1689,9 @@ void AbilityConnectManager::TerminateDone(const std::shared_ptr<AbilityRecord> &
         KillProcessesByUserId();
     }
     DelayedSingleton<AppScheduler>::GetInstance()->TerminateAbility(abilityRecord->GetToken(), false);
-    RemoveUIExtensionAbilityRecord(abilityRecord);
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        RemoveUIExtensionAbilityRecord(abilityRecord);
+    }
     RemoveServiceAbility(abilityRecord);
 }
 
