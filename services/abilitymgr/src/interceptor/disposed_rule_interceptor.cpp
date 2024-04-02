@@ -42,7 +42,7 @@ ErrCode DisposedRuleInterceptor::DoProcess(AbilityInterceptorParam param)
             "componentType is %{public}d.", disposedRule.disposedType, disposedRule.controlType,
             disposedRule.componentType);
 #ifdef SUPPORT_GRAPHICS
-        if (!param.isWithUI || disposedRule.want == nullptr
+        if (!param.isForeground || disposedRule.want == nullptr
             || disposedRule.disposedType == AppExecFwk::DisposedType::NON_BLOCK) {
             HILOG_ERROR("Can not start disposed want");
             return AbilityUtil::EdmErrorType(disposedRule.isEdm);

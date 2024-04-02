@@ -16,7 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_INTERFACE_H
 #define OHOS_ABILITY_RUNTIME_ABILITY_INTERCEPTOR_INTERFACE_H
 
-#include "ability_info.h"
 #include "ability_manager_errors.h"
 #include "want.h"
 #include "task_handler_wrap.h"
@@ -24,19 +23,14 @@
 namespace OHOS {
 namespace AAFwk {
 struct AbilityInterceptorParam {
-    AbilityInterceptorParam(const Want &want, int requestCode, int32_t userId, bool isWithUI,
+    AbilityInterceptorParam(const Want &want, int requestCode, int32_t userId, bool isForeground,
         const sptr<IRemoteObject> &callerToken) : want(want), requestCode(requestCode), userId(userId),
-        isWithUI(isWithUI), callerToken(callerToken){};
-    AbilityInterceptorParam(const Want &want, int requestCode, int32_t userId, bool isWithUI,
-        const sptr<IRemoteObject> &callerToken, const AppExecFwk::AbilityInfo &abilityInfo) : want(want),
-        requestCode(requestCode), userId(userId), isWithUI(isWithUI),
-        callerToken(callerToken), abilityInfo(abilityInfo){};
+        isForeground(isForeground), callerToken(callerToken){};
     const Want &want;
     int32_t requestCode;
     int32_t userId;
-    bool isWithUI = false;
+    bool isForeground = false;
     const sptr<IRemoteObject> &callerToken;
-    AppExecFwk::AbilityInfo abilityInfo;  // target abilityInfo get in afterCheckExecuter_
 };
 
 /**

@@ -30,7 +30,7 @@ ErrCode CrowdTestInterceptor::DoProcess(AbilityInterceptorParam param)
     if (CheckCrowdtest(param.want, param.userId)) {
         HILOG_ERROR("Crowdtest expired.");
 #ifdef SUPPORT_GRAPHICS
-        if (param.isWithUI) {
+        if (param.isForeground) {
             int ret = IN_PROCESS_CALL(AbilityUtil::StartAppgallery(param.want.GetBundle(), param.requestCode,
                 param.userId, ACTION_MARKET_CROWDTEST));
             if (ret != ERR_OK) {
