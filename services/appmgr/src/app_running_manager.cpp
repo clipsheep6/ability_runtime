@@ -21,6 +21,7 @@
 
 #include "appexecfwk_errors.h"
 #include "common_event_support.h"
+#include "exit_resident_process_info.h"
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "os_account_manager_wrapper.h"
@@ -205,7 +206,8 @@ bool AppRunningManager::ProcessExitByBundleName(const std::string &bundleName, s
         const auto &appRecord = item.second;
         // condition [!appRecord->IsKeepAliveApp()] Is to not kill the resident process.
         // Before using this method, consider whether you need.
-        if (appRecord && !appRecord->IsKeepAliveApp()) {
+        if (appRecord && 
+            (!appRecord->IsKeepAliveApp() || !AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent())) {
             pid_t pid = appRecord->GetPriorityObject()->GetPid();
             auto appInfoList = appRecord->GetAppInfoList();
             auto isExist = [&bundleName](const std::shared_ptr<ApplicationInfo> &appInfo) {
@@ -436,7 +438,8 @@ void AppRunningManager::HandleAbilityAttachTimeOut(const sptr<IRemoteObject> &to
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsLastAbilityRecord(token) &&
+        (!appRecord->IsKeepAliveApp() || !AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent())) {
         appRecord->SetTerminating();
     }
 
@@ -466,7 +469,8 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
         abilityRecord->SetTerminating();
     }
 
-    if (appRecord->IsLastAbilityRecord(token) && !appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsLastAbilityRecord(token) && 
++        (!appRecord->IsKeepAliveApp() || !AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent())) {
         TAG_LOGI(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
@@ -518,7 +522,9 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
         appRecord->TerminateAbility(token, false);
     }
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
-    if (isLastAbility && !appRecord->IsKeepAliveApp() && !isLauncherApp) {
+    if (isLastAbility &&
+        (!appRecord->IsKeepAliveApp() || !AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent()) &&
+        !isLauncherApp) {
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {

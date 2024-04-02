@@ -26,6 +26,7 @@
 #include "appfreeze_manager.h"
 #include "app_utils.h"
 #include "assert_fault_callback_death_mgr.h"
+#include "exit_resident_process_info.h"
 #include "extension_config.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
@@ -1902,7 +1903,9 @@ void AbilityConnectManager::HandleAbilityDiedTask(
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
         }
-        RestartAbility(abilityRecord, currentUserId);
+        if (ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent() || IsLauncher(abilityRecord)) {
+            RestartAbility(abilityRecord, currentUserId);
+        }
     } else {
         if (isRemove) {
             HandleNotifyAssertFaultDialogDied(abilityRecord);

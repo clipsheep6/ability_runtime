@@ -289,6 +289,7 @@ private:
     int32_t RestartAppInner(MessageParcel &data, MessageParcel &reply);
     int32_t RequestAssertFaultDialogInner(MessageParcel &data, MessageParcel &reply);
     int32_t NotifyDebugAssertResultInner(MessageParcel &data, MessageParcel &reply);
+    int32_t NotifyMemonySizeStateChangedInner(MessageParcel &data, MessageParcel &reply);
 };
 }  // namespace AAFwk
 }  // namespace OHOS

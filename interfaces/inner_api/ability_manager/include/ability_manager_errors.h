@@ -452,6 +452,11 @@ enum {
      * Native error(2097238) for kill process not exist.
      */
     ERR_KILL_PROCESS_NOT_EXIST,
+
+    /**
+     * Native error(2097240) for memory size state unchanged.
+     */
+    ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
 };
 
 enum {

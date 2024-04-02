@@ -42,6 +42,7 @@
 #include "common_event_support.h"
 #include "datetime_ex.h"
 #include "distributed_data_mgr.h"
+#include "exit_resident_process_info.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -789,10 +790,6 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
         return;
     }
     appRecord->ApplicationTerminated();
-    // Maybe can't get in here
-    if (appRecord->IsKeepAliveApp()) {
-        return;
-    }
     if (appRecord->GetState() != ApplicationState::APP_STATE_BACKGROUND) {
         TAG_LOGD(AAFwkTag::APPMGR, "current state is not background");
         return;
@@ -821,6 +818,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
 
     ApplicationTerminatedSendProcessEvent(appRecord);
+    ClearAppRunningDataForKeepAlive(appRecord);
 
     auto uid = appRecord->GetUid();
     NotifyAppRunningStatusEvent(appRecord->GetBundleName(), uid, AbilityRuntime::RunningStatus::APP_RUNNING_STOP);
@@ -1747,7 +1745,7 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
 
     // before exec ScheduleProcessSecurityExit return
     // The resident process won't let him die
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsKeepAliveApp() && AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent()) {
         return;
     }
 
@@ -2441,7 +2439,7 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     }
 
     // Do not delete resident processes, before exec ScheduleProcessSecurityExit
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsKeepAliveApp() && AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent()) {
         return;
     }
 
@@ -2694,6 +2692,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
         auto info = MakeAppDebugInfo(appRecord, appRecord->IsDebugApp());
         appDebugManager_->RemoveAppDebugInfo(info);
     }
+    ClearAppRunningDataForKeepAlive(appRecord);
 
     auto uid = appRecord->GetUid();
     NotifyAppRunningStatusEvent(appRecord->GetBundleName(), uid, AbilityRuntime::RunningStatus::APP_RUNNING_STOP);
@@ -4019,7 +4018,7 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     startMsg.renderParam = renderRecord->GetRenderParam();
     startMsg.uid = renderUid;
     startMsg.gid = renderUid;
-    startMsg.code = 0; // 0: DEFAULT
+    startMsg.code = 0; // 0: DEFAULT  
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);
     if (FAILED(errCode)) {
@@ -5189,6 +5188,13 @@ void AppMgrServiceInner::ClearAppRunningDataForKeepAlive(const std::shared_ptr<A
     }
 
     if (appRecord->IsKeepAliveApp()) {
+        std::lock_guard<ffrt::mutex> lock(AAFwk::ExitResidentProcessInfo::GetInstance().GetMutexLock());
+        if (!AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent()) {
+            TAG_LOGD(AAFwkTag::APPMGR, "ClearAppRunningDataForKeepAlive exit resident bundleName: %{public}s",
+                appRecord->GetBundleName().c_str());
+            AAFwk::ExitResidentProcessInfo::GetInstance().AddExitResidentBundleName(appRecord->GetBundleName());
+            return;
+        }
         auto restartProcess = [appRecord, innerService = shared_from_this()]() {
             innerService->RestartResidentProcess(appRecord);
         };

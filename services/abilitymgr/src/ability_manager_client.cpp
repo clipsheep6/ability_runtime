@@ -151,6 +151,11 @@ ErrCode AbilityManagerClient::StartAbility(
     TAG_LOGD(AAFwkTag::ABILITYMGR, "ability:%{public}s, userId:%{public}d",
         want.GetElement().GetAbilityName().c_str(), userId);
     HandleDlpApp(const_cast<Want &>(want));
+    if (want.GetIntParam("isMemorySizeSufficent", 0) == 1) {
+        NotifyMemonySizeStateChanged(false);
+    } else if (want.GetIntParam("isMemorySizeSufficent", 0) == 2) {
+        NotifyMemonySizeStateChanged(true);
+    }
     return abms->StartAbility(want, callerToken, userId, requestCode);
 }
 
@@ -1794,6 +1799,13 @@ bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken
         return false;
     }
     return abms->IsEmbeddedOpenAllowed(callerToken, appId);
+}
+
+int32_t AbilityManagerClient::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_INVALID_VALUE(abms);
+    return abms->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
 }
 } // namespace AAFwk
 } // namespace OHOS

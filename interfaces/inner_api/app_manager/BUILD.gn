@@ -90,6 +90,7 @@ ohos_shared_library("app_manager") {
     "src/appmgr/child_scheduler_stub.cpp",
     "src/appmgr/configuration_observer_proxy.cpp",
     "src/appmgr/configuration_observer_stub.cpp",
+    "src/appmgr/exit_resident_process_info.cpp",
     "src/appmgr/fault_data.cpp",
     "src/appmgr/page_state_data.cpp",
     "src/appmgr/priority_object.cpp",
