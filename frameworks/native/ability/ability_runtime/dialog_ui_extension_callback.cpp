@@ -34,6 +34,12 @@ void DialogUIExtensionCallback::OnRelease()
 void DialogUIExtensionCallback::OnError()
 {
     HILOG_DEBUG("Called");
+    auto abilityCallback = abilityCallback_.lock();
+    if (abilityCallback == nullptr) {
+        HILOG_ERROR("abilityCallback is nullptr");
+        return;
+    }
+    abilityCallback->EraseUIExtension(sessionId_);
 
     if (uiContent_ == nullptr) {
         HILOG_ERROR("uiContent_ is nullptr.");
