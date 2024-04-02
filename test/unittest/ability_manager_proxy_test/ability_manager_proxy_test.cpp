@@ -597,6 +597,24 @@ HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_032, TestSize.Level1)
     EXPECT_NE(res, NO_ERROR);
 }
 
+/**
+ * @tc.name: AbilityManagerProxy_033
+ * @tc.desc: test StartContinuation send async request succeeded
+ * @tc.type: FUNC
+ * @tc.require: AR000GI8IL
+ */
+HWTEST_F(AbilityManagerProxyTest, AbilityManagerProxy_033, TestSize.Level0)
+{
+    EXPECT_CALL(*mock_, SendRequest(_, _, _, _))
+        .Times(1)
+        .WillOnce(Invoke(mock_.GetRefPtr(), &AbilityManagerStubMock::InvokeSendRequest));
+    Want want;
+    sptr<IRemoteObject> abilityToken = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+    int res = proxy_->StartContinuation(want, abilityToken, 0);
+    EXPECT_EQ(res, NO_ERROR);
+    EXPECT_EQ(static_cast<uint32_t>(AbilityManagerInterfaceCode::START_CONTINUATION), mock_->code_);
+}
+
 /*
  * Feature: AbilityManagerService
  * Function: AcquireDataAbility

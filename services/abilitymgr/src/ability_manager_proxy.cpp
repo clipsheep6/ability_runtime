@@ -2228,7 +2228,7 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
 {
     MessageParcel data;
     MessageParcel reply;
-    MessageOption option;
+    MessageOption option = {MessageOption::TF_ASYNC};
     if (!WriteInterfaceToken(data)) {
         return INNER_ERR;
     }
@@ -2245,7 +2245,9 @@ int AbilityManagerProxy::StartContinuation(const Want &want, const sptr<IRemoteO
         return INNER_ERR;
     }
 
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest StartContinuation begin");
     auto error = SendRequest(AbilityManagerInterfaceCode::START_CONTINUATION, data, reply, option);
+    TAG_LOGI(AAFwkTag::DISTRIBUTED, "SendRequest StartContinuation end");
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
