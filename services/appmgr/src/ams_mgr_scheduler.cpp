@@ -44,6 +44,7 @@ const std::string TASK_KILL_PROCESSES_BY_PIDS = "KillProcessesByPids";
 const std::string TASK_ATTACH_PID_TO_PARENT = "AttachPidToParent";
 const std::string TASK_KILL_APPLICATION = "KillApplicationTask";
 const std::string TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN = "ClearProcessByAbilityTokenTask";
+const std::string FOUNDATION_NAME = "foundation";
 };  // namespace
 
 AmsMgrScheduler::AmsMgrScheduler(
@@ -194,8 +195,11 @@ void AmsMgrScheduler::KillProcessesByUserId(int32_t userId)
         return;
     }
 
+    bool isCallingFromFoundation =
+        AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(FOUNDATION_NAME);
     auto permission = AAFwk::PermissionConstants::PERMISSION_CLEAN_BACKGROUND_PROCESSES;
-    if (amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
+    if (!isCallingFromFoundation &&
+        amsMgrServiceInner_->VerifyAccountPermission(permission, userId) == ERR_PERMISSION_DENIED) {
         TAG_LOGE(AAFwkTag::APPMGR, "%{public}s: Permission verification failed", __func__);
         return;
     }
