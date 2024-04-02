@@ -141,6 +141,7 @@ HWTEST_F(AssertFaultCallbackTest, NotifyDebugAssertResult_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     assertFaultCallback_->NotifyDebugAssertResult(AAFwk::ASSERT_RETRY);
+    EXPECT_NE(assertFaultCallback_->assertFaultThread_.lock(), nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk

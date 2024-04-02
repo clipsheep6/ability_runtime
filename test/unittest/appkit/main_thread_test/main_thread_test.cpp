@@ -17,6 +17,8 @@
 #include <gtest/gtest.h>
 
 #define private public
+#include "appfreeze_inner.h"
+#include "appfreeze_state.h"
 #include "app_mgr_proxy.h"
 #include "app_mgr_stub.h"
 #include "main_thread.h"
@@ -2454,7 +2456,8 @@ HWTEST_F(MainThreadTest, GetNativeLibPath_0400, TestSize.Level1)
 HWTEST_F(MainThreadTest, AssertFaultPauseMainThreadDetection_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-    auto ret = mainThread_->AssertFaultPauseMainThreadDetection();
+    mainThread_->AssertFaultPauseMainThreadDetection();
+    EXPECT_TRUE(AppExecFwk::AppfreezeInner::GetInstance()->IsHandleAppfreeze());
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -2467,7 +2470,8 @@ HWTEST_F(MainThreadTest, AssertFaultPauseMainThreadDetection_0100, TestSize.Leve
 HWTEST_F(MainThreadTest, AssertFaultResumeMainThreadDetection_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-    auto ret = mainThread_->AssertFaultResumeMainThreadDetection();
+    mainThread_->AssertFaultResumeMainThreadDetection();
+    EXPECT_TRUE(AppExecFwk::AppfreezeInner::GetInstance()->IsHandleAppfreeze());
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -2482,20 +2486,20 @@ HWTEST_F(MainThreadTest, HandleInitAssertFaultTask_0100, TestSize.Level1)
     HILOG_INFO("%{public}s start.", __func__);
     bool isDebugModule = true;
     bool isDebugApp = true;
-    auto ret = mainThread_->HandleInitAssertFaultTask(isDebugModule, isDebugApp);
+    mainThread_->HandleInitAssertFaultTask(isDebugModule, isDebugApp);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
 /**
- * @tc.name: HandleInitAssertFaultTask_0100
+ * @tc.name: HandleCancelAssertFaultTask_0100
  * @tc.desc: Schedule Gc state chage.
  * @tc.type: FUNC
  * @tc.require: issuesI85VVU
  */
-HWTEST_F(MainThreadTest, HandleInitAssertFaultTask_0100, TestSize.Level1)
+HWTEST_F(MainThreadTest, HandleCancelAssertFaultTask_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
-    auto ret = mainThread_->HandleCancelAssertFaultTask();
+    mainThread_->HandleCancelAssertFaultTask();
     HILOG_INFO("%{public}s end.", __func__);
 }
 

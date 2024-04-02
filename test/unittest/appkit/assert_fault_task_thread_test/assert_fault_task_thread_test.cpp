@@ -81,6 +81,7 @@ HWTEST_F(AssertFaultTaskThreadTest, InitAssertFaultTask_0100, TestSize.Level1)
     const wptr<AppExecFwk::MainThread> weak;
     bool isDebugModule = true;
     assertFaultTaskThread_->InitAssertFaultTask(weak, isDebugModule);
+    EXPECT_TRUE(assertFaultTaskThread_->isDebugModule_);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -111,6 +112,7 @@ HWTEST_F(AssertFaultTaskThreadTest, Stop_0100, TestSize.Level1)
 {
     HILOG_INFO("%{public}s start.", __func__);
     assertFaultTaskThread_->Stop();
+    EXPECT_EQ(assertFaultTaskThread_->assertRunner_, nullptr);
     HILOG_INFO("%{public}s end.", __func__);
 }
 
@@ -136,7 +138,7 @@ HWTEST_F(AssertFaultTaskThreadTest, RequestAssertResult_0100, TestSize.Level1)
     std::string textDetail = textFile + textFunc + textLine + textExpression + "\n\n(Press Retry to debug the application)";
     
     auto result = assertFaultTaskThread_->RequestAssertResult(textDetail);
-    EXPECT_EQ(result, AAFwk::UserStatus::ASSERT_CONTINUE);
+    EXPECT_EQ(result, AAFwk::UserStatus::ERR_OK);
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk

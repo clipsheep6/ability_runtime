@@ -19,11 +19,15 @@ ohos_unittest("main_thread_test") {
   module_out_path = "ability_runtime/appkit"
 
   include_dirs = [
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
+    "${ability_runtime_path}/utils/global/time/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
 
   sources = [
+    "${ability_runtime_native_path}/appkit/dfr/appfreeze_inner.cpp",
+    "${ability_runtime_native_path}/appkit/dfr/appfreeze_state.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_bundle_manager.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/mock_overlay_manager.cpp",
     "${ability_runtime_test_path}/mock/services_appmgr_test/src/sys_mgr_client_mock.cpp",
@@ -40,6 +44,7 @@ ohos_unittest("main_thread_test") {
 
   deps = [
     "${ability_runtime_native_path}/appkit:appkit_native",
+    "${ability_runtime_path}/utils/global/freeze:freeze_util",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -63,6 +68,8 @@ ohos_unittest("main_thread_test") {
     "eventhandler:libeventhandler",
     "faultloggerd:libbacktrace_local",
     "faultloggerd:libfaultloggerd",
+    "ffrt:libffrt",
+    "hicollie:libhicollie",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
