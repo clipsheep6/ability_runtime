@@ -26,7 +26,7 @@ class Ability {
   onForeground(want) { }
   onBackground() { }
   onBackPressed() {
-    return true;
+    return false;
   }
   onPrepareToTerminate() {
     return false;
