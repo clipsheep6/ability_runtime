@@ -22,11 +22,47 @@
 #include "uncaught_exception_callback.h"
 #include "commonlibrary/ets_utils/js_sys_module/console/console.h"
 
+using TaskRunner = panda::TaskRunner;
+using Task = panda::Task;
+
 namespace OHOS {
 namespace JsEnv {
 namespace {
 static const std::string DEBUGGER = "@Debugger";
 static const std::string NOT_INIT = "SourceMap is not initialized yet \n";
+
+class TaskRunnerImpl : public TaskRunner, public std::enable_shared_from_this<TaskRunnerImpl> {
+public:
+    explicit TaskRunnerImpl(std::shared_ptr<JsEnvironment> jsEnv) : jsEnv_(jsEnv) {}
+
+    ~TaskRunnerImpl() override
+    {
+        JSENV_LOG_D("~TaskRunnerImpl()");
+    }
+
+    void PostTask(std::unique_ptr<Task> task) override
+    {
+        std::shared_ptr<Task> taskPtr(task.release());
+        auto taskfunc = [taskPtr]() {
+            taskPtr->Run(0);
+        };
+        jsEnv_->PostTask(taskfunc, "", 0);
+    }
+
+    void PostDelayedTask(std::unique_ptr<Task> task, uint64_t delay) override
+    {
+        std::shared_ptr<Task> taskPtr(task.release());
+        auto taskfunc = [taskPtr]() {
+            taskPtr->Run(0);
+        };
+        jsEnv_->PostTask(taskfunc, "", delay);
+    }
+
+    bool DelayedTasksEnabled() override { return true; }
+
+private:
+    std::shared_ptr<JsEnvironment> jsEnv_ = nullptr;
+};
 }
 
 static panda::DFXJSNApi::ProfilerType ConvertProfilerType(JsEnvironment::PROFILERTYPE type)
@@ -67,7 +103,8 @@ bool JsEnvironment::Initialize(const panda::RuntimeOption& pandaOption, void* js
         return false;
     }
 
-    engine_ = new ArkNativeEngine(vm_, jsEngine);
+    std::shared_ptr<TaskRunner> taskRunner = std::make_shared<TaskRunnerImpl>(shared_from_this());
+    engine_ = new ArkNativeEngine(vm_, jsEngine, false, taskRunner);
     return true;
 }
 
