@@ -218,7 +218,7 @@ ohos_shared_library("appkit_native") {
     ]
   }
 
-  if (uability_runtime_use_aps) {
+  if (ability_runtime_use_aps) {
     external_deps += [ "graphic_2d_ext:libaps_client" ]
   }
 
@@ -242,7 +242,7 @@ ohos_shared_library("appkit_native") {
     external_deps += [ "memmgr_plugin:libpurgeablemem_plugin" ]
   }
 
-  if (uability_runtime_use_aps) {
+  if (ability_runtime_use_aps) {
     defines += [ "ABILITY_RUNTIME_USE_APS_FUNC" ]
   }
 
