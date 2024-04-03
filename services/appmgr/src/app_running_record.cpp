@@ -1706,6 +1706,18 @@ int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, c
     return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName, callback, recordId);
 }
 
+int32_t AppRunningRecord::NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+    const int32_t recordId, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+	HILOG_DEBUG( "function called.patchVersion:%{public}d",patchVersion);
+    if (!appLifeCycleDeal_) {
+	HILOG_DEBUG( "appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyLoadPatch(bundleName, callback, recordId, patchVersion);
+}
+
 int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1727,6 +1739,18 @@ int32_t AppRunningRecord::NotifyUnLoadRepairPatch(const std::string &bundleName,
         return ERR_INVALID_VALUE;
     }
     return appLifeCycleDeal_->NotifyUnLoadRepairPatch(bundleName, callback, recordId);
+}
+
+int32_t AppRunningRecord::NotifyUnLoadPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+	HILOG_DEBUG( "function called.");
+    if (!appLifeCycleDeal_) {
+	HILOG_DEBUG( "appLifeCycleDeal_ is null.");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyUnLoadPatch(bundleName, callback, recordId);
 }
 
 int32_t AppRunningRecord::NotifyAppFault(const FaultData &faultData)

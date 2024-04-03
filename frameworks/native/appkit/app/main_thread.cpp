@@ -60,6 +60,7 @@
 #include "include/private/EGL/cache.h"
 #ifdef SUPPORT_APP_PREFERRED_LANGUAGE
 #include "preferred_language.h"
+#include "form_host_client.h"
 #endif
 #endif
 #include "app_mgr_client.h"
@@ -79,6 +80,7 @@
 #include "hisysevent.h"
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
+#include "form_mgr_interface.h"
 
 #if defined(NWEB)
 #include <thread>
@@ -2727,6 +2729,73 @@ void MainThread::CheckMainThreadIsAlive()
 }
 #endif  // ABILITY_LIBRARY_LOADER
 
+int32_t MainThread::ScheduleNotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, 
+                                            const int32_t recordId, const int &patchVersion)
+{
+    HILOG_DEBUG("MainThread::ScheduleNotifyFormRepairPatch.bundleName:%{public}s,recordId:%{public}d,patchVersion:%{public}d",bundleName.c_str(), recordId, patchVersion);
+    if (callback == nullptr)
+    {
+        HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch callback is nullptr!");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak, bundleName, callback, patchVersion, recordId]() 
+    {
+        auto appThread = weak.promote();
+        sptr<ISystemAbilityManager> systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (systemAbilityManager == nullptr) {
+            HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch systemAbilityManageri is nullptr");
+            return ;
+        }
+        sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(FORM_MGR_SERVICE_ID);
+        if (remoteObject == nullptr) {
+            HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch remoteObject is nullptr");
+            return ;
+        }
+        auto deathRecipient = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) fixMgrDeathRecipient());
+        if (deathRecipient == nullptr) {
+            HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch deathRecipient is nullptr");
+            return ;
+        }
+        if ((remoteObject->IsProxyObject()) && (!remoteObject->AddDeathRecipient(deathRecipient))) {
+            HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch failed to add_death recipient to FormMgrService.");
+            return ;
+        }
+
+        sptr<OHOS::AppExecFwk::IFormMgr> remoteProxy = iface_cast<OHOS::AppExecFwk::IFormMgr>(remoteObject);
+        if (remoteProxy == nullptr) {
+            HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch remoteProxy is nullptr");
+            return ;
+        }      
+
+        std::string moduleName = appThread->GetQuickfixModulePatch(bundleName);
+        if (moduleName.empty())
+        {
+            HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch get moduleName failed!,bundleName:%{public}s",bundleName.c_str());
+            return ;
+        }
+
+        HILOG_ERROR("MainThread::ScheduleNotifyFormRepairPatch moduleName:%{public}s",moduleName.c_str());
+        int32_t retCode = remoteProxy->UpdateFromByHqf(bundleName, moduleName, patchVersion, recordId, callback);
+        if (retCode != ERR_OK)
+        {
+            HILOG_ERROR("ScheduleNotifyFormRepairPatch UpdateFromByHqf failed! errCode:%{public}d",retCode);
+        }
+    };
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task, "MainThread:ScheduleNotifyFormRepairPatch")) {
+        HILOG_ERROR("ScheduleNotifyFormRepairPatch, Post task failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
+int32_t MainThread::ScheduleNotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,const int32_t recordId) 
+{
+    HILOG_DEBUG("MainThread::ScheduleNotifyUnLoadPatch");
+    return ERR_OK;
+}
+
 int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
     const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
@@ -2782,6 +2851,28 @@ int32_t MainThread::ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &c
     }
 
     return NO_ERROR;
+}
+
+std::string MainThread::GetQuickfixModulePatch(const std::string &bundleName)
+{
+    HILOG_DEBUG("called.");
+    std::string moduleName;
+    auto bundleMgrHelper = DelayedSingleton<BundleMgrHelper>::GetInstance();
+    if (bundleMgrHelper == nullptr) {
+        return moduleName;
+    }
+    BundleInfo bundleInfo;
+    if (bundleMgrHelper->GetBundleInfoForSelf(
+        (static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_HAP_MODULE) + static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_ABILITY) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION) + static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_DISABLE) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_SIGNATURE_INFO) + static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_EXTENSION_ABILITY) +
+        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_METADATA)), bundleInfo) != ERR_OK) {
+        HILOG_ERROR("Get bundle info of %{public}s failed.", bundleName.c_str());
+        return moduleName;
+    }
+
+    bundleInfo.hapModuleInfos.empty() ? moduleName = "" : moduleName = bundleInfo.hapModuleInfos.front().hqfInfo.moduleName;
+    return moduleName;
 }
 
 bool MainThread::GetHqfFileAndHapPath(const std::string &bundleName,
@@ -3121,5 +3212,11 @@ void MainThread::HandleCancelAssertFaultTask()
     }
     assertThread->Stop();
 }
+
+void fixMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    HILOG_ERROR("huasmile fixMgrDeathRecipient::OnRemoteDied remote died receive");
+}
+
 }  // namespace AppExecFwk
 }  // namespace OHOS

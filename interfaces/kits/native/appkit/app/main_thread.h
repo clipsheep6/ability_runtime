@@ -276,6 +276,11 @@ public:
     int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
         const int32_t recordId) override;
 
+    int32_t ScheduleNotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+                                    const int32_t recordId, const int &patchVersion) override;
+
+    int32_t ScheduleNotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId) override;
     int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
     int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
@@ -641,6 +646,8 @@ private:
     void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
     void HandleCancelAssertFaultTask();
 
+    std::string GetQuickfixModulePatch(const std::string &bundleName);
+
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
@@ -667,6 +674,20 @@ private:
 #endif  // APPLICATION_LIBRARY_LOADER
     DISALLOW_COPY_AND_MOVE(MainThread);
 };
+
+class fixMgrDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    /**
+     *
+     * @brief Notify the fixMgrDeathRecipient that the remote is dead.
+     *
+     * @param remote The remote which is dead.
+     */
+    virtual void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    fixMgrDeathRecipient() = default;
+    ~fixMgrDeathRecipient() override = default;
+};
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_MAIN_THREAD_H

@@ -517,6 +517,87 @@ int32_t AppSchedulerProxy::ScheduleNotifyUnLoadRepairPatch(const std::string &bu
     return reply.ReadInt32();
 }
 
+int32_t AppSchedulerProxy::ScheduleNotifyUnLoadPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+	HILOG_ERROR("functiob called");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Schedule notify unload patch, Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Schedule notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(recordId)) {
+        HILOG_ERROR("Write record id failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret = SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_PATCH), data,
+        reply, option);
+    if (ret != 0) {
+        HILOG_ERROR("Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppSchedulerProxy::ScheduleNotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, 
+                                                   const int32_t recordId, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+	HILOG_ERROR("function");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Schedule notify unload patch, Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Schedule notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(recordId)) {
+        HILOG_ERROR("Write record id failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(patchVersion)) {
+        HILOG_ERROR("Write record id failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    int32_t ret =
+        SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_PATCH), data, reply, option);
+    if (ret != 0) {
+        HILOG_ERROR("Schedule notify unload patch, Send request failed with errno %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
 int32_t AppSchedulerProxy::ScheduleNotifyAppFault(const FaultData &faultData)
 {
     MessageParcel data;

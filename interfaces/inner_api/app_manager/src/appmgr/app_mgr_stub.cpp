@@ -108,6 +108,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAppRunningStateByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_REPAIR_PATCH)] =
         &AppMgrStub::HandleNotifyLoadRepairPatch;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_LOAD_PATCH)] =
+        &AppMgrStub::HandleNotifyLoadPatch;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_HOT_RELOAD_PAGE)] =
         &AppMgrStub::HandleNotifyHotReloadPage;
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
@@ -116,6 +118,8 @@ AppMgrStub::AppMgrStub()
 #endif
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_REPAIR_PATCH)] =
         &AppMgrStub::HandleNotifyUnLoadRepairPatch;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_UNLOAD_PATCH)] =
+        &AppMgrStub::HandleNotifyUnloadPatch;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::IS_SHARED_BUNDLE_RUNNING)] =
         &AppMgrStub::HandleIsSharedBundleRunning;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::START_NATIVE_PROCESS_FOR_DEBUGGER)] =
@@ -736,6 +740,22 @@ int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParc
     return NO_ERROR;
 }
 
+int32_t AppMgrStub::HandleNotifyLoadPatch(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::string bundleName = data.ReadString();
+    int patchVersion = data.ReadInt32();
+    HILOG_DEBUG("AppMgrStub::HandleNotifyLoadPatch,patchVersion:%{public}d",patchVersion);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyLoadPatch(bundleName, callback, patchVersion);
+    if (!reply.WriteInt32(ret)) {
+		HILOG_DEBUG("replay.ret:%{public}d",ret);
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -772,6 +792,21 @@ int32_t AppMgrStub::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessagePa
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     auto ret = NotifyUnLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyUnloadPatch(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::string bundleName = data.ReadString();
+    int patchVersion = data.ReadInt32();
+    HILOG_DEBUG("fAppMgrStub::HandleNotifyUnloadPatch,patchVersion:%{public}d",patchVersion);
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto ret = NotifyUnLoadPatch(bundleName, callback);
+    if (!reply.WriteInt32(ret)){
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

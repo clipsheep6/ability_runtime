@@ -1022,6 +1022,43 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const 
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("NotifyLoadPatch, function called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("NotifyLoadPatch, Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("NotifyLoadPatch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(patchVersion)) {
+        HILOG_ERROR("NotifyLoadPatch, Write patchVersion failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_LOAD_PATCH,
+                           data, reply, option);
+    if (ret != 0) {
+        HILOG_WARN("NotifyLoadPatch, Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -1120,6 +1157,41 @@ int32_t AppMgrProxy::NotifyUnLoadRepairPatch(const std::string &bundleName, cons
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::NotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data))
+    {
+        HILOG_ERROR("Notify unload patch, Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName))
+    {
+        HILOG_ERROR("Notify unload patch, Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject()))
+    {
+        HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_UNLOAD_PATCH,
+                           data, reply, option);
+    if (ret != 0)
+    {
+        HILOG_WARN("Notify unload patch, Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
 bool AppMgrProxy::IsSharedBundleRunning(const std::string &bundleName, uint32_t versionCode)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

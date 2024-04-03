@@ -342,9 +342,12 @@ public:
 
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
+    int32_t NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, const int &patchVersion) override;
+
     int32_t NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
     int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
+    int32_t NotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;
 
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     int32_t SetContinuousTaskProcess(int32_t pid, bool isContinuousTask) override;

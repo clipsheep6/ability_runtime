@@ -109,7 +109,7 @@ public:
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
     bool StartDebugger(bool needBreakPoint, uint32_t instanceId);
     void StopDebugger();
-
+    bool LoadRepairFormPatch(const std::string& hqfFile, const std::string& hapPath) override;
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
 

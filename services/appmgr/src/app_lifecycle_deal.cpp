@@ -254,6 +254,20 @@ int32_t AppLifeCycleDeal::NotifyLoadRepairPatch(const std::string &bundleName, c
     return appThread->ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
 }
 
+int32_t AppLifeCycleDeal::NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+                                         const int32_t recordId, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG( "call");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr){
+        HILOG_DEBUG( "appThread is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    HILOG_DEBUG("AppLifeCycleDeal::NotifyLoadPatch,patchVersion:%{public}d", patchVersion);
+    return appThread->ScheduleNotifyLoadPatch(bundleName, callback, recordId, patchVersion);
+}
+
 int32_t AppLifeCycleDeal::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -274,6 +288,19 @@ int32_t AppLifeCycleDeal::NotifyUnLoadRepairPatch(const std::string &bundleName,
     auto appThread = GetApplicationClient();
     if (appThread == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appThread->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
+}
+
+int32_t AppLifeCycleDeal::NotifyUnLoadPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback, const int32_t recordId)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG( "function called.");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr) {
+        HILOG_DEBUG( "appThread is nullptr.");
         return ERR_INVALID_VALUE;
     }
     return appThread->ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);

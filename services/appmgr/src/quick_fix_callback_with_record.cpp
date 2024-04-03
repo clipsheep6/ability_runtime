@@ -50,6 +50,23 @@ void QuickFixCallbackWithRecord::OnReloadPageDone(int32_t resultCode, int32_t re
         callback_->OnReloadPageDone(finalResult.load(), recordId);
     }
 }
+void QuickFixCallbackWithRecord::OnUnloadHotloadDone(int32_t resultCode, int32_t recordId)
+{
+    HILOG_DEBUG("function called.");
+    ProcessCallback(resultCode, recordId);
+    if (IsRecordListEmpty() && callback_ != nullptr) {
+        callback_->OnUnloadHotloadDone(finalResult.load(), recordId);
+    }
+}
+
+void QuickFixCallbackWithRecord::OnHotloadFormDone(int32_t resultCode, int32_t recordId)
+{
+    HILOG_DEBUG("function called.");
+    ProcessCallback(resultCode, recordId);
+    if (IsRecordListEmpty() && callback_ != nullptr) {
+        callback_->OnUnloadHotloadDone(finalResult.load(), recordId);
+    }
+}
 
 void QuickFixCallbackWithRecord::ProcessCallback(int32_t resultCode, int32_t recordId)
 {

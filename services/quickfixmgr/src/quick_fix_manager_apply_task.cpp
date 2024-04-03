@@ -246,6 +246,8 @@ public:
             return;
         }
 
+        applyTask_->PostNotifyLoadPatchTask();
+
         applyTask_->PostDeleteQuickFixTask();
     }
 
@@ -270,12 +272,35 @@ public:
         TAG_LOGW(AAFwkTag::QUICKFIX, "Invalid task type");
     }
 
+    void OnUnloadHotloadDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
+    {
+        HILOG_DEBUG("function called.");
+        if (resultCode != 0) {
+            HILOG_ERROR("Notify app unload patch failed with %{public}d.", resultCode);
+            applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+            applyTask_->RemoveSelf();
+            return;
+        }
+    }
     void OnReloadPageDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
     {
-        TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
+        HILOG_DEBUG("function called.");
         if (resultCode != 0) {
-            TAG_LOGE(AAFwkTag::QUICKFIX, "Notify app load patch failed with %{public}d.", resultCode);
+            HILOG_ERROR("Notify app load patch failed with %{public}d.", resultCode);
             applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_RELOAD_PAGE_FAILED);
+            applyTask_->RemoveSelf();
+            return;
+        }
+
+        applyTask_->NotifyApplyStatus(QUICK_FIX_OK);
+        applyTask_->RemoveSelf();
+    }
+    void OnHotloadFormDone(int32_t resultCode, [[maybe_unused]] int32_t recordId) override
+    {
+        HILOG_DEBUG("function called.");
+        if (resultCode != 0) {
+            HILOG_ERROR("Notify app load patch failed with %{public}d.", resultCode);
+            applyTask_->NotifyApplyStatus(QUICK_FIX_NOTIFY_HOTLOAD_FORM_FAILED);
             applyTask_->RemoveSelf();
             return;
         }
@@ -657,6 +682,47 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
     PostTimeOutTask();
 }
 
+
+void QuickFixManagerApplyTask::PostNotifyLoadPatchTask()
+{
+	HILOG_ERROR("function");
+    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
+    auto loadPatchTask = [thisWeakPtr, callback]() {
+        auto applyTask = thisWeakPtr.lock();
+        if (applyTask == nullptr) {
+            HILOG_ERROR("Apply task is nullptr");
+            return;
+        }
+
+        if (applyTask->appMgr_ == nullptr) {
+            HILOG_ERROR("Appmgr is nullptr");
+            applyTask->NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+            applyTask->RemoveSelf();
+            return;
+        }
+
+        OHOS::AAFwk::ApplicationQuickFixInfo quickFixInfo;
+        applyTask->quickFixMgrService_->GetApplyedQuickFixInfo(applyTask->bundleName_, quickFixInfo);
+        HILOG_ERROR("NotifyUnLoadPatch type:%{public}d",quickFixInfo.appqfInfo.type);
+        if (quickFixInfo.appqfInfo.type == AppExecFwk::QuickFixType::HOT_RELOAD) //huasmile_delete
+        {
+            int patchVersion = applyTask->patchVersionCode_;
+            HILOG_ERROR("QuickFixManagerApplyTask::PostNotifyLoadPatchTask,patchVersion:%{public}d",patchVersion);
+            auto ret = applyTask->appMgr_->NotifyLoadPatch(applyTask->bundleName_, callback, patchVersion);
+            if (ret != 0) {
+                HILOG_ERROR("Notify app load patch failed.");
+                applyTask->NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
+                applyTask->RemoveSelf();
+            }
+        }
+    };
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(loadPatchTask, "QuickFixManager:loadPatchTask")) {
+        HILOG_ERROR("Post load patch task failed.");
+    }
+    PostTimeOutTask();
+}
+
 void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
 {
     sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
@@ -684,6 +750,45 @@ void QuickFixManagerApplyTask::PostNotifyUnloadRepairPatchTask()
     };
     if (eventHandler_ == nullptr || !eventHandler_->PostTask(unloadPatchTask, "QuickFixManager:unloadPatchTask")) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Post delete task failed.");
+    }
+    PostTimeOutTask();
+}
+
+void QuickFixManagerApplyTask::PostNotifyUnloadPatchTask()
+{
+	HILOG_ERROR("function");
+    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
+    auto unloadPatchTask = [thisWeakPtr, callback]() {
+        auto applyTask = thisWeakPtr.lock();
+        if (applyTask == nullptr) {
+            HILOG_ERROR("Apply task is nullptr.");
+            return;
+        }
+
+        if (applyTask->appMgr_ == nullptr) {
+            HILOG_ERROR("huasmile Appmgr is nullptr.");
+            applyTask->NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+            applyTask->RemoveSelf();
+            return;
+        }
+
+        OHOS::AAFwk::ApplicationQuickFixInfo quickFixInfo;
+        applyTask->quickFixMgrService_->GetApplyedQuickFixInfo(applyTask->bundleName_, quickFixInfo);
+        HILOG_ERROR("NotifyUnLoadPatch type:%{public}d",quickFixInfo.appqfInfo.type);
+        if (quickFixInfo.appqfInfo.type == AppExecFwk::QuickFixType::HOT_RELOAD) //huasmile_delete
+        {
+            HILOG_ERROR("NotifyUnLoadPatch start");
+            auto ret = applyTask->appMgr_->NotifyUnLoadPatch(applyTask->bundleName_, callback);
+            if (ret != 0) {
+                HILOG_ERROR("huasmile Notify app unload hot load patch failed.");
+                applyTask->NotifyApplyStatus(QUICK_FIX_NOTIFY_UNLOAD_PATCH_FAILED);
+                applyTask->RemoveSelf();
+            }
+        }
+    };
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(unloadPatchTask, "QuickFixManager:unloadPatchTask")) {
+        HILOG_ERROR("Post delete task failed.");
     }
     PostTimeOutTask();
 }

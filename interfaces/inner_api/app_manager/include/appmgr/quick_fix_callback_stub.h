@@ -36,6 +36,8 @@ private:
     int32_t HandleOnLoadPatchDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnUnloadPatchDoneInner(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnReloadPageDoneInner(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleOnUnloadHotloadDoneInner(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleOnHotloadFormDoneInner(MessageParcel &data, MessageParcel &reply);
 
     using RequestFuncType = int32_t (QuickFixCallbackStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, RequestFuncType> requestFuncMap_;

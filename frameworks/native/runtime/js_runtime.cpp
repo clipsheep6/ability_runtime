@@ -83,6 +83,7 @@ const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 const std::string DEBUGGER = "@Debugger";
 
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
+constexpr char WIDGET_ABC_PATH[] = "/ets/widgets.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
@@ -456,6 +457,51 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
 
     const auto &outStr = outStream.str();
     buffer.assign(outStr.begin(), outStr.end());
+    return true;
+}
+
+
+bool JsRuntime::LoadRepairFormPatch(const std::string& hqfFile, const std::string& hapPath)
+{
+    HILOG_DEBUG("huasmile LoadRepairFormPatch function hqfFile:%{public}s,hapPath:%{public}s",hqfFile.c_str(), hapPath.c_str());
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, false);
+
+    std::string patchFile;
+    std::vector<uint8_t> patchBuffer;
+    if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
+        HILOG_ERROR("huasmile LoadRepairFormPatch, get patch file buffer failed."); 
+        return false;
+    }
+
+    std::string baseFile;
+    std::vector<uint8_t> baseBuffer;
+    if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
+        HILOG_ERROR("huasmile LoadRepairFormPatch, get base file buffer failed.");
+        return false;
+    }
+
+    std::string resolvedHapPath;
+    auto position = hapPath.find(".hap");
+    if (position != std::string::npos) {
+        resolvedHapPath = hapPath.substr(0, position) + WIDGET_ABC_PATH;
+    }
+
+    auto hspPosition = hapPath.find(".hsp");
+    if (hspPosition != std::string::npos) {
+        resolvedHapPath = hapPath.substr(0, hspPosition) + WIDGET_ABC_PATH;
+    }
+    HILOG_ERROR("huasmile resolvedHapPath:%{public}s",resolvedHapPath.c_str());
+    HILOG_DEBUG("huasmile LoadRepairFormPatch, LoadPatch, patchFile: %{public}s, baseFile: %{public}s",
+        patchFile.c_str(), resolvedHapPath.c_str());
+    auto ret = panda::JSNApi::LoadPatch(vm, patchFile, patchBuffer.data(), patchBuffer.size(),
+        resolvedHapPath, baseBuffer.data(), baseBuffer.size());
+    if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+        HILOG_ERROR("huasmile LoadRepairFormPatch failed with %{public}d.", static_cast<int32_t>(ret));
+        return false;
+    }
+
+    HILOG_DEBUG("huasmile LoadRepairFormPatch, Load patch %{public}s succeed.", patchFile.c_str());
     return true;
 }
 

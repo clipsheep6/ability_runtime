@@ -25,6 +25,8 @@ QuickFixCallbackStub::QuickFixCallbackStub()
     requestFuncMap_[ON_NOTIFY_LOAD_PATCH] = &QuickFixCallbackStub::HandleOnLoadPatchDoneInner;
     requestFuncMap_[ON_NOTIFY_UNLOAD_PATCH] = &QuickFixCallbackStub::HandleOnUnloadPatchDoneInner;
     requestFuncMap_[ON_NOTIFY_RELOAD_PAGE] = &QuickFixCallbackStub::HandleOnReloadPageDoneInner;
+    requestFuncMap_[ON_NOTIFY_HOTLOAD_FORM] = &QuickFixCallbackStub::HandleOnUnloadHotloadDoneInner;
+    requestFuncMap_[ON_NOTIFY_UNLOAD_HOT] = &QuickFixCallbackStub::HandleOnHotloadFormDoneInner;
 }
 
 QuickFixCallbackStub::~QuickFixCallbackStub()
@@ -73,6 +75,21 @@ int32_t QuickFixCallbackStub::HandleOnReloadPageDoneInner(MessageParcel &data, M
     int32_t resultCode = data.ReadInt32();
     int32_t recordId = data.ReadInt32();
     OnReloadPageDone(resultCode, recordId);
+    return ERR_OK;
+}
+
+int32_t QuickFixCallbackStub::HandleOnUnloadHotloadDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t resultCode = data.ReadInt32();
+    int32_t recordId = data.ReadInt32();
+    OnUnloadHotloadDone(resultCode, recordId);
+    return ERR_OK;
+}
+int32_t QuickFixCallbackStub::HandleOnHotloadFormDoneInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t resultCode = data.ReadInt32();
+    int32_t recordId = data.ReadInt32();
+    OnHotloadFormDone(resultCode, recordId);
     return ERR_OK;
 }
 } // namespace AAFwk

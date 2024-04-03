@@ -186,7 +186,17 @@ public:
     virtual int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) = 0;
 
-    /**
+    /* *
+     * @brief Notify application load patch.
+     *
+     * @param bundleName Bundle name
+     * @param callback called when LoadPatch finished.
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleNotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+                                            const int32_t recordId, const int &patchVersion) = 0;
+
+    /* *
      * @brief Notify application reload page.
      *
      * @param callback called when HotReload finished.
@@ -204,7 +214,17 @@ public:
     virtual int32_t ScheduleNotifyUnLoadRepairPatch(const std::string &bundleName,
         const sptr<IQuickFixCallback> &callback, const int32_t recordId) = 0;
 
-    /**
+    /* *
+     * @brief Notify application unload patch.
+     *
+     * @param bundleName Bundle name
+     * @param callback called when UnloadPatch finished.
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleNotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
+        const int32_t recordId) = 0;
+
+    /* *
      * @brief Schedule Notify App Fault Data.
      *
      * @param faultData fault data
@@ -250,6 +270,8 @@ public:
         SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH,
         SCHEDULE_NOTIFY_HOT_RELOAD_PAGE,
         SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH,
+        SCHEDULE_NOTIFY_UNLOAD_PATCH,
+        SCHEDULE_NOTIFY_LOAD_PATCH,
         SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED,
         SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION,
         SCHEDULE_NOTIFY_FAULT,
