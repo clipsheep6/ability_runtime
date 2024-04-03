@@ -21,8 +21,42 @@ namespace OHOS {
 namespace AppExecFwk {
 bool JsHeapDumpInfo::Marshalling(Parcel &parcel) const
 {
-    return (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
-        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot));
+    bool res = (parcel.WriteUint32(pid) && parcel.WriteUint32(tid)
+        && parcel.WriteBool(needGc) && parcel.WriteBool(needSnapshot)
+        && parcel.WriteUInt32Vector(fdVec) && parcel.WriteUInt32Vector(tidVec));
+
+    auto msgParcel = static_cast<MessageParcel*>(&parcel);
+    if (msgParcel == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Dump Marshalling msgParcel==nullptr");
+        return false;
+    }
+    for (auto &fd : fdVec) {
+        msgParcel->WriteFileDescriptor(fd);
+    }
+    return res;
+}
+
+bool JsHeapDumpInfo::ReadFromParcel(Parcel &parcel)
+{
+    pid = parcel.ReadUint32();
+    tid = parcel.ReadUint32();
+    needGc = parcel.ReadBool();
+    needSnapshot = parcel.ReadBool();
+
+    parcel.ReadUInt32Vector(&fdVec);
+    parcel.ReadUInt32Vector(&tidVec);
+
+    auto msgParcel = static_cast<MessageParcel*>(&parcel);
+    if (msgParcel == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "ReadFromParcel failed.");
+        return false;
+    }
+    fdVec.clear();
+    for (auto &tid : tidVec) {
+        uint32_t parcelFd = msgParcel->ReadFileDescriptor();
+        fdVec.push_back(parcelFd);
+    }
+    return true;
 }
 
 JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
@@ -32,10 +66,11 @@ JsHeapDumpInfo *JsHeapDumpInfo::Unmarshalling(Parcel &parcel)
         TAG_LOGE(AAFwkTag::APPMGR, "info nullptr");
         return nullptr;
     }
-    info->pid = parcel.ReadUint32();
-    info->tid = parcel.ReadUint32();
-    info->needGc = parcel.ReadBool();
-    info->needSnapshot = parcel.ReadBool();
+    if (info && !info->ReadFromParcel(parcel)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "JsHeapDumpInfo failed, because ReadFromParcel failed");
+        delete info;
+        info = nullptr;
+    }
     return info;
 }
 } // namespace AppExecFwk
