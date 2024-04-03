@@ -138,7 +138,7 @@ HWTEST_F(AssertFaultTaskThreadTest, RequestAssertResult_0100, TestSize.Level1)
     std::string textDetail = textFile + textFunc + textLine + textExpression + "\n\n(Press Retry to debug the application)";
     
     auto result = assertFaultTaskThread_->RequestAssertResult(textDetail);
-    EXPECT_EQ(result, AAFwk::UserStatus::ERR_OK);
+    EXPECT_EQ(result, ERR_OK);
     HILOG_INFO("%{public}s end.", __func__);
 }
 } // namespace AppExecFwk
