@@ -4457,19 +4457,18 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
 void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bundleName,
     FaultDataType faultType, const std::string& markers)
 {
-    TAG_LOGI(AAFwkTag::APPMGR,
-        "AppRecovery NotifyApp to kill is: bundleName: %{public}s, faultType: %{public}d, pid: %{public}d",
-        bundleName.c_str(), faultType, pid);
     if (faultType != FaultDataType::APP_FREEZE) {
+        TAG_LOGI(AAFwkTag::APPMGR,
+            "AppRecovery NotifyApp to kill is: bundleName: %{public}s, faultType: "
+            "%{public}d, pid: %{public}d", bundleName.c_str(), faultType, pid);
         KillProcessByPid(pid, "AppRecoveryNotifyApp");
         return;
     }
 
     std::string timeOutName = "waitSaveTask" + std::to_string(pid) + bundleName;
     if (markers == "appRecovery") {
-        if (taskHandler_->CancelTask(timeOutName)) {
-            KillProcessByPid(pid, "AppRecoveryNotifyApp");
-        }
+        TAG_LOGI(AAFwkTag::APPMGR, "waitSaveTask finish, but not kill process "
+            "immediately, wait for dump stack util 2s timeout");
         return;
     }
 
