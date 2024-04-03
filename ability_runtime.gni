@@ -154,7 +154,7 @@ declare_args() {
     hichecker_enabled = false
   }
 
-  if (defined(global_parts_info) && 
+  if (defined(global_parts_info) &&
       defined(global_parts_info.graphic_graphic_2d_ext)) {
     ability_runtime_use_aps = true
   } else {
