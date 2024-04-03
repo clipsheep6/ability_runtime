@@ -15,7 +15,7 @@
 
 #ifndef OHOS_ABILITY_RUNTIME_APP_JSHEAP_MEM_INFO_H
 #define OHOS_ABILITY_RUNTIME_APP_JSHEAP_MEM_INFO_H
-
+#include <vector>
 #include "parcel.h"
 #include "iremote_object.h"
 
@@ -26,6 +26,9 @@ struct JsHeapDumpInfo : public Parcelable {
     uint32_t tid;
     bool needGc;
     bool needSnapshot;
+    std::vector<uint32_t> fdVec;
+    std::vector<uint32_t> tidVec;
+    bool ReadFromParcel(Parcel &parcel);
     virtual bool Marshalling(Parcel &parcel) const override;
     static JsHeapDumpInfo *Unmarshalling(Parcel &parcel);
 };
