@@ -13,28 +13,17 @@
 
 import("//arkcompiler/ets_frontend/es2panda/es2abc_config.gni")
 import("//build/ohos.gni")
+import("//build/templates/abc/ohos_abc.gni")
 import("//commonlibrary/memory_utils/purgeable_mem_config.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-es2abc_gen_abc("gen_delegator_mgmt_abc") {
-  src_js = rebase_path(
-          "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js")
-  dst_file = rebase_path(target_out_dir + "/delegator_mgmt.abc")
-  in_puts = [ "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js" ]
-  out_puts = [ target_out_dir + "/delegator_mgmt.abc" ]
-  extra_args = [ "--module" ]
-}
-
-gen_js_obj("delegator_mgmt_js") {
-  input = "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js"
-  output = target_out_dir + "/delegator_mgmt.o"
-}
-
-gen_js_obj("delegator_mgmt_abc") {
-  input = get_label_info(":gen_delegator_mgmt_abc", "target_out_dir") +
-          "/delegator_mgmt.abc"
-  output = target_out_dir + "/delegator_mgmt_abc.o"
-  dep = ":gen_delegator_mgmt_abc"
+ohos_abc("delegator_mgmt") {
+  sources = [ "${ability_runtime_native_path}/appkit/ability_delegator/runner_runtime/delegator_mgmt.js" ]
+  output_name = "delegator_mgmt"
+  install_images = [ "system" ]
+  module_install_dir = "etc/abc/ability"
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
 }
 
 config("appkit_exception_config") {
@@ -394,11 +383,10 @@ ohos_shared_library("appkit_delegator") {
   }
 
   deps = [
-    ":delegator_mgmt_abc",
-    ":delegator_mgmt_js",
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager",
     "${ability_runtime_innerkits_path}/runtime:runtime",
     "${ability_runtime_native_path}/appkit:app_context",
+    "${ability_runtime_native_path}/appkit:delegator_mgmt",
   ]
 
   external_deps = [
