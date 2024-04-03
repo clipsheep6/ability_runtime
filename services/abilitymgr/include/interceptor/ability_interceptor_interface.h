@@ -28,15 +28,15 @@ struct AbilityInterceptorParam {
         const sptr<IRemoteObject> &callerToken) : want(want), requestCode(requestCode), userId(userId),
         isWithUI(isWithUI), callerToken(callerToken){};
     AbilityInterceptorParam(const Want &want, int requestCode, int32_t userId, bool isWithUI,
-        const sptr<IRemoteObject> &callerToken, const AppExecFwk::AbilityInfo &abilityInfo) : want(want),
-        requestCode(requestCode), userId(userId), isWithUI(isWithUI),
-        callerToken(callerToken), abilityInfo(abilityInfo){};
+        const sptr<IRemoteObject> &callerToken, const std::shared_ptr<AppExecFwk::AbilityInfo> &abilityInfo) :
+            want(want), requestCode(requestCode), userId(userId), isWithUI(isWithUI),
+            callerToken(callerToken), abilityInfo(abilityInfo){};
     const Want &want;
     int32_t requestCode;
     int32_t userId;
     bool isWithUI = false;
     const sptr<IRemoteObject> &callerToken;
-    AppExecFwk::AbilityInfo abilityInfo;  // target abilityInfo get in afterCheckExecuter_
+    std::shared_ptr<AppExecFwk::AbilityInfo> abilityInfo;  // target abilityInfo get in afterCheckExecuter_
 };
 
 /**

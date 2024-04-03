@@ -1005,7 +1005,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 
     Want newWant = abilityRequest.want;
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
-        true, callerToken, abilityInfo);
+        true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
@@ -1209,7 +1209,7 @@ int AbilityManagerService::StartAbility(const Want &want, const AbilityStartSett
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, requestCode,
-        GetUserId(), true, callerToken, abilityInfo);
+        GetUserId(), true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -1557,7 +1557,7 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 
     Want newWant = abilityRequest.want;
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode, GetUserId(),
-        true, callerToken, abilityInfo);
+        true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
@@ -1716,7 +1716,7 @@ int32_t AbilityManagerService::RequestDialogServiceInner(const Want &want, const
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, requestCode,
-        GetUserId(), true, callerToken, abilityInfo);
+        GetUserId(), true, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -1811,7 +1811,7 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         TAG_LOGD(AAFwkTag::ABILITYMGR, "afterCheckExecuter_ called.");
         Want newWant = abilityRequest.want;
         AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(newWant, requestCode,
-            GetUserId(), true, sessionInfo->callerToken, abilityInfo);
+            GetUserId(), true, sessionInfo->callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
         result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
             afterCheckExecuter_->DoProcess(afterCheckParam);
         bool isReplaceWantExist = newWant.GetBoolParam("queryWantFromErms", false);
@@ -2383,7 +2383,7 @@ int AbilityManagerService::StartExtensionAbilityInner(const Want &want, const sp
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
-        false, callerToken, abilityInfo);
+        false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -2623,7 +2623,7 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
-        false, callerToken, abilityInfo);
+        false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -3536,7 +3536,7 @@ int AbilityManagerService::ConnectLocalAbility(const Want &want, const int32_t u
     }
 
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
-        false, callerToken, abilityInfo);
+        false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (result != ERR_OK) {
@@ -6404,7 +6404,7 @@ int AbilityManagerService::StartAbilityByCall(const Want &want, const sptr<IAbil
         abilityRequest.abilityInfo.applicationInfo.singleton ? "true" : "false");
     UpdateCallerInfo(abilityRequest.want, callerToken);
     AbilityInterceptorParam afterCheckParam = AbilityInterceptorParam(abilityRequest.want, 0, GetUserId(),
-        false, callerToken, abilityRequest.abilityInfo);
+        false, callerToken, std::make_shared<AppExecFwk::AbilityInfo>(abilityRequest.abilityInfo));
     result = afterCheckExecuter_ == nullptr ? ERR_INVALID_VALUE :
         afterCheckExecuter_->DoProcess(afterCheckParam);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
