@@ -16,6 +16,8 @@
 #include <gtest/gtest.h>
 
 #include "ability_util.h"
+#include "int_wrapper.h"
+#include "mock_my_flag.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -127,6 +129,60 @@ HWTEST_F(AbilityUtilTest, HandleDlpApp_0600, TestSize.Level0)
     want.SetElementName("com.ohos.test", "");
     bool result = AbilityUtil::HandleDlpApp(want);
     EXPECT_FALSE(result);
+}
+
+/**
+ * @tc.name: ProcessWindowMode_0100
+ * @tc.desc: ProcessWindowMode Test
+ * @tc.type: FUNC
+ * @tc.require: issueI9D3V0
+ */
+HWTEST_F(AbilityUtilTest, ProcessWindowMode_0100, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(Want::PARAM_RESV_WINDOW_MODE, 0);
+    MyFlag::flag_ = 1;
+    uint32_t accessTokenId = 0;
+    int32_t windowMode = 0;
+    AbilityUtil::ProcessWindowMode(want, accessTokenId, windowMode);
+    int32_t getWindowMode = Integer::Unbox(IInteger::Query(want.GetParams().GetParam(Want::PARAM_RESV_WINDOW_MODE)));
+    EXPECT_EQ(windowMode, getWindowMode);
+}
+
+/**
+ * @tc.name: ProcessWindowMode_0200
+ * @tc.desc: ProcessWindowMode Test
+ * @tc.type: FUNC
+ * @tc.require: issueI9D3V0
+ */
+HWTEST_F(AbilityUtilTest, ProcessWindowMode_0200, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(Want::PARAM_RESV_WINDOW_MODE, 0);
+    MyFlag::flag_ = 0;
+    uint32_t accessTokenId = 0;
+    int32_t windowMode = 100;
+    AbilityUtil::ProcessWindowMode(want, accessTokenId, windowMode);
+    int32_t getWindowMode = Integer::Unbox(IInteger::Query(want.GetParams().GetParam(Want::PARAM_RESV_WINDOW_MODE)));
+    EXPECT_EQ(windowMode, getWindowMode);
+}
+
+/**
+ * @tc.name: ProcessWindowMode_0300
+ * @tc.desc: ProcessWindowMode Test
+ * @tc.type: FUNC
+ * @tc.require: issueI9D3V0
+ */
+HWTEST_F(AbilityUtilTest, ProcessWindowMode_0300, TestSize.Level0)
+{
+    Want want;
+    want.SetParam(Want::PARAM_RESV_WINDOW_MODE, 0);
+    MyFlag::flag_ = 0;
+    uint32_t accessTokenId = 0;
+    int32_t windowMode = 101;
+    AbilityUtil::ProcessWindowMode(want, accessTokenId, windowMode);
+    int32_t getWindowMode = Integer::Unbox(IInteger::Query(want.GetParams().GetParam(Want::PARAM_RESV_WINDOW_MODE)));
+    EXPECT_EQ(windowMode, getWindowMode);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
