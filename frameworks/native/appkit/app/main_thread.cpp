@@ -953,16 +953,17 @@ bool MainThread::InitCreate(
     }
 
     applicationInfo_ = std::make_shared<ApplicationInfo>(appInfo);
+    if (applicationInfo_ == nullptr) {
+        HILOG_ERROR("create applicationInfo_ failed");
+        return false;
+    }
+
     // c30045783 Game Frame Rate Reduction Scheme
 #ifdef ABILITY_RUNTIME_USE_APS_FUNC
     std::string pkgName = applicationInfo_->name;
     auto task = [pkgName]() { Rosen::ApsGameFpsController::GetInstance().RegisterGameFpsListen(pkgName); };
     ffrt::submit(task);
 #endif
-    if (applicationInfo_ == nullptr) {
-        HILOG_ERROR("create applicationInfo_ failed");
-        return false;
-    }
 
     processInfo_ = std::make_shared<ProcessInfo>(processInfo);
     if (processInfo_ == nullptr) {
