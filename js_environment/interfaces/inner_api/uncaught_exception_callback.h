@@ -49,7 +49,7 @@ public:
 
     std::string GetNativeStrFromJsTaggedObj(napi_value obj, const char* key);
 
-    static std::string GetNativeStack();
+    std::string GetBuildId(std::string nativeStack);
 
 private:
     std::function<void(std::string summary, const JsEnv::ErrorObject errorObj)> uncaughtTask_;

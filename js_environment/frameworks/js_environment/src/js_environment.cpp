@@ -159,11 +159,6 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         return false;
     };
     engine_->RegisterSourceMapTranslateCallback(translateUrlBySourceMapFunc);
-
-    auto nativeStackFunc = [&]() -> std::string {
-        return NapiUncaughtExceptionCallback::GetNativeStack();
-    };
-    panda::JSNApi::SetNativeStackCallback(vm_, nativeStackFunc);
 }
 
 void JsEnvironment::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionInfo& uncaughtExceptionInfo)
