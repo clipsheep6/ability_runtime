@@ -154,6 +154,9 @@ public:
      * @param tid The thread id.
      */
     void ReportConnectionLeakEvent(const int pid, const int tid);
+
+    void DisconnectNonexistentService(const AppExecFwk::ElementName& element,
+        const sptr<AbilityConnection> connection);
 private:
     ConnectionManager() = default;
     bool IsConnectCallerEqual(const sptr<IRemoteObject> &connectCaller, const sptr<IRemoteObject> &connectCallerOther);
