@@ -293,7 +293,7 @@ private:
 
 private:
     napi_value CallObjectMethod(const char *name, napi_value const *argv = nullptr, size_t argc = 0,
-        bool withResult = false);
+        bool withResult = false, bool showMethodNotFoundLog = true);
     bool CheckPromise(napi_value result);
     bool CallPromise(napi_value result, AppExecFwk::AbilityTransactionCallbackInfo<> *callbackInfo);
     bool CallPromise(napi_value result, int32_t &onContinueRes);
@@ -308,6 +308,8 @@ private:
     void AddLifecycleEventBeforeJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
     void AddLifecycleEventAfterJSCall(FreezeUtil::TimeoutState state, const std::string &methodName) const;
     void CreateJSContext(napi_env env, napi_value &contextObj, int32_t screenMode);
+    bool CheckSatisfyTargetAPIVersion(int32_t targetAPIVersion);
+    bool BackPressDefaultValue();
 
     JsRuntime &jsRuntime_;
     std::shared_ptr<NativeReference> shellContextRef_;

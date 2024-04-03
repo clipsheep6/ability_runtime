@@ -59,6 +59,8 @@ const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
+constexpr const int32_t API12 = 12;
+constexpr const int32_t API_VERSION_MOD = 100;
 
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
 {
@@ -619,11 +621,16 @@ bool JsUIAbility::OnBackPress()
     UIAbility::OnBackPress();
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
-    napi_value jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true);
-    bool ret = true;
+    napi_value jsValue = CallObjectMethod("onBackPressed", nullptr, 0, true, false);
+    bool defaultRet = BackPressDefaultValue();
+    if (jsValue == nullptr) {
+        TAG_LOGD(AAFwkTag::UIABILITY, "jsValue is nullptr, return defaultRet %{public}d.", defaultRet);
+        return defaultRet;
+    }
+    bool ret = defaultRet;
     if (!ConvertFromJsValue(env, jsValue, ret)) {
         TAG_LOGE(AAFwkTag::UIABILITY, "Get js value failed.");
-        return true;
+        return defaultRet;
     }
     TAG_LOGD(AAFwkTag::UIABILITY, "End ret is %{public}d.", ret);
     return ret;
@@ -1216,7 +1223,8 @@ sptr<IRemoteObject> JsUIAbility::CallRequest()
     return remoteCallee_;
 }
 
-napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult)
+napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *argv, size_t argc, bool withResult,
+    bool showMethodNotFoundLog)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UIABILITY, "Lifecycle: the begin of %{public}s", name);
@@ -1237,7 +1245,9 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
     napi_value methodOnCreate = nullptr;
     napi_get_named_property(env, obj, name, &methodOnCreate);
     if (methodOnCreate == nullptr) {
-        TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get '%{public}s' from Ability object.", name);
+        if (showMethodNotFoundLog) {
+            TAG_LOGE(AAFwkTag::UIABILITY, "Failed to get '%{public}s' from Ability object.", name);
+        }
         return nullptr;
     }
     TryCatch tryCatch(env);
@@ -1473,6 +1483,22 @@ void JsUIAbility::UpdateJsWindowStage(napi_value windowStage)
     }
     TAG_LOGD(AAFwkTag::UIABILITY, "Set context windowStage object.");
     napi_set_named_property(env, contextObj, "windowStage", windowStage);
+}
+
+bool JsUIAbility::CheckSatisfyTargetAPIVersion(int32_t version)
+{
+    auto applicationInfo = GetApplicationInfo();
+    if (!applicationInfo) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "CheckTargetAPIVersion applicationInfo is nullptr.");
+        return false;
+    }
+    TAG_LOGD(AAFwkTag::UIABILITY, "TargetAPIVersion: %{public}d.", applicationInfo->apiTargetVersion);
+    return applicationInfo->apiTargetVersion % API_VERSION_MOD >= version;
+}
+
+bool JsUIAbility::BackPressDefaultValue()
+{
+    return CheckSatisfyTargetAPIVersion(API12) ? true : false;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
