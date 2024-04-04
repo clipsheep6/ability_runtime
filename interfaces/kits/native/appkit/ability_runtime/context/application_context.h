@@ -110,8 +110,8 @@ public:
     void SetApplicationInfoUpdateFlag(bool flag);
     void RegisterAppConfigUpdateObserver(AppConfigUpdateCallback appConfigChangeCallback);
 
-    std::string GetAppRunningUniqueIdByPid() const;
-    void SetAppRunningUniqueIdByPid(const std::string &appRunningUniqueId);
+    std::string GetAppRunningUniqueId() const;
+    void SetAppRunningUniqueId(const std::string &appRunningUniqueId);
 private:
     std::shared_ptr<ContextImpl> contextImpl_;
     static std::vector<std::shared_ptr<AbilityLifecycleCallback>> callbacks_;

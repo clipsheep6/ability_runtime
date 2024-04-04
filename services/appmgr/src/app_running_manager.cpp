@@ -1235,7 +1235,7 @@ int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &ap
         TAG_LOGE(AAFwkTag::APPMGR, "appRecord is nullptr.");
         return ERR_INVALID_VALUE;
     }
-    appRunningUniqueId = std::to_string(appRecord->GetRecordId());
+    appRunningUniqueId = std::to_string(appRecord->GetAppStartTime());
     TAG_LOGD(AAFwkTag::APPMGR, "appRunningUniqueId = %{public}s.", appRunningUniqueId.c_str());
     return ERR_OK;
 }

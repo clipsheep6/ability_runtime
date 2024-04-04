@@ -1107,12 +1107,13 @@ int32_t AppMgrService::SignRestartAppFlag(const std::string &bundleName)
 int32_t AppMgrService::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
 {
     if (!IsReady()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");
+        TAG_LOGE(AAFwkTag::APPMGR, "GetAppRunningUniqueIdByPid, Not ready.");
         return ERR_INVALID_OPERATION;
     }
-    auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
-    if (!isSaCall) {
-        TAG_LOGE(AAFwkTag::APPMGR, "Not SA call.");
+    bool isCallingPermission = AAFwk::PermissionVerification::GetInstance()->IsSACall() &&
+        AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
+    if (!isCallingPermission) {
+        TAG_LOGE(AAFwkTag::APPMGR, "GetAppRunningUniqueIdByPid, Not SA call or Permission verification failed.");
         return ERR_PERMISSION_DENIED;
     }
     return appMgrServiceInner_->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);

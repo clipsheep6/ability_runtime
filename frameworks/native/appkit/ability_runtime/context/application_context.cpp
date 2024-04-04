@@ -532,15 +532,15 @@ void ApplicationContext::RegisterAppConfigUpdateObserver(AppConfigUpdateCallback
     appConfigChangeCallback_ = appConfigChangeCallback;
 }
 
-std::string ApplicationContext::GetAppRunningUniqueIdByPid() const
+std::string ApplicationContext::GetAppRunningUniqueId() const
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueIdByPid is %{public}s.", appRunningUniqueId_.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "GetAppRunningUniqueId is %{public}s.", appRunningUniqueId_.c_str());
     return appRunningUniqueId_;
 }
 
-void ApplicationContext::SetAppRunningUniqueIdByPid(const std::string &appRunningUniqueId)
+void ApplicationContext::SetAppRunningUniqueId(const std::string &appRunningUniqueId)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "SetAppRunningUniqueIdByPid is %{public}s.", appRunningUniqueId.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "SetAppRunningUniqueId is %{public}s.", appRunningUniqueId.c_str());
     appRunningUniqueId_ = appRunningUniqueId;
 }
 }  // namespace AbilityRuntime
