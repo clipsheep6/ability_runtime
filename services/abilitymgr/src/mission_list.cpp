@@ -501,7 +501,10 @@ void MissionList::SignRestartAppFlag(const std::string &bundleName)
         if (abilityRecord->GetApplicationInfo().bundleName != bundleName) {
             continue;
         }
+        // mission->isRestartApp_ = true;
         abilityRecord->SetRestartAppFlag(true);
+        abilityRecord->SetMission(nullptr);
+        abilityRecord->SetMissionList(nullptr);
     }
 }
 }  // namespace AAFwk
