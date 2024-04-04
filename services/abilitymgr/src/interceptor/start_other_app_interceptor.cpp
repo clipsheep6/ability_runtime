@@ -19,21 +19,31 @@
 #include "app_scheduler.h"
 #include "hilog_tag_wrapper.h"
 #include "ipc_skeleton.h"
+#include "parameters.h"
 #include "permission_verification.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
+const int32_t API_VERSION_MOD = 100;
 const uint32_t API_SINCE_VISION = 12;
+const std::string ABILITY_SUPPORT_START_OTHER_APP = "persist.sys.abilityms.support.start_other_app";
 }
 
 ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
 {
+    std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "false");
+    if (supportStart == "true") {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Abilityms support start other app.");
+        return ERR_OK;
+    }
+
     if (!param.isWithUI) {
         return ERR_OK;
     }
-    if (CheckNativeCall() || CheckCallerIsSystemApp() || CheckTargetIsSystemApp(param.abilityInfo.applicationInfo)) {
+    if (CheckNativeCall() || CheckCallerIsSystemApp() ||
+        (param.abilityInfo != nullptr && CheckTargetIsSystemApp(param.abilityInfo->applicationInfo))) {
         return ERR_OK;
     }
     
@@ -41,7 +51,7 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
 
-    if (CheckAncoShellCall(param.abilityInfo.applicationInfo, param.want)) {
+    if (param.abilityInfo != nullptr && CheckAncoShellCall(param.abilityInfo->applicationInfo, param.want)) {
         return ERR_OK;
     }
 
@@ -117,7 +127,7 @@ bool StartOtherAppInterceptor::CheckStartOtherApp(const Want want)
 
 bool StartOtherAppInterceptor::CheckCallerApiBelow12(const AppExecFwk::ApplicationInfo &applicationInfo)
 {
-    return applicationInfo.apiTargetVersion < API_SINCE_VISION;
+    return (applicationInfo.apiTargetVersion % API_VERSION_MOD < API_SINCE_VISION);
 }
 }
 }
