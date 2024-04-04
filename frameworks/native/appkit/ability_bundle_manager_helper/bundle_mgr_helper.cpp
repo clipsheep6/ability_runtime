@@ -133,7 +133,9 @@ ErrCode BundleMgrHelper::GetSandboxAbilityInfo(const Want &want, int32_t appInde
         return ERR_APPEXECFWK_SANDBOX_INSTALL_INTERNAL_ERROR;
     }
 
-    return bundleMgr->GetSandboxAbilityInfo(want, appIndex, flags, userId, abilityInfo);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->GetSandboxAbilityInfo(newWant, appIndex, flags, userId, abilityInfo);
 }
 
 ErrCode BundleMgrHelper::GetSandboxExtAbilityInfos(const Want &want, int32_t appIndex, int32_t flags,
@@ -368,7 +370,9 @@ bool BundleMgrHelper::QueryAbilityInfo(const Want &want, AbilityInfo &abilityInf
         return false;
     }
 
-    return bundleMgr->QueryAbilityInfo(want, abilityInfo);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->QueryAbilityInfo(newWant, abilityInfo);
 }
 
 bool BundleMgrHelper::QueryAbilityInfo(const Want &want, int32_t flags, int32_t userId, AbilityInfo &abilityInfo)
@@ -380,7 +384,9 @@ bool BundleMgrHelper::QueryAbilityInfo(const Want &want, int32_t flags, int32_t 
         return false;
     }
 
-    return bundleMgr->QueryAbilityInfo(want, flags, userId, abilityInfo);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->QueryAbilityInfo(newWant, flags, userId, abilityInfo);
 }
 
 bool BundleMgrHelper::GetBundleInfos(int32_t flags, std::vector<BundleInfo> &bundleInfos, int32_t userId)
@@ -428,7 +434,9 @@ bool BundleMgrHelper::ProcessPreload(const Want &want)
         return false;
     }
 
-    return bundleMgr->ProcessPreload(want);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->ProcessPreload(newWant);
 }
 
 sptr<IAppControlMgr> BundleMgrHelper::GetAppControlProxy()
@@ -453,7 +461,9 @@ bool BundleMgrHelper::QueryExtensionAbilityInfos(const Want &want, const int32_t
         return false;
     }
 
-    return bundleMgr->QueryExtensionAbilityInfos(want, flag, userId, extensionInfos);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->QueryExtensionAbilityInfos(newWant, flag, userId, extensionInfos);
 }
 
 ErrCode BundleMgrHelper::GetBundleInfoV9(
@@ -534,8 +544,9 @@ bool BundleMgrHelper::ImplicitQueryInfoByPriority(
         TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to connect.");
         return false;
     }
-
-    return bundleMgr->ImplicitQueryInfoByPriority(want, flags, userId, abilityInfo, extensionInfo);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->ImplicitQueryInfoByPriority(newWant, flags, userId, abilityInfo, extensionInfo);
 }
 
 bool BundleMgrHelper::QueryAbilityInfoByUri(const std::string &abilityUri, int32_t userId, AbilityInfo &abilityInfo)
@@ -560,7 +571,9 @@ bool BundleMgrHelper::QueryAbilityInfo(
         return false;
     }
 
-    return bundleMgr->QueryAbilityInfo(want, flags, userId, abilityInfo, callBack);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->QueryAbilityInfo(newWant, flags, userId, abilityInfo, callBack);
 }
 
 void BundleMgrHelper::UpgradeAtomicService(const Want &want, int32_t userId)
@@ -572,7 +585,9 @@ void BundleMgrHelper::UpgradeAtomicService(const Want &want, int32_t userId)
         return;
     }
 
-    bundleMgr->UpgradeAtomicService(want, userId);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    bundleMgr->UpgradeAtomicService(newWant, userId);
 }
 
 bool BundleMgrHelper::ImplicitQueryInfos(const Want &want, int32_t flags, int32_t userId, bool withDefault,
@@ -585,7 +600,9 @@ bool BundleMgrHelper::ImplicitQueryInfos(const Want &want, int32_t flags, int32_
         return false;
     }
 
-    return bundleMgr->ImplicitQueryInfos(want, flags, userId, withDefault, abilityInfos, extensionInfos);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->ImplicitQueryInfos(newWant, flags, userId, withDefault, abilityInfos, extensionInfos);
 }
 
 bool BundleMgrHelper::CleanBundleDataFiles(const std::string &bundleName, const int32_t userId)
@@ -725,7 +742,9 @@ ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, W
         return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
     }
 
-    return bundleMgr->GetLaunchWantForBundle(bundleName, want, userId);
+    AAFwk::Want newWant = want;
+    newWant.RemoveAllFd();
+    return bundleMgr->GetLaunchWantForBundle(bundleName, newWant, userId);
 }
 
 }  // namespace AppExecFwk
