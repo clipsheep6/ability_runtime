@@ -65,7 +65,6 @@ abilityms_files = [
   "src/interceptor/crowd_test_interceptor.cpp",
   "src/interceptor/disposed_rule_interceptor.cpp",
   "src/interceptor/ecological_rule_interceptor.cpp",
-  "src/interceptor/start_other_app_interceptor.cpp",
   "src/window_focus_changed_listener.cpp",
 
   # start ability handler

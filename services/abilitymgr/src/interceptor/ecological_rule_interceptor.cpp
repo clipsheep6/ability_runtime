@@ -67,7 +67,7 @@ ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
 #ifdef SUPPORT_GRAPHICS
-    if (param.isWithUI && rule.replaceWant) {
+    if (param.isForeground && rule.replaceWant) {
         (const_cast<Want &>(param.want)) = *rule.replaceWant;
         (const_cast<Want &>(param.want)).SetParam("queryWantFromErms", true);
     }

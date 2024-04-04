@@ -452,11 +452,6 @@ enum {
      * Native error(2097238) for kill process not exist.
      */
     ERR_KILL_PROCESS_NOT_EXIST,
-
-    /**
-     * Native error(2097239) for start other app failed.
-     */
-    ERR_START_OTHER_APP_FAILED,
 };
 
 enum {
