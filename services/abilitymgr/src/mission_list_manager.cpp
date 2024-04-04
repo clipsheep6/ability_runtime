@@ -502,6 +502,12 @@ bool MissionListManager::HandleReusedMissionAndAbility(const AbilityRequest &abi
     TAG_LOGD(AAFwkTag::ABILITYMGR, "find reused mission in running list.");
     targetMission = reUsedMission;
     targetRecord = targetMission->GetAbilityRecord();
+    if (targetRecord && targetRecord->GetRestartAppFlag()) {
+        HILOG_DEBUG("xzh HandleReusedMissionAndAbility, targetRecord is signed");
+        targetMission = nullptr;
+        targetRecord = nullptr;
+        return false;
+    }
     if (targetRecord) {
         targetRecord->SetWant(abilityRequest.want);
         targetRecord->SetIsNewWant(true);
