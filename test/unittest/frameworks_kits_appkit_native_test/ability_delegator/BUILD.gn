@@ -44,10 +44,6 @@ config("unittest_include_dir") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  defines = [
-    "APP_LOG_TAG = \"ApplicationUnitTest\"",
-    "LOG_DOMAIN = 0xD001151",
-  ]
 }
 
 ohos_unittest("shell_cmd_result_unittest") {

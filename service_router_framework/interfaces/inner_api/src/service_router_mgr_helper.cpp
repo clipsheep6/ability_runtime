@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 
-#include "app_log_wrapper.h"
 #include "bundle_constants.h"
 #include "hilog_tag_wrapper.h"
 #include "iservice_registry.h"

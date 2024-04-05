@@ -15,7 +15,6 @@
 
 #include "service_router_mgr_proxy.h"
 
-#include "app_log_wrapper.h"
 #include "appexecfwk_errors.h"
 #include "hilog_tag_wrapper.h"
 #include "parcel_macro.h"

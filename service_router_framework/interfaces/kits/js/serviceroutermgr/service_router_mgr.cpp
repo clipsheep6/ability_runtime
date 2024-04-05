@@ -17,7 +17,6 @@
 #include <string>
 
 #include "appexecfwk_errors.h"
-#include "app_log_wrapper.h"
 #include "common_func.h"
 #include "bundle_errors.h"
 #include "business_error.h"

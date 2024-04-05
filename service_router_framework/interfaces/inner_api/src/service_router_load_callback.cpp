@@ -14,7 +14,6 @@
  */
 #include "service_router_load_callback.h"
 
-#include "app_log_wrapper.h"
 #include "hilog_tag_wrapper.h"
 #include "service_router_mgr_helper.h"
 #include "system_ability_definition.h"

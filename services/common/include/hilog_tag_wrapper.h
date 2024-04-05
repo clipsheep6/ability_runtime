@@ -93,12 +93,12 @@ enum class AAFwkLogTag : uint32_t {
     END = 256,               // N.B. never use it
 };
 
-const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
-    { AAFwkLogTag::DEFAULT,     "AAFwk" },
-    { AAFwkLogTag::ABILITY,     "AAFwkAbility" },
-    { AAFwkLogTag::TEST,        "AAFwkTest" },
-    { AAFwkLogTag::AA_TOOL,     "AAFwkAATool" },
-    { AAFwkLogTag::ABILITY_SIM, "AAFwkAbilitySimulator" },
+const std::map<AAFwkLogTag, const char*> AAFWK_DOMAIN_MAP = {
+    { AAFwkLogTag::DEFAULT,         "AAFwk" },
+    { AAFwkLogTag::ABILITY,         "AAFwkAbility" },
+    { AAFwkLogTag::TEST,            "AAFwkTest" },
+    { AAFwkLogTag::AA_TOOL,         "AAFwkAATool" },
+    { AAFwkLogTag::ABILITY_SIM,     "AAFwkAbilitySimulator" },
 
     { AAFwkLogTag::APPDFR,          "AAFwkAppDfr"},
     { AAFwkLogTag::APPMGR,          "AAFwkAppMgr" },
@@ -109,11 +109,11 @@ const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
     { AAFwkLogTag::BUNDLEMGRHELPER, "AAFwkBundleMgrHelper" },
     { AAFwkLogTag::APPKIT,          "AAFwkAppKit" },
 
-    { AAFwkLogTag::JSENV,     "AAFwkJsEnv" },
-    { AAFwkLogTag::JSRUNTIME, "AAFwkJsRuntime" },
-    { AAFwkLogTag::FA,        "AAFwkFA" },
-    { AAFwkLogTag::INTENT,    "AAFwkIntent" },
-    { AAFwkLogTag::JSNAPI,    "AAFwkJsNapi" },
+    { AAFwkLogTag::JSENV,           "AAFwkJsEnv" },
+    { AAFwkLogTag::JSRUNTIME,       "AAFwkJsRuntime" },
+    { AAFwkLogTag::FA,              "AAFwkFA" },
+    { AAFwkLogTag::INTENT,          "AAFwkIntent" },
+    { AAFwkLogTag::JSNAPI,          "AAFwkJsNapi" },
 
     { AAFwkLogTag::DELEGATOR,       "AAFwkDelegator" },
     { AAFwkLogTag::CONTEXT,         "AAFwkContext" },
@@ -126,35 +126,36 @@ const std::map<AAFwkLogTag, const char*> DOMAIN_MAP = {
     { AAFwkLogTag::ECOLOGICAL_RULE, "AAFwkEcologicalRule" },
     { AAFwkLogTag::DATA_ABILITY,    "AAFwkDataAbility" },
 
-    { AAFwkLogTag::EXT,          "AAFwkExt" },
-    { AAFwkLogTag::AUTOFILL_EXT, "AAFwkAutoFillExt" },
-    { AAFwkLogTag::SERVICE_EXT,  "AAFwkServiceExt" },
-    { AAFwkLogTag::FORM_EXT,     "AAFwkFormExt" },
-    { AAFwkLogTag::SHARE_EXT,    "AAFwkShareExt" },
-    { AAFwkLogTag::UI_EXT,       "AAFwkUIExt" },
-    { AAFwkLogTag::ACTION_EXT,   "AAFwkActionExt" },
-    { AAFwkLogTag::EMBEDDED_EXT, "AAFwkEmbeddedExt" },
+    { AAFwkLogTag::EXT,             "AAFwkExt" },
+    { AAFwkLogTag::AUTOFILL_EXT,    "AAFwkAutoFillExt" },
+    { AAFwkLogTag::SERVICE_EXT,     "AAFwkServiceExt" },
+    { AAFwkLogTag::FORM_EXT,        "AAFwkFormExt" },
+    { AAFwkLogTag::SHARE_EXT,       "AAFwkShareExt" },
+    { AAFwkLogTag::UI_EXT,          "AAFwkUIExt" },
+    { AAFwkLogTag::ACTION_EXT,      "AAFwkActionExt" },
+    { AAFwkLogTag::EMBEDDED_EXT,    "AAFwkEmbeddedExt" },
 
-    { AAFwkLogTag::WANTAGENT,    "AAFwkWantAgent" },
-    { AAFwkLogTag::AUTOFILLMGR,  "AAFwkAutoFillMgr" },
-    { AAFwkLogTag::EXTMGR,       "AAFwkExtMgr" },
-    { AAFwkLogTag::SER_ROUTER,   "AAFwkServiceRouter" },
-    { AAFwkLogTag::AUTO_STARTUP, "AAFwkAutoStartup" },
-    { AAFwkLogTag::RECOVERY,     "AAFwkRecovery" },
-    { AAFwkLogTag::PROCESSMGR,   "AAFwkProcessMgr" },
-    { AAFwkLogTag::CONTINUATION, "AAFwkContinuation" },
-    { AAFwkLogTag::DISTRIBUTED,  "AAFwkDistributed" },
-    { AAFwkLogTag::FREE_INSTALL, "AAFwkFreeInstall" },
+    { AAFwkLogTag::WANTAGENT,       "AAFwkWantAgent" },
+    { AAFwkLogTag::AUTOFILLMGR,     "AAFwkAutoFillMgr" },
+    { AAFwkLogTag::EXTMGR,          "AAFwkExtMgr" },
+    { AAFwkLogTag::SER_ROUTER,      "AAFwkServiceRouter" },
+    { AAFwkLogTag::AUTO_STARTUP,    "AAFwkAutoStartup" },
+    { AAFwkLogTag::RECOVERY,        "AAFwkRecovery" },
+    { AAFwkLogTag::PROCESSMGR,      "AAFwkProcessMgr" },
+    { AAFwkLogTag::CONTINUATION,    "AAFwkContinuation" },
+    { AAFwkLogTag::DISTRIBUTED,     "AAFwkDistributed" },
+    { AAFwkLogTag::FREE_INSTALL,    "AAFwkFreeInstall" },
 
-    { AAFwkLogTag::LOCAL_CALL, "AAFwkLocalCall" },
+    { AAFwkLogTag::LOCAL_CALL,      "AAFwkLocalCall" },
 };
 
 static inline const char* GetTagInfoFromDomainId(AAFwkLogTag tag)
 {
-    if (DOMAIN_MAP.find(tag) == DOMAIN_MAP.end()) {
-        tag = AAFwkLogTag::DEFAULT;
+    auto iter = AAFWK_DOMAIN_MAP.find(tag);
+    if (iter != AAFWK_DOMAIN_MAP.end() && iter->second) {
+        return iter->second;
     }
-    return DOMAIN_MAP.at(tag);
+    return "AAFwkUN";
 }
 
 } // OHOS::AAFwk

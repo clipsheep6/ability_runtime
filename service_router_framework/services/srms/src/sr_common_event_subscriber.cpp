@@ -15,7 +15,6 @@
 
 #include "sr_common_event_subscriber.h"
 
-#include "app_log_wrapper.h"
 #include "common_event_support.h"
 #include "hilog_tag_wrapper.h"
 #include "service_router_data_mgr.h"

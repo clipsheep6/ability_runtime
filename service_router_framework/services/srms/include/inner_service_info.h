@@ -16,7 +16,6 @@
 #ifndef OHOS_ABILITY_RUNTIME_SERVICE_ROUTER_FRAMEWORK_SERVICES_INCLUDE_INNER_BUNDLE_INFO_H
 #define OHOS_ABILITY_RUNTIME_SERVICE_ROUTER_FRAMEWORK_SERVICES_INCLUDE_INNER_BUNDLE_INFO_H
 
-#include "app_log_wrapper.h"
 #include "application_info.h"
 #include "bundle_info.h"
 #include "hilog_tag_wrapper.h"
