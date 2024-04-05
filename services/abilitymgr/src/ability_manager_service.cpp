@@ -9639,8 +9639,10 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     targetWant.SetParam("isSelector", dialogCallerInfo->isSelector);
     targetWant.SetParam("dialogSessionId", dialogSessionId);
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
-    return StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
+    int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
+    targetWant.CloseAllFd();
+    return ret;
 }
 
 void AbilityManagerService::RemoveLauncherDeathRecipient(int32_t userId)

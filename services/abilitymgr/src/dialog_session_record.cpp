@@ -164,6 +164,7 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
     dialogCallerInfo->callerToken = callerToken;
     dialogCallerInfo->requestCode = abilityRequest.requestCode;
     dialogCallerInfo->targetWant = abilityRequest.want;
+    dialogCallerInfo->targetWant.DupAllFd();
     dialogCallerInfo->userId = userId;
     dialogSessionId = GenerateDialogSessionId();
     SetDialogSessionInfo(dialogSessionId, dialogSessionInfo, dialogCallerInfo);
