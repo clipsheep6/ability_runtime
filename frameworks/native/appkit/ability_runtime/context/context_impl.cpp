@@ -929,10 +929,11 @@ void ContextImpl::InitHapModuleInfo(const std::shared_ptr<AppExecFwk::AbilityInf
         return ;
     }
 
-    hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>();
-    if (!bundleMgr_->GetHapModuleInfo(*abilityInfo.get(), *hapModuleInfo_)) {
+    AppExecFwk::HapModuleInfo hapModuleInfo;
+    if (!bundleMgr_->GetHapModuleInfo(*abilityInfo.get(), hapModuleInfo)) {
         TAG_LOGE(AAFwkTag::APPKIT, "GetHapModuleInfo failed, will retval false value");
     }
+    hapModuleInfo_ = std::make_shared<AppExecFwk::HapModuleInfo>(hapModuleInfo);
 }
 
 void ContextImpl::InitHapModuleInfo(const AppExecFwk::HapModuleInfo &hapModuleInfo)
