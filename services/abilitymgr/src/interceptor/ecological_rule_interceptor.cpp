@@ -156,6 +156,9 @@ void EcologicalRuleInterceptor::GetEcologicalCallerInfo(const Want &want, ErmsCa
         if (callerInfo.packageName == "" && callerAppInfo.name == BUNDLE_NAME_SCENEBOARD) {
             callerInfo.packageName = BUNDLE_NAME_SCENEBOARD;
         }
+    } else if (callerAppInfo.bundleType == AppExecFwk::BundleType::APP_SERVICE_FWK) {
+        HILOG_DEBUG("the caller type is app service");
+        callerInfo.callerAppType = ErmsCallerInfo::TYPE_APP_SERVICE;
     }
 }
 
@@ -184,6 +187,10 @@ void EcologicalRuleInterceptor::InitErmsCallerInfo(Want &want, ErmsCallerInfo &c
     if (targetBundleType == static_cast<int32_t>(AppExecFwk::BundleType::APP)) {
         HILOG_DEBUG("the target type is app");
         callerInfo.targetAppType = ErmsCallerInfo::TYPE_HARMONY_APP;
+    }
+    if (targetBundleType == static_cast<int32_t>(AppExecFwk::BundleType::APP_SERVICE_FWK)) {
+        HILOG_DEBUG("the target type is app service");
+        callerInfo.targetAppType = ErmsCallerInfo::TYPE_APP_SERVICE;
     }
 }
 } // namespace AAFwk

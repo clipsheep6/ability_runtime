@@ -42,7 +42,8 @@ struct AbilityCallerInfo : public Parcelable {
         TYPE_HARMONY_APP,
         TYPE_ATOM_SERVICE,
         TYPE_QUICK_APP = 4,
-        TYPE_BOXED_ATOM_SERVICE
+        TYPE_BOXED_ATOM_SERVICE,
+        TYPE_APP_SERVICE
     };
 
     enum {
