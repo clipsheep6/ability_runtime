@@ -89,7 +89,6 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
     "init:libbeget_proxy",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
-    "memmgr:memmgrclient",
     "memory_utils:libmeminfo",
   ]
 
@@ -98,6 +97,12 @@ ohos_unittest("AmsServiceLoadAbilityProcessTest") {
       "window_manager:libwm",
       "window_manager:libwsutils",
     ]
+  }
+
+  if (ability_runtime_use_memmgr_plugin) {
+    external_deps += [ "memmgr_plugin:memmgrclient" ]
+  } else if (ability_runtime_use_memmgr) {
+    external_deps += [ "memmgr:memmgrclient" ]
   }
 }
 
