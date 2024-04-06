@@ -1253,5 +1253,79 @@ HWTEST_F(JsRuntimeTest, Deinitialize_0100, TestSize.Level0)
     ASSERT_NE(jsRuntime, nullptr);
     TAG_LOGI(AAFwkTag::TEST, "Deinitialize_0100 end");
 }
+
+/**
+ * @tc.name: GetPkgContextInfoListMap_0100
+ * @tc.desc: JsRuntime test for GetPkgContextInfoListMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0100, TestSize.Level0)
+{
+    HILOG_INFO("GetPkgContextInfoListMap_0100 start");
+
+    std::map<std::string, std::string> modulePkgContentMap;
+    std::string pkgContentJsonString = R"({"library":{"packageName":"library","bundleName":"com.xxx.xxxx","moduleName":
+            "library","version":"1.0.0","entryPath":"","isSO":false}})";
+    modulePkgContentMap["entry"] = pkgContentJsonString;
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    std::map<std::string, std::vector<std::vector<std::string>>> ret;
+    std::map<std::string, std::string> pkgAliasMap;
+    jsRuntime->GetPkgContextInfoListMap(modulePkgContentMap, ret, pkgAliasMap);
+    std::string expectString = "library:packageName:library:bundleName:";
+    expectString += "com.xxx.xxxx:moduleName:library:version:1.0.0:entryPath::isSO:false:";
+    auto it = ret.find("entry");
+    ASSERT_NE(it, ret.end());
+    std::string pkgRetString;
+    for (const auto& vec : it->second) {
+        for (const auto& str : vec) {
+            pkgRetString += str + ":";
+        }
+    }
+    ASSERT_EQ(pkgRetString, expectString);
+    HILOG_INFO("GetPkgContextInfoListMap_0100 end");
+}
+
+/**
+ * @tc.name: GetPkgContextInfoListMap_0200
+ * @tc.desc: JsRuntime test for GetPkgContextInfoListMap.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0200, TestSize.Level0)
+{
+    HILOG_INFO("GetPkgContextInfoListMap_0200 start");
+
+    std::map<std::string, std::string> modulePkgContentMap;
+    std::string pkgContentJsonString = R"({"library":{"packageName":"library","bundleName":"com.xxx.xxxx","moduleName":
+            "library","version":"1.0.0","entryPath":"","isSO":false}})";
+    modulePkgContentMap["entry"] = pkgContentJsonString;
+
+    std::string libraryString = R"({"library":{"packageName":"library","bundleName":"com.xxx.xxxx","moduleName":
+            "library","version":"1.0.0","entryPath":"","isSO":false}})";
+    modulePkgContentMap["library"] = libraryString;
+
+    AbilityRuntime::Runtime::Options options;
+    options.preload = true;
+    auto jsRuntime = AbilityRuntime::JsRuntime::Create(options);
+    std::map<std::string, std::vector<std::vector<std::string>>> ret;
+    std::map<std::string, std::string> pkgAliasMap;
+    jsRuntime->GetPkgContextInfoListMap(modulePkgContentMap, ret, pkgAliasMap);
+    std::string expectString = "library:packageName:library:bundleName:";
+    expectString += "com.xxx.xxxx:moduleName:library:version:1.0.0:entryPath::isSO:false:";
+    auto it = ret.find("entry");
+    ASSERT_NE(it, ret.end());
+    auto libraryIt = ret.find("library");
+    ASSERT_NE(libraryIt, ret.end());
+    std::string pkgRetString;
+    for (const auto& vec : it->second) {
+        for (const auto& str : vec) {
+            pkgRetString += str + ":";
+        }
+    }
+    ASSERT_EQ(pkgRetString, expectString);
+    HILOG_INFO("GetPkgContextInfoListMap_0200 end");
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
