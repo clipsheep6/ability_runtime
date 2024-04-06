@@ -57,10 +57,14 @@ AppSchedulerHost::AppSchedulerHost()
         &AppSchedulerHost::HandleScheduleNewProcessRequest;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_REPAIR_PATCH)] =
         &AppSchedulerHost::HandleNotifyLoadRepairPatch;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_LOAD_PATCH)] =
+        &AppSchedulerHost::HandleNotifyLoadPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_HOT_RELOAD_PAGE)] =
         &AppSchedulerHost::HandleNotifyHotReloadPage;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_REPAIR_PATCH)] =
         &AppSchedulerHost::HandleNotifyUnLoadRepairPatch;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_NOTIFY_UNLOAD_PATCH)] =
+        &AppSchedulerHost::HandleNotifyUnLoadPatch;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_UPDATE_APPLICATION_INFO_INSTALLED)] =
         &AppSchedulerHost::HandleScheduleUpdateApplicationInfoInstalled;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_HEAPMEMORY_APPLICATION_TRANSACTION)] =
@@ -315,6 +319,17 @@ int32_t AppSchedulerHost::HandleNotifyLoadRepairPatch(MessageParcel &data, Messa
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     auto recordId = data.ReadInt32();
     ScheduleNotifyLoadRepairPatch(bundleName, callback, recordId);
+
+int32_t AppSchedulerHost::HandleNotifyLoadPatch(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    HILOG_ERROR("function called");
+    std::string bundleName = data.ReadString();
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto recordId = data.ReadInt32();
+    int patchVersion = data.ReadInt32();
+    HILOG_ERROR("AppSchedulerHost::HandleNotifyLoadPatch,patchVersion:%{public}d",patchVersion);
+    ScheduleNotifyLoadPatch(bundleName, callback, recordId, patchVersion);
     return NO_ERROR;
 }
 
@@ -334,6 +349,17 @@ int32_t AppSchedulerHost::HandleNotifyUnLoadRepairPatch(MessageParcel &data, Mes
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
     auto recordId = data.ReadInt32();
     ScheduleNotifyUnLoadRepairPatch(bundleName, callback, recordId);
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleNotifyUnLoadPatch(MessageParcel &data, MessageParcel &reply)
+{
+	HILOG_ERROR("function called");
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string bundleName = data.ReadString();
+    auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    auto recordId = data.ReadInt32();
+    ScheduleNotifyUnLoadPatch(bundleName, callback, recordId);
     return NO_ERROR;
 }
 

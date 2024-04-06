@@ -921,6 +921,38 @@ int32_t AppRunningManager::NotifyLoadRepairPatch(const std::string &bundleName, 
     return loadSucceed == true ? ERR_OK : result;
 }
 
+int32_t AppRunningManager::NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    bool loadSucceed = false;
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_DEBUG("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            auto recordId = appRecord->GetRecordId();
+            HILOG_DEBUG("Notify application [%{public}s] load patch, record id %{public}d,patchVersion:%{public}d",
+                        appRecord->GetProcessName().c_str(), recordId,patchVersion);
+            callbackByRecord->AddRecordId(recordId);
+            result = appRecord->NotifyLoadPatch(bundleName, callbackByRecord, recordId, patchVersion);
+            if (result == ERR_OK) {
+                loadSucceed = true;
+            }
+            else {
+                callbackByRecord->RemoveRecordId(recordId);
+            }
+        }
+    }
+    return loadSucceed == true ? ERR_OK : result;
+}
+
 int32_t AppRunningManager::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -984,6 +1016,38 @@ int32_t AppRunningManager::NotifyUnLoadRepairPatch(const std::string &bundleName
     return unLoadSucceed == true ? ERR_OK : result;
 }
 
+int32_t AppRunningManager::NotifyUnLoadPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    bool unLoadSucceed = false;
+    auto callbackByRecord = sptr<QuickFixCallbackWithRecord>::MakeSptr(callback);
+    if (callbackByRecord == nullptr) {
+        HILOG_DEBUG("Failed to create callback record.");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetBundleName() == bundleName) {
+            auto recordId = appRecord->GetRecordId();
+            HILOG_DEBUG("Notify application [%{public}s] unload patch, record id %{public}d.",
+                        appRecord->GetProcessName().c_str(), recordId);
+            callbackByRecord->AddRecordId(recordId);
+            result = appRecord->NotifyUnLoadPatch(bundleName, callback, recordId);
+            if (result == ERR_OK) {
+                unLoadSucceed = true;
+            }
+            else {
+                callbackByRecord->RemoveRecordId(recordId);
+            }
+        }
+    }
+    return unLoadSucceed == true ? ERR_OK : result;
+}
 bool AppRunningManager::IsApplicationFirstForeground(const AppRunningRecord &foregroundingRecord)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");

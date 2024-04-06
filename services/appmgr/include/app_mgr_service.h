@@ -468,7 +468,9 @@ public:
 
     int32_t SignRestartAppFlag(const std::string &bundleName) override;
 
+    int32_t NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, const int &patchVersion) override;//huasmile
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId) override;
+    int32_t NotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) override;//huasmile
 private:
     /**
      * Init, Initialize application services.

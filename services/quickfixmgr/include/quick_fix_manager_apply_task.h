@@ -52,7 +52,8 @@ public:
 
     void PostSwitchQuickFixTask();
     void PostDeleteQuickFixTask();
-
+    void PostNotifyUnloadPatchTask(); 
+    void PostNotifyLoadPatchTask(); 
     void UnregAppStateObserver();
 
     void RunRevoke();

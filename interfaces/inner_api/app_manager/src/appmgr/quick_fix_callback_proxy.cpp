@@ -73,6 +73,40 @@ void QuickFixCallbackProxy::OnReloadPageDone(int32_t resultCode, int32_t recordI
     return;
 }
 
+void QuickFixCallbackProxy::OnUnloadHotloadDone(int32_t resultCode, int32_t recordId)
+{
+    HILOG_DEBUG("function called.");
+
+    MessageParcel data;
+    MessageParcel reply;
+    WRITE_PARCEL_AND_RETURN(InterfaceToken, data, QuickFixCallbackProxy::GetDescriptor());
+    WRITE_PARCEL_AND_RETURN(Int32, data, resultCode);
+    WRITE_PARCEL_AND_RETURN(Int32, data, recordId);
+    if (!SendRequestWithCmd(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_UNLOAD_HOT, data, reply)) {
+        return;
+    }
+
+    HILOG_DEBUG("function finished.");
+    return;
+}
+
+void QuickFixCallbackProxy::OnHotloadFormDone(int32_t resultCode, int32_t recordId)
+{
+    HILOG_DEBUG("function called.");
+
+    MessageParcel data;
+    MessageParcel reply;
+    WRITE_PARCEL_AND_RETURN(InterfaceToken, data, QuickFixCallbackProxy::GetDescriptor());
+    WRITE_PARCEL_AND_RETURN(Int32, data, resultCode);
+    WRITE_PARCEL_AND_RETURN(Int32, data, recordId);
+    if (!SendRequestWithCmd(IQuickFixCallback::QuickFixCallbackCmd::ON_NOTIFY_HOTLOAD_FORM, data, reply)) {
+        return;
+    }
+
+    HILOG_DEBUG("function finished.");
+    return;
+}
+
 bool QuickFixCallbackProxy::SendRequestWithCmd(uint32_t code, MessageParcel &data, MessageParcel &reply)
 {
     sptr<IRemoteObject> remote = Remote();

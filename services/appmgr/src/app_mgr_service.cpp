@@ -740,6 +740,15 @@ int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, cons
     return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
+int32_t AppMgrService::NotifyLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback, const int &patchVersion)
+{
+    if (!IsReady()) {
+        HILOG_DEBUG(" AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyLoadPatch(bundleName, callback, patchVersion);
+}
+
 int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {
@@ -768,6 +777,20 @@ int32_t AppMgrService::NotifyUnLoadRepairPatch(const std::string &bundleName, co
         return ERR_INVALID_OPERATION;
     }
     return appMgrServiceInner_->NotifyUnLoadRepairPatch(bundleName, callback);
+}
+
+int32_t AppMgrService::NotifyUnLoadPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
+{
+    if (!IsReady()){
+        HILOG_ERROR("AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (appMgrServiceInner_ == nullptr){
+        HILOG_ERROR("appMgrServiceInner_ is null.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyUnLoadPatch(bundleName, callback);
 }
 
 bool AppMgrService::JudgeAppSelfCalled(int32_t recordId)

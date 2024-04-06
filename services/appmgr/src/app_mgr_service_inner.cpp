@@ -4393,6 +4393,24 @@ int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName,
     return appRunningManager_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
+int32_t AppMgrServiceInner::NotifyLoadPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback, const int &patchVerion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appRunningManager_) {
+        HILOG_DEBUG("app running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (IPCSkeleton::GetCallingUid() != QUICKFIX_UID) {
+        HILOG_DEBUG("Permission deny, not quick_fix.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    return appRunningManager_->NotifyLoadPatch(bundleName, callback, patchVerion);
+}
+
 int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -4452,6 +4470,24 @@ int32_t AppMgrServiceInner::NotifyUnLoadRepairPatch(const std::string &bundleNam
     }
 
     return appRunningManager_->NotifyUnLoadRepairPatch(bundleName, callback);
+}
+
+int32_t AppMgrServiceInner::NotifyUnLoadPatch(const std::string &bundleName,
+    const sptr<IQuickFixCallback> &callback)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_DEBUG("function called.");
+    if (!appRunningManager_) {
+        HILOG_DEBUG("app running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (IPCSkeleton::GetCallingUid() != QUICKFIX_UID) {
+        HILOG_DEBUG("Permission deny, not quick_fix.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    return appRunningManager_->NotifyUnLoadPatch(bundleName, callback);
 }
 
 void AppMgrServiceInner::AppRecoveryNotifyApp(int32_t pid, const std::string& bundleName,

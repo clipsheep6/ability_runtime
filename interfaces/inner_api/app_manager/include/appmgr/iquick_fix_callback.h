@@ -26,12 +26,16 @@ public:
 
     virtual void OnLoadPatchDone(int32_t resultCode, int32_t recordId) = 0;
     virtual void OnUnloadPatchDone(int32_t resultCode, int32_t recordId) = 0;
+    virtual void OnUnloadHotloadDone(int32_t resultCode, int32_t recordId) = 0;
     virtual void OnReloadPageDone(int32_t resultCode, int32_t recordId) = 0;
+    virtual void OnHotloadFormDone(int32_t resultCode, int32_t recordId) = 0;
 
     enum QuickFixCallbackCmd {
         ON_NOTIFY_LOAD_PATCH = 0,   // ipc id for OnLoadPatchDone
         ON_NOTIFY_UNLOAD_PATCH = 1, // ipc id for OnUnloadPatchDone
         ON_NOTIFY_RELOAD_PAGE = 2,  // ipc id for OnReloadPageDone
+        ON_NOTIFY_HOTLOAD_FORM = 3, // ipc id for OnHotloadFormDone
+        ON_NOTIFY_UNLOAD_HOT = 4,   // ipc id for OnUnloadHotloadDone
     };
 };
 } // namespace AppExecFwk
