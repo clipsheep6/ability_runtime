@@ -830,6 +830,8 @@ ErrCode AbilityContextImpl::StartAbilityByType(const std::string &type,
     Ace::ModalUIExtensionCallbacks callback;
     callback.onError = std::bind(&JsUIExtensionCallback::OnError, uiExtensionCallbacks, std::placeholders::_1);
     callback.onRelease = std::bind(&JsUIExtensionCallback::OnRelease, uiExtensionCallbacks, std::placeholders::_1);
+    callback.onResult = std::bind(
+        &JsUIExtensionCallback::OnResult, uiExtensionCallbacks, std::placeholders::_1, std::placeholders::_2);
     Ace::ModalUIExtensionConfig config;
     int32_t sessionId = uiContent->CreateModalUIExtension(want, callback, config);
     if (sessionId == 0) {
