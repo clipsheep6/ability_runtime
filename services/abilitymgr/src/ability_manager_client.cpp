@@ -1402,17 +1402,14 @@ AppExecFwk::ElementName AbilityManagerClient::GetTopAbility(bool isNeedLocalDevi
         std::lock_guard<std::recursive_mutex> lock_l(mutex_);
         if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
             AppExecFwk::ElementName elementName = {};
-            sptr<IRemoteObject> token = nullptr;
-            auto ret = GetTopAbility(token);
-            if (ret != ERR_OK) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "get top ability token failed");
+            auto sceneSessionManager = SessionManagerLite::GetInstance().GetSceneSessionManagerLiteProxy();
+            if (sceneSessionManager == nullptr) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "Failed to get sceneSessionManager.");
                 return elementName;
             }
-            if (token == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "token is nullptr");
-                return elementName;
-            }
-            return GetElementNameByToken(token, isNeedLocalDeviceId);
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "call");
+            (void)sceneSessionManager->GetFocusSessionElement(elementName);
+            return elementName;
         }
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "enter.");
