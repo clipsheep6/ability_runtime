@@ -259,6 +259,33 @@ ohos_shared_library("process_options") {
   part_name = "ability_runtime"
 }
 
+config("start_options_config") {
+  include_dirs = [
+    "include/",
+    "${ability_runtime_services_path}/common/include",
+  ]
+}
+
+config_start_options_sources = [
+  "${ability_runtime_services_path}/abilitymgr/src/process_options.cpp",
+  "${ability_runtime_services_path}/abilitymgr/src/start_options.cpp",
+]
+
+ohos_shared_library("start_options") {
+  sources = config_start_options_sources
+  public_configs = [ ":start_options_config" ]
+
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
+
+  cflags_cc = []
+  innerapi_tags = [ "platformsdk" ]
+  subsystem_name = "ability"
+  part_name = "ability_runtime"
+}
+
 ohos_shared_library("ability_connect_callback_stub") {
   defines = [ "AMS_LOG_TAG = \"Ability\"" ]
   defines += [ "AMS_LOG_DOMAIN = 0xD001300" ]
