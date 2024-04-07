@@ -2494,15 +2494,22 @@ int AbilityManagerService::StartUIExtensionAbility(const sptr<SessionInfo> &exte
         }
         auto bms = GetBundleManager();
         CHECK_POINTER_AND_RETURN(bms, ERR_INVALID_VALUE);
-        AppExecFwk::ApplicationInfo appInfo;
-        if (!IN_PROCESS_CALL(bms->GetApplicationInfo(extensionSessionInfo->want.GetBundle(),
-            AppExecFwk::BundleFlag::GET_BUNDLE_DEFAULT, GetValidUserId(userId), appInfo))) {
+        AppExecFwk::BundleInfo bundleInfo;
+        if (!IN_PROCESS_CALL(bms->GetBundleInfo(extensionSessionInfo->want.GetBundle(),
+            AppExecFwk::BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, GetValidUserId(userId)))) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "VerifyPermission failed to get application info");
             return CHECK_PERMISSION_FAILED;
         }
-        if (appInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
+        if (bundleInfo.applicationInfo.bundleType != AppExecFwk::BundleType::ATOMIC_SERVICE) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Only support atomicService");
             return ERR_INVALID_CALLER;
+        }
+        if (extensionSessionInfo->want.GetElement().GetAbilityName().empty()) {
+            if (bundleInfo.abilityInfos.empty()) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to get abilityInfos");
+                return ERR_INVALID_VALUE;
+            }
+            extensionSessionInfo->want.SetElementName(bundleInfo.name, bundleInfo.abilityInfos.begin()->name);
         }
     }
     std::string extensionTypeStr = extensionSessionInfo->want.GetStringParam(UIEXTENSION_TYPE_KEY);
