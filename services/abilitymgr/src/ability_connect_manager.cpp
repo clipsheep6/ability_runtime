@@ -1348,10 +1348,11 @@ void AbilityConnectManager::HandleStartTimeoutTask(const std::shared_ptr<Ability
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Complete connect or load ability timeout.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
-    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType) &&
-        uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
-        HILOG_DEBUG("Start load timeout.");
-        uiExtensionAbilityRecordMgr_->LoadTimeout(abilityRecord->GetUIExtensionAbilityId());
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        if (uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start load timeout.");
+            uiExtensionAbilityRecordMgr_->LoadTimeout(abilityRecord->GetUIExtensionAbilityId());
+        }
         PrintTimeOutLog(abilityRecord, AbilityManagerService::LOAD_TIMEOUT_MSG);
     }
     auto connectingList = abilityRecord->GetConnectingRecordList();
@@ -1437,10 +1438,11 @@ void AbilityConnectManager::HandleStopTimeoutTask(const std::shared_ptr<AbilityR
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Complete stop ability timeout start.");
     std::lock_guard guard(Lock_);
     CHECK_POINTER(abilityRecord);
-    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType) &&
-        uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
-        HILOG_DEBUG("Start terminate timeout.");
-        uiExtensionAbilityRecordMgr_->TerminateTimeout(abilityRecord->GetUIExtensionAbilityId());
+    if (UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        if (uiExtensionAbilityRecordMgr_ != nullptr && IsCallerValid(abilityRecord)) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Start terminate timeout.");
+            uiExtensionAbilityRecordMgr_->TerminateTimeout(abilityRecord->GetUIExtensionAbilityId());
+        }
         PrintTimeOutLog(abilityRecord, AbilityManagerService::TERMINATE_TIMEOUT_MSG);
     }
     TerminateDone(abilityRecord);
