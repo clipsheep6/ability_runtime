@@ -17,6 +17,7 @@
 
 #include "ability_info.h"
 #include "connection_manager.h"
+#include "form_constants.h"
 #include "form_provider_data.h"
 #include "form_runtime/form_extension_provider_client.h"
 #include "form_runtime/js_form_extension_context.h"
@@ -250,6 +251,17 @@ void JsFormExtension::OnEvent(const int64_t formId, const std::string& message)
 void JsFormExtension::OnUpdate(const int64_t formId, const AAFwk::WantParams &wantParams)
 {
     TAG_LOGI(AAFwkTag::FORM_EXT, "OnUpdate, formId: %{public}" PRId64 ".", formId);
+    OHOS::AAFwk::Want want;
+    want.SetParams(wantParams);
+    if (want.HasParameter(Constants::FORM_USER_PERMISSION_NAME)) {
+        if (want.HasParameter(Constants::FORM_USER_AUTHORIZE)) {
+            std::string permissionName = want.GetStringParam(Constants::FORM_USER_PERMISSION_NAME);
+            bool hasPermission = want.GetBoolParam(Constants::FORM_USER_AUTHORIZE, false);
+            TAG_LOGI(AAFwkTag::FORM_EXT,
+                     "form id: %{public}" PRId64 " user permission: %{public}s, is authorize: %{public}d.",
+                     formId, permissionName.c_str(), hasPermission);
+        }
+    }
     FormExtension::OnUpdate(formId, wantParams);
 
     HandleScope handleScope(jsRuntime_);
