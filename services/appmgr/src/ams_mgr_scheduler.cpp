@@ -51,7 +51,9 @@ AmsMgrScheduler::AmsMgrScheduler(
     const std::shared_ptr<AppMgrServiceInner> &mgrServiceInner_,
     const std::shared_ptr<AAFwk::TaskHandlerWrap> &handler_)
     : amsMgrServiceInner_(mgrServiceInner_), amsHandler_(handler_)
-{}
+{
+    loadAbilityHandler_ = AAFwk::TaskHandlerWrap::CreateQueueHandler("load_ability_task_queue");
+}
 
 AmsMgrScheduler::~AmsMgrScheduler()
 {
@@ -82,7 +84,7 @@ void AmsMgrScheduler::LoadAbility(const sptr<IRemoteObject> &token, const sptr<I
         std::bind(&AppMgrServiceInner::LoadAbility, amsMgrServiceInner_, token, preToken, abilityInfo,
             appInfo, want, abilityRecordId);
 
-    amsHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
+    loadAbilityHandler_->SubmitTask(loadAbilityFunc, AAFwk::TaskAttribute{
         .taskName_ = TASK_LOAD_ABILITY,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
