@@ -711,7 +711,10 @@ int32_t AppRunningManager::NotifyMemoryLevel(int32_t level)
         }
         auto pid = priorityObject->GetPid();
         if (frozenPids.count(pid) == 0) {
+            TAG_LOGD(AAFwkTag::APPMGR, "proc[pid=%{public}d] memory level = %{public}d", pid, level);
             appRecord->ScheduleMemoryLevel(level);
+        } else {
+            TAG_LOGD(AAFwkTag::APPMGR, "proc[pid=%{public}d] is frozen", pid);
         }
     }
     return ERR_OK;

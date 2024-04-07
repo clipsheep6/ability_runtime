@@ -1013,16 +1013,16 @@ HWTEST_F(AppMgrServiceInnerTest, NotifyMemoryLevel_001, TestSize.Level0)
 
     std::vector<RunningProcessInfo> info;
     int result = appMgrServiceInner->NotifyMemoryLevel(0);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     result = appMgrServiceInner->NotifyMemoryLevel(1);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     result = appMgrServiceInner->NotifyMemoryLevel(2);
-    EXPECT_EQ(result, 0);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     result = appMgrServiceInner->NotifyMemoryLevel(3);
-    EXPECT_EQ(result, 22);
+    EXPECT_EQ(result, ERR_INVALID_VALUE);
 
     appMgrServiceInner->appRunningManager_ = nullptr;
     result = appMgrServiceInner->NotifyMemoryLevel(3);
