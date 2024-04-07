@@ -146,7 +146,8 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         if (request.want.GetBoolParam("isCreateAppGallerySelector", false)) {
             request.want.RemoveParam("isCreateAppGallerySelector");
-            return NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+            NotifyCreateModalDialog(request, request.want, userId, dialogAppInfos);
+            return ERR_IMPLICIT_START_ABILITY_FAIL;
         }
         std::vector<DialogAppInfo> dialogAllAppInfos;
         bool isMoreHapList = true;
