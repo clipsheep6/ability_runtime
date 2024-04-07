@@ -184,6 +184,30 @@ napi_value CreateJsAutoFillType(napi_env env)
     return objValue;
 }
 
+napi_value CreateJsPopupPlacement(napi_env env)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(env, objValue, "LEFT", CreateJsValue(env, AbilityBase::PopupPlacement::LEFT));
+    napi_set_named_property(env, objValue, "RIGHT", CreateJsValue(env, AbilityBase::PopupPlacement::RIGHT));
+    napi_set_named_property(env, objValue, "TOP", CreateJsValue(env, AbilityBase::PopupPlacement::TOP));
+    napi_set_named_property(env, objValue, "BOTTOM", CreateJsValue(env, AbilityBase::PopupPlacement::BOTTOM));
+    napi_set_named_property(env, objValue, "TOP_LEFT", CreateJsValue(env, AbilityBase::PopupPlacement::TOP_LEFT));
+    napi_set_named_property(env, objValue, "TOP_RIGHT", CreateJsValue(env, AbilityBase::PopupPlacement::TOP_RIGHT));
+    napi_set_named_property(env, objValue, "BOTTOM_LEFT", CreateJsValue(env, AbilityBase::PopupPlacement::BOTTOM_LEFT));
+    napi_set_named_property(env, objValue, "BOTTOM_RIGHT",
+        CreateJsValue(env, AbilityBase::PopupPlacement::BOTTOM_RIGHT));
+    napi_set_named_property(env, objValue, "LEFT_TOP", CreateJsValue(env, AbilityBase::PopupPlacement::LEFT_TOP));
+    napi_set_named_property(env, objValue, "LEFT_BOTTOM", CreateJsValue(env, AbilityBase::PopupPlacement::LEFT_BOTTOM));
+    napi_set_named_property(env, objValue, "RIGHT_TOP", CreateJsValue(env, AbilityBase::PopupPlacement::RIGHT_TOP));
+    napi_set_named_property(env, objValue, "RIGHT_BOTTOM",
+        CreateJsValue(env, AbilityBase::PopupPlacement::RIGHT_BOTTOM));
+    napi_set_named_property(env, objValue, "NONE", CreateJsValue(env, AbilityBase::PopupPlacement::NONE));
+    return objValue;
+}
+
 napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
 {
     TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
@@ -196,6 +220,8 @@ napi_value JsAutoFillManagerInit(napi_env env, napi_value exportObj)
     napi_wrap(env, exportObj, jsAbilityAutoFillManager.release(), JsAutoFillManager::Finalizer, nullptr, nullptr);
 
     napi_set_named_property(env, exportObj, "AutoFillType", CreateJsAutoFillType(env));
+
+    napi_set_named_property(env, exportObj, "PopupPlacement", CreateJsPopupPlacement(env));
 
     const char *moduleName = "JsAutoFillManager";
     BindNativeFunction(env, exportObj, "requestAutoSave", moduleName, JsAutoFillManager::RequestAutoSave);

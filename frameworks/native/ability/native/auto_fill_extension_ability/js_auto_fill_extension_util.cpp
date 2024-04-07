@@ -324,5 +324,11 @@ void JsAutoFillExtensionUtil::UnwrapFillResponse(const napi_env env, const napi_
     TAG_LOGD(AAFwkTag::AUTOFILL_EXT, "Called.");
     UnwrapViewData(env, value, response.viewData);
 }
+
+void JsAutoFillExtensionUtil::UnwrapPopupSize(const napi_env env, const napi_value value, PopupSize &popupSize)
+{
+    UnwrapInt32ByPropertyName(env, value, RECT_WIDTH, popupSize.width);
+    UnwrapInt32ByPropertyName(env, value, RECT_HEIGHT, popupSize.height);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS

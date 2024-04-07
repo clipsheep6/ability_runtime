@@ -159,6 +159,18 @@ void AutoFillManager::UpdateCustomPopupUIExtension(Ace::UIContent *uiContent, co
     }
 }
 
+int32_t AutoFillManager::UpdateCustomPopupConfig(Ace::UIContent *uiContent,
+    const Ace::CustomPopupUIExtensionConfig &popupConfig)
+{
+    TAG_LOGD(AAFwkTag::AUTOFILLMGR, "Called.");
+    if (uiContent == nullptr) {
+        TAG_LOGE(AAFwkTag::AUTOFILLMGR, "UIContent is nullptr.");
+        return AutoFill::AUTO_FILL_OBJECT_IS_NULL;
+    }
+    uiContent->UpdateCustomPopupUIExtension(popupConfig);
+    return AutoFill::AUTO_FILL_SUCCESS;
+}
+
 void AutoFillManager::SetAutoFillExtensionProxy(Ace::UIContent *uiContent,
     const std::shared_ptr<Ace::ModalUIExtensionProxy> &modalUIExtensionProxy)
 {

@@ -219,6 +219,27 @@ HWTEST_F(AutoFillManagerTest, UpdateCustomPopupUIExtension_0100, TestSize.Level1
 
 /*
  * Feature: AutoFillManager
+ * Function: UpdateCustomPopupConfig
+ * SubFunction: NA
+ * FunctionPoints: NA
+ * EnvConditions: NA
+ * CaseDescription: Verify if the UpdateCustomPopupConfig is valid.
+ */
+HWTEST_F(AutoFillManagerTest, UpdateCustomPopupConfig_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AutoFillManagerTest, UpdateCustomPopupConfig_0100, TestSize.Level1";
+    auto &manager = AbilityRuntime::AutoFillManager::GetInstance();
+    Ace::CustomPopupUIExtensionConfig customPopupUIExtensionConfig;
+    int32_t result = manager.UpdateCustomPopupConfig(nullptr, customPopupUIExtensionConfig);
+    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_OBJECT_IS_NULL);
+
+    auto uiContent = Ace::UIContent::Create(nullptr, nullptr);
+    result = manager.UpdateCustomPopupConfig(uiContent.get(), customPopupUIExtensionConfig);
+    EXPECT_EQ(result, AbilityRuntime::AutoFill::AUTO_FILL_SUCCESS);
+}
+
+/*
+ * Feature: AutoFillManager
  * Function: SetAutoFillExtensionProxy
  * SubFunction: NA
  * FunctionPoints: NA

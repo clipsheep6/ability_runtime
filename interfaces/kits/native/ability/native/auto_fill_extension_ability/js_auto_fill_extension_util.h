@@ -27,6 +27,10 @@ class JsRuntime;
 struct FillResponse {
     AbilityBase::ViewData viewData;
 };
+struct PopupSize {
+    int32_t width = 0;
+    int32_t height = 0;
+};
 
 enum AutoFillCommand {
     NONE,
@@ -58,6 +62,7 @@ public:
     static void UnwrapPageNodeInfo(const napi_env env, const napi_value jsProValue, AbilityBase::PageNodeInfo &node);
     static void UnwrapRectData(const napi_env env, const napi_value value, AbilityBase::Rect &rect);
     static void UnwrapFillResponse(const napi_env env, const napi_value value, FillResponse &response);
+    static void UnwrapPopupSize(const napi_env env, const napi_value value, PopupSize &popupSize);
 
     enum AutoFillResultCode {
         CALLBACK_SUCESS = 0,

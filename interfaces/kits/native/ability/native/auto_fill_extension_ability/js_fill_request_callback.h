@@ -39,11 +39,14 @@ public:
     static napi_value FillRequestSuccess(napi_env env, napi_callback_info info);
     static napi_value FillRequestFailed(napi_env env, napi_callback_info info);
     static napi_value FillRequestCanceled(napi_env env, napi_callback_info info);
+    static napi_value FillRequestAutoFillPopupConfig(napi_env env, napi_callback_info info);
 
 private:
     napi_value OnFillRequestSuccess(napi_env env, NapiCallbackInfo &info);
     napi_value OnFillRequestFailed(napi_env env, NapiCallbackInfo &info);
     napi_value OnFillRequestCanceled(napi_env env, NapiCallbackInfo &info);
+    napi_value OnFillRequestAutoFillPopupConfig(napi_env env, NapiCallbackInfo &info);
+    bool SetPopupConfigToWantParams(napi_env env, NapiCallbackInfo& info, AAFwk::WantParams& wantParams);
     void SendResultCodeAndViewData(
         const JsAutoFillExtensionUtil::AutoFillResultCode &resultCode, const std::string &jsString);
 

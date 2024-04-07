@@ -25,8 +25,11 @@ namespace AbilityRuntime {
 namespace {
 constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewData";
 constexpr static char WANT_PARAMS_CUSTOM_DATA_KEY[] = "ohos.ability.params.customData";
-constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.autoFillCmd";
 constexpr static char WANT_PARAMS_AUTO_FILL_EVENT_KEY[] = "ability.want.params.AutoFillEvent";
+constexpr static char WANT_PARAMS_AUTO_FILL_CMD_KEY[] = "ohos.ability.params.autoFillCmd";
+constexpr static char WANT_PARAMS_UPDATE_POPUP_WIDTH[] = "ohos.ability.params.popupWidth";
+constexpr static char WANT_PARAMS_UPDATE_POPUP_HEIGHT[] = "ohos.ability.params.popupHeight";
+constexpr static char WANT_PARAMS_UPDATE_POPUP_PLACEMENT[] = "ohos.ability.params.popupPlacement";
 } // namespace
 void AutoFillExtensionCallback::OnResult(int32_t errCode, const AAFwk::Want &want)
 {
@@ -105,6 +108,24 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
     if (cmdValue == static_cast<int32_t>(AutoFill::AutoFillCommand::RELOAD_IN_MODAL)) {
         HandleReloadInModal(wantParams);
         return;
+    } else if (cmdValue == static_cast<int32_t>(AutoFill::AutoFillCommand::RESIZE)) {
+        Ace::CustomPopupUIExtensionConfig popupConfig;
+        if (wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_WIDTH) &&
+            wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT)) {
+            Ace::PopupSize popupSize;
+            popupSize.width = wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_WIDTH, 0);
+            popupSize.height = wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_HEIGHT, 0);
+            popupConfig.targetSize = popupSize;
+        }
+        if (wantParams.HasParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT)) {
+            popupConfig.placement =
+                static_cast<Ace::PopupPlacement>(wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, 0));
+        }
+        popupConfig.nodeId = sessionId_;
+        auto updateResult = AutoFillManager::GetInstance().UpdateCustomPopupConfig(uiContent_, popupConfig);
+        if (updateResult != AutoFill::AUTO_FILL_SUCCESS) {
+            TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Update custom popup config failed.");
+        }
     }
     if (wantParams.GetIntParam(WANT_PARAMS_AUTO_FILL_EVENT_KEY, 0) == AutoFill::AUTO_FILL_CANCEL_TIME_OUT) {
         AutoFillManager::GetInstance().RemoveEvent(eventId_);
