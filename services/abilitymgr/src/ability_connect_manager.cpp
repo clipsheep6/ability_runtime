@@ -166,7 +166,8 @@ int AbilityConnectManager::StartAbilityLocked(const AbilityRequest &abilityReque
     if (!isLoadedAbility) {
         HILOG_DEBUG("Target service has not been loaded.");
         LoadAbility(targetService);
-        if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && isSingleton) {
+        if (UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType) && isSingleton &&
+            abilityRequest.sessionInfo != nullptr) {
             HILOG_DEBUG("Start uiextension in singleton mode.");
             auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(abilityRequest.callerToken);
             if (callerAbilityRecord == nullptr) {
