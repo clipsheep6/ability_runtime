@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "idle_time.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "transaction/rs_interfaces.h"
 
@@ -47,7 +48,7 @@ void IdleTime::InitVSyncReceiver()
         auto& rsClient = Rosen::RSInterfaces::GetInstance();
         receiver_ = rsClient.CreateVSyncReceiver("ABILITY", eventHandler_);
         if (receiver_ == nullptr) {
-            HILOG_ERROR("Create VSync receiver failed.");
+            TAG_LOGE(AAFwkTag::APPKIT, "Create VSync receiver failed.");
             return;
         }
         receiver_->Init();
@@ -57,27 +58,29 @@ void IdleTime::InitVSyncReceiver()
 void IdleTime::EventTask()
 {
     if (receiver_ == nullptr) {
-        HILOG_ERROR("no VSyncReceiver.");
+        TAG_LOGE(AAFwkTag::APPKIT, "no VSyncReceiver.");
         return;
     }
 
     if (callback_ == nullptr) {
-        HILOG_ERROR("no callback_.");
+        TAG_LOGE(AAFwkTag::APPKIT, "no callback_.");
         return;
     }
 
     int64_t period = 0;
     int64_t lastVSyncTime = 0;
     VsyncError err = receiver_->GetVSyncPeriodAndLastTimeStamp(period, lastVSyncTime, true);
-    HILOG_DEBUG("EventTask period %{public}" PRId64 ", lastVSyncTime is %{public}" PRId64, period, lastVSyncTime);
+    TAG_LOGD(AAFwkTag::APPKIT, "EventTask period %{public}" PRId64 ", lastVSyncTime is %{public}" PRId64, period,
+        lastVSyncTime);
     int64_t occurTimestamp = GetSysTimeNs();
     if (GSERROR_OK == err && period > 0 && lastVSyncTime > 0 && occurTimestamp > lastVSyncTime) {
         int64_t elapsedTime = occurTimestamp - lastVSyncTime;
         int64_t idleTime = period - (elapsedTime % period) ;
         int64_t cycle = elapsedTime / period ;
-        HILOG_DEBUG("EventTask idleTime %{public}" PRId64 ", cycle is %{public}" PRId64, idleTime, cycle);
+        TAG_LOGD(
+            AAFwkTag::APPKIT, "EventTask idleTime %{public}" PRId64 ", cycle is %{public}" PRId64, idleTime, cycle);
         if (idleTime > 0 && cycle < MAX_PERIOD_COUNT) {
-            HILOG_DEBUG("callback_");
+            TAG_LOGD(AAFwkTag::APPKIT, "callback_");
             callback_(idleTime / MS_PER_NS);
         }
     }
@@ -91,14 +94,14 @@ void IdleTime::PostTask()
     }
 
     if (eventHandler_ == nullptr) {
-        HILOG_ERROR("eventHandler_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "eventHandler_ is nullptr.");
         return;
     }
     std::weak_ptr<IdleTime> weak(shared_from_this());
     auto task = [weak]() {
         auto idleTime = weak.lock();
         if (idleTime == nullptr) {
-            HILOG_ERROR("idleTime is nullptr.");
+            TAG_LOGE(AAFwkTag::APPKIT, "idleTime is nullptr.");
             return;
         }
         idleTime->EventTask();

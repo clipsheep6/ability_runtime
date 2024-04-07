@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,6 +22,7 @@
 #include "app_recovery.h"
 #include "appfreeze_inner.h"
 #include "hisysevent.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "xcollie/watchdog.h"
 
@@ -46,7 +47,7 @@ Watchdog::Watchdog()
 Watchdog::~Watchdog()
 {
     if (!stopWatchdog_) {
-        HILOG_DEBUG("Stop watchdog when deconstruct.");
+        TAG_LOGD(AAFwkTag::APPDFR, "Stop watchdog when deconstruct.");
         OHOS::HiviewDFX::Watchdog::GetInstance().StopWatchdog();
     }
 }
@@ -55,7 +56,7 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 {
     Watchdog::appMainHandler_ = mainHandler;
     if (appMainHandler_ != nullptr) {
-        HILOG_DEBUG("Watchdog init send event");
+        TAG_LOGD(AAFwkTag::APPDFR, "Watchdog init send event");
         appMainHandler_->SendEvent(CHECK_MAIN_THREAD_IS_ALIVE, 0, EventQueue::Priority::HIGH);
     }
     lastWatchTime_ = 0;
@@ -66,10 +67,10 @@ void Watchdog::Init(const std::shared_ptr<EventHandler> mainHandler)
 
 void Watchdog::Stop()
 {
-    HILOG_DEBUG("Watchdog is stop!");
+    TAG_LOGD(AAFwkTag::APPDFR, "Watchdog is stop!");
     std::unique_lock<std::mutex> lock(cvMutex_);
     if (stopWatchdog_) {
-        HILOG_DEBUG("Watchdog has stoped.");
+        TAG_LOGD(AAFwkTag::APPDFR, "Watchdog has stoped.");
         return;
     }
     stopWatchdog_.store(true);
@@ -105,7 +106,7 @@ bool Watchdog::IsReportEvent()
         appMainThreadIsAlive_.store(false);
         return false;
     }
-    HILOG_DEBUG("AppMainThread is not alive");
+    TAG_LOGD(AAFwkTag::APPDFR, "AppMainThread is not alive");
     return true;
 }
 
@@ -118,11 +119,11 @@ void Watchdog::Timer()
 {
     std::unique_lock<std::mutex> lock(cvMutex_);
     if (stopWatchdog_) {
-        HILOG_DEBUG("Watchdog has stoped.");
+        TAG_LOGD(AAFwkTag::APPDFR, "Watchdog has stoped.");
         return;
     }
     if (!needReport_) {
-        HILOG_ERROR("Watchdog timeout, wait for the handler to recover, and do not send event.");
+        TAG_LOGE(AAFwkTag::APPDFR, "Watchdog timeout, wait for the handler to recover, and do not send event.");
         return;
     }
 
@@ -151,13 +152,14 @@ void Watchdog::ReportEvent()
         system_clock::now().time_since_epoch()).count();
     if ((now - lastWatchTime_) > (RESET_RATIO * CHECK_INTERVAL_TIME) ||
         (now - lastWatchTime_) < (CHECK_INTERVAL_TIME / RESET_RATIO)) {
-        HILOG_INFO("Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
+        TAG_LOGI(AAFwkTag::APPDFR,
+            "Thread may be blocked, do not report this time. currTime: %{public}llu, lastTime: %{public}llu",
             static_cast<unsigned long long>(now), static_cast<unsigned long long>(lastWatchTime_));
         return;
     }
 
     if (isInBackground_ && backgroundReportCount_.load() < BACKGROUND_REPORT_COUNT_MAX) {
-        HILOG_INFO("In Background, thread may be blocked in, do not report this time. "
+        TAG_LOGI(AAFwkTag::APPDFR, "In Background, thread may be blocked in, do not report this time. "
             "currTime: %{public}" PRIu64 ", lastTime: %{public}" PRIu64 "",
             static_cast<uint64_t>(now), static_cast<uint64_t>(lastWatchTime_));
         backgroundReportCount_++;

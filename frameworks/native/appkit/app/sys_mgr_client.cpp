@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 #include "sys_mgr_client.h"
 
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "if_system_ability_manager.h"
 #include "ipc_skeleton.h"
@@ -43,7 +44,7 @@ sptr<IRemoteObject> SysMrgClient::GetSystemAbility(const int32_t systemAbilityId
         if (abilityManager_ == nullptr) {
             abilityManager_ = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (abilityManager_ == nullptr) {
-                HILOG_ERROR("fail to GetSystemAbility abilityManager_ == nullptr.");
+                TAG_LOGE(AAFwkTag::APPKIT, "fail to GetSystemAbility abilityManager_ == nullptr.");
                 return nullptr;
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,6 +31,7 @@
 #include "bundle_mgr_helper.h"
 #include "configuration_utils.h"
 #include "context_impl.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
 #include "iservice_registry.h"
@@ -52,7 +53,7 @@ constexpr int32_t APP_ENVIRONMENT_OVERWRITE = 1;
 
 OHOSApplication::OHOSApplication()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     abilityLifecycleCallbacks_.clear();
     elementsCallbacks_.clear();
 }
@@ -71,7 +72,7 @@ OHOSApplication::~OHOSApplication()
 
 void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilitySaveState(outState);
@@ -86,17 +87,17 @@ void OHOSApplication::DispatchAbilitySavedState(const PacMap &outState)
  */
 void OHOSApplication::OnForeground()
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::APPKIT, "begin");
     if (abilityRuntimeContext_) {
         abilityRuntimeContext_->NotifyApplicationForeground();
     }
 
     if (runtime_ == nullptr) {
-        HILOG_DEBUG("NotifyApplicationState, runtime_ is nullptr");
+        TAG_LOGD(AAFwkTag::APPKIT, "NotifyApplicationState, runtime_ is nullptr");
         return;
     }
     runtime_->NotifyApplicationState(false);
-    HILOG_DEBUG("NotifyApplicationState::OnForeground end");
+    TAG_LOGD(AAFwkTag::APPKIT, "NotifyApplicationState::OnForeground end");
 }
 
 /**
@@ -106,22 +107,22 @@ void OHOSApplication::OnForeground()
  */
 void OHOSApplication::OnBackground()
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::APPKIT, "begin");
     if (abilityRuntimeContext_) {
         abilityRuntimeContext_->NotifyApplicationBackground();
     }
 
     if (runtime_ == nullptr) {
-        HILOG_DEBUG("NotifyApplicationState, runtime_ is nullptr");
+        TAG_LOGD(AAFwkTag::APPKIT, "NotifyApplicationState, runtime_ is nullptr");
         return;
     }
     runtime_->NotifyApplicationState(true);
-    HILOG_DEBUG("NotifyApplicationState::OnBackground end");
+    TAG_LOGD(AAFwkTag::APPKIT, "NotifyApplicationState::OnBackground end");
 }
 
 void OHOSApplication::DumpApplication()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     // create and initialize abilityInfos
     std::shared_ptr<AbilityInfo> abilityInfo = nullptr;
     std::shared_ptr<AbilityLocalRecord> record = nullptr;
@@ -135,31 +136,32 @@ void OHOSApplication::DumpApplication()
     }
 
     if (abilityInfo) {
-        HILOG_DEBUG("==============AbilityInfo==============");
-        HILOG_DEBUG("abilityInfo: package: %{public}s", abilityInfo->package.c_str());
-        HILOG_DEBUG("abilityInfo: name: %{public}s", abilityInfo->name.c_str());
-        HILOG_DEBUG("abilityInfo: label: %{public}s", abilityInfo->label.c_str());
-        HILOG_DEBUG("abilityInfo: description: %{public}s", abilityInfo->description.c_str());
-        HILOG_DEBUG("abilityInfo: iconPath: %{public}s", abilityInfo->iconPath.c_str());
-        HILOG_DEBUG("abilityInfo: visible: %{public}d", abilityInfo->visible);
-        HILOG_DEBUG("abilityInfo: kind: %{public}s", abilityInfo->kind.c_str());
-        HILOG_DEBUG("abilityInfo: type: %{public}d", abilityInfo->type);
-        HILOG_DEBUG("abilityInfo: orientation: %{public}d", abilityInfo->orientation);
-        HILOG_DEBUG("abilityInfo: launchMode: %{public}d", abilityInfo->launchMode);
+        TAG_LOGD(AAFwkTag::APPKIT, "==============AbilityInfo==============");
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: package: %{public}s", abilityInfo->package.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: name: %{public}s", abilityInfo->name.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: label: %{public}s", abilityInfo->label.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: description: %{public}s", abilityInfo->description.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: iconPath: %{public}s", abilityInfo->iconPath.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: visible: %{public}d", abilityInfo->visible);
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: kind: %{public}s", abilityInfo->kind.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: type: %{public}d", abilityInfo->type);
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: orientation: %{public}d", abilityInfo->orientation);
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: launchMode: %{public}d", abilityInfo->launchMode);
         for (auto permission : abilityInfo->permissions) {
-            HILOG_DEBUG("abilityInfo: permission: %{public}s", permission.c_str());
+            TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: permission: %{public}s", permission.c_str());
         }
-        HILOG_DEBUG("abilityInfo: bundleName: %{public}s", abilityInfo->bundleName.c_str());
-        HILOG_DEBUG("abilityInfo: applicationName: %{public}s", abilityInfo->applicationName.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: bundleName: %{public}s", abilityInfo->bundleName.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityInfo: applicationName: %{public}s", abilityInfo->applicationName.c_str());
     }
 
     // create and initialize applicationInfo
-    HILOG_DEBUG("==============applicationInfo==============");
+    TAG_LOGD(AAFwkTag::APPKIT, "==============applicationInfo==============");
     std::shared_ptr<ApplicationInfo> applicationInfoPtr = GetApplicationInfo();
     if (applicationInfoPtr != nullptr) {
-        HILOG_DEBUG("applicationInfo: name: %{public}s", applicationInfoPtr->name.c_str());
-        HILOG_DEBUG("applicationInfo: bundleName: %{public}s", applicationInfoPtr->bundleName.c_str());
-        HILOG_DEBUG("applicationInfo: signatureKey: %{public}s", applicationInfoPtr->signatureKey.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "applicationInfo: name: %{public}s", applicationInfoPtr->name.c_str());
+        TAG_LOGD(AAFwkTag::APPKIT, "applicationInfo: bundleName: %{public}s", applicationInfoPtr->bundleName.c_str());
+        TAG_LOGD(
+            AAFwkTag::APPKIT, "applicationInfo: signatureKey: %{public}s", applicationInfoPtr->signatureKey.c_str());
     }
 }
 
@@ -170,13 +172,13 @@ void OHOSApplication::DumpApplication()
  */
 void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runtime)
 {
-    HILOG_DEBUG("begin");
+    TAG_LOGD(AAFwkTag::APPKIT, "begin");
     if (runtime == nullptr) {
-        HILOG_ERROR("OHOSApplication::SetRuntime failed, runtime is empty");
+        TAG_LOGE(AAFwkTag::APPKIT, "OHOSApplication::SetRuntime failed, runtime is empty");
         return;
     }
     runtime_ = std::move(runtime);
-    HILOG_DEBUG("end");
+    TAG_LOGD(AAFwkTag::APPKIT, "end");
 }
 
 /**
@@ -187,9 +189,9 @@ void OHOSApplication::SetRuntime(std::unique_ptr<AbilityRuntime::Runtime>&& runt
 void OHOSApplication::SetApplicationContext(
     const std::shared_ptr<AbilityRuntime::ApplicationContext> &abilityRuntimeContext)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (abilityRuntimeContext == nullptr) {
-        HILOG_ERROR("OHOSApplication::SetApplicationContext failed, context is empty");
+        TAG_LOGE(AAFwkTag::APPKIT, "OHOSApplication::SetApplicationContext failed, context is empty");
         return;
     }
     abilityRuntimeContext_ = abilityRuntimeContext;
@@ -212,9 +214,9 @@ void OHOSApplication::SetApplicationContext(
  */
 void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr> &abilityRecordMgr)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (abilityRecordMgr == nullptr) {
-        HILOG_ERROR("ContextDeal::SetAbilityRecordMgr failed, abilityRecordMgr is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ContextDeal::SetAbilityRecordMgr failed, abilityRecordMgr is nullptr");
         return;
     }
     abilityRecordMgr_ = abilityRecordMgr;
@@ -228,10 +230,10 @@ void OHOSApplication::SetAbilityRecordMgr(const std::shared_ptr<AbilityRecordMgr
  */
 void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 
     if (callBack == nullptr) {
-        HILOG_DEBUG("observer is null");
+        TAG_LOGD(AAFwkTag::APPKIT, "observer is null");
         return;
     }
 
@@ -246,10 +248,10 @@ void OHOSApplication::RegisterAbilityLifecycleCallbacks(const std::shared_ptr<Ab
  */
 void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<AbilityLifecycleCallbacks> &callBack)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 
     if (callBack == nullptr) {
-        HILOG_DEBUG("observer is null");
+        TAG_LOGD(AAFwkTag::APPKIT, "observer is null");
         return;
     }
 
@@ -265,11 +267,11 @@ void OHOSApplication::UnregisterAbilityLifecycleCallbacks(const std::shared_ptr<
 void OHOSApplication::OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityStart(ability);
@@ -286,11 +288,11 @@ void OHOSApplication::OnAbilityStart(const std::shared_ptr<AbilityRuntime::UIAbi
 void OHOSApplication::OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityInactive(ability);
@@ -307,11 +309,11 @@ void OHOSApplication::OnAbilityInactive(const std::shared_ptr<AbilityRuntime::UI
 void OHOSApplication::OnAbilityBackground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityBackground(ability);
@@ -328,11 +330,11 @@ void OHOSApplication::OnAbilityBackground(const std::shared_ptr<AbilityRuntime::
 void OHOSApplication::OnAbilityForeground(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityForeground(ability);
@@ -349,11 +351,11 @@ void OHOSApplication::OnAbilityForeground(const std::shared_ptr<AbilityRuntime::
 void OHOSApplication::OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityActive(ability);
@@ -370,11 +372,11 @@ void OHOSApplication::OnAbilityActive(const std::shared_ptr<AbilityRuntime::UIAb
 void OHOSApplication::OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbility> &ability)
 {
     if (ability == nullptr) {
-        HILOG_ERROR("ability is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "ability is nullptr");
         return;
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : abilityLifecycleCallbacks_) {
         if (callback != nullptr) {
             callback->OnAbilityStop(ability);
@@ -390,10 +392,10 @@ void OHOSApplication::OnAbilityStop(const std::shared_ptr<AbilityRuntime::UIAbil
  */
 void OHOSApplication::RegisterElementsCallbacks(const std::shared_ptr<ElementsCallback> &callback)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 
     if (callback == nullptr) {
-        HILOG_DEBUG("observer is null");
+        TAG_LOGD(AAFwkTag::APPKIT, "observer is null");
         return;
     }
 
@@ -408,10 +410,10 @@ void OHOSApplication::RegisterElementsCallbacks(const std::shared_ptr<ElementsCa
  */
 void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<ElementsCallback> &callback)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 
     if (callback == nullptr) {
-        HILOG_DEBUG("observer is null");
+        TAG_LOGD(AAFwkTag::APPKIT, "observer is null");
         return;
     }
 
@@ -426,9 +428,9 @@ void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<Elements
  */
 void OHOSApplication::OnConfigurationUpdated(Configuration config)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!abilityRecordMgr_ || !configuration_) {
-        HILOG_DEBUG("abilityRecordMgr_ or configuration_ is null");
+        TAG_LOGD(AAFwkTag::APPKIT, "abilityRecordMgr_ or configuration_ is null");
         return;
     }
     std::string language = config.GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_LANGUAGE);
@@ -444,7 +446,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     std::string globalColorModeIsSetByApp =
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0) {
-        HILOG_DEBUG("colorMode is auto");
+        TAG_LOGD(AAFwkTag::APPKIT, "colorMode is auto");
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
         constexpr int buffSize = 64;
         char valueGet[buffSize] = { 0 };
@@ -459,12 +461,12 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     }
     if (!colorMode.empty() && colorModeIsSetByApp.empty()) {
         if (!globalColorModeIsSetByApp.empty() && globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) {
-            HILOG_DEBUG("colormode has been set by app");
+            TAG_LOGD(AAFwkTag::APPKIT, "colormode has been set by app");
             return;
         }
     }
     if (!language.empty() && languageIsSetByApp.empty() && !globalLanguageIsSetByApp.empty()) {
-        HILOG_DEBUG("language has been set by app");
+        TAG_LOGD(AAFwkTag::APPKIT, "language has been set by app");
         return;
     }
     std::vector<std::string> changeKeyV;
@@ -478,8 +480,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     UpdateAppContextResMgr(config);
 
     // Notify all abilities
-    HILOG_INFO(
-        "recordCount: [%{public}d]", static_cast<int>(abilityRecordMgr_->GetRecordCount()));
+    TAG_LOGI(AAFwkTag::APPKIT, "recordCount: [%{public}d]", static_cast<int>(abilityRecordMgr_->GetRecordCount()));
     for (const auto &abilityToken : abilityRecordMgr_->GetAllTokens()) {
         auto abilityRecord = abilityRecordMgr_->GetAbilityItem(abilityToken);
         if (abilityRecord && abilityRecord->GetAbilityThread()) {
@@ -488,7 +489,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     }
 
     // Notify AbilityStage
-    HILOG_INFO("abilityStages size: [%{public}zu]", abilityStages_.size());
+    TAG_LOGI(AAFwkTag::APPKIT, "abilityStages size: [%{public}zu]", abilityStages_.size());
     for (auto it = abilityStages_.begin(); it != abilityStages_.end(); it++) {
         auto abilityStage = it->second;
         if (abilityStage) {
@@ -498,7 +499,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
 
 #ifdef SUPPORT_GRAPHICS
     // Notify Window
-    HILOG_DEBUG("Update configuration for all window.");
+    TAG_LOGD(AAFwkTag::APPKIT, "Update configuration for all window.");
     auto diffConfiguration = std::make_shared<AppExecFwk::Configuration>(config);
     Rosen::Window::UpdateConfigurationForAll(diffConfiguration);
 #endif
@@ -522,10 +523,11 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
  */
 void OHOSApplication::OnMemoryLevel(int level)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 
     if (abilityRecordMgr_) {
-        HILOG_DEBUG("Number of ability to be notified : [%{public}d]", abilityRecordMgr_->GetRecordCount());
+        TAG_LOGD(
+            AAFwkTag::APPKIT, "Number of ability to be notified : [%{public}d]", abilityRecordMgr_->GetRecordCount());
         for (const auto &abilityToken : abilityRecordMgr_->GetAllTokens()) {
             auto abilityRecord = abilityRecordMgr_->GetAbilityItem(abilityToken);
             if (abilityRecord && abilityRecord->GetAbilityThread()) {
@@ -534,7 +536,7 @@ void OHOSApplication::OnMemoryLevel(int level)
         }
     }
 
-    HILOG_DEBUG("Number of abilityStage to be notified : [%{public}zu]", abilityStages_.size());
+    TAG_LOGD(AAFwkTag::APPKIT, "Number of abilityStage to be notified : [%{public}zu]", abilityStages_.size());
     for (auto it = abilityStages_.begin(); it != abilityStages_.end(); it++) {
         auto abilityStage = it->second;
         if (abilityStage) {
@@ -542,7 +544,7 @@ void OHOSApplication::OnMemoryLevel(int level)
         }
     }
 
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     for (auto callback : elementsCallbacks_) {
         if (callback != nullptr) {
             callback->OnMemoryLevel(level);
@@ -559,7 +561,7 @@ void OHOSApplication::OnMemoryLevel(int level)
  */
 void OHOSApplication::OnStart()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 }
 
 /**
@@ -568,7 +570,7 @@ void OHOSApplication::OnStart()
  */
 void OHOSApplication::OnTerminate()
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 }
 
 /**
@@ -586,17 +588,17 @@ void OHOSApplication::OnAbilitySaveState(const PacMap &outState)
 void OHOSApplication::SetAppEnv(const std::vector<AppEnvironment>& appEnvironments)
 {
     if (!appEnvironments.size()) {
-        HILOG_INFO("appEnvironments empty.");
+        TAG_LOGI(AAFwkTag::APPKIT, "appEnvironments empty.");
         return;
     }
 
     for (const auto &appEnvironment : appEnvironments) {
         if (setenv(appEnvironment.name.c_str(), appEnvironment.value.c_str(), APP_ENVIRONMENT_OVERWRITE)) {
-            HILOG_ERROR("appEnvironment: %{public}s set failed.", appEnvironment.name.c_str());
+            TAG_LOGE(AAFwkTag::APPKIT, "appEnvironment: %{public}s set failed.", appEnvironment.name.c_str());
             return;
         }
-        HILOG_INFO("appEnvironment set successfully: %{public}s = %{public}s.", appEnvironment.name.c_str(),
-                   appEnvironment.value.c_str());
+        TAG_LOGI(AAFwkTag::APPKIT, "appEnvironment set successfully: %{public}s = %{public}s.",
+            appEnvironment.name.c_str(), appEnvironment.value.c_str());
     }
     return;
 }
@@ -607,12 +609,12 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (abilityRecord == nullptr) {
-        HILOG_ERROR("abilityRecord is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityRecord is nullptr");
         return nullptr;
     }
     const std::shared_ptr<AbilityInfo> &abilityInfo = abilityRecord->GetAbilityInfo();
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityInfo is nullptr");
         return nullptr;
     }
     std::string moduleName = abilityInfo->moduleName;
@@ -625,7 +627,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         stageContext->SetConfiguration(GetConfiguration());
         std::shared_ptr<AppExecFwk::HapModuleInfo> hapModuleInfo = stageContext->GetHapModuleInfo();
         if (hapModuleInfo == nullptr) {
-            HILOG_ERROR("hapModuleInfo is nullptr");
+            TAG_LOGE(AAFwkTag::APPKIT, "hapModuleInfo is nullptr");
             return nullptr;
         }
         SetAppEnv(hapModuleInfo->appEnvironments);
@@ -644,7 +646,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         auto autoStartupCallback = [weak, abilityStage, abilityRecord, moduleName, callback]() {
             auto ohosApplication = weak.lock();
             if (ohosApplication == nullptr) {
-                HILOG_ERROR("ohosApplication is nullptr");
+                TAG_LOGE(AAFwkTag::APPKIT, "ohosApplication is nullptr");
                 return;
             }
             ohosApplication->AutoStartupDone(abilityRecord, abilityStage, moduleName);
@@ -652,13 +654,13 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         };
         abilityStage->RunAutoStartupTask(autoStartupCallback, isAsyncCallback);
         if (isAsyncCallback) {
-            HILOG_INFO("waiting for startup");
+            TAG_LOGI(AAFwkTag::APPKIT, "waiting for startup");
             return nullptr;
         }
 
         Want want;
         if (abilityRecord->GetWant()) {
-            HILOG_DEBUG("want is ok, transport to abilityStage");
+            TAG_LOGD(AAFwkTag::APPKIT, "want is ok, transport to abilityStage");
             want = *(abilityRecord->GetWant());
         }
         abilityStage->OnCreate(want);
@@ -668,7 +670,7 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
     }
     const sptr<IRemoteObject> &token = abilityRecord->GetToken();
     if (token == nullptr) {
-        HILOG_ERROR("token is null");
+        TAG_LOGE(AAFwkTag::APPKIT, "token is null");
         return nullptr;
     }
     abilityStage->AddAbility(token, abilityRecord);
@@ -680,18 +682,18 @@ void OHOSApplication::AutoStartupDone(const std::shared_ptr<AbilityLocalRecord> 
 {
     Want want;
     if (abilityRecord->GetWant()) {
-        HILOG_DEBUG("want is ok, transport to abilityStage");
+        TAG_LOGD(AAFwkTag::APPKIT, "want is ok, transport to abilityStage");
         want = *(abilityRecord->GetWant());
     }
     if (abilityStage == nullptr) {
-        HILOG_ERROR("abilityStage is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityStage is nullptr");
         return;
     }
     abilityStage->OnCreate(want);
     abilityStages_[moduleName] = abilityStage;
     const sptr<IRemoteObject> &token = abilityRecord->GetToken();
     if (token == nullptr) {
-        HILOG_ERROR("token is null");
+        TAG_LOGE(AAFwkTag::APPKIT, "token is null");
         return;
     }
     abilityStage->AddAbility(token, abilityRecord);
@@ -706,10 +708,10 @@ void OHOSApplication::AutoStartupDone(const std::shared_ptr<AbilityLocalRecord> 
  */
 void OHOSApplication::UpdateApplicationInfoInstalled(const AppExecFwk::ApplicationInfo &appInfo)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
 
     if (abilityRuntimeContext_ == nullptr) {
-        HILOG_ERROR("abilityRuntimeContext_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityRuntimeContext_ is nullptr.");
         return;
     }
 
@@ -718,19 +720,19 @@ void OHOSApplication::UpdateApplicationInfoInstalled(const AppExecFwk::Applicati
 
 bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModuleInfo)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (abilityRuntimeContext_ == nullptr) {
-        HILOG_ERROR("abilityRuntimeContext_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityRuntimeContext_ is nullptr.");
         return false;
     }
 
     if (runtime_ == nullptr) {
-        HILOG_ERROR("runtime_ is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "runtime_ is nullptr.");
         return false;
     }
 
     if (abilityStages_.find(hapModuleInfo.moduleName) != abilityStages_.end()) {
-        HILOG_ERROR("object already exists ");
+        TAG_LOGE(AAFwkTag::APPKIT, "object already exists ");
         return false;
     }
 
@@ -740,7 +742,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     stageContext->SetConfiguration(GetConfiguration());
     auto moduleInfo = stageContext->GetHapModuleInfo();
     if (moduleInfo == nullptr) {
-        HILOG_ERROR("moduleInfo is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "moduleInfo is nullptr");
         return false;
     }
 
@@ -754,7 +756,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     Want want;
     abilityStage->OnCreate(want);
     abilityStages_[hapModuleInfo.moduleName] = abilityStage;
-    HILOG_ERROR("abilityStage insert and initialization");
+    TAG_LOGE(AAFwkTag::APPKIT, "abilityStage insert and initialization");
     return true;
 }
 
@@ -762,11 +764,11 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
     const std::shared_ptr<AbilityInfo> &abilityInfo)
 {
     if (abilityInfo == nullptr) {
-        HILOG_ERROR("abilityInfo is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityInfo is nullptr");
         return;
     }
     if (token == nullptr) {
-        HILOG_ERROR("token is nullptr");
+        TAG_LOGE(AAFwkTag::APPKIT, "token is nullptr");
         return;
     }
     std::string moduleName = abilityInfo->moduleName;
@@ -784,7 +786,7 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
 
 void OHOSApplication::DoCleanWorkAfterStageCleaned(const AbilityInfo &abilityInfo)
 {
-    HILOG_DEBUG("language: %{public}s.", abilityInfo.srcLanguage.c_str());
+    TAG_LOGD(AAFwkTag::APPKIT, "language: %{public}s.", abilityInfo.srcLanguage.c_str());
     if (runtime_) {
         runtime_->DoCleanWorkAfterStageCleaned();
     }
@@ -809,7 +811,7 @@ void OHOSApplication::SetConfiguration(const Configuration &config)
 
 void OHOSApplication::ScheduleAcceptWant(const AAFwk::Want &want, const std::string &moduleName, std::string &flag)
 {
-    HILOG_DEBUG("called");
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
     auto iter = abilityStages_.find(moduleName);
     if (iter != abilityStages_.end()) {
         auto abilityStage = iter->second;
@@ -822,14 +824,14 @@ void OHOSApplication::ScheduleAcceptWant(const AAFwk::Want &want, const std::str
 void OHOSApplication::ScheduleNewProcessRequest(const AAFwk::Want &want, const std::string &moduleName,
     std::string &flag)
 {
-    HILOG_DEBUG("call.");
+    TAG_LOGD(AAFwkTag::APPKIT, "call.");
     if (abilityStages_.empty()) {
-        HILOG_ERROR("abilityStages_ is empty.");
+        TAG_LOGE(AAFwkTag::APPKIT, "abilityStages_ is empty.");
         return;
     }
     auto iter = abilityStages_.find(moduleName);
     if (iter == abilityStages_.end()) {
-        HILOG_ERROR("%{public}s is not in abilityStage", moduleName.c_str());
+        TAG_LOGE(AAFwkTag::APPKIT, "%{public}s is not in abilityStage", moduleName.c_str());
         return;
     }
     auto abilityStage = iter->second;
@@ -851,7 +853,7 @@ void OHOSApplication::SetExtensionTypeMap(std::map<int32_t, std::string> map)
 bool OHOSApplication::NotifyLoadRepairPatch(const std::string &hqfFile, const std::string &hapPath)
 {
     if (runtime_ == nullptr) {
-        HILOG_DEBUG("runtime is nullptr.");
+        TAG_LOGD(AAFwkTag::APPKIT, "runtime is nullptr.");
         return true;
     }
 
@@ -861,7 +863,7 @@ bool OHOSApplication::NotifyLoadRepairPatch(const std::string &hqfFile, const st
 bool OHOSApplication::NotifyHotReloadPage()
 {
     if (runtime_ == nullptr) {
-        HILOG_DEBUG("runtime is nullptr.");
+        TAG_LOGD(AAFwkTag::APPKIT, "runtime is nullptr.");
         return true;
     }
 
@@ -871,7 +873,7 @@ bool OHOSApplication::NotifyHotReloadPage()
 bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 {
     if (runtime_ == nullptr) {
-        HILOG_DEBUG("runtime is nullptr.");
+        TAG_LOGD(AAFwkTag::APPKIT, "runtime is nullptr.");
         return true;
     }
 
@@ -881,11 +883,11 @@ bool OHOSApplication::NotifyUnLoadRepairPatch(const std::string &hqfFile)
 void OHOSApplication::CleanAppTempData(bool isLastProcess)
 {
     if (!isLastProcess) {
-        HILOG_ERROR("failed");
+        TAG_LOGE(AAFwkTag::APPKIT, "failed");
         return;
     }
     if (abilityRuntimeContext_ == nullptr) {
-        HILOG_ERROR("Context is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Context is nullptr.");
         return;
     }
 
@@ -899,7 +901,7 @@ void OHOSApplication::CleanAppTempData(bool isLastProcess)
 void OHOSApplication::CleanUselessTempData()
 {
     if (abilityRuntimeContext_ == nullptr) {
-        HILOG_ERROR("Context is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Context is nullptr.");
         return;
     }
 
@@ -914,7 +916,7 @@ void OHOSApplication::UpdateAppContextResMgr(const Configuration &config)
 {
     auto context = GetAppContext();
     if (context == nullptr) {
-        HILOG_ERROR("Application context is nullptr.");
+        TAG_LOGE(AAFwkTag::APPKIT, "Application context is nullptr.");
         return;
     }
 

@@ -15,6 +15,7 @@
 
 #include "appfreeze_inner.h"
 #include "appfreeze_state.h"
+#include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 
 namespace OHOS {
@@ -28,7 +29,7 @@ void AppFreezeState::SetAppFreezeState(uint32_t flag)
 {
     auto inner = AppExecFwk::AppfreezeInner::GetInstance();
     if (inner == nullptr) {
-        HILOG_ERROR("Get instance is nullptr.");
+        TAG_LOGE(AAFwkTag::APPDFR, "Get instance is nullptr.");
         return;
     }
 
@@ -36,14 +37,14 @@ void AppFreezeState::SetAppFreezeState(uint32_t flag)
     if (appFreezeStateFlag_ > 0) {
         inner->SetAppDebug(true);
     }
-    HILOG_DEBUG("App state flag is %{public}u and set app debug state is true.", appFreezeStateFlag_);
+    TAG_LOGD(AAFwkTag::APPDFR, "App state flag is %{public}u and set app debug state is true.", appFreezeStateFlag_);
 }
 
 void AppFreezeState::CancelAppFreezeState(uint32_t flag)
 {
     auto inner = AppExecFwk::AppfreezeInner::GetInstance();
     if (inner == nullptr) {
-        HILOG_ERROR("Get instance is nullptr.");
+        TAG_LOGE(AAFwkTag::APPDFR, "Get instance is nullptr.");
         return;
     }
 
@@ -51,7 +52,7 @@ void AppFreezeState::CancelAppFreezeState(uint32_t flag)
     if (appFreezeStateFlag_ == 0) {
         inner->SetAppDebug(false);
     }
-    HILOG_DEBUG("App state flag is %{public}u and set app debug state is false.", appFreezeStateFlag_);
+    TAG_LOGD(AAFwkTag::APPDFR, "App state flag is %{public}u and set app debug state is false.", appFreezeStateFlag_);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
