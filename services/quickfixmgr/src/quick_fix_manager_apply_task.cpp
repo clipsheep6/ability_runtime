@@ -22,6 +22,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "hitrace_meter.h"
+#include "nlohmann/json.hpp"
 #include "quick_fix_callback_stub.h"
 #include "quick_fix_error_utils.h"
 #include "quick_fix_manager_service.h"
