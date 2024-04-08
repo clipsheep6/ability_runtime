@@ -57,7 +57,8 @@ public:
     using UIExtensionMapType = std::map<sptr<IRemoteObject>, UIExtWindowMapValType>;
     using WindowExtMapValType = std::pair<uint32_t, sptr<SessionInfo>>;
     using WindowExtensionMapType = std::map<sptr<IRemoteObject>, WindowExtMapValType>;
-
+    using PreLoadUIExtensionMapType =
+        std::map<std::tuple<std::string, std::string, std::string, std::string>, std::shared_ptr<ExtensionRecord>>;
     explicit AbilityConnectManager(int userId);
     virtual ~AbilityConnectManager();
 
@@ -99,6 +100,15 @@ public:
         const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo = nullptr,
         sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
+    /**
+     * PreloadUIExtensionAbility, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &callerToken);
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *
@@ -549,6 +559,7 @@ private:
     ffrt::mutex startServiceReqListLock_;
     UIExtensionMapType uiExtensionMap_;
     WindowExtensionMapType windowExtensionMap_;
+    PreLoadUIExtensionMapType preloadUIExtensionMap_;
     std::unique_ptr<UIExtensionAbilityConnectManager> uiExtensionAbilityRecordMgr_ = nullptr;
 
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
