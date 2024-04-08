@@ -5437,17 +5437,20 @@ int32_t AppMgrServiceInner::StartChildProcessImpl(const std::shared_ptr<ChildPro
     AppSpawnStartMsg startMsg = appRecord->GetStartMsg();
     startMsg.procName = childProcessRecord->GetProcessName();
     pid_t pid = 0;
-    ErrCode errCode = spawnClient->StartProcess(startMsg, pid);
-    if (FAILED(errCode)) {
-        TAG_LOGE(AAFwkTag::APPMGR, "failed to spawn new child process, errCode %{public}08x", errCode);
-        return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
-    }
+    {
+        std::lock_guard<ffrt::mutex> lock(startChildProcessLock_);
+        ErrCode errCode = spawnClient->StartProcess(startMsg, pid);
+        if (FAILED(errCode)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "failed to spawn new child process, errCode %{public}08x", errCode);
+            return ERR_APPEXECFWK_BAD_APPSPAWN_CLIENT;
+        }
 
-    childPid = pid;
-    childProcessRecord->SetPid(pid);
-    childProcessRecord->SetUid(startMsg.uid);
-    appRecord->AddChildProcessRecord(pid, childProcessRecord);
-    TAG_LOGI(AAFwkTag::APPMGR, "Start child process success, pid:%{public}d, hostPid:%{public}d, uid:%{public}d",
+        childPid = pid;
+        childProcessRecord->SetPid(pid);
+        childProcessRecord->SetUid(startMsg.uid);
+        appRecord->AddChildProcessRecord(pid, childProcessRecord);
+    }
+    TAG_LOGI(AAFwkTag::APPMGR, "Start child process success, pid:%{public}d, hostPid:%{public}d,uid:%{public}d",
         pid, childProcessRecord->GetHostPid(), startMsg.uid);
     return ERR_OK;
 }
@@ -5464,6 +5467,7 @@ int32_t AppMgrServiceInner::GetChildProcessInfoForSelf(ChildProcessInfo &info)
         TAG_LOGD(AAFwkTag::APPMGR, "record of callingPid is not child record.");
         return ERR_NAME_NOT_FOUND;
     }
+    std::lock_guard<ffrt::mutex> lock(startChildProcessLock_);
     auto appRecord = appRunningManager_->GetAppRunningRecordByChildProcessPid(callingPid);
     if (!appRecord) {
         TAG_LOGW(AAFwkTag::APPMGR, "No such appRecord, childPid:%{public}d", callingPid);
