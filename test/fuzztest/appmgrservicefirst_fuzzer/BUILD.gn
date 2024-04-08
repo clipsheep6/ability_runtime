@@ -24,10 +24,7 @@ ohos_fuzztest("AppMgrServiceFirstFuzzTest") {
 
   fuzz_config_file =
       "${ability_runtime_test_path}/fuzztest/appmgrservicefirst_fuzzer"
-  include_dirs = [
-    "${ability_runtime_services_path}/appmgr/include",
-    "${appspawn_path}/interfaces/innerkits/include",
-  ]
+  include_dirs = [ "${ability_runtime_services_path}/appmgr/include" ]
   cflags = [
     "-g",
     "-O0",
@@ -50,12 +47,13 @@ ohos_fuzztest("AppMgrServiceFirstFuzzTest") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "ffrt:libffrt",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",

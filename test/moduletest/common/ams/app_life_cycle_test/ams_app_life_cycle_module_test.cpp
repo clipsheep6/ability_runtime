@@ -30,7 +30,6 @@
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
-#include "mock_app_spawn_socket.h"
 #include "mock_iapp_state_callback.h"
 #include "mock_native_token.h"
 #include "system_ability_definition.h"
@@ -929,19 +928,11 @@ HWTEST_F(AmsAppLifeCycleModuleTest, StateChange_013, TestSize.Level3)
     EXPECT_TRUE(serviceInner_->remoteClientManager_);
     EXPECT_TRUE(serviceInner_->remoteClientManager_->GetSpawnClient());
 
-    auto mockAppSpawnSocket = std::make_shared<MockAppSpawnSocket>();
-    EXPECT_TRUE(mockAppSpawnSocket);
-    serviceInner_->remoteClientManager_->GetSpawnClient()->SetSocket(mockAppSpawnSocket);
-
     EXPECT_EQ(serviceInner_->QueryAppSpawnConnectionState(), SpawnConnectionState::STATE_NOT_CONNECT);
-
-    EXPECT_CALL(*mockAppSpawnSocket, OpenAppSpawnConnection()).Times(1).WillOnce(Return(0));
 
     int ret = serviceInner_->OpenAppSpawnConnection();
     EXPECT_EQ(ret, 0);
     EXPECT_EQ(serviceInner_->QueryAppSpawnConnectionState(), SpawnConnectionState::STATE_CONNECTED);
-
-    EXPECT_CALL(*mockAppSpawnSocket, CloseAppSpawnConnection()).Times(1);
 
     serviceInner_->OnStop();
     usleep(50000);

@@ -38,6 +38,7 @@ ohos_moduletest("AmsAppMgrServiceModuleTest") {
   external_deps = [
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "ffrt:libffrt",
     "hicollie:libhicollie",

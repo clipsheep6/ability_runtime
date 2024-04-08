@@ -22,10 +22,12 @@ namespace OHOS {
 namespace AppExecFwk {
 class MockAppSpawnClient : public AppSpawnClient {
 public:
-    MockAppSpawnClient()
+    MockAppSpawnClient(): AppSpawnClient(false)
     {}
     virtual ~MockAppSpawnClient()
     {}
+    MOCK_METHOD0(OpenConnection, ErrCode());
+    MOCK_METHOD0(CloseConnection, void());
     MOCK_METHOD2(StartProcess, ErrCode(const AppSpawnStartMsg& startMsg, pid_t& pid));
 };
 }  // namespace AppExecFwk

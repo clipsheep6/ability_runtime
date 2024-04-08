@@ -24,7 +24,6 @@
 #include "app_scheduler_host.h"
 #include "app_scheduler_proxy.h"
 #include "mock_app_mgr_service_inner.h"
-#include "mock_app_spawn_socket.h"
 #include "mock_native_token.h"
 #include "semaphore_ex.h"
 

@@ -23,8 +23,6 @@
       *AppRunningManager*;
       *AppRunningRecord*;
       *AppSpawnClient*;
-      *AppSpawnMsgWrapper*;
-      *AppSpawnSocket*;
       *AppStateObserverManager*;
       *ModuleRunningRecord*;
       *QuickFixCallbackWithRecord*;

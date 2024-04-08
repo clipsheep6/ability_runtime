@@ -58,19 +58,6 @@ HWTEST_F(AppSpawnClientTest, PreStartNWebSpawnProcess_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: PreStartNWebSpawnProcessImpl_001
- * @tc.desc: prestart nwebspawn process.
- * @tc.type: FUNC
- * @tc.require: issueI5W4S7
- */
-HWTEST_F(AppSpawnClientTest, PreStartNWebSpawnProcessImpl_001, TestSize.Level0)
-{
-    auto asc = std::make_shared<AppSpawnClient>(true);
-    int ret = asc->PreStartNWebSpawnProcessImpl();
-    EXPECT_EQ(ret, ERR_OK);
-}
-
-/**
  * @tc.name: PreStartNWebSpawnProcessImpl_002
  * @tc.desc: prestart nwebspawn process.
  * @tc.type: FUNC
@@ -80,7 +67,7 @@ HWTEST_F(AppSpawnClientTest, PreStartNWebSpawnProcessImpl_002, TestSize.Level0)
 {
     auto asc = std::make_shared<AppSpawnClient>(true);
     asc->OpenConnection();
-    int ret = asc->PreStartNWebSpawnProcessImpl();
+    int ret = asc->PreStartNWebSpawnProcess();
     EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace AppExecFwk

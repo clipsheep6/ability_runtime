@@ -26,7 +26,6 @@
 #include "mock_ability_token.h"
 #include "mock_app_scheduler.h"
 #include "mock_app_spawn_client.h"
-#include "mock_app_spawn_socket.h"
 #include "mock_iapp_state_callback.h"
 #include "mock_bundle_manager.h"
 
@@ -1326,8 +1325,7 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_001, TestSize.Level1)
 HWTEST_F(AmsAppLifeCycleTest, Stop_002, TestSize.Level1)
 {
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
-    std::shared_ptr<MockAppSpawnSocket> socketMock = std::make_shared<MockAppSpawnSocket>();
-    appSpawnClient->SetSocket(socketMock);
+    std::shared_ptr<MockAppSpawnClient> socketMock = std::make_shared<MockAppSpawnClient>();
     EXPECT_EQ(SpawnConnectionState::STATE_NOT_CONNECT, appSpawnClient->QueryConnectionState());
     EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillOnce(Return(ERR_OK));
     serviceInner_->SetAppSpawnClient(appSpawnClient);
@@ -1367,8 +1365,6 @@ HWTEST_F(AmsAppLifeCycleTest, Stop_003, TestSize.Level1)
     EXPECT_EQ(appState, appRecord->GetState());
 
     std::shared_ptr<AppSpawnClient> appSpawnClient = std::make_shared<AppSpawnClient>();
-    std::shared_ptr<MockAppSpawnSocket> socketMock = std::make_shared<MockAppSpawnSocket>();
-    appSpawnClient->SetSocket(socketMock);
     EXPECT_EQ(SpawnConnectionState::STATE_NOT_CONNECT, appSpawnClient->QueryConnectionState());
     EXPECT_CALL(*socketMock, OpenAppSpawnConnection()).WillOnce(Return(ERR_OK));
     serviceInner_->SetAppSpawnClient(appSpawnClient);

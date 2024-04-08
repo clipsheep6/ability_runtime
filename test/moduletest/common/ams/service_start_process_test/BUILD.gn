@@ -33,6 +33,7 @@ ohos_moduletest("AmsServiceStartModuleTest") {
   ]
 
   external_deps = [
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "ffrt:libffrt",
     "hicollie:libhicollie",

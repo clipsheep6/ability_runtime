@@ -48,10 +48,12 @@ ohos_fuzztest("AppManagerFuzzTest") {
   external_deps = [
     "ability_base:want",
     "ability_base:zuri",
-    "appspawn:appspawn_socket_client",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
     "ffrt:libffrt",
+    "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",

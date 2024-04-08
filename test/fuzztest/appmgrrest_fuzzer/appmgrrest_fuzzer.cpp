@@ -23,9 +23,7 @@
 #include "app_process_manager.h"
 #define private public
 #include "app_spawn_client.h"
-#include "app_spawn_msg_wrapper.h"
 #undef private
-#include "app_spawn_socket.h"
 #include "remote_client_manager.h"
 #include "window_focus_changed_listener.h"
 #include "ability_record.h"
@@ -96,29 +94,12 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     appProcessManager.ClearRecentAppList();
     AppSpawnClient appSpawnClient;
     appSpawnClient.OpenConnection();
-    std::shared_ptr<AppSpawnSocket> socket;
-    appSpawnClient.SetSocket(socket);
     appSpawnClient.PreStartNWebSpawnProcess();
-    appSpawnClient.PreStartNWebSpawnProcessImpl();
     AppSpawnStartMsg startMsg;
     appSpawnClient.StartProcess(startMsg, pid);
     int status = static_cast<int>(GetU32Data(data));
     appSpawnClient.GetRenderProcessTerminationStatus(startMsg, status);
     appSpawnClient.QueryConnectionState();
-    appSpawnClient.CloseConnection();
-    AppSpawnMsgWrapper appSpawnMsgWrapper;
-    appSpawnMsgWrapper.AssembleMsg(startMsg);
-    appSpawnMsgWrapper.VerifyMsg(startMsg);
-    appSpawnMsgWrapper.DumpMsg();
-    appSpawnMsgWrapper.FreeMsg();
-    AppSpawnSocket appSpawnSocket;
-    std::shared_ptr<OHOS::AppSpawn::ClientSocket> clientSocket;
-    appSpawnSocket.SetClientSocket(clientSocket);
-    appSpawnSocket.OpenAppSpawnConnection();
-    int32_t len = appSpawnMsgWrapper.GetMsgLength();
-    appSpawnSocket.WriteMessage(appSpawnMsgWrapper.GetMsgBuf(), len);
-    appSpawnSocket.ReadMessage(reinterpret_cast<void*>(*data), len);
-    appSpawnSocket.CloseAppSpawnConnection();
     RemoteClientManager remoteClientManager;
     std::shared_ptr<BundleMgrHelper> bundleManagerHelper = nullptr;
     remoteClientManager.SetBundleManagerHelper(bundleManagerHelper);
@@ -132,7 +113,7 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     sptr<Rosen::FocusChangeInfo> focusChangeInfo = nullptr;
     windowFocusChangedListener.OnFocused(focusChangeInfo);
     windowFocusChangedListener.OnUnfocused(focusChangeInfo);
-    return (appSpawnClient.StartProcessImpl(startMsg, pid) != 0);
+    return (appSpawnClient.StartProcess(startMsg, pid) != 0);
 }
 }
 

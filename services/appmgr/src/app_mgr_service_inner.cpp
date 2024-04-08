@@ -34,7 +34,6 @@
 #include "app_utils.h"
 #include "appfreeze_manager.h"
 #include "application_state_observer_stub.h"
-#include "appspawn_mount_permission.h"
 #include "appspawn_util.h"
 #include "bundle_constants.h"
 #include "common_event.h"
@@ -2087,10 +2086,10 @@ int32_t AppMgrServiceInner::StartPerfProcess(const std::shared_ptr<AppRunningRec
     }
 
     auto&& startMsg = appRecord->GetStartMsg();
-    startMsg.code = static_cast<int32_t>(AppSpawn::ClientSocket::AppOperateCode::SPAWN_NATIVE_PROCESS);
+    startMsg.code = static_cast<int32_t>(MSG_SPAWN_NATIVE_PROCESS);
     if (!isSandboxApp) {
         TAG_LOGD(AAFwkTag::APPMGR, "debuggablePipe sandbox: false.");
-        startMsg.flags |= (AppSpawn::ClientSocket::APPSPAWN_COLD_BOOT << StartFlags::NO_SANDBOX);
+        startMsg.flags |= (START_FLAG_BASE << StartFlags::NO_SANDBOX);
     } else {
         TAG_LOGI(AAFwkTag::APPMGR, "debuggablePipe sandbox: true");
     }
@@ -2202,8 +2201,9 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
         }
     }
 
-    std::set<std::string> mountPermissionList = AppSpawn::AppspawnMountPermission::GetMountPermissionList();
-    for (std::string permission : mountPermissionList) {
+    int32_t maxPermissionIndex = GetMaxPermissionIndex();
+    for (int i = 0; i < maxPermissionIndex; i++) {
+        std::string permission = std::string(GetPermissionByIndex(i));
         if (Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permission, false) ==
             Security::AccessToken::PERMISSION_GRANTED) {
             permissions.insert(permission);
@@ -2254,11 +2254,10 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     uint8_t setAllowInternet = 0;
     uint8_t allowInternet = 1;
     std::vector<int32_t> gids;
-    std::set<std::string> permissions;
-    StartProcessVerifyPermission(bundleInfo, hasAccessBundleDirReq, setAllowInternet, allowInternet, gids,
-                                 permissions);
 
     AppSpawnStartMsg startMsg;
+    StartProcessVerifyPermission(bundleInfo, hasAccessBundleDirReq, setAllowInternet, allowInternet,
+        gids, startMsg.permissions);
     startMsg.uid = bundleInfo.uid;
     startMsg.gid = bundleInfo.gid;
     startMsg.gids = gids;
@@ -2274,14 +2273,13 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.dataGroupInfoList = dataGroupInfoList;
     startMsg.hapFlags = bundleInfo.isPreInstallApp ? 1 : 0;
 
-    startMsg.mountPermissionFlags = AppSpawn::AppspawnMountPermission::GenPermissionCode(permissions);
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
     if (hasAccessBundleDirReq) {
-        startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
+        startMsg.flags = startMsg.flags | StartFlags::ACCESS_BUNDLE_DIR;
     }
 
     if (VerifyPermission(bundleInfo, PERMISSION_GET_BUNDLE_RESOURCES)) {
-        startMsg.flags = startMsg.flags | GET_BUNDLE_RESOURCES_FLAG;
+        startMsg.flags = startMsg.flags | StartFlags::BUNDLE_RESOURCES;
     }
 
     SetOverlayInfo(bundleName, userId, startMsg);
@@ -4123,7 +4121,7 @@ int AppMgrServiceInner::GetRenderProcessTerminationStatus(pid_t renderPid, int &
 
     AppSpawnStartMsg startMsg;
     startMsg.pid = renderPid;
-    startMsg.code = 1; // 1: GET_RENDER_TERMINATION_STATUS
+    startMsg.code = MSG_GET_RENDER_TERMINATION_STATUS;
     ErrCode errCode = nwebSpawnClient->GetRenderProcessTerminationStatus(startMsg, status);
     if (FAILED(errCode)) {
         TAG_LOGE(AAFwkTag::APPMGR, "failed to get render process termination status, errCode %{public}08x", errCode);

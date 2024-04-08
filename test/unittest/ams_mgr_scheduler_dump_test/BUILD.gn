@@ -34,6 +34,7 @@ ohos_unittest("ams_mgr_scheduler_dump_test") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:app_manager",
+    "appspawn:appspawn_client",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
