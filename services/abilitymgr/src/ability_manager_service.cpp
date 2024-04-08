@@ -100,6 +100,7 @@
 #include "uri_permission_manager_client.h"
 #include "view_data.h"
 #include "xcollie/watchdog.h"
+#include "config_policy_utils.h"
 #ifdef SUPPORT_GRAPHICS
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
@@ -245,6 +246,13 @@ const std::string IS_CALL_BY_SCB = "isCallBySCB";
 const std::string SPECIFY_TOKEN_ID = "specifyTokenId";
 const std::string PROCESS_SUFFIX = "embeddable";
 const int DEFAULT_DMS_MISSION_ID = -1;
+const char* PARAM_PREVENT_STARTABILITY = "persist.sys.abilityms.prevent_startability";
+const std::string SUSPEND_SERVICE_CONFIG_FILE = "/etc/efficiency_manager/prevent_startability_whitelist.json";
+const int32_t MAX_BUFFER = 2048;
+nlohmann::json whiteListJsonObj;
+const int32_t API12 = 12;
+const int32_t API_VERSION_MOD = 100;
+const std::string WHITE_LIST = "white_list";
 const std::map<std::string, AbilityManagerService::DumpKey> AbilityManagerService::dumpMap = {
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("--all", KEY_DUMP_ALL),
     std::map<std::string, AbilityManagerService::DumpKey>::value_type("-a", KEY_DUMP_ALL),
@@ -455,6 +463,10 @@ void AbilityManagerService::InitPushTask()
             WatchParameter(BOOTEVENT_BOOT_COMPLETED.c_str(), ApplicationUtil::AppFwkBootEventCallback, nullptr);
         }
     };
+    if (!ParseJsonFromBoot(whiteListJsonObj, SUSPEND_SERVICE_CONFIG_FILE, WHITE_LIST)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Parse json from boot fail");
+    }
+    isParamStartAbilityEnable_ = system::GetBoolParameter(PARAM_PREVENT_STARTABILITY, false);
     taskHandler_->SubmitTask(bootCompletedTask, "BootCompletedTask");
 }
 
@@ -8346,6 +8358,13 @@ int AbilityManagerService::CheckCallServiceExtensionPermission(const AbilityRequ
     verificationInfo.visible = abilityRequest.abilityInfo.visible;
     verificationInfo.withContinuousTask = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
     verificationInfo.isBackgroundCall = false;
+    if (isParamStartAbilityEnable_) {
+        bool stopContinuousTaskFlag = ShouldPreventStartAbility(abilityRequest);
+        if (stopContinuousTaskFlag) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start ServiceExtension");
+            return CHECK_PERMISSION_FAILED;
+        }
+    }
     int result = AAFwk::PermissionVerification::GetInstance()->CheckCallServiceExtensionPermission(verificationInfo);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start ServiceExtension or DataShareExtension");
@@ -10009,6 +10028,153 @@ bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToke
     want.SetParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME, callerAbility->GetElementName().GetBundleName());
     auto erms = std::make_shared<EcologicalRuleInterceptor>();
     return erms->DoProcess(want, GetUserId());
+}
+
+bool AbilityManagerService::ShouldPreventStartAbility(const AbilityRequest &abilityRequest)
+{
+    std::shared_ptr<AbilityRecord> abilityRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+    if (abilityRecord == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "No matched token pass");
+        return false;
+    }
+    if (abilityRecord->GetApplicationInfo().apiTargetVersion % API_VERSION_MOD < API12) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "API version %{public}d pass",
+            abilityRecord->GetApplicationInfo().apiTargetVersion % API_VERSION_MOD);
+        return false;
+    }
+    auto abilityInfo = abilityRequest.abilityInfo;
+    auto callerAbilityInfo = abilityRecord->GetAbilityInfo();
+    bool isUIAbility = false;
+    bool continuousFlag = false;
+    continuousFlag = IsBackgroundTaskUid(IPCSkeleton::GetCallingUid());
+    if (callerAbilityInfo.type == AppExecFwk::AbilityType::PAGE) {
+        isUIAbility = true;
+    }
+    if (abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::DATASHARE &&
+        abilityInfo.extensionAbilityType != AppExecFwk::ExtensionAbilityType::SERVICE) {
+            TAG_LOGD(AAFwkTag::ABILITYMGR, "Process did not call service or datashare extension Pass");
+            return false;
+    }
+    if (!isUIAbility) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Is not UI Ability Pass");
+        return false;
+    }
+    if (abilityRecord->GetAbilityState() != AAFwk::AbilityState::BACKGROUND) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process is not on background Pass");
+        return false;
+    }
+    if (continuousFlag) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process has continuous task Pass");
+        return false;
+    }
+    if (IsInWhiteList(callerAbilityInfo.bundleName, abilityInfo.bundleName, abilityInfo.name)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Process is in white list Pass");
+        return false;
+    }
+    TAG_LOGE(AAFwkTag::ABILITYMGR, "Do not have permission to start ServiceExtension %{public}s.",
+        abilityRecord->GetURI().c_str());
+    return true;
+}
+
+bool AbilityManagerService::IsInWhiteList(const std::string &callerBundleName, const std::string &calleeBundleName,
+    const std::string &calleeAbilityName)
+{
+    std::map<std::string, std::list<std::string>>::iterator iter = whiteListMap_.find(callerBundleName);
+    std::string uri = calleeBundleName + "/" + calleeAbilityName;
+    if (iter != whiteListMap_.end()) {
+        if (std::find(std::begin(iter->second), std::end(iter->second), uri) != std::end(iter->second)) {
+            return true;
+        }
+    }
+    std::list<std::string>::iterator it = std::find(exportWhiteList_.begin(), exportWhiteList_.end(), uri);
+    if (it != exportWhiteList_.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool AbilityManagerService::ParseJsonFromBoot(nlohmann::json jsonObj, const std::string &relativePath,
+    const std::string &WHITE_LIST)
+{
+    std::string absolutePath = GetConfigFileAbsolutePath(relativePath);
+    if (ParseJsonValueFromFile(jsonObj, absolutePath) != ERR_OK) {
+        return false;
+    }
+    nlohmann::json whiteListJsonList = jsonObj[WHITE_LIST];
+    for (const auto& [key, value] : whiteListJsonList.items()) {
+        if (!value.is_array()) {
+            continue;
+        }
+        whiteListMap_.emplace(key, std::list<std::string>());
+        for (const auto& it : value) {
+            if (it.is_string()) {
+                whiteListMap_[key].push_back(it);
+            }
+        }
+    }
+    nlohmann::json exportWhiteJsonList = jsonObj["exposed_white_list"];
+    for (const auto& it : exportWhiteJsonList) {
+        if (it.is_string()) {
+            exportWhiteList_.push_back(it);
+        }
+    }
+    return true;
+}
+
+std::string AbilityManagerService::GetConfigFileAbsolutePath(const std::string &relativePath)
+{
+    if (relativePath.empty()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "relativePath is empty");
+        return "";
+    }
+    char buf[PATH_MAX];
+    char *tmpPath = GetOneCfgFile(relativePath.c_str(), buf, PATH_MAX);
+    char absolutePath[PATH_MAX] = {0};
+    if (!tmpPath || strlen(tmpPath) > PATH_MAX || !realpath(tmpPath, absolutePath)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "get file fail.");
+        return "";
+    }
+    return std::string(absolutePath);
+}
+
+int32_t AbilityManagerService::ParseJsonValueFromFile(nlohmann::json &value, const std::string &filePath)
+{
+    std::ifstream fin;
+    std::string realPath;
+    if (!ConvertFullPath(filePath, realPath)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get real path failed");
+        return ERR_INVALID_VALUE;
+    }
+    fin.open(realPath, std::ios::in);
+    if (!fin.is_open()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "cannot open file %{private}s", realPath.c_str());
+        return ERR_INVALID_VALUE;
+    }
+    char buffer[MAX_BUFFER];
+    std::ostringstream os;
+    while (fin.getline(buffer, MAX_BUFFER)) {
+        os << buffer;
+    }
+    const std::string data = os.str();
+    value = nlohmann::json::parse(data, nullptr, false);
+    if (value.is_discarded()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "failed due to data is discarded");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
+bool AbilityManagerService::ConvertFullPath(const std::string& partialPath, std::string& fullPath)
+{
+    if (partialPath.empty() || partialPath.length() >= PATH_MAX) {
+        return false;
+    }
+    char tmpPath[PATH_MAX] = {0};
+    if (realpath(partialPath.c_str(), tmpPath) == nullptr) {
+        return false;
+    }
+    fullPath = tmpPath;
+    return true;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1631,5 +1631,59 @@ HWTEST_F(AbilityManagerServiceSecondTest, CheckSenderWantInfo_001, TestSize.Leve
     EXPECT_TRUE(abilityMs_->CheckSenderWantInfo(callerUid, wantSenderInfo));
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CheckSenderWantInfo_001 end");
 }
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ParseJsonFromBoot
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ParseJsonFromBoot
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, ParseJsonFromBoot_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ParseJsonFromBoot_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    const std::string file = "/etc/efficiency_manager/prevent_startability_whitelist.json";
+    nlohmann::json whiteListJsonObj;
+    EXPECT_TRUE(abilityMs_->ParseJsonFromBoot(whiteListJsonObj, file, "white_list"));
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ParseJsonFromBoot_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: IsInWhiteList
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService IsInWhiteList
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, IsInWhiteList_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsInWhiteList_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    const std::string callerBundleName = "com.example.amstest";
+    const std::string calleeBundleName = "com.exmple.testserviceextensionability";
+    const std::string calleeAbilityName = "ServiceextensionAbility";
+    EXPECT_TRUE(abilityMs_->IsInWhiteList(callerBundleName, calleeBundleName, calleeAbilityName));
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsInWhiteList_001 end");
+}
+
+/*
+ * Feature: AbilityManagerService
+ * Function: ShouldPreventStartAbility
+ * SubFunction: NA
+ * FunctionPoints: AbilityManagerService ShouldPreventStartAbility
+ */
+HWTEST_F(AbilityManagerServiceSecondTest, ShouldPreventStartAbility_001, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ShouldPreventStartAbility_001 start");
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    const std::string deviceName = "";
+    const std::string abilityName = "EntryAbility";
+    const std::string appName = "amstest";
+    const std::string bundleName = "com.example.amstest";
+    const std::string moduleName = "entry";
+    AbilityRequest abilityRequest = AbilityManagerServiceSecondTest::GenerateAbilityRequest(deviceName,
+        abilityName, appName, bundleName, moduleName);
+    EXPECT_FALSE(abilityMs_->ShouldPreventStartAbility(abilityRequest));
+    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ShouldPreventStartAbility_001 end");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

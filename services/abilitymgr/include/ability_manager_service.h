@@ -2067,6 +2067,28 @@ private:
 
     std::shared_ptr<AbilityAutoStartupService> abilityAutoStartupService_;
 
+    std::map<std::string, std::list<std::string>> whiteListMap_;
+
+    std::list<std::string> exportWhiteList_;
+
+    bool ShouldPreventStartAbility(const AbilityRequest &abilityRequest);
+
+    bool IsInWhiteList(const std::string &callerBundleName, const std::string &calleeBundleName,
+        const std::string &calleeAbilityName);
+
+    bool isParamStartAbilityEnable_ = false;
+
+    std::string GetConfigFileAbsolutePath(const std::string &relativePath);
+
+    int32_t ParseJsonValueFromFile(nlohmann::json &value, const std::string& fullPath);
+
+    bool ConvertFullPath(const std::string& partialPath, std::string& fullPath);
+
+    bool GetJsonFromFile(const char *filePath, Json::Value &root);
+
+    bool ParseJsonFromBoot(nlohmann::json jsonObj, const std::string &relativePath,
+        const std::string &WHITE_LIST);
+
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE
     std::shared_ptr<BackgroundTaskObserver> bgtaskObserver_;
 #endif
