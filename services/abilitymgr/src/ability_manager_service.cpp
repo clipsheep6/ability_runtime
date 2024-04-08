@@ -9535,6 +9535,12 @@ int32_t AbilityManagerService::GetForegroundUIAbilities(std::vector<AppExecFwk::
         abilityData.pid = info.pid;
         abilityData.uid = info.uid;
         abilityData.abilityType = static_cast<int32_t>(AppExecFwk::AbilityType::PAGE);
+        AppExecFwk::ApplicationInfo appInfo;
+        if (!StartAbilityUtils::GetApplicationInfo(abilityData.bundleName, GetUserId(), appInfo)) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "can not get applicationInfo through bundleName");
+        } else if (appInfo.bundleType == AppExecFwk::BundleType::ATOMIC_SERVICE) {
+            abilityData.isAtomicService = true;
+        }
         list.push_back(abilityData);
     }
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get foreground ui abilities end, list.size = %{public}zu.", list.size());
