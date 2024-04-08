@@ -289,6 +289,16 @@ ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want)
     return abms->RequestModalUIExtension(want);
 }
 
+ErrCode AbilityManagerClient::RequestModalUIExtension(const Want &want, int32_t userId,
+    sptr<UIExtensionAbilityConnectInfo> connectInfo)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN_NOT_CONNECTED(abms);
+    HILOG_INFO("BundleName:%{public}s, AbilityName: %{public}s.",
+    want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str());
+    return abms->RequestModalUIExtension(want, userId, connectInfo);
+}
+
 ErrCode AbilityManagerClient::ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

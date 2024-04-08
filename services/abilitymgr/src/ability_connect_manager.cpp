@@ -520,6 +520,32 @@ int32_t AbilityConnectManager::GetOrCreateTargetServiceRecord(
     return ERR_OK;
 }
 
+int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest, const sptr<IRemoteObject> &callerToken,
+    sptr<UIExtensionAbilityConnectInfo> connectInfo)
+{
+    std::lock_guard guard(Lock_);
+    // 1. get target service ability record, and check whether it has been loaded.
+    std::shared_ptr<AbilityRecord> targetService;
+    bool isLoadedAbility = false;
+    // 2. get hostbundleName
+    // Gets the record corresponding to the current focus appliaction
+    auto record = Token::GetAbilityRecordByToken(token);
+    if (!record) {
+        HILOG_ERROR("Record is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    std::string hostBundleName = record->GetAbilityInfo().bundleName;
+    // 3. getOrCeateUIExtensionRecord
+    int32_t ret = GetOrCreateExtensionRecord(
+            abilityRequest, false, hostBundleName, targetService, isLoadedAbility);
+    if (ret != ERR_OK) {
+        HILOG_ERROR("Failed to get or create extension record.");
+        return ERR_NULL_OBJECT;
+    }
+    CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+    return ERR_OK;    
+}
+
 int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityRequest,
     const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
     sptr<UIExtensionAbilityConnectInfo> connectInfo)

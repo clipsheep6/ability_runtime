@@ -2242,6 +2242,69 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
 }
 
+int AbilityManagerService::PreloadUIExtensionAbility(const Want &want, int32_t userId,
+    sptr<UIExtensionAbilityConnectInfo> connectInfo)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_CALLER_IS_SYSTEM_APP;
+    HILOG_DEBUG("Preload ui extension called, bundlename: %{public}s, ability is %{public}s, userId is %{pravite}d",
+        want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
+    //Check the validity of the userId.    
+    int32_t validUserId = GetValidUserId(userId);
+    //get caller token.
+    sptr<IRemoteObject> callertoken = nullptr;
+    int ret = IN_PROCESS_CALL(GetTopAbility(callertoken));
+    if (ret != ERR_OK || callertoken == nullptr) {
+        HILOG_ERROR("CallerToken is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return PreloadUIExtensionAbilityInner(want, validUserId, callerToken, connectInfo);
+}
+
+//*********不知道这个场景下是否需要isQueryExtensionOnly入参
+int AbilityManagerService::PreloadUIExtensionAbilityInner(const Want &want, int32_t userId,
+    const sptr<IRemoteObject> &callerToken, sptr<UIExtensionAbilityConnectInfo> connectInfo)
+{
+    HILOG_DEBUG("called");
+    AbilityRequest abilityRequest;
+    ErrCode result = ERR_OK;
+    result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, userId);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request error.");
+        return result;
+    }
+    auto abilityInfo = abilityRequest.abilityInfo;
+    int32_t validUserId = abilityInfo.applicationInfo.singleton ? U0_USER_ID : userId;
+    HILOG_DEBUG("validUserId : %{public}d, singleton is : %{public}d",
+        validUserId, static_cast<int>(abilityInfo.applicationInfo.singleton));
+
+    AppExecFwk::ExtensionAbilityType targetExtensionType = abilityInfo.extensionAbilityType;
+    HILOG_DEBUG("extension type %{public}d.", targetExtensionType);
+    // ************************
+    if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
+        if (!AAFwk::UIExtensionUtils::IsUIExtension(targetExtensionType)
+            && targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW) {
+            HILOG_ERROR("Try to connect UI extension, but target ability is not UI extension.");
+            return ERR_WRONG_INTERFACE_CALL;
+        }
+
+        // Cause window has used this api, don't check it when type is window.
+        if (targetExtensionType != AppExecFwk::ExtensionAbilityType::WINDOW &&
+            !PermissionVerification::GetInstance()->VerifyCallingPermission(
+                PermissionConstants::PERMISSION_CONNECT_UI_EXTENSION_ABILITY)) {
+            HILOG_ERROR("Permission %{public}s verification failed.",
+                PermissionConstants::PERMISSION_CONNECT_UI_EXTENSION_ABILITY);
+            return ERR_PERMISSION_DENIED;
+        }
+    }
+    connectManager = GetConnectManagerByUserId(userId);
+    if (connectManager == nullptr) {
+        HILOG_ERROR("connectManager is nullptr, userId: %{public}d", userId);
+        return ERR_INVALID_VALUE
+    }
+    return connectManager->PreloadUIExtensionAbilityLocked(abilityRequest, callerToken, connectInfo);
+}
+
 int AbilityManagerService::RequestModalUIExtension(const Want &want)
 {
     CHECK_CALLER_IS_SYSTEM_APP;

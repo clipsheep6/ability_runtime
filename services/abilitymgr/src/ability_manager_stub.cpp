@@ -331,6 +331,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::RequestModalUIExtensionInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::GET_UI_EXTENSION_ROOT_HOST_INFO)] =
         &AbilityManagerStub::GetUIExtensionRootHostInfoInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::PRELOAD_UIEXTENSION_ABILITY)] =
+        &AbilityManagerStub::PreloadUIExtensionAbilityInner;
 #ifdef SUPPORT_GRAPHICS
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SET_MISSION_LABEL)] =
         &AbilityManagerStub::SetMissionLabelInner;
@@ -860,6 +862,26 @@ int AbilityManagerStub::RequestModalUIExtensionInner(MessageParcel &data, Messag
     int32_t result = RequestModalUIExtension(*want);
     reply.WriteInt32(result);
     want->CloseAllFd();
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::PreloadUIExtensionAbilityInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        HILOG_ERROR("%{public}s, want is nullptr", __func__);
+        return ERR_INVALID_VALUE;
+    }
+    int32_t userId = data.ReadInt32();
+    sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr;
+    if (data.ReadBool()) {
+        connectInfo = data.ReadParcelable<UIExtensionAbilityConnectInfo>();
+    }
+    int32_t result = PreloadUIExtensionAbility(*want, userId, connectInfo);
+    if (connectInfo != nullptr && !reply.WriteParcelable(connectInfo)) {
+        HILOG_ERROR("connectInfo write failed.");
+    }
+    reply.WriteInt32(result);
     return NO_ERROR;
 }
 

@@ -101,6 +101,15 @@ public:
         sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
     /**
+     * PreloadUIExtensionAbility, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param callerToken, caller ability token.
+     * @param connectInfo the connect info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityLocked(abilityRequest, callerToken, connectInfo);
+    /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
