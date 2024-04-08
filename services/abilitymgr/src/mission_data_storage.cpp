@@ -302,7 +302,6 @@ bool MissionDataStorage::DeleteCachedSnapshot(int32_t missionId)
 void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId, bool isLowResolution)
 {
     std::string filePath = GetMissionSnapshotPath(missionId, isLowResolution);
-    std::string dirPath = OHOS::ExtractFilePath(filePath);
     if (!OHOS::FileExists(filePath)) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "snapshot: remove snapshot file %{public}s failed, file not exists",
             filePath.c_str());
