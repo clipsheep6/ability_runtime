@@ -411,9 +411,9 @@ void AbilityManagerService::InitInterceptor()
     interceptorExecuter_->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     interceptorExecuter_->AddInterceptor(std::make_shared<ControlInterceptor>());
     afterCheckExecuter_ = std::make_shared<AbilityInterceptorExecuter>();
+    afterCheckExecuter_->AddInterceptor(std::make_shared<StartOtherAppInterceptor>());
     afterCheckExecuter_->AddInterceptor(std::make_shared<DisposedRuleInterceptor>());
     afterCheckExecuter_->AddInterceptor(std::make_shared<EcologicalRuleInterceptor>());
-    afterCheckExecuter_->AddInterceptor(std::make_shared<StartOtherAppInterceptor>());
     afterCheckExecuter_->SetTaskHandler(taskHandler_);
     bool isAppJumpEnabled = OHOS::system::GetBoolParameter(
         OHOS::AppExecFwk::PARAMETER_APP_JUMP_INTERCEPTOR_ENABLE, false);
