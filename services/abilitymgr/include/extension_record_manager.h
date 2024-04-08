@@ -72,7 +72,7 @@ public:
 
     int32_t CreateExtensionRecord(
         const std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, const std::string &hostBundleName,
-        std::shared_ptr<ExtensionRecord> &extensionRecord, int32_t &extensionRecordId);
+        std::shared_ptr<ExtensionRecord> &extensionRecord, int32_t &extensionRecordId = INVALID_EXTENSION_RECORD_ID);
 
     int32_t GetOrCreateExtensionRecord(const AAFwk::AbilityRequest &abilityRequest, const std::string &hostBundleName,
         std::shared_ptr<AAFwk::AbilityRecord> &abilityRecord, bool &isLoaded);

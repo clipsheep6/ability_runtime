@@ -202,6 +202,13 @@ enum CollaboratorType {
     OTHERS_TYPE
 };
 
+struct PreLoadUIExtensionInfo {
+    std::string abilityName;
+    std::string bundleName;
+    std::string moduleName;
+    std::string callerBundleName;
+}
+
 struct AbilityRequest {
     Want want;
     AppExecFwk::AbilityInfo abilityInfo;

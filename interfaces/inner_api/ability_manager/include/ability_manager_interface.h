@@ -332,6 +332,20 @@ public:
         return 0;
     }
 
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param userId, the extension runs in.
+     * @param connectInfo the connect info.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int PreloadUIExtensionAbility(const Want &want,
+        int32_t userId = DEFAULT_INVAL_VALUE)
+    {
+        return 0;
+    }
+
     virtual int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow)
     {
         return 0;
