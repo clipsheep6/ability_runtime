@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #include <gtest/gtest.h>
-// #include "refbase.h"
 #include "assert_fault_callback_death_mgr.h"
 
 using namespace testing;

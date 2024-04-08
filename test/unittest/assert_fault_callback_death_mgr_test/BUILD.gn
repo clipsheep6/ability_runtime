@@ -38,9 +38,6 @@ ohos_unittest("assert_fault_callback_death_mgr_test") {
 
   configs = [
     "${ability_runtime_innerkits_path}/ability_manager:ability_manager_public_config"
-    # "${ability_runtime_services_path}/abilitymgr:abilityms_config",
-    # "${battery_utils}:utils_config",
-    # "${ability_runtime_test_path}/mock/services_abilitymgr_test:aafwk_mock_config",
   ]
   cflags = []
   if (target_cpu == "arm") {
@@ -70,10 +67,8 @@ ohos_unittest("assert_fault_callback_death_mgr_test") {
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",
-    "c_utils:utils_rust",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
-    # "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "init:libbeget_proxy",

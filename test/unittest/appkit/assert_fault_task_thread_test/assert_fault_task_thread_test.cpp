@@ -39,11 +39,11 @@ using namespace testing;
 using namespace testing::ext;
 using namespace std;
 
-namespace OHOS{
-namespace AbilityRuntime{
+namespace OHOS {
+namespace AbilityRuntime {
  
 
-class AssertFaultTaskThreadTest : public testing::Test{
+class AssertFaultTaskThreadTest : public testing::Test {
 public:
     static void SetUpTestCase();
     static void TearDownTestCase();
@@ -60,8 +60,7 @@ void AssertFaultTaskThreadTest::TearDownTestCase()
 
 void AssertFaultTaskThreadTest::SetUp()
 {
-    assertFaultTaskThread_ = 
-        DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
+    assertFaultTaskThread_ = DelayedSingleton<AbilityRuntime::AssertFaultTaskThread>::GetInstance();
 }
 
 void AssertFaultTaskThreadTest::TearDown()
@@ -135,8 +134,9 @@ HWTEST_F(AssertFaultTaskThreadTest, RequestAssertResult_0100, TestSize.Level1)
     std::string textLine = std::string("\nLine: ") + std::to_string(assertFail.line);
     std::string textExpression = std::string("\n\nExpression:\n") +
         (assertFail.expression == nullptr ? "Unknown" : std::string(assertFail.expression));
-    std::string textDetail = textFile + textFunc + textLine + textExpression + "\n\n(Press Retry to debug the application)";
-    
+    std::string textDetail =
+        textFile + textFunc + textLine + textExpression + "\n\n(Press Retry to debug the application)";
+
     auto result = assertFaultTaskThread_->RequestAssertResult(textDetail);
     EXPECT_EQ(result, ERR_OK);
     HILOG_INFO("%{public}s end.", __func__);
