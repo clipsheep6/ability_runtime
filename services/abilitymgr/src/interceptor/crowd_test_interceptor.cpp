@@ -53,12 +53,10 @@ bool CrowdTestInterceptor::CheckCrowdtest(const Want &want, int32_t userId)
         return false;
     }
 
-    auto appDistributionType = appInfo.appDistributionType;
     auto appCrowdtestDeadline = appInfo.crowdtestDeadline;
     int64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::
         system_clock::now().time_since_epoch()).count();
-    if (appDistributionType == AppExecFwk::Constants::APP_DISTRIBUTION_TYPE_CROWDTESTING &&
-        appCrowdtestDeadline < now) {
+    if (appCrowdtestDeadline > 0 && appCrowdtestDeadline < now) {
         HILOG_INFO("The application is expired, expired time is %{public}s",
             std::to_string(appCrowdtestDeadline).c_str());
         return true;
