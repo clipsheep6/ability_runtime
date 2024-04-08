@@ -19,8 +19,8 @@ ohos_unittest("main_thread_test") {
   module_out_path = "ability_runtime/appkit"
 
   include_dirs = [
-    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/interfaces/kits/native/appkit/dfr",
+    "${ability_runtime_path}/interfaces/kits/native/appkit/app",
     "${ability_runtime_path}/utils/global/time/include",
     "${ability_runtime_test_path}/mock/services_appmgr_test/include",
   ]
