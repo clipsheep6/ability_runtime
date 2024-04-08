@@ -178,6 +178,7 @@ constexpr static char WANT_PARAMS_VIEW_DATA_KEY[] = "ohos.ability.params.viewDat
 constexpr int32_t FOUNDATION_UID = 5523;
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string FOUNDATION_PROCESS_NAME = "foundation";
+const std::string IS_PRELOAD_UIEXTENSION_ABILITY = "is_preload_uiextension_ability";
 
 constexpr char ASSERT_FAULT_DETAIL[] = "assertFaultDialogDetail";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
@@ -2208,6 +2209,52 @@ int AbilityManagerService::StartExtensionAbility(const Want &want, const sptr<IR
         return StartExtensionAbilityInner(want, callerToken, userId, extensionType, false);
     }
     return StartExtensionAbilityInner(want, callerToken, userId, extensionType, true);
+}
+
+int AbilityManagerService::PreloadUIExtensionAbility(const Want &want, int32_t userId)
+{   
+    HILOG_DEBUG("called");
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    CHECK_CALLER_IS_SYSTEM_APP;
+    // check preload ui extension permission.
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+            PermissionConstants::PERMISSION_PRELOAD_UI_EXTENSION_ABILITY)) {
+        HILOG_ERROR("Permission %{public}s verification failed.",
+            PermissionConstants::PERMISSION_PRELOAD_UI_EXTENSION_ABILITY);
+        return ERR_PERMISSION_DENIED;
+    }
+    return PreloadUIExtensionAbilityInner(want, validUserId);
+}
+
+int AbilityManagerService::PreloadUIExtensionAbilityInner(const Want &want, int32_t userId,
+    const sptr<IRemoteObject> &callerToken)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Preload ui extension called, bundlename: %{public}s, ability is %{public}s, userId
+        is %{pravite}d", want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(),
+        userId);
+    //Check the validity of the userId.    
+    int32_t validUserId = GetValidUserId(userId);
+    //get caller token.
+    sptr<IRemoteObject> callertoken = nullptr;
+    int ret = IN_PROCESS_CALL(GetTopAbility(callertoken));
+    if (ret != ERR_OK || callertoken == nullptr) {
+        HILOG_ERROR("CallerToken is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    AbilityRequest abilityRequest;
+    ErrCode result = ERR_OK;
+    result = GenerateExtensionAbilityRequest(want, abilityRequest, callerToken, userId);
+    abilityRequest.want.SetParam(IS_PRELOAD_UIEXTENSION_ABILITY, true);
+    if (result != ERR_OK) {
+        HILOG_ERROR("Generate ability request error.");
+        return result;
+    }
+    connectManager = GetConnectManagerByUserId(userId);
+    if (connectManager == nullptr) {
+        HILOG_ERROR("connectManager is nullptr, userId: %{public}d", userId);
+        return ERR_INVALID_VALUE
+    }
+    return connectManager->PreloadUIExtensionAbilityLocked(abilityRequest, callerToken);
 }
 
 int AbilityManagerService::RequestModalUIExtension(const Want &want)
@@ -4411,6 +4458,13 @@ int AbilityManagerService::AttachAbilityThread(
     }
     auto abilityRecord = Token::GetAbilityRecordByToken(token);
     CHECK_POINTER_AND_RETURN(abilityRecord, ERR_INVALID_VALUE);
+
+    bool isPreLoadUIExtension = abilityRecord.GetWant().GetParams().GetBooleanParam(IS_PRELOAD_UIEXTENSION_ABILITY);
+    if (isPreLoadUIExtension) {
+        HILOG_WARN("preload uiextension.");
+        return ERR_OK;
+    }
+
     if (!JudgeSelfCalled(abilityRecord)) {
         return CHECK_PERMISSION_FAILED;
     }
