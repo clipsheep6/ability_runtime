@@ -10010,5 +10010,21 @@ bool AbilityManagerService::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToke
     auto erms = std::make_shared<EcologicalRuleInterceptor>();
     return erms->DoProcess(want, GetUserId());
 }
+
+int32_t AbilityManagerService::StartShortcut(const Want &want, const StartOptions &startOptions)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!PermissionVerification::GetInstance()->IsSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission %{public}s verification failed.",
+            PermissionConstants::PERMISSION_START_SHORTCUT);
+        return ERR_PERMISSION_DENIED;
+    }
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_START_SHORTCUT)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "non-system app calling system api.");
+        return ERR_WRONG_INTERFACE_CALL;
+    }
+    return StartAbility(want, startOptions, nullptr);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

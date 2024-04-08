@@ -1798,5 +1798,16 @@ bool AbilityManagerClient::IsEmbeddedOpenAllowed(sptr<IRemoteObject> callerToken
     }
     return abms->IsEmbeddedOpenAllowed(callerToken, appId);
 }
+
+int32_t AbilityManagerClient::StartShortcut(const Want &want, const StartOptions &startOptions)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "start short cut.");
+    auto abms = GetAbilityManager();
+    if (abms == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "abms is nullptr.");
+        return false;
+    }
+    return abms->StartShortcut(want, startOptions);
+}
 } // namespace AAFwk
 } // namespace OHOS

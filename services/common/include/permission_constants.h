@@ -45,6 +45,7 @@ constexpr const char* PERMISSION_MANAGE_APP_BOOT_INTERNAL = "ohos.permission.MAN
 constexpr const char* PERMISSION_CONNECT_UI_EXTENSION_ABILITY = "ohos.permission.CONNECT_UI_EXTENSION_ABILITY";
 constexpr const char* PERMISSION_START_RECENT_ABILITY = "ohos.permission.START_RECENT_ABILITY";
 constexpr const char* PERMISSION_NOTIFY_DEBUG_ASSERT_RESULT = "ohos.permission.NOTIFY_DEBUG_ASSERT_RESULT";
+constexpr const char* PERMISSION_START_SHORTCUT = "ohos.permission.START_SHORTCUT";
 } // namespace PermissionConstants
 } // namespace AAFwk
 } // namespace OHOS

@@ -238,6 +238,9 @@ enum class AbilityManagerInterfaceCode {
     // Querying whether to allow embedded startup of atomic service.
     IS_EMBEDDED_OPEN_ALLOWED = 78,
 
+    // Starts a new ability by shortcut.
+    START_SHORTCUT = 79,
+
     // ipc id 1001-2000 for DMS
     // ipc id for starting ability (1001)
     START_ABILITY = 1001,
