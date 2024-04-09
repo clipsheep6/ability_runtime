@@ -54,7 +54,8 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
     AppExecFwk::ExtensionAbilityType::SYSPICKER_CAMERA,
     AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
-    AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN
+    AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_FILEDOWNLOAD
 };
 const int EDM_SA_UID = 3057;
 
