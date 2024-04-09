@@ -520,6 +520,38 @@ int32_t AbilityConnectManager::GetOrCreateTargetServiceRecord(
     return ERR_OK;
 }
 
+int AbilityConnectManager::PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest, const sptr<IRemoteObject> &callerToken)
+{
+    // 1. get target service ability record, and check whether it has been loaded.
+    std::shared_ptr<AbilityRecord> targetService = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    bool isLoadedAbility = false;
+    // 2. get hostbundleName
+    // Gets the record corresponding to the current focus appliaction
+    auto record = Token::GetAbilityRecordByToken(callerToken);
+    if (!record) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Record is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    std::string hostBundleName = record->GetAbilityInfo().bundleName;
+    std::shared_ptr<ExtensionRecord> extensionRecord = nullptr;
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_NULL_OBJECT);
+    int32_t extensionRecordId = INVALID_EXTENSION_RECORD_ID;
+    int32_t ret = uiExtensionAbilityRecordMgr_->CreateExtensionRecord(targetService, hostBundleName,
+        extensionRecord, extensionRecordId);
+    if (ret != ERR_OK) {
+        return ret;
+    }
+    CHECK_POINTER_AND_RETURN(targetService, ERR_INVALID_VALUE);
+    //*****LoadAbility复用直接拉起进程对不对，app状态在哪里修改*****
+    LoadAbility(targetService);
+    //*****将创建好的extensionRecord放到map
+    auto preLoadUIExtensionInfo = std::make_tuple(abilityRequest.want.GetElement().GetAbilityName(),
+        abilityRequest.want.GetElement().GetBundleName(), abilityRequest.want.GetElement().GetModuleName(),
+        hostBundleName);
+    uiExtensionAbilityRecordMgr_->AddPreloadUIExtensionRecord(preLoadUIExtensionInfo, extensionRecord);
+    return ERR_OK;    
+}
+
 int AbilityConnectManager::ConnectAbilityLocked(const AbilityRequest &abilityRequest,
     const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo,
     sptr<UIExtensionAbilityConnectInfo> connectInfo)
