@@ -236,7 +236,7 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
-            HILOG_ERROR("SetAccessTokenInfo %{public}llu failed, ret: %{public}d",
+            HILOG_ERROR("SetAccessTokenInfo %{public}" PRIu64 " failed, ret: %{public}d",
                 startMsg.accessTokenIdEx, ret);
             break;
         }
