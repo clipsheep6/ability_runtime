@@ -118,7 +118,7 @@ int32_t AbilityEcologicalRuleMgrServiceClient::EvaluateResolveInfos(const AAFwk:
     }
     int32_t res = ecologicalRuleMgrServiceProxy_->EvaluateResolveInfos(want, callerInfo, type, abilityInfos);
     int64_t cost = GetCurrentTimeMicro() - start;
-    HILOG_DEBUG("[ERMS-DFX] EvaluateResolveInfos interface cost %{public}" PRId64" mirco seconds.", cost);
+    HILOG_DEBUG("[ERMS-DFX] EvaluateResolveInfos interface cost %{public}" PRId64 " mirco seconds.", cost);
     return res;
 }
 
