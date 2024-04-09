@@ -20,6 +20,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include <tuple>
 
 #include "ability_record.h"
 #include "extension_record.h"
@@ -30,7 +31,9 @@ namespace AbilityRuntime {
 class ExtensionRecordManager : public std::enable_shared_from_this<ExtensionRecordManager> {
 public:
     using ExtensionAbilityRecordMap = std::map<int32_t, std::shared_ptr<ExtensionRecord>>;
-
+    using PreLoadUIExtensionMapKey= std::tuple<std::string, std::string, std::string, std::string>;
+    using PreLoadUIExtensionMapType =
+        std::map<PreLoadUIExtensionMapKey, std::shared_ptr<ExtensionRecord>>;
     explicit ExtensionRecordManager(const int32_t userId);
     virtual ~ExtensionRecordManager();
 
@@ -81,6 +84,9 @@ public:
 
     std::shared_ptr<AAFwk::AbilityRecord> GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token);
 
+    void AddPreloadUIExtensionRecord(PreLoadUIExtensionMapKey preLoadUIExtensionInfo,
+        std::shared_ptr<ExtensionRecord> extensionRecord);
+
     void LoadTimeout(int32_t extensionRecordId);
     void ForegroundTimeout(int32_t extensionRecordId);
     void BackgroundTimeout(int32_t extensionRecordId);
@@ -95,6 +101,8 @@ private:
     std::set<int32_t> extensionRecordIdSet_;
     ExtensionAbilityRecordMap extensionRecords_;
     ExtensionAbilityRecordMap terminateRecords_;
+    std::mutex preloadUIExtensionMapMutex_;
+    PreLoadUIExtensionMapType preloadUIExtensionMap_;
 
     sptr<IRemoteObject> GetRootCallerTokenLocked(int32_t extensionRecordId);
 

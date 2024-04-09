@@ -258,6 +258,16 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    /**
+     * Preload UIExtension with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param userId, the extension runs in.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbility(const Want &want,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
 
     int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
