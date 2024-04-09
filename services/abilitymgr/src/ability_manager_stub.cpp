@@ -947,7 +947,6 @@ int AbilityManagerStub::StartAbilityAddCallerInner(MessageParcel &data, MessageP
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 

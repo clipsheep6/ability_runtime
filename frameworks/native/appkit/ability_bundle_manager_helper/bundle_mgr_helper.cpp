@@ -742,9 +742,8 @@ ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, W
         return ERR_APPEXECFWK_SERVICE_INTERNAL_ERROR;
     }
 
-    AAFwk::Want newWant = want;
-    newWant.RemoveAllFd();
-    return bundleMgr->GetLaunchWantForBundle(bundleName, newWant, userId);
+    want.RemoveAllFd();
+    return bundleMgr->GetLaunchWantForBundle(bundleName, want, userId);
 }
 
 }  // namespace AppExecFwk
