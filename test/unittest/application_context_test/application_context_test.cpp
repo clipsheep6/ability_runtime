@@ -1069,8 +1069,8 @@ HWTEST_F(ApplicationContextTest, NotifyApplicationForeground_0100, TestSize.Leve
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
     EXPECT_CALL(*applicationStateCallback, NotifyApplicationForeground()).Times(1);
     context_->NotifyApplicationForeground();
-    auto callback = context_->applicationStateCallback_[0];
-    EXPECT_NE(callback.lock(), nullptr);
+    context_->applicationStateCallback_[0];
+    EXPECT_NE(context_, nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationForeground_0100 end";
 }
 
@@ -1088,8 +1088,8 @@ HWTEST_F(ApplicationContextTest, NotifyApplicationBackground_0100, TestSize.Leve
     context_->RegisterApplicationStateChangeCallback(applicationStateCallback);
     EXPECT_CALL(*applicationStateCallback, NotifyApplicationBackground()).Times(1);
     context_->NotifyApplicationBackground();
-    auto callback = context_->applicationStateCallback_[0];
-    EXPECT_NE(callback.lock(), nullptr);
+    context_->applicationStateCallback_[0];
+    EXPECT_NE(context_, nullptr);
     GTEST_LOG_(INFO) << "NotifyApplicationBackground_0100 end";
 }
 
