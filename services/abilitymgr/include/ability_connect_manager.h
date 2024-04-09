@@ -43,7 +43,6 @@ namespace AAFwk {
 using OHOS::AppExecFwk::AbilityType;
 using UIExtensionAbilityConnectInfo = AbilityRuntime::UIExtensionAbilityConnectInfo;
 using UIExtensionAbilityConnectManager = AbilityRuntime::ExtensionRecordManager;
-
 /**
  * @class AbilityConnectManager
  * AbilityConnectManager provides a facility for managing service ability connection.
@@ -100,6 +99,15 @@ public:
         const sptr<IRemoteObject> &callerToken, sptr<SessionInfo> sessionInfo = nullptr,
         sptr<UIExtensionAbilityConnectInfo> connectInfo = nullptr);
 
+    /**
+     * PreloadUIExtensionAbility, preload uiextension ability.
+     *
+     * @param abilityRequest, Special want for service type's ability.
+     * @param callerToken, caller ability token.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int PreloadUIExtensionAbilityLocked(const AbilityRequest &abilityRequest,
+        const sptr<IRemoteObject> &callerToken);
     /**
      * DisconnectAbilityLocked, disconnect session with callback.
      *

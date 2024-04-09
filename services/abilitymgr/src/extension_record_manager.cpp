@@ -230,9 +230,34 @@ int32_t ExtensionRecordManager::UpdateProcessName(const AAFwk::AbilityRequest &a
     return ERR_OK;
 }
 
+void ExtensionRecordManager::AddPreloadUIExtensionRecord(PreLoadUIExtensionMapKey preLoadUIExtensionInfo,
+    std::shared_ptr<ExtensionRecord> extensionRecord)
+{
+    std::lock_guard<std::mutex> lock(preloadUIExtensionMapMutex_);
+    preloadUIExtensionMap_.emplace(preLoadUIExtensionInfo, extensionRecord);
+}
+
 int32_t ExtensionRecordManager::GetOrCreateExtensionRecordInner(const AAFwk::AbilityRequest &abilityRequest,
     const std::string &hostBundleName, std::shared_ptr<ExtensionRecord> &extensionRecord, bool &isLoaded)
 {
+    // *******判断是否预加载过
+    std::string abilityName = abilityRequest.want.GetElement().GetAbilityName();
+    std::string bundleName = abilityRequest.want.GetElement().GetBundleName();
+    std::string moduleName = abilityRequest.want.GetElement().GetModuleName();
+    auto extensionRecordMapKey = std::make_tuple(abilityName, bundleName, moduleName, hostBundleName);
+    if (preloadUIExtensionMap_.find(extensionRecordMapKey)
+        != preloadUIExtensionMap_.end()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "UIExtensionAbility has been preloaded.");
+        auto key = std::make_tuple(abilityRequest.want.GetElement().GetAbilityName(),
+        abilityRequest.want.GetElement().GetBundleName(), abilityRequest.want.GetElement().GetModuleName(),
+        hostBundleName);
+        extensionRecord = preloadUIExtensionMap_[key];
+        extensionRecord->Update(abilityRequest);
+        isLoaded = true;
+        return ERR_OK;
+    }
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "UIExtension is not preloaded.");
+    //*****************
     std::shared_ptr<ExtensionRecordFactory> factory = nullptr;
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityRequest.abilityInfo.extensionAbilityType)) {
         factory = DelayedSingleton<UIExtensionRecordFactory>::GetInstance();
