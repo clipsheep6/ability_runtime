@@ -422,6 +422,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::ChangeAbilityVisibilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
+        &AbilityManagerStub::NotifyMemonySizeStateChangedInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3275,6 +3277,16 @@ int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, Mess
         return ERR_INVALID_VALUE;
     }
 
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::NotifyMemonySizeStateChangedInner(MessageParcel &data, MessageParcel &reply)
+{
+    bool isMemorySizeSufficent = data.ReadBool();
+    int result = NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 } // namespace AAFwk

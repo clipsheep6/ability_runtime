@@ -17,6 +17,7 @@
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "event_report.h"
+#include "exit_resident_process_info.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "ui_extension_utils.h"
@@ -1097,13 +1098,15 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     moduleRecord->AbilityTerminated(token);
 
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
-        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType()))) {
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
+        || !AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent())) {
         RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && (!IsKeepAliveApp()
-        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())) && !isExtensionDebug) {
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
+        || !AAFwk::ExitResidentProcessInfo::GetInstance().IsMemorySizeSufficent()) && !isExtensionDebug) {
         ScheduleTerminate();
     }
 }

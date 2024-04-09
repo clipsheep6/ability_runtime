@@ -1506,6 +1506,16 @@ public:
     {
         return -1;
     }
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+    {
+        return -1;
+    }
 };
 }  // namespace AAFwk
 }  // namespace OHOS
