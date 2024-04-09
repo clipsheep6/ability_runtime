@@ -1761,6 +1761,9 @@ private:
     bool JudgeSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
     bool IsAppSelfCalled(const std::shared_ptr<AbilityRecord> &abilityRecord);
 
+    void SetConnectManager(std::shared_ptr<AbilityConnectManager> connectManager);
+    std::shared_ptr<AbilityConnectManager> GetConnectManager() const;
+
     int32_t GetValidUserId(const int32_t userId);
 
     int DelegatorMoveMissionToFront(int32_t missionId);
@@ -2009,6 +2012,7 @@ private:
     std::shared_ptr<AbilityEventHandler> eventHandler_;
     ServiceRunningState state_;
     std::unordered_map<int, std::shared_ptr<AbilityConnectManager>> connectManagers_;
+    mutable std::mutex connectManagerMutex_;
     std::shared_ptr<AbilityConnectManager> connectManager_;
     sptr<AppExecFwk::IBundleMgr> iBundleManager_;
     std::shared_ptr<AppExecFwk::BundleMgrHelper> bundleMgrHelper_;

@@ -1318,8 +1318,9 @@ int AbilityManagerService::StartAbilityForResultAsCaller(
 
     AbilityUtil::RemoveShowModeKey(const_cast<Want &>(want));
     AAFwk::Want newWant = want;
-    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
-    auto asCallerSourceToken = connectManager_->GetUIExtensionSourceToken(callerToken);
+    auto connectManager = GetConnectManager();
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
+    auto asCallerSourceToken = connectManager->GetUIExtensionSourceToken(callerToken);
     if (asCallerSourceToken != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info.");
         UpdateAsCallerSourceInfo(newWant, asCallerSourceToken);
@@ -1335,8 +1336,9 @@ int AbilityManagerService::StartAbilityForResultAsCaller(const Want &want, const
     CHECK_CALLER_IS_SYSTEM_APP;
 
     AAFwk::Want newWant = want;
-    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
-    auto asCallerSourceToken = connectManager_->GetUIExtensionSourceToken(callerToken);
+    auto connectManager = GetConnectManager();
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
+    auto asCallerSourceToken = connectManager->GetUIExtensionSourceToken(callerToken);
     if (asCallerSourceToken != nullptr) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Update as caller source info.");
         UpdateAsCallerSourceInfo(newWant, asCallerSourceToken);
@@ -3595,12 +3597,13 @@ int AbilityManagerService::ConnectRemoteAbility(Want &want, const sptr<IRemoteOb
 int AbilityManagerService::DisconnectLocalAbility(const sptr<IAbilityConnection> &connect)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called.");
-    CHECK_POINTER_AND_RETURN(connectManager_, ERR_NO_INIT);
-    if (connectManager_->DisconnectAbilityLocked(connect) == ERR_OK) {
+    auto connectManager = GetConnectManager();
+    CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
+    if (connectManager->DisconnectAbilityLocked(connect) == ERR_OK) {
         return ERR_OK;
     }
     // If current connectManager_ does not exist connect, then try connectManagerU0
-    auto connectManager = GetConnectManagerByUserId(U0_USER_ID);
+    connectManager = GetConnectManagerByUserId(U0_USER_ID);
     CHECK_POINTER_AND_RETURN(connectManager, ERR_NO_INIT);
     if (connectManager->DisconnectAbilityLocked(connect) == ERR_OK) {
         return ERR_OK;
@@ -4353,22 +4356,24 @@ bool AbilityManagerService::IsAbilityControllerStartById(int32_t missionId)
 
 std::shared_ptr<AbilityRecord> AbilityManagerService::GetServiceRecordByElementName(const std::string &element)
 {
-    if (!connectManager_) {
+    auto connectManager = GetConnectManager();
+    if (!connectManager) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect manager is nullptr.");
         return nullptr;
     }
-    return connectManager_->GetServiceRecordByElementName(element);
+    return connectManager->GetServiceRecordByElementName(element);
 }
 
 std::list<std::shared_ptr<ConnectionRecord>> AbilityManagerService::GetConnectRecordListByCallback(
     sptr<IAbilityConnection> callback)
 {
-    if (!connectManager_) {
+    auto connectManager = GetConnectManager();
+    if (!connectManager) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Connect manager is nullptr.");
         std::list<std::shared_ptr<ConnectionRecord>> connectList;
         return connectList;
     }
-    return connectManager_->GetConnectRecordListByCallback(callback);
+    return connectManager->GetConnectRecordListByCallback(callback);
 }
 
 sptr<IAbilityScheduler> AbilityManagerService::AcquireDataAbility(
@@ -4709,7 +4714,7 @@ void AbilityManagerService::DumpSysStateInner(
         }
         targetManager = it->second;
     } else {
-        targetManager = connectManager_;
+        targetManager = GetConnectManager();
     }
 
     CHECK_POINTER(targetManager);
@@ -4908,16 +4913,17 @@ void AbilityManagerService::DumpMissionInner(const std::string &args, std::vecto
 
 void AbilityManagerService::DumpStateInner(const std::string &args, std::vector<std::string> &info)
 {
-    CHECK_POINTER_LOG(connectManager_, "Current mission manager not init.");
+    auto connectManager = GetConnectManager();
+    CHECK_POINTER_LOG(connectManager, "Current mission manager not init.");
     std::vector<std::string> argList;
     SplitStr(args, " ", argList);
     if (argList.empty()) {
         return;
     }
     if (argList.size() == MIN_DUMP_ARGUMENT_NUM) {
-        connectManager_->DumpState(info, false, argList[1]);
+        connectManager->DumpState(info, false, argList[1]);
     } else if (argList.size() < MIN_DUMP_ARGUMENT_NUM) {
-        connectManager_->DumpState(info, false);
+        connectManager->DumpState(info, false);
     } else {
         info.emplace_back("error: invalid argument, please see 'ability dump -h'.");
     }
@@ -5241,11 +5247,12 @@ void AbilityManagerService::OnAbilityRequestDone(const sptr<IRemoteObject> &toke
 void AbilityManagerService::OnAppStateChanged(const AppInfo &info)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "called");
-    CHECK_POINTER_LOG(connectManager_, "Connect manager not init.");
+    auto connectManager = GetConnectManager();
+    CHECK_POINTER_LOG(connectManager, "Connect manager not init.");
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         CHECK_POINTER_LOG(currentMissionListManager_, "Current mission list manager not init.");
     }
-    connectManager_->OnAppStateChanged(info);
+    connectManager->OnAppStateChanged(info);
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         uiAbilityLifecycleManager_->OnAppStateChanged(info, GetUserId());
     } else {
@@ -5894,7 +5901,8 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
 {
     TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token.");
     CHECK_POINTER_RETURN_BOOL(dataAbilityManager_);
-    CHECK_POINTER_RETURN_BOOL(connectManager_);
+    auto connectManager = GetConnectManager();
+    CHECK_POINTER_RETURN_BOOL(connectManager);
     CHECK_POINTER_RETURN_BOOL(currentMissionListManager_);
 
     if (currentMissionListManager_->GetAbilityRecordByToken(token)) {
@@ -5909,12 +5917,12 @@ bool AbilityManagerService::VerificationToken(const sptr<IRemoteObject> &token)
         return true;
     }
 
-    if (connectManager_->GetExtensionByTokenFromServiceMap(token)) {
+    if (connectManager->GetExtensionByTokenFromServiceMap(token)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token5.");
         return true;
     }
 
-    if (connectManager_->GetExtensionByTokenFromTerminatingMap(token)) {
+    if (connectManager->GetExtensionByTokenFromTerminatingMap(token)) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Verification token5.");
         return true;
     }
@@ -6007,6 +6015,18 @@ std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManagerB
     }
     TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, Failed to get Manager. UserId = %{public}d", __func__, userId);
     return nullptr;
+}
+
+void AbilityManagerService::SetConnectManager(std::shared_ptr<AbilityConnectManager> connectManager)
+{
+    std::lock_guard guard(connectManagerMutex_);
+    connectManager_ = connectManager;
+}
+
+std::shared_ptr<AbilityConnectManager> AbilityManagerService::GetConnectManager() const
+{
+    std::lock_guard guard(connectManagerMutex_);
+    return connectManager_;
 }
 
 std::shared_ptr<DataAbilityManager> AbilityManagerService::GetDataAbilityManagerByUserId(int32_t userId)
@@ -6658,11 +6678,12 @@ int AbilityManagerService::GetExtensionRunningInfos(int upperLimit, std::vector<
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get extension infos, upperLimit : %{public}d", upperLimit);
     CHECK_CALLER_IS_SYSTEM_APP;
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
-    if (!connectManager_) {
+    auto connectManager = GetConnectManager();
+    if (!connectManager) {
         return ERR_INVALID_VALUE;
     }
 
-    connectManager_->GetExtensionRunningInfos(upperLimit, info, GetUserId(), isPerm);
+    connectManager->GetExtensionRunningInfos(upperLimit, info, GetUserId(), isPerm);
     return ERR_OK;
 }
 
@@ -7143,7 +7164,7 @@ void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)
         find = (it != connectManagers_.end());
         if (find) {
             if (switchUser) {
-                connectManager_ = it->second;
+                SetConnectManager(it->second);
             }
         }
     }
@@ -7154,7 +7175,7 @@ void AbilityManagerService::InitConnectManager(int32_t userId, bool switchUser)
         std::unique_lock<ffrt::mutex> lock(managersMutex_);
         connectManagers_.emplace(userId, manager);
         if (switchUser) {
-            connectManager_ = manager;
+            SetConnectManager(manager);
         }
     }
 }
