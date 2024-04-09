@@ -22,6 +22,7 @@ ability_manager_headers = {
     "ability_scheduler_interface.h",
     "extension_running_info.h",
     "lifecycle_state_info.h",
+    "open_link_options.h",
     "ability_state.h",
     "wants_info.h",
     "sender_info.h",

@@ -37,6 +37,7 @@ ohos_shared_library("napi_common") {
     "napi_common_start_options.cpp",
     "napi_common_util.cpp",
     "napi_common_want.cpp",
+    "open_link/napi_common_open_link_options.cpp",
   ]
 
   deps = [

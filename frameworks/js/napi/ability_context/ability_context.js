@@ -42,6 +42,10 @@ class AbilityContext extends Context {
     return this.__context_impl__.startAbility(want, options, callback);
   }
 
+  openLink(link, options, callback) {
+    return this.__context_impl__.openLink(link, options, callback);
+  }
+
   startAbilityAsCaller(want, options, callback) {
     return this.__context_impl__.startAbilityAsCaller(want, options, callback);
   }

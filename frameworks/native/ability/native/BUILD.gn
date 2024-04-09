@@ -701,6 +701,7 @@ ohos_shared_library("service_extension") {
   external_deps = [
     "ability_base:configuration",
     "ability_base:want",
+    "ability_base:zuri",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
@@ -970,6 +971,7 @@ ohos_shared_library("ui_extension") {
   external_deps = [
     "ability_base:base",
     "ability_base:want",
+    "ability_base:zuri",
     "access_token:libaccesstoken_sdk",
     "access_token:libtokenid_sdk",
     "c_utils:utils",

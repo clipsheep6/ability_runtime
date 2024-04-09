@@ -32,19 +32,24 @@
 #include "napi_common_util.h"
 #include "napi_common_start_options.h"
 #include "napi_remote_object.h"
+#include "open_link_options.h"
+#include "open_link/napi_common_open_link_options.h"
 #include "start_options.h"
 #include "hitrace_meter.h"
+#include "uri.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
 namespace {
 constexpr int32_t INDEX_ZERO = 0;
 constexpr int32_t INDEX_ONE = 1;
+constexpr int32_t INDEX_TWO = 2;
 constexpr size_t ARGC_ZERO = 0;
 constexpr size_t ARGC_ONE = 1;
 constexpr size_t ARGC_TWO = 2;
 
 const std::string ATOMIC_SERVICE_PREFIX = "com.atomicservice.";
+constexpr size_t ARGC_THREE = 3;
 } // namespace
 
 static std::map<UIExtensionConnectionKey, sptr<JSUIExtensionConnection>, key_compare> g_connects;
@@ -113,6 +118,11 @@ void JsUIExtensionContext::Finalizer(napi_env env, void* data, void* hint)
 napi_value JsUIExtensionContext::StartAbility(napi_env env, napi_callback_info info)
 {
     GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnStartAbility);
+}
+
+napi_value JsUIExtensionContext::OpenLink(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_AND_CALL(env, info, JsUIExtensionContext, OnOpenLink);
 }
 
 napi_value JsUIExtensionContext::TerminateSelf(napi_env env, napi_callback_info info)
@@ -198,6 +208,133 @@ napi_value JsUIExtensionContext::OnStartAbility(napi_env env, NapiCallbackInfo& 
     napi_value result = nullptr;
     NapiAsyncTask::ScheduleHighQos("JSUIExtensionContext OnStartAbility",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+    return result;
+}
+
+static bool CheckUrl(std::string &urlValue)
+{
+    if (urlValue.empty()) {
+        return false;
+    }
+    Uri uri = Uri(urlValue);
+    if (uri.GetScheme().empty() || uri.GetHost().empty()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool JsUIExtensionContext::CreateOpenLinkTask(const napi_env &env, const napi_value &lastParam,
+    AAFwk::Want &want, int &requestCode)
+{
+    want.SetParam(Want::PARAM_RESV_FOR_RESULT, true);
+    napi_value result = nullptr;
+    std::unique_ptr<NapiAsyncTask> uasyncTask =
+    CreateAsyncTaskWithLastParam(env, lastParam, nullptr, nullptr, &result);
+    std::shared_ptr<NapiAsyncTask> asyncTask = std::move(uasyncTask);
+    RuntimeTask task = [env, asyncTask](int resultCode, const AAFwk::Want& want, bool isInner) {
+        HILOG_INFO("OnOpenLink async callback is begin");
+        HandleScope handleScope(env);
+        napi_value abilityResult = AppExecFwk::WrapAbilityResult(env, resultCode, want);
+        if (abilityResult == nullptr) {
+            HILOG_WARN("wrap abilityResult error");
+            asyncTask->Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+        } else {
+            if (isInner) {
+                asyncTask->Reject(env, CreateJsErrorByNativeErr(env, resultCode));
+            } else {
+                asyncTask->ResolveWithNoError(env, abilityResult);
+            }
+        }
+    };
+    auto context = context_.lock();
+    if (context == nullptr) {
+        HILOG_WARN("context is released");
+        return false;
+    } else {
+        requestCode = context->GenerateCurRequestCode();
+        context->InsertResultCallbackTask(requestCode, std::move(task));
+    }
+    return true;
+}
+
+static bool ParseOpenLinkParams(const napi_env &env, const NapiCallbackInfo &info, std::string &linkValue,
+    AAFwk::OpenLinkOptions &openLinkOptions, AAFwk::Want &want)
+{
+    if (info.argc != ARGC_THREE) {
+        HILOG_ERROR("wrong arguments num");
+        return false;
+    }
+
+    if (!CheckTypeForNapiValue(env, info.argv[ARGC_ZERO], napi_string)) {
+        HILOG_ERROR("link must be string");
+        return false;
+    }
+    if (!ConvertFromJsValue(env, info.argv[ARGC_ZERO], linkValue) || !CheckUrl(linkValue)) {
+        HILOG_ERROR("link parameter invalid");
+        return false;
+    }
+
+    if (CheckTypeForNapiValue(env, info.argv[INDEX_ONE], napi_object)) {
+        HILOG_DEBUG("OpenLinkOptions is used.");
+        if (!AppExecFwk::UnwrapOpenLinkOptions(env, info.argv[INDEX_ONE], openLinkOptions, want)) {
+            HILOG_ERROR("openLinkOptions parse failed");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    HILOG_INFO("OnOpenLink");
+
+    std::string linkValue("");
+    AAFwk::OpenLinkOptions openLinkOptions;
+    napi_value lastParam = nullptr;
+    AAFwk::Want want;
+    want.SetParam(AppExecFwk::APP_LINKING_ONLY, false);
+
+    if (!ParseOpenLinkParams(env, info, linkValue, openLinkOptions, want)) {
+        HILOG_ERROR("parse openLink arguments failed");
+        ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+        return CreateJsUndefined(env);
+    }
+
+    HILOG_INFO("open link:%{public}s.", linkValue.c_str());
+    want.SetUri(linkValue);
+    int requestCode = -1;
+    if (CheckTypeForNapiValue(env, info.argv[INDEX_TWO], napi_function)) {
+        HILOG_DEBUG("completionHandler is used.");
+        lastParam = info.argv[INDEX_TWO];
+        CreateOpenLinkTask(env, lastParam, want, requestCode);
+    }
+
+    NapiAsyncTask::CompleteCallback complete = [weak = context_, want, requestCode](napi_env env,
+        NapiAsyncTask& task, int32_t status) {
+        auto context = weak.lock();
+        if (!context) {
+            HILOG_WARN("context is released");
+            task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT));
+            return;
+        }
+        auto innerErrorCode = std::make_shared<int>(ERR_OK);
+        *innerErrorCode = context->StartAbility(want, requestCode);
+        if (*innerErrorCode == 0) {
+            HILOG_INFO("OpenLink success.");
+            task.ResolveWithNoError(env, CreateJsUndefined(env));
+        } else {
+            HILOG_INFO("OpenLink failed.");
+            task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+        }
+    };
+    
+    napi_value result = nullptr;
+    NapiAsyncTask::ScheduleHighQos("JsUIExtensionContext::OnOpenLink", env,
+        CreateAsyncTaskWithLastParam(env, nullptr, nullptr, std::move(complete), &result));
+
     return result;
 }
 
@@ -610,6 +747,7 @@ napi_value JsUIExtensionContext::CreateJsUIExtensionContext(napi_env env,
 
     const char *moduleName = "JsUIExtensionContext";
     BindNativeFunction(env, objValue, "startAbility", moduleName, StartAbility);
+    BindNativeFunction(env, objValue, "openLink", moduleName, OpenLink);
     BindNativeFunction(env, objValue, "terminateSelf", moduleName, TerminateSelf);
     BindNativeFunction(env, objValue, "startAbilityForResult", moduleName, StartAbilityForResult);
     BindNativeFunction(env, objValue, "terminateSelfWithResult", moduleName, TerminateSelfWithResult);

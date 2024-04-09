@@ -726,6 +726,12 @@ ErrCode AbilityContextImpl::SetMissionContinueState(const AAFwk::ContinueState &
     return err;
 }
 
+void AbilityContextImpl::InsertResultCallbackTask(int requestCode, RuntimeTask &&task)
+{
+    HILOG_DEBUG("InsertResultCallbackTask");
+    resultCallbacks_.insert(make_pair(requestCode, std::move(task)));
+}
+
 void AbilityContextImpl::GetWindowRect(int32_t &left, int32_t &top, int32_t &width, int32_t &height)
 {
     HILOG_DEBUG("call");

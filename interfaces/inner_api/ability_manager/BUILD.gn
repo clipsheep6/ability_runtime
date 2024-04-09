@@ -93,6 +93,7 @@ ohos_shared_library("ability_manager") {
     "${ability_runtime_services_path}/abilitymgr/src/lifecycle_state_info.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_listener_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/mission_listener_stub.cpp",
+    "${ability_runtime_services_path}/abilitymgr/src/open_link/open_link_options.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_proxy.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/prepare_terminate_callback_stub.cpp",
     "${ability_runtime_services_path}/abilitymgr/src/remote_mission_listener_proxy.cpp",

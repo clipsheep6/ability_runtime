@@ -225,6 +225,8 @@ public:
 
     void UnregisterAbilityLifecycleObserver(const std::shared_ptr<AppExecFwk::ILifecycleObserver> &observer) override;
 
+    void InsertResultCallbackTask(int requestCode, RuntimeTask&& task) override;
+
 #ifdef SUPPORT_GRAPHICS
     /**
      * @brief Set mission label of this ability.

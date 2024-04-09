@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,14 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_H
-#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_H
+#ifndef OHOS_ABILITY_RUNTIME_NAPI_COMMON_OPEN_LINK_OPTIONS_H
+#define OHOS_ABILITY_RUNTIME_NAPI_COMMON_OPEN_LINK_OPTIONS_H
 
-#include "napi_common_configuration.h"
 #include "napi_common_data.h"
-#include "napi_common_error.h"
-#include "napi_common_util.h"
-#include "napi_common_want.h"
-#include "napi_common_start_options.h"
-#include "./open_link/napi_common_open_link_options.h"
-#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_H
+#include "open_link_options.h"
+
+namespace OHOS {
+namespace AppExecFwk {
+    const std::string APP_LINKING_ONLY = "appLinkingOnly";
+
+    bool UnwrapOpenLinkOptions(napi_env env, napi_value param, AAFwk::OpenLinkOptions &openLinkOptions,
+        AAFwk::Want &want);
+
+}  // namespace AppExecFwk
+}  // namespace OHOS
+#endif  // OHOS_ABILITY_RUNTIME_NAPI_COMMON_OPEN_Link_OPTIONS_H
