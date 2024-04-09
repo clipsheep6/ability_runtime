@@ -5010,12 +5010,12 @@ int32_t AbilityManagerProxy::NotifyMemonySizeStateChanged(bool isMemorySizeSuffi
         return INNER_ERR;
     }
     if (!data.WriteBool(isMemorySizeSufficent)) {
-        HILOG_ERROR("write isMemorySizeSufficent fail.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isMemorySizeSufficent fail.");
         return ERR_INVALID_VALUE;
     }
     auto error = SendRequest(AbilityManagerInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED, data, reply, option);
     if (error != NO_ERROR) {
-        HILOG_ERROR("Send request error: %{public}d", error);
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
         return error;
     }
     return reply.ReadInt32();
