@@ -746,6 +746,8 @@ public:
     
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
+
+    sptr<IRemoteObject> browser_host_;
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.

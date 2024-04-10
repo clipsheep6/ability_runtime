@@ -65,6 +65,7 @@ struct AppSpawnStartMsg {
     std::set<std::string> permissions;
     std::map<std::string, std::string> appEnv; // environment variable to be set to the process
     std::string ownerId;
+    uint32_t processType;
 };
 
 constexpr auto LEN_PID = sizeof(pid_t);
