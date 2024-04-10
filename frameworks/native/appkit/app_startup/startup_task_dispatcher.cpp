@@ -51,6 +51,14 @@ int32_t StartupTaskDispatcher::Run(const std::shared_ptr<OnCompletedCallback> &c
     completedCallback_ = completedCallback;
     mainThreadAwaitCallback_ = mainThreadAwaitCallback;
 
+    if (mainThreadAwaitCount_ == 0) {
+        HILOG_DEBUG("no main thread await task. call mainThreadAwaitCallback");
+        if (mainThreadAwaitCallback_ != nullptr) {
+            auto result = std::make_shared<StartupTaskResult>();
+            mainThreadAwaitCallback_->Call(result);
+        }
+    }
+
     for (auto &iter : sortResult_->zeroDequeResult_) {
         auto findResult = tasks_.find(iter);
         if (findResult == tasks_.end()) {
