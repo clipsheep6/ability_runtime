@@ -28,5 +28,8 @@ void AuthorizationResult::GrantResultsCallback(const std::vector<std::string>& p
         task_(permissions, grantResults);
     }
 }
+
+void AuthorizationResult::WindowShownCallback()
+{}
 } // namespace AbilityRuntime
 } // namespace OHOS
