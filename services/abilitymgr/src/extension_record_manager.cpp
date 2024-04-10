@@ -355,36 +355,38 @@ int32_t ExtensionRecordManager::CreateExtensionRecord(const std::shared_ptr<AAFw
     return ERR_INVALID_VALUE;
 }
 
-int32_t ExtensionRecordManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
-    UIExtensionHostInfo &hostInfo)
+std::shared_ptr<AAFwk::AbilityRecord> ExtensionRecordManager::GetUIExtensionRootHostInfo(
+    const sptr<IRemoteObject> token)
 {
     if (token == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Input param invalid.");
-        return ERR_INVALID_VALUE;
+        return nullptr;
     }
 
     auto abilityRecord = AAFwk::Token::GetAbilityRecordByToken(token);
     if (abilityRecord == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Get ability record failed.");
-        return ERR_INVALID_VALUE;
+        return nullptr;
     }
 
     if (!AAFwk::UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "Not ui extension ability.");
-        return ERR_INVALID_VALUE;
+        return nullptr;
     }
 
+    sptr<IRemoteObject> rootCallerToken = nullptr;
     auto extensionRecordId = abilityRecord->GetUIExtensionAbilityId();
-    auto rootCallerToken = GetRootCallerTokenLocked(extensionRecordId);
-    auto callerAbilityRecord = AAFwk::Token::GetAbilityRecordByToken(rootCallerToken);
-    if (callerAbilityRecord == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get caller ability record failed, id: %{public}d.", extensionRecordId);
-        return ERR_INVALID_VALUE;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        rootCallerToken = GetRootCallerTokenLocked(extensionRecordId);
     }
 
-    hostInfo.elementName_ = callerAbilityRecord->GetElementName();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "Root host uri: %{public}s.", hostInfo.elementName_.GetURI().c_str());
-    return ERR_OK;
+    if (rootCallerToken == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get root caller record failed.");
+        return nullptr;
+    }
+
+    return AAFwk::Token::GetAbilityRecordByToken(rootCallerToken);
 }
 
 std::shared_ptr<ExtensionRecord> ExtensionRecordManager::GetExtensionRecordById(int32_t extensionRecordId)

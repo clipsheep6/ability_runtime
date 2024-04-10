@@ -318,29 +318,38 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::OnRemoteDied(const wptr<IRe
         TAG_LOGE(AAFwkTag::APPMGR, "object is null");
         return nullptr;
     }
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    const auto &iter =
-        std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&object](const auto &pair) {
-            if (pair.second && pair.second->GetApplicationClient() != nullptr) {
-                return pair.second->GetApplicationClient()->AsObject() == object;
-            }
-            return false;
-        });
-    if (iter == appRunningRecordMap_.end()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "remote is not exist in the map.");
-        return nullptr;
-    }
-    auto appRecord = iter->second;
-    if (appRecord != nullptr) {
-        appRecord->RemoveAppDeathRecipient();
-        appRecord->SetApplicationClient(nullptr);
-        TAG_LOGI(AAFwkTag::APPMGR, "processName: %{public}s.", appRecord->GetProcessName().c_str());
-        auto priorityObject = appRecord->GetPriorityObject();
-        if (priorityObject != nullptr) {
-            TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
+
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    {
+        std::lock_guard<ffrt::mutex> guard(lock_);
+        const auto &iter =
+            std::find_if(appRunningRecordMap_.begin(), appRunningRecordMap_.end(), [&object](const auto &pair) {
+                if (pair.second && pair.second->GetApplicationClient() != nullptr) {
+                    return pair.second->GetApplicationClient()->AsObject() == object;
+                }
+                return false;
+            });
+        if (iter == appRunningRecordMap_.end()) {
+            TAG_LOGE(AAFwkTag::APPMGR, "remote is not exist in the map.");
+            return nullptr;
         }
+        appRecord = iter->second;
+        if (appRecord != nullptr) {
+            appRecord->RemoveAppDeathRecipient();
+            appRecord->SetApplicationClient(nullptr);
+            TAG_LOGI(AAFwkTag::APPMGR, "processName: %{public}s.", appRecord->GetProcessName().c_str());
+            auto priorityObject = appRecord->GetPriorityObject();
+            if (priorityObject != nullptr) {
+                TAG_LOGI(AAFwkTag::APPMGR, "pid: %{public}d.", priorityObject->GetPid());
+            }
+        }
+        appRunningRecordMap_.erase(iter);
     }
-    appRunningRecordMap_.erase(iter);
+
+    if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
+        RemoveUIExtensionLauncherItem(appRecord->GetPriorityObject()->GetPid());
+    }
+
     return appRecord;
 }
 
@@ -352,8 +361,16 @@ std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppRunningManag
 
 void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)
 {
-    std::lock_guard<ffrt::mutex> guard(lock_);
-    appRunningRecordMap_.erase(recordId);
+    std::shared_ptr<AppRunningRecord> appRecord = nullptr;
+    {
+        std::lock_guard<ffrt::mutex> guard(lock_);
+        appRecord = appRunningRecordMap_.at(recordId);
+        appRunningRecordMap_.erase(recordId);
+    }
+
+    if (appRecord != nullptr && appRecord->GetPriorityObject() != nullptr) {
+        RemoveUIExtensionLauncherItem(appRecord->GetPriorityObject()->GetPid());
+    }
 }
 
 void AppRunningManager::ClearAppRunningRecordMap()
@@ -1240,6 +1257,53 @@ int32_t AppRunningManager::GetAppRunningUniqueIdByPid(pid_t pid, std::string &ap
     }
     appRunningUniqueId = std::to_string(appRecord->GetAppStartTime());
     TAG_LOGD(AAFwkTag::APPMGR, "appRunningUniqueId = %{public}s.", appRunningUniqueId.c_str());
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
+{
+    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    for (auto &item: uiExtensionLauncherMap_) {
+        auto temp = item.second.second;
+        if (temp == pid) {
+            hostPids.emplace_back(item.second.first);
+        }
+    }
+
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+{
+    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    for (auto &item: uiExtensionLauncherMap_) {
+        auto temp = item.second.first;
+        if (temp == hostPid) {
+            providerPids.emplace_back(item.second.second);
+        }
+    }
+
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::AddUIExtensionLauncherItem(int32_t uiExtensionAbilityId, pid_t hostPid, pid_t providerPid)
+{
+    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    uiExtensionLauncherMap_.emplace(uiExtensionAbilityId, std::pair<pid_t, pid_t>(hostPid, providerPid));
+    return ERR_OK;
+}
+
+int32_t AppRunningManager::RemoveUIExtensionLauncherItem(pid_t pid)
+{
+    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    for (auto it = uiExtensionLauncherMap_.begin(); it != uiExtensionLauncherMap_.end();) {
+        if (it->second.first == pid || it->second.second == pid) {
+            it = uiExtensionLauncherMap_.erase(it);
+            continue;
+        }
+        it++;
+    }
+
     return ERR_OK;
 }
 }  // namespace AppExecFwk

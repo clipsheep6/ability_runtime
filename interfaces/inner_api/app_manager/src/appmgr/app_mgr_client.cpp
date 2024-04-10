@@ -1087,5 +1087,25 @@ int32_t AppMgrClient::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunn
     }
     return service->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
 }
+
+int32_t AppMgrClient::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->GetAllUIExtensionRootHostPid(pid, hostPids);
+}
+
+int32_t AppMgrClient::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->GetAllUIExtensionProviderPid(hostPid, providerPids);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

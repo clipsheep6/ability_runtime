@@ -1726,6 +1726,8 @@ private:
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     void DumpSysProcess(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
+    void DumpUIExtensionRootHostRunningInfos(pid_t pid, std::vector<std::string> &info);
+    void DumpUIExtensionProviderRunningInfos(pid_t pid, std::vector<std::string> &info);
     void DataDumpSysStateInner(
         const std::string &args, std::vector<std::string> &info, bool isClient, bool isUserID, int userId);
     ErrCode ProcessMultiParam(std::vector<std::string>& argsStr, std::string& result);

@@ -176,6 +176,10 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleSignRestartAppFlag;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_APP_RUNNING_UNIQUE_ID_BY_PID)] =
         &AppMgrStub::HandleGetAppRunningUniqueIdByPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_ROOT_HOST_PID)] =
+        &AppMgrStub::HandleGetAllUIExtensionRootHostPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID)] =
+        &AppMgrStub::HandleGetAllUIExtensionProviderPid;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1146,6 +1150,49 @@ int32_t AppMgrStub::HandleGetAppRunningUniqueIdByPid(MessageParcel &data, Messag
         TAG_LOGE(AAFwkTag::APPMGR, "GetAppRunningUniqueIdByPid err or Write appRunningUniqueId error.");
         return IPC_STUB_ERR;
     }
+
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetAllUIExtensionRootHostPid(MessageParcel &data, MessageParcel &reply)
+{
+    pid_t pid = data.ReadInt32();
+    std::vector<pid_t> hostPids;
+    auto result = GetAllUIExtensionRootHostPid(pid, hostPids);
+    reply.WriteInt32(hostPids.size());
+    for (auto &it : hostPids) {
+        if (!reply.WriteInt32(it)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Write host pid failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetAllUIExtensionProviderPid(MessageParcel &data, MessageParcel &reply)
+{
+    pid_t hostPid = data.ReadInt32();
+    std::vector<pid_t> providerPids;
+    auto result = GetAllUIExtensionProviderPid(hostPid, providerPids);
+    reply.WriteInt32(providerPids.size());
+    for (auto &it : providerPids) {
+        if (!reply.WriteInt32(it)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Write provider pid failed.");
+            return ERR_INVALID_VALUE;
+        }
+    }
+
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write result failed.");
+        return ERR_INVALID_VALUE;
+    }
+
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

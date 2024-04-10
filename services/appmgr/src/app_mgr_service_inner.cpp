@@ -132,6 +132,8 @@ const std::string KEEP_ALIVE = ":KeepAlive";
 const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
 const std::string TSAN_FLAG_NAME = "tsanEnabled";
 const std::string MEMMGR_PROC_NAME = "memmgrservice";
+const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
 const int32_t SIGNAL_KILL = 9;
 constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
@@ -386,10 +388,43 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
         }
         StartAbility(token, preToken, abilityInfo, appRecord, hapModuleInfo, want, abilityRecordId);
     }
+
+    if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType) &&
+        appRunningManager_ != nullptr && appRunningManager_->GetAppRunningRecordByAbilityToken(token)) {
+        AddUIExtensionLauncherItem(want, appRecord);
+    }
+
     PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
     PerfProfile::GetInstance().Dump();
     PerfProfile::GetInstance().Reset();
     appRecord->UpdateAbilityState(token, AbilityState::ABILITY_STATE_CREATE);
+}
+
+void AppMgrServiceInner::AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want,
+    std::shared_ptr<AppRunningRecord> appRecord)
+{
+    if (want == nullptr || appRecord == nullptr || appRunningManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid input params.");
+        return;
+    }
+
+    auto uiExtensionAbilityId = want->GetIntParam(UIEXTENSION_ABILITY_ID, -1);
+    auto hostPid = want->GetIntParam(UIEXTENSION_ROOT_HOST_PID, -1);
+    pid_t providerPid = -1;
+    if (appRecord->GetPriorityObject() != nullptr) {
+        providerPid = appRecord->GetPriorityObject()->GetPid();
+    }
+    if (uiExtensionAbilityId == -1 || hostPid == -1 || providerPid == -1) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid want params.");
+        return;
+    }
+
+    TAG_LOGD(AAFwkTag::APPMGR, "Add uiextension launcher info, uiExtensionAbilityId: %{public}d, hostPid: %{public}d, "
+        "providerPid: %{public}d.", uiExtensionAbilityId, hostPid, providerPid);
+    appRunningManager_->AddUIExtensionLauncherItem(uiExtensionAbilityId, hostPid, providerPid);
+
+    want->RemoveParam(UIEXTENSION_ABILITY_ID);
+    want->RemoveParam(UIEXTENSION_ROOT_HOST_PID);
 }
 
 bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,
@@ -5872,6 +5907,38 @@ bool AppMgrServiceInner::NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRu
         return false;
     }
     return true;
+}
+
+int32_t AppMgrServiceInner::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
+{
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "app running manager is nullptr.");
+        return ERR_NO_INIT;
+    }
+
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission deny.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    return appRunningManager_->GetAllUIExtensionRootHostPid(pid, hostPids);
+}
+
+int32_t AppMgrServiceInner::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+{
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "app running manager is nullptr.");
+        return ERR_NO_INIT;
+    }
+
+    CHECK_CALLER_IS_SYSTEM_APP;
+    if (!AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission deny.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    return appRunningManager_->GetAllUIExtensionProviderPid(hostPid, providerPids);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

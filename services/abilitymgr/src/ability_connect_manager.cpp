@@ -31,6 +31,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "in_process_call_wrapper.h"
+#include "int_wrapper.h"
 #include "parameter.h"
 #include "session/host/include/zidl/session_interface.h"
 #include "extension_record.h"
@@ -48,6 +49,7 @@ const std::string DEBUG_APP = "debugApp";
 const std::string FRS_APP_INDEX = "ohos.extra.param.key.frs_index";
 const std::string FRS_BUNDLE_NAME = "com.ohos.formrenderservice";
 const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
 const std::string MAX_UINT64_VALUE = "18446744073709551615";
 #ifdef SUPPORT_ASAN
 const int LOAD_TIMEOUT_MULTIPLE = 150;
@@ -1273,6 +1275,8 @@ void AbilityConnectManager::LoadAbility(const std::shared_ptr<AbilityRecord> &ab
             }
         }
     }
+
+    UpdateUIExtensionInfo(abilityRecord);
     DelayedSingleton<AppScheduler>::GetInstance()->LoadAbility(
         token, perToken, abilityRecord->GetAbilityInfo(), abilityRecord->GetApplicationInfo(),
         abilityRecord->GetWant(), abilityRecord->GetRecordId());
@@ -2726,12 +2730,11 @@ bool AbilityConnectManager::IsCallerValid(const std::shared_ptr<AbilityRecord> &
     return true;
 }
 
-int32_t AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token,
-    UIExtensionHostInfo &hostInfo)
+std::shared_ptr<AAFwk::AbilityRecord> AbilityConnectManager::GetUIExtensionRootHostInfo(const sptr<IRemoteObject> token)
 {
-    CHECK_POINTER_AND_RETURN(token, ERR_INVALID_VALUE);
-    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, ERR_INVALID_VALUE);
-    return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token, hostInfo);
+    CHECK_POINTER_AND_RETURN(token, nullptr);
+    CHECK_POINTER_AND_RETURN(uiExtensionAbilityRecordMgr_, nullptr);
+    return uiExtensionAbilityRecordMgr_->GetUIExtensionRootHostInfo(token);
 }
 
 void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
@@ -2772,6 +2775,24 @@ EventInfo AbilityConnectManager::BuildEventInfo(const std::shared_ptr<AbilityRec
         eventInfo.abilityName = abilityInfo.name;
     }
     return eventInfo;
+}
+
+void AbilityConnectManager::UpdateUIExtensionInfo(const std::shared_ptr<AbilityRecord> &abilityRecord)
+{
+    if (abilityRecord == nullptr ||
+        !UIExtensionUtils::IsUIExtension(abilityRecord->GetAbilityInfo().extensionAbilityType)) {
+        return;
+    }
+
+    WantParams wantParams;
+    auto uiExtensionAbilityId = abilityRecord->GetUIExtensionAbilityId();
+    wantParams.SetParam(UIEXTENSION_ABILITY_ID, AAFwk::Integer::Box(uiExtensionAbilityId));
+    auto rootHostRecord = GetUIExtensionRootHostInfo(abilityRecord->GetToken());
+    if (rootHostRecord != nullptr) {
+        auto rootHostPid = rootHostRecord->GetPid();
+        wantParams.SetParam(UIEXTENSION_ROOT_HOST_PID, AAFwk::Integer::Box(rootHostPid));
+    }
+    abilityRecord->UpdateUIExtensionInfo(wantParams);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

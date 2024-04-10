@@ -1779,5 +1779,75 @@ int32_t AppMgrProxy::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunni
     }
     return result;
 }
+
+int32_t AppMgrProxy::GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write remote object failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(pid)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write pid failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_ROOT_HOST_PID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d.", error);
+        return error;
+    }
+
+    int32_t size = reply.ReadInt32();
+    if (size > CYCLE_LIMIT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Vector is too large.");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (int32_t i = 0; i < size; i++) {
+        pid_t temp = reply.ReadInt32();
+        hostPids.emplace_back(temp);
+    }
+
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write remote object failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(hostPid)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write hostPid failed.");
+        return ERR_FLATTEN_OBJECT;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d.", error);
+        return error;
+    }
+
+    int32_t size = reply.ReadInt32();
+    if (size > CYCLE_LIMIT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Vector is too large.");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (int32_t i = 0; i < size; i++) {
+        pid_t temp = reply.ReadInt32();
+        providerPids.emplace_back(temp);
+    }
+
+    return reply.ReadInt32();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

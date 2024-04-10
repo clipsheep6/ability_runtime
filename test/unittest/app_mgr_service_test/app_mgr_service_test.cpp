@@ -1548,5 +1548,45 @@ HWTEST_F(AppMgrServiceTest, UpdateRenderState_001, TestSize.Level1)
     auto res = appMgrService->UpdateRenderState(renderPid, state);
     EXPECT_EQ(ERR_INVALID_OPERATION, res);
 }
+
+/**
+ * @tc.name: GetAllUIExtensionRootHostPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, GetAllUIExtensionRootHostPid_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    pid_t pid = 0;
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionRootHostPid(pid, hostPids), ERR_INVALID_OPERATION);
+
+    // app manager service isn't nullptr but app running manager is nullptr.
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionRootHostPid(pid, hostPids), ERR_OK);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionProviderPid_0100
+ * @tc.desc: Get all ui extension provider pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    pid_t hostPid = 0;
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_INVALID_OPERATION);
+
+    // app manager service isn't nullptr but app running manager is nullptr.
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    EXPECT_EQ(appMgrService->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

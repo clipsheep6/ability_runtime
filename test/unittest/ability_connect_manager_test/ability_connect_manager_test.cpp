@@ -3226,5 +3226,26 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_BuildEventInfo_001, TestSize
     abilityRecord->SetCreateByConnectMode(true);
     connectManager->BuildEventInfo(abilityRecord);
 }
+
+/**
+ * @tc.name: UpdateUIExtensionInfo_0100
+ * @tc.desc: Update want params of ui extension.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityConnectManagerTest, UpdateUIExtensionInfo_0100, TestSize.Level1)
+{
+    std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
+    ASSERT_NE(connectManager, nullptr);
+
+    Want want;
+    AppExecFwk::AbilityInfo abilityInfo;
+    abilityInfo.extensionAbilityType = ExtensionAbilityType::SYS_COMMON_UI;
+    AppExecFwk::ApplicationInfo applicationInfo;
+    auto abilityRecord = std::make_shared<AbilityRecord>(want, abilityInfo, applicationInfo);
+    abilityRecord->SetUIExtensionAbilityId(1000);
+    connectManager->UpdateUIExtensionInfo(abilityRecord);
+    EXPECT_EQ(abilityRecord->GetWant().HasParameter("ability.want.params.uiExtensionAbilityId"), true);
+    EXPECT_EQ(abilityRecord->GetWant().GetIntParam("ability.want.params.uiExtensionAbilityId", -1), 1000);
+}
 }  // namespace AAFwk
 }  // namespace OHOS

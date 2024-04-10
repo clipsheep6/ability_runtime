@@ -255,7 +255,7 @@ public:
 
     std::shared_ptr<AppRunningRecord> GetAppRunningRecordByChildProcessPid(const pid_t pid);
     std::shared_ptr<ChildProcessRecord> OnChildProcessRemoteDied(const wptr<IRemoteObject> &remote);
-    
+
     /**
      * @brief Obtain number of app through bundlename.
      * @param bundleName The application bundle name.
@@ -266,6 +266,14 @@ public:
     int32_t SignRestartAppFlag(const std::string &bundleName);
 
     int32_t GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId);
+
+    int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids);
+
+    int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids);
+
+    int32_t AddUIExtensionLauncherItem(int32_t uiExtensionAbilityId, pid_t hostPid, pid_t providerPid);
+    int32_t RemoveUIExtensionLauncherItem(pid_t pid);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(
@@ -278,6 +286,8 @@ private:
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;
     std::map<const std::string, int> processRestartRecord_;
     ffrt::mutex lock_;
+    ffrt::mutex uiExtensionMapLock_;
+    std::map<int32_t, std::pair<pid_t, pid_t>> uiExtensionLauncherMap_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

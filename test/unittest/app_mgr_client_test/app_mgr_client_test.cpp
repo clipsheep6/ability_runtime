@@ -734,7 +734,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterAppDebugListener_001, TestSize
 
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-    
+
     sptr<MockAppDebugListenerStub> listener = new MockAppDebugListenerStub();
     EXPECT_NE(listener, nullptr);
     auto resultCode = appMgrClient->UnregisterAppDebugListener(listener);
@@ -781,7 +781,7 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_AttachAppDebug_001, TestSize.Level1)
 
     auto result = appMgrClient->ConnectAppMgrService();
     EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
-    
+
     std::string bundleName = "bundleName";
     auto resultCode = appMgrClient->AttachAppDebug(bundleName);
     EXPECT_EQ(resultCode, ERR_OK);
@@ -977,6 +977,38 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_ClearProcessByToken_001, TestSize.Level0
     auto appMgrClient = std::make_unique<AppMgrClient>();
     appMgrClient->ClearProcessByToken(token);
     EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionRootHostPid_001
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, GetAllUIExtensionRootHostPid_001, TestSize.Level0)
+{
+    pid_t pid = 0;
+    std::vector<pid_t> hostPids;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    ASSERT_NE(appMgrClient, nullptr);
+    auto ret = appMgrClient->GetAllUIExtensionRootHostPid(pid, hostPids);
+    EXPECT_NE(ret, AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED);
+    EXPECT_EQ(hostPids.size(), 0);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionProviderPid_001
+ * @tc.desc: Get all ui extension provider pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, GetAllUIExtensionProviderPid_001, TestSize.Level0)
+{
+    pid_t hostPid = 0;
+    std::vector<pid_t> providerPids;
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    ASSERT_NE(appMgrClient, nullptr);
+    auto ret = appMgrClient->GetAllUIExtensionProviderPid(hostPid, providerPids);
+    EXPECT_NE(ret, AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED);
+    EXPECT_EQ(providerPids.size(), 0);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

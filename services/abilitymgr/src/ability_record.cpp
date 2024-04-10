@@ -37,6 +37,7 @@
 #include "hitrace_meter.h"
 #include "image_source.h"
 #include "in_process_call_wrapper.h"
+#include "int_wrapper.h"
 #include "errors.h"
 #include "event_report.h"
 #include "hilog_tag_wrapper.h"
@@ -87,6 +88,8 @@ const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string SHELL_ASSISTANT_DIEREASON = "crash_die";
 const std::string PARAM_MISSION_AFFINITY_KEY = "ohos.anco.param.missionAffinity";
 const std::string DISTRIBUTED_FILES_PATH = "/data/storage/el2/distributedfiles/";
+const std::string UIEXTENSION_ABILITY_ID = "ability.want.params.uiExtensionAbilityId";
+const std::string UIEXTENSION_ROOT_HOST_PID = "ability.want.params.uiExtensionRootHostPid";
 const int32_t SHELL_ASSISTANT_DIETYPE = 0;
 int64_t AbilityRecord::abilityRecordId = 0;
 const int32_t DEFAULT_USER_ID = 0;
@@ -3475,6 +3478,24 @@ void AbilityRecord::SetRestartAppFlag(bool isRestartApp)
 bool AbilityRecord::GetRestartAppFlag() const
 {
     return isRestartApp_;
+}
+
+void AbilityRecord::UpdateUIExtensionInfo(const WantParams &wantParams)
+{
+    if (!UIExtensionUtils::IsUIExtension(GetAbilityInfo().extensionAbilityType)) {
+        return;
+    }
+
+    std::lock_guard guard(wantLock_);
+    if (want_.HasParameter(UIEXTENSION_ABILITY_ID)) {
+        want_.RemoveParam(UIEXTENSION_ABILITY_ID);
+    }
+    want_.SetParam(UIEXTENSION_ABILITY_ID, wantParams.GetIntParam(UIEXTENSION_ABILITY_ID, -1));
+
+    if (want_.HasParameter(UIEXTENSION_ROOT_HOST_PID)) {
+        want_.RemoveParam(UIEXTENSION_ROOT_HOST_PID);
+    }
+    want_.SetParam(UIEXTENSION_ROOT_HOST_PID, wantParams.GetIntParam(UIEXTENSION_ROOT_HOST_PID, -1));
 }
 }  // namespace AAFwk
 }  // namespace OHOS

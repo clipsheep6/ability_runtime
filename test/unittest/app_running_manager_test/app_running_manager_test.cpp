@@ -14,6 +14,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <gtest/hwext/gtest-multithread.h>
 
 #define private public
 #include "app_running_manager.h"
@@ -25,6 +26,7 @@
 
 using namespace testing;
 using namespace testing::ext;
+using namespace testing::mt;
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -212,7 +214,7 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_GetAppRunningRecordByChildProc
     TAG_LOGD(AAFwkTag::TEST, "AppRunningManager_GetAppRunningRecordByChildProcessPid_0100 called.");
     auto appRunningManager = std::make_shared<AppRunningManager>();
     EXPECT_NE(appRunningManager, nullptr);
-    
+
     auto appInfo = std::make_shared<ApplicationInfo>();
     auto appRecord = std::make_shared<AppRunningRecord>(appInfo, RECORD_ID, "com.example.child");
     auto childRecord = ChildProcessRecord::CreateChildProcessRecord(PID, "./ets/AProcess.ts", appRecord);
@@ -252,6 +254,356 @@ HWTEST_F(AppRunningManagerTest, AppRunningManager_UpdateConfiguration_0100, Test
     EXPECT_EQ(appRunningManager->appRunningRecordMap_.size(), recordId);
     auto ret = appRunningManager->UpdateConfiguration(config);
     EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: RemoveAppRunningRecordById_0100
+ * @tc.desc: Remove app running record by id.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, RemoveAppRunningRecordById_0100, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    std::string processName = "test.ProcessName";
+    BundleInfo bundleInfo;
+    auto appRecord = appRunningManager->CreateAppRunningRecord(appInfo, processName, bundleInfo);
+    ASSERT_NE(appRecord, nullptr);
+
+    int32_t uiExtensionAbilityId = 1000;
+    pid_t hostPid = 1001;
+    pid_t providerPid = 1002;
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityId, hostPid, providerPid);
+
+    appRunningManager->RemoveAppRunningRecordById(appRecord->GetRecordId());
+}
+
+/**
+ * @tc.name: AppRunningRecord_0100
+ * @tc.desc: AppRunningRecord test multi-thread.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, AppRunningRecord_0100, TestSize.Level1)
+{
+    static std::shared_ptr<AppRunningManager> appRunningManager_Record0100 = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager_Record0100, nullptr);
+    auto task = []() {
+        TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d.", gettid());
+        std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+        static std::string processName = "test.ProcessName";
+        BundleInfo bundleInfo;
+        auto appRecord = appRunningManager_Record0100->CreateAppRunningRecord(appInfo, processName, bundleInfo);
+        ASSERT_NE(appRecord, nullptr);
+        processName += "a";
+
+        static int32_t uiExtensionAbilityId = 1;
+        static pid_t hostPid = 100000;
+        static pid_t providerPid = 200000;
+        appRunningManager_Record0100->AddUIExtensionLauncherItem(uiExtensionAbilityId, hostPid, providerPid);
+        uiExtensionAbilityId++;
+        hostPid += 2;
+        providerPid += 3;
+
+        appRunningManager_Record0100->RemoveUIExtensionLauncherItem(hostPid);
+        appRunningManager_Record0100->RemoveUIExtensionLauncherItem(providerPid);
+
+        std::vector<pid_t> hostPids;
+        std::vector<pid_t> providerPids;
+        appRunningManager_Record0100->GetAllUIExtensionRootHostPid(hostPid, providerPids);
+        appRunningManager_Record0100->GetAllUIExtensionProviderPid(providerPid, hostPids);
+
+        appRunningManager_Record0100->RemoveAppRunningRecordById(appRecord->GetRecordId());
+    };
+
+    SET_THREAD_NUM(100);
+    GTEST_RUN_TASK(task);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0100
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0100, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    int32_t uiExtensionAbilityId = 1000;
+    pid_t hostPid = 1001;
+    pid_t providerPid = 1002;
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityId, hostPid, providerPid);
+
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 1);
+    EXPECT_EQ(hostPids[0], hostPid);
+    hostPids.clear();
+
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(hostPid), ERR_OK);
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(providerPid), ERR_OK);
+
+    // Get after remove.
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 0);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0200
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0200, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    int32_t uiExtensionAbilityId = 1000;
+    pid_t hostPid = 1001;
+    pid_t providerPid = 1001; // same with host pid, ie uiability and uiextensionability in same process.
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityId, hostPid, providerPid);
+
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 1);
+    EXPECT_EQ(hostPids[0], hostPid);
+    hostPids.clear();
+
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(hostPid), ERR_OK);
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(providerPid), ERR_OK);
+
+    // Get after remove.
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 0);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0300
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0300, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    int32_t uiExtensionAbilityIdA = 1;
+    int32_t uiExtensionAbilityIdB = 2;
+    pid_t hostPid = 1001;
+    pid_t providerPidA = 2001;
+    pid_t providerPidB = 2002; // a root host start two uiextensionability.
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdA, hostPid, providerPidA);
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdB, hostPid, providerPidB);
+
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPidA, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 1);
+    EXPECT_EQ(hostPids[0], hostPid);
+    hostPids.clear();
+
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPidB, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 1);
+    EXPECT_EQ(hostPids[0], hostPid);
+    hostPids.clear();
+
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 2);
+    EXPECT_EQ(providerPids[0], providerPidA);
+    EXPECT_EQ(providerPids[1], providerPidB);
+    providerPids.clear();
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(providerPidA), ERR_OK);
+
+    // Get after remove one provider
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPidA, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 0);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPidB, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 1);
+    EXPECT_EQ(hostPids[0], hostPid);
+    hostPids.clear();
+
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPidB);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0400
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0400, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    int32_t uiExtensionAbilityIdA = 1;
+    int32_t uiExtensionAbilityIdB = 2;
+    pid_t hostPid = 1001;
+    pid_t providerPidA = 2001;
+    pid_t providerPidB = 2002; // a root host start two uiextensionability.
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdA, hostPid, providerPidA);
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdB, hostPid, providerPidB);
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(hostPid), ERR_OK);
+
+    // Get after remove one provider
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPidA, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 0);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPidB, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 0);
+
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(hostPid, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0500
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0500, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    int32_t uiExtensionAbilityIdA = 1;
+    int32_t uiExtensionAbilityIdB = 2;
+    pid_t hostPidA = 1001;
+    pid_t hostPidB = 1002;
+    pid_t providerPid = 2001; // a uiextensionability has two root host info.
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdA, hostPidA, providerPid);
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdB, hostPidB, providerPid);
+
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 2);
+    EXPECT_EQ(hostPids[0], hostPidA);
+    EXPECT_EQ(hostPids[1], hostPidB);
+    hostPids.clear();
+
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidA, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidB, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(providerPid), ERR_OK);
+
+    // Get after remove one provider
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 0);
+
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidA, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidB, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0600
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0600, TestSize.Level1)
+{
+    auto appRunningManager = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager, nullptr);
+
+    int32_t uiExtensionAbilityIdA = 1;
+    int32_t uiExtensionAbilityIdB = 2;
+    pid_t hostPidA = 1001;
+    pid_t hostPidB = 1002;
+    pid_t providerPid = 2001; // a uiextensionability has two root host info.
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdA, hostPidA, providerPid);
+    appRunningManager->AddUIExtensionLauncherItem(uiExtensionAbilityIdB, hostPidB, providerPid);
+
+    std::vector<pid_t> hostPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 2);
+    EXPECT_EQ(hostPids[0], hostPidA);
+    EXPECT_EQ(hostPids[1], hostPidB);
+    hostPids.clear();
+
+    std::vector<pid_t> providerPids;
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidA, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidB, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItem(hostPidA), ERR_OK);
+
+    // Get after remove one provider
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionRootHostPid(providerPid, hostPids), ERR_OK);
+    EXPECT_EQ(hostPids.size(), 1);
+    EXPECT_EQ(hostPids[0], hostPidB); // cause host pid A has removed.
+
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidA, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidB, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 1);
+    EXPECT_EQ(providerPids[0], providerPid);
+}
+
+/**
+ * @tc.name: UIExtensionReleationship_0700
+ * @tc.desc: Root host pid and provider pid map test.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0700, TestSize.Level1)
+{
+    static std::shared_ptr<AppRunningManager> appRunningManager_Rel0700 = std::make_shared<AppRunningManager>();
+    ASSERT_NE(appRunningManager_Rel0700, nullptr);
+    auto task = []() {
+        TAG_LOGI(AAFwkTag::TEST, "Running in thread %{public}d.", gettid());
+        static int32_t uiExtensionAbilityId = 1;
+        static pid_t hostPid = 100000;
+        static pid_t providerPid = 200000;
+        appRunningManager_Rel0700->AddUIExtensionLauncherItem(uiExtensionAbilityId, hostPid, providerPid);
+        uiExtensionAbilityId++;
+        hostPid += 2;
+        providerPid += 3;
+
+        appRunningManager_Rel0700->RemoveUIExtensionLauncherItem(hostPid);
+        appRunningManager_Rel0700->RemoveUIExtensionLauncherItem(providerPid);
+
+        std::vector<pid_t> hostPids;
+        std::vector<pid_t> providerPids;
+        appRunningManager_Rel0700->GetAllUIExtensionRootHostPid(hostPid, providerPids);
+        appRunningManager_Rel0700->GetAllUIExtensionProviderPid(providerPid, hostPids);
+    };
+
+    SET_THREAD_NUM(100);
+    GTEST_RUN_TASK(task);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

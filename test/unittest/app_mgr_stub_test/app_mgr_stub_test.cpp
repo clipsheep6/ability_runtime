@@ -259,7 +259,7 @@ HWTEST_F(AppMgrStubTest, GetProcessMemoryByPid_001, TestSize.Level0)
     WriteInterfaceToken(data);
     int32_t pid = 0;
     data.WriteInt32(pid);
-    
+
     EXPECT_CALL(*mockAppMgrService_, GetProcessMemoryByPid(_, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
@@ -287,7 +287,7 @@ HWTEST_F(AppMgrStubTest, GetRunningProcessInformation_001, TestSize.Level0)
     int32_t userId = 0;
     data.WriteString(bundleName);
     data.WriteInt32(userId);
-    
+
     EXPECT_CALL(*mockAppMgrService_, GetRunningProcessInformation(_, _, _)).Times(1);
 
     auto result = mockAppMgrService_->OnRemoteRequest(
@@ -512,6 +512,40 @@ HWTEST_F(AppMgrStubTest, HandleSignRestartAppFlag_0100, TestSize.Level1)
     data.WriteString(bundleName);
     auto res = mockAppMgrService_->HandleSignRestartAppFlag(data, reply);
     EXPECT_EQ(res, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleGetAllUIExtensionRootHostPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleGetAllUIExtensionRootHostPid_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    pid_t pid = 1;
+    data.WriteInt32(pid);
+    auto res = mockAppMgrService_->HandleGetAllUIExtensionRootHostPid(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+    int32_t size = reply.ReadInt32();
+    EXPECT_EQ(size, 0);
+}
+
+/**
+ * @tc.name: HandleGetAllUIExtensionProviderPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrStubTest, HandleGetAllUIExtensionProviderPid_0100, TestSize.Level1)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    pid_t hostPid = 1;
+    data.WriteInt32(hostPid);
+    auto res = mockAppMgrService_->HandleGetAllUIExtensionProviderPid(data, reply);
+    EXPECT_EQ(res, NO_ERROR);
+    int32_t size = reply.ReadInt32();
+    EXPECT_EQ(size, 0);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

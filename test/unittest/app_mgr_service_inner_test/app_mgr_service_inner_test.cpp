@@ -4103,5 +4103,64 @@ HWTEST_F(AppMgrServiceInnerTest, UnregisterRenderStateObserver_0200, TestSize.Le
     auto res = appMgrServiceInner->RegisterRenderStateObserver(observer);
     EXPECT_EQ(ERR_OK, res);
 }
+
+/**
+ * @tc.name: GetAllUIExtensionRootHostPid_0100
+ * @tc.desc: Get all ui extension root host pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetAllUIExtensionRootHostPid_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    ASSERT_NE(appMgrServiceInner, nullptr);
+    pid_t pid = 0;
+    std::vector<pid_t> hostPids;
+    auto ret = appMgrServiceInner->GetAllUIExtensionRootHostPid(pid, hostPids);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: GetAllUIExtensionProviderPid_0100
+ * @tc.desc: Get all ui extension provider pid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    ASSERT_NE(appMgrServiceInner, nullptr);
+    pid_t hostPid = 0;
+    std::vector<pid_t> providerPids;
+    auto ret = appMgrServiceInner->GetAllUIExtensionProviderPid(hostPid, providerPids);
+    EXPECT_EQ(ret, ERR_OK);
+}
+
+/**
+ * @tc.name: AddUIExtensionLauncherItem_0100
+ * @tc.desc: Add ui extension launcher item.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, AddUIExtensionLauncherItem_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    ASSERT_NE(appMgrServiceInner, nullptr);
+
+    std::shared_ptr<AAFwk::Want> want = std::make_shared<AAFwk::Want>();
+    ASSERT_NE(want, nullptr);
+    want->SetParam("ability.want.params.uiExtensionAbilityId", 1);
+    want->SetParam("ability.want.params.uiExtensionRootHostPid", 1000);
+
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    ASSERT_NE(appInfo, nullptr);
+    int32_t recordId = 0;
+    std::string processName = "";
+    std::shared_ptr<AppRunningRecord> appRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    ASSERT_NE(appRecord, nullptr);
+    appRecord->GetPriorityObject()->SetPid(1001);
+
+    appMgrServiceInner->AddUIExtensionLauncherItem(want, appRecord);
+    // check want param has been erased.
+    EXPECT_EQ(want->HasParameter("ability.want.params.uiExtensionAbilityId"), false);
+    EXPECT_EQ(want->HasParameter("ability.want.params.uiExtensionRootHostPid"), false);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

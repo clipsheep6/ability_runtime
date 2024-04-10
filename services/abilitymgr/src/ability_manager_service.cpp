@@ -4777,15 +4777,15 @@ void AbilityManagerService::DumpSysProcess(
     if (argList.empty()) {
         return;
     }
-    std::vector<AppExecFwk::RunningProcessInfo> ProcessInfos;
+    std::vector<AppExecFwk::RunningProcessInfo> processInfos;
     int ret = 0;
     if (isUserID) {
-        ret = GetProcessRunningInfosByUserId(ProcessInfos, userId);
+        ret = GetProcessRunningInfosByUserId(processInfos, userId);
     } else {
-        ret = GetProcessRunningInfos(ProcessInfos);
+        ret = GetProcessRunningInfos(processInfos);
     }
 
-    if (ret != ERR_OK || ProcessInfos.size() == 0) {
+    if (ret != ERR_OK || processInfos.size() == 0) {
         return;
     }
 
@@ -4793,22 +4793,82 @@ void AbilityManagerService::DumpSysProcess(
     info.push_back(dumpInfo);
     auto processInfoID = 0;
     auto hasProcessName = (argList.size() == MIN_DUMP_ARGUMENT_NUM ? true : false);
-    for (const auto& ProcessInfo : ProcessInfos) {
-        if (hasProcessName && argList[1] != ProcessInfo.processName_) {
+    for (const auto& processInfo : processInfos) {
+        if (hasProcessName && argList[1] != processInfo.processName_) {
             continue;
         }
 
         dumpInfo = "    AppRunningRecord ID #" + std::to_string(processInfoID);
         processInfoID++;
         info.push_back(dumpInfo);
-        dumpInfo = "      process name [" + ProcessInfo.processName_ + "]";
+        dumpInfo = "      process name [" + processInfo.processName_ + "]";
         info.push_back(dumpInfo);
-        dumpInfo = "      pid #" + std::to_string(ProcessInfo.pid_) +
-            "  uid #" + std::to_string(ProcessInfo.uid_);
+        dumpInfo = "      pid #" + std::to_string(processInfo.pid_) +
+            "  uid #" + std::to_string(processInfo.uid_);
         info.push_back(dumpInfo);
-        auto appState = static_cast<AppState>(ProcessInfo.state_);
+        auto appState = static_cast<AppState>(processInfo.state_);
         dumpInfo = "      state #" + DelayedSingleton<AppScheduler>::GetInstance()->ConvertAppState(appState);
         info.push_back(dumpInfo);
+        DumpUIExtensionRootHostRunningInfos(processInfo.pid_, info);
+        DumpUIExtensionProviderRunningInfos(processInfo.pid_, info);
+    }
+}
+
+void AbilityManagerService::DumpUIExtensionRootHostRunningInfos(pid_t pid, std::vector<std::string> &info)
+{
+    auto appMgr = GetAppMgr();
+    if (appMgr == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get AppMgr failed.");
+        return;
+    }
+
+    std::vector<pid_t> hostPids;
+    auto ret = IN_PROCESS_CALL(appMgr->GetAllUIExtensionRootHostPid(pid, hostPids));
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get root host process info faild.");
+        return;
+    }
+
+    if (hostPids.size() == 0) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "There's no ui extenson root host of pid %{public}d.", pid);
+        return;
+    }
+
+    std::string temp;
+    for (size_t i = 0; i < hostPids.size(); i++) {
+        temp = "      root caller #" + std::to_string(i);
+        info.push_back(temp);
+        temp = "        pid #" + std::to_string(hostPids[i]);
+        info.push_back(temp);
+    }
+}
+
+void AbilityManagerService::DumpUIExtensionProviderRunningInfos(pid_t hostPid, std::vector<std::string> &info)
+{
+    auto appMgr = GetAppMgr();
+    if (appMgr == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Get AppMgr failed.");
+        return;
+    }
+
+    std::vector<pid_t> providerPids;
+    auto ret = IN_PROCESS_CALL(appMgr->GetAllUIExtensionProviderPid(hostPid, providerPids));
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get provider process info faild.");
+        return;
+    }
+
+    if (providerPids.size() == 0) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "There's no ui extension provider of pid %{public}d.", hostPid);
+        return;
+    }
+
+    std::string temp;
+    for (size_t i = 0; i < providerPids.size(); i++) {
+        temp = "      uiextension provider #" + std::to_string(i);
+        info.push_back(temp);
+        temp = "        pid #" + std::to_string(providerPids[i]);
+        info.push_back(temp);
     }
 }
 
@@ -9915,11 +9975,14 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
         return ERR_INVALID_VALUE;
     }
 
-    auto ret = connectManager->GetUIExtensionRootHostInfo(token, hostInfo);
-    if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get host info failed with %{public}d.", ret);
-        return ret;
+    auto callerRecord = connectManager->GetUIExtensionRootHostInfo(token);
+    if (callerRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Get root host info failed.");
+        return ERR_INVALID_VALUE;
     }
+
+    hostInfo.elementName_ = callerRecord->GetElementName();
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Root host uri: %{public}s.", hostInfo.elementName_.GetURI().c_str());
     return ERR_OK;
 }
 

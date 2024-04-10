@@ -241,5 +241,35 @@ HWTEST_F(AbilityManagerServiceDumpTest, AbilityManagerService_OnAppStateChanged_
         EXPECT_EQ(abilityRecord->GetAppState(), AppState::TERMINATED);
     }
 }
+
+/**
+ * @tc.name: DumpUIExtensionRootHostRunningInfos_0100
+ * @tc.desc: Dump ui extension root host info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceDumpTest, DumpUIExtensionRootHostRunningInfos_0100, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    pid_t pid = 1;
+    std::vector<std::string> info;
+    abilityMs_->DumpUIExtensionRootHostRunningInfos(pid, info);
+    EXPECT_EQ(info.size(), 0);
+}
+
+/**
+ * @tc.name: DumpUIExtensionProviderRunningInfos_0100
+ * @tc.desc: Dump ui extension provider info.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerServiceDumpTest, DumpUIExtensionProviderRunningInfos_0100, TestSize.Level1)
+{
+    auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    ASSERT_NE(abilityMs_, nullptr);
+    pid_t hostPid = 1;
+    std::vector<std::string> info;
+    abilityMs_->DumpUIExtensionRootHostRunningInfos(hostPid, info);
+    EXPECT_EQ(info.size(), 0);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
