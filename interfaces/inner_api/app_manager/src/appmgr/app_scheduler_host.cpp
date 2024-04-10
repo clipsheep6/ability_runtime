@@ -78,6 +78,8 @@ void AppSchedulerHost::InitMemberFuncMap()
         &AppSchedulerHost::HandleAttachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DETACH_APP_DEBUG)] =
         &AppSchedulerHost::HandleDetachAppDebug;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_REQUEST_TERMINATE_PROCESS)] =
+        &AppSchedulerHost::HandleScheduleRequestTerminateProcess;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleJsHeapMemory;
 }
@@ -375,6 +377,16 @@ int32_t AppSchedulerHost::HandleDetachAppDebug(MessageParcel &data, MessageParce
 {
     HITRACE_METER(HITRACE_TAG_APP);
     DetachAppDebug();
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t result = ScheduleRequestTerminateProcess();
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Reply write failed.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

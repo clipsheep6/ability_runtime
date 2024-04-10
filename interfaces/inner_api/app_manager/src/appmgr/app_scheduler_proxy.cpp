@@ -617,5 +617,23 @@ int32_t AppSchedulerProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     }
     return ret;
 }
+
+int32_t AppSchedulerProxy::ScheduleRequestTerminateProcess()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_ASYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    int32_t ret =
+        SendTransactCmd(static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_REQUEST_TERMINATE_PROCESS),
+            data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return NO_ERROR;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

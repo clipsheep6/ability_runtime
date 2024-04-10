@@ -1753,6 +1753,52 @@ int32_t AppMgrProxy::SignRestartAppFlag(const std::string &bundleName)
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::RequestTerminateProcess()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    auto error = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_PROCESS), data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrProxy::RequestTerminateApplication()
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Remote is nullptr.");
+        return ERR_NULL_OBJECT;
+    }
+    auto error = remote->SendRequest(
+        static_cast<uint32_t>(AppMgrInterfaceCode::REQUEST_TERMINATE_APPLICATION), data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return NO_ERROR;
+}
+
 int32_t AppMgrProxy::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");

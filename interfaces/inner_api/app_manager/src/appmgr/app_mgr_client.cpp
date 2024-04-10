@@ -331,6 +331,40 @@ AppMgrResultCode AppMgrClient::KillApplicationSelf()
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
 
+AppMgrResultCode AppMgrClient::RequestTerminateProcess()
+{
+    if (mgrHolder_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "MgrHolder is null!");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        int32_t result = service->RequestTerminateProcess();
+        if (result == ERR_OK) {
+            return AppMgrResultCode::RESULT_OK;
+        }
+        return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
+AppMgrResultCode AppMgrClient::RequestTerminateApplication()
+{
+    if (mgrHolder_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "MgrHolder is null!");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service != nullptr) {
+        int32_t result = service->RequestTerminateApplication();
+        if (result == ERR_OK) {
+            return AppMgrResultCode::RESULT_OK;
+        }
+        return AppMgrResultCode::ERROR_SERVICE_NOT_READY;
+    }
+    return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+}
+
 AppMgrResultCode AppMgrClient::ClearUpApplicationData(const std::string &bundleName, const int32_t userId)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());

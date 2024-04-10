@@ -123,6 +123,8 @@ private:
     int32_t HandleExitChildProcessSafely(MessageParcel &data, MessageParcel &reply);
     int32_t HandleIsFinalAppProcess(MessageParcel &data, MessageParcel &reply);
     int32_t HandleClearUpApplicationDataBySelf(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRequestTerminateProcess(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleRequestTerminateApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleRegisterRenderStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUnregisterRenderStateObserver(MessageParcel &data, MessageParcel &reply);
     int32_t HandleUpdateRenderState(MessageParcel &data, MessageParcel &reply);

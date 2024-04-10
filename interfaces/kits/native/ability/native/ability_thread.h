@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -355,6 +355,11 @@ public:
      * @param sessionToken The token of session.
      */
     void UpdateSessionToken(sptr<IRemoteObject> sessionToken) override;
+
+    /**
+     * Requesting the component to end itself.
+     */
+    virtual void RequestTerminateSelf() {}
 
 #ifdef ABILITY_COMMAND_FOR_TEST
     /**

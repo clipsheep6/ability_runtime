@@ -5753,6 +5753,42 @@ void AppMgrServiceInner::ClearData(std::shared_ptr<AppRunningRecord> appRecord)
     }
 }
 
+int32_t AppMgrServiceInner::RequestTerminateProcess() const
+{
+    pid_t pid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(pid);
+    if (appRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not find app record");
+        return ERR_INVALID_VALUE;
+    }
+    return appRecord->RequestTerminateProcess();
+}
+
+int32_t AppMgrServiceInner::RequestTerminateApplication() const
+{
+    pid_t currentPid = IPCSkeleton::GetCallingPid();
+    auto appRecord = GetAppRunningRecordByPid(currentPid);
+    if (appRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Not find app record");
+        return ERR_INVALID_VALUE;
+    }
+
+    auto &bundleName = appRecord->GetBundleName();
+    std::list<pid_t> pids;
+    if (appRunningManager_ != nullptr || appRunningManager_->ProcessExitByBundleName(bundleName, pids)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Failed to obtain the pid under the bundle");
+        return ERR_INVALID_VALUE;
+    }
+
+    for (auto &pid : pids) {
+        auto appRecord = GetAppRunningRecordByPid(pid);
+        if (appRecord != nullptr) {
+            appRecord->RequestTerminateProcess();
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer)
 {
     if (observer == nullptr) {

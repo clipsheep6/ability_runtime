@@ -713,6 +713,12 @@ public:
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
 
     /**
+     * Normal scheduling to exit the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() const;
+
+    /*
      * @brief Obtains the app record assign tokenId.
      *
      * @return Returns app record AssignTokenId.

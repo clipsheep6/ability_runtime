@@ -1980,6 +1980,15 @@ std::map<int32_t, std::shared_ptr<ChildProcessRecord>> AppRunningRecord::GetChil
     return childProcessRecordMap_;
 }
 
+int32_t AppRunningRecord::RequestTerminateProcess() const
+{
+    if (appLifeCycleDeal_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppLifeCycleDeal is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->RequestTerminateProcess();
+}
+
 void AppRunningRecord::SetJITEnabled(const bool jitEnabled)
 {
     jitEnabled_ = jitEnabled;

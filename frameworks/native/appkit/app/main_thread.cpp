@@ -3086,6 +3086,50 @@ bool MainThread::NotifyDeviceDisConnect()
     return true;
 }
 
+int32_t MainThread::ScheduleRequestTerminateProcess()
+{
+    if (mainHandler_ == nullptr) {
+        HILOG_ERROR("MainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            HILOG_ERROR("AppThread is nullptr, request terminate process failed.");
+            return;
+        }
+        appThread->RequestTerminateProcess();
+    };
+    mainHandler_->PostTask(task, "MainThread:RequestTerminateProcess");
+    return NO_ERROR;
+}
+
+void MainThread::RequestTerminateProcess()
+{
+    if (abilityRecordMgr_ == nullptr) {
+        HILOG_ERROR("Ability record mgr obj is nullptr");
+        return;
+    }
+
+    auto abilityTokenList = abilityRecordMgr_->GetAllTokens();
+    for (auto &item : abilityTokenList) {
+        if (item == nullptr) {
+            continue;
+        }
+        auto abilityRecord = abilityRecordMgr_->GetAbilityItem(item);
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        auto &thread = abilityRecord->GetAbilityThread();
+        if (thread == nullptr) {
+            continue;
+        }
+        thread->RequestTerminateSelf();
+    }
+}
+
 void MainThread::AssertFaultPauseMainThreadDetection()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Called.");

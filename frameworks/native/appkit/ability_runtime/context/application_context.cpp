@@ -389,6 +389,20 @@ void ApplicationContext::KillProcessBySelf()
     }
 }
 
+void ApplicationContext::RequestTerminateProcess()
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->RequestTerminateProcess();
+    }
+}
+
+void ApplicationContext::RequestTerminateApplication()
+{
+    if (contextImpl_ != nullptr) {
+        contextImpl_->RequestTerminateApplication();
+    }
+}
+
 int32_t ApplicationContext::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info)
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetProcessRunningInformation(info) : -1;

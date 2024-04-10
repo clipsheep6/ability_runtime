@@ -50,6 +50,7 @@ public:
     MOCK_METHOD1(ScheduleNotifyAppFault, int32_t(const FaultData &faultData));
     MOCK_METHOD0(AttachAppDebug, void());
     MOCK_METHOD0(DetachAppDebug, void());
+    MOCK_METHOD0(ScheduleRequestTerminateProcess, int32_t());
     MOCK_METHOD1(ScheduleJsHeapMemory, void(OHOS::AppExecFwk::JsHeapDumpInfo &info));
     MOCK_METHOD2(SetAppWaitingDebug, int32_t(const std::string &bundleName, bool isPersist));
     MOCK_METHOD0(CancelAppWaitingDebug, int32_t());

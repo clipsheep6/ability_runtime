@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -317,6 +317,16 @@ public:
      * @return error code
      */
     void KillProcessBySelf();
+
+    /**
+     * Normal scheduling to exit the process.
+     */
+    void RequestTerminateProcess();
+    
+    /**
+     * Normal scheduling to exit the application.
+     */
+    void RequestTerminateApplication();
 
     /**
      * @brief Get running informationfor cuirrent process

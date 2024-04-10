@@ -796,6 +796,32 @@ HWTEST_F(AppMgrServiceInnerTest, KillApplication_001, TestSize.Level0)
 }
 
 /**
+ * @tc.name: RequestTerminateProcess_0100
+ * @tc.desc: Test the Normal scheduling to exit the process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RequestTerminateProcess_0100, TestSize.Level1)
+{
+    sptr<IAppForegroundStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RequestTerminateProcess();
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: RequestTerminateApplication_0100
+ * @tc.desc: Test the Normal scheduling to exit the process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, RequestTerminateApplication_0100, TestSize.Level1)
+{
+    sptr<IAppForegroundStateObserver> observer = nullptr;
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    auto res = appMgrServiceInner->RequestTerminateApplication();
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
  * @tc.name: KillApplicationByUid_001
  * @tc.desc: kill application by uid.
  * @tc.type: FUNC

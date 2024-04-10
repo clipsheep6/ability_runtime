@@ -1007,6 +1007,26 @@ void ContextImpl::KillProcessBySelf()
     appMgrClient->KillApplicationSelf();
 }
 
+void ContextImpl::RequestTerminateProcess()
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient == nullptr) {
+        HILOG_ERROR("Get app mgr client error");
+        return;
+    }
+    appMgrClient->RequestTerminateProcess();
+}
+
+void ContextImpl::RequestTerminateApplication()
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    if (appMgrClient == nullptr) {
+        HILOG_ERROR("Get app mgr client error");
+        return;
+    }
+    appMgrClient->RequestTerminateApplication();
+}
+
 int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo &info)
 {
     auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();

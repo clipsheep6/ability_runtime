@@ -204,6 +204,62 @@ HWTEST_F(AppMgrServiceTest, ApplicationTerminated_001, TestSize.Level0)
     appMgrService->ApplicationTerminated(recordId);
 }
 
+/**
+ * @tc.name: RequestTerminateApplication_0100
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateApplication_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->appMgrServiceInner_ = nullptr;
+    auto res = appMgrService->RequestTerminateApplication();
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: RequestTerminateApplication_0200
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateApplication_0200, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    auto res = appMgrService->RequestTerminateApplication();
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: RequestTerminateProcess_001
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateProcess_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->appMgrServiceInner_ = nullptr;
+    auto res = appMgrService->RequestTerminateProcess();
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: RequestTerminateProcess_0200
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateProcess_0200, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    auto res = appMgrService->RequestTerminateProcess();
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
 /*
  * Feature: AppMgrService
  * Function: AbilityCleaned

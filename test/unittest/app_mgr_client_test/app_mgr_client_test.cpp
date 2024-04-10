@@ -366,6 +366,36 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_KillApplicationSelf_001, TestSize.Level0
 }
 
 /**
+ * @tc.name: AppMgrClient_RequestTerminateProcess_001
+ * @tc.desc: kill application self.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RequestTerminateProcess_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->RequestTerminateProcess();
+    EXPECT_EQ(ret, AppMgrResultCode::ERROR_KILL_APPLICATION);
+}
+
+/**
+ * @tc.name: AppMgrClient_RequestTerminateApplication_001
+ * @tc.desc: kill application self.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RequestTerminateApplication_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->RequestTerminateApplication();
+    EXPECT_EQ(ret, AppMgrResultCode::ERROR_SERVICE_NOT_READY);
+}
+
+/**
  * @tc.name: AppMgrClient_AbilityAttachTimeOut_001
  * @tc.desc: ability attach timeout.
  * @tc.type: FUNC

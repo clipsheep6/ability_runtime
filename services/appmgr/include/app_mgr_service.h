@@ -460,6 +460,22 @@ public:
      */
     void ExitChildProcessSafely() override;
 
+    /**
+     * Normal scheduling to exit the process.
+     *
+     * @param bundleName.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() override;
+    
+    /**
+     * Normal scheduling to exit the application.
+     *
+     * @param bundleName.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateApplication() override;
+
     int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;
 
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer) override;

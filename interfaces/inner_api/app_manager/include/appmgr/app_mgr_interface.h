@@ -551,6 +551,22 @@ public:
     virtual bool IsFinalAppProcess()  = 0;
 
     /**
+     * Normal scheduling to exit the process.
+     *
+     * @param bundleName.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestTerminateProcess() = 0;
+    
+    /**
+     * Normal scheduling to exit the application.
+     *
+     * @param bundleName.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t RequestTerminateApplication() = 0;
+
+    /**
      * Register render state observer.
      * @param observer Render process state observer.
      * @return Returns ERR_OK on success, others on failure.
