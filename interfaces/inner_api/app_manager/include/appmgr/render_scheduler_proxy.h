@@ -40,7 +40,7 @@ public:
      * @param crashFd, crash signal file descriptior.
      */
     virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd,
-                                 int32_t crashFd) override;
+                                 int32_t crashFd, const sptr<IRemoteObject> &browser) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

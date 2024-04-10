@@ -312,7 +312,7 @@ public:
      */
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) = 0;
+                                   int32_t crashFd, pid_t &renderPid, const std::string &processType) = 0;
 
     /**
      * Render process call this to attach app manager service.
@@ -611,6 +611,8 @@ public:
     {
         return 0;
     }
+
+    virtual void SaveBrowserChannel(const sptr<IRemoteObject> &browser) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

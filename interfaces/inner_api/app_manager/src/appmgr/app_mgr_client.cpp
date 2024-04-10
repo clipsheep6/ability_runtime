@@ -729,12 +729,12 @@ int AppMgrClient::PreStartNWebSpawnProcess()
 
 int AppMgrClient::StartRenderProcess(const std::string &renderParam,
                                      int32_t ipcFd, int32_t sharedFd,
-                                     int32_t crashFd, pid_t &renderPid)
+                                     int32_t crashFd, pid_t &renderPid, const std::string &processType)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
     if (service != nullptr) {
         return service->StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd,
-                                           renderPid);
+                                           renderPid, processType);
     }
     return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
 }
@@ -1106,6 +1106,16 @@ int32_t AppMgrClient::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pi
         return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
     }
     return service->GetAllUIExtensionProviderPid(hostPid, providerPids);
+}
+
+void AppMgrClient::SaveBrowserChannel(const sptr<IRemoteObject> &browser)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return;
+    }
+    service->SaveBrowserChannel(browser);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

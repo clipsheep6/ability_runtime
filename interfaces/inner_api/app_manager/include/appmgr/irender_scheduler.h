@@ -36,7 +36,7 @@ public:
      * @param crashFd, crash signal file descriptior.
      */
     virtual void NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd,
-                                 int32_t crashFd) = 0;
+                                 int32_t crashFd, const sptr<IRemoteObject> &browser) = 0;
 
     enum class Message {
         NOTIFY_BROWSER_FD = 1,

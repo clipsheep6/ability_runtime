@@ -746,7 +746,7 @@ int AppMgrProxy::PreStartNWebSpawnProcess()
 
 int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
                                     int32_t ipcFd, int32_t sharedFd,
-                                    int32_t crashFd, pid_t &renderPid)
+                                    int32_t crashFd, pid_t &renderPid, const std::string &processType)
 {
     if (renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 || crashFd <= 0) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid params, renderParam:%{private}s, ipcFd:%{public}d, "
@@ -771,6 +771,11 @@ int AppMgrProxy::StartRenderProcess(const std::string &renderParam,
         !data.WriteFileDescriptor(crashFd)) {
         TAG_LOGE(AAFwkTag::APPMGR, "want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
             "crashFd:%{public}d", ipcFd, sharedFd, crashFd);
+        return -1;
+    }
+
+    if (!data.WriteString(processType)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "want processType failed.");
         return -1;
     }
 
@@ -811,6 +816,27 @@ void AppMgrProxy::AttachRenderProcess(const sptr<IRemoteObject> &renderScheduler
 
     if (!SendTransactCmd(AppMgrInterfaceCode::ATTACH_RENDER_PROCESS, data, reply)) {
         TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd ATTACH_RENDER_PROCESS failed");
+        return;
+    }
+}
+
+void AppMgrProxy::SaveBrowserChannel(const sptr<IRemoteObject> &browser)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
+        return;
+    }
+
+    if (!data.WriteRemoteObject(browser)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "browser write failed.");
+        return;
+    }
+
+    if (!SendTransactCmd(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL, data, reply)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd SAVE_BROWSER_CHANNEL failed");
         return;
     }
 }

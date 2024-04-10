@@ -180,6 +180,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllUIExtensionRootHostPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID)] =
         &AppMgrStub::HandleGetAllUIExtensionProviderPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SAVE_BROWSER_CHANNEL)] =
+        &AppMgrStub::HandleSaveBrowserChannel;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -617,8 +619,9 @@ int32_t AppMgrStub::HandleStartRenderProcess(MessageParcel &data, MessageParcel 
     int32_t sharedFd = data.ReadFileDescriptor();
     int32_t crashFd = data.ReadFileDescriptor();
     int32_t renderPid = 0;
+    std::string processType = data.ReadString();
     int32_t result =
-        StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        StartRenderProcess(renderParam, ipcFd, sharedFd, crashFd, renderPid, processType);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "write result error.");
         return ERR_INVALID_VALUE;
@@ -634,6 +637,13 @@ int32_t AppMgrStub::HandleAttachRenderProcess(MessageParcel &data, MessageParcel
 {
     sptr<IRemoteObject> scheduler = data.ReadRemoteObject();
     AttachRenderProcess(scheduler);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSaveBrowserChannel(MessageParcel &data, MessageParcel &reply)
+{
+    sptr<IRemoteObject> browser = data.ReadRemoteObject();
+    SaveBrowserChannel(browser);
     return NO_ERROR;
 }
 

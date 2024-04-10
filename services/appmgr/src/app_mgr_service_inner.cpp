@@ -189,6 +189,11 @@ constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
 
+constexpr int32_t RENDER_PROCESS = 1;
+constexpr int32_t GPU_PROCESS = 2;
+const std::string RENDER_PROCESS_NAME = "renderer";
+const std::string GPU_PROCESS_NAME = "gpu-process";
+
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
@@ -3957,7 +3962,7 @@ int AppMgrServiceInner::PreStartNWebSpawnProcess(const pid_t hostPid)
 }
 
 int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::string &renderParam,
-    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t ipcFd, int32_t sharedFd, int32_t crashFd, pid_t &renderPid, const std::string &processType)
 {
     TAG_LOGI(AAFwkTag::APPMGR, "start render process, hostPid:%{public}d", hostPid);
     if (hostPid <= 0 || renderParam.empty() || ipcFd <= 0 || sharedFd <= 0 ||
@@ -4011,7 +4016,7 @@ int AppMgrServiceInner::StartRenderProcess(const pid_t hostPid, const std::strin
         return ERR_INVALID_VALUE;
     }
 
-    return StartRenderProcessImpl(renderRecord, appRecord, renderPid);
+    return StartRenderProcessImpl(renderRecord, appRecord, renderPid, processType);
 }
 
 void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRenderScheduler> &scheduler)
@@ -4055,7 +4060,14 @@ void AppMgrServiceInner::AttachRenderProcess(const pid_t pid, const sptr<IRender
     // notify fd to render process
     scheduler->NotifyBrowserFd(renderRecord->GetIpcFd(),
                                renderRecord->GetSharedFd(),
-                               renderRecord->GetCrashFd());
+                               renderRecord->GetCrashFd(),
+                               browser_host_);
+}
+
+void AppMgrServiceInner::SaveBrowserChannel(const sptr<IRemoteObject> &browser)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "save browser channel.");
+    browser_host_ = browser;
 }
 
 bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
@@ -4099,7 +4111,7 @@ bool AppMgrServiceInner::GenerateRenderUid(int32_t &renderUid)
 }
 
 int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecord> &renderRecord,
-    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid)
+    const std::shared_ptr<AppRunningRecord> appRecord, pid_t &renderPid, const std::string &processType)
 {
     if (!renderRecord || !appRecord) {
         TAG_LOGE(AAFwkTag::APPMGR, "renderRecord or appRecord is nullptr.");
@@ -4122,6 +4134,11 @@ int AppMgrServiceInner::StartRenderProcessImpl(const std::shared_ptr<RenderRecor
     startMsg.renderParam = renderRecord->GetRenderParam();
     startMsg.uid = renderUid;
     startMsg.gid = renderUid;
+    if (processType == RENDER_PROCESS_NAME) {
+        startMsg.processType = RENDER_PROCESS;
+    } else if (processType == GPU_PROCESS_NAME) {
+        startMsg.processType = GPU_PROCESS;
+    }
     startMsg.code = 0; // 0: DEFAULT
     pid_t pid = 0;
     ErrCode errCode = nwebSpawnClient->StartProcess(startMsg, pid);

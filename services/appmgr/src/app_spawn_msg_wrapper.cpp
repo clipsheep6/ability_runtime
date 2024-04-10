@@ -116,6 +116,7 @@ bool AppSpawnMsgWrapper::AssembleMsg(const AppSpawnStartMsg &startMsg)
             TAG_LOGE(AAFwkTag::APPMGR, "failed to transform procName!");
             return false;
         }
+        msg_->processType = startMsg.processType;
         if (strcpy_s(msg_->soPath, sizeof(msg_->soPath), startMsg.soPath.c_str()) != EOK) {
             TAG_LOGE(AAFwkTag::APPMGR, "failed to transform soPath!");
             return false;
