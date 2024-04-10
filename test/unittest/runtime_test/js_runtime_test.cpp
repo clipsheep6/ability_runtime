@@ -1327,5 +1327,18 @@ HWTEST_F(JsRuntimeTest, GetPkgContextInfoListMap_0200, TestSize.Level0)
     ASSERT_EQ(pkgRetString, expectString);
     HILOG_INFO("GetPkgContextInfoListMap_0200 end");
 }
+
+/**
+ * @tc.name: CreateJsEnv_0100
+ * @tc.desc: JsRuntime test for CreateJsEnv.
+ * @tc.type: FUNC
+ * @tc.require: issueI9CHSB
+ */
+HWTEST_F(JsRuntimeTest, CreateJsEnv_0100, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    auto ret = jsRuntime->CreateJsEnv(options_);
+    EXPECT_EQ(ret, true);
+}
 } // namespace AbilityRuntime
 } // namespace OHOS
