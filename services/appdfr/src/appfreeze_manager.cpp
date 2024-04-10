@@ -44,6 +44,7 @@ constexpr char EVENT_PACKAGE_NAME[] = "PACKAGE_NAME";
 constexpr char EVENT_PROCESS_NAME[] = "PROCESS_NAME";
 constexpr char EVENT_STACK[] = "STACK";
 constexpr char BINDER_INFO[] = "BINDER_INFO";
+constexpr char APP_RUNNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
 constexpr int MAX_LAYER = 8;
 }
 std::shared_ptr<AppfreezeManager> AppfreezeManager::instance_ = nullptr;
@@ -203,16 +204,20 @@ int AppfreezeManager::AcquireStack(const FaultData& faultData, const AppfreezeMa
 int AppfreezeManager::NotifyANR(const FaultData& faultData, const AppfreezeManager::AppInfo& appInfo,
     const std::string& binderInfo)
 {
+    std::string appRunningUniqueId = "";
+    DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->GetAppRunningUniqueIdByPid(appInfo.pid,
+        appRunningUniqueId);
+
     int ret = HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
-        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid,
-        EVENT_PID, appInfo.pid, EVENT_PACKAGE_NAME, appInfo.bundleName,
-        EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
-        faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo);
+        OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, appInfo.uid, EVENT_PID, appInfo.pid,
+        EVENT_PACKAGE_NAME, appInfo.bundleName, EVENT_PROCESS_NAME, appInfo.processName, EVENT_MESSAGE,
+        faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack, BINDER_INFO, binderInfo,
+        APP_RUNNING_UNIQUE_ID, appRunningUniqueId);
 
     TAG_LOGI(AAFwkTag::APPDFR,
-        "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, "
+        "reportEvent:%{public}s, pid:%{public}d, bundleName:%{public}s, appRunningUniqueId:%{public}s "
         "hisysevent write ret = %{public}d.",
-        faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str(), ret);
+        faultData.errorObject.name.c_str(), appInfo.pid, appInfo.bundleName.c_str(), appRunningUniqueId.c_str(), ret);
     return 0;
 }
 
