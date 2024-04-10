@@ -277,10 +277,13 @@ ohos_shared_library("abilitykit_native") {
     "ipc:ipc_js",
     "ipc:ipc_napi",
     "napi:ace_napi",
-    "relational_store:native_rdb",
     "resource_management:global_resmgr",
     "samgr:samgr_proxy",
   ]
+
+  if (!build_ohos_sdk) {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   defines = []
 
@@ -801,9 +804,12 @@ ohos_shared_library("data_ability_helper") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "relational_store:native_dataability",
-    "relational_store:native_rdb",
     "relational_store:rdb_data_ability_adapter",
   ]
+
+  if (!build_ohos_sdk) {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   innerapi_tags = [ "platformsdk" ]
   subsystem_name = "ability"

@@ -150,9 +150,12 @@ ohos_shared_library("ability_manager") {
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "relational_store:native_dataability",
-    "relational_store:native_rdb",
     "samgr:samgr_proxy",
   ]
+
+  if (!build_ohos_sdk) {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   if (ability_runtime_graphics) {
     deps += []

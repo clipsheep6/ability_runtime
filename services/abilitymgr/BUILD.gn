@@ -171,7 +171,6 @@ ohos_shared_library("abilityms") {
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",
     "relational_store:native_dataability",
-    "relational_store:native_rdb",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "window_manager:libmodal_system_ui_extension_client",
@@ -180,6 +179,10 @@ ohos_shared_library("abilityms") {
     "window_manager:session_manager_lite",
     "window_manager:sms",
   ]
+
+  if (!build_ohos_sdk) {
+    external_deps += [ "relational_store:native_rdb" ]
+  }
 
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
