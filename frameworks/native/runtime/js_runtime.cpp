@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 #include "accesstoken_kit.h"
+#include "config_policy_utils.h"
 #include "constants.h"
 #include "connect_server_manager.h"
 #include "ecmascript/napi/include/jsnapi.h"
@@ -86,6 +87,7 @@ constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
+const std::string CONFIG_PATH = "/etc/system_kits_config.json";
 const std::string SYSTEM_KITS_CONFIG_PATH = "/system/etc/system_kits_config.json";
 
 const std::string SYSTEM_KITS = "systemkits";
@@ -1496,18 +1498,29 @@ void JsRuntime::SetDeviceDisconnectCallback(const std::function<bool()> &cb)
     jsEnv_->SetDeviceDisconnectCallback(cb);
 }
 
+std::string JsRuntime::GetSystemKitPath()
+{
+    char buf[MAX_PATH_LEN] = { 0 };
+    char *configPath = GetOneCfgFile(CONFIG_PATH.c_str(), buf, MAX_PATH_LEN);
+    if (configPath == nullptr || configPath[0] == '\0' || strlen(configPath) > MAX_PATH_LEN) {
+        return SYSTEM_KITS_CONFIG_PATH;
+    }
+    return configPath;
+}
+
 std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
 {
     std::vector<panda::HmsMap> systemKitsMap;
     nlohmann::json jsonBuf;
-    if (access(SYSTEM_KITS_CONFIG_PATH.c_str(), F_OK) != 0) {
+    std::string configPath = GetSystemKitPath();
+    if (configPath == "") {
         return systemKitsMap;
     }
 
     std::fstream in;
     char errBuf[256];
     errBuf[0] = '\0';
-    in.open(SYSTEM_KITS_CONFIG_PATH, std::ios_base::in);
+    in.open(configPath, std::ios_base::in);
     if (!in.is_open()) {
         strerror_r(errno, errBuf, sizeof(errBuf));
         return systemKitsMap;

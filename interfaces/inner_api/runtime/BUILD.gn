@@ -103,6 +103,7 @@ ohos_shared_library("runtime") {
     "bundle_framework:bundle_napi_common",
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
+    "config_policy:configpolicy_util",
     "ets_runtime:libark_jsruntime",
     "ets_utils:console",
     "ets_utils:timer",

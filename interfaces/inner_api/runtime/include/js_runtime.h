@@ -177,6 +177,7 @@ private:
     void LoadAotFile(const Options& options);
     void SetRequestAotCallback();
 
+    std::string GetSystemKitPath();
     std::vector<panda::HmsMap> GetSystemKitsMap(uint32_t version);
 
     void GetPkgContextInfoListMap(const std::map<std::string, std::string> &contextInfoMap,
