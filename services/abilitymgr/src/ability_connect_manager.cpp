@@ -779,6 +779,19 @@ void AbilityConnectManager::OnAppStateChanged(const AppInfo &info)
     });
 }
 
+std::shared_ptr<AbilityRecord> AbilityConnectManager::GetAutoFillExtFromTerminatingMap(const sptr<IRemoteObject> &token)
+{
+    auto abilityRecord = GetExtensionFromTerminatingMapInner(token);
+    if (abilityRecord != nullptr) {
+        auto extensionAbilityType = abilityRecord->GetAbilityInfo().extensionAbilityType;
+        if (!(extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD ||
+            extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART)) {
+            abilityRecord = nullptr;
+        }
+    }
+    return abilityRecord;
+}
+
 int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -789,6 +802,9 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     if (targetState == AbilityState::INACTIVE
         || targetState == AbilityState::FOREGROUND) {
         abilityRecord = GetExtensionFromServiceMapInner(token);
+        if (abilityRecord == nullptr) {
+            abilityRecord = GetAutoFillExtFromTerminatingMap(token);
+        }
     } else if (targetState == AbilityState::BACKGROUND) {
         abilityRecord = GetExtensionFromServiceMapInner(token);
         if (abilityRecord == nullptr) {
