@@ -1221,7 +1221,10 @@ napi_value JsUIAbility::CallObjectMethod(const char *name, napi_value const *arg
         }
         return handleEscape.Escape(result);
     }
-    napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "LQ::napi_call_function");
+        napi_call_function(env, obj, methodOnCreate, argc, argv, nullptr);
+    }
     if (tryCatch.HasCaught()) {
         reinterpret_cast<NativeEngine*>(env)->HandleUncaughtException();
     }
