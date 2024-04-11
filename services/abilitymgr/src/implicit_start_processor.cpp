@@ -95,7 +95,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
         return ret;
     }
-    AbilityUtil::ProcessWindowMode(request.want, request.abilityInfo.applicationInfo.accessTokenId, windowMode);
+    AbilityUtil::WantSetParameterWindowMode(request.want, windowMode);
 
     auto identity = IPCSkeleton::ResetCallingIdentity();
     auto startAbilityTask = [imp = shared_from_this(), request, userId, identity]
