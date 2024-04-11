@@ -69,6 +69,9 @@ private:
     AbilityBase::ViewData viewData_;
     bool isReloadInModal_ = false;
     bool isSmartAutoFill_ = false;
+    bool isOnResult_ = false;
+    AAFwk::Want want_;
+    int32_t errCode_ = 0;
     AbilityBase::AutoFillType autoFillType_ = AbilityBase::AutoFillType::UNSPECIFIED;
 };
 } // AbilityRuntime
