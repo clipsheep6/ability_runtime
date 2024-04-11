@@ -160,9 +160,11 @@ void OHOSJsEnvironmentImpl::InitWorkerModule(NativeEngine* engine, std::shared_p
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER(engine);
+    CHECK_POINTER(workerInfo);
     engine->SetInitWorkerFunc(InitWorkerFunc);
     engine->SetOffWorkerFunc(OffWorkerFunc);
     engine->SetGetAssetFunc(AssetHelper(workerInfo));
+    engine->SetApiVersion(workerInfo->apiTargetVersion);
 
     engine->SetGetContainerScopeIdFunc(GetContainerId);
     engine->SetInitContainerScopeFunc(UpdateContainerScope);

@@ -164,8 +164,8 @@ AssetHelper::~AssetHelper()
     }
 }
 
-void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::string& ami,
-    bool& useSecureMem, bool isRestricted)
+void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
+    std::string& ami, bool& useSecureMem, bool isRestricted)
 {
     if (uri.empty() || buff == nullptr || buffSize == nullptr || workerInfo_ == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "Input params invalid.");
@@ -211,10 +211,10 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
 
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
-            if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
+            if (!ReadAmiData(ami, buff, buffSize, content, useSecureMem, isRestricted)) {
                 TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by ami failed.");
             }
-        } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
+        } else if (!ReadFilePathData(filePath, buff, buffSize, content, useSecureMem, isRestricted)) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by filepath failed.");
         }
     } else {
@@ -249,10 +249,10 @@ void AssetHelper::operator()(const std::string& uri, uint8_t** buff, size_t* buf
         ami = workerInfo_->codePath + filePath;
         TAG_LOGD(AAFwkTag::JSRUNTIME, "Get asset, ami: %{private}s", ami.c_str());
         if (ami.find(CACHE_DIRECTORY) != std::string::npos) {
-            if (!ReadAmiData(ami, buff, buffSize, useSecureMem, isRestricted)) {
+            if (!ReadAmiData(ami, buff, buffSize, content, useSecureMem, isRestricted)) {
                 TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by ami failed.");
             }
-        } else if (!ReadFilePathData(filePath, buff, buffSize, useSecureMem, isRestricted)) {
+        } else if (!ReadFilePathData(filePath, buff, buffSize, content, useSecureMem, isRestricted)) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "Get buffer by filepath failed.");
         }
     }
@@ -303,7 +303,7 @@ bool AssetHelper::GetSafeData(const std::string& ami, uint8_t** buff, size_t* bu
     return true;
 }
 
-bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize,
+bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* buffSize, std::vector<uint8_t>& content,
     bool& useSecureMem, bool isRestricted)
 {
     // Current function is a private, validity of workerInfo_ has been checked by caller.
@@ -344,22 +344,14 @@ bool AssetHelper::ReadAmiData(const std::string& ami, uint8_t** buff, size_t* bu
         return false;
     }
 
-    auto temp = std::make_unique<uint8_t[]>(fileLen);
-    if (temp == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "Alloc mem failed.");
-        return false;
-    }
-
-    stream.seekg(0, std::ios::beg);
-    stream.read(reinterpret_cast<char*>(temp.get()), fileLen);
-
-    *buff = temp.get();
-    *buffSize = fileLen;
+    content.resize(fileLen);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(content.data()), content.size());
     return true;
 }
 
 bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, size_t* buffSize,
-    bool& useSecureMem, bool isRestricted)
+    std::vector<uint8_t>& content, bool& useSecureMem, bool isRestricted)
 {
     auto bundleMgrHelper = DelayedSingleton<AppExecFwk::BundleMgrHelper>::GetInstance();
     if (bundleMgrHelper == nullptr) {
@@ -453,8 +445,7 @@ bool AssetHelper::ReadFilePathData(const std::string& filePath, uint8_t** buff, 
         return false;
     }
 
-    *buff = dataPtr.get();
-    *buffSize = fileLen;
+    content.assign(dataPtr.get(), dataPtr.get() + fileLen);
     return true;
 }
 
