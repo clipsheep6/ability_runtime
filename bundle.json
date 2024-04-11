@@ -252,6 +252,15 @@
           },
           {
             "header": {
+              "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/ui_service_extension_ability",
+              "header_files": [
+                "ui_service_extension.h"
+              ]
+            },
+            "name": "//foundation/ability/ability_runtime/frameworks/native/ability/native:ui_service_extension"
+          },
+          {
+            "header": {
               "header_base": "//foundation/ability/ability_runtime/interfaces/kits/native/ability/native/",
               "header_files": [
                 "extension.h",

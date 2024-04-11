@@ -26,6 +26,18 @@ namespace OHOS {
 namespace AbilityRuntime {
 struct NapiCallbackInfo;
 class JsEmbeddableUIAbilityContext;
+class JSUIExtensionConnection;
+class UIExtensionServiceHostCallback;
+
+struct UIExtensionAsyncNapiContext {
+    napi_env env_ = nullptr;
+    napi_async_work work_ = nullptr;
+    napi_deferred deferred_ = nullptr;
+    std::weak_ptr<AbilityContext> context_;
+    AAFwk::Want want_;
+    int64_t connectId_ = 0;
+    wptr<JSUIExtensionConnection> connection_;
+};
 
 class JsUIExtensionContext {
 public:
@@ -43,6 +55,9 @@ public:
     static napi_value DisconnectAbility(napi_env env, napi_callback_info info);
     static napi_value ReportDrawnCompleted(napi_env env, napi_callback_info info);
     static napi_value OpenAtomicService(napi_env env, napi_callback_info info);
+    static napi_value StartUIServiceExtension(napi_env env, napi_callback_info info);
+    static napi_value ConnectUIServiceExtension(napi_env env, napi_callback_info info);
+    static napi_value DisconnectUIServiceExtension(napi_env env, napi_callback_info info);
 
 protected:
     virtual napi_value OnStartAbility(napi_env env, NapiCallbackInfo& info);
@@ -54,6 +69,9 @@ protected:
     virtual napi_value OnDisconnectAbility(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnReportDrawnCompleted(napi_env env, NapiCallbackInfo& info);
     virtual napi_value OnOpenAtomicService(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnStartUIServiceExtension(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnConnectUIServiceExtension(napi_env env, NapiCallbackInfo& info);
+    virtual napi_value OnDisconnectUIServiceExtension(napi_env env, NapiCallbackInfo& info);
 
 protected:
     std::weak_ptr<UIExtensionContext> context_;
@@ -87,10 +105,17 @@ public:
     void CallJsFailed(int32_t errorCode);
     void SetConnectionId(int64_t id);
     int64_t GetConnectionId();
+    void SetUIServiceExtensionAsyncContext(const UIExtensionAsyncNapiContext& context);
+    UIExtensionAsyncNapiContext& GetUIServiceExtensionAsyncContext();
+    std::unique_ptr<UIExtensionServiceHostCallback>& GetCallback() { return callback_; }
+    void SendData(OHOS::AAFwk::WantParams &data);
+
 private:
     napi_env env_ = nullptr;
     std::unique_ptr<NativeReference> jsConnectionObject_ = nullptr;
     int64_t connectionId_ = -1;
+    UIExtensionAsyncNapiContext asyncNapiContext_;
+    std::unique_ptr<UIExtensionServiceHostCallback> callback_;
 };
 
 struct UIExtensionConnectionKey {
