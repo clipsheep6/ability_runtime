@@ -15,7 +15,6 @@
 #include "js_app_foreground_state_observer.h"
 
 #include "hilog_tag_wrapper.h"
-#include "hilog_wrapper.h"
 #include "js_app_manager_utils.h"
 #include "js_runtime_utils.h"
 

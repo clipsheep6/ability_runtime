@@ -105,6 +105,7 @@
 #include "dialog_session_record.h"
 #include "application_anr_listener.h"
 #include "input_manager.h"
+#include "ability_first_frame_state_observer_manager.h"
 #endif
 
 #ifdef EFFICIENCY_MANAGER_ENABLE
@@ -393,6 +394,7 @@ bool AbilityManagerService::Init()
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();
     }
+    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->Init();
 #endif
 
     DelayedSingleton<ConnectionStateManager>::GetInstance()->Init(taskHandler_);
@@ -8181,6 +8183,11 @@ sptr<IWindowManagerServiceHandler> AbilityManagerService::GetWMSHandler() const
 void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s is called.", __func__);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
+        uiAbilityLifecycleManager_->CompleteFirstFrameDrawing(abilityToken);
+        return;
+    }
+
     std::lock_guard<ffrt::mutex> lock(managersMutex_);
     for (auto& item : missionListManagers_) {
         if (item.second) {
@@ -8350,6 +8357,20 @@ void AbilityManagerService::InitPrepareTerminateConfig()
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isPrepareTerminateEnable_ = true;
     }
+}
+
+int AbilityManagerService::RegisterAbilityFirstFrameStateObserver(
+    const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
+{
+    return DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+        RegisterAbilityFirstFrameStateObserver(observer, targetBundleName);
+}
+
+int AbilityManagerService::UnregisterAbilityFirstFrameStateObserver(
+    const sptr<IAbilityFirstFrameStateObserver> &observer)
+{
+    return DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+        UnregisterAbilityFirstFrameStateObserver(observer);
 }
 #endif
 

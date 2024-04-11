@@ -64,6 +64,26 @@ napi_value CreateJsAbilityStateData(napi_env env, const AbilityStateData &abilit
     return object;
 }
 
+#ifdef SUPPORT_GRAPHICS
+napi_value CreateJsAbilityFirstFrameStateData(napi_env env,
+    const AbilityFirstFrameStateData &abilityFirstFrameStateData)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "ObjValue nullptr.");
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, abilityFirstFrameStateData.bundleName));
+    napi_set_named_property(env, object, "moduleName", CreateJsValue(env, abilityFirstFrameStateData.moduleName));
+    napi_set_named_property(env, object, "abilityName", CreateJsValue(env, abilityFirstFrameStateData.abilityName));
+    napi_set_named_property(env, object, "appIndex", CreateJsValue(env, abilityFirstFrameStateData.appIndex));
+    napi_set_named_property(env, object, "isColdStart", CreateJsValue(env, abilityFirstFrameStateData.coldStart));
+    return object;
+}
+#endif
+
 napi_value CreateJsProcessData(napi_env env, const ProcessData &processData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");

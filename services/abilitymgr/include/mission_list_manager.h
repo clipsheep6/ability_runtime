@@ -375,6 +375,8 @@ public:
 
     void PostMissionLabelUpdateTask(int missionId) const;
 
+    void UpdateAbilityRecordColdStartFlag(const AppInfo& info, bool isColdStart);
+
 private:
     Closure GetCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;
     void PostCancelStartingWindowTask(const std::shared_ptr<AbilityRecord> &abilityRecord) const;

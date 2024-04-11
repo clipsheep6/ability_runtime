@@ -204,6 +204,8 @@ private:
     int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply);
     int SendDialogResultInner(MessageParcel &data, MessageParcel &reply);
+    int RegisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply);
+    int UnregisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply);
     int CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply);
 #endif
 

@@ -18,6 +18,7 @@
 #include "errors.h"
 #include "string_ex.h"
 
+#include "hilog_tag_wrapper.h"
 #include "ability_connect_callback_proxy.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_errors.h"
@@ -3046,6 +3047,61 @@ int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string di
     return reply.ReadInt32();
 }
 
+int32_t AbilityManagerProxy::RegisterAbilityFirstFrameStateObserver(
+    const sptr<IAbilityFirstFrameStateObserver> &observer, const std::string &targetBundleName)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        return INNER_ERR;
+    }
+
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null or Write Remote failed.");
+        return ERR_INVALID_VALUE;
+    }
+    if (!data.WriteString(targetBundleName)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write target bundleName failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AbilityManagerInterfaceCode::REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER,
+        data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
+int32_t AbilityManagerProxy::UnregisterAbilityFirstFrameStateObserver(
+    const sptr<IAbilityFirstFrameStateObserver> &observer)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (observer == nullptr || !data.WriteRemoteObject(observer->AsObject())) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Observer is null or Write Remote failed.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret =
+        SendRequest(AbilityManagerInterfaceCode::UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 void AbilityManagerProxy::CompleteFirstFrameDrawing(int32_t sessionId)
 {
     MessageParcel data;
@@ -4839,7 +4895,7 @@ int32_t AbilityManagerProxy::UpdateSessionInfoBySCB(std::list<SessionInfo> &sess
     }
     size = reply.ReadInt32();
     if (size > threshold) {
-        HILOG_ERROR("Size of vector too large.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Size of vector too large.");
         return ERR_NATIVE_IPC_PARCEL_FAILED;
     }
     sessionIds.clear();

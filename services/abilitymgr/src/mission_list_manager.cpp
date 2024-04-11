@@ -33,6 +33,9 @@
 #include "res_sched_client.h"
 #include "res_type.h"
 #endif // RESOURCE_SCHEDULE_SERVICE_ENABLE
+#ifdef SUPPORT_GRAPHICS
+#include "ability_first_frame_state_observer_manager.h"
+#endif
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -1037,6 +1040,8 @@ void MissionListManager::OnAppStateChanged(const AppInfo &info)
                 abilityRecord->SetAppState(info.state);
             }
         }
+    } else if (info.state == AppState::COLD_START) {
+        UpdateAbilityRecordColdStartFlag(info, true);
     } else {
         for (const auto& missionList : currentMissionLists_) {
             auto missions = missionList->GetAllMissions();
@@ -2822,7 +2827,8 @@ void MissionListManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &ab
         return;
     }
     abilityRecord->SetCompleteFirstFrameDrawing(true);
-
+    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+        HandleOnFirstFrameState(abilityRecord);
     auto handler = DelayedSingleton<AbilityManagerService>::GetInstance()->GetTaskHandler();
     if (handler == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Fail to get Ability task handler.");
@@ -2906,6 +2912,48 @@ void MissionListManager::InitPrepareTerminateConfig()
         PREPARE_TERMINATE_ENABLE_PARAMETER, value);
     if (retSysParam > 0 && !std::strcmp(value, "true")) {
         isPrepareTerminateEnable_ = true;
+    }
+}
+
+void MissionListManager::UpdateAbilityRecordColdStartFlag(const AppInfo& info, bool isColdStart)
+{
+    for (const auto& missionList : currentMissionLists_) {
+        auto missions = missionList->GetAllMissions();
+        for (const auto& missionInfo : missions) {
+            if (!missionInfo) {
+                TAG_LOGE(AAFwkTag::ABILITYMGR, "missionInfo is nullptr.");
+                continue;
+            }
+            auto abilityRecord = missionInfo->GetAbilityRecord();
+            if (info.processName == abilityRecord->GetAbilityInfo().process ||
+                info.processName == abilityRecord->GetApplicationInfo().bundleName) {
+                abilityRecord->SetColdStartFlag(isColdStart);
+            }
+        }
+    }
+    auto defaultStandardListmissions = defaultStandardList_->GetAllMissions();
+    for (const auto& missionInfo : defaultStandardListmissions) {
+        if (!missionInfo) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "defaultStandardListmissions is nullptr.");
+            continue;
+        }
+        auto abilityRecord = missionInfo->GetAbilityRecord();
+        if (info.processName == abilityRecord->GetAbilityInfo().process ||
+            info.processName == abilityRecord->GetApplicationInfo().bundleName) {
+            abilityRecord->SetColdStartFlag(isColdStart);
+        }
+    }
+    auto defaultSingleListmissions = defaultSingleList_->GetAllMissions();
+    for (const auto& missionInfo : defaultSingleListmissions) {
+        if (!missionInfo) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "defaultSingleListmissions is nullptr.");
+            continue;
+        }
+        auto abilityRecord = missionInfo->GetAbilityRecord();
+        if (info.processName == abilityRecord->GetAbilityInfo().process ||
+            info.processName == abilityRecord->GetApplicationInfo().bundleName) {
+            abilityRecord->SetColdStartFlag(isColdStart);
+        }
     }
 }
 #endif

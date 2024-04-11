@@ -139,6 +139,7 @@ if (ability_runtime_graphics) {
     "${ability_runtime_services_path}/appdfr/src/application_anr_listener.cpp",
     "src/implicit_start_processor.cpp",
     "src/system_dialog_scheduler.cpp",
+    "src/ability_first_frame_state_observer_manager.cpp",
   ]
 }
 

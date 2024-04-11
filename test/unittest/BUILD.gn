@@ -270,6 +270,7 @@ ohos_source_set("abilityms_test_source") {
 
   if (ability_runtime_graphics) {
     sources += [
+      "${ability_runtime_services_path}/abilitymgr/src/ability_first_frame_state_observer_manager.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/implicit_start_processor.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/inner_mission_info.cpp",
       "${ability_runtime_services_path}/abilitymgr/src/mission.cpp",

@@ -33,6 +33,9 @@
 #include "scene_board/status_bar_delegate_manager.h"
 #include "session_info.h"
 #include "session_manager_lite.h"
+#ifdef SUPPORT_GRAPHICS
+#include "ability_first_frame_state_observer_manager.h"
+#endif
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -509,6 +512,31 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::GetAbilityRecordByToke
     }
     return nullptr;
 }
+
+#ifdef SUPPORT_GRAPHICS
+void UIAbilityLifecycleManager::CompleteFirstFrameDrawing(const sptr<IRemoteObject> &token)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (token == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "nullptr.");
+        return;
+    }
+    std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    if (!IsContainsAbilityInner(token)) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "Not in running list");
+        return;
+    }
+    auto abilityRecord = GetAbilityRecordByToken(token);
+    CHECK_POINTER(abilityRecord);
+    if (abilityRecord->IsCompleteFirstFrameDrawing()) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "First frame drawing has completed.");
+        return;
+    }
+    abilityRecord->SetCompleteFirstFrameDrawing(true);
+    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+        HandleOnFirstFrameState(abilityRecord);
+}
+#endif
 
 bool UIAbilityLifecycleManager::IsContainsAbility(const sptr<IRemoteObject> &token) const
 {
@@ -1854,6 +1882,21 @@ void UIAbilityLifecycleManager::OnAppStateChanged(const AppInfo &info, int32_t t
                 info.processName == abilityRecord->GetApplicationInfo().bundleName) &&
                 targetUserId == abilityRecord->GetOwnerMissionUserId()) {
                 abilityRecord->SetAppState(info.state);
+            }
+        }
+        return;
+    }
+    if (info.state == AppState::COLD_START) {
+        for (const auto& [sessionId, abilityRecord] : sessionAbilityMap_) {
+            if (abilityRecord == nullptr) {
+                TAG_LOGW(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr.");
+                continue;
+            }
+            if ((info.processName == abilityRecord->GetAbilityInfo().process ||
+                info.processName == abilityRecord->GetApplicationInfo().bundleName) &&
+                targetUserId == abilityRecord->GetOwnerMissionUserId()) {
+                abilityRecord->SetColdStartFlag(true);
+                break;
             }
         }
         return;

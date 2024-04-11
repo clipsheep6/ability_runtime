@@ -329,6 +329,9 @@ public:
 
     std::shared_ptr<AbilityRecord> GetAbilityRecordByToken(const sptr<IRemoteObject> &token) const;
 
+#ifdef SUPPORT_GRAPHICS
+    void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &token);
+#endif
     void CompleteFirstFrameDrawing(int32_t sessionId) const;
 
 private:

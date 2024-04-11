@@ -61,6 +61,7 @@ enum class AppState {
     TERMINATED,
     END,
     SUSPENDED,
+    COLD_START = 99,
 };
 
 struct AppData {

@@ -1050,6 +1050,13 @@ public:
     int CreateModalDialog(const Want &replaceWant, sptr<IRemoteObject> callerToken, std::string dialogSessionId);
 
     virtual int SendDialogResult(const Want &want, const std::string dialogSessionId, bool isAllowed) override;
+
+    virtual int RegisterAbilityFirstFrameStateObserver(const sptr<IAbilityFirstFrameStateObserver> &observer,
+        const std::string &bundleName) override;
+
+    virtual int UnregisterAbilityFirstFrameStateObserver(
+        const sptr<IAbilityFirstFrameStateObserver> &observer) override;
+
 #endif
 
     void ClearUserData(int32_t userId);

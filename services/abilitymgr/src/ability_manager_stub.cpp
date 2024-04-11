@@ -354,6 +354,10 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetDialogSessionInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT)] =
         &AbilityManagerStub::SendDialogResultInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER)] =
+        &AbilityManagerStub::RegisterAbilityFirstFrameStateObserverInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::UNREGISTER_ABILITY_FIRST_FRAME_STATE_OBSERVER)]
+        = &AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB)] =
         &AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner;
 #endif
@@ -2578,6 +2582,40 @@ int AbilityManagerStub::SendDialogResultInner(MessageParcel &data, MessageParcel
     int result = SendDialogResult(*want, dialogSessionId, isAllow);
     if (!reply.WriteInt32(result)) {
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::RegisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    auto callback = iface_cast<AppExecFwk::IAbilityFirstFrameStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
+
+    std::string targetBundleName = data.ReadString();
+    auto ret = RegisterAbilityFirstFrameStateObserver(callback, targetBundleName);
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write ret error.");
+        return IPC_STUB_ERR;
+    }
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::UnregisterAbilityFirstFrameStateObserverInner(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Called.");
+    auto callback = iface_cast<AppExecFwk::IAbilityFirstFrameStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
+    auto ret = UnregisterAbilityFirstFrameStateObserver(callback);
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Write ret error.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

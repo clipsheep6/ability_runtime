@@ -119,6 +119,14 @@ ohos_shared_library("ability_manager") {
     "src/window_manager_service_handler_stub.cpp",
   ]
 
+  if (ability_runtime_graphics) {
+    sources += [
+      "src/ability_first_frame_state_data.cpp",
+      "src/ability_first_frame_state_observer_proxy.cpp",
+      "src/ability_first_frame_state_observer_stub.cpp",
+    ]
+  }
+
   public_configs = [
     ":ability_manager_public_config",
     "${ability_runtime_services_path}/abilitymgr:abilityms_config",
