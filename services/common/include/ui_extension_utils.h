@@ -41,7 +41,7 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::HMS_ACCOUNT,
     AppExecFwk::ExtensionAbilityType::ADS,
     AppExecFwk::ExtensionAbilityType::VOIP,
-    AppExecFwk::ExtensionAbilityType::ACCESS_VIEW,
+    AppExecFwk::ExtensionAbilityType::STATUS_BAR_VIEW,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT,
     AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE,
