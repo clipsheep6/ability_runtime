@@ -83,7 +83,12 @@
             "storage_service",
             "toolchain",
             "webview",
-            "window_manager"
+            "window_manager",
+            "icu",
+            "json",
+            "jsoncpp",
+            "libuv",
+            "zlib"
   ],
           "third_party": [
             "icu",

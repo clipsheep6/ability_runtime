@@ -38,12 +38,7 @@ ohos_source_set("aakit_mock") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [
-    "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//third_party/jsoncpp:jsoncpp",
-  ]
+  deps = [ "${ability_runtime_innerkits_path}/app_manager:app_manager" ]
   external_deps = [
     "ability_base:base",
     "ability_base:configuration",
@@ -55,6 +50,9 @@ ohos_source_set("aakit_mock") {
     "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "ability"
