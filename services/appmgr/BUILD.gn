@@ -147,7 +147,7 @@ ohos_shared_library("libappms") {
     defines += [ "BGTASKMGR_CONTINUOUS_TASK_ENABLE" ]
   }
 
-  if (is_asan) {
+  if (is_asan || asan_detector) {
     defines += [ "SUPPORT_ASAN" ]
   }
 

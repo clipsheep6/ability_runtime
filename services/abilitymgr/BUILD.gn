@@ -100,7 +100,7 @@ config("abilityms_config") {
     defines += [ "EFFICIENCY_MANAGER_ENABLE" ]
   }
 
-  if (is_asan) {
+  if (is_asan || asan_detector) {
     defines += [ "SUPPORT_ASAN" ]
   }
 

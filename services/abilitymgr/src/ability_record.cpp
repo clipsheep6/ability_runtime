@@ -323,7 +323,7 @@ void AbilityRecord::LoadUIAbility()
 {
     SetLoading(true);
     int loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_MULTIPLE;
-    if (applicationInfo_.asanEnabled) {
+    if (applicationInfo_.asanEnabled || applicationInfo_.tsanEnabled) {
         loadTimeout = AmsConfigurationParameter::GetInstance().GetAppStartTimeoutTime() * LOAD_TIMEOUT_ASANENABLED;
         SendEvent(AbilityManagerService::LOAD_TIMEOUT_MSG, loadTimeout / HALF_TIMEOUT);
     } else {
