@@ -3045,6 +3045,25 @@ int AbilityManagerProxy::SendDialogResult(const Want &want, const std::string di
     }
     return reply.ReadInt32();
 }
+
+void AbilityManagerProxy::CompleteFirstFrameDrawing(int32_t sessionId)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, write interface token failed.");
+        return;
+    }
+    if (!data.WriteInt32(sessionId)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing,  sessionId write failed.");
+        return;
+    }
+    MessageOption option;
+    MessageParcel reply;
+    auto error = SendRequest(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, send request error: %{public}d", error);
+    }
+}
 #endif
 
 int AbilityManagerProxy::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info)

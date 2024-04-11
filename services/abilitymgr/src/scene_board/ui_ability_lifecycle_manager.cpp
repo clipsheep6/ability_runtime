@@ -2256,5 +2256,10 @@ void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName
             "onAbilityDied");
     }
 }
+
+void UIAbilityLifecycleManager::CompleteFirstFrameDrawing(int32_t sessionId) const
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, called.");
+}
 }  // namespace AAFwk
 }  // namespace OHOS

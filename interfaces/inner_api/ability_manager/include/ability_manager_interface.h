@@ -883,6 +883,14 @@ public:
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) = 0;
 
     /**
+     * WindowManager notification AbilityManager after the first frame is drawn.
+     *
+     * @param sessionId Indidate session id.
+     */
+    virtual void CompleteFirstFrameDrawing(int32_t sessionId)
+    {}
+
+    /**
      * PrepareTerminateAbility, prepare terminate the special ability.
      *
      * @param token, the token of the ability to terminate.

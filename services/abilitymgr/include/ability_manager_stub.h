@@ -204,6 +204,7 @@ private:
     int PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply);
     int GetDialogSessionInfoInner(MessageParcel &data, MessageParcel &reply);
     int SendDialogResultInner(MessageParcel &data, MessageParcel &reply);
+    int CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply);
 #endif
 
     #ifdef ABILITY_COMMAND_FOR_TEST

@@ -1255,6 +1255,13 @@ void AbilityManagerClient::CompleteFirstFrameDrawing(sptr<IRemoteObject> ability
     abms->CompleteFirstFrameDrawing(abilityToken);
 }
 
+void AbilityManagerClient::CompleteFirstFrameDrawing(int32_t sessionId)
+{
+    auto abms = GetAbilityManager();
+    CHECK_POINTER_RETURN(abms);
+    abms->CompleteFirstFrameDrawing(sessionId);
+}
+
 ErrCode AbilityManagerClient::PrepareTerminateAbility(sptr<IRemoteObject> token,
     sptr<IPrepareTerminateCallback> callback)
 {

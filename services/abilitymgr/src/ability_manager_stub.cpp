@@ -354,6 +354,8 @@ void AbilityManagerStub::ThirdStepInit()
         &AbilityManagerStub::GetDialogSessionInfoInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::SEND_DIALOG_RESULT)] =
         &AbilityManagerStub::SendDialogResultInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::COMPLETE_FIRST_FRAME_DRAWING_BY_SCB)] =
+        &AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner;
 #endif
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::REQUEST_DIALOG_SERVICE)] =
         &AbilityManagerStub::HandleRequestDialogService;
@@ -2513,7 +2515,15 @@ int AbilityManagerStub::CompleteFirstFrameDrawingInner(MessageParcel &data, Mess
         return ERR_NULL_OBJECT;
     }
     CompleteFirstFrameDrawing(abilityToken);
-    return 0;
+    return NO_ERROR;
+}
+
+int AbilityManagerStub::CompleteFirstFrameDrawingBySCBInner(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawingBySCBInner, called.");
+    int32_t sessionId = data.ReadInt32();
+    CompleteFirstFrameDrawing(sessionId);
+    return NO_ERROR;
 }
 
 int AbilityManagerStub::PrepareTerminateAbilityInner(MessageParcel &data, MessageParcel &reply)

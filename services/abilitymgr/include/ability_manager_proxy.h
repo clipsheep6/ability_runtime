@@ -710,6 +710,8 @@ public:
 
     virtual void CompleteFirstFrameDrawing(const sptr<IRemoteObject> &abilityToken) override;
 
+    virtual void CompleteFirstFrameDrawing(int32_t sessionId) override;
+
     virtual int PrepareTerminateAbility(
         const sptr<IRemoteObject> &token, sptr<IPrepareTerminateCallback> &callback) override;
 

@@ -1017,6 +1017,13 @@ public:
     void CompleteFirstFrameDrawing(sptr<IRemoteObject> abilityToken);
 
     /**
+     * WindowManager notification AbilityManager after the first frame is drawn.
+     *
+     * @param sessionId Indidate session id.
+     */
+    void CompleteFirstFrameDrawing(int32_t sessionId);
+
+    /**
      * Called to update mission snapshot.
      * @param token The target ability.
      * @param pixelMap The snapshot.

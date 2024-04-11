@@ -8189,6 +8189,16 @@ void AbilityManagerService::CompleteFirstFrameDrawing(const sptr<IRemoteObject> 
     }
 }
 
+void AbilityManagerService::CompleteFirstFrameDrawing(int32_t sessionId)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, called.");
+    if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sceneboard called, not allowed.");
+        return;
+    }
+    uiAbilityLifecycleManager_->CompleteFirstFrameDrawing(sessionId);
+}
+
 int32_t AbilityManagerService::ShowPickerDialog(
     const Want& want, int32_t userId, const sptr<IRemoteObject> &callerToken)
 {
