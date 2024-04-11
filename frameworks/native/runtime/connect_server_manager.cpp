@@ -285,11 +285,6 @@ bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::s
 void ConnectServerManager::RemoveInstance(int32_t instanceId)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance Remove instance to connect server");
-    if (handlerConnectServerSo_ == nullptr) {
-        TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance handlerConnectServerSo_ is nullptr");
-        return;
-    }
-
     std::string instanceName;
     int tid;
 
@@ -307,6 +302,12 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
         instanceMap_.erase(it);
     }
 
+    if (!isConnected_) {
+        TAG_LOGW(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance not Connected");
+        return;
+    }
+
+    LoadConnectServerDebuggerSo();
     auto waitForConnection = reinterpret_cast<WaitForConnection>(dlsym(handlerConnectServerSo_, "WaitForConnection"));
     if (waitForConnection == nullptr) {
         TAG_LOGE(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance failed to find symbol 'WaitForConnection'");
