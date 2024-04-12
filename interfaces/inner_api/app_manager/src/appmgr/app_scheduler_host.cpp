@@ -80,6 +80,12 @@ void AppSchedulerHost::InitMemberFuncMap()
         &AppSchedulerHost::HandleDetachAppDebug;
     memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION)] =
         &AppSchedulerHost::HandleScheduleJsHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_START)] =
+        &AppSchedulerHost::HandleScheduleDumpIpcStart;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STOP)] =
+        &AppSchedulerHost::HandleScheduleDumpIpcStop;
+    memberFuncMap_[static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_DUMP_IPC_STAT)] =
+        &AppSchedulerHost::HandleScheduleDumpIpcStat;
 }
 
 AppSchedulerHost::~AppSchedulerHost()
@@ -375,6 +381,42 @@ int32_t AppSchedulerHost::HandleDetachAppDebug(MessageParcel &data, MessageParce
 {
     HITRACE_METER(HITRACE_TAG_APP);
     DetachAppDebug();
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleDumpIpcStart(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string result;
+    ScheduleDumpIpcStart(result);
+    if (!reply.WriteString(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpIpcStart result");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleDumpIpcStop(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string result;
+    ScheduleDumpIpcStop(result);
+    if (!reply.WriteString(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpIpcStop result");
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppSchedulerHost::HandleScheduleDumpIpcStat(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    std::string result;
+    ScheduleDumpIpcStat(result);
+    if (!reply.WriteString(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Fail to write string of ScheduleDumpIpcStat result");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

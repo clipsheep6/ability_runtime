@@ -72,6 +72,8 @@
 #endif
 #include "application_info.h"
 #include "meminfo.h"
+#include "app_mgr_service_const.h"
+#include "app_mgr_service_dump_error_code.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -5684,6 +5686,84 @@ void AppMgrServiceInner::KillAttachedChildProcess(const std::shared_ptr<AppRunni
     for (const auto& pid : pids) {
         KillProcessByPid(pid, "KillAttachedChildProcess");
     }
+}
+
+int AppMgrServiceInner::DumpIpcAllStart(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        result.append(MSG_DUMP_IPC_START_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appRunningManager_->DumpIpcAllStart(result);
+}
+
+int AppMgrServiceInner::DumpIpcAllStop(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        result.append(MSG_DUMP_IPC_STOP_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appRunningManager_->DumpIpcAllStop(result);
+}
+
+int AppMgrServiceInner::DumpIpcAllStat(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        result.append(MSG_DUMP_IPC_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appRunningManager_->DumpIpcAllStat(result);
+}
+
+int AppMgrServiceInner::DumpIpcStart(const int32_t pid, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        result.append(MSG_DUMP_IPC_START_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appRunningManager_->DumpIpcStart(pid, result);
+}
+
+int AppMgrServiceInner::DumpIpcStop(const int32_t pid, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        result.append(MSG_DUMP_IPC_STOP_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appRunningManager_->DumpIpcStop(pid, result);
+}
+
+int AppMgrServiceInner::DumpIpcStat(const int32_t pid, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (!appRunningManager_) {
+        result.append(MSG_DUMP_IPC_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appRunningManager_->DumpIpcStat(pid, result);
 }
 
 void AppMgrServiceInner::NotifyAppRunningStatusEvent(

@@ -189,6 +189,21 @@ public:
     void ScheduleJsHeapMemory(OHOS::AppExecFwk::JsHeapDumpInfo &info) override
     {}
 
+    int32_t ScheduleDumpIpcStart(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStop(std::string& result) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleDumpIpcStat(std::string& result) override
+    {
+        return 0;
+    }
+
 private:
     int abilityLaunchTime = 0;
     int appLaunchTime = 0;

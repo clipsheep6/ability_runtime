@@ -19,6 +19,8 @@
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "time_util.h"
+#include "app_mgr_service_const.h"
+#include "app_mgr_service_dump_error_code.h"
 
 namespace OHOS {
 using AbilityRuntime::FreezeUtil;
@@ -323,6 +325,48 @@ int32_t AppLifeCycleDeal::DetachAppDebug()
     }
     appThread->DetachAppDebug();
     return ERR_OK;
+}
+
+int AppLifeCycleDeal::DumpIpcStart(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr) {
+        result.append(MSG_DUMP_IPC_START_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appThread->ScheduleDumpIpcStart(result);
+}
+
+int AppLifeCycleDeal::DumpIpcStop(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr) {
+        result.append(MSG_DUMP_IPC_STOP_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appThread->ScheduleDumpIpcStop(result);
+}
+
+int AppLifeCycleDeal::DumpIpcStat(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    auto appThread = GetApplicationClient();
+    if (appThread == nullptr) {
+        result.append(MSG_DUMP_IPC_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appThread is nullptr.");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appThread->ScheduleDumpIpcStat(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

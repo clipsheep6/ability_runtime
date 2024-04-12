@@ -746,6 +746,10 @@ public:
     
     void SetJITEnabled(const bool jitEnabled);
     bool IsJITEnabled() const;
+
+    int DumpIpcStart(std::string& result);
+    int DumpIpcStop(std::string& result);
+    int DumpIpcStat(std::string& result);
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.

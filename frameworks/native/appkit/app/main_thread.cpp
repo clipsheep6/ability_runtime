@@ -80,6 +80,7 @@
 #include "js_runtime_utils.h"
 #include "context/application_context.h"
 #include "os_account_manager_wrapper.h"
+#include "dump_ipc_helper.h"
 
 #if defined(NWEB)
 #include <thread>
@@ -3154,6 +3155,27 @@ void MainThread::HandleCancelAssertFaultTask()
         return;
     }
     assertThread->Stop();
+}
+
+int32_t MainThread::ScheduleDumpIpcStart(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStart::pid:%{public}d", getpid());
+    DumpIpcHelper::DumpIpcStart(result);
+    return ERR_OK;
+}
+
+int32_t MainThread::ScheduleDumpIpcStop(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStop::pid:%{public}d", getpid());
+    DumpIpcHelper::DumpIpcStop(result);
+    return ERR_OK;
+}
+
+int32_t MainThread::ScheduleDumpIpcStat(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStat::pid:%{public}d", getpid());
+    DumpIpcHelper::DumpIpcStat(result);
+    return ERR_OK;
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

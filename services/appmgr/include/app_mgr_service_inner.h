@@ -996,6 +996,18 @@ public:
 
     int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids);
 
+    virtual int DumpIpcAllStart(std::string& result);
+
+    virtual int DumpIpcAllStop(std::string& result);
+
+    virtual int DumpIpcAllStat(std::string& result);
+
+    virtual int DumpIpcStart(const int32_t pid, std::string& result);
+
+    virtual int DumpIpcStop(const int32_t pid, std::string& result);
+
+    virtual int DumpIpcStat(const int32_t pid, std::string& result);
+
 private:
 
     std::string FaultTypeToString(FaultDataType type);

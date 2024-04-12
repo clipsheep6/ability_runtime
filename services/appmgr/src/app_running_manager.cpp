@@ -29,9 +29,11 @@
 #include "quick_fix_callback_with_record.h"
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
+#include "app_mgr_service_const.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif
+#include "app_mgr_service_dump_error_code.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -1323,6 +1325,102 @@ int32_t AppRunningManager::RemoveUIExtensionLauncherItem(pid_t pid)
     }
 
     return ERR_OK;
+}
+
+int AppRunningManager::DumpIpcAllStart(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    int errCode = DumpErrorCode::ERR_OK;
+    for (const auto &item : GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        TAG_LOGD(AAFwkTag::APPMGR, "AppRunningManager::DumpIpcAllStart::pid:%{public}d",
+            appRecord->GetPriorityObject()->GetPid());
+        std::string currentResult;
+        errCode = appRecord->DumpIpcStart(currentResult);
+        result += currentResult + "\n";
+        if (errCode != DumpErrorCode::ERR_OK) {
+            return errCode;
+        }
+    }
+    return errCode;
+}
+
+int AppRunningManager::DumpIpcAllStop(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    int errCode = DumpErrorCode::ERR_OK;
+    for (const auto &item : GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        TAG_LOGD(AAFwkTag::APPMGR, "AppRunningManager::DumpIpcAllStop::pid:%{public}d",
+            appRecord->GetPriorityObject()->GetPid());
+        std::string currentResult;
+        errCode = appRecord->DumpIpcStop(currentResult);
+        result += currentResult + "\n";
+        if (errCode != DumpErrorCode::ERR_OK) {
+            return errCode;
+        }
+    }
+    return errCode;
+}
+
+int AppRunningManager::DumpIpcAllStat(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    int errCode = DumpErrorCode::ERR_OK;
+    for (const auto &item : GetAppRunningRecordMap()) {
+        const auto &appRecord = item.second;
+        TAG_LOGD(AAFwkTag::APPMGR, "AppRunningManager::DumpIpcAllStat::pid:%{public}d",
+            appRecord->GetPriorityObject()->GetPid());
+        std::string currentResult;
+        errCode = appRecord->DumpIpcStat(currentResult);
+        result += currentResult + "\n";
+        if (errCode != DumpErrorCode::ERR_OK) {
+            return errCode;
+        }
+    }
+    return errCode;
+}
+
+int AppRunningManager::DumpIpcStart(const int32_t pid, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    const auto& appRecord = GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        result.append(MSG_DUMP_IPC_START_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
+        return DumpErrorCode::ERR_INVALID_PID_ERROR;
+    }
+    return appRecord->DumpIpcStart(result);
+}
+
+int AppRunningManager::DumpIpcStop(const int32_t pid, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    const auto& appRecord = GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        result.append(MSG_DUMP_IPC_STOP_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
+        return DumpErrorCode::ERR_INVALID_PID_ERROR;
+    }
+    return appRecord->DumpIpcStop(result);
+}
+
+int AppRunningManager::DumpIpcStat(const int32_t pid, std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    const auto& appRecord = GetAppRunningRecordByPid(pid);
+    if (!appRecord) {
+        result.append(MSG_DUMP_IPC_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INVALILD_PID);
+        TAG_LOGE(AAFwkTag::APPMGR, "pid %{public}d does not exist", pid);
+        return DumpErrorCode::ERR_INVALID_PID_ERROR;
+    }
+    return appRecord->DumpIpcStat(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

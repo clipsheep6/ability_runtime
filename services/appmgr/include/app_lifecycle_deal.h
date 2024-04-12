@@ -217,6 +217,12 @@ public:
      */
     bool IsFinalAppProcess();
 
+    int DumpIpcStart(std::string& result);
+
+    int DumpIpcStop(std::string& result);
+
+    int DumpIpcStat(std::string& result);
+
 private:
     mutable std::mutex schedulerMutex_;
     sptr<IAppScheduler> appThread_ = nullptr;

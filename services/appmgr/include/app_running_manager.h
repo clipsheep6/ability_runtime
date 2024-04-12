@@ -283,6 +283,18 @@ public:
     int32_t AddUIExtensionLauncherItem(int32_t uiExtensionAbilityId, pid_t hostPid, pid_t providerPid);
     int32_t RemoveUIExtensionLauncherItem(pid_t pid);
 
+    int DumpIpcAllStart(std::string& result);
+
+    int DumpIpcAllStop(std::string& result);
+
+    int DumpIpcAllStat(std::string& result);
+
+    int DumpIpcStart(const int32_t pid, std::string& result);
+
+    int DumpIpcStop(const int32_t pid, std::string& result);
+
+    int DumpIpcStat(const int32_t pid, std::string& result);
+
 private:
     std::shared_ptr<AbilityRunningRecord> GetAbilityRunningRecord(const int64_t eventId);
     void AssignRunningProcessInfoByAppRecord(

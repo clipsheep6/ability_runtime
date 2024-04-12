@@ -20,6 +20,8 @@
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "ui_extension_utils.h"
+#include "app_mgr_service_const.h"
+#include "app_mgr_service_dump_error_code.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -2033,6 +2035,45 @@ void AppRunningRecord::SetNativeStart(bool isNativeStart)
 bool AppRunningRecord::isNativeStart() const
 {
     return isNativeStart_;
+}
+
+int AppRunningRecord::DumpIpcStart(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        result.append(MSG_DUMP_IPC_START_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appLifeCycleDeal_->DumpIpcStart(result);
+}
+
+int AppRunningRecord::DumpIpcStop(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        result.append(MSG_DUMP_IPC_STOP_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appLifeCycleDeal_->DumpIpcStop(result);
+}
+
+int AppRunningRecord::DumpIpcStat(std::string& result)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    if (appLifeCycleDeal_ == nullptr) {
+        result.append(MSG_DUMP_IPC_STAT)
+            .append(MSG_DUMP_IPC_FAIL)
+            .append(MSG_DUMP_IPC_FAIL_REASON_INTERNAL);
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return DumpErrorCode::ERR_INTERNAL_ERROR;
+    }
+    return appLifeCycleDeal_->DumpIpcStat(result);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

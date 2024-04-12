@@ -232,6 +232,36 @@ public:
      */
     virtual void DetachAppDebug() = 0;
 
+    /**
+     * ScheduleDumpIpcStart, call ScheduleDumpIpcStart(std::string& result) through proxy project,
+     * Start querying the application's IPC payload info.
+     *
+     * @param result, start IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpIpcStart(std::string& result) = 0;
+
+    /**
+     * ScheduleDumpIpcStop, call ScheduleDumpIpcStop(std::string& result) through proxy project,
+     * Stop querying the application's IPC payload info.
+     *
+     * @param result, stop IPC dump result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpIpcStop(std::string& result) = 0;
+
+    /**
+     * ScheduleDumpIpcStat, call ScheduleDumpIpcStat(std::string& result) through proxy project,
+     * Collect the application's IPC payload info.
+     *
+     * @param result, IPC payload result output.
+     *
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t ScheduleDumpIpcStat(std::string& result) = 0;
+
     enum class Message {
         SCHEDULE_FOREGROUND_APPLICATION_TRANSACTION = 0,
         SCHEDULE_BACKGROUND_APPLICATION_TRANSACTION,
@@ -258,6 +288,9 @@ public:
         SCHEDULE_DETACH_APP_DEBUG,
         SCHEDULE_NEW_PROCESS_REQUEST,
         SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION,
+        SCHEDULE_DUMP_IPC_START,
+        SCHEDULE_DUMP_IPC_STOP,
+        SCHEDULE_DUMP_IPC_STAT,
     };
 };
 }  // namespace AppExecFwk

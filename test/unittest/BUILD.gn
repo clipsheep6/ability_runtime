@@ -19,6 +19,7 @@ import(
 config("appmgr_test_config") {
   configs = [
     "${ability_runtime_services_path}/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_exception_config",
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
   ]
@@ -379,6 +380,7 @@ group("unittest") {
     "app_lifecycle_deal_test:unittest",
     "app_mgr_client_test:unittest",
     "app_mgr_proxy_test:unittest",
+    "app_mgr_service_dump_ipc_test:unittest",
     "app_mgr_service_dump_test:unittest",
     "app_mgr_service_event_handler_test:unittest",
     "app_mgr_service_inner_tdd_test:unittest",
