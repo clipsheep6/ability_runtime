@@ -36,7 +36,7 @@ bool RenderSchedulerProxy::WriteInterfaceToken(MessageParcel &data)
 }
 
 void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd,
-                                           int32_t crashFd)
+                                           int32_t crashFd, const sptr<IRemoteObject> &browser)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "NotifyBrowserFd start");
     MessageParcel data;
@@ -50,6 +50,11 @@ void RenderSchedulerProxy::NotifyBrowserFd(int32_t ipcFd, int32_t sharedFd,
         !data.WriteFileDescriptor(crashFd)) {
         TAG_LOGE(AAFwkTag::APPMGR, "want fd failed, ipcFd:%{public}d, sharedFd:%{public}d, "
             "crashFd:%{public}d", ipcFd, sharedFd, crashFd);
+        return;
+    }
+
+    if (!data.WriteRemoteObject(browser)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "want browser failed.");
         return;
     }
 

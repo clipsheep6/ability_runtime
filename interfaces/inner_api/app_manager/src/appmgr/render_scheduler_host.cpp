@@ -60,7 +60,8 @@ int RenderSchedulerHost::HandleNotifyBrowserFd(MessageParcel &data, MessageParce
     int32_t ipcFd = data.ReadFileDescriptor();
     int32_t sharedFd = data.ReadFileDescriptor();
     int32_t crashFd = data.ReadFileDescriptor();
-    NotifyBrowserFd(ipcFd, sharedFd, crashFd);
+    sptr<IRemoteObject> browserObj = data.ReadRemoteObject();
+    NotifyBrowserFd(ipcFd, sharedFd, crashFd, browserObj);
     return 0;
 }
 }  // namespace AppExecFwk

@@ -286,7 +286,7 @@ public:
 
     virtual int StartRenderProcess(const std::string &renderParam,
                                    int32_t ipcFd, int32_t sharedFd,
-                                   int32_t crashFd, pid_t &renderPid) override;
+                                   int32_t crashFd, pid_t &renderPid, const std::string &processType) override;
 
     virtual void AttachRenderProcess(const sptr<IRemoteObject> &shceduler) override;
 
@@ -473,6 +473,8 @@ public:
     int32_t GetAllUIExtensionRootHostPid(pid_t pid, std::vector<pid_t> &hostPids) override;
 
     int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
+
+    virtual void SaveBrowserChannel(const sptr<IRemoteObject> &browser) override;
 
 private:
     /**

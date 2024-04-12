@@ -628,7 +628,7 @@ int32_t AppMgrService::PreStartNWebSpawnProcess()
 }
 
 int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_t ipcFd,
-    int32_t sharedFd, int32_t crashFd, pid_t &renderPid)
+    int32_t sharedFd, int32_t crashFd, pid_t &renderPid, const std::string &processType)
 {
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "StartRenderProcess failed, AppMgrService not ready.");
@@ -636,7 +636,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
     }
 
     return appMgrServiceInner_->StartRenderProcess(IPCSkeleton::GetCallingPid(),
-        renderParam, ipcFd, sharedFd, crashFd, renderPid);
+        renderParam, ipcFd, sharedFd, crashFd, renderPid, processType);
 }
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
@@ -654,6 +654,16 @@ void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
         .taskName_ = TASK_ATTACH_RENDER_PROCESS,
         .taskQos_ = AAFwk::TaskQoS::USER_INTERACTIVE
     });
+}
+
+void AppMgrService::SaveBrowserChannel(const sptr<IRemoteObject> &browser)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SaveBrowserChannel not ready");
+        return;
+    }
+
+    appMgrServiceInner_->SaveBrowserChannel(browser);
 }
 
 int32_t AppMgrService::GetRenderProcessTerminationStatus(pid_t renderPid, int &status)
