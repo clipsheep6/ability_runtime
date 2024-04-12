@@ -137,6 +137,7 @@ constexpr char EVENT_KEY_HAPPEN_TIME[] = "HAPPEN_TIME";
 constexpr char EVENT_KEY_REASON[] = "REASON";
 constexpr char EVENT_KEY_JSVM[] = "JSVM";
 constexpr char EVENT_KEY_SUMMARY[] = "SUMMARY";
+constexpr char EVENT_KEY_APP_RUNING_UNIQUE_ID[] = "APP_RUNNING_UNIQUE_ID";
 constexpr char DEVELOPER_MODE_STATE[] = "const.security.developermode.state";
 constexpr char PRODUCT_ASSERT_FAULT_DIALOG_ENABLED[] = "persisit.sys.abilityms.support_assert_fault_dialog";
 
@@ -150,6 +151,8 @@ const std::string OVERLAY_STATE_CHANGED = "usual.event.OVERLAY_STATE_CHANGED";
 
 const int32_t TYPE_RESERVE = 1;
 const int32_t TYPE_OTHERS = 2;
+
+extern "C" int DFX_SetAppRunningUniqueId(const char* appRunningId, size_t len) __attribute__((weak));
 
 std::string GetLibPath(const std::string &hapPath, bool isPreInstallApp)
 {
@@ -1313,7 +1316,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     std::shared_ptr<AbilityRuntime::ApplicationContext> applicationContext =
         AbilityRuntime::ApplicationContext::GetInstance();
     applicationContext->AttachContextImpl(contextImpl);
-    applicationContext->SetAppRunningUniqueId(appLaunchData.GetAppRunningUniqueId());
+    auto appRunningId = appLaunchData.GetAppRunningUniqueId();
+    applicationContext->SetAppRunningUniqueId(appRunningId);
+    DFX_SetAppRunningUniqueId(appRunningId.c_str(), appRunningId.length());
     application_->SetApplicationContext(applicationContext);
 
 #ifdef SUPPORT_GRAPHICS
@@ -1426,7 +1431,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
         JsEnv::UncaughtExceptionInfo uncaughtExceptionInfo;
         uncaughtExceptionInfo.hapPath = hapPath;
         wptr<MainThread> weak = this;
-        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode]
+        uncaughtExceptionInfo.uncaughtTask = [weak, bundleName, versionCode, appRunningId = std::move(appRunningId)]
             (std::string summary, const JsEnv::ErrorObject errorObj) {
             auto appThread = weak.promote();
             if (appThread == nullptr) {
@@ -1443,7 +1448,8 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                 EVENT_KEY_HAPPEN_TIME, timet,
                 EVENT_KEY_REASON, errorObj.name,
                 EVENT_KEY_JSVM, JSVM_TYPE,
-                EVENT_KEY_SUMMARY, summary);
+                EVENT_KEY_SUMMARY, summary,
+                EVENT_KEY_APP_RUNING_UNIQUE_ID, appRunningId);
             ErrorObject appExecErrorObj = {
                 .name = errorObj.name,
                 .message = errorObj.message,
