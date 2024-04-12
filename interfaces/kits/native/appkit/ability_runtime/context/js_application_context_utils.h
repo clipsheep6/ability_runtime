@@ -95,6 +95,7 @@ public:
     napi_value OnSetLanguage(napi_env env, NapiCallbackInfo& info);
     napi_value OnClearUpApplicationData(napi_env env, NapiCallbackInfo& info);
     napi_value OnRestartApp(napi_env env, NapiCallbackInfo& info);
+    napi_value OnPreloadUIExtensionAbility(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -113,6 +114,7 @@ public:
     static napi_value GetRunningProcessInformation(napi_env env, napi_callback_info info);
     static napi_value CreateJsApplicationContext(napi_env env);
     static napi_value RestartApp(napi_env env, napi_callback_info info);
+    static napi_value PreloadUIExtensionAbility(napi_env env, napi_callback_info info);
 
 protected:
     std::weak_ptr<ApplicationContext> applicationContext_;
