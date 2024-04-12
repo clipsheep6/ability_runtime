@@ -57,7 +57,7 @@ enum class BizState : int32_t {
 enum class ClickIcon : int32_t {
     CLICKICON_CONTINUE = 3,
     CLICKICON_STARTABILITY = 6,
-    CLICKICON_RECV_OVER = 7,
+    CLICKICON_RECV_OVER = 9,
 };
 
 enum class SaveData : int32_t {
