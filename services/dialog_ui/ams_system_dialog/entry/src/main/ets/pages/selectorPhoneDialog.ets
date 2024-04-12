@@ -70,7 +70,7 @@ struct SelectorPhoneDialog {
   @StorageLink('oversizeHeight') oversizeHeight: string = 'false';
   @State private selector: SelectorPhone = {
     swiper: {
-      height: "100vp",
+      height: "150vp",
       indicator: false,
       contentHeight: "100vp",
       gridColumns: "1fr 1fr",
