@@ -52,7 +52,6 @@ public:
 
     void PostSwitchQuickFixTask();
     void PostDeleteQuickFixTask();
-
     void UnregAppStateObserver();
 
     void RunRevoke();
@@ -66,6 +65,7 @@ public:
 private:
     void PostDeployQuickFixTask(const std::vector<std::string> &quickFixFiles, bool isDebug = false);
     void PostTimeOutTask();
+    void PostNotifyLoadPatchTask();
     void PostNotifyLoadRepairPatchTask();
     void PostNotifyUnloadRepairPatchTask();
     void PostNotifyHotReloadPageTask();

@@ -245,7 +245,6 @@ public:
             applyTask_->RemoveSelf();
             return;
         }
-
         applyTask_->PostDeleteQuickFixTask();
     }
 
@@ -371,7 +370,15 @@ void QuickFixManagerApplyTask::HandlePatchSwitched()
     TAG_LOGD(AAFwkTag::QUICKFIX, "function called.");
 
     if (isRunning_ && !isSoContained_) {
-        return PostNotifyLoadRepairPatchTask();
+        PostNotifyLoadRepairPatchTask();
+        if (quickFixMgrService_ != nullptr) {
+            AAFwk::ApplicationQuickFixInfo quickFixInfo;
+            quickFixMgrService_->GetApplyedQuickFixInfo(bundleName_, quickFixInfo);
+            if (quickFixInfo.appqfInfo.type == AppExecFwk::QuickFixType::HOT_RELOAD) {
+                PostNotifyLoadPatchTask();
+            }
+        }
+        return;
     }
 
     PostDeleteQuickFixTask();
@@ -653,6 +660,41 @@ void QuickFixManagerApplyTask::PostNotifyLoadRepairPatchTask()
     };
     if (eventHandler_ == nullptr || !eventHandler_->PostTask(loadPatchTask, "QuickFixManager:loadPatchTask")) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Post delete task failed.");
+    }
+    PostTimeOutTask();
+}
+
+void QuickFixManagerApplyTask::PostNotifyLoadPatchTask()
+{
+    HILOG_DEBUG("function called");
+    sptr<AppExecFwk::IQuickFixCallback> callback = new (std::nothrow) QuickFixNotifyCallback(shared_from_this());
+    std::weak_ptr<QuickFixManagerApplyTask> thisWeakPtr(weak_from_this());
+    auto loadPatchTask = [thisWeakPtr, callback]() {
+        auto applyTask = thisWeakPtr.lock();
+        if (applyTask == nullptr) {
+            HILOG_ERROR("Apply task is nullptr");
+            return;
+        }
+
+        if (applyTask->appMgr_ == nullptr) {
+            HILOG_ERROR("Appmgr is nullptr");
+            applyTask->NotifyApplyStatus(QUICK_FIX_APPMGR_INVALID);
+            applyTask->RemoveSelf();
+            return;
+        }
+
+        int patchVersion = applyTask->patchVersionCode_;
+        for (auto iter : applyTask->moduleNames_) {
+            auto ret = applyTask->appMgr_->NotifyLoadPatch(applyTask->bundleName_, iter, callback, patchVersion);
+            if (ret != 0) {
+                HILOG_ERROR(" app load patch failed.");
+                applyTask->NotifyApplyStatus(QUICK_FIX_NOTIFY_LOAD_PATCH_FAILED);
+                applyTask->RemoveSelf();
+            }
+        }
+    };
+    if (eventHandler_ == nullptr || !eventHandler_->PostTask(loadPatchTask, "QuickFixManager:loadPatchTask")) {
+        HILOG_ERROR("Post load patch task failed.");
     }
     PostTimeOutTask();
 }

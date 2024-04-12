@@ -60,6 +60,7 @@
 #include "include/private/EGL/cache.h"
 #ifdef SUPPORT_APP_PREFERRED_LANGUAGE
 #include "preferred_language.h"
+#include "form_host_client.h"
 #endif
 #endif
 #include "app_mgr_client.h"
@@ -1423,7 +1424,7 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
                     it->moduleName.c_str(), it->hqfFilePath.c_str());
                 modulePaths.insert(std::make_pair(it->moduleName, it->hqfFilePath));
             }
-            runtime->RegisterQuickFixQueryFunc(modulePaths);
+            runtime->RegisterQuickFixQueryFunc(modulePaths, AbilityRuntime::RuntimeType::RUNTIME_APP);
         }
 
         auto& jsEngine = (static_cast<AbilityRuntime::JsRuntime&>(*runtime)).GetNativeEngine();
@@ -2762,6 +2763,70 @@ void MainThread::CheckMainThreadIsAlive()
 }
 #endif  // ABILITY_LIBRARY_LOADER
 
+sptr<OHOS::AppExecFwk::IFormMgr> MainThread::GetFormRenderMgrRemote()
+{
+    auto systemAbilityManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        HILOG_ERROR("systemAbilityManageri is nullptr");
+        return nullptr;
+    }
+
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(FORM_MGR_SERVICE_ID);
+    if (remoteObject == nullptr) {
+        HILOG_ERROR(" remoteObject is nullptr");
+        return nullptr;
+    }
+
+    auto deathRecipient = sptr<IRemoteObject::DeathRecipient>(new (std::nothrow) fixMgrDeathRecipient());
+    if (deathRecipient == nullptr) {
+        HILOG_ERROR("deathRecipient is nullptr");
+        return nullptr;
+    }
+
+    if ((remoteObject->IsProxyObject()) && (!remoteObject->AddDeathRecipient(deathRecipient))) {
+        HILOG_ERROR("failed to add_death recipient to FormMgrService.");
+        return nullptr;
+    }
+
+    sptr<OHOS::AppExecFwk::IFormMgr> remoteProxy = iface_cast<OHOS::AppExecFwk::IFormMgr>(remoteObject);
+    if (remoteProxy == nullptr) {
+        HILOG_ERROR("remoteProxy is nullptr");
+        return nullptr;
+    }
+
+    return remoteProxy;
+}
+
+int32_t MainThread::ScheduleNotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                            const sptr<IQuickFixCallback> &callback,
+                                            const int32_t recordId, const int &patchVersion)
+{
+    if (callback == nullptr) {
+        HILOG_ERROR("callback is nullptr!");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak, bundleName, moduleName, callback, patchVersion, recordId]() {
+        auto appThread = weak.promote();
+        auto remoteProxy = appThread->GetFormRenderMgrRemote();
+        if (remoteProxy == nullptr) {
+            return;
+        }
+
+        int32_t retCode = remoteProxy->UpdateFormByHqf(bundleName, moduleName, patchVersion, recordId, callback);
+        if (retCode != ERR_OK) {
+            HILOG_ERROR("get UpdateFormByHqf failed! errCode:%{public}d", retCode);
+            return;
+        }
+    };
+    if (mainHandler_ == nullptr || !mainHandler_->PostTask(task, "MainThread:ScheduleNotifyFormRepairPatch")) {
+        HILOG_ERROR("Post task failed.");
+        return ERR_INVALID_VALUE;
+    }
+    return ERR_OK;
+}
+
 int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
     const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
@@ -2787,7 +2852,9 @@ int32_t MainThread::ScheduleNotifyLoadRepairPatch(const std::string &bundleName,
             TAG_LOGD(AAFwkTag::APPKIT, "ScheduleNotifyLoadRepairPatch, There's no hqfFile need to load.");
         }
 
-        callback->OnLoadPatchDone(ret ? NO_ERROR : ERR_INVALID_OPERATION, recordId);
+        if (ret != NO_ERROR) {
+            callback->OnLoadPatchDone(ret, recordId);
+        }
     };
     if (mainHandler_ == nullptr || !mainHandler_->PostTask(task, "MainThread:NotifyLoadRepairPatch")) {
         TAG_LOGE(AAFwkTag::APPKIT, "ScheduleNotifyLoadRepairPatch, Post task failed.");
@@ -3176,6 +3243,11 @@ int32_t MainThread::ScheduleDumpIpcStat(std::string& result)
     TAG_LOGD(AAFwkTag::APPKIT, "MainThread::ScheduleDumpIpcStat::pid:%{public}d", getpid());
     DumpIpcHelper::DumpIpcStat(result);
     return ERR_OK;
+}
+
+void fixMgrDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "MainThread::OnRemoteDied");
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -38,6 +38,7 @@
 #include "watchdog.h"
 #include "app_malloc_info.h"
 #include "app_jsheap_mem_info.h"
+#include "foundation/ability/form_fwk/interfaces/inner_api/include/form_mgr_interface.h"
 #define ABILITY_LIBRARY_LOADER
 
 class Runtime;
@@ -275,6 +276,10 @@ public:
 
     int32_t ScheduleNotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
         const int32_t recordId) override;
+
+    int32_t ScheduleNotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                    const sptr<IQuickFixCallback> &callback,
+                                    const int32_t recordId, const int &patchVersion) override;
 
     int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId) override;
 
@@ -671,7 +676,7 @@ private:
         bool multiProjects, const Configuration &config);
     void HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp);
     void HandleCancelAssertFaultTask();
-
+    sptr<OHOS::AppExecFwk::IFormMgr> GetFormRenderMgrRemote();
     bool GetHqfFileAndHapPath(const std::string &bundleName,
         std::vector<std::pair<std::string, std::string>> &fileMap);
     void GetNativeLibPath(const BundleInfo &bundleInfo, const HspList &hspList, AppLibPathMap &appLibPaths);
@@ -698,6 +703,20 @@ private:
 #endif  // APPLICATION_LIBRARY_LOADER
     DISALLOW_COPY_AND_MOVE(MainThread);
 };
+
+class fixMgrDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    /**
+     *
+     * @brief Notify the fixMgrDeathRecipient that the remote is dead.
+     *
+     * @param remote The remote which is dead.
+     */
+    virtual void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    fixMgrDeathRecipient() = default;
+    ~fixMgrDeathRecipient() override = default;
+};
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_MAIN_THREAD_H

@@ -617,11 +617,13 @@ public:
     int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
         const int32_t recordId);
 
+    int32_t NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                            const sptr<IQuickFixCallback> &callback,
+                            const int32_t recordId, const int &patchVersion);
     int32_t NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId);
 
     int32_t NotifyUnLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback,
         const int32_t recordId);
-
     bool IsContinuousTask();
 
     void SetContinuousTaskAppState(bool isContinuousTask);

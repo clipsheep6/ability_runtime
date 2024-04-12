@@ -1709,6 +1709,18 @@ int32_t AppRunningRecord::NotifyLoadRepairPatch(const std::string &bundleName, c
     return appLifeCycleDeal_->NotifyLoadRepairPatch(bundleName, callback, recordId);
 }
 
+int32_t AppRunningRecord::NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                          const sptr<IQuickFixCallback> &callback,
+                                          const int32_t recordId, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!appLifeCycleDeal_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->NotifyLoadPatch(bundleName, moduleName, callback, recordId, patchVersion);
+}
+
 int32_t AppRunningRecord::NotifyHotReloadPage(const sptr<IQuickFixCallback> &callback, const int32_t recordId)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

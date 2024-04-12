@@ -4443,6 +4443,22 @@ int32_t AppMgrServiceInner::NotifyLoadRepairPatch(const std::string &bundleName,
     return appRunningManager_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
+int32_t AppMgrServiceInner::NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                            const sptr<IQuickFixCallback> &callback, const int &patchVerion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!appRunningManager_) {
+        HILOG_DEBUG("running manager is nullptr.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    if (IPCSkeleton::GetCallingUid() != QUICKFIX_UID) {
+        HILOG_DEBUG("Permission deny, not quick_fix.");
+        return ERR_PERMISSION_DENIED;
+    }
+
+    return appRunningManager_->NotifyLoadPatch(bundleName, moduleName, callback, patchVerion);
+}
 int32_t AppMgrServiceInner::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

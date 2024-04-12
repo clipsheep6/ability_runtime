@@ -84,6 +84,7 @@ const std::string SANDBOX_ARK_PROIFILE_PATH = "/data/storage/ark-profile";
 const std::string DEBUGGER = "@Debugger";
 
 constexpr char MERGE_ABC_PATH[] = "/ets/modules.abc";
+constexpr char WIDGET_ABC_PATH[] = "/ets/widgets.abc";
 constexpr char BUNDLE_INSTALL_PATH[] = "/data/storage/el1/bundle/";
 constexpr const char* PERMISSION_RUN_ANY_CODE = "ohos.permission.RUN_ANY_CODE";
 
@@ -466,6 +467,39 @@ bool JsRuntime::GetFileBuffer(const std::string& filePath, std::string& fileFull
 
     const auto &outStr = outStream.str();
     buffer.assign(outStr.begin(), outStr.end());
+    return true;
+}
+
+bool JsRuntime::LoadRepairFormPatch(const std::string& hqfFile, const std::string& hapPath,
+                                    const std::string &bundleName, const std::string &moduleName)
+{
+    HILOG_DEBUG("hqfFile:%{public}s, hapPath:%{public}s", hqfFile.c_str(), hapPath.c_str());
+    auto vm = GetEcmaVm();
+    CHECK_POINTER_AND_RETURN(vm, false);
+
+    std::string patchFile;
+    std::vector<uint8_t> patchBuffer;
+    if (!GetFileBuffer(hqfFile, patchFile, patchBuffer)) {
+        HILOG_ERROR("get patch file buffer failed.");
+        return false;
+    }
+
+    std::string baseFile;
+    std::vector<uint8_t> baseBuffer;
+    if (!GetFileBuffer(hapPath, baseFile, baseBuffer)) {
+        HILOG_ERROR("get base file buffer failed.");
+        return false;
+    }
+
+    HILOG_DEBUG("LoadPatch, patchFile: %{public}s", patchFile.c_str());
+    std::string oldBaseWidget = BUNDLE_INSTALL_PATH + bundleName + "/" + moduleName + WIDGET_ABC_PATH;
+    auto ret = panda::JSNApi::LoadPatch(vm,
+                                        patchFile, patchBuffer.data(), patchBuffer.size(),
+                                        oldBaseWidget, baseBuffer.data(), baseBuffer.size());
+    if (ret != panda::JSNApi::PatchErrorCode::SUCCESS) {
+        HILOG_ERROR("LoadPatch failed with %{public}d.", static_cast<int32_t>(ret));
+        return false;
+    }
     return true;
 }
 
@@ -1319,11 +1353,12 @@ void JsRuntime::RegisterUncaughtExceptionHandler(const JsEnv::UncaughtExceptionI
     jsEnv_->RegisterUncaughtExceptionHandler(uncaughtExceptionInfo);
 }
 
-void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath)
+void JsRuntime::RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath,
+                                          AbilityRuntime::RuntimeType type, const std::string &bundleName)
 {
     auto vm = GetEcmaVm();
     CHECK_POINTER(vm);
-    panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath));
+    panda::JSNApi::RegisterQuickFixQueryFunc(vm, JsQuickfixCallback(moduleAndPath, type, bundleName));
 }
 
 bool JsRuntime::ReadSourceMapData(const std::string& hapPath, const std::string& sourceMapPath, std::string& content)

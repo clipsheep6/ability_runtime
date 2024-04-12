@@ -97,6 +97,7 @@ private:
 #endif
     int32_t HandleGetAppRunningStateByBundleName(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyLoadPatch(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessageParcel &reply);
 #ifdef BGTASKMGR_CONTINUOUS_TASK_ENABLE

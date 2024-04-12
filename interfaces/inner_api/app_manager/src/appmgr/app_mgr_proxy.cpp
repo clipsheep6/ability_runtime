@@ -1047,6 +1047,48 @@ int32_t AppMgrProxy::NotifyLoadRepairPatch(const std::string &bundleName, const 
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                     const sptr<IQuickFixCallback> &callback, const int &patchVersion)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        HILOG_ERROR("Write interface token failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(bundleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteString(moduleName)) {
+        HILOG_ERROR("Write bundle name failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (!data.WriteInt32(patchVersion)) {
+        HILOG_ERROR("Write patchVersion failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    if (callback == nullptr || !data.WriteRemoteObject(callback->AsObject())) {
+        HILOG_ERROR("Write callback failed.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ret = SendRequest(AppMgrInterfaceCode::NOTIFY_LOAD_PATCH,
+                           data, reply, option);
+    if (ret != 0) {
+        HILOG_ERROR("Send request failed with error code %{public}d.", ret);
+        return ret;
+    }
+
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);

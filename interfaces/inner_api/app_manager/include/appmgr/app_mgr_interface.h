@@ -358,6 +358,16 @@ public:
     virtual int32_t NotifyLoadRepairPatch(const std::string &bundleName, const sptr<IQuickFixCallback> &callback) = 0;
 
     /**
+     * @brief Notify application load patch.
+     *
+     * @param bundleName Bundle name
+     * @param callback called when LoadPatch finished.
+     * @return Returns 0 on success, error code on failure.
+     */
+    virtual int32_t NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                    const sptr<IQuickFixCallback> &callback, const int &patchVersion) = 0;
+
+    /**
      * @brief Notify application reload page.
      *
      * @param bundleName Bundle name

@@ -910,6 +910,16 @@ int32_t AppMgrService::NotifyLoadRepairPatch(const std::string &bundleName, cons
     return appMgrServiceInner_->NotifyLoadRepairPatch(bundleName, callback);
 }
 
+int32_t AppMgrService::NotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                       const sptr<IQuickFixCallback> &callback, const int &patchVersion)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->NotifyLoadPatch(bundleName, moduleName, callback, patchVersion);
+}
+
 int32_t AppMgrService::NotifyHotReloadPage(const std::string &bundleName, const sptr<IQuickFixCallback> &callback)
 {
     if (!IsReady()) {

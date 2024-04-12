@@ -109,12 +109,14 @@ public:
     bool LoadScript(const std::string& path, uint8_t* buffer, size_t len, bool isBundle);
     bool StartDebugger(bool needBreakPoint, uint32_t instanceId);
     void StopDebugger();
-
+    bool LoadRepairFormPatch(const std::string& hqfFile, const std::string& hapPath,
+                             const std::string &bundleName, const std::string &moduleName) override;
     NativeEngine* GetNativeEnginePointer() const;
     panda::ecmascript::EcmaVM* GetEcmaVm() const;
 
     void UpdateModuleNameAndAssetPath(const std::string& moduleName);
-    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override;
+    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath,
+                                   AbilityRuntime::RuntimeType type, const std::string &bundleName = "") override;
     static bool GetFileBuffer(const std::string& filePath, std::string& fileFullName, std::vector<uint8_t>& buffer);
 
     void InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator> operatorImpl);
