@@ -687,6 +687,24 @@ int32_t AppRunningManager::UpdateConfiguration(const Configuration &config)
     return result;
 }
 
+int32_t AppRunningManager::UpdateConfigurationByBundleName(const Configuration &config, const std::string &name)
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    int32_t result = ERR_OK;
+    for (const auto &item : appRunningRecordMap_) {
+        const auto &appRecord = item.second;
+        if (appRecord && appRecord->GetState() == ApplicationState::APP_STATE_CREATE) {
+            TAG_LOGD(AAFwkTag::APPMGR, "app not ready, appName is %{public}s", appRecord->GetBundleName().c_str());
+            continue;
+        }
+        if (appRecord && !isCollaboratorReserveType(appRecord) && appRecord->GetBundleName() == name) {
+            TAG_LOGD(AAFwkTag::APPMGR, "Notification app [%{public}s]", appRecord->GetName().c_str());
+            result = appRecord->UpdateConfiguration(config);
+        }
+    }
+    return result;
+}
+
 bool AppRunningManager::isCollaboratorReserveType(const std::shared_ptr<AppRunningRecord> &appRecord)
 {
     std::string bundleName = appRecord->GetApplicationInfo()->name;

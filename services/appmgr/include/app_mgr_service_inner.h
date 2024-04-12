@@ -567,6 +567,8 @@ public:
      */
     int32_t UpdateConfiguration(const Configuration &config);
 
+    int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name);
+
     std::shared_ptr<AppExecFwk::Configuration> GetConfiguration();
 
     int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver>& observer);

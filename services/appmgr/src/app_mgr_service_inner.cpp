@@ -3501,7 +3501,6 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return ERR_INVALID_VALUE;
     }
     CHECK_CALLER_IS_SYSTEM_APP;
-
     auto ret = AAFwk::PermissionVerification::GetInstance()->VerifyUpdateConfigurationPerm();
     if (ret != ERR_OK) {
         return ret;
@@ -3528,6 +3527,21 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         if (observer != nullptr) {
             observer->OnConfigurationUpdated(config);
         }
+    }
+    return result;
+}
+
+int32_t AppMgrServiceInner::UpdateConfigurationByBundleName(const Configuration &config, const std::string &name)
+{
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is null");
+        return ERR_INVALID_VALUE;
+    }
+
+    int32_t result = appRunningManager_->UpdateConfigurationByBundleName(config, name);
+    if (result != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "update error, not notify");
+        return result;
     }
     return result;
 }

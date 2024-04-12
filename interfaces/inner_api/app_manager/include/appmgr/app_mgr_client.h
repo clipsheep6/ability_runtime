@@ -330,6 +330,15 @@ public:
     virtual AppMgrResultCode UpdateConfiguration(const Configuration &config);
 
     /**
+     *  Update config by bundle name.
+     *
+     * @param config Application enviroment change parameters.
+     * @param name Application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual AppMgrResultCode UpdateConfigurationByBundleName(const Configuration &config, const std::string &name);
+
+    /**
      * Register configuration observer.
      *
      * @param observer Configuration observer. When configuration changed, observer will be called.

@@ -685,6 +685,15 @@ int32_t AppMgrService::UpdateConfiguration(const Configuration& config)
     return appMgrServiceInner_->UpdateConfiguration(config);
 }
 
+int32_t AppMgrService::UpdateConfigurationByBundleName(const Configuration& config, const std::string &name)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "UpdateConfigurationByBundleName failed, AppMgrService not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->UpdateConfigurationByBundleName(config, name);
+}
+
 int32_t AppMgrService::RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer)
 {
     if (!IsReady()) {

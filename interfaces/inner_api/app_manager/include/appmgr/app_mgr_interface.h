@@ -334,6 +334,8 @@ public:
 
     virtual int32_t UpdateConfiguration(const Configuration &config) = 0;
 
+    virtual int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name) = 0;
+
     virtual int32_t RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) = 0;
 
     virtual int32_t UnregisterConfigurationObserver(const sptr<IConfigurationObserver> &observer) = 0;

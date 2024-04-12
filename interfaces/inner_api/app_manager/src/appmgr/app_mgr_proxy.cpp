@@ -867,6 +867,31 @@ int32_t AppMgrProxy::UpdateConfiguration(const Configuration &config)
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::UpdateConfigurationByBundleName(const Configuration &config, const std::string &name)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "AppMgrProxy UpdateConfigurationByBundleName");
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteParcelable(&config)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel config failed");
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteString(name)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "parcel name failed");
+        return ERR_INVALID_DATA;
+    }
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    int32_t ret = SendRequest(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    return reply.ReadInt32();
+}
+
 int32_t AppMgrProxy::GetConfiguration(Configuration &config)
 {
     MessageParcel data;

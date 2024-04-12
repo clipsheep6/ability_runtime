@@ -180,6 +180,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllUIExtensionRootHostPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_ALL_UI_EXTENSION_PROVIDER_PID)] =
         &AppMgrStub::HandleGetAllUIExtensionProviderPid;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
+        &AppMgrStub::HandleUpdateConfigurationByBundleName;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -683,6 +685,21 @@ int32_t AppMgrStub::HandleUpdateConfiguration(MessageParcel &data, MessageParcel
         return ERR_INVALID_VALUE;
     }
     int32_t ret = UpdateConfiguration(*config);
+    if (!reply.WriteInt32(ret)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleUpdateConfigurationByBundleName(MessageParcel &data, MessageParcel &reply)
+{
+    std::unique_ptr<Configuration> config(data.ReadParcelable<Configuration>());
+    if (!config) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrStub read configuration error");
+        return ERR_INVALID_VALUE;
+    }
+    std::string name = data.ReadString();
+    int32_t ret = UpdateConfigurationByBundleName(*config, name);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
     }

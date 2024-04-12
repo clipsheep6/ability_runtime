@@ -439,12 +439,19 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         config.GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
     std::string colorModeIsSetByApp =
         config.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
+    // COLORMODE_NEED_REMOVE_SET_BY_SA added when display move.
+    std::string colorModeNeedRemoveIsSetBySa =
+        config.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_NEED_REMOVE_SET_BY_SA);
+    std::string colorModeIsSetBySa =
+        config.GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
     std::string globalColorMode =
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE);
     std::string globalLanguageIsSetByApp =
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::LANGUAGE_IS_SET_BY_APP);
     std::string globalColorModeIsSetByApp =
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_APP);
+    std::string globalColorModeIsSetBySa =
+        configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0) {
         TAG_LOGD(AAFwkTag::APPKIT, "colorMode is auto");
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
@@ -459,8 +466,15 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         HILOG_INFO("colorMode is: [%{public}s]", colorMode.c_str());
         config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, colorMode);
     }
-    if (!colorMode.empty() && colorModeIsSetByApp.empty()) {
-        if (!globalColorModeIsSetByApp.empty() && globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) {
+    if (!colorMode.empty() && colorModeIsSetByApp.empty() && colorModeIsSetBySa.empty()) {
+        if ((!globalColorModeIsSetByApp.empty() || !globalColorModeIsSetBySa.empty()) &&
+            globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) != 0) {
+            TAG_LOGD(AAFwkTag::APPKIT, "colormode has been set by app or sa");
+            return;
+        }
+    }
+    if (!colorModeIsSetBySa.empty() && colorModeIsSetByApp.empty()) {
+        if (!globalColorModeIsSetByApp.empty()) {
             TAG_LOGD(AAFwkTag::APPKIT, "colormode has been set by app");
             return;
         }
@@ -468,6 +482,12 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     if (!language.empty() && languageIsSetByApp.empty() && !globalLanguageIsSetByApp.empty()) {
         TAG_LOGD(AAFwkTag::APPKIT, "language has been set by app");
         return;
+    }
+    // When display move happened, need to remove SA key, so setting can update colormode success after display move.
+    if (!colorModeNeedRemoveIsSetBySa.empty() && !globalColorModeIsSetBySa.empty()) {
+        configuration_->RemoveItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
+        config.RemoveItem(AAFwk::GlobalConfigurationKey::COLORMODE_NEED_REMOVE_SET_BY_SA);
+        config.RemoveItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
     }
     std::vector<std::string> changeKeyV;
     configuration_->CompareDifferent(changeKeyV, config);

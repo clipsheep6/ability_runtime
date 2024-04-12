@@ -147,6 +147,15 @@ public:
     */
     int32_t UpdateConfiguration(const Configuration &config);
 
+    /**
+     *  Update config by sa.
+     *
+     * @param config Application enviroment change parameters.
+     * @param name Application bundle name.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t UpdateConfigurationByBundleName(const Configuration &config, const std::string &name);
+
     /*
     *  Notify application background of current memory level.
     *

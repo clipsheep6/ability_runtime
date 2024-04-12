@@ -890,6 +890,42 @@ HWTEST_F(AppMgrServiceTest, UpdateConfiguration_002, TestSize.Level0)
 
 /*
  * Feature: AppMgrService
+ * Function: UpdateConfigurationByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService UpdateConfigurationByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateConfigurationByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, UpdateConfigurationByBundleName_001, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    Configuration config;
+    appMgrService->SetInnerService(nullptr);
+    int32_t res = appMgrService->UpdateConfigurationByBundleName(config, "");
+    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
+ * Function: UpdateConfigurationByBundleName
+ * SubFunction: NA
+ * FunctionPoints: AppMgrService UpdateConfigurationByBundleName
+ * EnvConditions: NA
+ * CaseDescription: Verify UpdateConfigurationByBundleName
+ */
+HWTEST_F(AppMgrServiceTest, UpdateConfigurationByBundleName_002, TestSize.Level0)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    Configuration config;
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = std::make_shared<AMSEventHandler>(taskHandler_, appMgrService->appMgrServiceInner_);
+    int32_t res = appMgrService->UpdateConfigurationByBundleName(config, "");
+    EXPECT_NE(res, ERR_INVALID_OPERATION);
+}
+
+/*
+ * Feature: AppMgrService
  * Function: RegisterConfigurationObserver
  * SubFunction: NA
  * FunctionPoints: AppMgrService RegisterConfigurationObserver

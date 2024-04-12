@@ -654,6 +654,19 @@ AppMgrResultCode AppMgrClient::UpdateConfiguration(const Configuration &config)
     return AppMgrResultCode::RESULT_OK;
 }
 
+AppMgrResultCode AppMgrClient::UpdateConfigurationByBundleName(const Configuration &config, const std::string &name)
+{
+    if (!mgrHolder_) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    service->UpdateConfigurationByBundleName(config, name);
+    return AppMgrResultCode::RESULT_OK;
+}
+
 AppMgrResultCode AppMgrClient::RegisterConfigurationObserver(const sptr<IConfigurationObserver> &observer)
 {
     sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
