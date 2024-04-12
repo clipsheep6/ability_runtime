@@ -512,6 +512,8 @@ enum class AbilityManagerInterfaceCode {
     REQUEST_ASSERT_FAULT_DIALOG = 6116,
     // ipc id for notify the operation status of the user
     NOTIFY_DEBUG_ASSERT_RESULT = 6117,
+    // ipc id for notify memory size state changed
+    NOTIFY_MEMORY_SIZE_STATE_CHANGED = 6118,
 };
 }  // namespace AAFwk
 }  // namespace OHOS

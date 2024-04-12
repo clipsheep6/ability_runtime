@@ -19,6 +19,7 @@
 #include "app_scheduler.h"
 #include "bundle_info.h"
 #include "singleton.h"
+#include "task_handler_wrap.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -31,9 +32,15 @@ class ResidentProcessManager : public std::enable_shared_from_this<ResidentProce
 public:
     void StartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     void StartResidentProcessWithMainElement(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+    int32_t HandleMemorySizeSufficent();
+    int32_t HandleMemorySizeInSufficent();
+    void SetTaskHandler(std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler);
 private:
     bool CheckMainElement(const AppExecFwk::HapModuleInfo &hapModuleInfo, const std::string &processName,
         std::string &mainElement, std::set<uint32_t> &needEraseIndexSet, size_t bundleInfoIndex);
+    void QueryExitBundleInfos(const std::vector<std::string>& exitBundleNames,
+        std::vector<AppExecFwk::BundleInfo>& exitBundleInfos);
+    std::shared_ptr<AAFwk::TaskHandlerWrap> taskHandler_;
 };
 }  // namespace AAFwk
 }  // namespace OHOS
