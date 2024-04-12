@@ -921,5 +921,13 @@ void AppStateObserverManager::HandleOnPageHide(const PageStateData pageStateData
         }
     }
 }
+
+void AppStateObserverManager::OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+}
+
+void AppStateObserverManager::HandleOnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord)
+{
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

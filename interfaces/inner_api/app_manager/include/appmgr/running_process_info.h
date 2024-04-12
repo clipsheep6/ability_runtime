@@ -33,6 +33,7 @@ enum class AppProcessState {
     APP_STATE_BACKGROUND,
     APP_STATE_TERMINATED,
     APP_STATE_END,
+    APP_STATE_CACHED = 100,
 };
 
 enum class WeightReasonCode {

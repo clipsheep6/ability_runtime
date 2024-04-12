@@ -280,6 +280,10 @@ void ApplicationStateObserverProxy::OnPageHide(const PageStateData &pageStateDat
     }
 }
 
+void ApplicationStateObserverProxy::OnAppCacheStateChanged(const AppStateData &appStateData)
+{
+}
+
 int32_t ApplicationStateObserverProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

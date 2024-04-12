@@ -31,6 +31,7 @@ enum class ApplicationState {
     APP_STATE_TERMINATED,
     APP_STATE_END,
     APP_STATE_SET_COLD_START = 99,
+    APP_STATE_CACHED = 100,
 };
 
 enum class ApplicationPendingState {
