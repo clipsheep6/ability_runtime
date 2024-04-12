@@ -10023,9 +10023,12 @@ int32_t AbilityManagerService::GetUIExtensionRootHostInfo(const sptr<IRemoteObje
 void AbilityManagerService::SetDebugAppByWaitingDebugFlag(
     const Want &want, Want &requestWant, const std::string &bundleName, bool isDebugApp)
 {
-    bool isWaitingDebugApp =
-        DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName);
-    if (isWaitingDebugApp && isDebugApp && system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+    if (!isDebugApp || !system::GetBoolParameter(DEVELOPER_MODE_STATE, false)) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "Not meeting the set debugging conditions.");
+        return;
+    }
+
+    if (DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->IsWaitingDebugApp(bundleName)) {
         (const_cast<Want &>(want)).SetParam(DEBUG_APP, true);
         requestWant.SetParam(DEBUG_APP, true);
         DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->ClearNonPersistWaitingDebugFlag();
