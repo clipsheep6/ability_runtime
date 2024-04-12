@@ -918,7 +918,6 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         TAG_LOGE(AAFwkTag::APPMGR, "appRunningManager_ is nullptr");
         return ERR_NO_INIT;
     }
-
     int32_t result = ERR_OK;
     if (!CheckCallerIsAppGallery()) {
         result = VerifyProcessPermission(bundleName);
@@ -927,7 +926,6 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
             return result;
         }
     }
-
     int64_t startTime = SystemTimeMillisecond();
     std::list<pid_t> pids;
     if (remoteClientManager_ == nullptr) {
@@ -945,7 +943,14 @@ int32_t AppMgrServiceInner::KillApplicationByUid(const std::string &bundleName, 
         return result;
     }
     if (WaitForRemoteProcessExit(pids, startTime)) {
-        TAG_LOGI(AAFwkTag::APPMGR, "The remote process exited successfully ");
+        TAG_LOGI(AAFwkTag::APPMGR, "The remote processes exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "KillApplicationByUid";
+        for (pid_t pid : pids) {
+            auto appRecord = GetAppRunningRecordByPid(pid);
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_KEY_PID, std::to_string(pid),
+                EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(), EVENT_KEY_MESSAGE, killReason);
+        }
         return result;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
@@ -1040,7 +1045,16 @@ int32_t AppMgrServiceInner::KillApplicationByBundleName(const std::string &bundl
         return result;
     }
     if (WaitForRemoteProcessExit(pids, startTime)) {
-        TAG_LOGD(AAFwkTag::APPMGR, "The remote process exited successfully ");
+        TAG_LOGD(AAFwkTag::APPMGR, "The remote processes exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "KillApplicationByBundleName";
+        for (pid_t pid : pids) {
+            auto appRecord = GetAppRunningRecordByPid(pid);
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PID, std::to_string(pid),
+                EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+                EVENT_KEY_MESSAGE, killReason);
+        }
         NotifyAppStatus(bundleName, EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_RESTARTED);
         return result;
     }
@@ -1110,7 +1124,16 @@ int32_t AppMgrServiceInner::KillApplicationByUserIdLocked(const std::string &bun
         return result;
     }
     if (WaitForRemoteProcessExit(pids, startTime)) {
-        TAG_LOGI(AAFwkTag::APPMGR, "The remote process exited successfully ");
+        TAG_LOGI(AAFwkTag::APPMGR, "The remote processes exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "KillApplicationByUserIdLocked";
+        for (pid_t pid : pids) {
+            auto appRecord = GetAppRunningRecordByPid(pid);
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PID, std::to_string(pid),
+                EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+                EVENT_KEY_MESSAGE, killReason);
+        }
         return result;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
@@ -1809,12 +1832,20 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
         std::list<pid_t> pids;
         pids.push_back(pid);
         appRecord->ScheduleProcessSecurityExit();
-        if (!WaitForRemoteProcessExit(pids, SystemTimeMillisecond())) {
-            int32_t result = KillProcessByPid(pid, "KillProcessByAbilityToken");
-            if (result < 0) {
-                TAG_LOGE(AAFwkTag::APPMGR, "KillProcessByAbilityToken kill process is fail");
-                return;
-            }
+        if (WaitForRemoteProcessExit(pids, SystemTimeMillisecond())) {
+            TAG_LOGI(AAFwkTag::APPMGR, "The remote process exited successfully");
+            std::string killReason = KILL_PROCESS_REASON_PREFIX + "KillProcessByAbilityToken";
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PID, std::to_string(pid),
+                EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+                EVENT_KEY_MESSAGE, killReason);
+            return;
+        }
+        int32_t result = KillProcessByPid(pid, "KillProcessByAbilityToken");
+        if (result < 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "KillProcessByAbilityToken kill process is fail");
+            return;
         }
     }
 }
@@ -1833,7 +1864,16 @@ void AppMgrServiceInner::KillProcessesByUserId(int32_t userId)
         return;
     }
     if (WaitForRemoteProcessExit(pids, startTime)) {
-        TAG_LOGI(AAFwkTag::APPMGR, "The remote process exited successfully ");
+        TAG_LOGI(AAFwkTag::APPMGR, "The remote processes exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "KillProcessesByUserId";
+        for (pid_t pid : pids) {
+            auto appRecord = GetAppRunningRecordByPid(pid);
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PID, std::to_string(pid),
+                EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+                EVENT_KEY_MESSAGE, killReason);
+        }
         return;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
@@ -2540,7 +2580,8 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     if (!appTaskInfo) {
         return;
     }
-    auto appRecord = GetAppRunningRecordByPid(appTaskInfo->GetPid());
+    pid_t pid = appTaskInfo->GetPid();
+    auto appRecord = GetAppRunningRecordByPid(pid);
     if (!appRecord) {
         appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
         return;
@@ -2552,14 +2593,23 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     }
 
     startTime = SystemTimeMillisecond();
-    pids.push_back(appTaskInfo->GetPid());
+    pids.push_back(pid);
     appRecord->ScheduleProcessSecurityExit();
-    if (!WaitForRemoteProcessExit(pids, startTime)) {
-        int32_t result = KillProcessByPid(appTaskInfo->GetPid(), "RemoveAppFromRecentList");
-        if (result < 0) {
-            TAG_LOGE(AAFwkTag::APPMGR, "RemoveAppFromRecentList kill process is fail");
-            return;
-        }
+
+    if (WaitForRemoteProcessExit(pids, startTime)) {
+        TAG_LOGI(AAFwkTag::APPMGR, "The remote process exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "RemoveAppFromRecentList";
+        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+            EVENT_KEY_PID, std::to_string(pid),
+            EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+            EVENT_KEY_MESSAGE, killReason);
+        return;
+    }
+    int32_t result = KillProcessByPid(appTaskInfo->GetPid(), "RemoveAppFromRecentList");
+    if (result < 0) {
+        TAG_LOGE(AAFwkTag::APPMGR, "RemoveAppFromRecentList kill process is fail");
+        return;
     }
     appProcessManager_->RemoveAppFromRecentList(appTaskInfo);
 }
@@ -2580,6 +2630,16 @@ void AppMgrServiceInner::ClearRecentAppList()
     startTime = SystemTimeMillisecond();
     if (WaitForRemoteProcessExit(pids, startTime)) {
         appProcessManager_->ClearRecentAppList();
+        TAG_LOGI(AAFwkTag::APPMGR, "The remote processes exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "ClearRecentAppList";
+        for (pid_t pid : pids) {
+            auto appRecord = GetAppRunningRecordByPid(pid);
+            HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+                OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+                EVENT_KEY_PID, std::to_string(pid),
+                EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+                EVENT_KEY_MESSAGE, killReason);
+        }
         return;
     }
     for (auto iter = pids.begin(); iter != pids.end(); ++iter) {
@@ -3649,6 +3709,12 @@ void AppMgrServiceInner::KillApplicationByRecord(const std::shared_ptr<AppRunnin
     std::list<pid_t> pids = {pid};
     if (WaitForRemoteProcessExit(pids, startTime)) {
         TAG_LOGI(AAFwkTag::APPMGR, "The remote process exited successfully");
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "KillApplicationByRecord";
+        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+            EVENT_KEY_PID, std::to_string(pid),
+            EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+            EVENT_KEY_MESSAGE, killReason);
         return;
     }
 
@@ -5642,6 +5708,12 @@ void AppMgrServiceInner::ExitChildProcessSafelyByChildPid(const pid_t pid)
     if (WaitForRemoteProcessExit(pids, startTime)) {
         TAG_LOGI(AAFwkTag::APPMGR, "The remote child process exited successfully, pid:%{public}d.", pid);
         appRecord->RemoveChildProcessRecord(childRecord);
+        std::string killReason = KILL_PROCESS_REASON_PREFIX + "ExitChildProcessSafelyByChildPid";
+        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FRAMEWORK, "PROCESS_KILL",
+            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT,
+            EVENT_KEY_PID, std::to_string(pid),
+            EVENT_KEY_PROCESS_NAME, appRecord->GetProcessName(),
+            EVENT_KEY_MESSAGE, killReason);
         return;
     }
     childRecord->RegisterDeathRecipient();
