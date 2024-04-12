@@ -2303,6 +2303,14 @@ void UIAbilityLifecycleManager::SignRestartAppFlag(const std::string &bundleName
 void UIAbilityLifecycleManager::CompleteFirstFrameDrawing(int32_t sessionId) const
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, called.");
+    auto abilityRecord = GetAbilityRecordsById(sessionId);
+    if (abilityRecord == nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "CompleteFirstFrameDrawing, get AbilityRecord by sessionId failed.");
+        return;
+    }
+    abilityRecord->SetCompleteFirstFrameDrawing(true);
+    DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
+        HandleOnFirstFrameState(abilityRecord);
 }
 }  // namespace AAFwk
 }  // namespace OHOS
