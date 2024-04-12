@@ -428,6 +428,8 @@ void AbilityManagerStub::FourthStepInit()
         &AbilityManagerStub::ChangeAbilityVisibilityInner;
     requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::CHANGE_UI_ABILITY_VISIBILITY_BY_SCB)] =
         &AbilityManagerStub::ChangeUIAbilityVisibilityBySCBInner;
+    requestFuncMap_[static_cast<uint32_t>(AbilityManagerInterfaceCode::START_SHORTCUT)] =
+        &AbilityManagerStub::StartShortcutInner;
 }
 
 int AbilityManagerStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -3323,6 +3325,26 @@ int32_t AbilityManagerStub::IsEmbeddedOpenAllowedInner(MessageParcel &data, Mess
         return ERR_INVALID_VALUE;
     }
 
+    return NO_ERROR;
+}
+
+int32_t AbilityManagerStub::StartShortcutInner(MessageParcel &data, MessageParcel &reply)
+{
+    std::shared_ptr<Want> want(data.ReadParcelable<Want>());
+    if (want == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "want is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    StartOptions *startOptions = data.ReadParcelable<StartOptions>();
+    if (startOptions == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "startOptions is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+    startOptions->processOptions = nullptr;
+
+    int32_t result = StartShortcut(*want, *startOptions);
+    reply.WriteInt32(result);
+    delete startOptions;
     return NO_ERROR;
 }
 } // namespace AAFwk

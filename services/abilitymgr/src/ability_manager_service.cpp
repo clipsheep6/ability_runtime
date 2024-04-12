@@ -10312,5 +10312,21 @@ bool AbilityManagerService::ConvertFullPath(const std::string& partialPath, std:
     fullPath = tmpPath;
     return true;
 }
+
+int32_t AbilityManagerService::StartShortcut(const Want &want, const StartOptions &startOptions)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (!PermissionVerification::GetInstance()->IsSystemAppCall()) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "non-system app calling system api.");
+        return ERR_NOT_SYSTEM_APP;
+    }
+    if (!PermissionVerification::GetInstance()->VerifyCallingPermission(
+        PermissionConstants::PERMISSION_START_SHORTCUT)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Permission %{public}s verification failed.",
+            PermissionConstants::PERMISSION_START_SHORTCUT);
+        return ERR_PERMISSION_DENIED;
+    }
+    return StartAbility(want, startOptions, nullptr);
+}
 }  // namespace AAFwk
 }  // namespace OHOS
