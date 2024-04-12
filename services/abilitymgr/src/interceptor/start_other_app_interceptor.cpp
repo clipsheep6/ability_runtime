@@ -39,7 +39,7 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
 
-    if (!param.isWithUI) {
+    if (!param.isWithUI || param.isStartAsCaller) {
         return ERR_OK;
     }
     if (CheckNativeCall() || CheckCallerIsSystemApp() ||
