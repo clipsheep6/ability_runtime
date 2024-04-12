@@ -410,7 +410,7 @@ private:
             }
         }
 
-        if (argc == ARGC_ONE || (argc == ARGC_TWO && IsParasNullOrUndefined(env, argv[ARGC_TWO]))) {
+        if (argc == ARGC_ONE || (argc == ARGC_TWO && IsParasNullOrUndefined(env, argv[INDEX_ONE]))) {
             JSAbilityFirstFrameStateObserverManager::GetInstance()->RemoveAllJsObserverObjects(abilityManager_);
         } else if (argc == ARGC_TWO) {
             JSAbilityFirstFrameStateObserverManager::GetInstance()->RemoveJsObserverObject(abilityManager_,
