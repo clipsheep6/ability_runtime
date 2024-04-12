@@ -165,7 +165,7 @@ private:
 private:
     bool CreateJsEnv(const Options& options);
     void PreloadAce(const Options& options);
-    bool InitLoop();
+    bool InitLoop(bool isStage = true);
     inline bool IsUseAbilityRuntime(const Options& options) const;
     void FreeNativeReference(std::unique_ptr<NativeReference> uniqueNativeRef,
         std::shared_ptr<NativeReference>&& sharedNativeRef);

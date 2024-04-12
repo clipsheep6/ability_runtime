@@ -122,7 +122,7 @@ void OHOSJsEnvironmentImpl::InitConsoleModule(NativeEngine* engine)
     JsSysModule::Console::InitConsoleModule(reinterpret_cast<napi_env>(engine));
 }
 
-bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
+bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine, bool isStage)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "called");
     CHECK_POINTER_AND_RETURN(engine, false);
@@ -137,8 +137,10 @@ bool OHOSJsEnvironmentImpl::InitLoop(NativeEngine* engine)
     if (eventHandler_ != nullptr) {
         uint32_t events = AppExecFwk::FILE_DESCRIPTOR_INPUT_EVENT | AppExecFwk::FILE_DESCRIPTOR_OUTPUT_EVENT;
         eventHandler_->AddFileDescriptorListener(fd, events, std::make_shared<OHOSLoopHandler>(uvLoop), "uvLoopTask");
-        HILOG_DEBUG("uv_register_task_to_event");
-        uv_register_task_to_event(uvLoop, PostTaskToHandler, eventHandler_.get());
+        HILOG_DEBUG("uv_register_task_to_event, isStage: %{public}d", isStage);
+        if (isStage) {
+            uv_register_task_to_event(uvLoop, PostTaskToHandler, eventHandler_.get());
+        }
     }
 
     return true;

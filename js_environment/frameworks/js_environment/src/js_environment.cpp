@@ -235,7 +235,7 @@ void JsEnvironment::InitConsoleModule()
     }
 }
 
-bool JsEnvironment::InitLoop()
+bool JsEnvironment::InitLoop(bool isStage)
 {
     if (engine_ == nullptr) {
         JSENV_LOG_E("Invalid Native Engine.");
@@ -243,7 +243,7 @@ bool JsEnvironment::InitLoop()
     }
 
     if (impl_ != nullptr) {
-        impl_->InitLoop(engine_);
+        impl_->InitLoop(engine_, isStage);
     }
     return true;
 }

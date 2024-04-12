@@ -765,7 +765,7 @@ bool JsRuntime::Initialize(const Options& options)
         SetModuleLoadChecker(options.moduleCheckerDelegate);
         SetRequestAotCallback();
 
-        if (!InitLoop()) {
+        if (!InitLoop(options.isStageModel)) {
             TAG_LOGE(AAFwkTag::JSRUNTIME, "Initialize loop failed.");
             return false;
         }
@@ -856,10 +856,10 @@ void JsRuntime::DoCleanWorkAfterStageCleaned()
     PostTask(gcTask, "ability_destruct_gc", TRIGGER_GC_AFTER_CLEAR_STAGE_MS);
 }
 
-bool JsRuntime::InitLoop()
+bool JsRuntime::InitLoop(bool isStage)
 {
     CHECK_POINTER_AND_RETURN(jsEnv_, false);
-    return jsEnv_->InitLoop();
+    return jsEnv_->InitLoop(isStage);
 }
 
 void JsRuntime::SetAppLibPath(const AppLibPathMap& appLibPaths, const bool& isSystemApp)
