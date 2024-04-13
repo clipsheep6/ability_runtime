@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -945,6 +945,36 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterAppRunningStatusListener_001, 
 
     auto result = appMgrClient->UnregisterAppRunningStatusListener(listener);
     EXPECT_EQ(result, ERR_INVALID_DATA);
+}
+
+/**
+ * @tc.name: AppMgrClient_RequestTerminateProcess_001
+ * @tc.desc: kill application self.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RequestTerminateProcess_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->RequestTerminateProcess();
+    EXPECT_EQ(ret, AppMgrResultCode::ERROR_KILL_APPLICATION);
+}
+
+/**
+ * @tc.name: AppMgrClient_RequestTerminateApplication_001
+ * @tc.desc: kill application self.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_RequestTerminateApplication_001, TestSize.Level1)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    int ret = appMgrClient->RequestTerminateApplication();
+    EXPECT_EQ(ret, AppMgrResultCode::ERROR_SERVICE_NOT_READY);
 }
 
 /**

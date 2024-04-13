@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -322,6 +322,23 @@ HWTEST_F(AppRunningRecordTest, AppRunningRecord_GetAssignTokenId_0100, TestSize.
 
     int32_t assignTokenId = appRecord->GetAssignTokenId();
     EXPECT_EQ(assignTokenId, 0);
+}
+
+/**
+ * @tc.name: AppRunningRecord_RequestTerminateProcess_0100
+ * @tc.desc: Normal scheduling to exit the process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppRunningRecordTest, AppRunningRecord_RequestTerminateProcess_0100, TestSize.Level1)
+{
+    bool isAttachDebug = true;
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
+    int32_t recordId = RECORD_ID;
+    std::string processName{ "com.example.test" };
+    auto appRunningRecord = std::make_shared<AppRunningRecord>(appInfo, recordId, processName);
+    EXPECT_NE(appRunningRecord, nullptr);
+    auto ref = appRunningRecord->RequestTerminateProcess();
+    EXPECT_EQ(ref, ERR_INVALID_VALUE);
 }
 
 /**

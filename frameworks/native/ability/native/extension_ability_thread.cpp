@@ -620,6 +620,13 @@ void ExtensionAbilityThread::DumpAbilityInfoInner(
     TAG_LOGD(AAFwkTag::EXT, "End.");
 }
 
+void ExtensionAbilityThread::RequestTerminateSelf()
+{
+    // The current extension does not have a unified calling interface, like TerminateSelf.
+    // So using this method to retrieve the end
+    AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
+}
+
 void ExtensionAbilityThread::DumpOtherInfo(std::vector<std::string> &info)
 {
     std::string dumpInfo = "        event:";

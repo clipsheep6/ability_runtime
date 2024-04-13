@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -202,6 +202,62 @@ HWTEST_F(AppMgrServiceTest, ApplicationTerminated_001, TestSize.Level0)
     int32_t recordId = 1;
     appMgrService->SetInnerService(nullptr);
     appMgrService->ApplicationTerminated(recordId);
+}
+
+/**
+ * @tc.name: RequestTerminateApplication_0100
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateApplication_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->appMgrServiceInner_ = nullptr;
+    auto res = appMgrService->RequestTerminateApplication();
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: RequestTerminateApplication_0200
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateApplication_0200, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    auto res = appMgrService->RequestTerminateApplication();
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
+}
+
+/**
+ * @tc.name: RequestTerminateProcess_001
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateProcess_001, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->appMgrServiceInner_ = nullptr;
+    auto res = appMgrService->RequestTerminateProcess();
+    EXPECT_EQ(ERR_INVALID_OPERATION, res);
+}
+
+/**
+ * @tc.name: RequestTerminateProcess_0200
+ * @tc.desc: Normal scheduling to exit the application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, RequestTerminateProcess_0200, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    appMgrService->SetInnerService(std::make_shared<AppMgrServiceInner>());
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+    auto res = appMgrService->RequestTerminateProcess();
+    EXPECT_EQ(ERR_INVALID_VALUE, res);
 }
 
 /*

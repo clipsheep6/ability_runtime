@@ -720,6 +720,12 @@ public:
     int32_t GetAssignTokenId() const;
 
     /**
+     * Normal scheduling to exit the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() const;
+
+    /**
      * @brief Setting the assign tokenId.
      *
      * @param AssignTokenId, the assign tokenId.

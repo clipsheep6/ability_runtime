@@ -1274,6 +1274,22 @@ int32_t AppMgrService::SignRestartAppFlag(const std::string &bundleName)
     return appMgrServiceInner_->SignRestartAppFlag(bundleName);
 }
 
+int32_t AppMgrService::RequestTerminateProcess()
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RequestTerminateProcess();
+}
+
+int32_t AppMgrService::RequestTerminateApplication()
+{
+    if (!IsReady()) {
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->RequestTerminateApplication();
+}
+
 int32_t AppMgrService::GetAppRunningUniqueIdByPid(pid_t pid, std::string &appRunningUniqueId)
 {
     if (!IsReady()) {

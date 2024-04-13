@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,6 +99,25 @@ HWTEST_F(AppSchedulerHostTest, ScheduleChangeAppGcState_001, TestSize.Level1)
     EXPECT_CALL(*mockAppScheduler_, ScheduleChangeAppGcState(_)).Times(1);
     auto result = mockAppScheduler_->OnRemoteRequest(
             static_cast<uint32_t>(IAppScheduler::Message::APP_GC_STATE_CHANGE), data, reply, option);
+    EXPECT_EQ(result, NO_ERROR);
+}
+
+/**
+ * @tc.name: HandleScheduleRequestTerminateProcess_001
+ * @tc.desc: Request terminate process.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerHostTest, HandleScheduleRequestTerminateProcess_001, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, ScheduleRequestTerminateProcess()).Times(1);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    WriteInterfaceToken(data);
+
+    auto result = mockAppScheduler_->OnRemoteRequest(
+        static_cast<uint32_t>(IAppScheduler::Message::SCHEDULE_REQUEST_TERMINATE_PROCESS), data, reply, option);
     EXPECT_EQ(result, NO_ERROR);
 }
 

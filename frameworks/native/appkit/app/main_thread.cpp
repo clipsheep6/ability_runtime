@@ -3105,6 +3105,51 @@ void MainThread::AssertFaultResumeMainThreadDetection()
     SetAppDebug(AbilityRuntime::AppFreezeState::AppFreezeFlag::ASSERT_DEBUG_MODE, false);
 }
 
+int32_t MainThread::ScheduleRequestTerminateProcess()
+{
+    if (mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "MainHandler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
+
+    wptr<MainThread> weak = this;
+    auto task = [weak] {
+        auto appThread = weak.promote();
+        if (appThread == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "AppThread is nullptr, request terminate process failed.");
+            return;
+        }
+        appThread->RequestTerminateProcess();
+    };
+    mainHandler_->PostTask(task, "MainThread:RequestTerminateProcess");
+    return NO_ERROR;
+}
+
+void MainThread::RequestTerminateProcess()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    if (abilityRecordMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Ability record mgr obj is nullptr");
+        return;
+    }
+
+    auto abilityTokenList = abilityRecordMgr_->GetAllTokens();
+    for (auto &item : abilityTokenList) {
+        if (item == nullptr) {
+            continue;
+        }
+        auto abilityRecord = abilityRecordMgr_->GetAbilityItem(item);
+        if (abilityRecord == nullptr) {
+            continue;
+        }
+        auto &thread = abilityRecord->GetAbilityThread();
+        if (thread == nullptr) {
+            continue;
+        }
+        thread->RequestTerminateSelf();
+    }
+}
+
 void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)
 {
     if (!system::GetBoolParameter(PRODUCT_ASSERT_FAULT_DIALOG_ENABLED, false)) {

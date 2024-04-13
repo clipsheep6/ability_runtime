@@ -223,6 +223,13 @@ public:
     virtual int32_t ScheduleChangeAppGcState(int32_t state) = 0;
 
     /**
+     * Request normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t ScheduleRequestTerminateProcess() = 0;
+
+    /**
      * @brief Attach app debug.
      */
     virtual void AttachAppDebug() = 0;
@@ -287,6 +294,7 @@ public:
         SCHEDULE_ATTACH_APP_DEBUG,
         SCHEDULE_DETACH_APP_DEBUG,
         SCHEDULE_NEW_PROCESS_REQUEST,
+        SCHEDULE_REQUEST_TERMINATE_PROCESS,
         SCHEDULE_JSHEAP_MEMORY_APPLICATION_TRANSACTION,
         SCHEDULE_DUMP_IPC_START,
         SCHEDULE_DUMP_IPC_STOP,

@@ -698,6 +698,21 @@ int UIAbilityThread::CreateModalUIExtension(const Want &want)
     return currentAbility_->CreateModalUIExtension(want);
 }
 
+void UIAbilityThread::RequestTerminateSelf()
+{
+    if (currentAbility_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Current ability is nullptr");
+        return;
+    }
+    auto context = currentAbility_->GetAbilityContext();
+    if (context == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "Current ability context is nullptr");
+        return;
+    }
+
+    context->TerminateSelf();
+}
+
 void UIAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
     if (currentAbility_ == nullptr) {

@@ -292,6 +292,13 @@ public:
      */
     int32_t ScheduleChangeAppGcState(int32_t state) override;
 
+    /**
+     * Request normal scheduling to exit the process.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t ScheduleRequestTerminateProcess() override;
+
     void AttachAppDebug() override;
     void DetachAppDebug() override;
     bool NotifyDeviceDisConnect();
@@ -589,6 +596,8 @@ private:
     std::vector<std::string> GetRemoveOverlayPaths(const std::vector<OverlayModuleInfo> &overlayModuleInfos);
 
     int32_t ChangeAppGcState(int32_t state);
+
+    void RequestTerminateProcess();
 
     class MainHandler : public EventHandler {
     public:

@@ -1523,6 +1523,27 @@ int FAAbilityThread::CreateModalUIExtension(const Want &want)
     return currentAbility_->CreateModalUIExtension(want);
 }
 
+void FAAbilityThread::RequestTerminateSelf()
+{
+    if (isUIAbility_) {
+        if (currentAbility_ == nullptr) {
+            TAG_LOGE(AAFwkTag::FA, "Current ability is nullptr");
+            return;
+        }
+        auto context = currentAbility_->GetAbilityContext();
+        if (context == nullptr) {
+            TAG_LOGE(AAFwkTag::FA, "Current ability context is nullptr");
+            return;
+        }
+        context->TerminateSelf();
+        return;
+    }
+
+    // The current extension does not have a unified calling interface, like TerminateSelf.
+    // So using this method to retrieve the end
+    AbilityManagerClient::GetInstance()->TerminateAbility(token_, -1, nullptr);
+}
+
 void FAAbilityThread::UpdateSessionToken(sptr<IRemoteObject> sessionToken)
 {
     if (currentAbility_ == nullptr) {

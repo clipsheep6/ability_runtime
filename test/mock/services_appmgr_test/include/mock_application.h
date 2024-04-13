@@ -56,6 +56,7 @@ public:
     MOCK_METHOD1(GetWaitingDebugApp, int32_t(std::vector<std::string> &debugInfoList));
     MOCK_METHOD1(IsWaitingDebugApp, bool(const std::string &bundleName));
     MOCK_METHOD0(ClearNonPersistWaitingDebugFlag, void());
+    MOCK_METHOD0(ScheduleRequestTerminateProcess, int32_t());
     MOCK_METHOD1(ScheduleDumpIpcStart, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStop, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStat, int32_t(std::string &result));

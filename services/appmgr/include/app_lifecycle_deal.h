@@ -217,6 +217,12 @@ public:
      */
     bool IsFinalAppProcess();
 
+    /**
+     * Normal scheduling to exit the process.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t RequestTerminateProcess() const;
+
     int DumpIpcStart(std::string& result);
 
     int DumpIpcStop(std::string& result);

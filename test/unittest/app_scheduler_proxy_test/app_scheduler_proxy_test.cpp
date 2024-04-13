@@ -85,6 +85,20 @@ HWTEST_F(AppSchedulerProxyTest, ScheduleChangeAppGcState_001, TestSize.Level1)
 }
 
 /**
+ * @tc.name: ScheduleRequestTerminateProcess_001
+ * @tc.desc: Verify that DetachAppDebug interface calls normally.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppSchedulerProxyTest, ScheduleRequestTerminateProcess_001, TestSize.Level1)
+{
+    EXPECT_NE(mockAppScheduler_, nullptr);
+    sptr<AppSchedulerProxy> appSchedulerProxy = new AppSchedulerProxy(mockAppScheduler_);
+    EXPECT_NE(appSchedulerProxy, nullptr);
+    EXPECT_CALL(*mockAppScheduler_, ScheduleRequestTerminateProcess()).Times(1);
+    appSchedulerProxy->ScheduleRequestTerminateProcess();
+}
+
+/**
  * @tc.name: AttachAppDebug_001
  * @tc.desc: Verify that AttachAppDebug interface calls normally.
  * @tc.type: FUNC

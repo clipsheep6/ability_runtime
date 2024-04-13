@@ -2022,6 +2022,15 @@ bool AppRunningRecord::IsAssertionPause() const
     return isAssertPause_;
 }
 
+int32_t AppRunningRecord::RequestTerminateProcess() const
+{
+    if (appLifeCycleDeal_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppLifeCycleDeal is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    return appLifeCycleDeal_->RequestTerminateProcess();
+}
+
 bool AppRunningRecord::IsDebugging() const
 {
     return isDebugApp_ || isAssertPause_;
