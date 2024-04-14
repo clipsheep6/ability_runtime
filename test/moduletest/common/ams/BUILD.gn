@@ -32,6 +32,7 @@ ohos_source_set("appmgr_mst_source") {
   public_configs = [
     "${ability_runtime_test_path}/moduletest:services_module_test_config",
     "${ability_runtime_services_path}/appmgr:appmgr_config",
+    "${ability_runtime_services_path}/appmgr:appmgr_exception_config",
     "${ability_runtime_test_path}/moduletest:services_mock_ams_config",
     "${ability_runtime_innerkits_path}/app_manager:appmgr_sdk_config",
     "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy_config",
