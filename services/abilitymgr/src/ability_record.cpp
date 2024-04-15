@@ -3048,8 +3048,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         GrantUriPermissionFor2In1Inner(want, uriVec, targetBundleName, tokenId);
         return;
     }
-    uint32_t specifyTokenId = static_cast<uint32_t>(want.GetIntParam("specifyTokenId", 0));
-    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId, specifyTokenId);
+    GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
 }
 
 bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t userId)
@@ -3081,15 +3080,15 @@ bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
-    const std::string &targetBundleName, uint32_t tokenId, uint32_t specifyTokenId)
+    const std::string &targetBundleName, uint32_t tokenId)
 {
-    auto callerTokenId = specifyTokenId > 0 ? specifyTokenId :
+    auto callerTokenId = specifyTokenId_ > 0 ? specifyTokenId_ :
         static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
     auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
     auto userId = GetCurrentAccountId();
-    TAG_LOGI(AAFwkTag::ABILITYMGR,
+    TAG_LOGD(AAFwkTag::ABILITYMGR,
         "callerTokenId=%{public}u, tokenId=%{public}u, permission=%{public}i, specifyTokenId=%{public}u",
-        callerTokenId, tokenId, static_cast<int>(permission), specifyTokenId);
+        callerTokenId, tokenId, static_cast<int>(permission), specifyTokenId_);
     uint32_t flag = want.GetFlags();
     std::vector<Uri> validUriList = {};
     for (auto &&uriStr : uriVec) {
@@ -3521,6 +3520,11 @@ void AbilityRecord::UpdateUIExtensionInfo(const WantParams &wantParams)
         want_.RemoveParam(UIEXTENSION_ROOT_HOST_PID);
     }
     want_.SetParam(UIEXTENSION_ROOT_HOST_PID, wantParams.GetIntParam(UIEXTENSION_ROOT_HOST_PID, -1));
+}
+
+void AbilityRecord::SetSpecifyTokenId(uint32_t specifyTokenId)
+{
+    specifyTokenId_ = specifyTokenId;
 }
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -1074,6 +1074,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
     if (specifyTokenId > 0) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Set specifyTokenId, the specifyTokenId is %{public}d.", specifyTokenId);
         abilityRequest.want.SetParam(SPECIFY_TOKEN_ID, static_cast<int32_t>(specifyTokenId));
+        abilityRequest.specifyTokenId = specifyTokenId;
     }
     // sceneboard
     if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
@@ -1811,6 +1812,9 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         return result;
     }
     abilityRequest.collaboratorType = sessionInfo->collaboratorType;
+    uint32_t specifyTokenId = static_cast<uint32_t>(sessionInfo->want.GetIntParam(SPECIFY_TOKEN_ID, 0));
+    (sessionInfo->want).RemoveParam(SPECIFY_TOKEN_ID);
+    abilityRequest.specifyTokenId = specifyTokenId;
 
     auto abilityInfo = abilityRequest.abilityInfo;
     if (!AAFwk::PermissionVerification::GetInstance()->IsSystemAppCall() &&
