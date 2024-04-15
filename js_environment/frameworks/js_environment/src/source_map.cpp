@@ -298,8 +298,7 @@ void SourceMap::ExtractSourceMapData(const std::string& sourceMapData, std::shar
 
 MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targetMap)
 {
-    if (row < 1 || col < 1 || targetMap.afterPos_.empty() || targetMap.files_[0].empty() ||
-        targetMap.sources_[0].empty()) {
+    if (row < 1 || col < 1 || targetMap.afterPos_.empty() || targetMap.sources_[0].empty()) {
         return MappingInfo {0, 0, ""};
     }
     row--;
@@ -309,7 +308,7 @@ MappingInfo SourceMap::Find(int32_t row, int32_t col, const SourceMapData& targe
     int32_t right = static_cast<int32_t>(targetMap.afterPos_.size()) - 1;
     int32_t res = 0;
     if (row > targetMap.afterPos_[targetMap.afterPos_.size() - 1].afterRow) {
-        return MappingInfo { row + 1, col + 1, targetMap.files_[0] };
+        return MappingInfo { row + 1, col + 1, targetMap.sources_[0] };
     }
     while (right - left >= 0) {
         int32_t mid = (right + left) / 2;
