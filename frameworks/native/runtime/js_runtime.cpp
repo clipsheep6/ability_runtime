@@ -54,6 +54,7 @@
 #include "native_engine/native_create_env.h"
 #include "native_engine/native_engine.h"
 #include "native_runtime_impl.h"
+#include "nlohmann/json.hpp"
 #include "ohos_js_env_logger.h"
 #include "ohos_js_environment_impl.h"
 #include "parameters.h"
