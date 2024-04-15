@@ -14,11 +14,13 @@
  */
 
 #include <gtest/gtest.h>
-
+#define private public
 #include "ohos_application.h"
 #include "mock_ability_lifecycle_callbacks.h"
 #include "mock_element_callback.h"
+#include "application_context.h"
 #include "ui_ability.h"
+#undef private
 
 using namespace testing::ext;
 using namespace OHOS;
@@ -308,6 +310,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnMemoryLevel_0100, Function | 
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(callback);
 
+        ApplicationTest_->abilityRuntimeContext_ = std::make_shared<AbilityRuntime::ApplicationContext>();
         ApplicationTest_->OnMemoryLevel(1);
 
         ApplicationTest_->UnregisterElementsCallbacks(callback);
@@ -407,6 +410,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_RegisterElementsCallbacks_0100,
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(callback);
 
+        ApplicationTest_->abilityRuntimeContext_ = std::make_shared<AbilityRuntime::ApplicationContext>();
         ApplicationTest_->OnMemoryLevel(1);
 
         ApplicationTest_->UnregisterElementsCallbacks(callback);
@@ -428,6 +432,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_RegisterElementsCallbacks_0200,
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(nullptr);
 
+        ApplicationTest_->abilityRuntimeContext_ = std::make_shared<AbilityRuntime::ApplicationContext>();
         ApplicationTest_->OnMemoryLevel(1);
     }
     GTEST_LOG_(INFO) << "AppExecFwk_Application_RegisterElementsCallbacks_0200 end";
@@ -447,6 +452,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_UnregisterElementsCallbacks_010
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(callback);
         ApplicationTest_->UnregisterElementsCallbacks(callback);
+        ApplicationTest_->abilityRuntimeContext_ = std::make_shared<AbilityRuntime::ApplicationContext>();
         ApplicationTest_->OnMemoryLevel(1);
     }
     GTEST_LOG_(INFO) << "AppExecFwk_Application_UnregisterElementsCallbacks_0100 end";
@@ -466,6 +472,7 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_UnregisterElementsCallbacks_020
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(callback);
         ApplicationTest_->UnregisterElementsCallbacks(nullptr);
+        ApplicationTest_->abilityRuntimeContext_ = std::make_shared<AbilityRuntime::ApplicationContext>();
         ApplicationTest_->OnMemoryLevel(1);
 
         ApplicationTest_->UnregisterElementsCallbacks(callback);

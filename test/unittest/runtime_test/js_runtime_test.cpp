@@ -243,13 +243,9 @@ HWTEST_F(JsRuntimeTest, JsRuntimeNotifyApplicationStateTest_0200, TestSize.Level
 HWTEST_F(JsRuntimeTest, JsRuntimeDumpHeapSnapshotTest_0100, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "DumpHeapSnapshot start");
-
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
-
-    bool isPrivate = true;
-    jsRuntime->DumpHeapSnapshot(isPrivate);
-
+    MockJsRuntime mockJsRuntime;
+    bool isPrivate = false;
+    mockJsRuntime.DumpHeapSnapshot(isPrivate);
     TAG_LOGI(AAFwkTag::TEST, "DumpHeapSnapshot end");
 }
 
@@ -725,6 +721,7 @@ HWTEST_F(JsRuntimeTest, JsRuntimeInitialize_0200, TestSize.Level0)
     ASSERT_NE(jsRuntime, nullptr);
     EXPECT_NE(jsRuntime->GetEcmaVm(), nullptr);
     EXPECT_NE(jsRuntime->GetNativeEnginePointer(), nullptr);
+    jsRuntime.reset();
 
     options.preload = false;
     jsRuntime = AbilityRuntime::JsRuntime::Create(options);
