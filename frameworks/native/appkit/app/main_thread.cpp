@@ -1319,7 +1319,9 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
     applicationContext->AttachContextImpl(contextImpl);
     auto appRunningId = appLaunchData.GetAppRunningUniqueId();
     applicationContext->SetAppRunningUniqueId(appRunningId);
-    DFX_SetAppRunningUniqueId(appRunningId.c_str(), appRunningId.length());
+    if (DFX_SetAppRunningUniqueId != nullptr) {
+        DFX_SetAppRunningUniqueId(appRunningId.c_str(), appRunningId.length());
+    }
     application_->SetApplicationContext(applicationContext);
 
 #ifdef SUPPORT_GRAPHICS
