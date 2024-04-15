@@ -895,7 +895,9 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, requestCode, callerToken);
-        if (!isStartAsCaller) {
+        if (specifyTokenId > 0 && callerToken) { // for sa specify tokenId and caller token
+            UpdateCallerInfoFromToken(abilityRequest.want, callerToken);
+        } else if (!isStartAsCaller) {
             TAG_LOGD(AAFwkTag::ABILITYMGR, "do not start as caller, UpdateCallerInfo");
             UpdateCallerInfo(abilityRequest.want, callerToken);
         }
