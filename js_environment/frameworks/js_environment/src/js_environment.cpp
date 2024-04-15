@@ -131,15 +131,9 @@ void JsEnvironment::InitSourceMap(const std::shared_ptr<JsEnv::SourceMapOperator
         return;
     }
 
-    auto init = [weak = weak_from_this()]() {
-        JSENV_LOG_I("Init sourceMap");
-        auto jsEnv = weak.lock();
-        if (jsEnv != nullptr && jsEnv->sourceMapOperator_ != nullptr) {
-            jsEnv->sourceMapOperator_->InitSourceMap();
-        }
-    };
-
-    ffrt::submit(init, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
+    if (sourceMapOperator_ != nullptr) {
+        sourceMapOperator_->InitSourceMap();
+    }
 
     auto translateBySourceMapFunc = [&](const std::string& rawStack) -> std::string {
         if (sourceMapOperator_ != nullptr && sourceMapOperator_->GetInitStatus()) {
