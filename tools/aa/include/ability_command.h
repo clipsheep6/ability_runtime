@@ -30,6 +30,8 @@ using ParametersBool = std::map<std::string, bool>;
 
 const std::string TOOL_NAME = "aa";
 
+// not show in command
+// process -- debug ability with options
 const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "These are common aa commands list:\n"
     "  help                        list available commands\n"
@@ -37,7 +39,6 @@ const std::string HELP_MSG = "usage: aa <command> <options>\n"
     "  stop-service                stop service with options\n"
     "  dump                        dump the ability info\n"
     "  force-stop <bundle-name>    force stop the process with bundle name\n"
-    "  process                     debug ability with options\n"
     "  attach                      attach application to enter debug mdoe\n"
     "  detach                      detach application to exit debug mode\n"
 #ifdef ABILITY_COMMAND_FOR_TEST
@@ -63,11 +64,13 @@ const std::string HELP_ApplicationNotResponding =
     "  -h, --help                   list available commands\n"
     "  -p, --pid                    Pass in pid with option\n";
 
+// not show in command
+// [-N] [-p <perf-cmd>]
 const std::string HELP_MSG_START =
     "usage: aa start <options>\n"
     "options list:\n"
     "  -h, --help                                                   list available commands\n"
-    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-p <perf-cmd>] [-D] [-S] [-N] "
+    "  [-d <device-id>] [-a <ability-name> -b <bundle-name>] [-m <module-name>] [-D] [-S] "
     "  [--ps <key> <string-value>] "
     "  [--pi <key> <integer-value>] "
     "  [--pb <key> <boolean-value>] "
