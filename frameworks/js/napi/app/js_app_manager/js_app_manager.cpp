@@ -163,6 +163,17 @@ public:
             AppExecFwk::IsTypeForNapiValue(env, para, napi_undefined);
     }
 
+    static bool GetMethodFromJsObject(napi_env env, const napi_value& para, const std::string& methodName)
+    {
+        napi_value method = nullptr;
+        napi_get_named_property(env, para, methodName.c_str(), &method);
+        if (method == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Get name from object Failed.");
+            return false;
+        }
+        return true;
+    }
+
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
@@ -402,8 +413,9 @@ private:
             return CreateJsUndefined(env);
         }
         if (argc == ARGC_TWO) {
-            if (!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
-                !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            if ((!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
+                !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) ||
+                !GetMethodFromJsObject(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);
