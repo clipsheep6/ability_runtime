@@ -20,6 +20,7 @@ abilityms_files = [
   "src/ability_debug_deal.cpp",
   "src/ability_event_handler.cpp",
   "src/disposed_observer.cpp",
+  "src/skill_utils.cpp",
   "src/ability_manager_service.cpp",
   "src/ability_manager_stub.cpp",
   "src/ability_manager_proxy.cpp",

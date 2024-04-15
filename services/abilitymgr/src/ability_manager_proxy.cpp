@@ -144,7 +144,7 @@ AppExecFwk::ElementName AbilityManagerProxy::GetElementNameByToken(sptr<IRemoteO
 }
 
 int AbilityManagerProxy::StartAbility(const Want &want, const AbilityStartSetting &abilityStartSetting,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, [[maybe_unused]]bool isImplicit)
 {
     int error;
     MessageParcel data;
@@ -321,7 +321,7 @@ int32_t AbilityManagerProxy::StartAbilityByInsightIntent(const Want &want, const
 }
 
 int AbilityManagerProxy::StartAbility(const Want &want, const StartOptions &startOptions,
-    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode)
+    const sptr<IRemoteObject> &callerToken, int32_t userId, int requestCode, [[maybe_unused]]bool isImplicit)
 {
     int error;
     MessageParcel data;
@@ -583,7 +583,7 @@ int AbilityManagerProxy::StartAbilityByUIContentSession(const Want &want, const 
 }
 
 int AbilityManagerProxy::StartExtensionAbility(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType)
+    int32_t userId, AppExecFwk::ExtensionAbilityType extensionType, [[maybe_unused]]bool isImplicit)
 {
     int error;
     MessageParcel data;

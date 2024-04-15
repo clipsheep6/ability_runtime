@@ -450,13 +450,13 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
             startOptions.SetDisplayID(static_cast<int32_t>(displayId));
             startOptions.SetWindowMode(static_cast<int32_t>(windowMode));
             result = abilityMgr->StartAbility(
-                targetWant, startOptions, request.callerToken, userId, request.requestCode);
+                targetWant, startOptions, request.callerToken, userId, request.requestCode, true);
             break;
         }
         case AbilityCallType::START_SETTINGS_TYPE: {
             CHECK_POINTER_AND_RETURN(request.startSetting, ERR_INVALID_VALUE);
             result = abilityMgr->StartAbility(
-                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode);
+                targetWant, *request.startSetting, request.callerToken, userId, request.requestCode, true);
             break;
         }
         case AbilityCallType::START_EXTENSION_TYPE:
@@ -465,7 +465,7 @@ int32_t ImplicitStartProcessor::ImplicitStartAbilityInner(const Want &targetWant
             break;
         default:
             result = abilityMgr->StartAbilityWrap(
-                targetWant, request.callerToken, request.requestCode, userId);
+                targetWant, request.callerToken, request.requestCode, userId, false, false, 0, true);
             break;
     }
 

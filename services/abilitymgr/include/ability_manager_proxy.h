@@ -111,7 +111,8 @@ public:
         const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isImplicit = false) override;
 
     /**
      * Starts a new ability with specific start options.
@@ -128,7 +129,8 @@ public:
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isImplicit = false) override;
 
     /**
      * Starts a new ability using the original caller information.
@@ -248,7 +250,8 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED,
+        bool isImplicit = false) override;
 
     /**
      * Create UIExtension with want, send want to ability manager service.
