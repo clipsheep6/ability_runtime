@@ -9784,7 +9784,6 @@ int AbilityManagerService::SendDialogResult(const Want &want, const std::string 
     sptr<IRemoteObject> callerToken = dialogCallerInfo->callerToken;
     int ret = StartAbilityAsCaller(targetWant, callerToken, nullptr, dialogCallerInfo->userId,
         dialogCallerInfo->requestCode, true);
-    targetWant.CloseAllFd();
     return ret;
 }
 

@@ -241,6 +241,7 @@ AbilityRecord::~AbilityRecord()
             object->RemoveDeathRecipient(schedulerDeathRecipient_);
         }
     }
+    want_.CloseAllFd();
     RemoveAppStateObserver(true);
 }
 
@@ -2484,6 +2485,7 @@ void AbilityRecord::SetWant(const Want &want)
     auto debugApp = want_.GetBoolParam(DEBUG_APP, false);
     auto nativeDebug = want_.GetBoolParam(NATIVE_DEBUG, false);
     auto perfCmd = want_.GetStringParam(PERF_CMD);
+    want_.CloseAllFd();
 
     want_ = want;
     if (debugApp) {
