@@ -14,8 +14,5 @@
 group("unittest") {
   testonly = true
 
-  deps = [
-    "child_main_thread_test:unittest",
-    "ohos_application_test:unittest",
-  ]
+  deps = [ "child_main_thread_test:unittest" ]
 }

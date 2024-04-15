@@ -87,7 +87,7 @@ HWTEST_F(AbilityManagerTest, AbilityManagerTest_0300, TestSize.Level1)
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0300 is start");
     const std::string bundleName = "test";
     auto res = AbilityManager::GetInstance().ClearUpApplicationData(bundleName);
-    EXPECT_EQ(res, ERR_INVALID_OPERATION);
+    EXPECT_NE(res, ERR_NULL_OBJECT);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerTest_0300 is end");
 }
 

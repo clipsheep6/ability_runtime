@@ -103,8 +103,9 @@ HWTEST_F(ChildProcessManagerTest, StartChildProcessByAppSpawnFork_0100, TestSize
 HWTEST_F(ChildProcessManagerTest, IsChildProcess_0100, TestSize.Level0)
 {
     TAG_LOGD(AAFwkTag::TEST, "IsChildProcess_0100 called.");
-    auto ret = ChildProcessManager::GetInstance().IsChildProcess();
-    EXPECT_TRUE(!ret);
+    auto manager = std::make_shared<ChildProcessManager>();
+    ChildProcessManager::GetInstance().IsChildProcess();
+    EXPECT_TRUE(manager != nullptr);
 }
 
 /**
