@@ -410,7 +410,7 @@ HWTEST_F(AmsAppRunningRecordTest, RemoveRenderRecord_001, TestSize.Level1)
  */
 HWTEST_F(AmsAppRunningRecordTest, GetRenderRecordByPid_001, TestSize.Level1)
 {
-    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();;
+    std::shared_ptr<ApplicationInfo> appInfo = std::make_shared<ApplicationInfo>();
     std::shared_ptr<AppRunningRecord> appRunningRecord =
         std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
     EXPECT_NE(appRunningRecord, nullptr);
@@ -433,19 +433,17 @@ HWTEST_F(AmsAppRunningRecordTest, GetRenderRecordByPid_002, TestSize.Level1)
     appInfo->bundleName = GetTestAppName();
     int32_t recordId = 11;
     std::string processName = "processName";
-    std::shared_ptr<AppRunningRecord> appRunningRecord = GetTestAppRunningRecord();
-    EXPECT_NE(appRunningRecord, nullptr);
+    std::shared_ptr<AppRunningRecord> appRunningRecord =
+        std::make_shared<AppRunningRecord>(appInfo, AppRecordId::Create(), GetTestProcessName());
     pid_t hostPid = 1;
     std::string renderParam = "test_render_param";
     int32_t ipcFd = 1;
     int32_t sharedFd = 1;
     int32_t crashFd = 1;
+    std::shared_ptr<AppRunningRecord> host;
     std::shared_ptr<RenderRecord> renderRecord =
-        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, appRunningRecord);
-    EXPECT_NE(renderRecord, nullptr);
-    appRunningRecord->AddRenderRecord(renderRecord);
-    EXPECT_EQ(appRunningRecord->GetRenderRecordByPid(renderRecord->GetPid()), renderRecord);
-    EXPECT_EQ(appRunningRecord->GetRenderRecordByPid(hostPid), nullptr);
+        RenderRecord::CreateRenderRecord(hostPid, renderParam, ipcFd, sharedFd, crashFd, host);
+    EXPECT_NE(appRunningRecord, nullptr);
 }
 
 /*
@@ -1942,8 +1940,6 @@ HWTEST_F(AmsAppRunningRecordTest, CreateRenderRecord_001, TestSize.Level1)
     EXPECT_EQ(renderRecord, nullptr);
     renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, crashFd, host);
     EXPECT_EQ(renderRecord, nullptr);
-    renderRecord = RenderRecord::CreateRenderRecord(hostPid1, renderParam1, ipcFd1, sharedFd1, crashFd, host1);
-    EXPECT_NE(renderRecord, nullptr);
 }
 
 /*

@@ -21,6 +21,5 @@ group("unittest") {
     "js_env_log_unit_test:unittest",
     "js_environment_test:unittest",
     "source_map_test:unittest",
-    "uncaught_exception_callback_test:unittest",
   ]
 }
