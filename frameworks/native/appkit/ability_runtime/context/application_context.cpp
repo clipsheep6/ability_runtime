@@ -449,6 +449,11 @@ std::string ApplicationContext::GetDistributedFilesDir()
     return (contextImpl_ != nullptr) ? contextImpl_->GetDistributedFilesDir() : "";
 }
 
+std::string ApplicationContext::GetCloudFileDir()
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetCloudFileDir() : "";
+}
+
 sptr<IRemoteObject> ApplicationContext::GetToken()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->GetToken() : nullptr;

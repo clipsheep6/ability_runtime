@@ -924,6 +924,30 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetDistributedFilesDir_020
 }
 
 /**
+ * @tc.number: Ability_Context_Impl_GetCloudFileDir_0100
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir sucess
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetCloudFileDir_0100, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(mock_);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_GetCloudFileDir_0200
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir failed
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_GetCloudFileDir_0200, Function | MediumTest | Level1)
+{
+    context_->SetStageContext(nullptr);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "");
+}
+
+/**
  * @tc.number: Ability_Context_Impl_IsUpdatingConfigurations_0100
  * @tc.name: IsUpdatingConfigurations
  * @tc.desc: Is Updating Configurations true
