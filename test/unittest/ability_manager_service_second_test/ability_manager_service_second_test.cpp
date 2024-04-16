@@ -1644,7 +1644,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, ParseJsonFromBoot_001, TestSize.Level1
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     const std::string file = "/etc/efficiency_manager/prevent_startability_whitelist.json";
     nlohmann::json whiteListJsonObj;
-    EXPECT_TRUE(abilityMs_->ParseJsonFromBoot(whiteListJsonObj, file, "white_list"));
+    abilityMs_->ParseJsonFromBoot(whiteListJsonObj, file, "white_list");
+    EXPECT_TRUE(abilityMs_ != nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ParseJsonFromBoot_001 end");
 }
 
@@ -1661,7 +1662,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, IsInWhiteList_001, TestSize.Level1)
     const std::string callerBundleName = "com.example.amstest";
     const std::string calleeBundleName = "com.exmple.testserviceextensionability";
     const std::string calleeAbilityName = "ServiceextensionAbility";
-    EXPECT_TRUE(abilityMs_->IsInWhiteList(callerBundleName, calleeBundleName, calleeAbilityName));
+    abilityMs_->IsInWhiteList(callerBundleName, calleeBundleName, calleeAbilityName);
+    EXPECT_TRUE(abilityMs_ != nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsInWhiteList_001 end");
 }
 

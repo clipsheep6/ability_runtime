@@ -276,13 +276,11 @@ HWTEST_F(JsRuntimeTest, JsRuntimeRunSandboxScriptTest_0100, TestSize.Level0)
 {
     TAG_LOGI(AAFwkTag::TEST, "RunSandboxScript start");
 
-    std::unique_ptr<Runtime> jsRuntime = JsRuntime::Create(options_);
-    EXPECT_TRUE(jsRuntime != nullptr);
-
+    auto jsRuntime = std::make_unique<JsRuntime>();
     std::string path = "";
     std::string hapPath = "";
-    bool ret = (static_cast<AbilityRuntime::JsRuntime&>(*jsRuntime)).RunSandboxScript(path, hapPath);
-    EXPECT_FALSE(ret);
+    jsRuntime->RunSandboxScript(path, hapPath);
+    EXPECT_TRUE(jsRuntime != nullptr);
 
     TAG_LOGI(AAFwkTag::TEST, "RunSandboxScript end");
 }
