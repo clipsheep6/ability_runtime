@@ -98,6 +98,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInformation);
     }
 
+    static napi_value GetRunningProcessInformationByBundleType(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInformationByBundleType);
+    }
+
     static napi_value IsRunningInStabilityTest(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsRunningInStabilityTest);
@@ -622,6 +627,48 @@ private:
         napi_value lastParam = (argc > ARGC_ZERO) ? argv[INDEX_ZERO] : nullptr;
         napi_value result = nullptr;
         NapiAsyncTask::Schedule("JSAppManager::OnGetRunningProcessInformation",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
+    napi_value OnGetRunningProcessInformationByBundleType(napi_env env, size_t argc, napi_value* argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
+        if (argc < ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough params.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        int32_t bundleType = -1;
+        if (!ConvertFromJsValue(env, argv[INDEX_ZERO], bundleType)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "get bundleType error!");
+            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            return CreateJsUndefined(env);
+        }
+        if (bundleType < 0) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Invalid bundle type:%{public}d", bundleType);
+            ThrowInvalidParamError(env, "invalid bundle type");
+            return CreateJsUndefined(env);
+        }
+        NapiAsyncTask::CompleteCallback complete =
+            [appManager = appManager_, bundleType](napi_env env, NapiAsyncTask &task, int32_t status) {
+                if (appManager == nullptr) {
+                    TAG_LOGW(AAFwkTag::APPMGR, "appManager nullptr");
+                    task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INNER));
+                    return;
+                }
+                std::vector<AppExecFwk::RunningProcessInfo> infos;
+                auto ret = appManager->GetRunningProcessesByBundleType(bundleType, infos);
+                if (ret == 0) {
+                    task.ResolveWithNoError(env, CreateJsRunningProcessInfoArray(env, infos));
+                } else {
+                    task.Reject(env, CreateJsError(env, GetJsErrorCodeByNativeError(ret)));
+                }
+            };
+
+        napi_value lastParam = (argc > ARGC_ONE) ? argv[INDEX_ONE] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JSAppManager::OnGetRunningProcessInformationByBundleType",
             env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
         return result;
     }
