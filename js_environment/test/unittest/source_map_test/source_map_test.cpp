@@ -177,7 +177,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0900, Function | MediumTest | Level1)
     int32_t row = 3;
     int32_t col = 3;
     SourceMapData targetMap;
-    targetMap.files_.emplace_back("file");
+    targetMap.sources_.emplace_back("sources");
 
     SourceMapInfo mapInfo;
     mapInfo.beforeRow = 0;
@@ -188,7 +188,7 @@ HWTEST_F(SourceMapTest, JsEnv_SourceMap_0900, Function | MediumTest | Level1)
     mapInfo.namesVal = 0;
     targetMap.afterPos_.emplace_back(mapInfo);
     auto info = modSourceMap->Find(row, col, targetMap);
-    EXPECT_STREQ(info.sources.c_str(), "file");
+    EXPECT_STREQ(info.sources.c_str(), "sources");
     GTEST_LOG_(INFO) << "JsEnv_SourceMap_0900 end";
 }
 
