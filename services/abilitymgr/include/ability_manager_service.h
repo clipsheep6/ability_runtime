@@ -1635,6 +1635,8 @@ protected:
 
     void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
 
+    void NotifyStartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr, bool flag = true);

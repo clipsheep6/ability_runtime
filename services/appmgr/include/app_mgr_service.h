@@ -476,6 +476,8 @@ public:
 
     int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids) override;
 
+    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent) override;
+
 private:
     /**
      * Init, Initialize application services.

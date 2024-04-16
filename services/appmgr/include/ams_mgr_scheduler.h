@@ -282,6 +282,12 @@ public:
      */
     virtual void ClearProcessByToken(sptr<IRemoteObject> token) override;
 
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() override;
+
 private:
     /**
      * @brief Judge whether the application service is ready.

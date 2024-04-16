@@ -269,6 +269,12 @@ public:
      */
     virtual void ClearProcessByToken(sptr<IRemoteObject> token) override;
 
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    virtual bool IsMemorySizeSufficent() override;
+
 private:
     bool WriteInterfaceToken(MessageParcel &data);
     int32_t SendTransactCmd(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option);

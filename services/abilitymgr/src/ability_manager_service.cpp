@@ -5693,7 +5693,7 @@ int AbilityManagerService::KillProcess(const std::string &bundleName)
         return GET_BUNDLE_INFO_FAILED;
     }
 
-    if (bundleInfo.isKeepAlive) {
+    if (bundleInfo.isKeepAlive && DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not kill keep alive process.");
         return KILL_PROCESS_KEEP_ALIVE;
     }
@@ -9681,6 +9681,11 @@ void AbilityManagerService::NotifyConfigurationChange(const AppExecFwk::Configur
         return;
     }
     collaborator->UpdateConfiguration(config, userId);
+}
+
+void AbilityManagerService::NotifyStartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    DelayedSingleton<ResidentProcessManager>::GetInstance()->StartResidentProcessWithMainElement(bundleInfos);
 }
 
 int32_t AbilityManagerService::OpenFile(const Uri& uri, uint32_t flag)
