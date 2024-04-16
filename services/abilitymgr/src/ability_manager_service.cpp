@@ -853,7 +853,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         }
     }
 
-    AbilityUtil::RemoveWantKey(const_cast<Want &>(want));
+    AbilityUtil::RemoveWindowModeKey(const_cast<Want &>(want));
     std::string dialogSessionId = want.GetStringParam("dialogSessionId");
     isSendDialogResult = false;
     if (!dialogSessionId.empty() && dialogSessionRecord_->GetDialogCallerInfo(dialogSessionId) != nullptr) {
