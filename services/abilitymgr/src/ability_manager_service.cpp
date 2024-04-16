@@ -174,6 +174,9 @@ const std::string SHELL_ASSISTANT_BUNDLENAME = "com.huawei.shell_assistant";
 const std::string SHELL_ASSISTANT_ABILITYNAME = "MainAbility";
 const std::string AMS_DIALOG_BUNDLENAME = "com.ohos.amsdialog";
 const std::string STR_PHONE = "phone";
+// Distributed continued session Id
+const std::string DMS_CONTINUED_SESSION_ID = "ohos.dms.continueSessionId";
+const std::string DMS_PERSISTENT_ID = "ohos.dms.persistentId";
 
 const std::string DEBUG_APP = "debugApp";
 const std::string AUTO_FILL_PASSWORD_TPYE = "autoFill/password";
@@ -1085,6 +1088,14 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
         ReportEventToSuspendManager(abilityInfo);
         abilityRequest.userId = oriValidUserId;
         abilityRequest.want.SetParam(IS_CALL_BY_SCB, false);
+        // other sa or shell can not use continueSessionId and persistentId
+        auto abilityRecord = Token::GetAbilityRecordByToken(abilityRequest.callerToken);
+        if (abilityRecord == nullptr &&
+            !PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME)) {
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "StartAbilityInner, Remove continueSessionId and persistentId");
+            abilityRequest.want.RemoveParam(DMS_CONTINUED_SESSION_ID);
+            abilityRequest.want.RemoveParam(DMS_PERSISTENT_ID);
+        }
         return uiAbilityLifecycleManager_->NotifySCBToStartUIAbility(abilityRequest, oriValidUserId);
     }
     auto missionListManager = GetListManagerByUserId(oriValidUserId);

@@ -29,6 +29,7 @@
 #include "iability_info_callback.h"
 #include "in_process_call_wrapper.h"
 #include "mission_info.h"
+#include "permission_verification.h"
 #include "process_options.h"
 #include "scene_board/status_bar_delegate_manager.h"
 #include "session_info.h"
@@ -54,6 +55,8 @@ const std::string DMS_SRC_NETWORK_ID = "dmsSrcNetworkId";
 const std::string DMS_MISSION_ID = "dmsMissionId";
 const int DEFAULT_DMS_MISSION_ID = -1;
 const std::string PARAM_SPECIFIED_PROCESS_FLAG = "ohoSpecifiedProcessFlag";
+const std::string DMS_PROCESS_NAME = "distributedsched";
+const std::string DMS_PERSISTENT_ID = "ohos.dms.persistentId";
 #ifdef SUPPORT_ASAN
 const int KILL_TIMEOUT_MULTIPLE = 45;
 #else
@@ -293,6 +296,14 @@ int UIAbilityLifecycleManager::NotifySCBToStartUIAbility(const AbilityRequest &a
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> guard(sessionLock_);
+    // start abilty with persistentId by dms
+    int32_t persistentId = abilityRequest.want.GetIntParam(DMS_PERSISTENT_ID, 0);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "NotifySCBToStartUIAbility, want with persistentId: %{public}d.", persistentId);
+    if (persistentId != 0 &&
+        AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(DMS_PROCESS_NAME)) {
+        return StartWithPersistentIdByDistributed(abilityRequest, userId, persistentId);
+    }
+
     auto abilityInfo = abilityRequest.abilityInfo;
     bool isUIAbility = (abilityInfo.type == AppExecFwk::AbilityType::PAGE && abilityInfo.isStageBasedModel);
     if (abilityInfo.isolationProcess && AppUtils::GetInstance().IsStartSpecifiedProcess() && isUIAbility) {
@@ -2313,6 +2324,18 @@ void UIAbilityLifecycleManager::CompleteFirstFrameDrawing(int32_t sessionId) con
     abilityRecord->SetCompleteFirstFrameDrawing(true);
     DelayedSingleton<AppExecFwk::AbilityFirstFrameStateObserverManager>::GetInstance()->
         HandleOnFirstFrameState(abilityRecord);
+}
+
+int UIAbilityLifecycleManager::StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t userId,
+    int32_t persistentId)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "StartWithPersistentIdByDistributed, called");
+    auto sessionInfo = CreateSessionInfo(abilityRequest);
+    sessionInfo->requestCode = abilityRequest.requestCode;
+    sessionInfo->persistentId = persistentId;
+    sessionInfo->userId = userId;
+    sessionInfo->processOptions = abilityRequest.processOptions;
+    return NotifySCBPendingActivation(sessionInfo, abilityRequest);
 }
 }  // namespace AAFwk
 }  // namespace OHOS

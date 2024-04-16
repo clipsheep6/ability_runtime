@@ -401,6 +401,7 @@ private:
     std::shared_ptr<StatusBarDelegateManager> GetStatusBarDelegateManager();
     int32_t DoProcessAttachment(std::shared_ptr<AbilityRecord> abilityRecord);
     void BatchCloseUIAbility(std::unordered_set<std::shared_ptr<AbilityRecord>>& abilitySet);
+    int StartWithPersistentIdByDistributed(const AbilityRequest &abilityRequest, int32_t userId, int32_t persistentId);
 
     mutable ffrt::mutex sessionLock_;
     std::unordered_map<int32_t, std::shared_ptr<AbilityRecord>> sessionAbilityMap_;
