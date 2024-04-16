@@ -2313,11 +2313,11 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
 
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
     if (hasAccessBundleDirReq) {
-        startMsg.flags = startMsg.flags | StartFlags::ACCESS_BUNDLE_DIR;
+        startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
     }
 
     if (VerifyPermission(bundleInfo, PERMISSION_GET_BUNDLE_RESOURCES)) {
-        startMsg.flags = startMsg.flags | StartFlags::BUNDLE_RESOURCES;
+        startMsg.flags = startMsg.flags | GET_BUNDLE_RESOURCES_FLAG;
     }
 
     SetOverlayInfo(bundleName, userId, startMsg);
