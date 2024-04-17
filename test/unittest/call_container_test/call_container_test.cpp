@@ -368,7 +368,10 @@ HWTEST_F(CallContainerTest, Call_Container_On_Connect_Died_001, TestSize.Level1)
 
     std::shared_ptr<MissionListManager> missionListMgr = std::make_shared<MissionListManager>(0);
     missionListMgr->currentMissionLists_.push_front(missionList);
-    DelayedSingleton<AbilityManagerService>::GetInstance()->currentMissionListManager_ = missionListMgr;
+    DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_ =
+        std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_->currentMissionListManager_ =
+        missionListMgr;
     callContainer->OnConnectionDied(abilityRequest.connect->AsObject());
 
     EXPECT_EQ(callContainer->callRecordMap_.size(), 1);

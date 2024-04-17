@@ -45,6 +45,7 @@ abilityms_files = [
   "src/extension_running_info.cpp",
   "src/caller_info.cpp",
   "src/sender_info.cpp",
+  "src/sub_managers_helper.cpp",
   "src/wants_info.cpp",
   "src/want_sender_info.cpp",
   "src/pending_want_record.cpp",

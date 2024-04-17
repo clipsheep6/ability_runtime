@@ -43,7 +43,9 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     parcel.RewindRead(0);
     MessageParcel reply;
     MessageOption option;
-    DelayedSingleton<AbilityManagerService>::GetInstance()->uiAbilityLifecycleManager_ =
+    DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_ =
+        std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    DelayedSingleton<AbilityManagerService>::GetInstance()->subManagersHelper_->currentUIAbilityManager_ =
         std::make_shared<UIAbilityLifecycleManager>();
     DelayedSingleton<AbilityManagerService>::GetInstance()->OnRemoteRequest(code, parcel, reply, option);
 
