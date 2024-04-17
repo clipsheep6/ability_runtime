@@ -688,6 +688,7 @@ private:
             int32_t errcode = static_cast<int32_t>(AbilityRuntime::GetJsErrorCodeByNativeError(*innerErrorCode));
             if (errcode) {
                 connection->CallJsFailed(errcode);
+                RemoveConnection(connectId);
             }
         };
         napi_value result = nullptr;
@@ -1083,14 +1084,10 @@ private:
             if (!context) {
                 TAG_LOGE(AAFwkTag::SERVICE_EXT, "context is released");
                 *innerErrorCode = static_cast<int>(AbilityErrorCode::ERROR_CODE_INVALID_CONTEXT);
-                RemoveConnection(connectId);
                 return;
             }
 
             *innerErrorCode = context->ConnectAbility(want, connection);
-            if (*innerErrorCode != 0) {
-                RemoveConnection(connectId);
-            }
         };
     }
 };
