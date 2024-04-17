@@ -44,7 +44,7 @@ PendingWantManager::~PendingWantManager()
 }
 
 sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t uid, const bool isSystemApp,
-    const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken)
+    const WantSenderInfo &wantSenderInfo, const sptr<IRemoteObject> &callerToken, int32_t userId)
 {
     TAG_LOGD(AAFwkTag::WANTAGENT, "begin.");
     if (wantSenderInfo.type != static_cast<int32_t>(OperationType::SEND_COMMON_EVENT)) {
@@ -57,7 +57,7 @@ sptr<IWantSender> PendingWantManager::GetWantSender(int32_t callingUid, int32_t 
     }
 
     WantSenderInfo info = wantSenderInfo;
-    return GetWantSenderLocked(callingUid, uid, wantSenderInfo.userId, info, callerToken);
+    return GetWantSenderLocked(callingUid, uid, userId, info, callerToken);
 }
 
 sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingUid, const int32_t uid,
@@ -77,7 +77,7 @@ sptr<IWantSender> PendingWantManager::GetWantSenderLocked(const int32_t callingU
     pendingKey->SetRequestWho(wantSenderInfo.resultWho);
     pendingKey->SetRequestCode(wantSenderInfo.requestCode);
     pendingKey->SetFlags(wantSenderInfo.flags);
-    pendingKey->SetUserId(wantSenderInfo.userId);
+    pendingKey->SetUserId(userId);
     pendingKey->SetType(wantSenderInfo.type);
     if (wantSenderInfo.allWants.size() > 0) {
         pendingKey->SetRequestWant(wantSenderInfo.allWants.back().want);
@@ -542,6 +542,7 @@ int32_t PendingWantManager::GetWantSenderInfo(const sptr<IWantSender> &target, s
     wantSenderInfo.type = record->GetKey()->GetType();
     wantSenderInfo.flags = (uint32_t)(record->GetKey()->GetFlags());
     wantSenderInfo.allWants = record->GetKey()->GetAllWantsInfos();
+    wantSenderInfo.userId = record->GetKey()->GetUserId();
     info.reset(new (std::nothrow) WantSenderInfo(wantSenderInfo));
     TAG_LOGE(AAFwkTag::WANTAGENT, "%{public}s:want is ok.", __func__);
     return NO_ERROR;
