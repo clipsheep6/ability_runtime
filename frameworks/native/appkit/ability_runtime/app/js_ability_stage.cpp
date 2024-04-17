@@ -47,6 +47,7 @@ constexpr const char* EXCLUDE_FROM_AUTO_START = "excludeFromAutoStart";
 constexpr const char* RUN_ON_THREAD = "runOnThread";
 constexpr const char* WAIT_ON_MAIN_THREAD = "waitOnMainThread";
 constexpr const char* CONFIG_ENTRY = "configEntry";
+constexpr const char* MAIN_THREAD = "mainThread";
     
 napi_value AttachAbilityStageContext(napi_env env, void *value, void *)
 {
@@ -564,7 +565,20 @@ void JsAbilityStage::SetOptionalParameters(
     }
 
     // always true
-    jsStartupTask.SetCallCreateOnMainThread(true);
+    if (module.contains(RUN_ON_THREAD) && module[RUN_ON_THREAD].is_string()) {
+        std::string profileName = module.at(RUN_ON_THREAD).get<std::string>();
+        HILOG_DEBUG("profileName = %{public}s", profileName.c_str());
+        if (profileName == "mainThread") {
+            jsStartupTask.SetCallCreateOnMainThread(true);
+        }
+        else {
+            jsStartupTask.SetCallCreateOnMainThread(false);
+        }
+    } 
+    else {
+        jsStartupTask.SetCallCreateOnMainThread(false);
+    }
+    // jsStartupTask.SetCallCreateOnMainThread(true);
     
     if (module.contains(WAIT_ON_MAIN_THREAD) && module[WAIT_ON_MAIN_THREAD].is_boolean()) {
         jsStartupTask.SetWaitOnMainThread(module.at(WAIT_ON_MAIN_THREAD).get<bool>());

@@ -15,14 +15,14 @@
 
 #include "native_engine/native_engine.h"
 
-extern const char _binary_startup_task_js_start[];
-extern const char _binary_startup_task_js_end[];
+// extern const char _binary_startup_task_js_start[];
+// extern const char _binary_startup_task_js_end[];
 extern const char _binary_startup_task_abc_start[];
 extern const char _binary_startup_task_abc_end[];
 
 static napi_module _module = {
     .nm_version = 0,
-    .nm_filename = "app/appstartup/libstartuptask_napi.so/startup_task.js",
+    .nm_filename = "app/appstartup/libstartuptask_napi.so/startup_task.ts",
     .nm_modname = "app.appstartup.StartupTask",
 };
 extern "C" __attribute__((constructor))
@@ -31,17 +31,17 @@ void NAPI_app_appstartup_StartupTask_AutoRegister()
     napi_module_register(&_module);
 }
 
-extern "C" __attribute__((visibility("default")))
-void NAPI_app_appstartup_StartupTask_GetJSCode(const char **buf, int *bufLen)
-{
-    if (buf != nullptr) {
-        *buf = _binary_startup_task_js_start;
-    }
+// extern "C" __attribute__((visibility("default")))
+// void NAPI_app_appstartup_StartupTask_GetJSCode(const char **buf, int *bufLen)
+// {
+//     if (buf != nullptr) {
+//         *buf = _binary_startup_task_js_start;
+//     }
 
-    if (bufLen != nullptr) {
-        *bufLen = _binary_startup_task_js_end - _binary_startup_task_js_start;
-    }
-}
+//     if (bufLen != nullptr) {
+//         *bufLen = _binary_startup_task_js_end - _binary_startup_task_js_start;
+//     }
+// }
 
 extern "C" __attribute__((visibility("default")))
 void NAPI_app_appstartup_StartupTask_GetABCCode(const char **buf, int *buflen)
