@@ -54,7 +54,7 @@ struct SelectorPcDialog {
   private selectItem;
 
   aboutToAppear(): void {
-    console.log(this.TAG, "dialog page appears");
+    console.log(this.TAG, 'dialog page appears');
     this.hapList = globalThis.params.hapList;
     this.action = globalThis.params.action;
     this.getHapListStyle();
@@ -69,32 +69,32 @@ struct SelectorPcDialog {
   }
 
   cleanSecondListColorAndVisibility() {
-    for(let n = 0; n <= this.pcShowMoreHapList.length; n++) {
+    for (let n = 0; n <= this.pcShowMoreHapList.length; n++) {
       this.moreHapListBackGround[n] = 0xffffff;
       this.moreHapListPngVisibility[n] = 1;
     }
   }
 
   onSelectApp(item) {
-    globalThis.abilityWant.bundleName = item.split("#")[0];
-    globalThis.abilityWant.abilityName = item.split("#")[1];
-    globalThis.abilityWant.moduleName = item.split("#")[4];
+    globalThis.abilityWant.bundleName = item.split('#')[0];
+    globalThis.abilityWant.abilityName = item.split('#')[1];
+    globalThis.abilityWant.moduleName = item.split('#')[4];
     globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
-        console.error(this.TAG + " startAbility finish, error: " + JSON.stringify(error));
+        console.error(this.TAG + ' startAbility finish, error: ' + JSON.stringify(error));
         return;
       }
-      console.log(this.TAG + " startAbility finish, data: " + JSON.stringify(data));
+      console.log(this.TAG + ' startAbility finish, data: ' + JSON.stringify(data));
     });
-    let userId = item.split("#")[6];
+    let userId = item.split('#')[6];
     let elementName = {
       bundleName: globalThis.abilityWant.bundleName,
       moduleName: globalThis.abilityWant.moduleName,
       abilityName: globalThis.abilityWant.abilityName,
     }
     if (this.isCheckSelected) {
-      let typeName = item.split("#")[5];
-      console.log(this.TAG + "setDefaultApplication typeName:" + JSON.stringify(typeName));
+      let typeName = item.split('#')[5];
+      console.log(this.TAG + 'setDefaultApplication typeName:' + JSON.stringify(typeName));
       globalThis.defaultAppManager.setDefaultApplication(typeName, elementName);
     }
     globalThis.selectExtensionContext.terminateSelf();
@@ -111,11 +111,12 @@ struct SelectorPcDialog {
             this.getHapResource(data[i], this.pcShowMoreHapList, i);
           }
           this.getMoreHapListStyle()
-          console.debug("pcShowMoreHapList: " + JSON.stringify(this.pcShowMoreHapList));
+          console.debug('pcShowMoreHapList: ' + JSON.stringify(this.pcShowMoreHapList));
         }
       });
-    } catch { error => {
-        console.error("queryAbilityInfo error:" + JSON.stringify(error));
+    } catch {
+      error => {
+        console.error('queryAbilityInfo error:' + JSON.stringify(error));
       }
     }
   }
@@ -160,8 +161,8 @@ struct SelectorPcDialog {
             moreHapList = bundleName + abilityName + moduleName
             if (globalThis.params.hapList.find(item => String(item.bundleName + item.ability + item.moduleName) ==
               String(moreHapList)) == undefined) {
-                showHapList.push(bundleName + "#" + abilityName + "#" + appName +
-                      "#" + appIcon + "#" + moduleName + "#" + type + "#" + userId);
+                showHapList.push(bundleName + '#' + abilityName + '#' + appName +
+                      '#' + appIcon + '#' + moduleName + '#' + type + '#' + userId);
               this.getMoreHapListStyle()
             }
           }).catch(error => {
@@ -180,10 +181,10 @@ struct SelectorPcDialog {
       let morelist = 0;
       morelist ++;
         if (this.hapList.length == 2) {
-          if(morelist == 1) {
+          if (morelist == 1) {
              this.totalHigh = 447; 
              heightTotalVp = 262;
-          }else if(morelist >= 2) {
+          } else if(morelist >= 2) {
              this.totalHigh = 511; 
              heightTotalVp = 326;
           } else {
@@ -206,7 +207,7 @@ struct SelectorPcDialog {
           heightTotalVp = 4 * heightVal + recommendAppAreaHigh + openModeHigh - 32;
       }
       this.pcSelectorlist = {
-        width: "100%",
+        width: '100%',
         height: heightTotalVp + "vp",
       };
     }
@@ -229,7 +230,7 @@ struct SelectorPcDialog {
             this.totalHigh = 6 * heightVal + titleAreaHigh + buttonAreaHigh;
         }
     }
-    if(globalThis.modelFlag == false) {
+    if (globalThis.modelFlag == false) {
         heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
         if (this.hapList.length == 1 || this.hapList.length == 2) {
             this.totalHigh = 415;
@@ -243,13 +244,13 @@ struct SelectorPcDialog {
         }
     }
     this.pcSelectorlist = {
-      width: "100%",
-      height: heightTotalVp + "vp",
+      width: '100%',
+      height: heightTotalVp + 'vp',
     };
   }
 
   build() {
-    Flex({ direction: FlexDirection.Column , justifyContent: FlexAlign.Center ,  alignItems: ItemAlign.Center }) {
+    Flex({ direction: FlexDirection.Column , justifyContent: FlexAlign.Center , alignItems: ItemAlign.Center }) {
       Column() {
           Text($r("app.string.message_title_pc_selector"))
             .fontSize(22)
@@ -261,7 +262,7 @@ struct SelectorPcDialog {
           Scroll() {
             List() {
               ListItem() {
-                Text($r("app.string.message_recommendApps_selector"))
+                Text($r('app.string.message_recommendApps_selector'))
                   .fontSize(14)
                   .fontWeight(FontWeight.Medium)
                   .width(394)
@@ -271,17 +272,17 @@ struct SelectorPcDialog {
             ForEach(globalThis.pcShowHapList, (item: any, current) => {
                 ListItem() {
                   Flex({ direction: FlexDirection.Row }) {
-                    if (item.split("#")[3] != "") {
+                    if (item.split('#')[3] != '') {
                       if (item.split("#")[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
-                           + ':' + item.split("#")[1]))
+                        Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4]
+                           + ':' + item.split('#')[1]))
                           .height(48)
                           .width(48)
                           .alignSelf(ItemAlign.Center)
                           .margin({ left : 16 })
                           .borderRadius(12);
                       } else {
-                        Image(item.split("#")[3])
+                        Image(item.split('#')[3])
                           .height(48)
                           .width(48)
                           .alignSelf(ItemAlign.Center)
@@ -289,31 +290,31 @@ struct SelectorPcDialog {
                           .borderRadius(12);
                       }
                     } else {
-                      Image($r("app.media.app_icon"))
+                      Image($r('app.media.app_icon'))
                         .height(48)
                         .width(48)
                         .alignSelf(ItemAlign.Center)
                         .margin({ left : 16 })
                         .borderRadius(12)
                     }
-                    if (item.split("#")[2] != "") {
-                      Text(item.split("#")[2])
+                    if (item.split('#')[2] != '') {
+                      Text(item.split('#')[2])
                         .fontSize(16)
-                        .width("60%")
+                        .width('60%')
                         .height(64)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                         .margin({ left : 16 })
                     } else {
-                      Text(item.split("#")[0])
+                      Text(item.split('#')[0])
                         .fontSize(16)
-                        .width("60%")
+                        .width('60%')
                         .height(64)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                         .margin({ left : 16 })
                     }
-                    Image($r("app.media.selectedMark"))
+                    Image($r('app.media.selectedMark'))
                         .height(24)
                         .width(24)
                         .alignSelf(ItemAlign.Center)
@@ -335,7 +336,7 @@ struct SelectorPcDialog {
                 .width(328)
               }, item => item)
               ListItem() {
-                Button($r("app.string.message_moreOpenMode_selector"),{ type: ButtonType.Capsule })
+                Button($r('app.string.message_moreOpenMode_selector'),{ type: ButtonType.Capsule })
                   .fontSize(16)
                   .backgroundColor('#ffffffff')
                   .fontWeight(FontWeight.Medium)
@@ -356,7 +357,7 @@ struct SelectorPcDialog {
               .width(346)
               .height(this.moreOpenModeAreaHigh)
               ListItem() {
-                Text($r("app.string.message_moreApps_selector"))
+                Text($r('app.string.message_moreApps_selector'))
                   .fontSize(14)
                   .fontWeight(FontWeight.Medium)
                   .visibility(this.moreAppsVisiable)
@@ -367,17 +368,17 @@ struct SelectorPcDialog {
               ForEach(this.pcShowMoreHapList, (item: any, current) => {
                 ListItem() {
                   Flex({ direction: FlexDirection.Row }) {
-                    if (item.split("#")[3] != "") {
-                      if (item.split("#")[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
-                           + ':' + item.split("#")[1]))
+                    if (item.split('#')[3] != '') {
+                      if (item.split('#')[3].indexOf('image/json') > -1) {
+                        Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4]
+                           + ':' + item.split('#')[1]))
                           .height(48)
                           .width(48)
                           .alignSelf(ItemAlign.Center)
                           .margin({ left : 16 })
                           .borderRadius(12);
                       } else {
-                        Image(item.split("#")[3])
+                        Image(item.split('#')[3])
                           .height(48)
                           .width(48)
                           .alignSelf(ItemAlign.Center)
@@ -385,31 +386,31 @@ struct SelectorPcDialog {
                           .borderRadius(12)
                       }
                     } else {
-                      Image($r("app.media.app_icon"))
+                      Image($r('app.media.app_icon'))
                         .height(48)
                         .width(48)
                         .alignSelf(ItemAlign.Center)
                         .margin({ left : 16 })
                         .borderRadius(12)
                     }
-                    if (item.split("#")[2] != "") {
-                      Text(item.split("#")[2])
+                    if (item.split('#')[2] != '') {
+                      Text(item.split('#')[2])
                         .fontSize(16)
-                        .width("60%")
+                        .width('60%')
                         .height(64)
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                         .margin({ left : 16 })
                     } else {
-                      Text(item.split("#")[0])
+                      Text(item.split('#')[0])
                         .fontSize(16)
-                        .width("60%")
+                        .width('60%')
                         .height(64)
                         .alignSelf(ItemAlign.Center)
                         .height(56)
                         .width(394)
                     }
-                    Image($r("app.media.selectedMark"))
+                    Image($r('app.media.selectedMark'))
                         .height(24)
                         .width(24)
                         .alignSelf(ItemAlign.Center)
@@ -435,7 +436,7 @@ struct SelectorPcDialog {
           }
           .edgeEffect(EdgeEffect.None)
           .height(this.pcSelectorlist.height)
-          .backgroundColor("#ffffff")
+          .backgroundColor('#ffffff')
           .scrollBar(2)
           .width(346)
           Flex({ direction: FlexDirection.Row }) {
@@ -446,7 +447,7 @@ struct SelectorPcDialog {
             .onChange((value: boolean) => {
                 this.isCheckSelected = value;
             })
-            Text($r("app.string.message_openThisWay_selector"))
+            Text($r('app.string.message_openThisWay_selector'))
               .fontSize(14)
               .fontColor('#000000')
               .fontWeight(FontWeight.Regular)
@@ -455,7 +456,7 @@ struct SelectorPcDialog {
           .height(48)
           .width(394)
           Flex({ direction: FlexDirection.Row }) {
-            Button($r("app.string.message_cancel_selector"), { type: ButtonType.Capsule })
+            Button($r('app.string.message_cancel_selector'), { type: ButtonType.Capsule })
               .backgroundColor('#0d000000')
               .fontColor('#0A59F7')
               .fontWeight(FontWeight.Medium)
@@ -465,7 +466,7 @@ struct SelectorPcDialog {
               .borderRadius(20)
               .margin({ top : 16 , left : 16 })
               .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
-              if(this.isCheck) {
+              if (this.isCheck) {
                 Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
                 .backgroundColor('#EAEAEA')
                 .fontColor('#0A59F7')
@@ -476,7 +477,7 @@ struct SelectorPcDialog {
                 .borderRadius(20)
                 .margin({ top : 16 , left : 48 })
                 .onClick(() => { this.onSelectApp(this.selectItem) })
-              } else{
+              } else {
                 Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
                 .backgroundColor('#EAEAEA')
                 .fontColor('#999999')

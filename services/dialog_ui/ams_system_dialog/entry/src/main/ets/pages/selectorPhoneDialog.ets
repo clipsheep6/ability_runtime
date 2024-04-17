@@ -70,21 +70,21 @@ struct SelectorPhoneDialog {
   @StorageLink('oversizeHeight') oversizeHeight: string = 'false';
   @State private selector: SelectorPhone = {
     swiper: {
-      height: "100vp",
+      height: '100vp',
       indicator: false,
-      contentHeight: "100vp",
-      gridColumns: "1fr 1fr",
-      gridRows: "1fr",
+      contentHeight: '100vp',
+      gridColumns: '1fr 1fr',
+      gridRows: '1fr',
     },
     btn: {
-      marginTop: "20vp",
+      marginTop: '20vp',
     }
   }
   @State private hapList: HapInfo[] = [];
-  private TAG = "SelectorDialog_Phone_Page";
+  private TAG = 'SelectorDialog_Phone_Page';
 
   aboutToAppear(): void {
-    console.log(this.TAG, "dialog page appears");
+    console.log(this.TAG, 'dialog page appears');
     this.hapList = globalThis.params.hapList;
     this.getHapListStyle();
   }
@@ -95,16 +95,16 @@ struct SelectorPhoneDialog {
   }
 
   onSelectApp(item) {
-    console.log(this.TAG, "onSelectApp - start ");
-    globalThis.abilityWant.bundleName = item.split("#")[0];
-    globalThis.abilityWant.abilityName = item.split("#")[1];
-    globalThis.abilityWant.moduleName = item.split("#")[4];
+    console.log(this.TAG, 'onSelectApp - start ');
+    globalThis.abilityWant.bundleName = item.split('#')[0];
+    globalThis.abilityWant.abilityName = item.split('#')[1];
+    globalThis.abilityWant.moduleName = item.split('#')[4];
     globalThis.selectExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {
       if (error) {
-        console.error(this.TAG + " startAbility finish, error: " + JSON.stringify(error));
+        console.error(this.TAG + ' startAbility finish, error: ' + JSON.stringify(error));
         return;
       }
-      console.log(this.TAG + " startAbility finish, data: " + JSON.stringify(data));
+      console.log(this.TAG + ' startAbility finish, data: ' + JSON.stringify(data));
       globalThis.selectExtensionContext.terminateSelf();
     });
   }
@@ -156,27 +156,27 @@ struct SelectorPhoneDialog {
               ForEach(item, (item: any) => {
                 GridItem() {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
-                    if (item.split("#")[3] != "") {
-                      if (item.split("#")[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split("#")[4]
-                           + ':' + item.split("#")[1]))
+                    if (item.split('#')[3] != '') {
+                      if (item.split('#')[3].indexOf('image/json') > -1) {
+                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split('#')[4]
+                           + ':' + item.split('#')[1]))
                           .height(60)
                           .width(60)
                           .alignSelf(ItemAlign.Center);
                       } else {
-                        Image(item.split("#")[3])
+                        Image(item.split('#')[3])
                           .height(60)
                           .width(60)
                           .alignSelf(ItemAlign.Center);
                       }
                     } else {
-                      Image($r("app.media.app_icon"))
+                      Image($r('app.media.app_icon'))
                         .height(60)
                         .width(60)
                         .alignSelf(ItemAlign.Center);
                     }
-                    if (item.split("#")[2] != "") {
-                      Text(item.split("#")[2])
+                    if (item.split('#')[2] != '') {
+                      Text(item.split('#')[2])
                         .fontSize(16)
                         .width(80)
                         .height(23)
@@ -184,7 +184,7 @@ struct SelectorPhoneDialog {
                         .alignSelf(ItemAlign.Center)
                         .textOverflow({ overflow: TextOverflow.Ellipsis })
                     } else {
-                      Text(item.split("#")[0])
+                      Text(item.split('#')[0])
                         .fontSize(16)
                         .width(80)
                         .height(23)
@@ -209,21 +209,21 @@ struct SelectorPhoneDialog {
             .height(210)
           }, item => item)
         }
-        .indicatorStyle({ color: "#bebdc0", selectedColor: "#ff326Ce9", size: 4 })
+        .indicatorStyle({ color: '#bebdc0', selectedColor: '#ff326Ce9', size: 4 })
         .align(Alignment.Center)
         .width("90%")
         .indicator(this.phoneShowData.totalCount() > 1)
       }
 
       Flex({ alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
-        Text(($r("app.string.message_cancel_selector")))
+        Text(($r('app.string.message_cancel_selector')))
           .fontSize(20)
-          .fontColor("#0A59F7")
+          .fontColor('#0A59F7')
           .fontWeight(FontWeight.Regular)
       }
-      .width("90%")
+      .width('90%')
       .height(100)
-      .backgroundColor("#ffffff")
+      .backgroundColor('#ffffff')
       .borderRadius(20)
       .margin({ bottom: 20, top: 10 })
       .onClick(() => {
@@ -232,9 +232,9 @@ struct SelectorPhoneDialog {
     }
     .borderRadius(24)
     .borderWidth(1)
-    .borderColor("#e9e9e9")
-    .backgroundColor("#ffffff")
-    .width("100%")
-    .height("100%")
+    .borderColor('#e9e9e9')
+    .backgroundColor('#ffffff')
+    .width('100%')
+    .height('100%')
   }
 }
