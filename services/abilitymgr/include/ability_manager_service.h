@@ -359,6 +359,16 @@ public:
      */
     int RequestModalUIExtension(const Want &want) override;
 
+    /**
+     * Preload UIExtension ability with want, send want to ability manager service.
+     *
+     * @param want, the want of the ability to start.
+     * @param userId, the extension runs in.
+     */
+    int PreloadUIExtensionAbility(
+        const Want &want,
+        int32_t userId = DEFAULT_INVAL_VALUE) override;
+
     int ChangeAbilityVisibility(sptr<IRemoteObject> token, bool isShow) override;
 
     int ChangeUIAbilityVisibilityBySCB(sptr<SessionInfo> sessionInfo, bool isShow) override;
@@ -936,6 +946,8 @@ public:
         bool checkSystemCaller = true);
 
     int RequestModalUIExtensionInner(Want want);
+
+    int PreloadUIExtensionAbilityInner(const Want &want, int32_t userId);
 
     int StartAbilityForOptionWrap(
         const Want &want,
