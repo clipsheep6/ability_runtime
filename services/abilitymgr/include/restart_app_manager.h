@@ -59,6 +59,7 @@ public:
 
     bool IsRestartAppFrequent(const RestartAppKeyType &key, time_t time);
     void AddRestartAppHistory(const RestartAppKeyType &key, time_t time);
+    bool IsForegroundToRestartApp() const;
 
 private:
     RestartAppManager() = default;

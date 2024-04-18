@@ -806,7 +806,8 @@ bool AbilityManagerService::StartAbilityInChain(StartAbilityParams &params, int 
 }
 
 int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyToken)
+    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyToken,
+    bool isForegroundToRestartApp)
 {
     StartAbilityParams startParams(const_cast<Want &>(want));
     startParams.callerToken = callerToken;
@@ -820,11 +821,13 @@ int AbilityManagerService::StartAbilityWrap(const Want &want, const sptr<IRemote
         return result;
     }
 
-    return StartAbilityInner(want, callerToken, requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken);
+    return StartAbilityInner(want, callerToken,
+        requestCode, userId, isStartAsCaller, isSendDialogResult, specifyToken, isForegroundToRestartApp);
 }
 
 int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemoteObject> &callerToken,
-    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId)
+    int requestCode, int32_t userId, bool isStartAsCaller, bool isSendDialogResult, uint32_t specifyTokenId,
+    bool isForegroundToRestartApp)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     {
@@ -1007,7 +1010,7 @@ int AbilityManagerService::StartAbilityInner(const Want &want, const sptr<IRemot
             TAG_LOGE(AAFwkTag::ABILITYMGR, "Check permission failed from broker.");
             return CHECK_PERMISSION_FAILED;
         }
-    } else if (!isSendDialogResult || want.GetBoolParam("isSelector", false)) {
+    } else if (!isForegroundToRestartApp && (!isSendDialogResult || want.GetBoolParam("isSelector", false))) {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Check call ability permission, name is %{public}s.", abilityInfo.name.c_str());
         result = CheckCallAbilityPermission(abilityRequest, specifyTokenId);
         if (result != ERR_OK) {
@@ -9923,6 +9926,13 @@ int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
         return AAFwk::ERR_RESTART_APP_FREQUENT;
     }
 
+    bool isForegroundToRestartApp = RestartAppManager::GetInstance().IsForegroundToRestartApp();
+    if (!isForegroundToRestartApp) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "RestartApp, IsForegroundToRestartApp failed.");
+        // temporary use, need add new errorcode here, only allow to call when app is foreground
+        return INNER_ERR;
+    }
+
     result = SignRestartAppFlag(userId, bundleName);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "SignRestartAppFlag error.");
@@ -9934,8 +9944,9 @@ int32_t AbilityManagerService::RestartApp(const AAFwk::Want &want)
         return result;
     }
 
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "StartAbility begin.");
-    result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "RestartApp, start ability without CheckCallAbilityPermission.");
+    result = StartAbilityWrap(want, nullptr,
+        DEFAULT_INVAL_VALUE, DEFAULT_INVAL_VALUE, false, false, 0, isForegroundToRestartApp);
     if (result != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "StartAbility error.");
         return result;

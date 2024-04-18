@@ -917,7 +917,8 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         bool isSendDialogResult = false,
-        uint32_t specifyTokenId = 0);
+        uint32_t specifyTokenId = 0,
+        bool isForegroundToRestartApp = false);
 
     int StartAbilityInner(
         const Want &want,
@@ -926,7 +927,8 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         bool isSendDialogResult = false,
-        uint32_t specifyTokenId = 0);
+        uint32_t specifyTokenId = 0,
+        bool isForegroundToRestartApp = false);
 
     int StartExtensionAbilityInner(
         const Want &want,
