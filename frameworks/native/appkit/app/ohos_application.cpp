@@ -428,6 +428,7 @@ void OHOSApplication::UnregisterElementsCallbacks(const std::shared_ptr<Elements
  */
 void OHOSApplication::OnConfigurationUpdated(Configuration config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "called");
     if (!abilityRecordMgr_ || !configuration_) {
         TAG_LOGD(AAFwkTag::APPKIT, "abilityRecordMgr_ or configuration_ is null");
@@ -490,8 +491,11 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         config.RemoveItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
     }
     std::vector<std::string> changeKeyV;
-    configuration_->CompareDifferent(changeKeyV, config);
-    configuration_->Merge(changeKeyV, config);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "configuration_->CompareDifferent");
+        configuration_->CompareDifferent(changeKeyV, config);
+        configuration_->Merge(changeKeyV, config);
+    }
     if (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty()) {
         configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
     }

@@ -17,6 +17,7 @@
 
 #include "event_report.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -139,6 +140,7 @@ void EventReport::SendAppEvent(const EventName &eventName, HiSysEventType type, 
 
 void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
         HILOG_ERROR("invalid eventName");
@@ -217,6 +219,7 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
 
 void EventReport::SendExtensionEvent(const EventName &eventName, HiSysEventType type, const EventInfo &eventInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::string name = ConvertEventName(eventName);
     if (name == INVALID_EVENT_NAME) {
         HILOG_ERROR("invalid eventName");

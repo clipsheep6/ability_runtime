@@ -81,6 +81,7 @@ ohos_shared_library("wantagent_innerkits") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",

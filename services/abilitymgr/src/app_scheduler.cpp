@@ -20,9 +20,9 @@
 #include "ability_record.h"
 #include "ability_util.h"
 #include "appmgr/app_mgr_constants.h"
-#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 
 namespace OHOS {
@@ -300,6 +300,7 @@ void AppScheduler::OnAppStateChanged(const AppExecFwk::AppProcessData &appData)
 
 void AppScheduler::GetRunningProcessInfoByToken(const sptr<IRemoteObject> &token, AppExecFwk::RunningProcessInfo &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_POINTER(appMgrClient_);
     IN_PROCESS_CALL_WITHOUT_RET(appMgrClient_->GetRunningProcessInfoByToken(token, info));
 }

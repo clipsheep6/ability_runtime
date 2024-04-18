@@ -27,9 +27,9 @@
 #include "app_utils.h"
 #include "assert_fault_callback_death_mgr.h"
 #include "extension_config.h"
-#include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "int_wrapper.h"
 #include "parameter.h"
@@ -2104,6 +2104,7 @@ void AbilityConnectManager::DumpStateByUri(std::vector<std::string> &info, bool 
 void AbilityConnectManager::GetExtensionRunningInfos(int upperLimit, std::vector<ExtensionRunningInfo> &info,
     const int32_t userId, bool isPerm)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Get extension running info.");
     std::lock_guard guard(Lock_);
     auto mgr = shared_from_this();
@@ -2124,7 +2125,10 @@ void AbilityConnectManager::GetExtensionRunningInfos(int upperLimit, std::vector
             }
         }
     };
-    std::for_each(serviceMap_.begin(), serviceMap_.end(), queryInfo);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "std::for_each(");
+        std::for_each(serviceMap_.begin(), serviceMap_.end(), queryInfo);
+    }
 }
 
 void AbilityConnectManager::GetAbilityRunningInfos(std::vector<AbilityRunningInfo> &info, bool isPerm)
@@ -2153,6 +2157,7 @@ void AbilityConnectManager::GetAbilityRunningInfos(std::vector<AbilityRunningInf
 void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecord> &abilityRecord,
     const int32_t userId, std::vector<ExtensionRunningInfo> &info)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     ExtensionRunningInfo extensionInfo;
     AppExecFwk::RunningProcessInfo processInfo;
     extensionInfo.extension = abilityRecord->GetElementName();
@@ -2184,18 +2189,21 @@ void AbilityConnectManager::GetExtensionRunningInfo(std::shared_ptr<AbilityRecor
     extensionInfo.processName = processInfo.processName_;
     extensionInfo.startTime = abilityRecord->GetStartTime();
     ConnectListType connectRecordList = abilityRecord->GetConnectRecordList();
-    for (auto &connectRecord : connectRecordList) {
-        if (connectRecord == nullptr) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "connectRecord is nullptr.");
-            continue;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (auto &connectRecord : connectRecordList)");
+        for (auto &connectRecord : connectRecordList) {
+            if (connectRecord == nullptr) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "connectRecord is nullptr.");
+                continue;
+            }
+            auto callerAbilityRecord = Token::GetAbilityRecordByToken(connectRecord->GetToken());
+            if (callerAbilityRecord == nullptr) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "callerAbilityRecord is nullptr.");
+                continue;
+            }
+            std::string package = callerAbilityRecord->GetAbilityInfo().bundleName;
+            extensionInfo.clientPackage.emplace_back(package);
         }
-        auto callerAbilityRecord = Token::GetAbilityRecordByToken(connectRecord->GetToken());
-        if (callerAbilityRecord == nullptr) {
-            TAG_LOGD(AAFwkTag::ABILITYMGR, "callerAbilityRecord is nullptr.");
-            continue;
-        }
-        std::string package = callerAbilityRecord->GetAbilityInfo().bundleName;
-        extensionInfo.clientPackage.emplace_back(package);
     }
     info.emplace_back(extensionInfo);
 }

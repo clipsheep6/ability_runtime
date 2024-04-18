@@ -18,6 +18,7 @@
 #include "bundle_mgr_service_death_recipient.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
@@ -174,6 +175,7 @@ ErrCode BundleMgrHelper::GetSandboxHapModuleInfo(const AbilityInfo &abilityInfo,
 
 sptr<IBundleMgr> BundleMgrHelper::Connect()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     std::lock_guard<std::mutex> lock(mutex_);
     if (bundleMgr_ == nullptr) {
@@ -252,6 +254,7 @@ void BundleMgrHelper::OnDeath()
 bool BundleMgrHelper::GetBundleInfo(const std::string &bundleName, int32_t flags,
     BundleInfo &bundleInfo, int32_t userId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     auto bundleMgr = Connect();
     if (bundleMgr == nullptr) {
@@ -314,6 +317,7 @@ ErrCode BundleMgrHelper::GetBaseSharedBundleInfos(
 
 ErrCode BundleMgrHelper::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     auto bundleMgr = Connect();
     if (bundleMgr == nullptr) {
@@ -327,6 +331,7 @@ ErrCode BundleMgrHelper::GetBundleInfoForSelf(int32_t flags, BundleInfo &bundleI
 ErrCode BundleMgrHelper::GetDependentBundleInfo(const std::string &sharedBundleName, BundleInfo &sharedBundleInfo,
     GetDependentBundleInfoFlag flag)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     auto bundleMgr = Connect();
     if (bundleMgr == nullptr) {
@@ -351,6 +356,7 @@ bool BundleMgrHelper::GetGroupDir(const std::string &dataGroupId, std::string &d
 
 sptr<IOverlayManager> BundleMgrHelper::GetOverlayManagerProxy()
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     auto bundleMgr = Connect();
     if (bundleMgr == nullptr) {
@@ -454,6 +460,7 @@ sptr<IAppControlMgr> BundleMgrHelper::GetAppControlProxy()
 bool BundleMgrHelper::QueryExtensionAbilityInfos(const Want &want, const int32_t &flag, const int32_t &userId,
     std::vector<ExtensionAbilityInfo> &extensionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::BUNDLEMGRHELPER, "Called.");
     auto bundleMgr = Connect();
     if (bundleMgr == nullptr) {
@@ -463,7 +470,10 @@ bool BundleMgrHelper::QueryExtensionAbilityInfos(const Want &want, const int32_t
 
     AAFwk::Want newWant = want;
     newWant.RemoveAllFd();
-    return bundleMgr->QueryExtensionAbilityInfos(newWant, flag, userId, extensionInfos);
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+        return bundleMgr->QueryExtensionAbilityInfos(newWant, flag, userId, extensionInfos);
+    }
 }
 
 ErrCode BundleMgrHelper::GetBundleInfoV9(

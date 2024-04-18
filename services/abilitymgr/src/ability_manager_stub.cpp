@@ -27,6 +27,7 @@
 #include "ability_scheduler_stub.h"
 #include "configuration.h"
 #include "hilog_tag_wrapper.h"
+#include "hitrace_meter.h"
 #include "session_info.h"
 #include "status_bar_delegate_interface.h"
 
@@ -1358,6 +1359,7 @@ int AbilityManagerStub::UnregisterCancelListenerInner(MessageParcel &data, Messa
 
 int AbilityManagerStub::GetPendingRequestWantInner(MessageParcel &data, MessageParcel &reply)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     sptr<IWantSender> wantSender = iface_cast<IWantSender>(data.ReadRemoteObject());
     if (wantSender == nullptr) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "wantSender is nullptr");

@@ -90,6 +90,7 @@ bool MissionInfoMgr::AddMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) != missionIdMap_.end() && missionIdMap_[id]) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "add mission info failed, missionId %{public}d already exists", id);
@@ -115,6 +116,7 @@ bool MissionInfoMgr::AddMissionInfoInner(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     auto id = missionInfo.missionInfo.id;
     if (missionIdMap_.find(id) == missionIdMap_.end() || !missionIdMap_[id]) {
@@ -151,6 +153,7 @@ bool MissionInfoMgr::UpdateMissionInfo(const InnerMissionInfo &missionInfo)
 
 bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "missionId %{public}d not exists, no need delete", missionId);
@@ -186,6 +189,7 @@ bool MissionInfoMgr::DeleteMissionInfo(int missionId)
 
 bool MissionInfoMgr::DeleteAllMissionInfos(const std::shared_ptr<MissionListenerController> &listenerController)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (!taskDataPersistenceMgr_) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "taskDataPersistenceMgr_ is nullptr");
@@ -226,6 +230,7 @@ static bool DoesNotShowInTheMissionList(const InnerMissionInfo &mission)
 
 int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &missionInfos)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "numMax:%{public}d", numMax);
     if (numMax < 0) {
         return -1;
@@ -250,6 +255,7 @@ int MissionInfoMgr::GetMissionInfos(int32_t numMax, std::vector<MissionInfo> &mi
 
 int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionInfo)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR, "missionId:%{public}d", missionId);
     std::lock_guard<ffrt::mutex> lock(mutex_);
     if (missionIdMap_.find(missionId) == missionIdMap_.end()) {

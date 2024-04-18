@@ -17,6 +17,7 @@
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "event_report.h"
+#include "exit_resident_process_manager.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "ui_extension_utils.h"
@@ -1549,6 +1550,7 @@ const AAFwk::Want &AppRunningRecord::GetNewProcessRequestWant() const
 
 int32_t AppRunningRecord::UpdateConfiguration(const Configuration &config)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "called");
     if (!appLifeCycleDeal_) {
         TAG_LOGI(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
