@@ -191,7 +191,8 @@ public:
         const AbilityStartSetting &abilityStartSetting,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isImplicit = false) override;
 
     /**
      * Starts a new ability with specific start options.
@@ -208,7 +209,8 @@ public:
         const StartOptions &startOptions,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isImplicit = false) override;
 
     /**
      * Starts a new ability using the original caller information.
@@ -349,7 +351,8 @@ public:
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED) override;
+        AppExecFwk::ExtensionAbilityType extensionType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED,
+        bool isImplicit = false) override;
 
     /**
      * Requset modal UIExtension with want, send want to ability manager service.
@@ -917,7 +920,8 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         bool isSendDialogResult = false,
-        uint32_t specifyTokenId = 0);
+        uint32_t specifyTokenId = 0,
+        bool isImplicitStart = false);
 
     int StartAbilityInner(
         const Want &want,
@@ -926,14 +930,16 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         bool isSendDialogResult = false,
-        uint32_t specifyTokenId = 0);
+        uint32_t specifyTokenId = 0,
+        bool isImplicitStart = false);
 
     int StartExtensionAbilityInner(
         const Want &want,
         const sptr<IRemoteObject> &callerToken,
         int32_t userId,
         AppExecFwk::ExtensionAbilityType extensionType,
-        bool checkSystemCaller = true);
+        bool checkSystemCaller = true,
+        bool isImplicit = false);
 
     int RequestModalUIExtensionInner(Want want);
 
@@ -943,7 +949,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
-        bool isStartAsCaller = false);
+        bool isStartAsCaller = false,
+        bool isImplicit = false);
 
     int StartAbilityForOptionInner(
         const Want &want,
@@ -951,7 +958,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = DEFAULT_INVAL_VALUE,
-        bool isStartAsCaller = false);
+        bool isStartAsCaller = false,
+        bool isImplicit = false);
 
     void OnAcceptWantResponse(const AAFwk::Want &want, const std::string &flag);
     void OnStartSpecifiedAbilityTimeoutResponse(const AAFwk::Want &want);
@@ -1804,8 +1812,8 @@ private:
         const std::string& args, std::vector<std::string>& state, bool isClient, bool isUserID, int UserID);
     std::map<uint32_t, DumpSysFuncType> dumpsysFuncMap_;
 
-    int CheckStaticCfgPermission(AppExecFwk::AbilityInfo &abilityInfo, bool isStartAsCaller,
-        uint32_t callerTokenId, bool isData = false, bool isSaCall = false);
+    int CheckStaticCfgPermission(const AppExecFwk::AbilityRequest &abilityRequest, bool isStartAsCaller,
+        uint32_t callerTokenId, bool isData = false, bool isSaCall = false, bool isImplicit = false);
 
     bool GetValidDataAbilityUri(const std::string &abilityInfoUri, std::string &adjustUri);
 
@@ -1814,7 +1822,7 @@ private:
     int32_t InitialAbilityRequest(AbilityRequest &request,
         const std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) const;
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
-        int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
+        int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType, bool isImplicit = false);
 
     void SubscribeBackgroundTask();
 
@@ -2017,7 +2025,7 @@ private:
     std::shared_ptr<AbilityDebugDeal> ConnectInitAbilityDebugDeal();
 
     int StartUIAbilityForOptionWrap(const Want &want, const StartOptions &options, sptr<IRemoteObject> callerToken,
-        int32_t userId, int requestCode);
+        int32_t userId, int requestCode, bool isImplicit = false);
 
     int32_t SetBackgroundCall(const AppExecFwk::RunningProcessInfo &processInfo,
         const AbilityRequest &abilityRequest, bool &isBackgroundCall) const;
