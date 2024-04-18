@@ -158,8 +158,8 @@ struct SelectorPhoneDialog {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
                     if (item.split('#')[3] != '') {
                       if (item.split('#')[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split('#')[4]
-                           + ':' + item.split('#')[1]))
+                        Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4] +
+                          ':' + item.split('#')[1]))
                           .height(60)
                           .width(60)
                           .alignSelf(ItemAlign.Center);
