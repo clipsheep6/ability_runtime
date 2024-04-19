@@ -25,7 +25,7 @@ config("ability_command_config") {
   ]
 }
 
-ohos_source_set("tools_aa_source_set") {
+ohos_shared_library("tools_aa_source_set") {
   sources = [
     "src/ability_command.cpp",
     "src/ability_tool_command.cpp",

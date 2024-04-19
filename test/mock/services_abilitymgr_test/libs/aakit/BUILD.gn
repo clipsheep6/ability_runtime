@@ -27,7 +27,7 @@ config("aakit_mock_config") {
   ]
 }
 
-ohos_source_set("aakit_mock") {
+ohos_shared_library("aakit_mock") {
   sources = [
     "src/ability_scheduler.cpp",
     "src/mock_ability_connect_callback.cpp",
