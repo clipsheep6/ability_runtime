@@ -6841,17 +6841,6 @@ void AbilityManagerService::EnableRecoverAbility(const sptr<IRemoteObject>& toke
     }
 }
 
-void AbilityManagerService::RecoverAbilityRestart(const Want& want)
-{
-    std::string identity = IPCSkeleton::ResetCallingIdentity();
-    int32_t userId = GetValidUserId(DEFAULT_INVAL_VALUE);
-    int32_t ret = StartAbility(want, userId, 0);
-    if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s AppRecovery::failed to restart ability.  %{public}d", __func__, ret);
-    }
-    IPCSkeleton::SetCallingIdentity(identity);
-}
-
 void AbilityManagerService::ReportAppRecoverResult(const int32_t appId, const AppExecFwk::ApplicationInfo &appInfo,
     const std::string& abilityName, const std::string& result)
 {
@@ -6983,14 +6972,8 @@ void AbilityManagerService::ScheduleRecoverAbility(const sptr<IRemoteObject>& to
         curWant.SetParam(AAFwk::Want::PARAM_ABILITY_RECOVERY_RESTART, true);
 
         ReportAppRecoverResult(record->GetUid(), appInfo, abilityInfo.name, "SUCCESS");
-        AppRecoverKill(record->GetPid(), reason);
     }
-
-    constexpr int delaytime = 1000;
-    std::string taskName = "AppRecovery_kill:" + std::to_string(record->GetPid());
-    auto task = std::bind(&AbilityManagerService::RecoverAbilityRestart, this, curWant);
-    TAG_LOGI(AAFwkTag::ABILITYMGR, "AppRecovery RecoverAbilityRestart task begin");
-    taskHandler_->SubmitTask(task, taskName, delaytime);
+    RestartApp(curWant);
 }
 
 int32_t AbilityManagerService::GetRemoteMissionSnapshotInfo(const std::string& deviceId, int32_t missionId,

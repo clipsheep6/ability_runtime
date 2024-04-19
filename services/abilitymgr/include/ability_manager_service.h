@@ -1923,8 +1923,6 @@ private:
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
 
-    void RecoverAbilityRestart(const Want &want);
-
     AAFwk::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 
     int CheckDlpForExtension(
