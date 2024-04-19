@@ -27,7 +27,6 @@ template("delegator") {
       "${ability_runtime_path}/interfaces/kits/native/appkit/ability_delegator/",
       "${ability_runtime_path}/interfaces/kits/native/ability/native",
       "${ability_runtime_path}/tools/aa/include",
-      "${ipc_native_path}/src/napi/include",
     ]
 
     sources = [
