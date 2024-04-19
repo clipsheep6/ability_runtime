@@ -1010,5 +1010,26 @@ HWTEST_F(AppMgrClientTest, GetAllUIExtensionProviderPid_001, TestSize.Level0)
     EXPECT_NE(ret, AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED);
     EXPECT_EQ(providerPids.size(), 0);
 }
+
+/**
+ * @tc.name: PreloadApplication_001
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, PreloadApplication_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+    int32_t ret = appMgrClient->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

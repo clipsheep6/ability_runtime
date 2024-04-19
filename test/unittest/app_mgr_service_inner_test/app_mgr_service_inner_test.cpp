@@ -4152,5 +4152,23 @@ HWTEST_F(AppMgrServiceInnerTest, AddUIExtensionLauncherItem_0100, TestSize.Level
     EXPECT_EQ(want->HasParameter("ability.want.params.uiExtensionAbilityId"), false);
     EXPECT_EQ(want->HasParameter("ability.want.params.uiExtensionRootHostPid"), false);
 }
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload Application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceInnerTest, PreloadApplication_0100, TestSize.Level1)
+{
+    auto appMgrServiceInner = std::make_shared<AppMgrServiceInner>();
+    ASSERT_NE(appMgrServiceInner, nullptr);
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+    int32_t ret = appMgrServiceInner->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
+}
 } // namespace AppExecFwk
 } // namespace OHOS

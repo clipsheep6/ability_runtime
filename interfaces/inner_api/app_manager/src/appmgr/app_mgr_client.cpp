@@ -1145,5 +1145,15 @@ bool AppMgrClient::IsMemorySizeSufficent() const
     }
     return amsService->IsMemorySizeSufficent();
 }
+
+int32_t AppMgrClient::PreloadApplication(const std::string &bundleName, int32_t userId,
+    AppExecFwk::PreloadMode preloadMode, int32_t appIndex)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

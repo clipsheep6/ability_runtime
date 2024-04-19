@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <mutex>
 
+#include "ability_manager_client.h"
 #include "ability_manager_interface.h"
 #include "ability_runtime_error_util.h"
 #include "app_mgr_interface.h"
@@ -187,6 +188,11 @@ public:
         }
         napi_delete_reference(env, ref);
         return true;
+    }
+
+    static napi_value PreloadApplication(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnPreloadApplication);
     }
 
 private:
@@ -990,6 +996,48 @@ private:
         return result;
     }
 
+    napi_value OnPreloadApplication(napi_env env, size_t argc, napi_value *argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "OnPreloadApplication called.");
+        if (argc < ARGC_THREE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication Invalid param count.");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        }
+        PreloadApplicationParam param;
+        std::string errorMsg;
+        if (!ConvertPreloadApplicationParam(env, argc, argv, param, errorMsg)) {
+            ThrowInvalidParamError(env, errorMsg);
+            return CreateJsUndefined(env);
+        }
+
+        wptr<OHOS::AppExecFwk::IAppMgr> weak = appManager_;
+        auto innerErrorCode = std::make_shared<int32_t>(ERR_OK);
+        NapiAsyncTask::ExecuteCallback execute =
+            [param, innerErrorCode, weak]() {
+            sptr<OHOS::AppExecFwk::IAppMgr> appMgr = weak.promote();
+            if (appMgr == nullptr) {
+                TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication appMgr is nullptr.");
+                *innerErrorCode = static_cast<int32_t>(AbilityErrorCode::ERROR_CODE_INNER);
+                return;
+            }
+            *innerErrorCode = appMgr->PreloadApplication(param.bundleName, param.userId, param.preloadMode,
+                param.appIndex);
+        };
+        NapiAsyncTask::CompleteCallback complete =
+            [innerErrorCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+            if (*innerErrorCode == ERR_OK) {
+                task.ResolveWithNoError(env, CreateJsUndefined(env));
+            } else {
+                task.Reject(env, CreateJsErrorByNativeErr(env, *innerErrorCode));
+            }
+        };
+        napi_value result = nullptr;
+        NapiAsyncTask::ScheduleHighQos("JSAppManager::OnPreloadApplication",
+            env, CreateAsyncTaskWithLastParam(env, nullptr, std::move(execute), std::move(complete), &result));
+        return result;
+    }
+
     bool CheckOnOffType(napi_env env, size_t argc, napi_value* argv)
     {
         if (argc < ARGC_ONE) {
@@ -1056,6 +1104,7 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
 
     napi_set_named_property(env, exportObj, "ApplicationState", ApplicationStateInit(env));
     napi_set_named_property(env, exportObj, "ProcessState", ProcessStateInit(env));
+    napi_set_named_property(env, exportObj, "PreloadMode", PreloadModeInit(env));
 
     const char *moduleName = "AppManager";
     BindNativeFunction(env, exportObj, "on", moduleName, JsAppManager::On);
@@ -1088,6 +1137,8 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetRunningProcessInfoByBundleName);
     BindNativeFunction(env, exportObj, "isApplicationRunning", moduleName,
         JsAppManager::IsApplicationRunning);
+    BindNativeFunction(env, exportObj, "preloadApplication", moduleName,
+        JsAppManager::PreloadApplication);
     TAG_LOGD(AAFwkTag::APPMGR, "end");
     return CreateJsUndefined(env);
 }

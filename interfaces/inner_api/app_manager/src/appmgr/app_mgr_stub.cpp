@@ -39,6 +39,8 @@ AppMgrStub::AppMgrStub()
 {
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION)] =
         &AppMgrStub::HandleAttachApplication;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION)] =
+        &AppMgrStub::HandlePreloadApplication;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED)] =
         &AppMgrStub::HandleApplicationForegrounded;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED)] =
@@ -218,6 +220,22 @@ int32_t AppMgrStub::HandleAttachApplication(MessageParcel &data, MessageParcel &
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> client = data.ReadRemoteObject();
     AttachApplication(client);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandlePreloadApplication(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    TAG_LOGD(AAFwkTag::APPMGR, "Stub HandlePreloadApplication called.");
+    std::string bundleName = Str16ToStr8(data.ReadString16());
+    int32_t userId = data.ReadInt32();
+    int32_t preloadMode = data.ReadInt32();
+    int32_t appIndex = data.ReadInt32();
+    auto result = PreloadApplication(bundleName, userId, static_cast<AppExecFwk::PreloadMode>(preloadMode), appIndex);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Stub HandlePreloadApplication Write result failed.");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
     return NO_ERROR;
 }
 
