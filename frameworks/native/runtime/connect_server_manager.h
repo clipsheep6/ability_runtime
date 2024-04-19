@@ -36,18 +36,18 @@ public:
 
     void StartConnectServer(const std::string& bundleName, int socketFd, bool isLocalAbstract);
     void StopConnectServer(bool isCloseSo = true);
-    bool AddInstance(int tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
+    bool AddInstance(int32_t tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
     void RemoveInstance(int32_t instanceId);
     void SendInspector(const std::string& jsonTreeStr, const std::string& jsonSnapshotStr);
     void SetLayoutInspectorCallback(
         const std::function<void(int32_t)> &createLayoutInfo, const std::function<void(bool)> &setStatus);
     std::function<void(int32_t)> GetLayoutInspectorCallback();
     bool StoreInstanceMessage(
-        int tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
-    void StoreDebuggerInfo(int tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
+        int32_t tid, int32_t instanceId, const std::string& instanceName = "PandaDebugger");
+    void StoreDebuggerInfo(int32_t tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
         const DebuggerPostTask& debuggerPostTask, bool isDebugApp);
     void SetConnectedCallback();
-    bool SendInstanceMessage(int32_t instanceId, int tid, const std::string& instanceName);
+    bool SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName);
     void SendDebuggerInfo(bool needBreakPoint, bool isDebugApp);
     void LoadConnectServerDebuggerSo();
 
@@ -61,7 +61,7 @@ private:
     std::mutex mutex_;
     static std::mutex instanceMutex_;
     std::atomic<bool> isConnected_ = false;
-    std::unordered_map<int32_t, std::pair<std::string, int>> instanceMap_;
+    std::unordered_map<int32_t, std::pair<std::string, int32_t>> instanceMap_;
     std::function<void(int32_t)> createLayoutInfo_;
     std::function<void(int32_t)> setStatus_;
     ConnectServerManager(const ConnectServerManager&) = delete;

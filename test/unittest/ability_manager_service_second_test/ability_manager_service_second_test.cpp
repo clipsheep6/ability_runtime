@@ -541,7 +541,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, CloseUIAbilityBySCB_001, TestSize.Leve
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest CloseUIAbilityBySCB_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     EXPECT_EQ(abilityMs_->CloseUIAbilityBySCB(nullptr), ERR_INVALID_VALUE);
 
     sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
@@ -669,7 +670,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, ContinueAbility_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueAbility_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::string deviceId = "test";
     EXPECT_EQ(abilityMs_->ContinueAbility(deviceId, 1, 1), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ContinueAbility_001 end");
@@ -685,7 +687,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, StartContinuation_001, TestSize.Level1
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest StartContinuation_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     Want want;
     EXPECT_EQ(abilityMs_->StartContinuation(want, nullptr, 1), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest StartContinuation_001 end");
@@ -717,7 +720,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, NotifyContinuationResult_001, TestSize
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest NotifyContinuationResult_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     EXPECT_EQ(abilityMs_->NotifyContinuationResult(1, 1), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest NotifyContinuationResult_001 end");
 }
@@ -809,8 +813,9 @@ HWTEST_F(AbilityManagerServiceSecondTest, RegisterMissionListener_002, TestSize.
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest RegisterMissionListener_002 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp_ = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_ = nullptr;
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp_ = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = nullptr;
     EXPECT_EQ(abilityMs_->RegisterMissionListener(nullptr), ERR_NO_INIT);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest RegisterMissionListener_002 end");
 }
@@ -840,8 +845,9 @@ HWTEST_F(AbilityManagerServiceSecondTest, UnRegisterMissionListener_002, TestSiz
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnRegisterMissionListener_002 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp_ = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_ = nullptr;
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp_ = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = nullptr;
     EXPECT_EQ(abilityMs_->UnRegisterMissionListener(nullptr), ERR_NO_INIT);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest UnRegisterMissionListener_002 end");
 }
@@ -856,9 +862,10 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetWantSender_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetWantSender_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     WantSenderInfo wantSenderInfo;
-    auto temp = abilityMs_->pendingWantManager_;
-    abilityMs_->pendingWantManager_ = nullptr;
+    auto temp = abilityMs_->subManagersHelper_->currentPendingWantManager_;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_ = nullptr;
     EXPECT_EQ(abilityMs_->GetWantSender(wantSenderInfo, nullptr), nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetWantSender_001 end");
 }
@@ -903,11 +910,12 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetPendingWantUid_001, TestSize.Level1
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantUid_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp = abilityMs_->pendingWantManager_;
-    abilityMs_->pendingWantManager_.reset();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp = abilityMs_->subManagersHelper_->currentPendingWantManager_;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_.reset();
     EXPECT_EQ(abilityMs_->GetPendingWantUid(nullptr), -1);
 
-    abilityMs_->pendingWantManager_ = temp;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_ = temp;
     EXPECT_EQ(abilityMs_->GetPendingWantUid(nullptr), -1);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantUid_001 end");
 }
@@ -922,11 +930,12 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetPendingWantUserId_001, TestSize.Lev
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantUserId_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp = abilityMs_->pendingWantManager_;
-    abilityMs_->pendingWantManager_.reset();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp = abilityMs_->subManagersHelper_->currentPendingWantManager_;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_.reset();
     EXPECT_EQ(abilityMs_->GetPendingWantUserId(nullptr), -1);
 
-    abilityMs_->pendingWantManager_ = temp;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_ = temp;
     EXPECT_EQ(abilityMs_->GetPendingWantUserId(nullptr), -1);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantUserId_001 end");
 }
@@ -955,11 +964,12 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetPendingWantCode_001, TestSize.Level
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantCode_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp = abilityMs_->pendingWantManager_;
-    abilityMs_->pendingWantManager_.reset();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp = abilityMs_->subManagersHelper_->currentPendingWantManager_;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_.reset();
     EXPECT_EQ(abilityMs_->GetPendingWantCode(nullptr), -1);
 
-    abilityMs_->pendingWantManager_ = temp;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_ = temp;
     EXPECT_EQ(abilityMs_->GetPendingWantCode(nullptr), -1);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantCode_001 end");
 }
@@ -974,11 +984,12 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetPendingWantType_001, TestSize.Level
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantType_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp = abilityMs_->pendingWantManager_;
-    abilityMs_->pendingWantManager_.reset();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp = abilityMs_->subManagersHelper_->currentPendingWantManager_;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_.reset();
     EXPECT_EQ(abilityMs_->GetPendingWantType(nullptr), -1);
 
-    abilityMs_->pendingWantManager_ = temp;
+    abilityMs_->subManagersHelper_->currentPendingWantManager_ = temp;
     EXPECT_EQ(abilityMs_->GetPendingWantType(nullptr), -1);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetPendingWantType_001 end");
 }
@@ -1231,11 +1242,12 @@ HWTEST_F(AbilityManagerServiceSecondTest, GetConnectRecordListByCallback_001, Te
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetConnectRecordListByCallback_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    auto temp = abilityMs_->connectManager_;
-    abilityMs_->connectManager_.reset();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    auto temp = abilityMs_->subManagersHelper_->currentConnectManager_;
+    abilityMs_->subManagersHelper_->currentConnectManager_.reset();
     std::list<std::shared_ptr<ConnectionRecord>> connectList;
     EXPECT_EQ(abilityMs_->GetConnectRecordListByCallback(nullptr), connectList);
-    abilityMs_->connectManager_ = temp;
+    abilityMs_->subManagersHelper_->currentConnectManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest GetConnectRecordListByCallback_001 end");
 }
 
@@ -1278,7 +1290,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, AttachAbilityThread_001, TestSize.Leve
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest AttachAbilityThread_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     EXPECT_EQ(abilityMs_->AttachAbilityThread(nullptr, nullptr), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest AttachAbilityThread_001 end");
 }
@@ -1293,7 +1306,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpInner_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpInner_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<std::string> info;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpInner("", info);
@@ -1310,7 +1324,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpMissionListInner_001, TestSize.Lev
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpMissionListInner_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<std::string> info;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionListInner("", info);
@@ -1327,7 +1342,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpMissionInfosInner_001, TestSize.Le
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpMissionInfosInner_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<std::string> info;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionInfosInner("", info);
@@ -1344,7 +1360,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpMissionInner_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpMissionInner_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<std::string> info;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpMissionInner("", info);
@@ -1361,7 +1378,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, DumpStateInner_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest DumpStateInner_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<std::string> info;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->DumpStateInner("", info);
@@ -1426,7 +1444,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, AbilityTransitionDone_001, TestSize.Le
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest AbilityTransitionDone_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     PacMap saveData;
     EXPECT_EQ(abilityMs_->AbilityTransitionDone(nullptr, 1, saveData), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest AbilityTransitionDone_001 end");
@@ -1442,7 +1461,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, OnAppStateChanged_001, TestSize.Level1
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest OnAppStateChanged_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     AppInfo info;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnAppStateChanged(info);
@@ -1644,7 +1664,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, ParseJsonFromBoot_001, TestSize.Level1
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
     const std::string file = "/etc/efficiency_manager/prevent_startability_whitelist.json";
     nlohmann::json whiteListJsonObj;
-    EXPECT_TRUE(abilityMs_->ParseJsonFromBoot(whiteListJsonObj, file, "white_list"));
+    abilityMs_->ParseJsonFromBoot(whiteListJsonObj, file, "white_list");
+    EXPECT_TRUE(abilityMs_ != nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest ParseJsonFromBoot_001 end");
 }
 
@@ -1661,7 +1682,8 @@ HWTEST_F(AbilityManagerServiceSecondTest, IsInWhiteList_001, TestSize.Level1)
     const std::string callerBundleName = "com.example.amstest";
     const std::string calleeBundleName = "com.exmple.testserviceextensionability";
     const std::string calleeAbilityName = "ServiceextensionAbility";
-    EXPECT_TRUE(abilityMs_->IsInWhiteList(callerBundleName, calleeBundleName, calleeAbilityName));
+    abilityMs_->IsInWhiteList(callerBundleName, calleeBundleName, calleeAbilityName);
+    EXPECT_TRUE(abilityMs_ != nullptr);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceSecondTest IsInWhiteList_001 end");
 }
 

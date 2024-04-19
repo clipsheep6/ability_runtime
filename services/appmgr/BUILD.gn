@@ -57,6 +57,7 @@ ohos_shared_library("libappms") {
     "src/app_spawn_client.cpp",
     "src/app_state_observer_manager.cpp",
     "src/child_process_record.cpp",
+    "src/exit_resident_process_manager.cpp",
     "src/module_running_record.cpp",
     "src/quick_fix_callback_with_record.cpp",
     "src/remote_client_manager.cpp",

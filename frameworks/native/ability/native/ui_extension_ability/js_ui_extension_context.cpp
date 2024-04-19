@@ -340,7 +340,7 @@ napi_value JsUIExtensionContext::OnOpenLink(napi_env env, NapiCallbackInfo& info
 
 napi_value JsUIExtensionContext::OnTerminateSelf(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "OnTerminateSelf is called");
+    TAG_LOGI(AAFwkTag::UI_EXT, "OnTerminateSelf is called");
     NapiAsyncTask::CompleteCallback complete =
         [weak = context_](napi_env env, NapiAsyncTask& task, int32_t status) {
             auto context = weak.lock();
@@ -414,7 +414,7 @@ napi_value JsUIExtensionContext::OnStartAbilityForResult(napi_env env, NapiCallb
 
 napi_value JsUIExtensionContext::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "called");
+    TAG_LOGI(AAFwkTag::UI_EXT, "called");
     if (info.argc == 0) {
         TAG_LOGE(AAFwkTag::UI_EXT, "Not enough params");
         ThrowTooFewParametersError(env);

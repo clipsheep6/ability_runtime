@@ -191,13 +191,13 @@ napi_value ProcessStateInit(napi_env env)
     napi_set_named_property(env, object, "STATE_CREATE",
         CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_CREATE)));
     napi_set_named_property(env, object, "STATE_FOREGROUND",
-        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_FOREGROUND)));
+        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_FOREGROUND) - 1));
     napi_set_named_property(env, object, "STATE_ACTIVE",
-        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_FOCUS)));
+        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_FOCUS) - 1));
     napi_set_named_property(env, object, "STATE_BACKGROUND",
-        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_BACKGROUND)));
+        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_BACKGROUND) - 1));
     napi_set_named_property(env, object, "STATE_DESTROY",
-        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_TERMINATED)));
+        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_TERMINATED) - 1));
     return object;
 }
 

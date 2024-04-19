@@ -27,8 +27,7 @@ public:
     MockJsRuntime() = default;
     ~MockJsRuntime() = default;
 
-    void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true,
-        bool isNativeStart = false)
+    void StartDebugMode(const DebugOption debugOption)
     {}
     void FinishPreload()
     {
@@ -88,6 +87,9 @@ public:
     {
         GTEST_LOG_(INFO) << "MockJsRuntime::GetFileBuffer called";
         return true;
+    }
+    void DumpHeapSnapshot(bool isPrivate)
+    {
     }
 };
 }  // namespace AbilityRuntime

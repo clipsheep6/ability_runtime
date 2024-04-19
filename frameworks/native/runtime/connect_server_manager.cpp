@@ -24,7 +24,7 @@
 namespace OHOS::AbilityRuntime {
 namespace {
 std::string GetInstanceMapMessage(
-    const std::string& messageType, int32_t instanceId, const std::string& instanceName, int tid)
+    const std::string& messageType, int32_t instanceId, const std::string& instanceName, int32_t tid)
 {
     std::string message;
     message.append("{\"type\":\"");
@@ -131,7 +131,7 @@ void ConnectServerManager::StopConnectServer(bool isCloseSo)
 }
 
 
-bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
+bool ConnectServerManager::StoreInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -145,7 +145,7 @@ bool ConnectServerManager::StoreInstanceMessage(int tid, int32_t instanceId, con
     return true;
 }
 
-void ConnectServerManager::StoreDebuggerInfo(int tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
+void ConnectServerManager::StoreDebuggerInfo(int32_t tid, void* vm, const panda::JSNApi::DebugOption& debugOption,
     const DebuggerPostTask& debuggerPostTask, bool isDebugApp)
 {
     std::lock_guard<std::mutex> lock(g_debuggerMutex);
@@ -203,7 +203,7 @@ void ConnectServerManager::SetConnectedCallback()
     });
 }
 
-bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, const std::string& instanceName)
+bool ConnectServerManager::SendInstanceMessage(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     TAG_LOGI(AAFwkTag::JSRUNTIME, "ConnectServerManager::SendInstanceMessage Add instance to connect server");
     LoadConnectServerDebuggerSo();
@@ -232,7 +232,7 @@ bool ConnectServerManager::SendInstanceMessage(int tid, int32_t instanceId, cons
 }
 
  
-bool ConnectServerManager::AddInstance(int tid, int32_t instanceId, const std::string& instanceName)
+bool ConnectServerManager::AddInstance(int32_t tid, int32_t instanceId, const std::string& instanceName)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -286,7 +286,7 @@ void ConnectServerManager::RemoveInstance(int32_t instanceId)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "ConnectServerManager::RemoveInstance Remove instance to connect server");
     std::string instanceName;
-    int tid;
+    int32_t tid;
 
     {
         std::lock_guard<std::mutex> lock(mutex_);

@@ -236,8 +236,7 @@ int32_t AppSpawnClient::AppspawnCreateDefaultMsg(const AppSpawnStartMsg &startMs
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppAccessToken(reqHandle, startMsg.accessTokenIdEx))) {
-            HILOG_ERROR("SetAccessTokenInfo %{public}llu failed, ret: %{public}d",
-                startMsg.accessTokenIdEx, ret);
+            HILOG_ERROR("ret: %{public}d", ret);
             break;
         }
         if ((ret = AppSpawnReqMsgSetAppDomainInfo(reqHandle, startMsg.hapFlags, startMsg.apl.c_str()))) {

@@ -743,7 +743,6 @@ int AbilityManagerStub::StartAbilityInner(MessageParcel &data, MessageParcel &re
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, userId, requestCode);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -764,7 +763,6 @@ int AbilityManagerStub::StartAbilityInnerSpecifyTokenId(MessageParcel &data, Mes
     int requestCode = data.ReadInt32();
     int32_t result = StartAbilityWithSpecifyTokenId(*want, callerToken, specifyTokenId, userId, requestCode);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -854,7 +852,6 @@ int AbilityManagerStub::StartExtensionAbilityInner(MessageParcel &data, MessageP
     int32_t result = StartExtensionAbility(*want, callerToken, userId,
         static_cast<AppExecFwk::ExtensionAbilityType>(extensionType));
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -867,7 +864,6 @@ int AbilityManagerStub::RequestModalUIExtensionInner(MessageParcel &data, Messag
     }
     int32_t result = RequestModalUIExtension(*want);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -980,7 +976,6 @@ int AbilityManagerStub::StartAbilityAsCallerByTokenInner(MessageParcel &data, Me
     int32_t result = StartAbilityAsCaller(*want, callerToken, asCallerSourceToken, userId, requestCode,
         isSendDialogResult);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -1009,7 +1004,6 @@ int AbilityManagerStub::StartAbilityAsCallerForOptionInner(MessageParcel &data, 
     int requestCode = data.ReadInt32();
     int32_t result = StartAbilityAsCaller(*want, *startOptions, callerToken, asCallerSourceToken, userId, requestCode);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     delete startOptions;
     return NO_ERROR;
 }
@@ -1055,7 +1049,6 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
     bool isQueryExtensionOnly = data.ReadBool();
     int32_t result = ConnectAbilityCommon(*want, callback, token, extensionType, userId, isQueryExtensionOnly);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -1087,7 +1080,6 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
     }
 
     reply.WriteInt32(result);
-    want->CloseAllFd();
     return NO_ERROR;
 }
 
@@ -1175,7 +1167,6 @@ int AbilityManagerStub::StartAbilityForSettingsInner(MessageParcel &data, Messag
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, *abilityStartSetting, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     delete abilityStartSetting;
     return NO_ERROR;
 }
@@ -1200,7 +1191,6 @@ int AbilityManagerStub::StartAbilityForOptionsInner(MessageParcel &data, Message
     int requestCode = data.ReadInt32();
     int32_t result = StartAbility(*want, *startOptions, callerToken, userId, requestCode);
     reply.WriteInt32(result);
-    want->CloseAllFd();
     delete startOptions;
     return NO_ERROR;
 }
@@ -1723,7 +1713,6 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
     TAG_LOGD(AAFwkTag::ABILITYMGR, "resolve call ability ret = %d", result);
 
     reply.WriteInt32(result);
-    want->CloseAllFd();
 
     TAG_LOGD(AAFwkTag::ABILITYMGR, "AbilityManagerStub::StartAbilityByCallInner end.");
 

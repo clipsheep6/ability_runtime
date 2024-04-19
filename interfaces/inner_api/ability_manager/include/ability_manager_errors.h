@@ -457,6 +457,11 @@ enum {
      * Native error(2097239) for start other app failed.
      */
     ERR_START_OTHER_APP_FAILED,
+
+    /**
+     * Native error(2097240) for memory size state unchanged.
+     */
+    ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
 };
 
 enum {

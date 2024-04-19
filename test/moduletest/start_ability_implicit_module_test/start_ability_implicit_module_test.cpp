@@ -90,17 +90,10 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
         abilityMs_->userController_ = std::make_shared<UserController>();
         EXPECT_TRUE(abilityMs_->userController_);
         abilityMs_->userController_->Init();
-        int userId = MOCK_MAIN_USER_ID;
-        abilityMs_->InitConnectManager(userId, true);
-        abilityMs_->InitDataAbilityManager(userId, true);
-        abilityMs_->InitPendWantManager(userId, true);
+        abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+        abilityMs_->subManagersHelper_->InitSubManagers(MOCK_MAIN_USER_ID, true);
 
-        abilityMs_->dataAbilityManager_ = std::make_shared<DataAbilityManager>();
-        abilityMs_->dataAbilityManagers_.emplace(0, abilityMs_->dataAbilityManager_);
-        EXPECT_TRUE(abilityMs_->dataAbilityManager_);
         AmsConfigurationParameter::GetInstance().Parse();
-        abilityMs_->pendingWantManager_ = std::make_shared<PendingWantManager>();
-        EXPECT_TRUE(abilityMs_->pendingWantManager_);
         abilityMs_->iBundleManager_ = new BundleMgrService();
         EXPECT_TRUE(abilityMs_->iBundleManager_);
 
@@ -110,7 +103,6 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
         EXPECT_TRUE(abilityMs_->implicitStartProcessor_->iBundleManager_);
 
         DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType("phone");
-        abilityMs_->InitMissionListManager(userId, true);
         abilityMs_->SwitchManagers(0, false);
         abilityMs_->userController_->SetCurrentUserId(MOCK_MAIN_USER_ID);
         return;
@@ -121,10 +113,10 @@ void StartAbilityImplicitModuleTest::OnStartAms() const
 
 void StartAbilityImplicitModuleTest::OnStopAms() const
 {
-    abilityMs_->currentMissionListManager_->launcherList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->defaultStandardList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->defaultSingleList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->currentMissionLists_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_->missions_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultStandardList_->missions_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultSingleList_->missions_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.clear();
     abilityMs_->OnStop();
 }
 
@@ -169,7 +161,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_001, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord != nullptr);
 
     GTEST_LOG_(INFO) << "ability:" << abilityRecord->GetAbilityInfo().name;
@@ -201,7 +193,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_002, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
 }
 
@@ -230,7 +222,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_003, TestSize.Level1)
     EXPECT_TRUE(params.empty());
     EXPECT_TRUE(!isCallBack);
 
-    auto abilityRecord = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord != nullptr);
 }
 
@@ -259,7 +251,7 @@ HWTEST_F(StartAbilityImplicitModuleTest, StartAbility_004, TestSize.Level1)
     EXPECT_TRUE(!params.empty());
     EXPECT_TRUE(isCallBack);
 
-    auto abilityRecord = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto abilityRecord = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(abilityRecord == nullptr);
 }
 

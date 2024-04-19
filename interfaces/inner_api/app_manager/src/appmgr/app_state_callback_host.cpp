@@ -27,6 +27,7 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+constexpr int32_t CYCLE_LIMIT = 1000;
 AppStateCallbackHost::AppStateCallbackHost()
 {
     memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_APP_STATE_CHANGED)] =
@@ -35,6 +36,8 @@ AppStateCallbackHost::AppStateCallbackHost()
         &AppStateCallbackHost::HandleOnAbilityRequestDone;
     memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_CONFIG_CHANGE)] =
         &AppStateCallbackHost::HandleNotifyConfigurationChange;
+    memberFuncMap_[static_cast<uint32_t>(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS)] =
+        &AppStateCallbackHost::HandleNotifyStartResidentProcess;
 }
 
 AppStateCallbackHost::~AppStateCallbackHost()
@@ -79,6 +82,11 @@ void AppStateCallbackHost::NotifyConfigurationChange(const AppExecFwk::Configura
 {
 }
 
+void AppStateCallbackHost::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "called");
+}
+
 int32_t AppStateCallbackHost::HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply)
 {
     HITRACE_METER(HITRACE_TAG_APP);
@@ -113,6 +121,26 @@ int32_t AppStateCallbackHost::HandleNotifyConfigurationChange(MessageParcel &dat
     }
     auto userId = data.ReadInt32();
     NotifyConfigurationChange(*config, userId);
+    return NO_ERROR;
+}
+
+int32_t AppStateCallbackHost::HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply)
+{
+    std::vector<AppExecFwk::BundleInfo> bundleInfos;
+    int32_t infoSize = data.ReadInt32();
+    if (infoSize > CYCLE_LIMIT) {
+        TAG_LOGE(AAFwkTag::APPMGR, "infoSize is too large");
+        return ERR_INVALID_VALUE;
+    }
+    for (int32_t i = 0; i < infoSize; i++) {
+        std::unique_ptr<AppExecFwk::BundleInfo> bundleInfo(data.ReadParcelable<AppExecFwk::BundleInfo>());
+        if (!bundleInfo) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Read Parcelable infos failed.");
+            return ERR_INVALID_VALUE;
+        }
+        bundleInfos.emplace_back(*bundleInfo);
+    }
+    NotifyStartResidentProcess(bundleInfos);
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

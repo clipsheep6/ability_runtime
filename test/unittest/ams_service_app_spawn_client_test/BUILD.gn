@@ -45,6 +45,7 @@ ohos_unittest("AmsServiceAppSpawnClientTest") {
     "${ability_runtime_services_path}/appmgr/src/app_spawn_socket.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/child_process_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/exit_resident_process_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/render_state_observer_manager.cpp",
   ]
 

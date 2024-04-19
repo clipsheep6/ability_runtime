@@ -158,8 +158,8 @@ private:
     __attribute((constructor)) void RegisterAS##className() \
     {                                                       \
         AbilityLoader::GetInstance().RegisterAbilitySlice(  \
-            #className, []()->AbilitySlice * { return new (std::nothrow) className; });
-}
+            #className, []()->AbilitySlice * { return new (std::nothrow) className; }); \
+    }
 #endif
 }  // namespace OHOS
 }  // OHOS

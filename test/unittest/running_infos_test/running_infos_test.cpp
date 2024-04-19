@@ -141,13 +141,14 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_003, TestSize.Level1)
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_004, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -215,13 +216,14 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_005, TestSize.Level1)
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ohos.launcher", "com.ohos.launcher.MainAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -253,13 +255,14 @@ HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_006, TestSize.Level1)
 HWTEST_F(RunningInfosTest, GetAbilityRunningInfos_007, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::ACTIVE);
 
@@ -375,7 +378,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_001, TestSize.Le
 
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
-        abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
+        abilityMs_->subManagersHelper_->currentConnectManager_->GetAbilityRunningInfos(infos, true);
         size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
@@ -407,7 +410,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetAbilityRunningInfos_002, TestSize.Le
 
     if (result2 == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
-        abilityMs_->connectManager_->GetAbilityRunningInfos(infos, true);
+        abilityMs_->subManagersHelper_->currentConnectManager_->GetAbilityRunningInfos(infos, true);
 
         size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
@@ -441,7 +444,8 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_001, TestSize.
         int upperLimit = 10;
         int userId = 100;
         size_t infoCount{ 1 };
-        abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
+        abilityMs_->subManagersHelper_->currentConnectManager_->GetExtensionRunningInfos(
+            upperLimit, infos, userId, true);
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
@@ -474,7 +478,8 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.
         int upperLimit = 10;
         int userId = 100;
         size_t infoCount{ 2 };
-        abilityMs_->connectManager_->GetExtensionRunningInfos(upperLimit, infos, userId, true);
+        abilityMs_->subManagersHelper_->currentConnectManager_->GetExtensionRunningInfos(
+            upperLimit, infos, userId, true);
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
             EXPECT_TRUE(infos[0].extension.GetAbilityName() == element.GetAbilityName());
@@ -494,6 +499,7 @@ HWTEST_F(RunningInfosTest, ConnectManagerGetExtensionRunningInfos_002, TestSize.
 HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
@@ -501,7 +507,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 
     if (result == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
-        abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
+        abilityMs_->subManagersHelper_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
         size_t infoCount{ 1 };
         EXPECT_TRUE(infos.size() == infoCount);
         if (infos.size() == infoCount) {
@@ -522,13 +528,14 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_001, TestSize.Level1)
 HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
 {
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     Want want;
     ElementName element("device", "com.ix.hiMusic", "MusicAbility");
     want.SetElement(element);
     auto result = abilityMs_->StartAbility(want);
 
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+        auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
         EXPECT_TRUE(topAbility);
         topAbility->SetAbilityState(AbilityState::FOREGROUND);
     }
@@ -539,7 +546,7 @@ HWTEST_F(RunningInfosTest, MissionGetAbilityRunningInfos_002, TestSize.Level1)
 
     if (result2 == OHOS::ERR_OK) {
         std::vector<AbilityRunningInfo> infos;
-        abilityMs_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
+        abilityMs_->subManagersHelper_->currentMissionListManager_->GetAbilityRunningInfos(infos, true);
 
         size_t infoCount{ 2 };
         EXPECT_TRUE(infos.size() == infoCount);
@@ -579,11 +586,11 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_001, TestSize.Level1)
         abilityRequest.requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert(
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoading_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     std::vector<AbilityRunningInfo> infos;
-    abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->GetAbilityRunningInfos(infos, true);
     size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
@@ -619,11 +626,11 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_002, TestSize.Level1)
         abilityRequest.requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert(
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoaded_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     std::vector<AbilityRunningInfo> infos;
-    abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->GetAbilityRunningInfos(infos, true);
     size_t infoCount{ 1 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {
@@ -659,7 +666,7 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
         abilityRequest.requestCode);
     dataAbilityRecord->ability_ = abilityRecord;
     const std::string dataAbilityName(abilityRequest.abilityInfo.bundleName + '.' + abilityRequest.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoading_.insert(
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoading_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName, dataAbilityRecord));
 
     ElementName element2("device", "com.ix.hiMusic", "MusicAbilityOther");
@@ -674,11 +681,11 @@ HWTEST_F(RunningInfosTest, DataGetAbilityRunningInfos_003, TestSize.Level1)
         abilityRequest2.requestCode);
     dataAbilityRecord2->ability_ = abilityRecord2;
     const std::string dataAbilityName2(abilityRequest2.abilityInfo.bundleName + '.' + abilityRequest2.abilityInfo.name);
-    abilityMs_->dataAbilityManager_->dataAbilityRecordsLoaded_.insert(
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->dataAbilityRecordsLoaded_.insert(
         std::pair<std::string, std::shared_ptr<DataAbilityRecord>>(dataAbilityName2, dataAbilityRecord2));
 
     std::vector<AbilityRunningInfo> infos;
-    abilityMs_->dataAbilityManager_->GetAbilityRunningInfos(infos, true);
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_->GetAbilityRunningInfos(infos, true);
     size_t infoCount{ 2 };
     EXPECT_TRUE(infos.size() == infoCount);
     if (infos.size() == infoCount) {

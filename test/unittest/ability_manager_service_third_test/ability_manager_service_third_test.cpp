@@ -146,7 +146,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, VerificationAllToken_001, TestSize.Leve
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest VerificationAllToken_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     EXPECT_FALSE(abilityMs_->VerificationAllToken(nullptr));
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest VerificationAllToken_001 end");
 }
@@ -167,20 +168,21 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetDataAbilityManager_001, TestSize.Lev
 
 /*
  * Feature: AbilityManagerService
- * Function: GetListManagerByUserId
+ * Function: GetMissionListManagerByUserId
  * SubFunction: NA
- * FunctionPoints: AbilityManagerService GetListManagerByUserId
+ * FunctionPoints: AbilityManagerService GetMissionListManagerByUserId
  */
 HWTEST_F(AbilityManagerServiceThirdTest, GetListManagerByUserId_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetListManagerByUserId_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->GetListManagerByUserId(100), nullptr);
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    EXPECT_EQ(abilityMs_->GetMissionListManagerByUserId(100), nullptr);
 
-    auto temp = abilityMs_->missionListManagers_;
-    abilityMs_->missionListManagers_.clear();
-    EXPECT_EQ(abilityMs_->GetListManagerByUserId(100).get(), nullptr);
-    abilityMs_->missionListManagers_ = temp;
+    auto temp = abilityMs_->subManagersHelper_->missionListManagers_;
+    abilityMs_->subManagersHelper_->missionListManagers_.clear();
+    EXPECT_EQ(abilityMs_->GetMissionListManagerByUserId(100).get(), nullptr);
+    abilityMs_->subManagersHelper_->missionListManagers_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetListManagerByUserId_001 end");
 }
 
@@ -194,12 +196,13 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetDataAbilityManagerByUserId_001, Test
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetDataAbilityManagerByUserId_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     EXPECT_EQ(abilityMs_->GetDataAbilityManagerByUserId(100), nullptr);
 
-    auto temp = abilityMs_->dataAbilityManagers_;
-    abilityMs_->dataAbilityManagers_.clear();
+    auto temp = abilityMs_->subManagersHelper_->dataAbilityManagers_;
+    abilityMs_->subManagersHelper_->dataAbilityManagers_.clear();
     EXPECT_EQ(abilityMs_->GetDataAbilityManagerByUserId(100).get(), nullptr);
-    abilityMs_->dataAbilityManagers_ = temp;
+    abilityMs_->subManagersHelper_->dataAbilityManagers_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetDataAbilityManagerByUserId_001 end");
 }
 
@@ -313,12 +316,13 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityTokenByMissionId_001, TestSiz
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetAbilityTokenByMissionId_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     EXPECT_EQ(abilityMs_->GetAbilityTokenByMissionId(100), nullptr);
 
-    auto temp = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_.reset();
+    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
     EXPECT_EQ(abilityMs_->GetAbilityTokenByMissionId(100), nullptr);
-    abilityMs_->currentMissionListManager_ = temp;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetAbilityTokenByMissionId_001 end");
 }
 
@@ -332,7 +336,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, StartRemoteAbilityByCall_001, TestSize.
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest StartRemoteAbilityByCall_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     Want want;
     EXPECT_EQ(abilityMs_->StartRemoteAbilityByCall(want, nullptr, nullptr), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest StartRemoteAbilityByCall_001 end");
@@ -363,7 +368,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, ReleaseCall_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest ReleaseCall_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     AppExecFwk::ElementName element;
     EXPECT_EQ(abilityMs_->ReleaseCall(nullptr, element), ERR_INVALID_VALUE);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest ReleaseCall_001 end");
@@ -402,15 +408,16 @@ HWTEST_F(AbilityManagerServiceThirdTest, OnAcceptWantResponse_001, TestSize.Leve
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest OnAcceptWantResponse_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     AAFwk::Want want;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnAcceptWantResponse(want, "test");
 
-    auto temp = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_.reset();
+    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
     abilityMs_->OnAcceptWantResponse(want, "test");
-    abilityMs_->currentMissionListManager_ = temp;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest OnAcceptWantResponse_001 end");
 }
 
@@ -424,14 +431,15 @@ HWTEST_F(AbilityManagerServiceThirdTest, OnStartSpecifiedAbilityTimeoutResponse_
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest OnStartSpecifiedAbilityTimeoutResponse_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     AAFwk::Want want;
     ASSERT_NE(abilityMs_, nullptr);
     abilityMs_->OnStartSpecifiedAbilityTimeoutResponse(want);
 
-    auto temp = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_.reset();
+    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
     abilityMs_->OnStartSpecifiedAbilityTimeoutResponse(want);
-    abilityMs_->currentMissionListManager_ = temp;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest OnStartSpecifiedAbilityTimeoutResponse_001 end");
 }
 
@@ -445,25 +453,26 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetAbilityRunningInfos_001, TestSize.Le
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetAbilityRunningInfos_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     std::vector<AbilityRunningInfo> info;
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
 
-        auto temp1 = abilityMs_->currentMissionListManager_;
-        abilityMs_->currentMissionListManager_.reset();
+        auto temp1 = abilityMs_->subManagersHelper_->currentMissionListManager_;
+        abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
         EXPECT_EQ(abilityMs_->GetAbilityRunningInfos(info), ERR_INVALID_VALUE);
-        abilityMs_->currentMissionListManager_ = temp1;
+        abilityMs_->subManagersHelper_->currentMissionListManager_ = temp1;
 
-        auto temp2 = abilityMs_->connectManager_;
-        abilityMs_->connectManager_.reset();
+        auto temp2 = abilityMs_->subManagersHelper_->currentConnectManager_;
+        abilityMs_->subManagersHelper_->currentConnectManager_.reset();
         EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
-        abilityMs_->connectManager_ = temp2;
+        abilityMs_->subManagersHelper_->currentConnectManager_ = temp2;
 
-        auto temp3 = abilityMs_->dataAbilityManager_;
-        abilityMs_->dataAbilityManager_.reset();
+        auto temp3 = abilityMs_->subManagersHelper_->currentDataAbilityManager_;
+        abilityMs_->subManagersHelper_->currentDataAbilityManager_.reset();
         EXPECT_NE(abilityMs_->GetAbilityRunningInfos(info), ERR_OK);
-        abilityMs_->dataAbilityManager_ = temp3;
+        abilityMs_->subManagersHelper_->currentDataAbilityManager_ = temp3;
     }
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetAbilityRunningInfos_001 end");
 }
@@ -478,13 +487,14 @@ HWTEST_F(AbilityManagerServiceThirdTest, GetExtensionRunningInfos_001, TestSize.
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetExtensionRunningInfos_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
     std::vector<AAFwk::ExtensionRunningInfo> extensionRunningInfo;
     EXPECT_NE(abilityMs_->GetExtensionRunningInfos(10, extensionRunningInfo), ERR_OK);
 
-    auto temp = abilityMs_->connectManager_;
-    abilityMs_->connectManager_.reset();
+    auto temp = abilityMs_->subManagersHelper_->currentConnectManager_;
+    abilityMs_->subManagersHelper_->currentConnectManager_.reset();
     EXPECT_EQ(abilityMs_->GetExtensionRunningInfos(10, extensionRunningInfo), ERR_INVALID_VALUE);
-    abilityMs_->connectManager_ = temp;
+    abilityMs_->subManagersHelper_->currentConnectManager_ = temp;
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest GetExtensionRunningInfos_001 end");
 }
 
@@ -543,7 +553,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, CallRequestDone_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest CallRequestDone_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     sptr<IRemoteObject> token = nullptr;
     sptr<IRemoteObject> callStub = nullptr;
     ASSERT_NE(abilityMs_, nullptr);
@@ -779,12 +790,13 @@ HWTEST_F(AbilityManagerServiceThirdTest, BlockAbility_001, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest BlockAbility_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
-    auto temp = abilityMs_->currentMissionListManager_;
-    abilityMs_->currentMissionListManager_ = nullptr;
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    auto temp = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = nullptr;
     EXPECT_EQ(abilityMs_->BlockAbility(1), ERR_OK);
 
-    abilityMs_->currentMissionListManager_ = temp;
+    abilityMs_->subManagersHelper_->currentMissionListManager_ = temp;
     EXPECT_EQ(abilityMs_->BlockAbility(1), ERR_OK);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest BlockAbility_001 end");
 }
@@ -973,7 +985,7 @@ HWTEST_F(AbilityManagerServiceThirdTest, RegisterSessionHandler_001, TestSize.Le
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest RegisterSessionHandler_001 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_NO_INIT);
+    EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_WRONG_INTERFACE_CALL);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest RegisterSessionHandler_001 end");
 }
 
@@ -1000,7 +1012,8 @@ HWTEST_F(AbilityManagerServiceThirdTest, RegisterSessionHandler_002, TestSize.Le
 {
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest RegisterSessionHandler_002 start");
     auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    abilityMs_->uiAbilityLifecycleManager_ = std::make_shared<UIAbilityLifecycleManager>();
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->currentUIAbilityManager_ = std::make_shared<UIAbilityLifecycleManager>();
     EXPECT_EQ(abilityMs_->RegisterSessionHandler(nullptr), ERR_WRONG_INTERFACE_CALL);
     TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceThirdTest RegisterSessionHandler_002 end");
 }

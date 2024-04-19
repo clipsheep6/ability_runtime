@@ -163,6 +163,32 @@ public:
             AppExecFwk::IsTypeForNapiValue(env, para, napi_undefined);
     }
 
+    static bool IsJSFunctionExist(napi_env env, const napi_value para, const std::string& methodName)
+    {
+        if (para == nullptr) {
+            TAG_LOGE(AAFwkTag::APPMGR, "para is nullptr.");
+            return false;
+        }
+        napi_ref ref = nullptr;
+        napi_create_reference(env, para, 1, &ref);
+        NativeReference* nativeReferece = reinterpret_cast<NativeReference *>(ref);
+        auto object = nativeReferece->GetNapiValue();
+        napi_value method = nullptr;
+        napi_get_named_property(env, object, methodName.c_str(), &method);
+        if (method == nullptr) {
+            napi_delete_reference(env, ref);
+            TAG_LOGE(AAFwkTag::APPMGR, "Get name from object Failed.");
+            return false;
+        }
+        if (!AppExecFwk::IsTypeForNapiValue(env, method, napi_function)) {
+            napi_delete_reference(env, ref);
+            TAG_LOGE(AAFwkTag::APPMGR, "Illegal type not a function.");
+            return false;
+        }
+        napi_delete_reference(env, ref);
+        return true;
+    }
+
 private:
     sptr<OHOS::AppExecFwk::IAppMgr> appManager_ = nullptr;
     sptr<OHOS::AAFwk::IAbilityManager> abilityManager_ = nullptr;
@@ -350,7 +376,8 @@ private:
             ThrowTooFewParametersError(env);
             return CreateJsUndefined(env);
         }
-        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+        if (!AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object) ||
+            !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
             TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
             ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
             return CreateJsUndefined(env);
@@ -402,8 +429,9 @@ private:
             return CreateJsUndefined(env);
         }
         if (argc == ARGC_TWO) {
-            if (!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
-                !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) {
+            if ((!IsParasNullOrUndefined(env, argv[INDEX_ONE]) &&
+                !AppExecFwk::IsTypeForNapiValue(env, argv[INDEX_ONE], napi_object)) ||
+                !IsJSFunctionExist(env, argv[INDEX_ONE], "onAbilityFirstFrameDrawn")) {
                 TAG_LOGE(AAFwkTag::APPMGR, "Invalid param.");
                 ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
                 return CreateJsUndefined(env);

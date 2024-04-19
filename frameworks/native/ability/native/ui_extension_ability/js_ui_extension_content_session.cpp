@@ -280,7 +280,7 @@ napi_value JsUIExtensionContentSession::OnGetUIExtensionHostWindowProxy(napi_env
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INNER);
         return CreateJsUndefined(env);
     }
-    
+
     napi_value jsExtensionWindow =
         Rosen::JsExtensionWindow::CreateJsExtensionWindow(env, uiWindow_, sessionInfo_->hostWindowId);
     if (jsExtensionWindow == nullptr) {
@@ -520,7 +520,7 @@ void JsUIExtensionContentSession::StartAbilityForResultRuntimeTask(napi_env env,
 
 napi_value JsUIExtensionContentSession::OnTerminateSelf(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "OnTerminateSelf called");
+    TAG_LOGI(AAFwkTag::UI_EXT, "OnTerminateSelf called");
     NapiAsyncTask::CompleteCallback complete =
         [sessionInfo = sessionInfo_](napi_env env, NapiAsyncTask& task, int32_t status) {
             if (sessionInfo == nullptr) {
@@ -544,7 +544,7 @@ napi_value JsUIExtensionContentSession::OnTerminateSelf(napi_env env, NapiCallba
 
 napi_value JsUIExtensionContentSession::OnTerminateSelfWithResult(napi_env env, NapiCallbackInfo& info)
 {
-    TAG_LOGD(AAFwkTag::UI_EXT, "called");
+    TAG_LOGI(AAFwkTag::UI_EXT, "called");
     if (info.argc < ARGC_ONE) {
         TAG_LOGE(AAFwkTag::UI_EXT, "invalid param");
         ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);

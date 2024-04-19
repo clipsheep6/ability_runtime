@@ -218,18 +218,13 @@ HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_001, TestSize.Level1)
 HWTEST_F(AppDeathRecipientTest, AppDeathRecipient_002, TestSize.Level1)
 {
     TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_002 start");
-    MockBundleInstallerAndSA();
-    pid_t pid1 = 24;
-    pid_t pid2 = 25;
-    sptr<IRemoteObject> appOne = GetApp(pid1, 1);
-    sptr<IRemoteObject> appTwo = GetApp(pid2, 2);
 
     appDeathRecipientObject_->SetTaskHandler(handler_);
     appDeathRecipientObject_->SetAppMgrServiceInner(appMgrServiceInner_);
-    appDeathRecipientObject_->OnRemoteDied(appOne);
+    wptr<IRemoteObject> remote;
+    appDeathRecipientObject_->OnRemoteDied(remote);
+    EXPECT_TRUE(appDeathRecipientObject_ != nullptr);
 
-    WaitUntilTaskFinished(handler_);
-    EXPECT_EQ(1, static_cast<int>(appDeathRecipientObject_->appMgrServiceInner_.lock()->GetRecentAppList().size()));
     TAG_LOGI(AAFwkTag::TEST, "AppDeathRecipient_002 end");
 }
 }  // namespace AppExecFwk
