@@ -57,12 +57,11 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
         return ERR_OK;
     }
 
-    if (IsDelegatorCall(param.callerToken, param.want)) {
-        return ERR_OK;
-    }
-
     AppExecFwk::ApplicationInfo callerApplicationInfo;
     if (!GetApplicationInfo(param.callerToken, callerApplicationInfo)) {
+        if (IsDelegatorCall(param.want)) {
+            return ERR_OK;
+        }
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Can not find caller info");
         return ERR_INVALID_CALLER;
     }
@@ -136,17 +135,13 @@ bool StartOtherAppInterceptor::CheckCallerApiBelow12(const AppExecFwk::Applicati
     return (applicationInfo.apiTargetVersion % API_VERSION_MOD < API_SINCE_VISION);
 }
 
-bool StartOtherAppInterceptor::IsDelegatorCall(const sptr<IRemoteObject> &callerToken, const Want want)
+bool StartOtherAppInterceptor::IsDelegatorCall(const Want want)
 {
     AppExecFwk::RunningProcessInfo processInfo;
-    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(callerToken);
-    if (callerAbility) {
-        DelayedSingleton<AppScheduler>::GetInstance()->
-            GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
-        if (processInfo.isTestProcess &&
-            !callerToken && want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
-            return true;
-        }
+    DelayedSingleton<AppScheduler>::GetInstance()->
+        GetRunningProcessInfoByPid(IPCSkeleton::GetCallingPid(), processInfo);
+    if (processInfo.isTestProcess && want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+        return true;
     }
     return false;
 }
