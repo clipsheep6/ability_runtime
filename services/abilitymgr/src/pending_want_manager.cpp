@@ -165,7 +165,7 @@ bool PendingWantManager::CheckPendingWantRecordByKey(
         return false;
     }
 
-    if (!inputKey->GetRequestWantRef().IsEquals(key->GetRequestWantRef())) {
+    if (!inputKey->IsEqualsRequestWant(key->GetRequestWantRef())) {
         return false;
     }
 
