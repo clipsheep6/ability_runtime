@@ -93,7 +93,6 @@ ohos_moduletest("ability_moduletest") {
     external_deps += [
       "input:libmmi-client",
       "window_manager:libwsutils",
-      "window_manager:scene_session",
     ]
   }
 }
@@ -151,7 +150,6 @@ ohos_moduletest("ability_conetxt_test") {
     external_deps += [
       "input:libmmi-client",
       "window_manager:libwsutils",
-      "window_manager:scene_session",
     ]
   }
 }
@@ -236,7 +234,6 @@ ohos_moduletest("data_ability_operation_moduletest") {
     external_deps += [
       "input:libmmi-client",
       "window_manager:libwsutils",
-      "window_manager:scene_session",
     ]
   }
 }
