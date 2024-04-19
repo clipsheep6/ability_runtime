@@ -39,8 +39,7 @@ public:
         return true;
     }
 
-    void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true,
-        bool isNativeStart = false) override {}
+    void StartDebugMode(const DebugOption debugOption) override {}
 
     void FinishPreload() override {}
     bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) override
@@ -113,7 +112,13 @@ public:
     {
         return true;
     }
-    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath) override
+    void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath,
+                                   AbilityRuntime::RuntimeType type) override
+    {
+        return;
+    }
+    void LoadRepairFormPatch(const std::string& patchFile, const std::string& baseFile,
+                             const std::string &bundleName, const std::string &moduleName) override
     {
         return;
     }
@@ -122,8 +127,7 @@ public:
         return;
     }
     
-    void StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
-        bool isDebug = true, bool isNativeStart = false) override {}
+    void StartProfiler(const DebugOption debugOption) override {}
 
     void DoCleanWorkAfterStageCleaned() override {}
     void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {}
