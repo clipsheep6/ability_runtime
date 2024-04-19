@@ -999,7 +999,7 @@ int AbilityManagerProxy::ConnectAbility(
 
 int AbilityManagerProxy::ConnectAbilityCommon(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken,
-    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId, bool isQueryExtensionOnly)
+    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId, bool isQueryExtensionOnly, bool fastCheck)
 {
     MessageParcel data;
     MessageParcel reply;
@@ -1024,6 +1024,7 @@ int AbilityManagerProxy::ConnectAbilityCommon(
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, static_cast<int32_t>(extensionType));
     PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, isQueryExtensionOnly);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Bool, fastCheck);
     int error = SendRequest(AbilityManagerInterfaceCode::CONNECT_ABILITY_WITH_TYPE, data, reply, option);
     if (error != NO_ERROR) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "%{public}s, Send request error: %{public}d", __func__, error);

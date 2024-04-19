@@ -94,7 +94,7 @@ void ExtensionManagerClient::ExtensionMgrDeathRecipient::OnRemoteDied(const wptr
 }
 
 ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
-    const sptr<IRemoteObject> &connect, int32_t userId)
+    const sptr<IRemoteObject> &connect, int32_t userId, bool fastCheck)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
@@ -106,11 +106,11 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     TAG_LOGD(AAFwkTag::EXTMGR, "name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
     return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::SERVICE,
-        userId, false);
+        userId, false, fastCheck);
 }
 
-ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
-    const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
+    const sptr<IRemoteObject> &callerToken, int32_t userId, bool fastCheck)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
@@ -121,12 +121,12 @@ ErrCode ExtensionManagerClient::ConnectServiceExtensionAbility(const Want &want,
     }
     TAG_LOGI(AAFwkTag::EXTMGR, "name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(
-        want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId, false);
+    return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::SERVICE, userId,
+        false, fastCheck);
 }
 
 ErrCode ExtensionManagerClient::ConnectEnterpriseAdminExtensionAbility(const Want &want,
-    const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId)
+    const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId, bool fastCheck)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
@@ -137,12 +137,12 @@ ErrCode ExtensionManagerClient::ConnectEnterpriseAdminExtensionAbility(const Wan
     }
     TAG_LOGI(AAFwkTag::EXTMGR, "name:%{public}s %{public}s, userId:%{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(
-        want, connect, callerToken, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN, userId, true);
+    return abms->ConnectAbilityCommon(want, connect, callerToken, AppExecFwk::ExtensionAbilityType::ENTERPRISE_ADMIN,
+        userId, true, fastCheck);
 }
 
 ErrCode ExtensionManagerClient::ConnectExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
-    int32_t userId)
+    int32_t userId, bool fastCheck)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     auto abms = GetExtensionManager();
@@ -154,7 +154,8 @@ ErrCode ExtensionManagerClient::ConnectExtensionAbility(const Want &want, const 
 
     TAG_LOGI(AAFwkTag::EXTMGR, "bundleName: %{public}s, abilityName: %{public}s, userId: %{public}d.",
         want.GetElement().GetBundleName().c_str(), want.GetElement().GetAbilityName().c_str(), userId);
-    return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::UNSPECIFIED, userId);
+    return abms->ConnectAbilityCommon(want, connect, nullptr, AppExecFwk::ExtensionAbilityType::UNSPECIFIED, userId,
+        false, fastCheck);
 }
 
 ErrCode ExtensionManagerClient::DisconnectAbility(const sptr<IRemoteObject> &connect)

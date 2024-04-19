@@ -514,7 +514,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        bool isQueryExtensionOnly = false) override;
+        bool isQueryExtensionOnly = false,
+        bool fastCheck = false) override;
 
     virtual int ConnectUIExtensionAbility(
         const Want &want,

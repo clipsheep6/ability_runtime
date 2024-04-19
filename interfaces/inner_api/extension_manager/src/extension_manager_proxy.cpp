@@ -34,7 +34,7 @@ bool ExtensionManagerProxy::WriteInterfaceToken(MessageParcel &data)
 
 int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRemoteObject> &connect,
     const sptr<IRemoteObject> &callerToken, AppExecFwk::ExtensionAbilityType extensionType, int32_t userId,
-    bool isQueryExtensionOnly)
+    bool isQueryExtensionOnly, bool fastCheck)
 {
     if (connect == nullptr) {
         TAG_LOGE(AAFwkTag::EXTMGR, "connect is nullptr");
@@ -72,8 +72,8 @@ int ExtensionManagerProxy::ConnectAbilityCommon(const Want &want, const sptr<IRe
         TAG_LOGE(AAFwkTag::EXTMGR, "%{public}s, extensionType write failed.", __func__);
         return INNER_ERR;
     }
-    if (!data.WriteBool(isQueryExtensionOnly)) {
-        TAG_LOGE(AAFwkTag::EXTMGR, "isQueryExtensionOnly write failed.");
+    if (!data.WriteBool(isQueryExtensionOnly) || !data.WriteBool(fastCheck)) {
+        TAG_LOGE(AAFwkTag::EXTMGR, "isQueryExtensionOnly or fastCheck write failed.");
         return INNER_ERR;
     }
 

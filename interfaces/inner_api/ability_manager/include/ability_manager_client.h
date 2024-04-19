@@ -444,7 +444,8 @@ public:
      * @param connect, Callback used to notify caller the result of connecting or disconnecting.
      * @return Returns ERR_OK on success, others on failure.
      */
-    ErrCode ConnectAbility(const Want &want, sptr<IAbilityConnection> connect, int32_t userId);
+    ErrCode ConnectAbility(const Want &want, sptr<IAbilityConnection> connect, int32_t userId,
+        bool fastCheck = false);
 
     /**
      * ConnectAbility, connect session with service ability.
@@ -458,7 +459,8 @@ public:
         const Want &want,
         sptr<IAbilityConnection> connect,
         sptr<IRemoteObject> callerToken,
-        int32_t userId = DEFAULT_INVAL_VALUE);
+        int32_t userId = DEFAULT_INVAL_VALUE,
+        bool fastCheck = false);
 
     /**
      * Connect data share extension ability.
@@ -469,7 +471,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ConnectDataShareExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
-        int32_t userId = DEFAULT_INVAL_VALUE);
+        int32_t userId = DEFAULT_INVAL_VALUE, bool fastCheck = false);
 
     /**
      * Connect extension ability.
@@ -480,7 +482,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ConnectExtensionAbility(const Want &want, sptr<IAbilityConnection> connect,
-        int32_t userId = DEFAULT_INVAL_VALUE);
+        int32_t userId = DEFAULT_INVAL_VALUE, bool fastCheck = false);
 
     /**
      * Connect ui extension ability.

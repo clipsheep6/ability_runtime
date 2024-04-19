@@ -136,8 +136,8 @@ ErrCode AbilityManagerClient::TerminateAbility(sptr<IRemoteObject> token, int re
     return abms->TerminateAbility(token, resultCode, resultWant);
 }
 
-ErrCode AbilityManagerClient::ConnectAbility(
-    const Want& want, sptr<IAbilityConnection> connect, sptr<IRemoteObject> callerToken, int32_t userId)
+ErrCode AbilityManagerClient::ConnectAbility(const Want& want, sptr<IAbilityConnection> connect,
+    sptr<IRemoteObject> callerToken, int32_t userId, bool)
 {
     if (remoteObject_ == nullptr) {
         remoteObject_ =

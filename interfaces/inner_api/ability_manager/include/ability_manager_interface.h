@@ -558,7 +558,8 @@ public:
         const sptr<IRemoteObject> &callerToken,
         AppExecFwk::ExtensionAbilityType extensionType,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        bool isQueryExtensionOnly = false)
+        bool isQueryExtensionOnly = false,
+        bool fastCheck = false)
     {
         return 0;
     }

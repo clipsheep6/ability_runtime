@@ -1057,7 +1057,9 @@ int AbilityManagerStub::ConnectAbilityWithTypeInner(MessageParcel &data, Message
     int32_t userId = data.ReadInt32();
     AppExecFwk::ExtensionAbilityType extensionType = static_cast<AppExecFwk::ExtensionAbilityType>(data.ReadInt32());
     bool isQueryExtensionOnly = data.ReadBool();
-    int32_t result = ConnectAbilityCommon(*want, callback, token, extensionType, userId, isQueryExtensionOnly);
+    bool fastCheck = data.ReadBool();
+    int32_t result = ConnectAbilityCommon(*want, callback, token, extensionType, userId, isQueryExtensionOnly,
+        fastCheck);
     reply.WriteInt32(result);
     return NO_ERROR;
 }

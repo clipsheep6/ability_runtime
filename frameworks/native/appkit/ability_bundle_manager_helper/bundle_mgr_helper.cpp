@@ -796,5 +796,27 @@ ErrCode BundleMgrHelper::GetLaunchWantForBundle(const std::string &bundleName, W
     return bundleMgr->GetLaunchWantForBundle(bundleName, want, userId);
 }
 
+bool BundleMgrHelper::FastCheckBundleMgr()
+{
+    {
+        std::lock_guard guard(mutex_);
+        if (bundleMgr_ != nullptr) {
+            return true;
+        }
+    }
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityManager == nullptr) {
+        TAG_LOGE(AAFwkTag::BUNDLEMGRHELPER, "Failed to get system ability manager.");
+        return false;
+    }
+
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->CheckSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (remoteObject == nullptr) {
+        TAG_LOGW(AAFwkTag::BUNDLEMGRHELPER, "Failed to get bundle mgr service remote object.");
+        return false;
+    }
+    return true;
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

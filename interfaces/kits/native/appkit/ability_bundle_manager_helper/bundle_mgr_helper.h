@@ -91,13 +91,14 @@ public:
         const uint32_t flag, const int32_t userId, std::vector<ExtensionAbilityInfo> &extensionInfos);
     sptr<IDefaultApp> GetDefaultAppProxy();
     ErrCode GetLaunchWantForBundle(const std::string &bundleName, Want &want, int32_t userId);
+    bool FastCheckBundleMgr();
 
 private:
     sptr<IBundleMgr> Connect();
     sptr<IBundleInstaller> ConnectBundleInstaller();
     void OnDeath();
     std::string ParseBundleNameByAppId(const std::string &appId) const;
-	
+
 private:
     DECLARE_DELAYED_SINGLETON(BundleMgrHelper)
     std::mutex mutex_;

@@ -34,13 +34,14 @@ public:
     virtual ~ExtensionManagerClient() = default;
     static ExtensionManagerClient& GetInstance();
 
-    ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect, int32_t userId);
+    ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect, int32_t userId,
+        bool fastCheck = false);
 
     ErrCode ConnectServiceExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
-        const sptr<IRemoteObject> &callerToken, int32_t userId);
+        const sptr<IRemoteObject> &callerToken, int32_t userId, bool fastCheck = false);
 
-    ErrCode ConnectEnterpriseAdminExtensionAbility(const Want &want,
-        const sptr<IRemoteObject> &connect, const sptr<IRemoteObject> &callerToken, int32_t userId);
+    ErrCode ConnectEnterpriseAdminExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
+        const sptr<IRemoteObject> &callerToken, int32_t userId, bool fastCheck = false);
 
     /**
      * Connect extension ability.
@@ -51,7 +52,7 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode ConnectExtensionAbility(const Want &want, const sptr<IRemoteObject> &connect,
-        int32_t userId = DEFAULT_INVALID_USER_ID);
+        int32_t userId = DEFAULT_INVALID_USER_ID, bool fastCheck = false);
 
     /**
      * Disconnect session with extension ability.

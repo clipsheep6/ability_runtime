@@ -3318,13 +3318,20 @@ int AbilityManagerService::ConnectAbility(
 
 int AbilityManagerService::ConnectAbilityCommon(
     const Want &want, const sptr<IAbilityConnection> &connect, const sptr<IRemoteObject> &callerToken,
-    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId, bool isQueryExtensionOnly)
+    AppExecFwk::ExtensionAbilityType extensionType, int32_t userId, bool isQueryExtensionOnly, bool fastCheck)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGI(AAFwkTag::ABILITYMGR,
         "Connect ability called, element uri: %{public}s.", want.GetElement().GetURI().c_str());
     CHECK_POINTER_AND_RETURN(connect, ERR_INVALID_VALUE);
     CHECK_POINTER_AND_RETURN(connect->AsObject(), ERR_INVALID_VALUE);
+    if (fastCheck) {
+        auto bundleHelper = AbilityUtil::GetBundleManagerHelper();
+        if (!bundleHelper || !bundleHelper->FastCheckBundleMgr()) {
+            TAG_LOGE(AAFwkTag::ABILITYMGR, "FastCheckBundleMgr failed.");
+            return GET_BUNDLE_MANAGER_SERVICE_FAILED;
+        }
+    }
     if (extensionType == AppExecFwk::ExtensionAbilityType::SERVICE && IsCrossUserCall(userId)) {
         CHECK_CALLER_IS_SYSTEM_APP;
     }
