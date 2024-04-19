@@ -74,6 +74,10 @@ class UIExtensionContext extends ExtensionContext {
   openAtomicService(appId, options, callback) {
     return this.__context_impl__.openAtomicService(appId, options, callback);
   }
+
+  testMethod(callback) {
+    return this.__context_impl__.testMethod(callback);
+  }
 }
 
 export default UIExtensionContext;

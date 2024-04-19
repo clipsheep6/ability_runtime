@@ -15,4 +15,8 @@
 
 let UIExtensionAbility = requireNapi('app.ability.UIExtensionAbility');
 
-export default class ShareExtensionAbility extends UIExtensionAbility {}
+export default class ShareExtensionAbility extends UIExtensionAbility {
+    onTest(){
+        console.log('wangkailong onTest');
+    }
+}
