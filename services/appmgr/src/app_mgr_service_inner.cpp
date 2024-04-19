@@ -3570,8 +3570,7 @@ int32_t AppMgrServiceInner::RegisterConfigurationObserver(const sptr<IConfigurat
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
-        }
-    );
+        });
     if (it != configurationObservers_.end()) {
         TAG_LOGE(AAFwkTag::APPMGR, "AppMgrServiceInner::Register error: observer exist");
         return ERR_INVALID_VALUE;
@@ -3591,8 +3590,7 @@ int32_t AppMgrServiceInner::UnregisterConfigurationObserver(const sptr<IConfigur
     auto it = std::find_if(configurationObservers_.begin(), configurationObservers_.end(),
         [&observer](const sptr<IConfigurationObserver> &item) {
             return (item && item->AsObject() == observer->AsObject());
-        }
-    );
+        });
     if (it != configurationObservers_.end()) {
         configurationObservers_.erase(it);
         return NO_ERROR;
@@ -3935,7 +3933,6 @@ int AppMgrServiceInner::VerifyAccountPermission(const std::string &permissionNam
 int AppMgrServiceInner::VerifyRequestPermission() const
 {
     auto callerUid = IPCSkeleton::GetCallingUid();
-
     if (callerUid == ROOT_UID || callerUid == FOUNDATION_UID) {
         return ERR_OK;
     } else {

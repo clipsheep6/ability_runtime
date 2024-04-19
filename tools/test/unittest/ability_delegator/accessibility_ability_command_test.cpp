@@ -255,7 +255,7 @@ HWTEST_F(AccessibilityAbilityShellCommandTest, AccessibilityAbilityShellCommand_
  * @tc.name: GetEnabledAbilities
  * @tc.desc: Test whether GetEnabledAbilities is called normally.
  */
-HWTEST_F(AccessibilityAbilityShellCommandTest, 
+HWTEST_F(AccessibilityAbilityShellCommandTest,
 AccessibilityAbilityShellCommand_GetEnabledAbilities_0100, TestSize.Level1)
 {
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_GetEnabledAbilities_0100 start";
@@ -330,7 +330,7 @@ AccessibilityAbilityShellCommand_CheckAbilityArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckAbilityArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckAbilityArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_DUPLICATE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckAbilityArgument_0200 end";
@@ -423,7 +423,7 @@ AccessibilityAbilityShellCommand_CheckBundleArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckBundleArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckBundleArgument(argument, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_DUPLICATE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckBundleArgument_0200 end";
@@ -543,7 +543,7 @@ AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300, TestSize.Level1
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCapabilitiesArgument(argument,installedAbilities,resultMessage);
+    ErrCode result = cmd.CheckCapabilitiesArgument(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, ACCESSIBILITY_ABILITY_NO_CAPABILITIES_ARGUMENT_VALUE);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCapabilitiesArgument_0300 end";
@@ -615,7 +615,7 @@ AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckSetCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckSetCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": unknown arguments ");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckSetCommandArgument_0200 end";
@@ -907,7 +907,7 @@ AccessibilityAbilityShellCommand_CheckParamValidity_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    bool result = cmd.CheckParamValidity(argument,installedAbilities,resultMessage);
+    bool result = cmd.CheckParamValidity(argument, installedAbilities, resultMessage);
     EXPECT_EQ(result, false);
     EXPECT_EQ(resultMessage, "the auxiliary application " +
             argument.bundleName + "/" + argument.abilityName + ACCESSIBILITY_ABILITY_NOT_FOUND);
@@ -1051,7 +1051,7 @@ AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400, TestSize.Level
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckEnableCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckEnableCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": " + ACCESSIBILITY_ABILITY_NO_BUNDLE_ARGUMENT);
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckEnableCommandArgument_0400 end";
@@ -2878,7 +2878,7 @@ AccessibilityAbilityShellCommand_CheckCommandArgument_0200, TestSize.Level1)
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
     AccessibilityAbilityShellCommand cmd(argc, argv);
-    ErrCode result = cmd.CheckCommandArgument(argument,resultMessage);
+    ErrCode result = cmd.CheckCommandArgument(argument, resultMessage);
     EXPECT_EQ(result, OHOS::ERR_INVALID_VALUE);
     EXPECT_EQ(resultMessage, ": unknown arguments exist.");
     GTEST_LOG_(INFO) << "AccessibilityAbilityShellCommand_CheckCommandArgument_0200 end";
