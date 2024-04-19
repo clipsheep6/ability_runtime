@@ -18,6 +18,7 @@
 
 #include "configuration.h"
 #include "share_extension.h"
+#include "js_ui_extension_base.h"
 
 class NativeReference;
 
@@ -25,11 +26,12 @@ namespace OHOS {
 namespace AbilityRuntime {
 class ShareExtension;
 class JsRuntime;
-class JsUIExtensionBase;
 /**
  * @brief Basic share extension components.
  */
-class JsShareExtension : public ShareExtension, public std::enable_shared_from_this<JsShareExtension> {
+class JsShareExtension : public ShareExtension,
+                         public JsUIExtensionBase,
+                         public std::enable_shared_from_this<JsShareExtension> {
 public:
     explicit JsShareExtension(const std::unique_ptr<Runtime> &runtime);
     virtual ~JsShareExtension() override;
@@ -41,6 +43,10 @@ public:
      * @return The JsShareExtension instance.
      */
     static JsShareExtension *Create(const std::unique_ptr<Runtime> &runtime);
+
+    void OnForeground(const Want &want, sptr<AAFwk::SessionInfo> sessionInfo) override;
+
+    void BindContext() override;
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
