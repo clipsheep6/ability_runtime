@@ -13,7 +13,6 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 ohos_shared_library("particleability") {
   include_dirs = [
@@ -44,8 +43,6 @@ ohos_shared_library("particleability") {
     "${ability_runtime_native_path}/ability/native:abilitykit_native",
     "${ability_runtime_native_path}/ability/native:data_ability_helper",
     "${ability_runtime_native_path}/appkit:appkit_native",
-    "//third_party/jsoncpp:jsoncpp",
-    "//third_party/libuv:uv",
   ]
 
   external_deps = [
@@ -58,6 +55,8 @@ ohos_shared_library("particleability") {
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
+    "libuv:uv",
     "napi:ace_napi",
   ]
 

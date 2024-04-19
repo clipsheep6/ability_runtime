@@ -32,12 +32,13 @@ ohos_source_set("sa_mgr_mock") {
     "${ability_runtime_services_path}/common:common_config",
   ]
 
-  deps = [ "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy" ]
+  deps = []
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "ability"

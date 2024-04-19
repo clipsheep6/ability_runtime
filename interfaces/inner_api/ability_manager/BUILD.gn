@@ -139,7 +139,6 @@ ohos_shared_library("ability_manager") {
     ":mission_info",
     ":process_options",
     "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "//third_party/jsoncpp:jsoncpp",
   ]
 
   external_deps = [
@@ -157,6 +156,7 @@ ohos_shared_library("ability_manager") {
     "hisysevent:libhisysevent",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",

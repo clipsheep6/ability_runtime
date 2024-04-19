@@ -292,12 +292,12 @@ ohos_source_set("abilityms_test_source") {
     ]
     deps += [
       "${ace_engine_path}/interfaces/inner_api/ui_service_manager:ui_service_mgr",
-      "${global_path}/i18n/frameworks/intl:intl_util",
-      "${multimedia_path}/interfaces/innerkits:image_native",
-      "//third_party/icu/icu4c:shared_icuuc",
       "//third_party/libjpeg-turbo:turbojpeg_static",
     ]
     external_deps += [
+      "i18n:intl_util",
+      "icu:shared_icuuc",
+      "image_framework:image_native",
       "input:libmmi-client",
       "window_manager:libdm",
       "window_manager:libmodal_system_ui_extension_client",

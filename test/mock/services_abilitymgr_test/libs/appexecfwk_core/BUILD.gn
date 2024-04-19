@@ -28,7 +28,7 @@ config("appexecfwk_core_mock_config") {
   ]
 }
 
-ohos_source_set("appexecfwk_appmgr_mock") {
+ohos_shared_library("appexecfwk_appmgr_mock") {
   # sources = [ "src/appmgr/mock_app_manager.cpp" ]
 
   configs = [ ":appexecfwk_core_mock_config" ]
@@ -36,11 +36,7 @@ ohos_source_set("appexecfwk_appmgr_mock") {
   if (target_cpu == "arm") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
-  deps = [
-    "${ability_runtime_innerkits_path}/app_manager:app_manager",
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-  ]
+  deps = [ "${ability_runtime_innerkits_path}/app_manager:app_manager" ]
 
   external_deps = [
     "bundle_framework:appexecfwk_base",
@@ -49,6 +45,8 @@ ohos_source_set("appexecfwk_appmgr_mock") {
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "ability"
@@ -70,8 +68,6 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
     cflags += [ "-DBINDER_IPC_32BIT" ]
   }
   deps = [
-    "${distributedschedule_path}/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-    "${distributedschedule_path}/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
     "//third_party/googletest:gmock_main",
     "//third_party/googletest:gtest_main",
   ]
@@ -85,6 +81,8 @@ ohos_source_set("appexecfwk_bundlemgr_mock") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
   ]
 
   subsystem_name = "ability"

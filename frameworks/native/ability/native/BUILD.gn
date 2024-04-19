@@ -13,7 +13,6 @@
 
 import("//build/ohos.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
-import("//foundation/distributeddatamgr/relational_store/relational_store.gni")
 
 config("ability_config") {
   visibility = [ ":*" ]
