@@ -529,24 +529,16 @@ ContainerScope::UpdateCurrent(-1);
 #endif
 }
 
-void StartDebuggerInWorkerModule()
+void StartDebuggerInWorkerModule(bool isDebugApp, bool isNativeStart)
 {
     g_debugMode = true;
-}
-
-void SetDebuggerApp(bool isDebugApp)
-{
     g_debugApp = isDebugApp;
+    g_nativeStart = isNativeStart;
 }
 
 void SetJsFramework()
 {
     g_jsFramework = true;
-}
-
-void SetNativeStart(bool isNativeStart)
-{
-    g_nativeStart = isNativeStart;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

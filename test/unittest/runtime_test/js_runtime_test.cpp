@@ -567,11 +567,12 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
     TAG_LOGI(AAFwkTag::TEST, "StartDebugMode start");
 
     auto jsRuntime = std::make_unique<JsRuntime>();
-
-    bool needBreakPoint = true;
-    bool debugApp = true;
-    const std::string processName = "test";
-    jsRuntime->StartDebugMode(needBreakPoint, processName, debugApp, false);
+    AbilityRuntime::Runtime::DebugOption debugOption;
+    debugOption.isStartWithDebug = true;
+    debugOption.processName = "test";
+    debugOption.isDebugApp = true;
+    debugOption.isStartWithNative = false;
+    jsRuntime->StartDebugMode(debugOption);
     EXPECT_TRUE(jsRuntime != nullptr);
 
     jsRuntime.reset();
@@ -1073,10 +1074,13 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
     uint32_t instanceId = 1;
     jsRuntime->StartDebugger(needBreakPoint, instanceId);
 
-    const std::string perfCmd = "profile jsperf 100";
-    bool debugApp = true;
-    const std::string processName = "test";
-    jsRuntime->StartProfiler(perfCmd, needBreakPoint, processName, debugApp, false);
+    AbilityRuntime::Runtime::DebugOption debugOption;
+    debugOption.perfCmd = "profile jsperf 100";
+    debugOption.isStartWithDebug = false;
+    debugOption.processName = "test";
+    debugOption.isDebugApp = true;
+    debugOption.isStartWithNative = false;
+    jsRuntime->StartProfiler(debugOption);
     ASSERT_NE(jsRuntime, nullptr);
     jsRuntime.reset();
 }

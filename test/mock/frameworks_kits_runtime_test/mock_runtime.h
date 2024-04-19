@@ -39,8 +39,7 @@ public:
         return true;
     }
 
-    void StartDebugMode(bool needBreakPoint, const std::string &processName, bool isDebug = true,
-        bool isNativeStart = false) override {}
+    void StartDebugMode(const DebugOption debugOption) override {}
 
     void FinishPreload() override {}
     bool LoadRepairPatch(const std::string& patchFile, const std::string& baseFile) override
@@ -122,8 +121,7 @@ public:
         return;
     }
     
-    void StartProfiler(const std::string &perfCmd, bool needBreakPoint, const std::string &processName,
-        bool isDebug = true, bool isNativeStart = false) override {}
+    void StartProfiler(const DebugOption debugOption) override {}
 
     void DoCleanWorkAfterStageCleaned() override {}
     void DumpHeapSnapshot(uint32_t tid, bool isFullGC) override {}
