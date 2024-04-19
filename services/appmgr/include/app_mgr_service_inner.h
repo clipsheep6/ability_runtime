@@ -980,6 +980,19 @@ public:
      */
     void ClearProcessByToken(sptr<IRemoteObject> token);
 
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent);
+
+    /**
+     * whether memory size is sufficent.
+     * @return Returns true is sufficent memory size, others return false.
+     */
+    bool IsMemorySizeSufficent();
+
     int32_t RegisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
 
     int32_t UnregisterRenderStateObserver(const sptr<IRenderStateObserver> &observer);
@@ -1342,6 +1355,7 @@ private:
     bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
     int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
     void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord);
+    void StartResidentProcessWithMainElement(const std::vector<AppExecFwk::BundleInfo> &bundleInfos);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;

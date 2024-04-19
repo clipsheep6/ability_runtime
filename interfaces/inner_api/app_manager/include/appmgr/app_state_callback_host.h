@@ -22,6 +22,7 @@
 #include "nocopyable.h"
 #include "string_ex.h"
 #include "app_mgr_constants.h"
+#include "bundle_info.h"
 #include "iapp_state_callback.h"
 
 namespace OHOS {
@@ -56,10 +57,17 @@ public:
      */
     virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
 
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+
 private:
     int32_t HandleOnAppStateChanged(MessageParcel &data, MessageParcel &reply);
     int32_t HandleOnAbilityRequestDone(MessageParcel &data, MessageParcel &reply);
     int32_t HandleNotifyConfigurationChange(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyStartResidentProcess(MessageParcel &data, MessageParcel &reply);
 
     using AppStateCallbackFunc = int32_t (AppStateCallbackHost::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppStateCallbackFunc> memberFuncMap_;

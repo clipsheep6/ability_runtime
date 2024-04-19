@@ -19,6 +19,7 @@
 #include "iremote_proxy.h"
 
 #include "app_mgr_constants.h"
+#include "bundle_info.h"
 #include "iapp_state_callback.h"
 
 namespace OHOS {
@@ -49,6 +50,12 @@ public:
      * @param userId userId Designation User ID.
      */
     virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
+
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
 
 private:
     bool WriteInterfaceToken(MessageParcel &data);

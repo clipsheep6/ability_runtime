@@ -109,6 +109,32 @@ void AppStateCallbackProxy::NotifyConfigurationChange(const AppExecFwk::Configur
     }
 }
 
+void AppStateCallbackProxy::NotifyStartResidentProcess(const std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "WriteInterfaceToken failed");
+        return;
+    }
+
+    if (!data.WriteInt32(bundleInfos.size())) {
+        TAG_LOGE(AAFwkTag::APPMGR, "write bundle info size failed.");
+        return;
+    }
+
+    for (auto &bundleInfo : bundleInfos) {
+        if (!data.WriteParcelable(&bundleInfo)) {
+            TAG_LOGE(AAFwkTag::APPMGR, "write bundle info failed");
+            return;
+        }
+    }
+    if (!SendTransactCmd(IAppStateCallback::Message::TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS, data, reply)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "SendTransactCmd failed");
+    }
+}
+
 int32_t AppStateCallbackProxy::SendTransactCmd(uint32_t code, MessageParcel &data,
     MessageParcel &reply, MessageOption &option)
 {

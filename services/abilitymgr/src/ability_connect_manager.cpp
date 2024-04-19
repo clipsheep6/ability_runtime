@@ -1926,7 +1926,9 @@ void AbilityConnectManager::HandleAbilityDiedTask(
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
         }
-        RestartAbility(abilityRecord, currentUserId);
+        if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() || IsLauncher(abilityRecord)) {
+            RestartAbility(abilityRecord, currentUserId);
+        }
     } else {
         if (isRemove) {
             HandleNotifyAssertFaultDialogDied(abilityRecord);

@@ -1874,5 +1874,26 @@ int32_t AppMgrProxy::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid
 
     return reply.ReadInt32();
 }
+
+int32_t AppMgrProxy::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return INNER_ERR;
+    }
+    if (!data.WriteBool(isMemorySizeSufficent)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isMemorySizeSufficent fail.");
+        return ERR_INVALID_VALUE;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
+    return reply.ReadInt32();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS
