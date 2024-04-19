@@ -267,6 +267,8 @@ public:
 
     void SignRestartAppFlag(const std::string &bundleName);
 
+    void DeleteInvalidServiceRecord(const std::string &bundleName);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;

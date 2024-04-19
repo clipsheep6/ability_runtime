@@ -2731,6 +2731,18 @@ void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
     }
 }
 
+void AbilityConnectManager::DeleteInvalidServiceRecord(const std::string &bundleName)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Delete invalid record by %{public}s.", bundleName.c_str());
+    for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
+        if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName) {
+            serviceMap_.erase(it++);
+        } else {
+            it++;
+        }
+    }
+}
+
 EventInfo AbilityConnectManager::BuildEventInfo(const std::shared_ptr<AbilityRecord> &abilityRecord)
 {
     EventInfo eventInfo;
