@@ -16,10 +16,10 @@
 @Entry
 @Component
 struct SwitchUserDialog {
-  private TAG = "SwitchUserDialog_Page"
+  private TAG = 'SwitchUserDialog_Page'
 
   aboutToAppear() {
-    console.info(this.TAG, "dialog page appears");
+    console.info(this.TAG, 'dialog page appears');
   }
 
   build() {
@@ -27,7 +27,7 @@ struct SwitchUserDialog {
       Flex({ justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
         Text($r('app.string.message_title_switchUser'))
           .fontSize(16)
-          .fontColor("#000000")
+          .fontColor('#000000')
           .fontFamily('HarmonyHeiTi')
           .fontWeight(FontWeight.Medium)
           .textOverflow({overflow: TextOverflow.Ellipsis})
@@ -37,7 +37,7 @@ struct SwitchUserDialog {
     }
     .borderRadius(16)
     .borderWidth(1)
-    .borderColor("#e9e9e9")
-    .backgroundColor("#FFFFFF")
+    .borderColor('#e9e9e9')
+    .backgroundColor('#FFFFFF')
   }
 }

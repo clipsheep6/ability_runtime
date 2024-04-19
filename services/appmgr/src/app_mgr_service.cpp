@@ -802,7 +802,7 @@ int32_t AppMgrService::StartRenderProcess(const std::string &renderParam, int32_
 
 void AppMgrService::AttachRenderProcess(const sptr<IRemoteObject> &scheduler)
 {
-    TAG_LOGD(AAFwkTag::APPMGR, "AttachRenderProcess called.");
+    TAG_LOGI(AAFwkTag::APPMGR, "AttachRenderProcess called.");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "AttachRenderProcess failed, not ready.");
         return;
@@ -1317,6 +1317,16 @@ int32_t AppMgrService::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<p
     }
 
     return appMgrServiceInner_->GetAllUIExtensionProviderPid(hostPid, providerPids);
+}
+
+int32_t AppMgrService::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AppMgrService is not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+
+    return appMgrServiceInner_->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS

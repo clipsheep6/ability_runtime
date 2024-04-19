@@ -31,10 +31,7 @@ ohos_unittest("app_mgr_service_dump_ipc_test") {
     "mock/src/mock_permission_verification.cpp",
   ]
 
-  configs = [
-    "${ability_runtime_services_path}/appmgr:appmgr_config",
-    "${ability_runtime_services_path}/common:common_config",
-  ]
+  configs = [ "${ability_runtime_services_path}/appmgr:appmgr_config" ]
 
   deps = [
     "${ability_runtime_services_path}/appmgr:libappms",

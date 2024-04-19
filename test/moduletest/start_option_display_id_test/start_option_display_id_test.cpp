@@ -64,7 +64,7 @@ HWTEST_F(StartOptionDisplayIdTest, start_option_001, TestSize.Level1)
     option.SetDisplayID(DISPLAY_ID);
     auto result = abilityMgrServ_->StartAbility(want, option, nullptr, USER_ID_U100, 0);
     if (result == OHOS::ERR_OK) {
-        auto topAbility = abilityMgrServ_->GetListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
+        auto topAbility = abilityMgrServ_->GetMissionListManagerByUserId(USER_ID_U100)->GetCurrentTopAbilityLocked();
         if (topAbility) {
             auto defualtDisplayId = 0;
             auto displayId = topAbility->GetWant().GetIntParam(Want::PARAM_RESV_DISPLAY_ID, defualtDisplayId);

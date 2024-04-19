@@ -295,27 +295,6 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnConfigurationUpdated_0100, Fu
 }
 
 /**
- * @tc.number: AppExecFwk_Application_OnMemoryLevel_0100
- * @tc.name: OnMemoryLevel
- * @tc.desc: Test whether onmemorylevel is called normally.
- */
-HWTEST_F(ApplicationTest, AppExecFwk_Application_OnMemoryLevel_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_Application_OnMemoryLevel_0100 start";
-
-    EXPECT_NE(ApplicationTest_, nullptr);
-    if (ApplicationTest_ != nullptr) {
-        std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
-        ApplicationTest_->RegisterElementsCallbacks(callback);
-
-        ApplicationTest_->OnMemoryLevel(1);
-
-        ApplicationTest_->UnregisterElementsCallbacks(callback);
-    }
-    GTEST_LOG_(INFO) << "AppExecFwk_Application_OnMemoryLevel_0100 end";
-}
-
-/**
  * @tc.number: AppExecFwk_Application_OnStart_0100
  * @tc.name: OnStart
  * @tc.desc: Test whether OnStart is called normally.
@@ -394,46 +373,6 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_OnAbilitySaveState_0100, Functi
 }
 
 /**
- * @tc.number: AppExecFwk_Application_OnMemoryLevel_0100
- * @tc.name: OnMemoryLevel
- * @tc.desc: Test whether onmemorylevel is called normally.
- */
-HWTEST_F(ApplicationTest, AppExecFwk_Application_RegisterElementsCallbacks_0100, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_Application_RegisterElementsCallbacks_0100 start";
-
-    EXPECT_NE(ApplicationTest_, nullptr);
-    if (ApplicationTest_ != nullptr) {
-        std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
-        ApplicationTest_->RegisterElementsCallbacks(callback);
-
-        ApplicationTest_->OnMemoryLevel(1);
-
-        ApplicationTest_->UnregisterElementsCallbacks(callback);
-    }
-    GTEST_LOG_(INFO) << "AppExecFwk_Application_RegisterElementsCallbacks_0100 end";
-}
-
-/**
- * @tc.number: AppExecFwk_Application_OnMemoryLevel_0200
- * @tc.name: OnMemoryLevel
- * @tc.desc: Test the abnormal state of onmemorylevel.
- */
-HWTEST_F(ApplicationTest, AppExecFwk_Application_RegisterElementsCallbacks_0200, Function | MediumTest | Level1)
-{
-    GTEST_LOG_(INFO) << "AppExecFwk_Application_RegisterElementsCallbacks_0200 start";
-
-    EXPECT_NE(ApplicationTest_, nullptr);
-    if (ApplicationTest_ != nullptr) {
-        std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
-        ApplicationTest_->RegisterElementsCallbacks(nullptr);
-
-        ApplicationTest_->OnMemoryLevel(1);
-    }
-    GTEST_LOG_(INFO) << "AppExecFwk_Application_RegisterElementsCallbacks_0200 end";
-}
-
-/**
  * @tc.number: AppExecFwk_Application_UnregisterElementsCallbacks_0100
  * @tc.name: UnregisterElementsCallbacks
  * @tc.desc: Test whether unregisterelementcallbacks are called normally.
@@ -447,7 +386,6 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_UnregisterElementsCallbacks_010
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(callback);
         ApplicationTest_->UnregisterElementsCallbacks(callback);
-        ApplicationTest_->OnMemoryLevel(1);
     }
     GTEST_LOG_(INFO) << "AppExecFwk_Application_UnregisterElementsCallbacks_0100 end";
 }
@@ -466,7 +404,6 @@ HWTEST_F(ApplicationTest, AppExecFwk_Application_UnregisterElementsCallbacks_020
         std::shared_ptr<MockElementsCallback> callback = std::make_shared<MockElementsCallback>();
         ApplicationTest_->RegisterElementsCallbacks(callback);
         ApplicationTest_->UnregisterElementsCallbacks(nullptr);
-        ApplicationTest_->OnMemoryLevel(1);
 
         ApplicationTest_->UnregisterElementsCallbacks(callback);
     }

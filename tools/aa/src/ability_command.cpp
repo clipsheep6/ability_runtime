@@ -25,6 +25,7 @@
 #include "iservice_registry.h"
 #include "mission_snapshot.h"
 #include "bool_wrapper.h"
+#include "parameters.h"
 #include "sa_mgr_client.h"
 #include "system_ability_definition.h"
 #include "test_observer.h"
@@ -43,6 +44,8 @@ constexpr int OPTION_PARAMETER_INTEGER = 257;
 constexpr int OPTION_PARAMETER_STRING = 258;
 constexpr int OPTION_PARAMETER_BOOL = 259;
 constexpr int OPTION_PARAMETER_NULL_STRING = 260;
+
+const std::string DEVELOPERMODE_STATE = "const.security.developermode.state";
 
 const std::string SHORT_OPTIONS = "ch:d:a:b:e:t:p:s:m:A:U:CDSN";
 constexpr struct option LONG_OPTIONS[] = {
@@ -853,6 +856,13 @@ ErrCode AbilityManagerShellCommand::RunAsAppDebugDebugCommand()
     bool isPersist = false;
     bool isCancel = false;
     bool isGet = false;
+
+    if (!system::GetBoolParameter(DEVELOPERMODE_STATE, false)) {
+        resultReceiver_ = STRING_APP_DEBUG_NG + "\n";
+        resultReceiver_.append(GetMessageFromCode(ERR_NOT_DEVELOPER_MODE));
+        return OHOS::ERR_INVALID_OPERATION;
+    }
+
     if (!ParseAppDebugParameter(bundleName, isPersist, isCancel, isGet)) {
         resultReceiver_.append(HELP_MSG_APPDEBUG_APP_DEBUG + "\n");
         return OHOS::ERR_INVALID_VALUE;

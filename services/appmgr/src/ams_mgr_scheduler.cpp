@@ -552,5 +552,18 @@ void AmsMgrScheduler::ClearProcessByToken(sptr<IRemoteObject> token)
         std::bind(&AppMgrServiceInner::ClearProcessByToken, amsMgrServiceInner_, token);
     amsHandler_->SubmitTask(clearProcessByTokenFunc, TASK_CLEAR_PROCESS_BY_ABILITY_TOKEN);
 }
+
+bool AmsMgrScheduler::IsMemorySizeSufficent()
+{
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "AmsMgrService is not ready.");
+        return true;
+    }
+    if (amsMgrServiceInner_->VerifyRequestPermission() != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Permission verification failed.");
+        return true;
+    }
+    return amsMgrServiceInner_->IsMemorySizeSufficent();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

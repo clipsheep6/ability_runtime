@@ -21,14 +21,16 @@
 #include "ipc_skeleton.h"
 #include "parameters.h"
 #include "permission_verification.h"
+#include "running_process_info.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
 namespace AAFwk {
 namespace {
-const int32_t API_VERSION_MOD = 100;
+const uint32_t API_VERSION_MOD = 100;
 const uint32_t API_SINCE_VISION = 12;
 const std::string ABILITY_SUPPORT_START_OTHER_APP = "persist.sys.abilityms.support.start_other_app";
+const std::string IS_DELEGATOR_CALL = "isDelegatorCall";
 }
 
 ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
@@ -52,6 +54,10 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
     }
 
     if (param.abilityInfo != nullptr && CheckAncoShellCall(param.abilityInfo->applicationInfo, param.want)) {
+        return ERR_OK;
+    }
+
+    if (IsDelegatorCall(param.callerToken, param.want)) {
         return ERR_OK;
     }
 
@@ -128,6 +134,21 @@ bool StartOtherAppInterceptor::CheckStartOtherApp(const Want want)
 bool StartOtherAppInterceptor::CheckCallerApiBelow12(const AppExecFwk::ApplicationInfo &applicationInfo)
 {
     return (applicationInfo.apiTargetVersion % API_VERSION_MOD < API_SINCE_VISION);
+}
+
+bool StartOtherAppInterceptor::IsDelegatorCall(const sptr<IRemoteObject> &callerToken, const Want want)
+{
+    AppExecFwk::RunningProcessInfo processInfo;
+    std::shared_ptr<AbilityRecord> callerAbility = Token::GetAbilityRecordByToken(callerToken);
+    if (callerAbility) {
+        DelayedSingleton<AppScheduler>::GetInstance()->
+            GetRunningProcessInfoByToken(callerAbility->GetToken(), processInfo);
+        if (processInfo.isTestProcess &&
+            !callerToken && want.GetBoolParam(IS_DELEGATOR_CALL, false)) {
+            return true;
+        }
+    }
+    return false;
 }
 }
 }

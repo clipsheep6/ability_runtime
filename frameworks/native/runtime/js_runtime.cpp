@@ -26,6 +26,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+#include "file_ex.h"
 #include "accesstoken_kit.h"
 #include "config_policy_utils.h"
 #include "constants.h"
@@ -1548,7 +1549,7 @@ std::vector<panda::HmsMap> JsRuntime::GetSystemKitsMap(uint32_t version)
     std::vector<panda::HmsMap> systemKitsMap;
     nlohmann::json jsonBuf;
     std::string configPath = GetSystemKitPath();
-    if (configPath == "") {
+    if (configPath == "" || access(configPath.c_str(), F_OK) != 0) {
         return systemKitsMap;
     }
 

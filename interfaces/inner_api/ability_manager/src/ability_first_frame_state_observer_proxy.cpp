@@ -21,20 +21,20 @@
 
 namespace OHOS {
 namespace AppExecFwk {
-AbilityFistFrameStateObserverProxy::AbilityFistFrameStateObserverProxy(const sptr<IRemoteObject> &impl)
+AbilityFirstFrameStateObserverProxy::AbilityFirstFrameStateObserverProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IAbilityFirstFrameStateObserver>(impl)
 {}
 
-bool AbilityFistFrameStateObserverProxy::WriteInterfaceToken(MessageParcel &data)
+bool AbilityFirstFrameStateObserverProxy::WriteInterfaceToken(MessageParcel &data)
 {
-    if (!data.WriteInterfaceToken(AbilityFistFrameStateObserverProxy::GetDescriptor())) {
+    if (!data.WriteInterfaceToken(AbilityFirstFrameStateObserverProxy::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Write interface token failed.");
         return false;
     }
     return true;
 }
 
-void AbilityFistFrameStateObserverProxy::OnAbilityFirstFrameState(
+void AbilityFirstFrameStateObserverProxy::OnAbilityFirstFrameState(
     const AbilityFirstFrameStateData &abilityFirstFrameStateData)
 {
     MessageParcel data;

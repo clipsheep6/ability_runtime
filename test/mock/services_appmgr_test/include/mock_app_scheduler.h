@@ -65,6 +65,7 @@ public:
     MOCK_METHOD1(ScheduleDumpIpcStart, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStop, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStat, int32_t(std::string &result));
+    MOCK_METHOD0(IsMemorySizeSufficent, bool());
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

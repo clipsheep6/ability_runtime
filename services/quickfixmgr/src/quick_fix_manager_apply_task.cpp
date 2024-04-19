@@ -837,7 +837,6 @@ void QuickFixManagerApplyTask::PostRevokeQuickFixTask()
         }
         applyTask->HandleRevokeQuickFixAppStop();
     };
-
     if (eventHandler_ == nullptr || !eventHandler_->PostTask(revokeTask, "QuickFixManager:revokeTask")) {
         TAG_LOGE(AAFwkTag::QUICKFIX, "Post revoke task failed.");
     }

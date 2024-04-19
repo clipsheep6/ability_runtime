@@ -76,8 +76,8 @@ void AutoFillExtensionCallback::HandleReloadInModal(const AAFwk::WantParams &wan
         .isSmartAutoFill = isSmartAutoFill_,
         .nodeId = sessionId_,
         .customData = customDataString,
-        .autoFillType = autoFillType_,
         .autoFillWindowType = autoFillWindowType_,
+        .autoFillType = autoFillType_,
         .extensionCallback = shared_from_this(),
     };
     int32_t resultCode = AutoFillManager::GetInstance().ReloadInModal(request);

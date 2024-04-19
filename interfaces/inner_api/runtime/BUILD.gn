@@ -108,6 +108,7 @@ ohos_shared_library("runtime") {
     "ets_utils:console",
     "ets_utils:timer",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "hitrace:hitrace_meter",
     "ipc:ipc_core",

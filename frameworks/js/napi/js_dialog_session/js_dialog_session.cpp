@@ -64,7 +64,8 @@ private:
         }
         std::string dialogSessionId = "";
         if (!ConvertFromJsValue(env, info.argv[0], dialogSessionId)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap dialogSessionId");
+            ThrowInvalidParamError(env, "Parameter error: dialogSessionId must be a valid string.");
             return CreateJsUndefined(env);
         }
 
@@ -88,18 +89,20 @@ private:
         }
         std::string dialogSessionId = "";
         if (!ConvertFromJsValue(env, info.argv[0], dialogSessionId)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap dialogSessionId");
+            ThrowInvalidParamError(env, "Parameter error: dialogSessionId must be a valid string.");
             return CreateJsUndefined(env);
         }
         AAFwk::Want want;
         if (!AppExecFwk::UnwrapWant(env, info.argv[1], want)) {
             TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap want");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: want must be a Want.");
             return CreateJsUndefined(env);
         }
         bool isAllow = false;
         if (!ConvertFromJsValue(env, info.argv[ARGC_TWO], isAllow)) {
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            TAG_LOGE(AAFwkTag::DIALOG, "Failed to unwrap isAllow");
+            ThrowInvalidParamError(env, "Parameter error: isAllow must be a Boolean.");
             return CreateJsUndefined(env);
         }
         NapiAsyncTask::CompleteCallback complete =

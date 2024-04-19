@@ -50,8 +50,7 @@ int MissionListenerController::AddMissionListener(const sptr<IMissionListener> &
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> &item) {
             return (item && item->AsObject() == listener->AsObject());
-        }
-    );
+        });
     if (it != missionListeners_.end()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "listener was already added, do not add again");
         return 0;
@@ -87,8 +86,7 @@ void MissionListenerController::DelMissionListener(const sptr<IMissionListener> 
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&listener](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == listener->AsObject());
-        }
-    );
+        });
     if (it != missionListeners_.end()) {
         missionListeners_.erase(it);
     }
@@ -308,8 +306,7 @@ void MissionListenerController::OnListenerDied(const wptr<IRemoteObject> &remote
     auto it = std::find_if(missionListeners_.begin(), missionListeners_.end(),
         [&remoteObj](const sptr<IMissionListener> item) {
             return (item && item->AsObject() == remoteObj);
-        }
-    );
+        });
     if (it != missionListeners_.end()) {
         missionListeners_.erase(it);
     }

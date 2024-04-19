@@ -72,18 +72,20 @@ private:
         int32_t startMode;
         if (!ConvertFromJsValue(env, argv[0], srcEntry)) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param srcEntry failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parse param srcEntry failed, must be a valid string.");
             return CreateJsUndefined(env);
         }
         if (!ConvertFromJsValue(env, argv[1], startMode)) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Parse param startMode failed");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env,
+                "Unsupported startMode, must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK.");
             return CreateJsUndefined(env);
         }
         TAG_LOGD(AAFwkTag::PROCESSMGR, "StartMode: %{public}d", startMode);
         if (startMode != MODE_SELF_FORK && startMode != MODE_APP_SPAWN_FORK) {
             TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env,
+                "Unsupported startMode, must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK.");
             return CreateJsUndefined(env);
         }
         NapiAsyncTask::CompleteCallback complete = [srcEntry, startMode](napi_env env, NapiAsyncTask &task,
@@ -113,7 +115,8 @@ private:
             }
             default: {
                 TAG_LOGE(AAFwkTag::PROCESSMGR, "Not supported StartMode");
-                task.Reject(env, CreateJsError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM));
+                task.Reject(env, CreateInvalidParamJsError(env,
+                    "Unsupported startMode,must be StartMode.SELF_FORK or StartMode.APP_SPAWN_FORK."));
                 return;
             }
         }

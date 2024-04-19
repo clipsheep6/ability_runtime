@@ -781,19 +781,6 @@ void AbilityConnectManager::OnAppStateChanged(const AppInfo &info)
     });
 }
 
-std::shared_ptr<AbilityRecord> AbilityConnectManager::GetAutoFillExtFromTerminatingMap(const sptr<IRemoteObject> &token)
-{
-    auto abilityRecord = GetExtensionFromTerminatingMapInner(token);
-    if (abilityRecord != nullptr) {
-        auto extensionAbilityType = abilityRecord->GetAbilityInfo().extensionAbilityType;
-        if (!(extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_PASSWORD ||
-            extensionAbilityType == AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART)) {
-            abilityRecord = nullptr;
-        }
-    }
-    return abilityRecord;
-}
-
 int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &token, int state)
 {
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
@@ -801,13 +788,9 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     std::shared_ptr<AbilityRecord> abilityRecord;
-    if (targetState == AbilityState::INACTIVE
-        || targetState == AbilityState::FOREGROUND) {
-        abilityRecord = GetExtensionFromServiceMapInner(token);
-        if (abilityRecord == nullptr) {
-            abilityRecord = GetAutoFillExtFromTerminatingMap(token);
-        }
-    } else if (targetState == AbilityState::BACKGROUND) {
+    if (targetState == AbilityState::INACTIVE ||
+        targetState == AbilityState::FOREGROUND ||
+        targetState == AbilityState::BACKGROUND) {
         abilityRecord = GetExtensionFromServiceMapInner(token);
         if (abilityRecord == nullptr) {
             abilityRecord = GetExtensionFromTerminatingMapInner(token);
@@ -1943,7 +1926,10 @@ void AbilityConnectManager::HandleAbilityDiedTask(
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
         }
-        RestartAbility(abilityRecord, currentUserId);
+        if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
+            IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) {
+            RestartAbility(abilityRecord, currentUserId);
+        }
     } else {
         if (isRemove) {
             HandleNotifyAssertFaultDialogDied(abilityRecord);
@@ -2745,6 +2731,18 @@ void AbilityConnectManager::SignRestartAppFlag(const std::string &bundleName)
             continue;
         }
         abilityRecord->SetRestartAppFlag(true);
+    }
+}
+
+void AbilityConnectManager::DeleteInvalidServiceRecord(const std::string &bundleName)
+{
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "Delete invalid record by %{public}s.", bundleName.c_str());
+    for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
+        if (it->second != nullptr && it->second->GetApplicationInfo().bundleName == bundleName) {
+            serviceMap_.erase(it++);
+        } else {
+            it++;
+        }
     }
 }
 

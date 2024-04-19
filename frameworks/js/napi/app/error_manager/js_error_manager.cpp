@@ -184,13 +184,20 @@ public:
         return CreateJsUndefined(env);
     }
 
-    static napi_value ClearReference(napi_env env)
+    static void ClearReference(napi_env env)
     {
         for (auto& iter : unhandledRejectionObservers) {
-            NAPI_CALL(env, napi_delete_reference(env, iter));
+            napi_delete_reference(env, iter);
         }
         unhandledRejectionObservers.clear();
-        return CreateJsUndefined(env);
+
+        auto iter = pendingUnHandledRejections.begin();
+        while (iter != pendingUnHandledRejections.end()) {
+            napi_delete_reference(env, iter->first);
+            napi_delete_reference(env, iter->second);
+            ++iter;
+        }
+        pendingUnHandledRejections.clear();
     }
 
 private:
@@ -390,7 +397,11 @@ private:
     {
         auto res = CreateJsUndefined(env);
         if (argc == ARGC_ONE) {
-            return ClearReference(env);
+            for (auto& iter : unhandledRejectionObservers) {
+                napi_delete_reference(env, iter);
+            }
+            unhandledRejectionObservers.clear();
+            return res;
         }
         napi_value function = argv[INDEX_ONE];
         if (!ValidateFunction(env, function)) {
