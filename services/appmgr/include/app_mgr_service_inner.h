@@ -312,6 +312,14 @@ public:
     virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info);
 
     /**
+     * GetCurrentAppIndex, Obtains Index about current application
+     * which is running on the device.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetCurrentAppIndex(int32_t &appIndex);
+
+    /**
      * GetAllRenderProcesses, Obtains information about render processes that are running on the device.
      *
      * @param info, render process record.
@@ -1211,6 +1219,8 @@ private:
 
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
     void GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord, RunningProcessInfo &info);
+
+    void GetIndex(const std::shared_ptr<AppRunningRecord> &appRecord,int32_t &appIndex);
 
     void GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RenderProcessInfo> &info);
 
