@@ -44,6 +44,7 @@ ohos_unittest("AmsServiceEventDriveTest") {
     "${ability_runtime_services_path}/appmgr/src/app_spawn_client.cpp",
     "${ability_runtime_services_path}/appmgr/src/app_state_observer_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/child_process_record.cpp",
+    "${ability_runtime_services_path}/appmgr/src/exit_resident_process_manager.cpp",
     "${ability_runtime_services_path}/appmgr/src/render_state_observer_manager.cpp",
     "${ability_runtime_test_path}/mock/common/src/mock_native_token.cpp",
   ]

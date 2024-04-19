@@ -182,6 +182,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllUIExtensionProviderPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
+        &AppMgrStub::HandleNotifyMemonySizeStateChanged;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1210,6 +1212,17 @@ int32_t AppMgrStub::HandleGetAllUIExtensionProviderPid(MessageParcel &data, Mess
         return ERR_INVALID_VALUE;
     }
 
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply)
+{
+    bool isMemorySizeSufficent = data.ReadBool();
+    int result = NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

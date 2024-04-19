@@ -52,7 +52,8 @@ void ResidentProcessManager::StartResidentProcessWithMainElement(std::vector<App
             // startAbility
             Want want;
             want.SetElementName(hapModuleInfo.bundleName, mainElement);
-            TAG_LOGI(AAFwkTag::ABILITYMGR, "Start resident ability, mainElement: %{public}s", mainElement.c_str());
+            TAG_LOGI(AAFwkTag::ABILITYMGR, "Start resident ability, bundleName: %{public}s, mainElement: %{public}s",
+                hapModuleInfo.bundleName.c_str(), mainElement.c_str());
             DelayedSingleton<AbilityManagerService>::GetInstance()->StartAbility(want, USER_ID_NO_HEAD,
                 DEFAULT_INVAL_VALUE);
         }

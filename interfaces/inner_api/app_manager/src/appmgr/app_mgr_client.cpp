@@ -1120,5 +1120,30 @@ int32_t AppMgrClient::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pi
     }
     return service->GetAllUIExtensionProviderPid(hostPid, providerPids);
 }
+
+int32_t AppMgrClient::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return AppMgrResultCode::ERROR_SERVICE_NOT_CONNECTED;
+    }
+    return service->NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+}
+
+bool AppMgrClient::IsMemorySizeSufficent() const
+{
+    sptr<IAppMgr> service = iface_cast<IAppMgr>(mgrHolder_->GetRemoteObject());
+    if (service == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Service is nullptr.");
+        return true;
+    }
+    sptr<IAmsMgr> amsService = service->GetAmsMgr();
+    if (amsService == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "amsService is nullptr.");
+        return true;
+    }
+    return amsService->IsMemorySizeSufficent();
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -41,6 +41,7 @@
 #include "common_event_support.h"
 #include "datetime_ex.h"
 #include "distributed_data_mgr.h"
+#include "exit_resident_process_manager.h"
 #include "freeze_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -815,10 +816,6 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
         return;
     }
     appRecord->ApplicationTerminated();
-    // Maybe can't get in here
-    if (appRecord->IsKeepAliveApp()) {
-        return;
-    }
     if (appRecord->GetState() != ApplicationState::APP_STATE_BACKGROUND) {
         TAG_LOGD(AAFwkTag::APPMGR, "current state is not background");
         return;
@@ -842,6 +839,7 @@ void AppMgrServiceInner::ApplicationTerminated(const int32_t recordId)
         eventInfo.versionName = applicationInfo->versionName;
         eventInfo.versionCode = applicationInfo->versionCode;
     }
+    ClearAppRunningDataForKeepAlive(appRecord);
     eventInfo.pid = appRecord->GetPriorityObject()->GetPid();
     eventInfo.processName = appRecord->GetProcessName();
     AAFwk::EventReport::SendAppEvent(AAFwk::EventName::APP_TERMINATE, HiSysEventType::BEHAVIOR, eventInfo);
@@ -1802,7 +1800,7 @@ void AppMgrServiceInner::KillProcessByAbilityToken(const sptr<IRemoteObject> &to
 
     // before exec ScheduleProcessSecurityExit return
     // The resident process won't let him die
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsKeepAliveApp() && IsMemorySizeSufficent()) {
         return;
     }
 
@@ -2549,7 +2547,7 @@ void AppMgrServiceInner::RemoveAppFromRecentList(const std::string &appName, con
     }
 
     // Do not delete resident processes, before exec ScheduleProcessSecurityExit
-    if (appRecord->IsKeepAliveApp()) {
+    if (appRecord->IsKeepAliveApp() && IsMemorySizeSufficent()) {
         return;
     }
 
@@ -2800,6 +2798,7 @@ void AppMgrServiceInner::TerminateApplication(const std::shared_ptr<AppRunningRe
         auto info = MakeAppDebugInfo(appRecord, appRecord->IsDebugApp());
         appDebugManager_->RemoveAppDebugInfo(info);
     }
+    ClearAppRunningDataForKeepAlive(appRecord);
 
     auto uid = appRecord->GetUid();
     NotifyAppRunningStatusEvent(appRecord->GetBundleName(), uid, AbilityRuntime::RunningStatus::APP_RUNNING_STOP);
@@ -5302,6 +5301,11 @@ void AppMgrServiceInner::ClearAppRunningDataForKeepAlive(const std::shared_ptr<A
     }
 
     if (appRecord->IsKeepAliveApp()) {
+        if (ExitResidentProcessManager::GetInstance().RecordExitResidentBundleName(appRecord->GetBundleName())) {
+            TAG_LOGI(AAFwkTag::APPMGR, "memory size is insufficent, record exit resident process info");
+            return;
+        }
+        TAG_LOGI(AAFwkTag::APPMGR, "memory size is sufficent, restart exit resident process");
         auto restartProcess = [appRecord, innerService = shared_from_this()]() {
             innerService->RestartResidentProcess(appRecord);
         };
@@ -6032,6 +6036,56 @@ int32_t AppMgrServiceInner::GetAllUIExtensionProviderPid(pid_t hostPid, std::vec
     }
 
     return appRunningManager_->GetAllUIExtensionProviderPid(hostPid, providerPids);
+}
+
+int32_t AppMgrServiceInner::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    TAG_LOGI(AAFwkTag::APPMGR, "NotifyMemonySizeStateChanged, isMemorySizeSufficent: %{public}d",
+        isMemorySizeSufficent);
+    bool isMemmgrCall = AAFwk::PermissionVerification::GetInstance()->CheckSpecificSystemAbilityAccessPermission(
+        MEMMGR_PROC_NAME);
+    if (!isMemmgrCall) {
+        TAG_LOGE(AAFwkTag::APPMGR, "callerToken not %{public}s. %{public}s", MEMMGR_PROC_NAME.c_str(), __func__);
+        return ERR_PERMISSION_DENIED;
+    }
+
+    if (!isMemorySizeSufficent) {
+        return ExitResidentProcessManager::GetInstance().HandleMemorySizeInSufficent();
+    }
+    std::vector<std::string> exitBundleNames;
+    auto ret = ExitResidentProcessManager::GetInstance().HandleMemorySizeSufficent(exitBundleNames);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "HandleMemorySizeSufficent failed, ret is %{public}d.", ret);
+        return ret;
+    }
+    auto StartExitKeepAliveProcessTask = [exitBundleNames, innerServicerWeak = weak_from_this()]() {
+        auto innerServicer = innerServicerWeak.lock();
+        if (!innerServicer) {
+            TAG_LOGE(AAFwkTag::APPMGR, "get AppMgrServiceInner failed");
+            return;
+        }
+        std::vector<AppExecFwk::BundleInfo> exitBundleInfos;
+        ExitResidentProcessManager::GetInstance().QueryExitBundleInfos(exitBundleNames, exitBundleInfos);
+
+        innerServicer->NotifyStartResidentProcess(exitBundleInfos);
+    };
+    taskHandler_->SubmitTask(StartExitKeepAliveProcessTask, "startexitkeepaliveprocess");
+    return ERR_OK;
+}
+
+bool AppMgrServiceInner::IsMemorySizeSufficent()
+{
+    return ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent();
+}
+
+void AppMgrServiceInner::NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos)
+{
+    std::lock_guard lock(appStateCallbacksLock_);
+    for (const auto &callback : appStateCallbacks_) {
+        if (callback != nullptr) {
+            callback->NotifyStartResidentProcess(bundleInfos);
+        }
+    }
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
