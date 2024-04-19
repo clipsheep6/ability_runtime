@@ -141,7 +141,7 @@ struct SelectorPhoneDialog {
   build() {
     Flex({ direction: FlexDirection.Column }) {
       Flex({ direction: FlexDirection.Column }) {
-        Text($r("app.string.message_title_selector"))
+        Text($r('app.string.message_title_selector'))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
           .textAlign(TextAlign.Start)
@@ -211,7 +211,7 @@ struct SelectorPhoneDialog {
         }
         .indicatorStyle({ color: '#bebdc0', selectedColor: '#ff326Ce9', size: 4 })
         .align(Alignment.Center)
-        .width("90%")
+        .width('90%')
         .indicator(this.phoneShowData.totalCount() > 1)
       }
 

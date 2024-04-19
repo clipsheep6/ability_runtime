@@ -830,7 +830,7 @@ AppStateData AppStateObserverManager::WrapAppStateData(const std::shared_ptr<App
     appStateData.uid = appRecord->GetUid();
     appStateData.extensionType = appRecord->GetExtensionType();
     if (appRecord->GetApplicationInfo() != nullptr) {
-        appStateData.accessTokenId = static_cast<int32_t>(appRecord->GetApplicationInfo()->accessTokenId);
+        appStateData.accessTokenId = static_cast<uint32_t>(appRecord->GetApplicationInfo()->accessTokenId);
     }
     appStateData.isFocused = appRecord->GetFocusFlag();
     auto renderRecordMap = appRecord->GetRenderRecordMap();
