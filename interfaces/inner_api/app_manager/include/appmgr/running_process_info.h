@@ -69,6 +69,7 @@ struct RunningProcessInfo : public Parcelable {
     ProcessType processType_ = ProcessType::NORMAL;
     ExtensionAbilityType extensionType_ = ExtensionAbilityType::UNSPECIFIED;
 };
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 

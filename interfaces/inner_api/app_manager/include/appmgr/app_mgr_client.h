@@ -37,6 +37,7 @@
 #include "refbase.h"
 #include "render_process_info.h"
 #include "running_process_info.h"
+#include "running_multi_info.h"
 #include "system_memory_attr.h"
 #include "want.h"
 #include "app_jsheap_mem_info.h"
@@ -206,6 +207,16 @@ public:
      * @return ERR_OK ,return back success，others fail.
      */
     virtual AppMgrResultCode GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
+
+    /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about application processes that are running on the device.
+     *
+     * @param bundlename, bundlename input.
+     * @param info, MultiAppInfo output.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual AppMgrResultCode GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo>& info, const std::string bundleName);
 
      /**
      * GetProcessRunningInfosByUserId, call GetProcessRunningInfosByUserId() through proxy project.

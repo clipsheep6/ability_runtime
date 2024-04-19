@@ -149,6 +149,65 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
     return object;
 }
 
+napi_value CreateJsRunningMultiAppInfoArray(napi_env env, const std::vector<RunningMultiAppInfo> &infos)
+{
+    napi_value arrayValue = nullptr;
+    napi_create_array_with_length(env, infos.size(), &arrayValue);
+    uint32_t index = 0;
+    for (const auto &multiInfo : infos) {
+        napi_set_element(env, arrayValue, index++, CreateJsRunningMultiAppInfo(env, multiInfo));
+    }
+    return arrayValue;
+}
+
+napi_value CreateJsRunningMultiAppInfo(napi_env env, const RunningMultiAppInfo &info)
+{
+    napi_value object = nullptr;
+    napi_create_object(env, &object);
+    if (object == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "objValue nullptr.");
+        return nullptr;
+    }
+    napi_set_named_property(env, object, "bundleName", CreateJsValue(env, info.bundleName_));
+    napi_set_named_property(env, object, "mode", CreateJsValue(env, info.mode_));
+    napi_set_named_property(env, object, "instance", CreateNativeArray(env, info.instance_));
+    napi_set_named_property(env, object, "isolation", CreateNativeArray(env, info.isolation_));
+    // napi_set_named_property(env, object, "instance", CreateJsRunningMultiInstances(env, info.instance));
+    // napi_set_named_property(env, object, "isolation", CreateJsRunningIsolationApp(env, info.isolation));
+
+    return object;
+}
+
+// napi_value CreateJsRunningMultiInstances(napi_env env, const RunningAppInstance &info)
+// {
+//     napi_value object = nullptr;
+//     napi_create_object(env, &object);
+//     if (object == nullptr) {
+//         TAG_LOGE(AAFwkTag::APPMGR, "objValue nullptr.");
+//         return nullptr;
+//     }
+//     napi_set_named_property(env, object, "appInstanceKey", CreateJsValue(env, info.appInstanceKey));
+//     napi_set_named_property(env, object, "uid", CreateJsValue(env, info.uid));
+//     napi_set_named_property(env, object, "pids", CreateNativeArray(env, info.pids));
+
+//     return object;
+// }
+
+// napi_value CreateJsRunningIsolationApp(napi_env env, const RunningIsolationApp &info)
+// {
+//     napi_value object = nullptr;
+//     napi_create_object(env, &object);
+//     if (object == nullptr) {
+//         TAG_LOGE(AAFwkTag::APPMGR, "objValue nullptr.");
+//         return nullptr;
+//     }
+//     napi_set_named_property(env, object, "appIndex", CreateJsValue(env, info.appIndex));
+//     napi_set_named_property(env, object, "uid", CreateJsValue(env, info.uid));
+//     napi_set_named_property(env, object, "pids", CreateNativeArray(env, info.pids));
+
+//     return object;
+// }
+
 napi_value ApplicationStateInit(napi_env env)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "ApplicationStateInit enter");

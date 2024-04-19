@@ -113,6 +113,7 @@ napi_value CreateJsConfiguration(napi_env env, const AppExecFwk::Configuration& 
     return object;
 }
 
+
 napi_value CreateJsExtensionAbilityInfo(napi_env env, const AppExecFwk::ExtensionAbilityInfo& info)
 {
     TAG_LOGD(AAFwkTag::JSRUNTIME, "CreateJsExtensionAbilityInfo begin");
