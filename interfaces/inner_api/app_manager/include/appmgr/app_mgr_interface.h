@@ -167,6 +167,13 @@ public:
     virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info) = 0;
 
     /**
+     * get application Index  by context.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetCurrentAppIndex(int32_t &appIndex) = 0;
+    
+    /**
      * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
      * Notify abilities background the current memory level.
      *
@@ -445,6 +452,7 @@ public:
      */
     virtual int32_t GetRunningProcessInformation(
         const std::string &bundleName, int32_t userId, std::vector<RunningProcessInfo> &info) = 0;
+
 
     /**
      * @brief Notify AbilityManagerService the page show.

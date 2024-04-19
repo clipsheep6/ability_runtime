@@ -281,6 +281,26 @@ int32_t AppMgrProxy::GetProcessRunningInformation(RunningProcessInfo &info)
     return reply.ReadInt32();
 }
 
+int32_t AppMgrProxy::GetCurrentAppIndex(int32_t &appIndex)
+{
+    MessageParcel data;
+    MessageParcel reply;
+
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!SendTransactCmd(AppMgrInterfaceCode::APP_GET_CURRENT_APP_INDEX, data, reply)) {
+        return ERR_NULL_OBJECT;
+    }
+    auto ret = reply.ReadInt32();
+    if (ret != NO_ERROR)
+    {
+        appIndex = reply.ReadInt32();
+    }
+    
+    return ret;
+}
+
 int32_t AppMgrProxy::NotifyMemoryLevel(int32_t level)
 {
     MessageParcel data;
