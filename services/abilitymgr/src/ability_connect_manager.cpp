@@ -1925,6 +1925,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
+            if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
+                KillProcessesByUserId();
+                return;
+            }
         }
         if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
             IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) {
@@ -2210,7 +2215,7 @@ void AbilityConnectManager::PauseExtensions()
     for (auto it = serviceMap_.begin(); it != serviceMap_.end();) {
         auto targetExtension = it->second;
         if (targetExtension != nullptr && targetExtension->GetAbilityInfo().type == AbilityType::EXTENSION &&
-            (IsLauncher(targetExtension) || targetExtension->IsSceneBoard())) {
+            IsLauncher(targetExtension)) {
             terminatingExtensionMap_.emplace(it->first, it->second);
             serviceMap_.erase(it++);
             TAG_LOGI(
