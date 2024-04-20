@@ -56,11 +56,37 @@ const std::unordered_set<AppExecFwk::ExtensionAbilityType> UI_EXTENSION_SET = {
     AppExecFwk::ExtensionAbilityType::AUTO_FILL_SMART,
     AppExecFwk::ExtensionAbilityType::LIVEVIEW_LOCKSCREEN
 };
+
+// The following extension ability types can be used only in system applications.
+const std::unordered_set<AppExecFwk::ExtensionAbilityType> SYSTEM_UI_EXTENSION_SET = {
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_COMMON,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_ATOMICSERVICEPANEL,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_POWER,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECALL,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMECONTACT,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_MEETIMEMESSAGE,
+    AppExecFwk::ExtensionAbilityType::SYSDIALOG_PRINT,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_MEDIACONTROL,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_SHARE,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECONTACT,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_MEETIMECALLLOG,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_PHOTOPICKER,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_NAVIGATION,
+    AppExecFwk::ExtensionAbilityType::SYSPICKER_APPSELECTOR,
+    AppExecFwk::ExtensionAbilityType::UI,
+    AppExecFwk::ExtensionAbilityType::SYS_COMMON_UI,
+};
+
 const int EDM_SA_UID = 3057;
 
 inline bool IsUIExtension(const AppExecFwk::ExtensionAbilityType type)
 {
     return UI_EXTENSION_SET.find(type) != UI_EXTENSION_SET.end();
+}
+
+inline bool IsSystemUIExtension(const AppExecFwk::ExtensionAbilityType type)
+{
+    return SYSTEM_UI_EXTENSION_SET.find(type) != SYSTEM_UI_EXTENSION_SET.end();
 }
 
 inline bool IsEnterpriseAdmin(const AppExecFwk::ExtensionAbilityType type)

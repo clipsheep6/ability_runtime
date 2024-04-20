@@ -788,9 +788,9 @@ int AbilityConnectManager::AbilityTransitionDone(const sptr<IRemoteObject> &toke
     int targetState = AbilityRecord::ConvertLifeCycleToAbilityState(static_cast<AbilityLifeCycleState>(state));
     std::string abilityState = AbilityRecord::ConvertAbilityState(static_cast<AbilityState>(targetState));
     std::shared_ptr<AbilityRecord> abilityRecord;
-    if (targetState == AbilityState::INACTIVE ||
-        targetState == AbilityState::FOREGROUND ||
-        targetState == AbilityState::BACKGROUND) {
+    if (targetState == AbilityState::INACTIVE) {
+        abilityRecord = GetExtensionFromServiceMapInner(token);
+    } else if (targetState == AbilityState::FOREGROUND || targetState == AbilityState::BACKGROUND) {
         abilityRecord = GetExtensionFromServiceMapInner(token);
         if (abilityRecord == nullptr) {
             abilityRecord = GetExtensionFromTerminatingMapInner(token);
