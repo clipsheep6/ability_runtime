@@ -16,7 +16,7 @@ import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
 module_output_path = "ability_runtime/abilitymgr"
 
-ohos_unittest("form_extension_context_test") {
+ohos_unittest("form_extension_context_first_test") {
   module_out_path = module_output_path
 
   include_dirs = [
@@ -85,14 +85,10 @@ ohos_unittest("form_extension_context_test") {
   if (background_task_mgr_continuous_task_enable) {
     external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
   }
-
-  if (ability_runtime_graphics) {
-    external_deps += [ "window_manager:scene_session" ]
-  }
 }
 
 group("unittest") {
   testonly = true
 
-  deps = [ ":form_extension_context_test" ]
+  deps = [ ":form_extension_context_first_test" ]
 }

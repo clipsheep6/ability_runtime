@@ -596,6 +596,10 @@ int AbilityManagerStub::MinimizeUIAbilityBySCBInner(MessageParcel &data, Message
 int AbilityManagerStub::AttachAbilityThreadInner(MessageParcel &data, MessageParcel &reply)
 {
     auto scheduler = iface_cast<IAbilityScheduler>(data.ReadRemoteObject());
+    if (scheduler == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "scheduler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     auto token = data.ReadRemoteObject();
     int32_t result = AttachAbilityThread(scheduler, token);
     reply.WriteInt32(result);
@@ -677,6 +681,10 @@ int AbilityManagerStub::AcquireDataAbilityInner(MessageParcel &data, MessageParc
 int AbilityManagerStub::ReleaseDataAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     auto scheduler = iface_cast<IAbilityScheduler>(data.ReadRemoteObject());
+    if (scheduler == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "scheduler is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     auto callerToken = data.ReadRemoteObject();
     int32_t result = ReleaseDataAbility(scheduler, callerToken);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "release data ability ret = %d", result);
@@ -1086,6 +1094,10 @@ int AbilityManagerStub::ConnectUIExtensionAbilityInner(MessageParcel &data, Mess
 int AbilityManagerStub::DisconnectAbilityInner(MessageParcel &data, MessageParcel &reply)
 {
     sptr<IAbilityConnection> callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = DisconnectAbility(callback);
     TAG_LOGD(AAFwkTag::ABILITYMGR, "disconnect ability ret = %d", result);
     reply.WriteInt32(result);
@@ -1702,6 +1714,10 @@ int AbilityManagerStub::StartAbilityByCallInner(MessageParcel &data, MessageParc
     }
 
     auto callback = iface_cast<IAbilityConnection>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "callback is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     sptr<IRemoteObject> callerToken = nullptr;
     if (data.ReadBool()) {
         callerToken = data.ReadRemoteObject();
@@ -2206,6 +2222,10 @@ int AbilityManagerStub::AddFreeInstallObserverInner(MessageParcel &data, Message
 {
     sptr<AbilityRuntime::IFreeInstallObserver> observer =
         iface_cast<AbilityRuntime::IFreeInstallObserver>(data.ReadRemoteObject());
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "observer is nullptr");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = AddFreeInstallObserver(observer);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "reply write failed.");

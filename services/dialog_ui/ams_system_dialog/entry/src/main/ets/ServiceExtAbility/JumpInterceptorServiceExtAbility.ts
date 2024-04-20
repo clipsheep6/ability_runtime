@@ -16,7 +16,7 @@
 import display from '@ohos.display';
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
-import deviceInfo from '@ohos.deviceInfo';
+import device from '@ohos.deviceInfo';
 
 const TAG = 'JumpInterceptorDialog_Service';
 
@@ -27,11 +27,11 @@ export default class JumpInterceptorServiceExtAbility extends extension {
   onCreate(want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
     globalThis.jumpInterceptorExtensionContext = this.context;
+    globalThis.params = JSON.parse(want.parameters.params);
   }
 
   async onRequest(want, startId) {
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
     globalThis.position = JSON.parse(want.parameters.position);
     globalThis.interceptor_callerBundleName = want.parameters.interceptor_callerBundleName;
     globalThis.interceptor_callerModuleName = want.parameters.interceptor_callerModuleName;
@@ -50,7 +50,7 @@ export default class JumpInterceptorServiceExtAbility extends extension {
         win.destroy();
         winNum--;
       }
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.isDefaultPossion) {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_SYSTEM_ALERT, navigationBarRect);
       } else {
         this.createWindow('JumpInterceptorDialog' + startId, window.WindowType.TYPE_FLOAT, navigationBarRect);
@@ -93,11 +93,10 @@ export default class JumpInterceptorServiceExtAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) {
-    let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.jumpInterceptorExtensionContext, name, windowType);
-      if (deviceTypeInfo !== 'default') {
+      if (!globalThis.params.isDefaultPossion) {
         await win.hideNonSystemFloatingWindows(true);
       }
       await win.moveTo(rect.left, rect.top);

@@ -79,16 +79,6 @@ public:
     Want GetSwitchUserDialogWant();
     bool GetAssertFaultDialogWant(Want &want);
 
-    void SetDeviceType(const std::string &deviceType)
-    {
-        deviceType_ = deviceType;
-    }
-
-    const std::string GetDeviceType()
-    {
-        return deviceType_;
-    }
-
 private:
     const std::string GetAnrParams(const DialogPosition position, const std::string &appName) const;
     const std::string GetSelectorParams(const std::vector<DialogAppInfo> &infos) const;
@@ -112,9 +102,6 @@ private:
 
     void GetAppNameFromResource(int32_t labelId,
         const std::string &bundleName, int32_t userId, std::string &appName);
-
-private:
-    std::string deviceType_ = {};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

@@ -87,11 +87,6 @@ int AmsConfigurationParameter::GetRestartIntervalTime() const
     return restartIntervalTime_;
 }
 
-std::string AmsConfigurationParameter::GetDeviceType() const
-{
-    return deviceType_;
-}
-
 int AmsConfigurationParameter::GetBootAnimationTimeoutTime() const
 {
     return bootAnimationTime_;
@@ -230,7 +225,6 @@ int AmsConfigurationParameter::LoadAppConfigurationForStartUpService(nlohmann::j
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::ROOT_LAUNCHER_RESTART_MAX, maxRootLauncherRestartNum_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESIDENT_RESTART_MAX, maxResidentRestartNum_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::RESTART_INTERVAL_TIME, restartIntervalTime_);
-    UpdateStartUpServiceConfigString(Object, AmsConfig::DEVICE_TYPE, deviceType_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::BOOT_ANIMATION_TIMEOUT_TIME, bootAnimationTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::TIMEOUT_UNIT_TIME, timeoutUnitTime_);
     UpdateStartUpServiceConfigInteger(Object, AmsConfig::MULTI_USER_TYPE, multiUserType_);

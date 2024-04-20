@@ -34,6 +34,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     globalThis.selectExtensionContext = this.context;
     globalThis.defaultAppManager = defaultAppManager;
     globalThis.bundleManager = bundleManager;
+    globalThis.params = JSON.parse(want.parameters.params);
   }
 
   async getPhoneShowHapList() {
@@ -93,7 +94,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     let appIcon = '';
     let type = '';
     let userId = Number('0');
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (!globalThis.params.isDefaultPossion) {
       type = hap.type;
       userId = Number(hap.userId);
     }
@@ -136,7 +137,6 @@ export default class SelectorServiceExtensionAbility extends extension {
   async onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
     let displayClass = display.getDefaultDisplaySync();
     let lineNums = 0;
     if (globalThis.params && globalThis.params.hapList && globalThis.params.hapList.length) {
@@ -163,11 +163,11 @@ export default class SelectorServiceExtensionAbility extends extension {
     console.debug(TAG, 'onRequest, params: ' + JSON.stringify(globalThis.params));
     globalThis.callerToken = want.parameters.callerToken;
     console.debug(TAG, 'onRequest, position: ' + JSON.stringify(globalThis.position));
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (!globalThis.params.isDefaultPossion) {
       globalThis.modelFlag = Boolean(globalThis.params.modelFlag);
       globalThis.action = Boolean(globalThis.params.action);
     }
-    if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+    if (globalThis.params.isDefaultPossion) {
       await this.getPhoneShowHapList();
     } else {
       await this.getPcShowHapList();
@@ -200,7 +200,6 @@ export default class SelectorServiceExtensionAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) {
-    let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.selectExtensionContext, name, windowType);
@@ -213,12 +212,12 @@ export default class SelectorServiceExtensionAbility extends extension {
           }
         });
       }
-      if (deviceTypeInfo !== 'default') {
+      if (!globalThis.params.isDefaultPossion) {
         await win.hideNonSystemFloatingWindows(true);
       }
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.isDefaultPossion) {
         await win.loadContent('pages/selectorPhoneDialog');
       } else {
         await win.loadContent('pages/selectorPcDialog');
@@ -234,7 +233,7 @@ export default class SelectorServiceExtensionAbility extends extension {
     try {
       await win.moveTo(rect.left, rect.top);
       await win.resetSize(rect.width, rect.height);
-      if (globalThis.params.deviceType === 'phone' || globalThis.params.deviceType === 'default') {
+      if (globalThis.params.isDefaultPossion) {
         try {
           await win.loadContent('pages/selectorPhoneDialog');
           await win.setBackgroundColor('#00000000');
@@ -250,7 +249,7 @@ export default class SelectorServiceExtensionAbility extends extension {
 
   onConfigurationUpdate(config): void {
     console.debug(TAG, 'configuration is : ' + JSON.stringify(config));
-    if (globalThis.params.deviceType !== 'phone' && globalThis.params.deviceType !== 'default') {
+    if (!globalThis.params.isDefaultPossion) {
       console.debug(TAG, 'device is not phone');
       return;
     }

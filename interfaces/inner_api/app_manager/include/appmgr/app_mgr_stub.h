@@ -57,6 +57,7 @@ public:
 
 private:
     int32_t HandleAttachApplication(MessageParcel &data, MessageParcel &reply);
+    int32_t HandlePreloadApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationForegrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationBackgrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationTerminated(MessageParcel &data, MessageParcel &reply);
@@ -131,6 +132,7 @@ private:
     int32_t HandleGetAppRunningUniqueIdByPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllUIExtensionRootHostPid(MessageParcel &data, MessageParcel &reply);
     int32_t HandleGetAllUIExtensionProviderPid(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply);
 
     using AppMgrFunc = int32_t (AppMgrStub::*)(MessageParcel &data, MessageParcel &reply);
     std::map<uint32_t, AppMgrFunc> memberFuncMap_;

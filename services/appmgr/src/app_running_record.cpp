@@ -17,6 +17,7 @@
 #include "app_running_record.h"
 #include "app_mgr_service_inner.h"
 #include "event_report.h"
+#include "exit_resident_process_manager.h"
 #include "hitrace_meter.h"
 #include "hilog_tag_wrapper.h"
 #include "ui_extension_utils.h"
@@ -1099,13 +1100,15 @@ void AppRunningRecord::AbilityTerminated(const sptr<IRemoteObject> &token)
     moduleRecord->AbilityTerminated(token);
 
     if (moduleRecord->GetAbilities().empty() && (!IsKeepAliveApp()
-        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType()))) {
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
+        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
         RemoveModuleRecord(moduleRecord, isExtensionDebug);
     }
 
     auto moduleRecordList = GetAllModuleRecord();
     if (moduleRecordList.empty() && (!IsKeepAliveApp()
-        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())) && !isExtensionDebug) {
+        || AAFwk::UIExtensionUtils::IsUIExtension(GetExtensionType())
+        || !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isExtensionDebug) {
         ScheduleTerminate();
     }
 }
@@ -1990,6 +1993,21 @@ void AppRunningRecord::SetJITEnabled(const bool jitEnabled)
 bool AppRunningRecord::IsJITEnabled() const
 {
     return jitEnabled_;
+}
+
+void AppRunningRecord::SetPreloadState(PreloadState state)
+{
+    preloadState_ = state;
+}
+
+bool AppRunningRecord::IsPreloading() const
+{
+    return preloadState_ == PreloadState::PRELOADING;
+}
+
+bool AppRunningRecord::IsPreloaded() const
+{
+    return preloadState_ == PreloadState::PRELOADED;
 }
 
 int32_t AppRunningRecord::GetAssignTokenId() const

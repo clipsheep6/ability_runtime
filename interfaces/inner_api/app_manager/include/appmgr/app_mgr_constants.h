@@ -85,6 +85,17 @@ enum class AppStartType {
     HOT,
     MULTI_INSTANCE,
 };
+
+enum class PreloadMode {
+    PRESS_DOWN = 0,
+    PRE_MAKE = 1,
+};
+
+enum class PreloadState {
+    NONE = 0,
+    PRELOADING = 1,
+    PRELOADED = 2,
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_CONSTANTS_H

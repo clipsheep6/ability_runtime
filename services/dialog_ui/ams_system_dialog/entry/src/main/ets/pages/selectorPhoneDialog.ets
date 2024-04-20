@@ -141,7 +141,7 @@ struct SelectorPhoneDialog {
   build() {
     Flex({ direction: FlexDirection.Column }) {
       Flex({ direction: FlexDirection.Column }) {
-        Text($r("app.string.message_title_selector"))
+        Text($r('app.string.message_title_selector'))
           .fontSize(22)
           .fontWeight(FontWeight.Medium)
           .textAlign(TextAlign.Start)
@@ -158,8 +158,8 @@ struct SelectorPhoneDialog {
                   Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center }) {
                     if (item.split('#')[3] != '') {
                       if (item.split('#')[3].indexOf('image/json') > -1) {
-                        Image(globalThis.jsonIconMap.get(item.split("#")[0] + ':' + item.split('#')[4]
-                           + ':' + item.split('#')[1]))
+                        Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4] +
+                          ':' + item.split('#')[1]))
                           .height(60)
                           .width(60)
                           .alignSelf(ItemAlign.Center);
@@ -211,7 +211,7 @@ struct SelectorPhoneDialog {
         }
         .indicatorStyle({ color: '#bebdc0', selectedColor: '#ff326Ce9', size: 4 })
         .align(Alignment.Center)
-        .width("90%")
+        .width('90%')
         .indicator(this.phoneShowData.totalCount() > 1)
       }
 

@@ -28,12 +28,12 @@ export default class TipsServiceExtensionAbility extends extension {
   onCreate(want) {
     console.debug(TAG, 'onCreate, want: ' + JSON.stringify(want));
     globalThis.tipsExtensionContext = this.context;
+    globalThis.params = JSON.parse(want.parameters.params);
   }
 
   onRequest(want, startId) {
     console.debug(TAG, 'onRequest, want: ' + JSON.stringify(want));
     globalThis.abilityWant = want;
-    globalThis.params = JSON.parse(want.parameters.params);
     globalThis.position = PositionUtils.getTipsDialogPosition();
     globalThis.callerToken = want.parameters.callerToken;
 
@@ -78,7 +78,6 @@ export default class TipsServiceExtensionAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) {
-    let deviceTypeInfo = deviceInfo.deviceType;
     console.info(TAG, 'create window');
     try {
       win = await window.create(globalThis.tipsExtensionContext, name, windowType);
@@ -91,7 +90,7 @@ export default class TipsServiceExtensionAbility extends extension {
           }
         });
       }
-      if (deviceTypeInfo !== 'default') {
+      if (!globalThis.params.isDefaultPossion) {
         await win.hideNonSystemFloatingWindows(true);
       }
       await win.moveTo(rect.left, rect.top);

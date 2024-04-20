@@ -712,6 +712,12 @@ public:
     std::shared_ptr<ChildProcessRecord> GetChildProcessRecordByPid(const pid_t pid);
     std::map<pid_t, std::shared_ptr<ChildProcessRecord>> GetChildProcessRecordMap();
 
+    void SetPreloadState(PreloadState state);
+
+    bool IsPreloading() const;
+
+    bool IsPreloaded() const;
+
     /**
      * @brief Obtains the app record assign tokenId.
      *
@@ -862,6 +868,7 @@ private:
     int64_t startTimeMillis_ = 0;   // The time of app start(CLOCK_MONOTONIC)
     int64_t restartTimeMillis_ = 0; // The time of last trying app restart
     bool jitEnabled_ = false;
+    PreloadState preloadState_ = PreloadState::NONE;
 
     std::shared_ptr<UserTestRecord> userTestRecord_ = nullptr;
 

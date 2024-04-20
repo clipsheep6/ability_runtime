@@ -505,6 +505,22 @@ void JsUIAbility::OnSceneRestored()
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
 }
 
+void JsUIAbility::OnSceneWillDestroy()
+{
+    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    HandleScope handleScope(jsRuntime_);
+    if (jsWindowStageObj_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr.");
+        return;
+    }
+    napi_value argv[] = {jsWindowStageObj_->GetNapiValue()};
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageWillDestroy");
+        std::string methodName = "onWindowStageWillDestroy";
+        CallObjectMethod("onWindowStageWillDestroy", argv, ArraySize(argv));
+    }
+}
+
 void JsUIAbility::onSceneDestroyed()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
