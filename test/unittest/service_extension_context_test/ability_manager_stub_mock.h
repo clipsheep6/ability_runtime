@@ -72,7 +72,8 @@ public:
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE)
+        int requestCode = DEFAULT_INVAL_VALUE,
+        uint32_t callerTokenId = 0)
     {
         return 0;
     }

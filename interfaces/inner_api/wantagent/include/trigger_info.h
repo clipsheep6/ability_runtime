@@ -20,6 +20,7 @@
 #include <memory>
 #include "want.h"
 #include "want_params.h"
+#include "start_options.h"
 
 namespace OHOS::AbilityRuntime::WantAgent {
 class TriggerInfo final : public std::enable_shared_from_this<TriggerInfo> {
@@ -52,8 +53,30 @@ public:
         const std::shared_ptr<AAFwk::Want> &want, int resultCode);
 
     /**
-     * A constructor used to create a {@code TriggerInfo} instance by copying parameters from an existing one.
+     * A constructor used to create a {@code TriggerInfo} instance based on the input parameters.
      *
+     * @param permission Indicates the permission required for an {@link WantAgent} recipient.
+     * This parameter is valid only when the {@link WantAgent} is triggered to send common events.
+     * @param extraInfo Indicates the custom extra data you want to add for triggering an {@link WantAgent}.
+     * @param want Indicates the extra {@link ohos.aafwk.content.Want}.
+     * If {@code flags} in {@link WantAgentInfo} contains {@link WantAgentConstant.Flags#CONSTANT_FLAG},
+     * this parameter is invalid. If flags contains {@link WantAgentConstant.Flags#REPLACE_ELEMENT},
+     * {@link WantAgentConstant.Flags#REPLACE_ACTION}, {@link WantAgentConstant.Flags#REPLACE_URI},
+     * {@link WantAgentConstant.Flags#REPLACE_ENTITIES}, and {@link WantAgentConstant.Flags#REPLACE_BUNDLE},
+     * the {@code element}, {@code action}, {@code uri}, {@code entities}, and {@code bundleName} attributes of the
+     * {@link ohos.aafwk.content.Want} specified in this parameter will be used to replace the
+     * corresponding attributes in the original {@link ohos.aafwk.content.Want}, respectively.
+     * If this parameter is null, the original {@link ohos.aafwk.content.Want} remains unchanged.
+     * @param startOptions Indicates the custom start options data you want to add for triggering an {@link WantAgent}.
+     * @param code Indicates the result code provided for the target of the {@link WantAgent}.
+     */
+    TriggerInfo(const std::string &permission, const std::shared_ptr<AAFwk::WantParams> &extraInfo,
+        const std::shared_ptr<AAFwk::Want> &want, const std::shared_ptr<AAFwk::StartOptions> &startOptions,
+        int resultCode);
+
+    /**
+     * A constructor used to create a {@code TriggerInfo} instance by copying parameters from an existing one.
+     *sender_info.cpp
      * @param paramInfo Indicates the existing {@code TriggerInfo} object.
      */
     explicit TriggerInfo(const TriggerInfo &paramInfo);
@@ -86,6 +109,13 @@ public:
      * @return Returns an {@link ohos.aafwk.content.Want} object.
      */
     std::shared_ptr<AAFwk::Want> GetWant() const;
+
+    /**
+     * Obtains the startOptions from the {@code TriggerInfo} object.
+     *
+     * @return Returns the start options data.
+     */
+    std::shared_ptr<AAFwk::StartOptions> GetStartOptions() const;
 
     /**
      * Obtains the result code provided for the target of the {@link WantAgent}.
@@ -142,6 +172,14 @@ public:
         std::shared_ptr<Builder> SetWant(const std::shared_ptr<AAFwk::Want> &want);
 
         /**
+         * Sets the start options provided for the target of the {@link WantAgent}.
+         *
+         * @param startOptions Indicates startOptions parameter provided for the target of the {@link WantAgent}.
+         * @return Returns this {@code Builder} object with the specified start options.
+         */
+        std::shared_ptr<Builder> SetStartOptions(const std::shared_ptr<AAFwk::StartOptions> &startOptions);
+
+        /**
          * Sets the result code provided for the target of the {@link WantAgent}.
          *
          * @param code Indicates the result code provided for the target of the {@link WantAgent}.
@@ -160,6 +198,7 @@ public:
         std::string permission_;
         std::shared_ptr<AAFwk::WantParams> params_;
         std::shared_ptr<AAFwk::Want> want_;
+        std::shared_ptr<AAFwk::StartOptions> startOptions_;
         int resultCode_ = 0;
     };
 
@@ -167,6 +206,7 @@ private:
     std::string permission_;
     std::shared_ptr<AAFwk::WantParams> extraInfo_;
     std::shared_ptr<AAFwk::Want> want_;
+    std::shared_ptr<AAFwk::StartOptions> startOptions_;
     int resultCode_ = 0;
 };
 }  // namespace OHOS::AbilityRuntime::WantAgent
