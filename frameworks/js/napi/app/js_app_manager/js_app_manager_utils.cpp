@@ -146,6 +146,7 @@ napi_value CreateJsRunningProcessInfo(napi_env env, const RunningProcessInfo &in
     napi_set_named_property(env, object, "bundleNames", CreateNativeArray(env, info.bundleNames));
     napi_set_named_property(env, object, "state", CreateJsValue(env,
         ConvertToJsAppProcessState(info.state_, info.isFocused)));
+    napi_set_named_property(env, object, "bundleType", CreateJsValue(env, info.bundleType));
     return object;
 }
 
