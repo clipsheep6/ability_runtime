@@ -88,9 +88,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
     CHECK_POINTER_AND_RETURN(sysDialogScheduler, ERR_INVALID_VALUE);
 
     std::vector<DialogAppInfo> dialogAppInfos;
-    auto deviceType = OHOS::system::GetDeviceType();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "deviceType is %{public}s", deviceType.c_str());
-    auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, deviceType, false);
+    auto ret = GenerateAbilityRequestByAction(userId, request, dialogAppInfos, false);
     if (ret != ERR_OK) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
         return ret;
@@ -152,7 +150,7 @@ int ImplicitStartProcessor::ImplicitStartAbility(AbilityRequest &request, int32_
         }
         std::vector<DialogAppInfo> dialogAllAppInfos;
         bool isMoreHapList = true;
-        ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, deviceType, isMoreHapList);
+        ret = GenerateAbilityRequestByAction(userId, request, dialogAllAppInfos, isMoreHapList);
         if (ret != ERR_OK) {
             TAG_LOGE(AAFwkTag::ABILITYMGR, "generate ability request by action failed.");
             return ret;
@@ -260,7 +258,7 @@ std::string ImplicitStartProcessor::MatchTypeAndUri(const AAFwk::Want &want)
 }
 
 int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
-    AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList)
+    AbilityRequest &request, std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "%{public}s.", __func__);
     // get abilityinfos from bms
@@ -347,7 +345,6 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
             .isExtension = isExtension,
             .isMoreHapList = isMoreHapList,
             .withDefault = withDefault,
-            .deviceType = deviceType,
             .typeName = typeName,
             .infoNames = infoNames
         };

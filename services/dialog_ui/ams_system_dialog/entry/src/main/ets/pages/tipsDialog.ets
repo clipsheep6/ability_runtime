@@ -20,14 +20,14 @@ interface TipBtn {
 @Entry
 @Component
 struct TipsDialog {
-  @State private deviceType: string = "phone";
+  @State private isDefaultPossion: boolean = true;
   @State private btn: TipBtn = { color: "#FFFFFF" }
   private TAG = "TipsDialog_Page"
 
   aboutToAppear() {
     console.log(this.TAG, "dialog page appears");
-    this.deviceType = globalThis.params.deviceType
-    if (this.deviceType == "pc") {
+    this.isDefaultPossion = globalThis.params.isDefaultPossion
+    if (this.isDefaultPossion == false) {
       this.btn.color = "#F2F2F2";
     }
   }

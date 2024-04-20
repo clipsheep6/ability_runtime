@@ -14,10 +14,10 @@
  *  * limitations under the License.
  *
  */
-import deviceInfo from '@ohos.deviceInfo'
+import info from '@ohos.deviceInfo'
 
 export class DeviceInfoUtil{
     public static isTable(): boolean{
-        return deviceInfo.deviceType === 'tablet' || deviceInfo.deviceType === '2in1';
+        return info.deviceType === 'tablet' || info.deviceType === '2in1';
     }
 }

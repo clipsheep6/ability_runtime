@@ -16,7 +16,7 @@
 import extension from '@ohos.app.ability.ServiceExtensionAbility';
 import window from '@ohos.window';
 import display from '@ohos.display';
-import deviceInfo from '@ohos.deviceInfo';
+import device from '@ohos.deviceInfo';
 
 const TAG = 'SwitchUserDialog_Service';
 const LEFT_COEFFICIENT = 0.1;
@@ -65,7 +65,7 @@ export default class SwitchUserServiceExtensionAbility extends extension {
   }
 
   private async createWindow(name: string, windowType: number, rect) :Promise<void> {
-    let deviceTypeInfo = deviceInfo.deviceType;
+    let deviceTypeInfo = device.deviceType;
     console.info(TAG, 'create window rect is ' + JSON.stringify(rect));
     try {
       win = await window.create(this.context, name, windowType);

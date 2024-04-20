@@ -15,6 +15,7 @@
 
 import deviceInfo from '@ohos.deviceInfo';
 import display from '@ohos.display';
+import { DeviceInfoUtil } from './DeviceUtil';
 
 const TAG = '[PositionUtils]';
 
@@ -77,7 +78,7 @@ export default class PositionUtils {
     };
     let displayClass: display.Display | null = this.getDefaultDisplay();
     if (displayClass) {
-      let isPhone = (deviceInfo.deviceType === STR_PHONE) || (deviceInfo.deviceType === STR_DEFAULT);
+      let isPhone = !DeviceInfoUtil.isTable();
       if (isPhone) {
         // Bottom
         position.width = displayClass.width * WIDTH_MULTIPLE;
@@ -104,7 +105,7 @@ export default class PositionUtils {
       offsetY: 0,
       oversizeHeight: false
     };
-    if (deviceInfo.deviceType === STR_PHONE || deviceInfo.deviceType === STR_DEFAULT) {
+    if (!DeviceInfoUtil.isTable()) {
       this.getPhoneSelectorDialogPosition(position, lineNums);
     } else {
       this.getPcSelectorDialogPosition(position, lineNums);

@@ -376,14 +376,12 @@ bool AbilityManagerService::Init()
     subManagersHelper_ = std::make_shared<SubManagersHelper>(taskHandler_, eventHandler_);
     subManagersHelper_->InitSubManagers(MAIN_USER_ID, true);
     SwitchManagers(U0_USER_ID, false);
-    std::string deviceType = OHOS::system::GetDeviceType();
 #ifdef SUPPORT_GRAPHICS
     auto anrListenerTask = []() {
         auto anrListener = std::make_shared<ApplicationAnrListener>();
         MMI::InputManager::GetInstance()->SetAnrObserver(anrListener);
     };
     taskHandler_->SubmitTask(anrListenerTask, "AnrListenerTask");
-    DelayedSingleton<SystemDialogScheduler>::GetInstance()->SetDeviceType(deviceType);
     implicitStartProcessor_ = std::make_shared<ImplicitStartProcessor>();
     if (!Rosen::SceneBoardJudgement::IsSceneBoardEnabled()) {
         InitFocusListener();

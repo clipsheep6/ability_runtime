@@ -74,7 +74,6 @@ bool DoSomethingInterestingWithMyAPI(const char* data, size_t size)
     }
     int32_t userId = static_cast<int32_t>(GetU32Data(data));
     std::shared_ptr<SystemDialogScheduler> systemDialogScheduler = std::make_shared<SystemDialogScheduler>();
-    systemDialogScheduler->GetANRDialogWant(static_cast<int>(userId), pid, *want);
     std::vector<DialogAppInfo> dialogAppInfos;
     systemDialogScheduler->GetSelectorParams(dialogAppInfos);
     int32_t labelId = static_cast<int32_t>(GetU32Data(data));
