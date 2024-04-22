@@ -1239,7 +1239,7 @@ ErrCode AbilityManagerShellCommand::MakeWantForProcess(Want& want)
             }
             case 'S': {
                 // 'aa process -S'
-                // enter sanbox to perform app
+                // enter sandbox to perform app
                 isSandboxApp = true;
                 break;
             }
@@ -1522,7 +1522,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_INTEGER: {
-                    // 'aa start --pi' with no argumnet
+                    // 'aa start --pi' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --pi' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1533,7 +1533,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_STRING: {
-                    // 'aa start --ps' with no argumnet
+                    // 'aa start --ps' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --ps' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1544,7 +1544,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_BOOL: {
-                    // 'aa start --pb' with no argumnet
+                    // 'aa start --pb' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -pb' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1555,7 +1555,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case OPTION_PARAMETER_NULL_STRING: {
-                    // 'aa start --psn' with no argumnet
+                    // 'aa start --psn' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s --psn' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1567,7 +1567,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                 }
 
                 case 'A': {
-                    // 'aa start -A' with no argumnet
+                    // 'aa start -A' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -A' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1578,7 +1578,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
                     break;
                 }
                 case 'U': {
-                    // 'aa start -U' with no argumnet
+                    // 'aa start -U' with no argument
                     TAG_LOGI(AAFwkTag::AA_TOOL, "'aa %{public}s -U' with no argument.", cmd_.c_str());
 
                     resultReceiver_.append("error: option ");
@@ -1780,7 +1780,7 @@ ErrCode AbilityManagerShellCommand::MakeWantFromCmd(Want& want, std::string& win
             }
             case 'S': {
                 // 'aa start -b <bundleName> -a <abilityName> -p <perf-cmd> -S'
-                // enter sanbox to perform app
+                // enter sandbox to perform app
                 isSandboxApp = true;
                 break;
             }

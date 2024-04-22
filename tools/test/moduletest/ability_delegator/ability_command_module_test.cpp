@@ -30,9 +30,9 @@ using namespace OHOS::AAFwk;
 
 namespace {
 const std::string STRING_CLASS_NAME = "ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010";
-const std::string STRING_USER_TESTRUNNER = "JSUserTestRunner";
-const std::string STRING_BUNDLENAME = "com.example.myapplication";
-const std::string STRING_BUNDLENAME1 = "com.example.myapplication1";
+const std::string STRING_USER_TEST_RUNNER = "JSUserTestRunner";
+const std::string STRING_BUNDLE_NAME = "com.example.myapplication";
+const std::string STRING_BUNDLE_NAME1 = "com.example.myapplication1";
 const std::string CLASS = "class";
 const std::string UNITTEST = "unittest";
 const std::string TIME = "50";
@@ -190,10 +190,10 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0600, Function | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-p",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -238,10 +238,10 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0800, Function | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-p",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -269,10 +269,10 @@ HWTEST_F(AbilityCommandModuleTest, Ability_Command_Module_Test_0900, Function | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-p",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-z",
         (char*)TIME.c_str(),
         (char*)"-s",

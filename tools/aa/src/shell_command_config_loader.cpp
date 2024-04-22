@@ -28,10 +28,10 @@ namespace {
     constexpr static int  COMMANDS_MAX_SIZE = 100;
 }
 
-bool ShellCommandConfigLoder::configState_ = false;
-std::set<std::string> ShellCommandConfigLoder::commands_ = {};
+bool ShellCommandConfigLoader::configState_ = false;
+std::set<std::string> ShellCommandConfigLoader::commands_ = {};
 
-bool ShellCommandConfigLoder::ReadConfig(const std::string &filePath)
+bool ShellCommandConfigLoader::ReadConfig(const std::string &filePath)
 {
     TAG_LOGI(AAFwkTag::AA_TOOL, "%{public}s", __func__);
     if (configState_) {
