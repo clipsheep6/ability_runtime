@@ -31,10 +31,10 @@ interface HapInfo {
 @Entry
 @Component
 struct SelectorPcDialog {
-  @State private pcSelectorlist: SelectorPc = { width: "100%", height: "240vp"};
+  @State private pcSelectorlist: SelectorPc = { width: '100%', height: '240vp'};
   @State private hapList: HapInfo[] = [];
   @State private pcShowMoreHapList: HapInfo[] = [];
-  private TAG = "SelectorDialog_Pc_Page";
+  private TAG = 'SelectorDialog_Pc_Page';
   @State private moreOpenModeVisiable: number = 0;
   @State private moreOpenModeAreaHigh: number = 54;
   @State private moreAppsVisiable: number = 2;
@@ -44,12 +44,12 @@ struct SelectorPcDialog {
   @State private moreHapListVisibility:number = 2;
   @State private totalHigh: number = 0;
   @State private isCheckSelected: boolean = false;
-  @State private action: string = "";
+  @State private action: string = '';
   @State public hapListBackGround: number[] = [0xffffff];
   @State public hapListPngVisibility: number[] = [];
   @State public moreHapListBackGround: number[] = [0xffffff];
   @State public moreHapListPngVisibility: number[] = [];
-  public moreHapListType: string = "reserved/wildcard";
+  public moreHapListType: string = 'reserved/wildcard';
   @State public isCheck: boolean = false;
   private selectItem;
 
@@ -62,7 +62,7 @@ struct SelectorPcDialog {
   }
 
   cleanFirstListColorAndVisibility() {
-    for(let n = 0; n <= globalThis.pcShowHapList.length; n++) {
+    for (let n = 0; n <= globalThis.pcShowHapList.length; n++) {
       this.hapListBackGround[n] = 0xffffff;
       this.hapListPngVisibility[n] = 1;
     }
@@ -127,8 +127,8 @@ struct SelectorPcDialog {
     let bundleName = hap.bundleName;
     let moduleName = hap.moduleName;
     let abilityName = hap.name;
-    let appName = "";
-    let appIcon = "";
+    let appName = '';
+    let appIcon = '';
     let lableId = Number(hap.labelId);
     let type = hap.uri;
     let userId = Number(hap.userId);
@@ -145,7 +145,8 @@ struct SelectorPcDialog {
                   imageDescriptor instanceof drawableDescriptor.LayeredDrawableDescriptor) {
                   let layeredDrawableDescriptor: drawableDescriptor.LayeredDrawableDescriptor =
                     <drawableDescriptor.LayeredDrawableDescriptor> imageDescriptor;
-                  let foregroundDescriptor: drawableDescriptor.DrawableDescriptor = layeredDrawableDescriptor.getForeground();
+                  let foregroundDescriptor: drawableDescriptor.DrawableDescriptor =
+                    layeredDrawableDescriptor.getForeground();
                   if (foregroundDescriptor !== null && foregroundDescriptor !== undefined) {
                     globalThis.jsonIconMap.set(bundleName + ':' + moduleName + ':' + abilityName,
                       foregroundDescriptor.getPixelMap());
@@ -157,7 +158,7 @@ struct SelectorPcDialog {
                 console.error(this.TAG, 'get drawableDescriptor error:' + JSON.stringify(e));
               }
             }
-            let moreHapList = ""
+            let moreHapList = ''
             moreHapList = bundleName + abilityName + moduleName
             if (globalThis.params.hapList.find(item => String(item.bundleName + item.ability + item.moduleName) ==
               String(moreHapList)) == undefined) {
@@ -166,10 +167,10 @@ struct SelectorPcDialog {
               this.getMoreHapListStyle()
             }
           }).catch(error => {
-              console.error("getMediaBase64 error:" + JSON.stringify(error));
+              console.error('getMediaBase64 error:' + JSON.stringify(error));
         });
       }).catch(error => {
-          console.error("getString error:" + JSON.stringify(error));
+          console.error('getString error:' + JSON.stringify(error));
       });
     }
 
@@ -182,10 +183,10 @@ struct SelectorPcDialog {
       morelist ++;
         if (this.hapList.length == 2) {
           if (morelist == 1) {
-             this.totalHigh = 447; 
+             this.totalHigh = 447;
              heightTotalVp = 262;
-          } else if(morelist >= 2) {
-             this.totalHigh = 511; 
+          } else if (morelist >= 2) {
+             this.totalHigh = 511;
              heightTotalVp = 326;
           } else {
               ;
@@ -193,13 +194,13 @@ struct SelectorPcDialog {
         } else if (this.hapList.length == 3) {
           this.totalHigh = 479;
           if (morelist >= 1) {
-             this.totalHigh = 511; 
+             this.totalHigh = 511;
              heightTotalVp = 326;
           }
       } else if (this.hapList.length == 4) {
           this.totalHigh = 543;
           heightTotalVp = this.hapList.length * heightVal + recommendAppAreaHigh + openModeHigh;
-          if(morelist != 0) {
+          if (morelist != 0) {
           } else {
           }
       } else if (this.hapList.length > 4) {
@@ -208,7 +209,7 @@ struct SelectorPcDialog {
       }
       this.pcSelectorlist = {
         width: '100%',
-        height: heightTotalVp + "vp",
+        height: heightTotalVp + 'vp',
       };
     }
 
@@ -225,7 +226,7 @@ struct SelectorPcDialog {
         this.checkboxVisiable = 2;
         heightTotalVp = this.hapList.length * heightVal;
         this.totalHigh = this.hapList.length * heightVal + titleAreaHigh + buttonAreaHigh;
-        if(this.hapList.length > 6) {
+        if (this.hapList.length > 6) {
             heightTotalVp = 6 * heightVal;
             this.totalHigh = 6 * heightVal + titleAreaHigh + buttonAreaHigh;
         }
@@ -252,7 +253,7 @@ struct SelectorPcDialog {
   build() {
     Flex({ direction: FlexDirection.Column , justifyContent: FlexAlign.Center , alignItems: ItemAlign.Center }) {
       Column() {
-          Text($r("app.string.message_title_pc_selector"))
+          Text($r('app.string.message_title_pc_selector'))
             .fontSize(22)
             .fontWeight(FontWeight.Medium)
             .textAlign(TextAlign.Start)
@@ -273,7 +274,7 @@ struct SelectorPcDialog {
                 ListItem() {
                   Flex({ direction: FlexDirection.Row }) {
                     if (item.split('#')[3] != '') {
-                      if (item.split("#")[3].indexOf('image/json') > -1) {
+                      if (item.split('#')[3].indexOf('image/json') > -1) {
                         Image(globalThis.jsonIconMap.get(item.split('#')[0] + ':' + item.split('#')[4] +
                           ':' + item.split('#')[1]))
                           .height(48)
@@ -467,7 +468,7 @@ struct SelectorPcDialog {
               .margin({ top : 16 , left : 16 })
               .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
               if (this.isCheck) {
-                Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
+                Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
                 .backgroundColor('#EAEAEA')
                 .fontColor('#0A59F7')
                 .fontWeight(FontWeight.Medium)
@@ -478,7 +479,7 @@ struct SelectorPcDialog {
                 .margin({ top : 16 , left : 48 })
                 .onClick(() => { this.onSelectApp(this.selectItem) })
               } else {
-                Button($r("app.string.message_sure_selector"), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
+                Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
                 .backgroundColor('#EAEAEA')
                 .fontColor('#999999')
                 .fontWeight(FontWeight.Medium)

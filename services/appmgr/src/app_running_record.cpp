@@ -1995,6 +1995,21 @@ bool AppRunningRecord::IsJITEnabled() const
     return jitEnabled_;
 }
 
+void AppRunningRecord::SetPreloadState(PreloadState state)
+{
+    preloadState_ = state;
+}
+
+bool AppRunningRecord::IsPreloading() const
+{
+    return preloadState_ == PreloadState::PRELOADING;
+}
+
+bool AppRunningRecord::IsPreloaded() const
+{
+    return preloadState_ == PreloadState::PRELOADED;
+}
+
 int32_t AppRunningRecord::GetAssignTokenId() const
 {
     return assignTokenId_;

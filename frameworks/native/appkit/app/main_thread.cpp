@@ -795,6 +795,7 @@ void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
             return;
         }
         appThread->HandleCleanAbility(token);
+        appThread->HandleTerminateAbilityByProcessInnerList();
     };
     if (!mainHandler_->PostTask(task, "MainThread:CleanAbility")) {
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
@@ -1218,7 +1219,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
 void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    TAG_LOGI(AAFwkTag::APPKIT, "HandleLaunchApplication called.");
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         TAG_LOGE(AAFwkTag::APPKIT, "CheckForHandleLaunchApplication failed.");
         return;
@@ -3134,26 +3135,53 @@ int32_t MainThread::ScheduleRequestTerminateProcess()
 void MainThread::RequestTerminateProcess()
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Called.");
-    if (abilityRecordMgr_ == nullptr) {
-        TAG_LOGE(AAFwkTag::APPKIT, "Ability record mgr obj is nullptr");
+    isKilling_ = true;
+    if (!HandleTerminateAbilityByProcessInnerList()) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Terminate ability failed.");
         return;
     }
+}
 
-    auto abilityTokenList = abilityRecordMgr_->GetAllTokens();
-    for (auto &item : abilityTokenList) {
-        if (item == nullptr) {
-            continue;
-        }
-        auto abilityRecord = abilityRecordMgr_->GetAbilityItem(item);
-        if (abilityRecord == nullptr) {
-            continue;
-        }
-        auto &thread = abilityRecord->GetAbilityThread();
-        if (thread == nullptr) {
-            continue;
-        }
-        thread->RequestTerminateSelf();
+bool MainThread::HandleTerminateAbilityByProcessInnerList()
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Called.");
+    if (!isKilling_) {
+        TAG_LOGW(AAFwkTag::APPKIT, "isKilling_ is false.");
+        return false;
     }
+    if (abilityRecordMgr_ == nullptr || mainHandler_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Ability record mgr obj is nullptr or main handler is nullptr");
+        return false;
+    }
+    auto abilityTokenList = abilityRecordMgr_->GetAllTokens();
+    TAG_LOGI(AAFwkTag::APPKIT, "Request terminate all tokens count is %{public}d", abilityTokenList.size());
+    if (abilityTokenList.empty()) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Ability token list is empty");
+        isKilling_ = false;
+        return false;
+    }
+    std::weak_ptr<AbilityLocalRecord> weak = abilityRecordMgr_->GetAbilityItem(*abilityTokenList.begin());
+    auto terminateAbilityTask = [weak] () {
+        auto record = weak.lock();
+        if (record == nullptr) {
+            TAG_LOGW(AAFwkTag::APPKIT, "Weak record is nullptr");
+            return;
+        }
+        auto &abilityThread = record->GetAbilityThread();
+        if (abilityThread == nullptr) {
+            TAG_LOGW(AAFwkTag::APPKIT, "Ability thread is nullptr");
+            return;
+        }
+        const auto abilityInfo = record->GetAbilityInfo();
+        if (abilityInfo == nullptr) {
+            TAG_LOGE(AAFwkTag::APPKIT, "Ability info is nullptr");
+            return;
+        }
+        TAG_LOGD(AAFwkTag::APPKIT, "Request terminate %{public}s", abilityInfo->name.c_str());
+        abilityThread->RequestTerminateSelf();
+    };
+    mainHandler_->PostTask(terminateAbilityTask, "MainThread::HandleTerminateAbilityByProcessInnerList");
+    return true;
 }
 
 void MainThread::HandleInitAssertFaultTask(bool isDebugModule, bool isDebugApp)

@@ -8387,7 +8387,7 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
         return ERR_OK;
     }
     if (AAFwk::UIExtensionUtils::IsUIExtension(extensionType)) {
-        return ERR_OK;
+        return CheckUIExtensionPermission(abilityRequest);
     }
     if (extensionType == AppExecFwk::ExtensionAbilityType::VPN) {
         return ERR_OK;
@@ -8403,6 +8403,16 @@ int AbilityManagerService::CheckCallOtherExtensionPermission(const AbilityReques
     return CHECK_PERMISSION_FAILED;
 }
 
+int AbilityManagerService::CheckUIExtensionPermission(const AbilityRequest &abilityRequest)
+{
+    auto extensionType = abilityRequest.abilityInfo.extensionAbilityType;
+    if (AAFwk::UIExtensionUtils::IsSystemUIExtension(extensionType) && !abilityRequest.appInfo.isSystemApp) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Bundle %{public}s wanna to start isn't system app, not allowed.",
+            abilityRequest.appInfo.bundleName.c_str());
+        return CHECK_PERMISSION_FAILED;
+    }
+    return ERR_OK;
+}
 
 int AbilityManagerService::CheckCallServiceAbilityPermission(const AbilityRequest &abilityRequest)
 {

@@ -1900,6 +1900,15 @@ private:
     int CheckStartByCallPermission(const AbilityRequest &abilityRequest);
 
     /**
+     * @brief Check some specified uiextension type should be a system app.
+     * Consider expanding it to table-driven in the future.
+     *
+     * @param abilityRequest The ability request.
+     * @return Returns ERR_OK when allowed, others when check failed.
+     */
+    int CheckUIExtensionPermission(const AbilityRequest &abilityRequest);
+
+    /**
      * Judge if Caller-Application is in background state.
      *
      * @param abilityRequest, abilityRequest.

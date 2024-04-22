@@ -178,6 +178,7 @@ const std::string SYSTEM_CORE = "system_core";
 const std::string ABILITY_OWNER_USERID = "AbilityMS_Owner_UserId";
 const std::string PROCESS_EXIT_EVENT_TASK = "Send Process Exit Event Task";
 const std::string KILL_PROCESS_REASON_PREFIX = "Kill Reason:";
+const std::string PRELOAD_APPLIATION_TASK = "PreloadApplicactionTask";
 
 constexpr int32_t ROOT_UID = 0;
 constexpr int32_t FOUNDATION_UID = 5523;
@@ -191,6 +192,7 @@ constexpr int32_t NETSYS_SOCKET_GROUPID = 1097;
 #endif
 
 constexpr int32_t DEFAULT_INVAL_VALUE = -1;
+constexpr int32_t NO_ABILITY_RECORD_ID = -1;
 
 int32_t GetUserIdByUid(int32_t uid)
 {
@@ -237,7 +239,8 @@ AppMgrServiceInner::AppMgrServiceInner()
       configuration_(std::make_shared<Configuration>()),
       appDebugManager_(std::make_shared<AppDebugManager>()),
       appRunningStatusModule_(std::make_shared<AbilityRuntime::AppRunningStatusModule>()),
-      securityModeManager_(std::make_shared<AdvancedSecurityModeManager>())
+      securityModeManager_(std::make_shared<AdvancedSecurityModeManager>()),
+      appPreloader_(std::make_shared<AppPreloader>(remoteClientManager_))
 {}
 
 void AppMgrServiceInner::Init()
@@ -297,6 +300,93 @@ void AppMgrServiceInner::StartSpecifiedProcess(const AAFwk::Want &want, const Ap
     }
 }
 
+int32_t AppMgrServiceInner::PreloadApplication(const std::string &bundleName, int32_t userId,
+    AppExecFwk::PreloadMode preloadMode, int32_t appIndex)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::APPMGR,
+        "PreloadApplication, bundleName:%{public}s, userId:%{public}d, preloadMode:%{public}d, appIndex:%{public}d",
+        bundleName.c_str(), userId, preloadMode, appIndex);
+
+    CHECK_CALLER_IS_SYSTEM_APP;
+    auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyPreloadApplicationPermission();
+    if (!isPerm) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication %{public}s: Permission verification failed", __func__);
+        return ERR_PERMISSION_DENIED;
+    }
+    if (!appPreloader_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication appPreloader is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+
+    // todo RSS preCheck
+    PreloadRequest request;
+    auto ret = appPreloader_->GeneratePreloadRequest(bundleName, userId, appIndex, request);
+    if (ret != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication GeneratePreloadRequest failed.");
+        return ret;
+    }
+
+    auto task = [inner = shared_from_this(), request] () {
+        if (!inner) {
+            TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication appMgrServiceInner is nullptr.");
+            return;
+        }
+        inner->HandlePreloadApplication(request);
+    };
+    if (!taskHandler_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication taskHandler_ is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    TAG_LOGI(AAFwkTag::APPMGR, "PreloadApplication Submit task, bundleName:%{public}s, userId:%{public}d.",
+        bundleName.c_str(), userId);
+    taskHandler_->SubmitTask(task, PRELOAD_APPLIATION_TASK);
+    return ERR_OK;
+}
+
+void AppMgrServiceInner::HandlePreloadApplication(const PreloadRequest &request)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    auto abilityInfo = request.abilityInfo;
+    if (!abilityInfo) {
+        TAG_LOGE(AAFwkTag::APPMGR, "HandlePreloadApplication request.abilityInfo is nullptr.");
+        return;
+    }
+    auto bundleInfo = request.bundleInfo;
+    TAG_LOGI(AAFwkTag::APPMGR, "HandlePreloadApplication, bundleName:%{public}s, abilityName:%{public}s, \
+    appIndex:%{public}d", bundleInfo.name.c_str(), abilityInfo->name.c_str(), request.appIndex);
+
+    auto appInfo = request.appInfo;
+    auto hapModuleInfo = request.hapModuleInfo;
+    std::string processName;
+    MakeProcessName(abilityInfo, appInfo, hapModuleInfo, request.appIndex, processName);
+    TAG_LOGD(AAFwkTag::APPMGR, "HandlePreloadApplication processName = %{public}s", processName.c_str());
+
+    auto want = request.want;
+    std::string specifiedProcessFlag = GetSpecifiedProcessFlag(abilityInfo, want);
+    std::shared_ptr<AppRunningRecord> appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
+        processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
+    if (appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "HandlePreloadApplication AppRecord already exists, no need to preload.");
+        return;
+    }
+
+    if (!appRunningManager_) {
+        TAG_LOGE(AAFwkTag::APPMGR, "HandlePreloadApplication failed, appRunningManager_ is nullptr");
+        return;
+    }
+    bool appExistFlag = appRunningManager_->CheckAppRunningRecordIsExistByBundleName(bundleInfo.name);
+    if (!appExistFlag) {
+        NotifyAppRunningStatusEvent(
+            bundleInfo.name, appInfo->uid, AbilityRuntime::RunningStatus::APP_RUNNING_START);
+    }
+    appRecord = CreateAppRunningRecord(nullptr, nullptr, appInfo, abilityInfo, processName, bundleInfo,
+        hapModuleInfo, want, NO_ABILITY_RECORD_ID);
+    appRecord->SetPreloadState(PreloadState::PRELOADING);
+    LoadAbilityNoAppRecord(appRecord, nullptr, appInfo, abilityInfo, processName, specifiedProcessFlag, bundleInfo,
+        hapModuleInfo, want, appExistFlag, true);
+}
+
 void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObject> preToken,
     std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<ApplicationInfo> appInfo,
     std::shared_ptr<AAFwk::Want> want, int32_t abilityRecordId)
@@ -333,14 +423,8 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
 
     std::shared_ptr<AppRunningRecord> appRecord;
     // for isolation process
-    std::string specifiedProcessFlag = "";
+    std::string specifiedProcessFlag = GetSpecifiedProcessFlag(abilityInfo, want);
     bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
-    bool isSpecifiedProcess = abilityInfo->isolationProcess &&
-        AAFwk::AppUtils::GetInstance().IsStartSpecifiedProcess() && isUIAbility;
-    if (isSpecifiedProcess) {
-        specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
-        TAG_LOGI(AAFwkTag::APPMGR, "specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
-    }
     appRecord = appRunningManager_->CheckAppRunningRecordIsExist(appInfo->name,
         processName, appInfo->uid, bundleInfo, specifiedProcessFlag);
     if (appRecord && isUIAbility) {
@@ -356,32 +440,8 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
         }
         appRecord = CreateAppRunningRecord(token, preToken, appInfo, abilityInfo,
             processName, bundleInfo, hapModuleInfo, want, abilityRecordId);
-        if (!appRecord) {
-            TAG_LOGE(AAFwkTag::APPMGR, "CreateAppRunningRecord failed, appRecord is nullptr");
-            return;
-        }
-        if (isSpecifiedProcess && !specifiedProcessFlag.empty()) {
-            appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
-        }
-        if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
-            appRecord->SetKeepAliveAppState(false, false);
-            TAG_LOGI(AAFwkTag::APPMGR, "The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
-        }
-        OnAppStateChanged(appRecord, ApplicationState::APP_STATE_SET_COLD_START, false, false);
-        SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
-        auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
-        if (callRecord != nullptr) {
-            auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
-            TAG_LOGD(AAFwkTag::APPMGR, "req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
-                appInfo->name.c_str(), appRecord->GetCallerPid(), callRecord->GetBundleName().c_str());
-        }
-        uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
-        int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
-        StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
-            appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag);
-        std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
-        bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
-        (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
+        LoadAbilityNoAppRecord(appRecord, preToken, appInfo, abilityInfo, processName, specifiedProcessFlag,
+            bundleInfo, hapModuleInfo, want, appExistFlag, false);
     } else {
         TAG_LOGI(AAFwkTag::APPMGR, "have apprecord");
         SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::MULTI_INSTANCE);
@@ -524,6 +584,67 @@ void AppMgrServiceInner::MakeProcessName(
         return;
     }
     processName = appInfo->bundleName;
+}
+
+void AppMgrServiceInner::LoadAbilityNoAppRecord(const std::shared_ptr<AppRunningRecord> appRecord,
+    sptr<IRemoteObject> preToken, std::shared_ptr<ApplicationInfo> appInfo,
+    std::shared_ptr<AbilityInfo> abilityInfo, const std::string &processName,
+    const std::string &specifiedProcessFlag, const BundleInfo &bundleInfo, const HapModuleInfo &hapModuleInfo,
+    std::shared_ptr<AAFwk::Want> want, bool appExistFlag, bool isPreload)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
+    TAG_LOGI(AAFwkTag::APPMGR, "LoadAbilityNoAppRecord, processName:%{public}s, isPreload:%{public}d",
+        processName.c_str(), isPreload);
+    if (!appRecord) {
+        TAG_LOGE(AAFwkTag::APPMGR, "CreateAppRunningRecord failed, appRecord is nullptr");
+        return;
+    }
+    if (!specifiedProcessFlag.empty()) {
+        appRecord->SetSpecifiedProcessFlag(specifiedProcessFlag);
+    }
+    if (hapModuleInfo.isStageBasedModel && !IsMainProcess(appInfo, hapModuleInfo)) {
+        appRecord->SetKeepAliveAppState(false, false);
+        TAG_LOGI(AAFwkTag::APPMGR, "The process %{public}s will not keepalive", hapModuleInfo.process.c_str());
+    }
+    OnAppStateChanged(appRecord, ApplicationState::APP_STATE_SET_COLD_START, false, false);
+    SendAppStartupTypeEvent(appRecord, abilityInfo, AppStartType::COLD);
+    if (preToken) {
+        auto callRecord = GetAppRunningRecordByAbilityToken(preToken);
+        if (callRecord != nullptr) {
+            auto launchReson = (want == nullptr) ? 0 : want->GetIntParam("ohos.ability.launch.reason", 0);
+            TAG_LOGD(AAFwkTag::APPMGR, "req: %{public}d, proc: %{public}s, call:%{public}d,%{public}s", launchReson,
+                appInfo->name.c_str(), appRecord->GetCallerPid(), callRecord->GetBundleName().c_str());
+        }
+    }
+    uint32_t startFlags = (want == nullptr) ? 0 : AppspawnUtil::BuildStartFlags(*want, *abilityInfo);
+    int32_t bundleIndex = (want == nullptr) ? 0 : want->GetIntParam(DLP_PARAMS_INDEX, 0);
+    StartProcess(abilityInfo->applicationName, processName, startFlags, appRecord,
+        appInfo->uid, bundleInfo, appInfo->bundleName, bundleIndex, appExistFlag, isPreload);
+    std::string perfCmd = (want == nullptr) ? "" : want->GetStringParam(PERF_CMD);
+    bool isSandboxApp = (want == nullptr) ? false : want->GetBoolParam(ENTER_SANDBOX, false);
+    (void)StartPerfProcess(appRecord, perfCmd, "", isSandboxApp);
+}
+
+std::string AppMgrServiceInner::GetSpecifiedProcessFlag(std::shared_ptr<AbilityInfo> abilityInfo,
+    std::shared_ptr<AAFwk::Want> want)
+{
+    if (!abilityInfo) {
+        TAG_LOGE(AAFwkTag::APPMGR, "abilityInfo is nullptr.");
+        return "";
+    }
+    if (!want) {
+        TAG_LOGE(AAFwkTag::APPMGR, "want is nullptr.");
+        return "";
+    }
+    std::string specifiedProcessFlag = "";
+    bool isUIAbility = (abilityInfo->type == AppExecFwk::AbilityType::PAGE && abilityInfo->isStageBasedModel);
+    bool isSpecifiedProcess = abilityInfo->isolationProcess &&
+        AAFwk::AppUtils::GetInstance().IsStartSpecifiedProcess() && isUIAbility;
+    if (isSpecifiedProcess) {
+        specifiedProcessFlag = want->GetStringParam(PARAM_SPECIFIED_PROCESS_FLAG);
+        TAG_LOGI(AAFwkTag::APPMGR, "specifiedProcessFlag = %{public}s", specifiedProcessFlag.c_str());
+    }
+    return specifiedProcessFlag;
 }
 
 bool AppMgrServiceInner::IsMainProcess(const std::shared_ptr<ApplicationInfo> &appInfo,
@@ -699,6 +820,7 @@ void AppMgrServiceInner::LaunchApplication(const std::shared_ptr<AppRunningRecor
         return;
     }
     appRecord->LaunchPendingAbilities();
+    appRecord->SetPreloadState(PreloadState::PRELOADED);
     SendAppLaunchEvent(appRecord);
 }
 
@@ -1938,7 +2060,8 @@ void AppMgrServiceInner::StartAbility(sptr<IRemoteObject> token, sptr<IRemoteObj
 
     ApplicationState appState = appRecord->GetState();
     if (appState == ApplicationState::APP_STATE_CREATE) {
-        TAG_LOGE(AAFwkTag::APPMGR, "in create state, don't launch ability");
+        TAG_LOGE(AAFwkTag::APPMGR, "in create state, don't launch ability, bundleName:%{public}s, ability:%{public}s",
+            appInfo->bundleName.c_str(), abilityInfo->name.c_str());
         return;
     }
     appRecord->LaunchAbility(ability);
@@ -2249,7 +2372,7 @@ void AppMgrServiceInner::StartProcessVerifyPermission(const BundleInfo &bundleIn
 
 void AppMgrServiceInner::StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
     std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
-    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag)
+    const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag, bool isPreload)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (!appRecord) {
@@ -2321,8 +2444,9 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     SetOverlayInfo(bundleName, userId, startMsg);
     SetAppEnvInfo(bundleInfo, startMsg);
 
-    TAG_LOGI(AAFwkTag::APPMGR, "apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d.",
-        startMsg.apl.c_str(), bundleName.c_str(), startFlags);
+    TAG_LOGI(AAFwkTag::APPMGR,
+        "apl is %{public}s, bundleName is %{public}s, startFlags is %{public}d, isPreload:%{public}d",
+        startMsg.apl.c_str(), bundleName.c_str(), startFlags, isPreload);
 
     bool bundleMgrResult = IN_PROCESS_CALL(bundleMgrHelper->GetBundleGidsByUid(bundleName, uid, startMsg.gids));
     if (!bundleMgrResult) {
