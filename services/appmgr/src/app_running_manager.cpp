@@ -395,7 +395,7 @@ void initMap()
 std::map<const std::string, const std::vector<RunningMultiAppInfo>> AppRunningManager::GetRunningMultiAppInfoMap()
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
-    // initMap();
+    initMap();
     return RunningMultiAppInfoMap_;
 }
 
