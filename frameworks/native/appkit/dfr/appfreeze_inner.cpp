@@ -224,11 +224,7 @@ int AppfreezeInner::NotifyANR(const FaultData& faultData)
 
     int ret = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance()->NotifyAppFault(faultData);
     if (ret != 0) {
-        HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::AAFWK, faultData.errorObject.name,
-            OHOS::HiviewDFX::HiSysEvent::EventType::FAULT, EVENT_UID, applicationInfo->uid,
-            EVENT_PID, pid, EVENT_PACKAGE_NAME, applicationInfo->bundleName,
-            EVENT_PROCESS_NAME, applicationInfo->process, EVENT_MESSAGE,
-            faultData.errorObject.message, EVENT_STACK, faultData.errorObject.stack);
+        TAG_LOGE(AAFwkTag::APPDFR, "ret :%{public}d cannot report", ret);
     }
     return ret;
 }
