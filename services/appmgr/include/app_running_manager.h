@@ -34,6 +34,7 @@
 #include "refbase.h"
 #include "running_process_info.h"
 #include "app_jsheap_mem_info.h"
+#include "running_multi_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -110,6 +111,13 @@ public:
      * @return the application record list.
      */
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> GetAppRunningRecordMap();
+
+    /**
+     * GetRunningMultiAppInfoMap, Get RunningMultiApp Information.
+     *
+     * @return the RunningMultiApp Infomation.
+     */
+    std::map<const std::string, const std::vector<RunningMultiAppInfo>> GetRunningMultiAppInfoMap();
 
     /**
      * RemoveAppRunningRecordById, Remove application information through application id.
@@ -306,6 +314,7 @@ private:
 
 private:
     std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> appRunningRecordMap_;
+    std::map<const std::string, const std::vector<RunningMultiAppInfo>> runningMultiAppInfoMap_;
     std::map<const std::string, int> processRestartRecord_;
     ffrt::mutex lock_;
     ffrt::mutex uiExtensionMapLock_;

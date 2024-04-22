@@ -99,6 +99,11 @@ public:
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningProcessInformation);
     }
 
+    static napi_value GetRunningMultiAppInfo(napi_env env, napi_callback_info info)
+    {
+        GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnGetRunningMultiAppInfo);
+    }
+
     static napi_value IsRunningInStabilityTest(napi_env env, napi_callback_info info)
     {
         GET_CB_INFO_AND_CALL(env, info, JsAppManager, OnIsRunningInStabilityTest);
@@ -632,6 +637,45 @@ private:
         return result;
     }
 
+     napi_value OnGetRunningMultiAppInfo(napi_env env, size_t argc, napi_value* argv)
+    {
+        TAG_LOGD(AAFwkTag::APPMGR, "called");
+        int32_t errCode = 0;
+        std::string bundleName;
+
+        // only support 1 params
+        if (argc != ARGC_ONE) {
+            TAG_LOGE(AAFwkTag::APPMGR, "Not enough arguments");
+            ThrowTooFewParametersError(env);
+            return CreateJsUndefined(env);
+        } else {
+            if (!ConvertFromJsValue(env, argv[0], bundleName)) {
+                TAG_LOGE(AAFwkTag::APPMGR, "get bundleName failed!");
+                ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+                return CreateJsUndefined(env);
+            }
+        }
+        NapiAsyncTask::CompleteCallback complete =
+            [appManager = appManager_, bundleName, errCode](napi_env env, NapiAsyncTask &task, int32_t status) {
+                if (errCode != 0) {
+                    task.Reject(env, CreateJsError(env, errCode, "Invalidate params."));
+                    return;
+                }
+                std::vector<AppExecFwk::RunningMultiAppInfo> infos;
+                auto ret = appManager->GetRunningMultiAppInfoByBundleName(infos, bundleName);
+                if (ret == 0) {
+                    task.Resolve(env, CreateJsRunningMultiAppInfoArray(env, infos));
+                } else {
+                    task.Reject(env, CreateJsError(env, ret, "Get mission infos failed."));
+                }
+            };
+        napi_value lastParam = (argc == ARGC_ONE) ? argv[INDEX_ZERO] : nullptr;
+        napi_value result = nullptr;
+        NapiAsyncTask::Schedule("JSAppManager::OnGetRunningMultiAppInfo",
+            env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
+        return result;
+    }
+
     napi_value OnIsRunningInStabilityTest(napi_env env, size_t argc, napi_value* argv)
     {
         TAG_LOGD(AAFwkTag::APPMGR, "called");
@@ -1115,6 +1159,8 @@ napi_value JsAppManagerInit(napi_env env, napi_value exportObj)
         JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "getProcessRunningInformation", moduleName,
         JsAppManager::GetRunningProcessInformation);
+    BindNativeFunction(env, exportObj, "getRunningMultiAppInfo", moduleName,
+        JsAppManager::GetRunningMultiAppInfo);
     BindNativeFunction(env, exportObj, "getRunningProcessInformation", moduleName,
         JsAppManager::GetRunningProcessInformation);
     BindNativeFunction(env, exportObj, "isRunningInStabilityTest", moduleName,

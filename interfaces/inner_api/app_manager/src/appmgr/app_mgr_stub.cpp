@@ -54,6 +54,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleClearUpApplicationData;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_ALL_RUNNING_PROCESSES)] =
         &AppMgrStub::HandleGetAllRunningProcesses;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_By_BUNDLENAME)] =
+        &AppMgrStub::HandleGetRunningMultiAppInfoByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_MEMORY_LEVEL)] =
         &AppMgrStub::HandleNotifyMemoryLevel;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_NOTIFY_PROC_MEMORY_LEVEL)] =
@@ -317,6 +319,24 @@ int32_t AppMgrStub::HandleGetAllRunningProcesses(MessageParcel &data, MessagePar
         }
     }
     if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetRunningMultiAppInfoByBundleName(MessageParcel &data, MessageParcel &reply)
+{
+    std::string bundleName = data.ReadString();
+    std::vector<RunningMultiAppInfo> info;
+    auto result = GetRunningMultiAppInfoByBundleName(info, bundleName);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "fail to write result.");
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;
