@@ -247,6 +247,7 @@ public:
     bool IsApplicationFirstFocused(const AppRunningRecord &foregroundingRecord);
     bool IsApplicationUnfocused(const std::string &bundleName);
     void OnWindowVisibilityChanged(const std::vector<sptr<OHOS::Rosen::WindowVisibilityInfo>> &windowVisibilityInfos);
+    void initMap();
 
     /**
      * @brief Set attach app debug mode.
