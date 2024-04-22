@@ -26,6 +26,7 @@
 #include "napi_common_configuration.h"
 #include "napi_common_util.h"
 #include "napi_common_want.h"
+#include "ohos_application.h"
 #include "startup_manager.h"
 #include <algorithm>
 #include <cstring>
@@ -152,9 +153,10 @@ JsAbilityStage::~JsAbilityStage()
     jsRuntime_.FreeNativeReference(std::move(shellContextRef_));
 }
 
-void JsAbilityStage::Init(const std::shared_ptr<Context> &context)
+void JsAbilityStage::Init(const std::shared_ptr<Context> &context,
+    const std::weak_ptr<AppExecFwk::OHOSApplication> application)
 {
-    AbilityStage::Init(context);
+    AbilityStage::Init(context, application);
 
     if (!context) {
         TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr");
@@ -336,9 +338,13 @@ void JsAbilityStage::OnConfigurationUpdated(const AppExecFwk::Configuration& con
 
     HandleScope handleScope(jsRuntime_);
     auto env = jsRuntime_.GetNapiEnv();
-
+    auto application = application_.lock();
+    if (application == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "application is nullptr.");
+        return;
+    }
     // Notify Ability stage context
-    auto fullConfig = GetContext()->GetConfiguration();
+    auto fullConfig = application->GetConfiguration();
     if (!fullConfig) {
         TAG_LOGE(AAFwkTag::APPKIT, "configuration is nullptr.");
         return;

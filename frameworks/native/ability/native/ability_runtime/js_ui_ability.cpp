@@ -1099,7 +1099,8 @@ void JsUIAbility::OnConfigurationUpdated(const Configuration &configuration)
         return;
     }
 
-    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, configuration);
+    TAG_LOGD(AAFwkTag::UIABILITY, "fullConfig: %{public}s", fullConfig->GetName().c_str());
+    napi_value napiConfiguration = OHOS::AppExecFwk::WrapConfiguration(env, *fullConfig);
     CallObjectMethod("onConfigurationUpdated", &napiConfiguration, 1);
     CallObjectMethod("onConfigurationUpdate", &napiConfiguration, 1);
     JsAbilityContext::ConfigurationUpdated(env, shellContextRef_, fullConfig);
