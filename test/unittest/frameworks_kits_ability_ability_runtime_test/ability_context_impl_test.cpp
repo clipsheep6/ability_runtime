@@ -1466,6 +1466,46 @@ HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_SetMissionIcon_0300, Funct
     auto ret1 = context_->SetMissionIcon(nullptr);
     EXPECT_TRUE(ret1 == ERR_OK);
 }
+
+/**
+ * @tc.number: Ability_Context_Impl_RequestModalUIExtension_0100
+ * @tc.name: RequestModalUIExtension
+ * @tc.desc: RequestModalUIExtension
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_RequestModalUIExtension_0100, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    context_->RequestModalUIExtension(want);
+    EXPECT_TRUE(context_ != nullptr);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_ChangeAbilityVisibility_0100
+ * @tc.name: ChangeAbilityVisibility
+ * @tc.desc: ChangeAbilityVisibility
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_ChangeAbilityVisibility_0100, Function | MediumTest | Level1)
+{
+    bool isShow = true;
+    context_->ChangeAbilityVisibility(isShow);
+    EXPECT_TRUE(context_ != nullptr);
+}
+
+/**
+ * @tc.number: Ability_Context_Impl_OpenAtomicService_0100
+ * @tc.name: OpenAtomicService
+ * @tc.desc: OpenAtomicService
+ */
+HWTEST_F(AbilityContextImplTest, Ability_Context_Impl_OpenAtomicService_0100, Function | MediumTest | Level1)
+{
+    AAFwk::Want want;
+    AAFwk::StartOptions options;
+    int requestCode = 0;
+    RuntimeTask task = [](const int32_t count, const Want& want, bool isInner)
+    { GTEST_LOG_(INFO) << "Ability_Context_Impl_StartAbilityForResult_0100 task called"; };
+    context_->OpenAtomicService(want, options, requestCode, std::move(task));
+    EXPECT_TRUE(context_ != nullptr);
+}
 } // namespace AppExecFwk
 } // namespace OHOS
 

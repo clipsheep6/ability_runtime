@@ -15,13 +15,16 @@ import("//build/ohos.gni")
 import("//build/test.gni")
 import("//foundation/ability/ability_runtime/ability_runtime.gni")
 
-module_output_path = "ans_standard/wantagent"
+module_output_path = "ability_runtime/wantagent"
 
 ohos_unittest("want_agent_test") {
   module_out_path = module_output_path
   include_dirs = [ "${ability_runtime_services_path}/abilitymgr/include" ]
 
-  sources = [ "want_agent_test.cpp" ]
+  sources = [
+    "${ability_runtime_services_path}/abilitymgr/src/process_options.cpp",
+    "want_agent_test.cpp",
+  ]
 
   configs = [ "${c_utils_base_path}:utils_config" ]
   cflags = []

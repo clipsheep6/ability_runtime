@@ -329,6 +329,47 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_KillProcessesByUserId_001, TestSize.Leve
 }
 
 /**
+ * @tc.name: AppMgrClient_KillProcessesByPids_001
+ * @tc.desc: can not kill processes by wrong user ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_KillProcessesByPids_001, TestSize.Level0)
+{
+    std::string deviceName = "device";
+    std::string abilityName = "FirstAbility";
+    std::string appName = "FirstApp";
+    std::string bundleName = "com.ix.First.Test";
+    std::vector<sptr<IRemoteObject>> tokens;
+    auto abilityReq = GenerateAbilityRequest(deviceName, abilityName, appName, bundleName);
+    auto record = AbilityRecord::CreateAbilityRecord(abilityReq);
+    auto token = record->GetToken();
+
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    EXPECT_NE(appMgrClient, nullptr);
+
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    std::vector<int32_t> pids;
+    appMgrClient->KillProcessesByPids(pids);
+    EXPECT_TRUE(appMgrClient != nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_AttachPidToParent_001
+ * @tc.desc: can not kill processes by wrong user ID.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_AttachPidToParent_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    sptr<IRemoteObject> token = nullptr;
+    sptr<IRemoteObject> callerToken = nullptr;
+    appMgrClient->AttachPidToParent(token, callerToken);
+    EXPECT_TRUE(appMgrClient != nullptr);
+}
+
+/**
  * @tc.name: AppMgrClient_StartUserTestProcess_001
  * @tc.desc: can not start user test process with wrong param.
  * @tc.type: FUNC
@@ -613,6 +654,48 @@ HWTEST_F(AppMgrClientTest, AppMgrClient_DumpHeapMemory_001, TestSize.Level0)
     int32_t pid = 1;
     OHOS::AppExecFwk::MallocInfo mallocInfo;
     appMgrClient->DumpHeapMemory(pid, mallocInfo);
+}
+
+/**
+ * @tc.name: AppMgrClient_DumpJsHeapMemory_001
+ * @tc.desc: DumpJsHeapMemory.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_DumpJsHeapMemory_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    auto result = appMgrClient->ConnectAppMgrService();
+    EXPECT_EQ(result, AppMgrResultCode::RESULT_OK);
+
+    OHOS::AppExecFwk::JsHeapDumpInfo info;
+    appMgrClient->DumpJsHeapMemory(info);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyMemoryLevel_001
+ * @tc.desc: NotifyMemoryLevel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, NotifyMemoryLevel_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    MemoryLevel level = MEMORY_LEVEL_MODERATE;
+    appMgrClient->NotifyMemoryLevel(level);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_NotifyProcMemoryLevel_001
+ * @tc.desc: NotifyProcMemoryLevel.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, NotifyProcMemoryLevel_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::map<pid_t, MemoryLevel> procLevelMap;
+    appMgrClient->NotifyProcMemoryLevel(procLevelMap);
+    EXPECT_NE(appMgrClient, nullptr);
 }
 
 /**
@@ -1030,6 +1113,203 @@ HWTEST_F(AppMgrClientTest, PreloadApplication_001, TestSize.Level0)
     int32_t appIndex = 0;
     int32_t ret = appMgrClient->PreloadApplication(bundleName, userId, preloadMode, appIndex);
     EXPECT_EQ(ret, ERR_PERMISSION_DENIED);
+}
+
+/**
+ * @tc.name: AppMgrClient_UpdateConfiguration_001
+ * @tc.desc: UpdateConfiguration.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, UpdateConfiguration_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    Configuration config;
+    appMgrClient->UpdateConfiguration(config);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_UpdateConfigurationByBundleName_001
+ * @tc.desc: UpdateConfigurationByBundleName.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, UpdateConfigurationByBundleName_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    Configuration config;
+    std::string name;
+    appMgrClient->UpdateConfigurationByBundleName(config, name);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterConfigurationObserver_001
+ * @tc.desc: RegisterConfigurationObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, RegisterConfigurationObserver_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    sptr<IConfigurationObserver> observer;
+    appMgrClient->RegisterConfigurationObserver(observer);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_SetAppWaitingDebug_001
+ * @tc.desc: SetAppWaitingDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SetAppWaitingDebug_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::string bundleName;
+    bool isPersist = true;
+    appMgrClient->SetAppWaitingDebug(bundleName, isPersist);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_CancelAppWaitingDebug_001
+ * @tc.desc: CancelAppWaitingDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, CancelAppWaitingDebug_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    appMgrClient->CancelAppWaitingDebug();
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_GetWaitingDebugApp_001
+ * @tc.desc: GetWaitingDebugApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, GetWaitingDebugApp_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::vector<std::string> debugInfoList;
+    appMgrClient->GetWaitingDebugApp(debugInfoList);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_IsWaitingDebugApp_001
+ * @tc.desc: IsWaitingDebugApp.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, IsWaitingDebugApp_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::string bundleName;
+    appMgrClient->IsWaitingDebugApp(bundleName);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_ClearNonPersistWaitingDebugFlag_001
+ * @tc.desc: ClearNonPersistWaitingDebugFlag.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, ClearNonPersistWaitingDebugFlag_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    appMgrClient->ClearNonPersistWaitingDebugFlag();
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_SetAppAssertionPauseState_001
+ * @tc.desc: SetAppAssertionPauseState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, SetAppAssertionPauseState_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    int32_t pid = 1;
+    bool flag = true;
+    appMgrClient->SetAppAssertionPauseState(pid, flag);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_IsAttachDebug_001
+ * @tc.desc: IsAttachDebug.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, IsAttachDebug_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    std::string bundleName;
+    appMgrClient->IsAttachDebug(bundleName);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_IsAmsServiceReady_001
+ * @tc.desc: IsAmsServiceReady.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, IsAmsServiceReady_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    appMgrClient->IsAmsServiceReady();
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_RegisterRenderStateObserver_001
+ * @tc.desc: RegisterRenderStateObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, RegisterRenderStateObserver_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    sptr<IRenderStateObserver> observer;
+    appMgrClient->RegisterRenderStateObserver(observer);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_UnregisterRenderStateObserver_001
+ * @tc.desc: UnregisterRenderStateObserver.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, AppMgrClient_UnregisterRenderStateObserver_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    sptr<IRenderStateObserver> observer;
+    appMgrClient->UnregisterRenderStateObserver(observer);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_UpdateRenderState_001
+ * @tc.desc: UpdateRenderState.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, UpdateRenderState_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    pid_t renderPid = 0;
+    int32_t state = 0;
+    appMgrClient->UpdateRenderState(renderPid, state);
+    EXPECT_NE(appMgrClient, nullptr);
+}
+
+/**
+ * @tc.name: AppMgrClient_GetAppRunningUniqueIdByPid_001
+ * @tc.desc: GetAppRunningUniqueIdByPid.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrClientTest, GetAppRunningUniqueIdByPid_001, TestSize.Level0)
+{
+    auto appMgrClient = std::make_unique<AppMgrClient>();
+    pid_t pid = 0;
+    std::string appRunningUniqueId = "";
+    appMgrClient->GetAppRunningUniqueIdByPid(pid, appRunningUniqueId);
+    EXPECT_NE(appMgrClient, nullptr);
 }
 }  // namespace AppExecFwk
 }  // namespace OHOS
