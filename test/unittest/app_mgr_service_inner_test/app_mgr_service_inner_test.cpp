@@ -4147,10 +4147,13 @@ HWTEST_F(AppMgrServiceInnerTest, AddUIExtensionLauncherItem_0100, TestSize.Level
     ASSERT_NE(appRecord, nullptr);
     appRecord->GetPriorityObject()->SetPid(1001);
 
-    appMgrServiceInner->AddUIExtensionLauncherItem(want, appRecord);
+    sptr<IRemoteObject> token = sptr<IRemoteObject>(new (std::nothrow) MockAbilityToken());
+
+    appMgrServiceInner->AddUIExtensionLauncherItem(want, appRecord, token);
     // check want param has been erased.
     EXPECT_EQ(want->HasParameter("ability.want.params.uiExtensionAbilityId"), false);
     EXPECT_EQ(want->HasParameter("ability.want.params.uiExtensionRootHostPid"), false);
+    appMgrServiceInner->RemoveUIExtensionLauncherItem(appRecord, token);
 }
 
 /**

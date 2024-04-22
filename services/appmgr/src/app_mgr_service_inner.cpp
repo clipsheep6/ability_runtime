@@ -455,7 +455,7 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
 
     if (AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType) &&
         appRunningManager_ != nullptr && appRunningManager_->GetAppRunningRecordByAbilityToken(token)) {
-        AddUIExtensionLauncherItem(want, appRecord);
+        AddUIExtensionLauncherItem(want, appRecord, token);
     }
 
     PerfProfile::GetInstance().SetAbilityLoadEndTime(GetTickCount());
@@ -465,9 +465,9 @@ void AppMgrServiceInner::LoadAbility(sptr<IRemoteObject> token, sptr<IRemoteObje
 }
 
 void AppMgrServiceInner::AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want,
-    std::shared_ptr<AppRunningRecord> appRecord)
+    std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token)
 {
-    if (want == nullptr || appRecord == nullptr || appRunningManager_ == nullptr) {
+    if (want == nullptr || appRecord == nullptr || token == nullptr || appRunningManager_ == nullptr) {
         TAG_LOGE(AAFwkTag::APPMGR, "Invalid input params.");
         return;
     }
@@ -489,6 +489,39 @@ void AppMgrServiceInner::AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want>
 
     want->RemoveParam(UIEXTENSION_ABILITY_ID);
     want->RemoveParam(UIEXTENSION_ROOT_HOST_PID);
+
+    auto abilityRunningRecord = appRecord->GetAbilityRunningRecordByToken(token);
+    if (abilityRunningRecord != nullptr) {
+        abilityRunningRecord->SetUIExtensionAbilityId(uiExtensionAbilityId);
+    }
+}
+
+void AppMgrServiceInner::RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord,
+    sptr<IRemoteObject> token)
+{
+    if (appRecord == nullptr || token == nullptr || appRunningManager_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Invalid input params.");
+        return;
+    }
+
+    auto abilityRunningRecord = appRecord->GetAbilityRunningRecordByToken(token);
+    if (abilityRunningRecord == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "Invalid ability record.");
+        return;
+    }
+
+    auto abilityInfo = abilityRunningRecord->GetAbilityInfo();
+    if (abilityInfo == nullptr) {
+        TAG_LOGW(AAFwkTag::APPMGR, "Invalid ability info.");
+        return;
+    }
+
+    if (!AAFwk::UIExtensionUtils::IsUIExtension(abilityInfo->extensionAbilityType)) {
+        return;
+    }
+
+    auto uiExtensionAbilityId = abilityRunningRecord->GetUIExtensionAbilityId();
+    appRunningManager_->RemoveUIExtensionLauncherItemById(uiExtensionAbilityId);
 }
 
 bool AppMgrServiceInner::CheckLoadAbilityConditions(const sptr<IRemoteObject> &token,
@@ -1722,6 +1755,8 @@ void AppMgrServiceInner::TerminateAbility(const sptr<IRemoteObject> &token, bool
         TAG_LOGE(AAFwkTag::APPMGR, "AppMgrServiceInner::TerminateAbility app is not exist!");
         return;
     }
+
+    RemoveUIExtensionLauncherItem(appRecord, token);
 
     if (appRunningManager_) {
         std::shared_ptr<AppMgrServiceInner> appMgrServiceInner = shared_from_this();

@@ -1332,6 +1332,20 @@ int32_t AppRunningManager::RemoveUIExtensionLauncherItem(pid_t pid)
     return ERR_OK;
 }
 
+int32_t AppRunningManager::RemoveUIExtensionLauncherItemById(int32_t uiExtensionAbilityId)
+{
+    std::lock_guard<ffrt::mutex> guard(uiExtensionMapLock_);
+    for (auto it = uiExtensionLauncherMap_.begin(); it != uiExtensionLauncherMap_.end();) {
+        if (it->first == uiExtensionAbilityId) {
+            it = uiExtensionLauncherMap_.erase(it);
+            continue;
+        }
+        it++;
+    }
+
+    return ERR_OK;
+}
+
 int AppRunningManager::DumpIpcAllStart(std::string& result)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
