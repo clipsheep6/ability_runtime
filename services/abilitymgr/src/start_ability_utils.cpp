@@ -27,6 +27,7 @@ namespace {
 const char* DLP_INDEX = "ohos.dlp.params.index";
 }
 thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::startAbilityInfo;
+thread_local std::shared_ptr<StartAbilityInfo> StartAbilityUtils::callerAbilityInfo;
 
 int32_t StartAbilityUtils::GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken)
 {
@@ -59,18 +60,42 @@ bool StartAbilityUtils::GetApplicationInfo(const std::string &bundleName, int32_
     return true;
 }
 
-StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex)
+bool StartAbilityUtils::GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,
+    AppExecFwk::AbilityInfo &abilityInfo)
+{
+    if (StartAbilityUtils::callerAbilityInfo) {
+        abilityInfo = StartAbilityUtils::callerAbilityInfo->abilityInfo;
+    } else {
+        if (callerToken == nullptr) {
+            return false;
+        }
+        auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+        if (abilityRecord == nullptr) {
+            return false;
+        }
+        abilityInfo = abilityRecord->GetAbilityInfo();
+    }
+    return true;
+}
+
+StartAbilityInfoWrap::StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
+    const sptr<IRemoteObject> &callerToken)
 {
     if (StartAbilityUtils::startAbilityInfo != nullptr) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "startAbilityInfo has been created");
     }
     StartAbilityUtils::startAbilityInfo = StartAbilityInfo::CreateStartAbilityInfo(want,
         validUserId, appIndex);
+    if (StartAbilityUtils::callerAbilityInfo != nullptr) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "callerAbilityInfo has been created");
+    }
+    StartAbilityUtils::callerAbilityInfo = StartAbilityInfo::CreateCallerAbilityInfo(callerToken);
 }
 
 StartAbilityInfoWrap::~StartAbilityInfoWrap()
 {
     StartAbilityUtils::startAbilityInfo.reset();
+    StartAbilityUtils::callerAbilityInfo.reset();
 }
 
 void StartAbilityInfo::InitAbilityInfoFromExtension(AppExecFwk::ExtensionAbilityInfo &extensionInfo,
@@ -153,6 +178,23 @@ std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateStartAbilityInfo(const
         // For compatibility translates to AbilityInfo
         InitAbilityInfoFromExtension(extensionInfo, request->abilityInfo);
     }
+    return request;
+}
+
+std::shared_ptr<StartAbilityInfo> StartAbilityInfo::CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken)
+{
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (callerToken == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "not call from context.");
+        return nullptr;
+    }
+    auto abilityRecord = Token::GetAbilityRecordByToken(callerToken);
+    if (abilityRecord == nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "can not find abilityRecord");
+        return nullptr;
+    }
+    auto request = std::make_shared<StartAbilityInfo>();
+    request->abilityInfo = abilityRecord->GetAbilityInfo();
     return request;
 }
 }

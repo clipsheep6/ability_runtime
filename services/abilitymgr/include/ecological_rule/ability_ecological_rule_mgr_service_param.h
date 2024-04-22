@@ -21,6 +21,7 @@
 
 #include "parcel.h"
 #include "want.h"
+#include "ability_info.h"
 
 namespace OHOS {
 namespace EcologicalRuleMgrService {
@@ -69,7 +70,8 @@ struct AbilityCallerInfo : public Parcelable {
     std::string targetAppDistType = "";
     std::string targetLinkFeature = "";
     int32_t targetLinkType = LINK_TYPE_INVALID;
-    int32_t callerAbilityType = 0L;
+    AppExecFwk::AbilityType callerAbilityType = AppExecFwk::AbilityType::UNKNOWN;
+    AppExecFwk::ExtensionAbilityType callerExtensionAbilityType = AppExecFwk::ExtensionAbilityType::UNSPECIFIED;
     int32_t embedded = 0;
     std::string callerAppProvisionType;
     std::string targetAppProvisionType;

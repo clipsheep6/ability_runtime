@@ -305,11 +305,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (abilityInfos.size() == 1) {
         auto skillUri =  abilityInfos.front().skillUri;
-        for (const auto& iter : skillUri) {
-            if (iter.isMatch) {
-                request.want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
-            }
-        }
+        SetTargetLinkInfo(skillUri, request.want);
     }
 
     if (abilityInfos.size() + extensionInfos.size() > 1) {
@@ -670,6 +666,25 @@ bool ImplicitStartProcessor::IsCallFromAncoShellOrBroker(const sptr<IRemoteObjec
         return true;
     }
     return false;
+}
+
+void ImplicitStartProcessor::SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri,
+    Want &want)
+{
+    for (const auto& iter : skillUri) {
+        if (iter.isMatch) {
+            want.RemoveParam("send_to_erms_targetLinkFeature");
+            want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
+            want.RemoveParam("send_to_erms_targetLinkType");
+            if (want.GetBoolParam(OPEN_LINK_APP_LINKING_ONLY, false)) {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_UNIVERSAL_LINK);
+            } else if (iter.scheme == "https") {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_WEB_LINK);
+            } else {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_DEEP_LINK);
+            }
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
