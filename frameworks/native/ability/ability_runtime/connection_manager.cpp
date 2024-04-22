@@ -236,6 +236,28 @@ bool ConnectionManager::RemoveConnection(const sptr<AbilityConnection> connectio
     return isDisconnect;
 }
 
+bool ConnectionManager::SearchConnection(const AppExecFwk::ElementName& element,
+    const sptr<AbilityConnection> connection)
+{
+    std::lock_guard<std::recursive_mutex> lock(connectionsLock_);
+    HILOG_DEBUG("abilityConnectionsSize: %{public}zu", abilityConnections_.size());
+
+    bool exit = false;
+    auto iter = abilityConnections_.begin();
+    while (iter != abilityConnections_.end()) {
+        ConnectionInfo connectionInfo = iter->first;
+        if (connectionInfo.abilityConnection == connection &&
+        connectionInfo.connectReceiver.GetBundleName() == element.GetBundleName() &&
+        connectionInfo.connectReceiver.GetAbilityName() == element.GetAbilityName()) {
+            HILOG_DEBUG("find connection.");
+            exit = true;
+        } else {
+            ++iter;
+        }
+    }
+    return exit;
+}
+
 void ConnectionManager::ReportConnectionLeakEvent(const int pid, const int tid)
 {
     HILOG_DEBUG("pid:%{public}d, tid:%{public}d.", pid, tid);

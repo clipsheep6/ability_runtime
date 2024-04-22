@@ -17,6 +17,7 @@
 
 #include <unistd.h>
 
+#include "ability_manager_client.h"
 #include "connection_manager.h"
 #include "hilog_wrapper.h"
 
@@ -43,6 +44,11 @@ void AbilityConnection::OnAbilityConnectDone(
 
     std::vector<sptr<AbilityConnectCallback>> callbacks = GetCallbackList();
     mutex_.unlock();
+    sptr<AbilityConnection> connection(this);
+    bool ret = ConnectionManager::GetInstance().SearchConnection(element, connection);
+    if (!ret) {
+        AAFwk::AbilityManagerClient::GetInstance()->DisconnectAbility(connection);
+    }
 
     auto item = callbacks.begin();
     while (item != callbacks.end()) {
