@@ -31,6 +31,7 @@
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
+#include "running_multi_info.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif
@@ -361,6 +362,41 @@ std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppRunningManag
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
     return appRunningRecordMap_;
+}
+
+void initMap()
+{
+    if (RunningMultiAppInfoMap_.size() < 3) {
+        std::vector<int32_t> instanceVector = {"1","2","3"};
+        std::vector<int32_t> isolationVector = {"1","2","3"};
+        RunningMultiAppInfo info1a("ohos.samples.etsclock", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2a("ohos.samples.etsclock", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3a("ohos.samples.etsclock", 3, instanceVector, isolationVector);
+        const std::vector<RunningMultiAppInfo> vector1 = {info1a, info2a, info3a};
+        RunningMultiAppInfo info1b("ohos.samples.distributedcalc", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2b("ohos.samples.distributedcalc", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3b("ohos.samples.distributedcalc", 3, instanceVector, isolationVector);
+        const std::vector<RunningMultiAppInfo> vector2 = {info1b, info2b, info3b};
+        RunningMultiAppInfo info1c("ohos.samples.distributedmusicplayer", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2c("ohos.samples.distributedmusicplayer", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3c("ohos.samples.distributedmusicplayer", 3, instanceVector, isolationVector);
+        const std::vector<RunningMultiAppInfo> vector3 = {info1c, info2c, info3c};
+
+        RunningMultiAppInfoMap_.insert(make_pair("ohos.samples.etsclock", vector1));
+        RunningMultiAppInfoMap_.insert(make_pair("ohos.samples.distributedcalc", vector2));
+        RunningMultiAppInfoMap_.insert(make_pair("ohos.samples.distributedmusicplayer", vector3));
+    }
+    printf("begin to iteration:\n");
+    for (auto iter = RunningMultiAppInfoMap_.begin(); iter != RunningMultiAppInfoMap_.end(); iter++) {
+        printf("key: %s\n", iter->first.c_str());
+    }
+}
+
+std::map<const std::string, const std::vector<RunningMultiAppInfo>> AppRunningManager::GetRunningMultiAppInfoMap()
+{
+    std::lock_guard<ffrt::mutex> guard(lock_);
+    initMap();
+    return RunningMultiAppInfoMap_;
 }
 
 void AppRunningManager::RemoveAppRunningRecordById(const int32_t recordId)

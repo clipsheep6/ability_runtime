@@ -57,6 +57,13 @@ public:
     std::vector<RunningProcessInfo> GetAllRunningProcesses();
 
     /**
+     * Obtains information about multiappinfo that are running on the device.
+     * @param bundleName
+     * @returns Returns runningmultiappinfo.
+     */
+    std::vector<RunningMultiAppInfo> GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, const std::string bundleName);
+
+    /**
      * Kill the process immediately.
      *
      * @param bundleName.
