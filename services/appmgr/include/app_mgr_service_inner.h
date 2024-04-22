@@ -306,6 +306,16 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info);
 
     /**
+     * GetRunningProcessesByBundleType, Obtains information about application processes by bundle type.
+     *
+     * @param bundleType, the bundle type of the application process
+     * @param info, app name in Application record.
+     *
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningProcessesByBundleType(BundleType bundleType, std::vector<RunningProcessInfo> &info);
+
+    /**
      * GetProcessRunningInfosByUserId, Obtains information about application processes that are running on the device.
      *
      * @param info, app name in Application record.

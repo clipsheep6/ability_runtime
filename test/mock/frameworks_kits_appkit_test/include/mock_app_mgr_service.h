@@ -143,16 +143,23 @@ public:
     int IsBackgroundRunningRestricted(const std::string& appName)
     {
         return 0;
-    };
+    }
+
     virtual int GetAllRunningProcesses(std::vector<RunningProcessInfo>& info) override
     {
         return 0;
-    };
+    }
+
+    virtual int GetRunningProcessesByBundleType(const BundleType bundleType,
+        std::vector<RunningProcessInfo>& info) override
+    {
+        return 0;
+    }
 
     virtual int GetAllRenderProcesses(std::vector<RenderProcessInfo>& info) override
     {
         return 0;
-    };
+    }
 
     virtual int32_t StartNativeProcessForDebugger(const AAFwk::Want &want) override
     {

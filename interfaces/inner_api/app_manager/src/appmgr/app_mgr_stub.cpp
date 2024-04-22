@@ -188,6 +188,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleNotifyMemorySizeStateChanged;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
         &AppMgrStub::HandleSetSupportedProcessCacheSelf;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_RUNNING_PROCESSES_BY_BUNDLE_TYPE)] =
+        &AppMgrStub::HandleGetRunningProcessesByBundleType;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -312,6 +314,24 @@ int32_t AppMgrStub::HandleGetAllRunningProcesses(MessageParcel &data, MessagePar
     HITRACE_METER(HITRACE_TAG_APP);
     std::vector<RunningProcessInfo> info;
     auto result = GetAllRunningProcesses(info);
+    reply.WriteInt32(info.size());
+    for (auto &it : info) {
+        if (!reply.WriteParcelable(&it)) {
+            return ERR_INVALID_VALUE;
+        }
+    }
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetRunningProcessesByBundleType(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t bundleType = data.ReadInt32();
+    std::vector<RunningProcessInfo> info;
+    auto result = GetRunningProcessesByBundleType(static_cast<BundleType>(bundleType), info);
     reply.WriteInt32(info.size());
     for (auto &it : info) {
         if (!reply.WriteParcelable(&it)) {

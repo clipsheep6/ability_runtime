@@ -607,6 +607,10 @@ void AppRunningManager::AssignRunningProcessInfoByAppRecord(
     info.isTestMode = info.isTestProcess && system::GetBoolParameter(DEVELOPER_MODE_STATE, false);
     info.extensionType_ = appRecord->GetExtensionType();
     info.processType_ = appRecord->GetProcessType();
+    auto appInfo = appRecord->GetApplicationInfo();
+    if (appInfo) {
+        info.bundleType = static_cast<int32_t>(appInfo->bundleType);
+    }
 }
 
 void AppRunningManager::SetAbilityForegroundingFlagToAppRecord(const pid_t pid)
