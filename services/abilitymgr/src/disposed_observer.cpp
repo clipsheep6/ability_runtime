@@ -35,6 +35,10 @@ DisposedObserver::DisposedObserver(const AppExecFwk::DisposedRule &disposedRule,
 void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData &abilityStateData)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
+    if (disposedRule_.want == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "this ability don't have disposedRule");
+        return;
+    }
     std::lock_guard<ffrt::mutex> guard(observerLock_);
     if (abilityStateData.abilityState == static_cast<int32_t>(AppExecFwk::AbilityState::ABILITY_STATE_FOREGROUND)) {
         token_ = abilityStateData.token;
@@ -47,7 +51,8 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
             if (!ret) {
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start system UIExtension");
             }
-            interceptor_->UnregisterObserver(abilityStateData.bundleName);
+            disposedRule_.want = nullptr;
+            // interceptor_->UnregisterObserver(abilityStateData.bundleName);
         }
     }
 }
@@ -55,10 +60,15 @@ void DisposedObserver::OnAbilityStateChanged(const AppExecFwk::AbilityStateData 
 void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData)
 {
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Call");
+    if (disposedRule_.want == nullptr) {
+        TAG_LOGD(AAFwkTag::ABILITYMGR, "this ability don't have disposedRule");
+        return;
+    }
     if (disposedRule_.componentType == AppExecFwk::ComponentType::UI_ABILITY) {
         int ret = IN_PROCESS_CALL(AbilityManagerClient::GetInstance()->StartAbility(*disposedRule_.want));
         if (ret != ERR_OK) {
-            interceptor_->UnregisterObserver(pageStateData.bundleName);
+            disposedRule_.want = nullptr;
+            // interceptor_->UnregisterObserver(pageStateData.bundleName);
             TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed ability");
             return;
         }
@@ -70,26 +80,42 @@ void DisposedObserver::OnPageShow(const AppExecFwk::PageStateData &pageStateData
             want.SetParam(UIEXTENSION_MODAL_TYPE, 1);
             bool ret = systemUIExtension->CreateModalUIExtension(want);
             if (!ret) {
-                interceptor_->UnregisterObserver(pageStateData.bundleName);
+                // interceptor_->UnregisterObserver(pageStateData.bundleName);
+                disposedRule_.want = nullptr;
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start system UIExtension");
                 return;
             }
         } else {
             auto abilityRecord = Token::GetAbilityRecordByToken(token_);
             if (!abilityRecord) {
-                interceptor_->UnregisterObserver(pageStateData.bundleName);
+                disposedRule_.want = nullptr;
+                // interceptor_->UnregisterObserver(pageStateData.bundleName);
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "abilityRecord is nullptr");
                 return;
             }
             int ret = abilityRecord->CreateModalUIExtension(*disposedRule_.want);
             if (ret != ERR_OK) {
-                interceptor_->UnregisterObserver(pageStateData.bundleName);
+                disposedRule_.want = nullptr;
+                // interceptor_->UnregisterObserver(pageStateData.bundleName);
                 TAG_LOGE(AAFwkTag::ABILITYMGR, "failed to start disposed UIExtension");
                 return;
             }
         }
     }
-    interceptor_->UnregisterObserver(pageStateData.bundleName);
+    disposedRule_.want = nullptr;
+    // interceptor_->UnregisterObserver(pageStateData.bundleName);
+}
+
+void DisposedObserver::OnAppStateChanged(const AppExecFwk::AppStateData &appStateData)
+{
+    if (appStateData.state == static_cast<int64_t>(AppExecFwk::ApplicationState::APP_STATE_BACKGROUND)) {
+        interceptor_->UnregisterObserver(appStateData.bundleName);
+    }
+}
+
+void DisposedObserver::UpdateDisposedRule(const AppExecFwk::DisposedRule &disposedRule)
+{
+    disposedRule_ = disposedRule;
 }
 } // namespace AAFwk
 } // namespace OHOS
