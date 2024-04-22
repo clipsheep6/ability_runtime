@@ -123,7 +123,6 @@ const std::string DLP_PARAMS_INDEX = "ohos.dlp.params.index";
 const std::string PERMISSION_INTERNET = "ohos.permission.INTERNET";
 const std::string PERMISSION_MANAGE_VPN = "ohos.permission.MANAGE_VPN";
 const std::string PERMISSION_ACCESS_BUNDLE_DIR = "ohos.permission.ACCESS_BUNDLE_DIR";
-const std::string PERMISSION_GET_BUNDLE_RESOURCES = "ohos.permission.GET_BUNDLE_RESOURCES";
 const std::string DLP_PARAMS_SECURITY_FLAG = "ohos.dlp.params.securityFlag";
 const std::string SUPPORT_ISOLATION_MODE = "persist.bms.supportIsolationMode";
 const std::string SUPPORT_SERVICE_EXT_MULTI_PROCESS = "component.startup.extension.multiprocess.enable";
@@ -142,7 +141,6 @@ constexpr int32_t USER_SCALE = 200000;
 #define ENUM_TO_STRING(s) #s
 #define APP_ACCESS_BUNDLE_DIR 0x20
 #define APP_OVERLAY_FLAG 0x100
-#define GET_BUNDLE_RESOURCES_FLAG 0x200
 
 constexpr int32_t BASE_USER_RANGE = 200000;
 
@@ -197,35 +195,6 @@ constexpr int32_t NO_ABILITY_RECORD_ID = -1;
 int32_t GetUserIdByUid(int32_t uid)
 {
     return uid / BASE_USER_RANGE;
-}
-
-bool VerifyPermission(const BundleInfo &bundleInfo, const std::string &permissionName)
-{
-    if (permissionName.empty() || bundleInfo.reqPermissions.empty()) {
-        TAG_LOGE(AAFwkTag::APPMGR, "permissionName or reqPermissions is empty.");
-        return false;
-    }
-
-    bool ret = std::any_of(bundleInfo.reqPermissions.begin(), bundleInfo.reqPermissions.end(),
-        [permissionName] (const auto &reqPermission) {
-            if (permissionName == reqPermission) {
-                return true;
-            }
-            return false;
-        });
-    if (!ret) {
-        TAG_LOGI(AAFwkTag::APPMGR, "Not request permission %{public}s", permissionName.c_str());
-        return ret;
-    }
-
-    auto token = bundleInfo.applicationInfo.accessTokenId;
-    int result = Security::AccessToken::AccessTokenKit::VerifyAccessToken(token, permissionName, false);
-    if (result != Security::AccessToken::PERMISSION_GRANTED) {
-        TAG_LOGE(AAFwkTag::APPMGR, "StartProcess permission %{public}s not granted", permissionName.c_str());
-        return false;
-    }
-
-    return true;
 }
 }  // namespace
 
@@ -2470,10 +2439,6 @@ void AppMgrServiceInner::StartProcess(const std::string &appName, const std::str
     startMsg.ownerId = bundleInfo.signatureInfo.appIdentifier;
     if (hasAccessBundleDirReq) {
         startMsg.flags = startMsg.flags | APP_ACCESS_BUNDLE_DIR;
-    }
-
-    if (VerifyPermission(bundleInfo, PERMISSION_GET_BUNDLE_RESOURCES)) {
-        startMsg.flags = startMsg.flags | GET_BUNDLE_RESOURCES_FLAG;
     }
 
     SetOverlayInfo(bundleName, userId, startMsg);
