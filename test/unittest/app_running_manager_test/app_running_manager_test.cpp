@@ -572,6 +572,11 @@ HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0600, TestSize.Level1)
     EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidB, providerPids), ERR_OK);
     EXPECT_EQ(providerPids.size(), 1);
     EXPECT_EQ(providerPids[0], providerPid);
+    providerPids.clear();
+
+    EXPECT_EQ(appRunningManager->RemoveUIExtensionLauncherItemById(uiExtensionAbilityIdB), ERR_OK);
+    EXPECT_EQ(appRunningManager->GetAllUIExtensionProviderPid(hostPidB, providerPids), ERR_OK);
+    EXPECT_EQ(providerPids.size(), 0);
 }
 
 /**
@@ -593,6 +598,7 @@ HWTEST_F(AppRunningManagerTest, UIExtensionReleationship_0700, TestSize.Level1)
         hostPid += 2;
         providerPid += 3;
 
+        appRunningManager_Rel0700->RemoveUIExtensionLauncherItemById(uiExtensionAbilityId);
         appRunningManager_Rel0700->RemoveUIExtensionLauncherItem(hostPid);
         appRunningManager_Rel0700->RemoveUIExtensionLauncherItem(providerPid);
 

@@ -21,10 +21,10 @@
 #include <regex>
 
 #include "ability_manager_client.h"
+#include "bool_wrapper.h"
 #include "element_name.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
-#include "bool_wrapper.h"
 
 using namespace OHOS::AppExecFwk;
 
@@ -149,15 +149,15 @@ ErrCode AbilityToolCommand::RunAsHelpCommand()
 ErrCode AbilityToolCommand::RunAsStartAbility()
 {
     Want want;
-    StartOptions startoptions;
+    StartOptions startOptions;
 
-    ErrCode result = ParseStartAbilityArgsFromCmd(want, startoptions);
+    ErrCode result = ParseStartAbilityArgsFromCmd(want, startOptions);
     if (result != OHOS::ERR_OK) {
         resultReceiver_.append(ABILITY_TOOL_HELP_MSG_START);
         return result;
     }
 
-    result = AbilityManagerClient::GetInstance()->StartAbility(want, startoptions, nullptr);
+    result = AbilityManagerClient::GetInstance()->StartAbility(want, startOptions, nullptr);
     if (result != OHOS::ERR_OK) {
         TAG_LOGE(AAFwkTag::AA_TOOL, "%{public}s result = %{public}d", STRING_START_ABILITY_NG.c_str(), result);
         if (result != START_ABILITY_WAITING) {
@@ -240,7 +240,7 @@ ErrCode AbilityToolCommand::RunAsTestCommand()
     return aaShellCmd_.get()->StartUserTest(params);
 }
 
-ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOptions& startoptions)
+ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOptions& startOptions)
 {
     std::string deviceId = "";
     std::string bundleName = "";
@@ -352,7 +352,7 @@ ErrCode AbilityToolCommand::ParseStartAbilityArgsFromCmd(Want& want, StartOption
             resultReceiver_.append(ABILITY_TOOL_HELP_MSG_WINDOW_MODE_INVALID + "\n");
             return OHOS::ERR_INVALID_VALUE;
         }
-        startoptions.SetWindowMode(windowMode);
+        startOptions.SetWindowMode(windowMode);
     }
 
     return OHOS::ERR_OK;

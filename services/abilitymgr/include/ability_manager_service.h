@@ -917,7 +917,8 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         bool isSendDialogResult = false,
-        uint32_t specifyTokenId = 0);
+        uint32_t specifyTokenId = 0,
+        bool isForegroundToRestartApp = false);
 
     int StartAbilityInner(
         const Want &want,
@@ -926,7 +927,8 @@ public:
         int32_t userId = DEFAULT_INVAL_VALUE,
         bool isStartAsCaller = false,
         bool isSendDialogResult = false,
-        uint32_t specifyTokenId = 0);
+        uint32_t specifyTokenId = 0,
+        bool isForegroundToRestartApp = false);
 
     int StartExtensionAbilityInner(
         const Want &want,
@@ -1629,6 +1631,8 @@ protected:
 
     void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) override;
 
+    void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) override;
+
 private:
     int TerminateAbilityWithFlag(const sptr<IRemoteObject> &token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want *resultWant = nullptr, bool flag = true);
@@ -1896,6 +1900,15 @@ private:
     int CheckStartByCallPermission(const AbilityRequest &abilityRequest);
 
     /**
+     * @brief Check some specified uiextension type should be a system app.
+     * Consider expanding it to table-driven in the future.
+     *
+     * @param abilityRequest The ability request.
+     * @return Returns ERR_OK when allowed, others when check failed.
+     */
+    int CheckUIExtensionPermission(const AbilityRequest &abilityRequest);
+
+    /**
      * Judge if Caller-Application is in background state.
      *
      * @param abilityRequest, abilityRequest.
@@ -1918,8 +1931,6 @@ private:
         const AbilityRequest &abilityRequest, bool isData = false, bool isShell = false, bool isSA = false);
 
     int AddStartControlParam(Want &want, const sptr<IRemoteObject> &callerToken);
-
-    void RecoverAbilityRestart(const Want &want);
 
     AAFwk::EventInfo BuildEventInfo(const Want &want, int32_t userId);
 

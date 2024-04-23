@@ -38,6 +38,8 @@ private:
     int HandleRevokeUriPermission(MessageParcel &data, MessageParcel &reply);
     int HandleRevokeAllUriPermission(MessageParcel &data, MessageParcel &reply);
     int HandleGrantUriPermission(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleGrantUriPermissionPrivileged(MessageParcel &data, MessageParcel &reply);
+    int32_t HandleCheckUriAuthorization(MessageParcel &data, MessageParcel &reply);
     int HandleBatchGrantUriPermissionFor2In1(MessageParcel &data, MessageParcel &reply);
     int HandleBatchGrantUriPermission(MessageParcel &data, MessageParcel &reply);
     int HandleRevokeUriPermissionManually(MessageParcel &data, MessageParcel &reply);

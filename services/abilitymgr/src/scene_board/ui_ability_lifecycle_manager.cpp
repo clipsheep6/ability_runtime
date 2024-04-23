@@ -120,7 +120,23 @@ int UIAbilityLifecycleManager::StartUIAbility(AbilityRequest &abilityRequest, sp
             return ERR_OK;
         }
     }
+
     if (iter == sessionAbilityMap_.end()) {
+        auto abilityInfo = abilityRequest.abilityInfo;
+        for (auto [persistentId, record] : sessionAbilityMap_) {
+            auto recordAbilityInfo = record->GetAbilityInfo();
+            if (abilityInfo.bundleName == recordAbilityInfo.bundleName && abilityInfo.name == recordAbilityInfo.name &&
+                abilityInfo.moduleName == recordAbilityInfo.moduleName) {
+                EventInfo eventInfo;
+                eventInfo.userId = abilityRequest.userId;
+                eventInfo.abilityName = abilityInfo.name;
+                eventInfo.bundleName = abilityInfo.bundleName;
+                eventInfo.moduleName = abilityInfo.moduleName;
+                EventReport::SendAbilityEvent(
+                    EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
+                break;
+            }
+        }
         sessionAbilityMap_.emplace(sessionInfo->persistentId, uiAbilityRecord);
     }
 

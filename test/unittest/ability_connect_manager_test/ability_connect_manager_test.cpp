@@ -1790,9 +1790,8 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_001, 
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int resultCode = LOAD_ABILITY_TIMEOUT;
     abilityRecord->abilityInfo_.name = "abilityName";
-    connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
+    connectManager->HandleStartTimeoutTask(abilityRecord);
 }
 
 /*
@@ -1808,27 +1807,25 @@ HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_002, 
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int resultCode = LOAD_ABILITY_TIMEOUT;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
-    connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
+    connectManager->HandleStartTimeoutTask(abilityRecord);
 }
 
 /*
  * Feature: AbilityConnectManager
- * Function: HandleStartTimeoutTask
- * SubFunction: HandleStartTimeoutTask
+ * Function: HandleConnectTimeoutTask
+ * SubFunction: HandleConnectTimeoutTask
  * FunctionPoints: NA
  * EnvConditions: NA
- * CaseDescription: Verify AbilityConnectManager HandleStartTimeoutTask
+ * CaseDescription: Verify AbilityConnectManager HandleConnectTimeoutTask
  */
-HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleStartTimeoutTask_003, TestSize.Level1)
+HWTEST_F(AbilityConnectManagerTest, AAFwk_AbilityMS_HandleConnectTimeoutTask_001, TestSize.Level1)
 {
     std::shared_ptr<AbilityConnectManager> connectManager = std::make_shared<AbilityConnectManager>(0);
     ASSERT_NE(connectManager, nullptr);
     std::shared_ptr<AbilityRecord> abilityRecord = serviceRecord_;
-    int resultCode = CONNECTION_TIMEOUT;
     abilityRecord->abilityInfo_.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
-    connectManager->HandleStartTimeoutTask(abilityRecord, resultCode);
+    connectManager->HandleConnectTimeoutTask(abilityRecord);
 }
 
 /*

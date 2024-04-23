@@ -204,6 +204,7 @@ int AmsConfigurationParameter::LoadAmsConfiguration(const std::string &filePath)
     }
 
     LoadSystemConfiguration(amsJson);
+    LoadSafeUriPermission(amsJson);
     SetPickerJsonObject(amsJson);
     amsJson.clear();
     inFile.close();
@@ -258,6 +259,22 @@ int AmsConfigurationParameter::LoadSystemConfiguration(nlohmann::json& Object)
     }
 
     return READ_FAIL;
+}
+
+int AmsConfigurationParameter::LoadSafeUriPermission(nlohmann::json& Object)
+{
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "LoadSafeUriPermission called.");
+    if (Object.contains(AmsConfig::SAFE_URI_PERMISSION) && Object.at(AmsConfig::SAFE_URI_PERMISSION).is_boolean()) {
+        safeUriPermission_ = Object.at(AmsConfig::SAFE_URI_PERMISSION).get<bool>();
+        return READ_OK;
+    }
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "LoadSafeUriPermission return error.");
+    return READ_FAIL;
+}
+
+bool AmsConfigurationParameter::SafeUriPermission() const
+{
+    return safeUriPermission_;
 }
 
 bool AmsConfigurationParameter::CheckServiceConfigEnable(nlohmann::json& Object, const std::string &configName,

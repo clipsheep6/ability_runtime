@@ -784,17 +784,17 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
  * @param token The token belong to the ability which want to be cleaned.
  *
  */
-void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token)
+void MainThread::ScheduleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
-    TAG_LOGD(AAFwkTag::APPKIT, "called.");
+    TAG_LOGD(AAFwkTag::APPKIT, "called, with isCacheProcess =%{public}d.", isCacheProcess);
     wptr<MainThread> weak = this;
-    auto task = [weak, token]() {
+    auto task = [weak, token, isCacheProcess]() {
         auto appThread = weak.promote();
         if (appThread == nullptr) {
             TAG_LOGE(AAFwkTag::APPKIT, "appThread is nullptr");
             return;
         }
-        appThread->HandleCleanAbility(token);
+        appThread->HandleCleanAbility(token, isCacheProcess);
     };
     if (!mainHandler_->PostTask(task, "MainThread:CleanAbility")) {
         TAG_LOGE(AAFwkTag::APPKIT, "PostTask task failed");
@@ -1219,7 +1219,7 @@ bool GetBundleForLaunchApplication(std::shared_ptr<BundleMgrHelper> bundleMgrHel
 void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, const Configuration &config)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
-    TAG_LOGD(AAFwkTag::APPKIT, "called");
+    TAG_LOGI(AAFwkTag::APPKIT, "HandleLaunchApplication called.");
     if (!CheckForHandleLaunchApplication(appLaunchData)) {
         TAG_LOGE(AAFwkTag::APPKIT, "CheckForHandleLaunchApplication failed.");
         return;
@@ -1408,14 +1408,18 @@ void MainThread::HandleLaunchApplication(const AppLaunchData &appLaunchData, con
             processName = processInfo_->GetProcessName();
             TAG_LOGD(AAFwkTag::APPKIT, "processName is %{public}s", processName.c_str());
         }
+        AbilityRuntime::Runtime::DebugOption debugOption;
+        debugOption.isStartWithDebug = appLaunchData.GetDebugApp();
+        debugOption.processName = processName;
+        debugOption.isDebugApp = appInfo.debug;
+        debugOption.isStartWithNative = appLaunchData.isNativeStart();
         if (perfCmd.find(PERFCMD_PROFILE) != std::string::npos ||
             perfCmd.find(PERFCMD_DUMPHEAP) != std::string::npos) {
             TAG_LOGD(AAFwkTag::APPKIT, "perfCmd is %{public}s", perfCmd.c_str());
-            runtime->StartProfiler(perfCmd, appLaunchData.GetDebugApp(), processName, appInfo.debug,
-                appLaunchData.isNativeStart());
+            debugOption.perfCmd = perfCmd;
+            runtime->StartProfiler(debugOption);
         } else {
-            runtime->StartDebugMode(appLaunchData.GetDebugApp(), processName, appInfo.debug,
-                appLaunchData.isNativeStart());
+            runtime->StartDebugMode(debugOption);
         }
 
         std::vector<HqfInfo> hqfInfos = appInfo.appQuickFix.deployedAppqfInfo.hqfInfos;
@@ -1957,7 +1961,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
     TAG_LOGD(AAFwkTag::APPKIT, "ability name: %{public}s", abilityInfo->name.c_str());
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
+    application_->CleanAbilityStage(token, abilityInfo, false);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -1966,7 +1970,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
             TAG_LOGE(AAFwkTag::APPKIT, "MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
+        application_->CleanAbilityStage(token, abilityInfo, false);
     } else {
         TAG_LOGW(AAFwkTag::APPKIT, "runner not found");
     }
@@ -1980,7 +1984,7 @@ void MainThread::HandleCleanAbilityLocal(const sptr<IRemoteObject> &token)
  * @param token The token which belongs to the ability launched.
  *
  */
-void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
+void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token, bool isCacheProcess)
 {
     HITRACE_METER_NAME(HITRACE_TAG_APP, __PRETTY_FUNCTION__);
     if (applicationInfo_ == nullptr) {
@@ -2017,7 +2021,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
 #endif
 
     abilityRecordMgr_->RemoveAbilityRecord(token);
-    application_->CleanAbilityStage(token, abilityInfo);
+    application_->CleanAbilityStage(token, abilityInfo, isCacheProcess);
 #ifdef APP_ABILITY_USE_TWO_RUNNER
     std::shared_ptr<EventRunner> runner = record->GetEventRunner();
     if (runner != nullptr) {
@@ -2026,7 +2030,7 @@ void MainThread::HandleCleanAbility(const sptr<IRemoteObject> &token)
             TAG_LOGE(AAFwkTag::APPKIT, "MainThread::main failed. ability runner->Run failed ret = %{public}d", ret);
         }
         abilityRecordMgr_->RemoveAbilityRecord(token);
-        application_->CleanAbilityStage(token, abilityInfo);
+        application_->CleanAbilityStage(token, abilityInfo, isCacheProcess);
     } else {
         TAG_LOGW(AAFwkTag::APPKIT, "runner not found");
     }

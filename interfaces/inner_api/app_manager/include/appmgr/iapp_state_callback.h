@@ -21,6 +21,7 @@
 
 #include "app_mgr_constants.h"
 #include "app_process_data.h"
+#include "bundle_info.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -56,10 +57,17 @@ public:
      */
     virtual void NotifyConfigurationChange(const AppExecFwk::Configuration &config, int32_t userId) {}
 
+    /**
+     * @brief Notify abilityms start resident process.
+     * @param bundleInfos resident process bundle infos.
+     */
+    virtual void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos) {}
+
     enum class Message {
         TRANSACT_ON_APP_STATE_CHANGED = 0,
         TRANSACT_ON_ABILITY_REQUEST_DONE,
         TRANSACT_ON_NOTIFY_CONFIG_CHANGE,
+        TRANSACT_ON_NOTIFY_START_RESIDENT_PROCESS
     };
 };
 }  // namespace AppExecFwk

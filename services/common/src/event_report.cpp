@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2022-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -88,6 +88,7 @@ const std::map<EventName, std::string> eventNameToStrMap_ = {
     std::map<EventName, std::string>::value_type(EventName::START_PRIVATE_ABILITY, "START_PRIVATE_ABILITY"),
     std::map<EventName, std::string>::value_type(EventName::RESTART_PROCESS_BY_SAME_APP,
         "RESTART_PROCESS_BY_SAME_APP"),
+    std::map<EventName, std::string>::value_type(EventName::START_STANDARD_ABILITIES, "START_STANDARD_ABILITIES"),
 };
 }
 
@@ -211,6 +212,16 @@ void EventReport::SendAbilityEvent(const EventName &eventName, HiSysEventType ty
                 EVENT_KEY_ABILITY_TYPE, eventInfo.abilityType,
                 EVENT_KEY_BUNDLE_TYPE, eventInfo.bundleType,
                 EVENT_KEY_CALLER_BUNDLE_NAME, eventInfo.callerBundleName);
+            break;
+        case EventName::START_STANDARD_ABILITIES:
+            HiSysEventWrite(
+                HiSysEvent::Domain::AAFWK,
+                name,
+                type,
+                EVENT_KEY_USERID, eventInfo.userId,
+                EVENT_KEY_BUNDLE_NAME, eventInfo.bundleName,
+                EVENT_KEY_MODULE_NAME, eventInfo.moduleName,
+                EVENT_KEY_ABILITY_NAME, eventInfo.abilityName);
             break;
         default:
             break;

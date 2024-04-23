@@ -23,15 +23,13 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
-void StartDebuggerInWorkerModule();
-void SetDebuggerApp(bool isDebugApp);
+void StartDebuggerInWorkerModule(bool isDebugApp, bool isNativeStart);
 void InitWorkerFunc(NativeEngine* nativeEngine);
 void OffWorkerFunc(NativeEngine* nativeEngine);
 int32_t GetContainerId();
 void UpdateContainerScope(int32_t id);
 void RestoreContainerScope(int32_t id);
 void SetJsFramework();
-void SetNativeStart(bool isNativeStart);
 
 class AssetHelper final {
 public:

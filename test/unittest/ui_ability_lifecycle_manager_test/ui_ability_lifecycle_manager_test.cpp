@@ -205,6 +205,27 @@ HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_007, TestSize.Level1)
 }
 
 /**
+ * @tc.name: UIAbilityLifecycleManager_StartUIAbility_0800
+ * @tc.desc: StartUIAbility
+ * @tc.type: FUNC
+ */
+HWTEST_F(UIAbilityLifecycleManagerTest, StartUIAbility_008, TestSize.Level1)
+{
+    auto mgr = std::make_shared<UIAbilityLifecycleManager>();
+    AbilityRequest abilityRequest;
+    Rosen::SessionInfo info;
+    sptr<SessionInfo> sessionInfo = new (std::nothrow) SessionInfo();
+    sessionInfo->sessionToken = new (std::nothrow) Rosen::Session(info);
+    sessionInfo->persistentId = 1;
+    abilityRequest.abilityInfo.bundleName = "com.example.test";
+    abilityRequest.abilityInfo.name = "Entry";
+    abilityRequest.abilityInfo.moduleName = "EntryModule";
+    std::shared_ptr<AbilityRecord>  abilityRecord = AbilityRecord::CreateAbilityRecord(abilityRequest);
+    mgr->sessionAbilityMap_.emplace(2, abilityRecord);
+    EXPECT_EQ(mgr->StartUIAbility(abilityRequest, sessionInfo), ERR_OK);
+}
+
+/**
  * @tc.name: UIAbilityLifecycleManager_CreateSessionInfo_0100
  * @tc.desc: CreateSessionInfo
  * @tc.type: FUNC

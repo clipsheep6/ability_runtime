@@ -691,22 +691,6 @@ HWTEST_F(AbilityManagerServiceFirstTest, EnableRecoverAbility_001, TestSize.Leve
 
 /*
  * Feature: AbilityManagerService
- * Function: RecoverAbilityRestart
- * SubFunction: NA
- * FunctionPoints: AbilityManagerService RecoverAbilityRestart
- */
-HWTEST_F(AbilityManagerServiceFirstTest, RecoverAbilityRestart_001, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest RecoverAbilityRestart_001 start");
-    auto abilityMs_ = std::make_shared<AbilityManagerService>();
-    Want want;
-    ASSERT_NE(abilityMs_, nullptr);
-    abilityMs_->RecoverAbilityRestart(want);
-    TAG_LOGI(AAFwkTag::TEST, "AbilityManagerServiceFirstTest RecoverAbilityRestart_001 end");
-}
-
-/*
- * Feature: AbilityManagerService
  * Function: StartUserTest
  * SubFunction: NA
  * FunctionPoints: AbilityManagerService StartUserTest
