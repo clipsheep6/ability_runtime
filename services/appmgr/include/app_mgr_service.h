@@ -148,6 +148,16 @@ public:
     virtual int32_t GetAllRunningProcesses(std::vector<RunningProcessInfo> &info) override;
 
     /**
+     * GetRunningMultiAppInfoByBundleName, call GetRunningMultiAppInfoByBundleName() through proxy project.
+     * Obtains information about multiapp that are running on the device.
+     *
+     * @param bundlename, input.
+     * @param info, output multiapp information.
+     * @return ERR_OK ,return back success，others fail.
+     */
+    virtual int32_t GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, std::string bundleName) override;
+
+    /**
      * GetAllRenderProcesses, call GetAllRenderProcesses() through proxy project.
      * Obtains information about render processes that are running on the device.
      *

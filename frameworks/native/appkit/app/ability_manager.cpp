@@ -65,6 +65,20 @@ std::vector<RunningProcessInfo> AbilityManager::GetAllRunningProcesses()
     return info;
 }
 
+std::vector<RunningMultiAppInfo> AbilityManager::GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, const std::string bundleName)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
+    auto object = OHOS::DelayedSingleton<SysMrgClient>::GetInstance()->GetSystemAbility(APP_MGR_SERVICE_ID);
+    sptr<IAppMgr> appMgr_ = iface_cast<IAppMgr>(object);
+    if (appMgr_ == nullptr) {
+        TAG_LOGE(AAFwkTag::APPKIT, "%s, appMgr_ is nullptr", __func__);
+        return info;
+    }
+
+    appMgr_->GetRunningMultiAppInfoByBundleName(info, bundleName);
+    return info;
+}
+
 int AbilityManager::KillProcessesByBundleName(const std::string &bundleName)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "%s, %d", __func__, __LINE__);
