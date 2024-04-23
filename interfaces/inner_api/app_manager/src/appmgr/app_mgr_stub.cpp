@@ -102,6 +102,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleDumpHeapMemory;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::DUMP_JSHEAP_MEMORY_PROCESS)] =
         &AppMgrStub::HandleDumpJsHeapMemory;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_GET_CURRENT_APP_INDEX)] =
+        &AppMgrStub::HandleGetCurrentAppIndex;
 #ifdef ABILITY_COMMAND_FOR_TEST
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::BLOCK_APP_SERVICE)] =
         &AppMgrStub::HandleBlockAppServiceDone;
@@ -384,6 +386,20 @@ int32_t AppMgrStub::HandleGetProcessRunningInformation(MessageParcel &data, Mess
         return ERR_INVALID_VALUE;
     }
     if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleGetCurrentAppIndex(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    int32_t appIndex;
+    auto result = GetCurrentAppIndex(appIndex);
+    if (!reply.WriteInt32(result)) {
+        return ERR_INVALID_VALUE;
+    }
+    if (!reply.WriteInt32(appIndex)) {
         return ERR_INVALID_VALUE;
     }
     return NO_ERROR;

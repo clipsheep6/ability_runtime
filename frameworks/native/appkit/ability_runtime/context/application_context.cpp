@@ -394,6 +394,11 @@ int32_t ApplicationContext::GetProcessRunningInformation(AppExecFwk::RunningProc
     return (contextImpl_ != nullptr) ? contextImpl_->GetProcessRunningInformation(info) : -1;
 }
 
+int32_t ApplicationContext::GetCurrentAppIndex(int32_t &appIndex)
+{
+    return (contextImpl_ != nullptr) ? contextImpl_->GetCurrentAppIndex(appIndex) : -1;
+}
+
 bool ApplicationContext::IsUpdatingConfigurations()
 {
     return (contextImpl_ != nullptr) ? contextImpl_->IsUpdatingConfigurations() : false;

@@ -188,6 +188,14 @@ public:
     virtual int32_t GetProcessRunningInformation(RunningProcessInfo &info) override;
 
     /**
+     * GetCurrentAppIndex, call GetCurrentAppIndex() through proxy project.
+     * Obtains Index about current application which is running on the device.
+     *
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t GetCurrentAppIndex(int32_t &appIndex) override;
+
+    /**
      * NotifyMemoryLevel, call NotifyMemoryLevel() through proxy project.
      * Notify applications background the current memory level.
      *
