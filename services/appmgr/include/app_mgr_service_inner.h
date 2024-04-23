@@ -1234,7 +1234,7 @@ private:
     void GetRunningProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RunningProcessInfo> &info);
     void GetRunningProcess(const std::shared_ptr<AppRunningRecord> &appRecord, RunningProcessInfo &info);
 
-    void GetIndex(const std::shared_ptr<AppRunningRecord> &appRecord,int32_t &appIndex);
+    void GetIndex(const std::shared_ptr<AppRunningRecord> &appRecord, int32_t &appIndex);
 
     void GetRenderProcesses(const std::shared_ptr<AppRunningRecord> &appRecord, std::vector<RenderProcessInfo> &info);
 
