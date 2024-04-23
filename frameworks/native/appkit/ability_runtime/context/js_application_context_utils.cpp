@@ -745,9 +745,13 @@ napi_value JsApplicationContextUtils::OnGetCurrentAppIndex(napi_env env, NapiCal
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Get App Index");
     auto context = applicationContext_.lock();
+    if (context == nullptr) {
+       TAG_LOGE(AAFwkTag::APPKIT, "context is nullptr.");
+       return CreateJsUndefined(env);
+    }
     std::int32_t appIndex_;
     auto ret = context->GetCurrentAppIndex(appIndex_);
-    return CreateJsValue(env,ret);
+    return CreateJsValue(env, ret);
 }
 
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
