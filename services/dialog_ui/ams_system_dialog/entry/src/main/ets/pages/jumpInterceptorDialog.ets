@@ -37,7 +37,7 @@ struct JumpInterceptorDialog {
   }
 
   onJumpApp() {
-    globalThis.abilityWant.bundleName =  globalThis.params.bundleName;
+    globalThis.abilityWant.bundleName = globalThis.params.bundleName;
     globalThis.abilityWant.abilityName = globalThis.params.abilityName;
     globalThis.abilityWant.moduleName = globalThis.params.moduleName;
     globalThis.jumpInterceptorExtensionContext.startAbilityAsCaller(globalThis.abilityWant, (data, error) => {

@@ -251,7 +251,7 @@ struct SelectorPcDialog {
   }
 
   build() {
-    Flex({ direction: FlexDirection.Column , justifyContent: FlexAlign.Center , alignItems: ItemAlign.Center }) {
+    Flex({ direction: FlexDirection.Column, justifyContent: FlexAlign.Center, alignItems: ItemAlign.Center }) {
       Column() {
           Text($r('app.string.message_title_pc_selector'))
             .fontSize(22)
@@ -468,7 +468,7 @@ struct SelectorPcDialog {
               .margin({ top : 16 , left : 16 })
               .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
               if (this.isCheck) {
-                Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
+                Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule, stateEffect : this.isCheck})  
                 .backgroundColor('#EAEAEA')
                 .fontColor('#0A59F7')
                 .fontWeight(FontWeight.Medium)
@@ -479,7 +479,7 @@ struct SelectorPcDialog {
                 .margin({ top : 16 , left : 48 })
                 .onClick(() => { this.onSelectApp(this.selectItem) })
               } else {
-                Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule , stateEffect : this.isCheck})  
+                Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule, stateEffect : this.isCheck})  
                 .backgroundColor('#EAEAEA')
                 .fontColor('#999999')
                 .fontWeight(FontWeight.Medium)
