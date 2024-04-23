@@ -1785,22 +1785,19 @@ int AbilityManagerService::StartUIAbilityBySCB(sptr<SessionInfo> sessionInfo)
         return ERR_INVALID_VALUE;
     }
 
-    if (sessionInfo->userId == DEFAULT_INVAL_VALUE) {
-        sessionInfo->userId = GetUserId();
-    } else if (sessionInfo->userId != GetUserId()) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "this userId is not valid");
-        return ERR_CROSS_USER;
-    }
-
-    auto currentUserId = GetUserId();
-    (sessionInfo->want).RemoveParam(AAFwk::SCREEN_MODE_KEY);
-    EventInfo eventInfo = BuildEventInfo(sessionInfo->want, currentUserId);
-    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
-
     if (!CheckCallingTokenId(BUNDLE_NAME_SCENEBOARD)) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "Not sceneboard called, not allowed.");
         return ERR_WRONG_INTERFACE_CALL;
     }
+
+    auto currentUserId = IPCSkeleton::GetCallingUid() / BASE_USER_RANGE;
+    if (sessionInfo->userId == DEFAULT_INVAL_VALUE) {
+        sessionInfo->userId = currentUserId;
+    }
+
+    (sessionInfo->want).RemoveParam(AAFwk::SCREEN_MODE_KEY);
+    EventInfo eventInfo = BuildEventInfo(sessionInfo->want, currentUserId);
+    EventReport::SendAbilityEvent(EventName::START_ABILITY, HiSysEventType::BEHAVIOR, eventInfo);
 
     auto requestCode = sessionInfo->requestCode;
     StartAbilityInfoWrap threadLocalInfo(sessionInfo->want, currentUserId,
@@ -7100,9 +7097,12 @@ void AbilityManagerService::SwitchToUser(int32_t oldUserId, int32_t userId, sptr
     }
     bool isBoot = oldUserId == U0_USER_ID ? true : false;
     StartHighestPriorityAbility(userId, isBoot, callback);
-    if (AmsConfigurationParameter::GetInstance().MultiUserType() == 0) {
-        PauseOldConnectManager(oldUserId);
+    if (Rosen::SceneBoardJudgement::IsSceneBoardEnabled() &&
+        AmsConfigurationParameter::GetInstance().MultiUserType() != 0) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "no need to terminate old scb.");
+        return;
     }
+    PauseOldConnectManager(oldUserId);
 }
 
 void AbilityManagerService::SwitchManagers(int32_t userId, bool switchUser)

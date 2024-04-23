@@ -176,7 +176,7 @@ std::shared_ptr<AbilityRecord> UIAbilityLifecycleManager::CreateAbilityRecord(Ab
         TAG_LOGE(AAFwkTag::ABILITYMGR, "uiAbilityRecord is invalid.");
         return nullptr;
     }
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "user id: %{public}d.", sessionInfo->userId);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "user id: %{public}d.", userId_);
     uiAbilityRecord->SetOwnerMissionUserId(userId_);
     SetRevicerInfo(abilityRequest, uiAbilityRecord);
     SetLastExitReason(uiAbilityRecord);
