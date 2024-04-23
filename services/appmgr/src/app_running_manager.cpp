@@ -364,37 +364,33 @@ std::map<const int32_t, const std::shared_ptr<AppRunningRecord>> AppRunningManag
     return appRunningRecordMap_;
 }
 
-// void initMap()
-// {
-//     if (AppRunningManager::runningMultiAppInfoMap_.size() < 3) {
-//         std::vector<std::string> instanceVector = {"1","2","3"};
-//         std::vector<std::string> isolationVector = {"1","2","3"};
-//         AppExecFwk::RunningMultiAppInfo info1a("ohos.samples.etsclock", 1, instanceVector, isolationVector);
-//         AppExecFwk::RunningMultiAppInfo info2a("ohos.samples.etsclock", 2, instanceVector, isolationVector);
-//         AppExecFwk::RunningMultiAppInfo info3a("ohos.samples.etsclock", 3, instanceVector, isolationVector);
-//         const std::vector<RunningMultiAppInfo> vector1 = {info1a, info2a, info3a};
-//         AppExecFwk::RunningMultiAppInfo info1b("ohos.samples.distributedcalc", 1, instanceVector, isolationVector);
-//         AppExecFwk::RunningMultiAppInfo info2b("ohos.samples.distributedcalc", 2, instanceVector, isolationVector);
-//         AppExecFwk::RunningMultiAppInfo info3b("ohos.samples.distributedcalc", 3, instanceVector, isolationVector);
-//         const std::vector<RunningMultiAppInfo> vector2 = {info1b, info2b, info3b};
-//         AppExecFwk::RunningMultiAppInfo info1c("ohos.samples.distributedmusicplayer", 1, instanceVector, isolationVector);
-//         AppExecFwk::RunningMultiAppInfo info2c("ohos.samples.distributedmusicplayer", 2, instanceVector, isolationVector);
-//         AppExecFwk::RunningMultiAppInfo info3c("ohos.samples.distributedmusicplayer", 3, instanceVector, isolationVector);
-//         const std::vector<RunningMultiAppInfo> vector3 = {info1c, info2c, info3c};
-
-//         AppRunningManager::runningMultiAppInfoMap_.insert(make_pair("ohos.samples.etsclock", vector1));
-//         AppRunningManager::runningMultiAppInfoMap_.insert(make_pair("ohos.samples.distributedcalc", vector2));
-//         AppRunningManager::runningMultiAppInfoMap_.insert(make_pair("ohos.samples.distributedmusicplayer", vector3));
-//     }
-//     printf("begin to iteration:\n");
-//     for (auto iter = AppRunningManager::runningMultiAppInfoMap_.begin(); iter != AppRunningManager::runningMultiAppInfoMap_.end(); iter++) {
-//         printf("key: %s\n", iter->first.c_str());
-//     }
-// }
-
 std::map<const std::string, const std::vector<RunningMultiAppInfo>> AppRunningManager::GetRunningMultiAppInfoMap()
 {
     std::lock_guard<ffrt::mutex> guard(lock_);
+    if (runningMultiAppInfoMap_.size() < 3) {
+        std::vector<std::string> instanceVector = {"1","2","3"};
+        std::vector<std::string> isolationVector = {"1","2","3"};
+        RunningMultiAppInfo info1a("ohos.samples.etsclock", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2a("ohos.samples.etsclock", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3a("ohos.samples.etsclock", 3, instanceVector, isolationVector);
+        const std::vector<RunningMultiAppInfo> vector1 = {info1a, info2a, info3a};
+        RunningMultiAppInfo info1b("ohos.samples.distributedcalc", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2b("ohos.samples.distributedcalc", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3b("ohos.samples.distributedcalc", 3, instanceVector, isolationVector);
+        const std::vector<RunningMultiAppInfo> vector2 = {info1b, info2b, info3b};
+        RunningMultiAppInfo info1c("ohos.samples.distributedmusicplayer", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2c("ohos.samples.distributedmusicplayer", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3c("ohos.samples.distributedmusicplayer", 3, instanceVector, isolationVector);
+        const std::vector<RunningMultiAppInfo> vector3 = {info1c, info2c, info3c};
+
+        runningMultiAppInfoMap_.insert(make_pair("ohos.samples.etsclock", vector1));
+        runningMultiAppInfoMap_.insert(make_pair("ohos.samples.distributedcalc", vector2));
+        runningMultiAppInfoMap_.insert(make_pair("ohos.samples.distributedmusicplayer", vector3));
+    }
+    printf("begin to iteration:\n");
+    for (auto iter = runningMultiAppInfoMap_.begin(); iter != runningMultiAppInfoMap_.end(); iter++) {
+        printf("key: %s\n", iter->first.c_str());
+    }
     return runningMultiAppInfoMap_;
 }
 
