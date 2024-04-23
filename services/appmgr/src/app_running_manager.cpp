@@ -370,9 +370,9 @@ std::map<const std::string, const std::vector<RunningMultiAppInfo>> AppRunningMa
     if (runningMultiAppInfoMap_.size() < 3) {
         std::vector<std::string> instanceVector = {"1","2","3"};
         std::vector<std::string> isolationVector = {"1","2","3"};
-        RunningMultiAppInfo info1a("ohos.samples.etsclock", 1, instanceVector, isolationVector);
-        RunningMultiAppInfo info2a("ohos.samples.etsclock", 2, instanceVector, isolationVector);
-        RunningMultiAppInfo info3a("ohos.samples.etsclock", 3, instanceVector, isolationVector);
+        RunningMultiAppInfo info1a("com.example.myapplication", 1, instanceVector, isolationVector);
+        RunningMultiAppInfo info2a("com.example.myapplication", 2, instanceVector, isolationVector);
+        RunningMultiAppInfo info3a("com.example.myapplication", 3, instanceVector, isolationVector);
         const std::vector<RunningMultiAppInfo> vector1 = {info1a, info2a, info3a};
         RunningMultiAppInfo info1b("ohos.samples.distributedcalc", 1, instanceVector, isolationVector);
         RunningMultiAppInfo info2b("ohos.samples.distributedcalc", 2, instanceVector, isolationVector);
