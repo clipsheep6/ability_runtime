@@ -59,7 +59,7 @@ const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
-constexpr const int32_t API12 = 12;
+constexpr const int32_t API13 = 13;
 constexpr const int32_t API_VERSION_MOD = 100;
 
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
@@ -1514,7 +1514,7 @@ bool JsUIAbility::CheckSatisfyTargetAPIVersion(int32_t version)
 
 bool JsUIAbility::BackPressDefaultValue()
 {
-    return CheckSatisfyTargetAPIVersion(API12) ? true : false;
+    return CheckSatisfyTargetAPIVersion(API13) ? true : false;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
