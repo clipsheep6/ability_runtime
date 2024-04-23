@@ -262,6 +262,11 @@ public:
     {
         return E_OK;
     }
+
+    int32_t CreateShareFileList(std::vector<std::string> uriList, uint32_t tokenId, uint32_t flag)
+    {
+        return 0;
+    }
 };
 
 bool StorageManagerServiceMock::isZero = true;
