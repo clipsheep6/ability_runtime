@@ -57,6 +57,7 @@ public:
 
 private:
     int32_t HandleAttachApplication(MessageParcel &data, MessageParcel &reply);
+    int32_t HandlePreloadApplication(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationForegrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationBackgrounded(MessageParcel &data, MessageParcel &reply);
     int32_t HandleApplicationTerminated(MessageParcel &data, MessageParcel &reply);

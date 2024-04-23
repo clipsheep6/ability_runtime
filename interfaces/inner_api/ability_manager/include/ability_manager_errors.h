@@ -462,6 +462,21 @@ enum {
      * Native error(2097240) for memory size state unchanged.
      */
     ERR_NATIVE_MEMORY_SIZE_STATE_UNCHANGED,
+    
+    /**
+     * Native error(2097241) for target bundle not exist.
+     */
+    ERR_TARGET_BUNDLE_NOT_EXIST,
+
+    /**
+     * Native error(2097242) for get launch ability info failed.
+     */
+    ERR_GET_LAUNCH_ABILITY_INFO_FAILED,
+
+    /**
+     * Native error(2097243) for check preload conditions failed.
+     */
+    ERR_CHECK_PRELOAD_CONDITIONS_FAILED,
 };
 
 enum {

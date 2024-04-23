@@ -30,17 +30,15 @@ using namespace OHOS::AAFwk;
 
 namespace {
 const std::string STRING_CLASS_NAME = "ohos.acts.aafwk.ability.test.ConstructorTest#testDataAbilityOtherFunction0010";
-const std::string STRING_USER_TESTRUNNER = "JSUserTestRunner";
-const std::string STRING_PACKAGENAME = "com.example.myapplication";
-const std::string STRING_PACKAGENAME1 = "com.example.myapplication1";
-const std::string STRING_BUNDLENAME = "com.example.myapplication";
-const std::string STRING_MODULENAME = "com.example.myapplication.MyApplication";
+const std::string STRING_USER_TEST_RUNNER = "JSUserTestRunner";
+const std::string STRING_PACKAGE_NAME = "com.example.myapplication";
+const std::string STRING_PACKAGE_NAME1 = "com.example.myapplication1";
+const std::string STRING_BUNDLE_NAME = "com.example.myapplication";
+const std::string STRING_MODULE_NAME = "com.example.myapplication.MyApplication";
 const std::string CLASS = "class";
 const std::string UNITTEST = "unittest";
 const std::string UNITTEST1 = "unittest1";
 const std::string TIME = "20";
-const std::string ANYKEY = "123";
-const std::string ANYVALUE = "999999999";
 }  // namespace
 
 class AbilityCommandTest : public ::testing::Test {
@@ -230,7 +228,7 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_0800, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-l",
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
@@ -251,7 +249,7 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_0900, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -311,7 +309,7 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1200, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
     };
@@ -333,7 +331,7 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1300, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
     };
@@ -355,10 +353,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1400, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -379,7 +377,7 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1500, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -403,10 +401,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1600, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -433,10 +431,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1700, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -461,10 +459,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1800, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_PACKAGENAME1.c_str(),
+        (char*)STRING_PACKAGE_NAME1.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -489,10 +487,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_1900, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_PACKAGENAME1.c_str(),
+        (char*)STRING_PACKAGE_NAME1.c_str(),
         (char*)"-s",
         (char*)UNITTEST1.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -518,10 +516,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2000, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_PACKAGENAME1.c_str(),
+        (char*)STRING_PACKAGE_NAME1.c_str(),
         (char*)"-s",
         (char*)UNITTEST1.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
     };
     int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
@@ -542,10 +540,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2100, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b1",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -571,10 +569,10 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2200, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-s1",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -600,14 +598,14 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2300, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-p",
-        (char*)STRING_PACKAGENAME.c_str(),
+        (char*)STRING_PACKAGE_NAME.c_str(),
         (char*)"-m",
-        (char*)STRING_MODULENAME.c_str(),
+        (char*)STRING_MODULE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -633,13 +631,13 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2400, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-p",
         (char*)"-m",
-        (char*)STRING_MODULENAME.c_str(),
+        (char*)STRING_MODULE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -665,13 +663,13 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2500, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-p",
-        (char*)STRING_PACKAGENAME.c_str(),
+        (char*)STRING_PACKAGE_NAME.c_str(),
         (char*)"-m",
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),
@@ -697,14 +695,14 @@ HWTEST_F(AbilityCommandTest, Ability_Command_Test_2600, Function | MediumTest | 
         (char*)TOOL_NAME.c_str(),
         (char*)cmd_.c_str(),
         (char*)"-b",
-        (char*)STRING_BUNDLENAME.c_str(),
+        (char*)STRING_BUNDLE_NAME.c_str(),
         (char*)"-p",
-        (char*)STRING_PACKAGENAME.c_str(),
+        (char*)STRING_PACKAGE_NAME.c_str(),
         (char*)"-m",
-        (char*)STRING_MODULENAME.c_str(),
+        (char*)STRING_MODULE_NAME.c_str(),
         (char*)"-s",
         (char*)UNITTEST.c_str(),
-        (char*)STRING_USER_TESTRUNNER.c_str(),
+        (char*)STRING_USER_TEST_RUNNER.c_str(),
         (char*)"-s",
         (char*)CLASS.c_str(),
         (char*)STRING_CLASS_NAME.c_str(),

@@ -271,7 +271,14 @@ ErrCode WantAgentClient::GetPendingRequestWant(const sptr<IWantSender> &target, 
     if (!WriteInterfaceToken(data)) {
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }
-    if (!data.WriteRemoteObject(target->AsObject())) {
+
+    sptr<IRemoteObject> obj = target->AsObject();
+    if (obj == nullptr) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Input Param target is invalid");
+        return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
+    }
+
+    if (!data.WriteRemoteObject(obj)) {
         TAG_LOGE(AAFwkTag::WANTAGENT, "GetPendingRequestWant, target write failed.");
         return ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER;
     }

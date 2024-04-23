@@ -1575,6 +1575,7 @@ void AbilityRecord::Terminate(const Closure &task)
     } else {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Is debug mode, no need to handle time out.");
     }
+    HandleDlpClosed();
     // schedule background after updating AbilityState and sending timeout message to avoid ability async callback
     // earlier than above actions.
     SetAbilityStateInner(AbilityState::TERMINATING);

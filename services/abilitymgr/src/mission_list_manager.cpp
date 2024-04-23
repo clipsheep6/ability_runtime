@@ -570,6 +570,17 @@ bool MissionListManager::CreateOrReusedMissionInfo(const AbilityRequest &ability
     TAG_LOGI(AAFwkTag::ABILITYMGR, "result:%{public}d", reUsedMissionInfo);
 
     BuildInnerMissionInfo(info, missionName, abilityRequest);
+    auto abilityRecord = GetAbilityRecordByNameFromCurrentMissionLists(abilityRequest.want.GetElement());
+    if (reUsedMissionInfo == false && abilityRecord != nullptr) {
+        auto abilityInfo = abilityRequest.abilityInfo;
+        EventInfo eventInfo;
+        eventInfo.userId = abilityRequest.userId;
+        eventInfo.abilityName = abilityInfo.name;
+        eventInfo.bundleName = abilityInfo.bundleName;
+        eventInfo.moduleName = abilityInfo.moduleName;
+        EventReport::SendAbilityEvent(EventName::START_STANDARD_ABILITIES, HiSysEventType::BEHAVIOR, eventInfo);
+    }
+
     return reUsedMissionInfo;
 }
 
@@ -3284,6 +3295,35 @@ std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByName(const 
 
     // find in default singlelist_
     return defaultSingleList_->GetAbilityRecordByName(element);
+}
+
+std::shared_ptr<AbilityRecord> MissionListManager::GetAbilityRecordByNameFromCurrentMissionLists(
+    const AppExecFwk::ElementName &element) const
+{
+    // find in currentMissionLists_
+    for (auto missionList : currentMissionLists_) {
+        if (missionList != nullptr) {
+            auto ability = missionList->GetAbilityRecordByName(element);
+            if (ability != nullptr) {
+                return ability;
+            }
+        }
+    }
+
+    // find in defaultStandardList_
+    if (defaultStandardList_ != nullptr) {
+        auto defaultStandardAbility = defaultStandardList_->GetAbilityRecordByName(element);
+        if (defaultStandardAbility != nullptr) {
+            return defaultStandardAbility;
+        }
+    }
+    
+    // find in launcherList_
+    if (launcherList_ != nullptr) {
+        return launcherList_->GetAbilityRecordByName(element);
+    }
+
+    return nullptr;
 }
 
 std::vector<std::shared_ptr<AbilityRecord>> MissionListManager::GetAbilityRecordsByName(

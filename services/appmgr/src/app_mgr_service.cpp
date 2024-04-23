@@ -206,6 +206,17 @@ void AppMgrService::AttachApplication(const sptr<IRemoteObject> &app)
     });
 }
 
+int32_t AppMgrService::PreloadApplication(const std::string &bundleName, int32_t userId,
+    AppExecFwk::PreloadMode preloadMode, int32_t appIndex)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "PreloadApplication called");
+    if (!IsReady()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication failed, appMgr not ready.");
+        return ERR_INVALID_OPERATION;
+    }
+    return appMgrServiceInner_->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+}
+
 void AppMgrService::ApplicationForegrounded(const int32_t recordId)
 {
     if (!IsReady()) {

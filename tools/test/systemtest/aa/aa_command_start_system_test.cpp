@@ -124,7 +124,6 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0400, Function | 
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> -D" command.
  * @tc.type: FUNC
- * @tc.require: SR000GH1HD
  */
 HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0500, Function | MediumTest | Level1)
 {
@@ -150,7 +149,6 @@ HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0500, Function | 
  * @tc.name: ExecCommand
  * @tc.desc: Verify the "aa start -d <device-id> -a <ability-name> -b <bundle-name> -D" command.
  * @tc.type: FUNC
- * @tc.require: AR000GJUN4
  */
 HWTEST_F(AaCommandStartSystemTest, Aa_Command_Start_SystemTest_0600, Function | MediumTest | Level1)
 {

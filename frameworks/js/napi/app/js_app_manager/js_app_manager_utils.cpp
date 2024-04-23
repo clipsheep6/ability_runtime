@@ -25,6 +25,12 @@
 
 namespace OHOS {
 namespace AbilityRuntime {
+namespace {
+    constexpr const int32_t ARG_INDEX_0 = 0;
+    constexpr const int32_t ARG_INDEX_1 = 1;
+    constexpr const int32_t ARG_INDEX_2 = 2;
+    constexpr const int32_t ARG_INDEX_3 = 3;
+}
 napi_value CreateJsAppStateData(napi_env env, const AppStateData &appStateData)
 {
     TAG_LOGD(AAFwkTag::APPMGR, "called.");
@@ -199,6 +205,49 @@ napi_value ProcessStateInit(napi_env env)
     napi_set_named_property(env, object, "STATE_DESTROY",
         CreateJsValue(env, static_cast<int32_t>(AppExecFwk::AppProcessState::APP_STATE_TERMINATED) - 1));
     return object;
+}
+
+napi_value PreloadModeInit(napi_env env)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "PreloadModeInit enter.");
+    if (env == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadModeInit, env is nullptr.");
+        return nullptr;
+    }
+    napi_value objValue = nullptr;
+    napi_create_object(env, &objValue);
+
+    napi_set_named_property(env, objValue, "PRESS_DOWN",
+        CreateJsValue(env, static_cast<int32_t>(AppExecFwk::PreloadMode::PRESS_DOWN)));
+
+    return objValue;
+}
+
+bool ConvertPreloadApplicationParam(napi_env env, size_t argc, napi_value *argv, PreloadApplicationParam &param,
+    std::string &errorMsg)
+{
+    if (!ConvertFromJsValue(env, argv[ARG_INDEX_0], param.bundleName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param bundleName failed.");
+        errorMsg = "Param bundleName must be a valid string.";
+        return false;
+    }
+    if (!ConvertFromJsValue(env, argv[ARG_INDEX_1], param.userId)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param userId failed.");
+        errorMsg = "Param userId must be a valid number.";
+        return false;
+    }
+    if (!ConvertFromJsValue(env, argv[ARG_INDEX_2], param.preloadMode)
+        || param.preloadMode != AppExecFwk::PreloadMode::PRESS_DOWN) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param preloadMode failed.");
+        errorMsg = "Unsupported preloadMode, must be PreloadMode.PRESS_DOWN.";
+        return false;
+    }
+    if (argc > ARG_INDEX_3 && !ConvertFromJsValue(env, argv[ARG_INDEX_3], param.appIndex)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication get param appIndex failed.");
+        errorMsg = "Param appIndex must be a valid number.";
+        return false;
+    }
+    return true;
 }
 
 JsAppProcessState ConvertToJsAppProcessState(

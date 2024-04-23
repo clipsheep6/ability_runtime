@@ -32,18 +32,18 @@ bool UnwrapOpenLinkOptions(napi_env env, napi_value param, AAFwk::OpenLinkOption
         return false;
     }
 
-    bool appLinkingOnly = false;
-    if (UnwrapBooleanByPropertyName(env, param, APP_LINKING_ONLY.c_str(), appLinkingOnly)) {
-        openLinkOptions.SetAppLinkingOnly(appLinkingOnly);
-        want.SetParam(APP_LINKING_ONLY, appLinkingOnly);
-    }
-
     napi_value jsValue = GetPropertyValueByPropertyName(env, param, "parameters", napi_object);
     if (jsValue != nullptr) {
         AAFwk::WantParams wantParams;
         if (UnwrapWantParams(env, jsValue, wantParams)) {
             want.SetParams(wantParams);
         }
+    }
+
+    bool appLinkingOnly = false;
+    if (UnwrapBooleanByPropertyName(env, param, APP_LINKING_ONLY.c_str(), appLinkingOnly)) {
+        openLinkOptions.SetAppLinkingOnly(appLinkingOnly);
+        want.SetParam(APP_LINKING_ONLY, appLinkingOnly);
     }
 
     return true;

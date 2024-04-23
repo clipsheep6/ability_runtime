@@ -33,6 +33,7 @@
 #include "app_foreground_state_observer_interface.h"
 #include "app_malloc_info.h"
 #include "app_mgr_constants.h"
+#include "app_preloader.h"
 #include "app_process_manager.h"
 #include "app_record_id.h"
 #include "app_running_manager.h"
@@ -184,6 +185,18 @@ public:
      * @return
      */
     virtual void AttachApplication(const pid_t pid, const sptr<IAppScheduler> &appScheduler);
+
+    /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex);
 
     /**
      * ApplicationForegrounded, set the application to Foreground State.
@@ -1090,7 +1103,8 @@ private:
      */
     void StartProcess(const std::string &appName, const std::string &processName, uint32_t startFlags,
                       std::shared_ptr<AppRunningRecord> appRecord, const int uid, const BundleInfo &bundleInfo,
-                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true);
+                      const std::string &bundleName, const int32_t bundleIndex, bool appExistFlag = true,
+                      bool isPreload = false);
 
     /**
      * PushAppFront, Adjust the latest application record to the top level.
@@ -1333,6 +1347,22 @@ private:
      */
     bool NotifyMemMgrPriorityChanged(const std::shared_ptr<AppRunningRecord> appRecord);
 
+    void HandlePreloadApplication(const PreloadRequest &request);
+
+    std::string GetSpecifiedProcessFlag(std::shared_ptr<AbilityInfo> abilityInfo, std::shared_ptr<AAFwk::Want> want);
+
+    void LoadAbilityNoAppRecord(const std::shared_ptr<AppRunningRecord> appRecord,
+        sptr<IRemoteObject> preToken,
+        std::shared_ptr<ApplicationInfo> appInfo,
+        std::shared_ptr<AbilityInfo> abilityInfo,
+        const std::string &processName,
+        const std::string &specifiedProcessFlag,
+        const BundleInfo &bundleInfo,
+        const HapModuleInfo &hapModuleInfo,
+        std::shared_ptr<AAFwk::Want> want,
+        bool appExistFlag,
+        bool isPreload);
+
 private:
     /**
      * Notify application status.
@@ -1357,8 +1387,10 @@ private:
     void HandleConfigurationChange(const Configuration &config);
     bool CheckAppFault(const std::shared_ptr<AppRunningRecord> &appRecord, const FaultData &faultData);
     int32_t KillFaultApp(int32_t pid, const std::string &bundleName, const FaultData &faultData);
-    void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord);
     void NotifyStartResidentProcess(std::vector<AppExecFwk::BundleInfo> &bundleInfos);
+    void AddUIExtensionLauncherItem(std::shared_ptr<AAFwk::Want> want, std::shared_ptr<AppRunningRecord> appRecord,
+        sptr<IRemoteObject> token);
+    void RemoveUIExtensionLauncherItem(std::shared_ptr<AppRunningRecord> appRecord, sptr<IRemoteObject> token);
     const std::string TASK_ON_CALLBACK_DIED = "OnCallbackDiedTask";
     std::vector<const sptr<IAppStateCallback>> appStateCallbacks_;
     std::shared_ptr<AppProcessManager> appProcessManager_;
@@ -1395,6 +1427,7 @@ private:
     std::vector<std::string> serviceExtensionWhiteList_;
     std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
+    std::shared_ptr<AppPreloader> appPreloader_;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

@@ -286,20 +286,24 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     if (!IsCallFromAncoShellOrBroker(request.callerToken)) {
         request.want.RemoveParam(ANCO_PENDING_REQUEST);
     }
+
+    if (appLinkingOnly) {
+        abilityInfoFlag = abilityInfoFlag |
+            static_cast<uint32_t>(AppExecFwk::GetAbilityInfoFlag::GET_ABILITY_INFO_WITH_APP_LINKING);
+    }
+
     IN_PROCESS_CALL_WITHOUT_RET(bundleMgrHelper->ImplicitQueryInfos(
         request.want, abilityInfoFlag, userId, withDefault, abilityInfos, extensionInfos));
-
+    if (isOpenLink && extensionInfos.size() > 0) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "Clear extensionInfos when isOpenLink.");
+        extensionInfos.clear();
+    }
     TAG_LOGI(AAFwkTag::ABILITYMGR,
         "ImplicitQueryInfos, abilityInfo size : %{public}zu, extensionInfos size: %{public}zu.", abilityInfos.size(),
         extensionInfos.size());
 
-    if (isOpenLink && abilityInfos.size() == 0) {
-        HILOG_ERROR("There isn't match app.");
-        return ERR_IMPLICIT_START_ABILITY_FAIL;
-    }
-
     if (appLinkingOnly && abilityInfos.size() == 0) {
-        HILOG_ERROR("There isn't match app.");
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "There isn't match app.");
         return ERR_IMPLICIT_START_ABILITY_FAIL;
     }
 
@@ -355,7 +359,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
     }
 
     for (const auto &info : extensionInfos) {
-        if (isOpenLink || !isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
+        if (!isExtension || !CheckImplicitStartExtensionIsValid(request, info)) {
             continue;
         }
         DialogAppInfo dialogAppInfo;

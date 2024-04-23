@@ -52,9 +52,9 @@ private:
     bool CheckCommand();
 private:
     std::string cmd_;
-    int64_t timeoutSec_{ 0 };
+    int64_t timeoutSec_ = 0;
     ShellCommandResult cmdResult_;
-    bool isDone_{ false };
+    bool isDone_ = false;
 
     std::shared_ptr<AppExecFwk::EventHandler> handler_;
     std::condition_variable cvWork_;

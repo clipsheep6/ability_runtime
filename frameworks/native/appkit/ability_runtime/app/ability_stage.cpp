@@ -56,9 +56,11 @@ std::shared_ptr<Context> AbilityStage::GetContext() const
     return context_;
 }
 
-void AbilityStage::Init(const std::shared_ptr<Context>& context)
+void AbilityStage::Init(const std::shared_ptr<Context>& context,
+    const std::weak_ptr<AppExecFwk::OHOSApplication> application)
 {
     context_ = context;
+    application_ = application;
 }
 
 void AbilityStage::AddAbility(const sptr<IRemoteObject> &token,
