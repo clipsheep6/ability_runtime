@@ -127,12 +127,14 @@ napi_value AttachJsAbilityContext(napi_env env, void *value, void *extValue)
     auto contextObj = systemModule->GetNapiValue();
     napi_coerce_to_native_binding_object(env, contextObj, DetachCallbackFunc, AttachJsAbilityContext, value, extValue);
     auto workContext = new (std::nothrow) std::weak_ptr<AbilityRuntime::AbilityContext>(ptr);
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void* data, void*) {
-            TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
-            delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
-        },
-        nullptr, nullptr);
+    if (workContext != nullptr) {
+        napi_wrap(env, contextObj, workContext,
+            [](napi_env, void* data, void*) {
+              TAG_LOGD(AAFwkTag::UIABILITY, "Finalizer for weak_ptr ability context is called");
+              delete static_cast<std::weak_ptr<AbilityRuntime::AbilityContext> *>(data);
+            },
+            nullptr, nullptr);
+    }
     return contextObj;
 }
 
@@ -1359,7 +1361,9 @@ bool JsUIAbility::CallPromise(napi_value result, int32_t &onContinueRes)
         onContinueRes = result;
     };
     auto *callbackInfo = AppExecFwk::AbilityTransactionCallbackInfo<int32_t>::Create();
-    callbackInfo->Push(asyncCallback);
+    if (callbackInfo != nullptr) {
+        callbackInfo->Push(asyncCallback);
+    }
 
     HandleScope handleScope(jsRuntime_);
     napi_value promiseCallback = nullptr;

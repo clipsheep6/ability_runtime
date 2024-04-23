@@ -465,7 +465,7 @@ struct SelectorPcDialog {
               .height(40)
               .fontSize(16)
               .borderRadius(20)
-              .margin({ top : 16 , left : 16 })
+              .margin({ top : 16, left : 16 })
               .onClick(() => { globalThis.selectExtensionContext.terminateSelf(); })
               if (this.isCheck) {
                 Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule, stateEffect : this.isCheck})  
@@ -476,7 +476,7 @@ struct SelectorPcDialog {
                 .height(40)
                 .fontSize(16)
                 .borderRadius(20)
-                .margin({ top : 16 , left : 48 })
+                .margin({ top : 16, left : 48 })
                 .onClick(() => { this.onSelectApp(this.selectItem) })
               } else {
                 Button($r('app.string.message_sure_selector'), { type: ButtonType.Capsule, stateEffect : this.isCheck})  
