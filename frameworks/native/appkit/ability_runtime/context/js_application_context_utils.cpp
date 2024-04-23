@@ -693,7 +693,7 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
         AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
         return CreateJsUndefined(env);
     }
-    TAG_LOGD(AAFwkTag::APPKIT, "Get Process Info");
+    TAG_LOGD(AAFwkTag::APPKIT, "Get App Index");
     auto complete = [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
         auto context = applicationContext.lock();
         if (!context) {
@@ -733,6 +733,20 @@ napi_value JsApplicationContextUtils::OnGetRunningProcessInformation(napi_env en
     NapiAsyncTask::Schedule("JsApplicationContextUtils::OnGetRunningProcessInformation",
         env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
     return result;
+}
+
+napi_value JsApplicationContextUtils::GetCurrentAppIndex(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetCurrentAppIndex, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnGetCurrentAppIndex(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "Get Process Info");
+    std::int32_t appIndex_;
+    auto ret = context->GetCurrentAppIndex(appIndex_);
+    return CreateJsValue(env,ret);
 }
 
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
@@ -1372,6 +1386,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetRunningProcessInformation);
     BindNativeFunction(env, object, "getRunningProcessInformation", MD_NAME,
         JsApplicationContextUtils::GetRunningProcessInformation);
+    BindNativeFunction(env, object, "getCurrentAppIndex", MD_NAME,
+        JsApplicationContextUtils::GetCurrentAppIndex);
     BindNativeFunction(env, object, "getGroupDir", MD_NAME,
         JsApplicationContextUtils::GetGroupDir);
     BindNativeFunction(env, object, "restartApp", MD_NAME,
