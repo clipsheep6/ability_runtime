@@ -1015,6 +1015,14 @@ int32_t ContextImpl::GetProcessRunningInformation(AppExecFwk::RunningProcessInfo
     return result;
 }
 
+int32_t ContextImpl::GetCurrentAppIndex(int32_t &appIndex)
+{
+    auto appMgrClient = DelayedSingleton<AppExecFwk::AppMgrClient>::GetInstance();
+    auto result = appMgrClient->GetCurrentAppIndex(appIndex);
+    TAG_LOGD(AAFwkTag::APPKIT, "result is %{public}d.", result);
+    return result;
+}
+
 int32_t ContextImpl::RestartApp(const AAFwk::Want& want)
 {
     auto result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->RestartApp(want);
