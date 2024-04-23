@@ -267,6 +267,8 @@ public:
 
     void SignRestartAppFlag(const std::string &bundleName);
 
+    void DeleteInvalidServiceRecord(const std::string &bundleName);
+
     // MSG 0 - 20 represents timeout message
     static constexpr uint32_t LOAD_TIMEOUT_MSG = 0;
     static constexpr uint32_t CONNECT_TIMEOUT_MSG = 1;
@@ -515,7 +517,6 @@ private:
     std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(const sptr<IRemoteObject> &token);
     std::shared_ptr<AbilityRecord> GetExtensionFromServiceMapInner(int32_t abilityRecordId);
     std::shared_ptr<AbilityRecord> GetExtensionFromTerminatingMapInner(const sptr<IRemoteObject> &token);
-    std::shared_ptr<AbilityRecord> GetAutoFillExtFromTerminatingMap(const sptr<IRemoteObject> &token);
     int TerminateAbilityInner(const sptr<IRemoteObject> &token);
     bool IsLauncher(std::shared_ptr<AbilityRecord> serviceExtension) const;
     void KillProcessesByUserId() const;

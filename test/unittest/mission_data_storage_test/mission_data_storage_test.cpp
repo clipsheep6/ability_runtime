@@ -295,25 +295,6 @@ HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_002, TestSize.Level1)
  * EnvConditions: NA
  * CaseDescription: Verify SaveSnapshotFile
  */
-HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_003, TestSize.Level1)
-{
-    auto missionDataStorage = std::make_shared<MissionDataStorage>();
-    EXPECT_NE(missionDataStorage, nullptr);
-    int32_t missionId = 0;
-    MissionSnapshot missionSnapshot;
-    missionSnapshot.isPrivate = true;
-    missionSnapshot.snapshot = std::make_shared<Media::PixelMap>();
-    missionDataStorage->SaveSnapshotFile(missionId, missionSnapshot);
-}
-
-/*
- * Feature: MissionDataStorage
- * Function: SaveSnapshotFile
- * SubFunction: NA
- * FunctionPoints: MissionDataStorage SaveSnapshotFile
- * EnvConditions: NA
- * CaseDescription: Verify SaveSnapshotFile
- */
 HWTEST_F(MissionDataStorageTest, SaveSnapshotFile_004, TestSize.Level1)
 {
     auto missionDataStorage = std::make_shared<MissionDataStorage>();

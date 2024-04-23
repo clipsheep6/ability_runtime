@@ -195,6 +195,7 @@ void UIAbility::OnStop()
     }
     // Call JS Func(onWindowStageDestroy) and Release the scene.
     if (scene_ != nullptr) {
+        OnSceneWillDestroy();
         scene_->GoDestroy();
         onSceneDestroyed();
     }
@@ -574,6 +575,11 @@ void UIAbility::OnSceneCreated()
 }
 
 void UIAbility::OnSceneRestored()
+{
+    TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
+}
+
+void UIAbility::OnSceneWillDestroy()
 {
     TAG_LOGD(AAFwkTag::UIABILITY, "Called.");
 }

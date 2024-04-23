@@ -58,6 +58,21 @@ public:
     virtual void AttachApplication(const sptr<IRemoteObject> &app) = 0;
 
     /**
+     * Preload application.
+     *
+     * @param bundleName The bundle name of the application to preload.
+     * @param userId Indicates the user identification.
+     * @param preloadMode Preload application mode.
+     * @param appIndex The index of application clone.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t PreloadApplication(const std::string &bundleName, int32_t userId,
+        AppExecFwk::PreloadMode preloadMode, int32_t appIndex = 0)
+    {
+        return 0;
+    }
+
+    /**
      * ApplicationForegrounded, call ApplicationForegrounded() through proxy object,
      * set the application to Foreground State.
      *
@@ -610,6 +625,16 @@ public:
      * @return Returns 0 on success, others on failure.
      */
     virtual int32_t GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid_t> &providerPids)
+    {
+        return 0;
+    }
+
+    /**
+     * @brief Notify memory size state changed to sufficient or insufficent.
+     * @param isMemorySizeSufficent Indicates the memory size state.
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    virtual int32_t NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
     {
         return 0;
     }

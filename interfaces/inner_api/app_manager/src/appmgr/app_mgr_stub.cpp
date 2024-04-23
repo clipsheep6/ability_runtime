@@ -39,6 +39,8 @@ AppMgrStub::AppMgrStub()
 {
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_ATTACH_APPLICATION)] =
         &AppMgrStub::HandleAttachApplication;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::PRELOAD_APPLICATION)] =
+        &AppMgrStub::HandlePreloadApplication;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_FOREGROUNDED)] =
         &AppMgrStub::HandleApplicationForegrounded;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::APP_APPLICATION_BACKGROUNDED)] =
@@ -182,6 +184,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleGetAllUIExtensionProviderPid;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::UPDATE_CONFIGURATION_BY_BUNDLE_NAME)] =
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
+        &AppMgrStub::HandleNotifyMemonySizeStateChanged;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -216,6 +220,22 @@ int32_t AppMgrStub::HandleAttachApplication(MessageParcel &data, MessageParcel &
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> client = data.ReadRemoteObject();
     AttachApplication(client);
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandlePreloadApplication(MessageParcel &data, MessageParcel &reply)
+{
+    HITRACE_METER(HITRACE_TAG_APP);
+    TAG_LOGD(AAFwkTag::APPMGR, "Stub HandlePreloadApplication called.");
+    std::string bundleName = Str16ToStr8(data.ReadString16());
+    int32_t userId = data.ReadInt32();
+    int32_t preloadMode = data.ReadInt32();
+    int32_t appIndex = data.ReadInt32();
+    auto result = PreloadApplication(bundleName, userId, static_cast<AppExecFwk::PreloadMode>(preloadMode), appIndex);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Stub HandlePreloadApplication Write result failed.");
+        return ERR_APPEXECFWK_PARCEL_ERROR;
+    }
     return NO_ERROR;
 }
 
@@ -455,6 +475,10 @@ int32_t AppMgrStub::HandleRegisterApplicationStateObserver(MessageParcel &data, 
 {
     std::vector<std::string> bundleNameList;
     auto callback = iface_cast<AppExecFwk::IApplicationStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     data.ReadStringVector(&bundleNameList);
     int32_t result = RegisterApplicationStateObserver(callback, bundleNameList);
     reply.WriteInt32(result);
@@ -464,6 +488,10 @@ int32_t AppMgrStub::HandleRegisterApplicationStateObserver(MessageParcel &data, 
 int32_t AppMgrStub::HandleUnregisterApplicationStateObserver(MessageParcel &data, MessageParcel &reply)
 {
     auto callback = iface_cast<AppExecFwk::IApplicationStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = UnregisterApplicationStateObserver(callback);
     reply.WriteInt32(result);
     return NO_ERROR;
@@ -472,6 +500,10 @@ int32_t AppMgrStub::HandleUnregisterApplicationStateObserver(MessageParcel &data
 int32_t AppMgrStub::HandleRegisterAbilityForegroundStateObserver(MessageParcel &data, MessageParcel &reply)
 {
     auto callback = iface_cast<AppExecFwk::IAbilityForegroundStateObserver>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = RegisterAbilityForegroundStateObserver(callback);
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Fail to write result.");
@@ -709,6 +741,10 @@ int32_t AppMgrStub::HandleUpdateConfigurationByBundleName(MessageParcel &data, M
 int32_t AppMgrStub::HandleRegisterConfigurationObserver(MessageParcel &data, MessageParcel &reply)
 {
     auto observer = iface_cast<AppExecFwk::IConfigurationObserver>(data.ReadRemoteObject());
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = RegisterConfigurationObserver(observer);
     reply.WriteInt32(result);
     return NO_ERROR;
@@ -717,6 +753,10 @@ int32_t AppMgrStub::HandleRegisterConfigurationObserver(MessageParcel &data, Mes
 int32_t AppMgrStub::HandleUnregisterConfigurationObserver(MessageParcel &data, MessageParcel &reply)
 {
     auto observer = iface_cast<AppExecFwk::IConfigurationObserver>(data.ReadRemoteObject());
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Observer is null.");
+        return ERR_INVALID_VALUE;
+    }
     int32_t result = UnregisterConfigurationObserver(observer);
     reply.WriteInt32(result);
     return NO_ERROR;
@@ -750,6 +790,10 @@ int32_t AppMgrStub::HandleNotifyLoadRepairPatch(MessageParcel &data, MessageParc
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     auto ret = NotifyLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
@@ -763,6 +807,10 @@ int32_t AppMgrStub::HandleNotifyHotReloadPage(MessageParcel &data, MessageParcel
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     auto ret = NotifyHotReloadPage(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
@@ -791,6 +839,10 @@ int32_t AppMgrStub::HandleNotifyUnLoadRepairPatch(MessageParcel &data, MessagePa
     TAG_LOGD(AAFwkTag::APPMGR, "function called.");
     std::string bundleName = data.ReadString();
     auto callback = iface_cast<IQuickFixCallback>(data.ReadRemoteObject());
+    if (callback == nullptr) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Callback is null.");
+        return ERR_INVALID_VALUE;
+    }
     auto ret = NotifyUnLoadRepairPatch(bundleName, callback);
     if (!reply.WriteInt32(ret)) {
         return ERR_INVALID_VALUE;
@@ -1210,6 +1262,17 @@ int32_t AppMgrStub::HandleGetAllUIExtensionProviderPid(MessageParcel &data, Mess
         return ERR_INVALID_VALUE;
     }
 
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, MessageParcel &reply)
+{
+    bool isMemorySizeSufficent = data.ReadBool();
+    int result = NotifyMemonySizeStateChanged(isMemorySizeSufficent);
+    if (!reply.WriteInt32(result)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

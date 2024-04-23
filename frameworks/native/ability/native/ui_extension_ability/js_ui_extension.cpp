@@ -239,8 +239,21 @@ void JsUIExtension::OnStart(const AAFwk::Want &want)
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::UI_EXT, "JsUIExtension OnStart begin.");
     Extension::OnStart(want);
+    auto context = GetContext();
+    if (context != nullptr) {
+        int32_t  displayId = static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId());
+        displayId = want.GetIntParam(Want::PARAM_RESV_DISPLAY_ID, displayId);
+        TAG_LOGD(AAFwkTag::UI_EXT, "displayId %{public}d", displayId);
+        auto configUtils = std::make_shared<ConfigurationUtils>();
+        configUtils->InitDisplayConfig(displayId, context->GetConfiguration(), context->GetResourceManager());
+    }
+
     HandleScope handleScope(jsRuntime_);
     napi_env env = jsRuntime_.GetNapiEnv();
+    if (context != nullptr) {
+        JsExtensionContext::ConfigurationUpdated(env, shellContextRef_, context->GetConfiguration());
+    }
+
     napi_value napiWant = OHOS::AppExecFwk::WrapWant(env, want);
     napi_value argv[] = {napiWant};
     CallObjectMethod("onCreate", argv, ARGC_ONE);

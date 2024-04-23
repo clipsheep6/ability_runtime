@@ -233,6 +233,7 @@ struct AbilityRequest {
     AppExecFwk::ExtensionProcessMode extensionProcessMode = AppExecFwk::ExtensionProcessMode::UNDEFINED;
 
     sptr<SessionInfo> sessionInfo;
+    uint32_t specifyTokenId = 0;
 
     bool IsContinuation() const
     {
@@ -972,6 +973,8 @@ public:
 
     void UpdateUIExtensionInfo(const WantParams &wantParams);
 
+    void SetSpecifyTokenId(const uint32_t specifyTokenId);
+
 protected:
     void SendEvent(uint32_t msg, uint32_t timeOut, int32_t param = -1);
 
@@ -1014,7 +1017,7 @@ private:
     bool GrantPermissionToShell(const std::vector<std::string> &uriVec, uint32_t flag, std::string targetPkg);
 
     void GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName,
-         uint32_t tokenId, uint32_t specifyTokenId = 0);
+         uint32_t tokenId);
     void GrantUriPermissionFor2In1Inner(
         Want &want, std::vector<std::string> &uriVec, const std::string &targetBundleName, uint32_t tokenId);
 
@@ -1192,6 +1195,7 @@ private:
     std::atomic_bool backgroundAbilityWindowDelayed_ = false;
 
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
+    uint32_t specifyTokenId_ = 0;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

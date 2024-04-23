@@ -24,6 +24,16 @@
 
 namespace OHOS {
 namespace AppExecFwk {
+namespace {
+#define PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(messageParcel, type, value) \
+    do {                                                                  \
+        if (!(messageParcel).Write##type(value)) {                        \
+            TAG_LOGE(AAFwkTag::APPMGR,                                    \
+            "failed to write %{public}s", #value);                        \
+            return IPC_PROXY_ERR;                                         \
+        }                                                                 \
+    } while (0)
+}
 constexpr int32_t CYCLE_LIMIT = 1000;
 AppMgrProxy::AppMgrProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IAppMgr>(impl)
 {}
@@ -53,6 +63,31 @@ void AppMgrProxy::AttachApplication(const sptr<IRemoteObject> &obj)
     if (ret != NO_ERROR) {
         TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
     }
+}
+
+int32_t AppMgrProxy::PreloadApplication(const std::string &bundleName, int32_t userId,
+    AppExecFwk::PreloadMode preloadMode, int32_t appIndex)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "PreloadApplication called.");
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+
+    if (!WriteInterfaceToken(data)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication Write interface token failed.");
+        return IPC_PROXY_ERR;
+    }
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, String16, Str8ToStr16(bundleName));
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, userId);
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, static_cast<int32_t>(preloadMode));
+    PROXY_WRITE_PARCEL_AND_RETURN_IF_FAIL(data, Int32, appIndex);
+
+    int32_t error = SendRequest(AppMgrInterfaceCode::PRELOAD_APPLICATION, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "PreloadApplication Send request error: %{public}d.", error);
+        return error;
+    }
+    return reply.ReadInt32();
 }
 
 void AppMgrProxy::ApplicationForegrounded(const int32_t recordId)
@@ -1872,6 +1907,27 @@ int32_t AppMgrProxy::GetAllUIExtensionProviderPid(pid_t hostPid, std::vector<pid
         providerPids.emplace_back(temp);
     }
 
+    return reply.ReadInt32();
+}
+
+int32_t AppMgrProxy::NotifyMemonySizeStateChanged(bool isMemorySizeSufficent)
+{
+    MessageParcel data;
+    if (!WriteInterfaceToken(data)) {
+        return ERR_INVALID_DATA;
+    }
+    if (!data.WriteBool(isMemorySizeSufficent)) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "write isMemorySizeSufficent fail.");
+        return ERR_INVALID_DATA;
+    }
+
+    MessageParcel reply;
+    MessageOption option;
+    auto error = SendRequest(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED, data, reply, option);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::ABILITYMGR, "Send request error: %{public}d", error);
+        return error;
+    }
     return reply.ReadInt32();
 }
 }  // namespace AppExecFwk

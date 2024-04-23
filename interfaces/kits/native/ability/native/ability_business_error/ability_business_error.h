@@ -155,6 +155,9 @@ enum class AbilityErrorCode {
 
     // observer not found.
     ERROR_CODE_OBSERVER_NOT_FOUND = 16300004,
+
+    // target bundle not exist.
+    ERROR_CODE_TARGET_BUNDLE_NOT_EXIST = 16300005,
 };
 
 std::string GetErrorMsg(const AbilityErrorCode& errCode);

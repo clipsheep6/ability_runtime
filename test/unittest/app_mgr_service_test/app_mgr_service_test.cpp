@@ -19,6 +19,7 @@
 #include "app_mgr_service.h"
 #include "app_utils.h"
 #undef private
+#include "ability_manager_errors.h"
 #include "child_main_thread.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
@@ -1623,6 +1624,32 @@ HWTEST_F(AppMgrServiceTest, GetAllUIExtensionProviderPid_0100, TestSize.Level1)
     appMgrService->taskHandler_ = taskHandler_;
     appMgrService->eventHandler_ = eventHandler_;
     EXPECT_EQ(appMgrService->GetAllUIExtensionProviderPid(hostPid, providerPids), ERR_OK);
+}
+
+/**
+ * @tc.name: PreloadApplication_0100
+ * @tc.desc: Preload application.
+ * @tc.type: FUNC
+ */
+HWTEST_F(AppMgrServiceTest, PreloadApplication_0100, TestSize.Level1)
+{
+    auto appMgrService = std::make_shared<AppMgrService>();
+    ASSERT_NE(appMgrService, nullptr);
+    appMgrService->SetInnerService(mockAppMgrServiceInner_);
+    appMgrService->taskHandler_ = taskHandler_;
+    appMgrService->eventHandler_ = eventHandler_;
+
+    std::string bundleName = "com.acts.preloadtest";
+    int32_t userId = 100;
+    PreloadMode preloadMode = PreloadMode::PRE_MAKE;
+    int32_t appIndex = 0;
+
+    EXPECT_CALL(*mockAppMgrServiceInner_, PreloadApplication(_, _, _, _))
+    .Times(1)
+    .WillOnce(Return(ERR_OK));
+
+    int32_t ret = appMgrService->PreloadApplication(bundleName, userId, preloadMode, appIndex);
+    EXPECT_EQ(ret, ERR_OK);
 }
 } // namespace AppExecFwk
 } // namespace OHOS

@@ -260,8 +260,7 @@ int MissionInfoMgr::GetMissionInfoById(int32_t missionId, MissionInfo &missionIn
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionId](const InnerMissionInfo item) {
             return item.missionInfo.id == missionId;
-        }
-    );
+        });
     if (it == missionInfoList_.end()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "no such mission:%{public}d", missionId);
         return -1;
@@ -288,8 +287,7 @@ int MissionInfoMgr::GetInnerMissionInfoById(int32_t missionId, InnerMissionInfo 
     auto it = std::find_if(missionInfoList_.begin(), missionInfoList_.end(),
         [&missionId](const InnerMissionInfo item) {
             return item.missionInfo.id == missionId;
-        }
-    );
+        });
     if (it == missionInfoList_.end()) {
         TAG_LOGE(AAFwkTag::ABILITYMGR, "no such mission:%{public}d", missionId);
         return MISSION_NOT_FOUND;
@@ -325,8 +323,7 @@ bool MissionInfoMgr::FindReusedMissionInfo(const std::string &missionName,
                 return flag == item.specifiedFlag;
             }
             return false;
-        }
-    );
+        });
     if (it == missionInfoList_.end()) {
         TAG_LOGW(AAFwkTag::ABILITYMGR, "can not find target singleton mission:%{public}s", missionName.c_str());
         return false;

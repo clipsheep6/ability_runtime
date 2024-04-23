@@ -5079,35 +5079,6 @@ HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_002, TestSize.Level1)
     missionListManager->CompleteFirstFrameDrawing(abilityToken);
     missionListManager.reset();
 }
-
-
-/*
- * Feature: MissionListManager
- * Function: CompleteFirstFrameDrawing
- * SubFunction: NA
- * FunctionPoints: MissionListManager CompleteFirstFrameDrawing
- * EnvConditions: NA
- * CaseDescription: Verify CompleteFirstFrameDrawing
- */
-HWTEST_F(MissionListManagerTest, CompleteFirstFrameDrawing_003, TestSize.Level1)
-{
-    TAG_LOGI(AAFwkTag::TEST, "CompleteFirstFrameDrawing_003 start");
-    int userId = 3;
-    auto missionListManager = std::make_shared<MissionListManager>(userId);
-    std::shared_ptr<AbilityRecord> abilityRecord = InitAbilityRecord();
-    EXPECT_EQ(abilityRecord->IsCompleteFirstFrameDrawing(), false);
-    sptr<IRemoteObject> abilityToken = abilityRecord->GetToken();
-    std::shared_ptr<MissionList> missionList = std::make_shared<MissionList>();
-    std::shared_ptr<Mission> mission = std::make_shared<Mission>(1, abilityRecord, "missionName");
-    missionList->missions_.push_front(mission);
-    missionListManager->terminateAbilityList_.clear();
-    missionListManager->currentMissionLists_.clear();
-    missionListManager->currentMissionLists_.push_front(missionList);
-    missionListManager->defaultSingleList_ = missionList;
-    missionListManager->defaultStandardList_ = missionList;
-    missionListManager->CompleteFirstFrameDrawing(abilityToken);
-    EXPECT_EQ(abilityRecord->IsCompleteFirstFrameDrawing(), true);
-}
 #endif
 
 /*

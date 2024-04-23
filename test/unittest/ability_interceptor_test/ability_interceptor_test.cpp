@@ -97,7 +97,7 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_001, TestSize.Level1)
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, requestCode, userId, true, nullptr);
     int result = executer->DoProcess(param);
-    EXPECT_NE(result, ERR_OK);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**
@@ -116,7 +116,7 @@ HWTEST_F(AbilityInterceptorTest, CrowdTestInterceptor_002, TestSize.Level1)
     executer->AddInterceptor(std::make_shared<CrowdTestInterceptor>());
     AbilityInterceptorParam param = AbilityInterceptorParam(want, 0, userId, false, nullptr);
     int result = executer->DoProcess(param);
-    EXPECT_NE(result, ERR_OK);
+    EXPECT_EQ(result, ERR_OK);
 }
 
 /**

@@ -121,13 +121,13 @@ void AbilityTimeoutModuleTest::SetUp()
 void AbilityTimeoutModuleTest::TearDown()
 {
     WaitUntilTaskFinishedByTimer();
-    abilityMs_->currentMissionListManager_->terminateAbilityList_.clear();
-    abilityMs_->currentMissionListManager_->launcherList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->defaultStandardList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->defaultSingleList_->missions_.clear();
-    abilityMs_->currentMissionListManager_->currentMissionLists_.clear();
-    abilityMs_->currentMissionListManager_->currentMissionLists_
-        .push_front(abilityMs_->currentMissionListManager_->launcherList_);
+    abilityMs_->subManagersHelper_->currentMissionListManager_->terminateAbilityList_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_->missions_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultStandardList_->missions_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->defaultSingleList_->missions_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_
+        .push_front(abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_);
 }
 
 void AbilityTimeoutModuleTest::MockOnStart()
@@ -146,17 +146,10 @@ void AbilityTimeoutModuleTest::MockOnStart()
     abilityMs_->userController_ = std::make_shared<UserController>();
     EXPECT_TRUE(abilityMs_->userController_);
     abilityMs_->userController_->Init();
-    int userId = MOCK_MAIN_USER_ID;
-
-    abilityMs_->InitConnectManager(userId, true);
-    abilityMs_->InitDataAbilityManager(userId, true);
-    abilityMs_->InitPendWantManager(userId, true);
-    abilityMs_->systemDataAbilityManager_ = std::make_shared<DataAbilityManager>();
-    EXPECT_TRUE(abilityMs_->systemDataAbilityManager_);
 
     AmsConfigurationParameter::GetInstance().Parse();
-
-    abilityMs_->InitMissionListManager(userId, true);
+    abilityMs_->subManagersHelper_ = std::make_shared<SubManagersHelper>(nullptr, nullptr);
+    abilityMs_->subManagersHelper_->InitSubManagers(MOCK_MAIN_USER_ID, true);
     abilityMs_->SwitchManagers(MOCK_U0_USER_ID, false);
 
     abilityMs_->userController_->SetCurrentUserId(MOCK_MAIN_USER_ID);
@@ -176,16 +169,15 @@ void AbilityTimeoutModuleTest::MockOnStop()
         return;
     }
 
-    abilityMs_->connectManagers_.clear();
-    abilityMs_->connectManager_.reset();
+    abilityMs_->subManagersHelper_->connectManagers_.clear();
+    abilityMs_->subManagersHelper_->currentConnectManager_.reset();
     abilityMs_->iBundleManager_.clear();
-    abilityMs_->dataAbilityManagers_.clear();
-    abilityMs_->dataAbilityManager_.reset();
-    abilityMs_->systemDataAbilityManager_.reset();
-    abilityMs_->pendingWantManagers_.clear();
-    abilityMs_->pendingWantManager_.reset();
-    abilityMs_->missionListManagers_.clear();
-    abilityMs_->currentMissionListManager_.reset();
+    abilityMs_->subManagersHelper_->dataAbilityManagers_.clear();
+    abilityMs_->subManagersHelper_->currentDataAbilityManager_.reset();
+    abilityMs_->subManagersHelper_->pendingWantManagers_.clear();
+    abilityMs_->subManagersHelper_->currentPendingWantManager_.reset();
+    abilityMs_->subManagersHelper_->missionListManagers_.clear();
+    abilityMs_->subManagersHelper_->currentMissionListManager_.reset();
     abilityMs_->userController_.reset();
     abilityMs_->abilityController_.clear();
     abilityMs_->OnStop();
@@ -193,10 +185,11 @@ void AbilityTimeoutModuleTest::MockOnStop()
 
 std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateRootLauncher()
 {
-    if (!abilityMs_->currentMissionListManager_ || !abilityMs_->currentMissionListManager_->launcherList_) {
+    if (!abilityMs_->subManagersHelper_->currentMissionListManager_ ||
+        !abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_) {
         return nullptr;
     }
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AbilityType::PAGE;
     abilityRequest.abilityInfo.name = AbilityConfig::LAUNCHER_ABILITY_NAME;
@@ -216,10 +209,11 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateRootLauncher()
 
 std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateLauncherAbility()
 {
-    if (!abilityMs_->currentMissionListManager_ || !abilityMs_->currentMissionListManager_->launcherList_) {
+    if (!abilityMs_->subManagersHelper_->currentMissionListManager_ ||
+        !abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_) {
         return nullptr;
     }
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     AbilityRequest abilityRequest;
     abilityRequest.abilityInfo.type = AbilityType::PAGE;
     abilityRequest.abilityInfo.name = "com.ix.hiworld.SecAbility";
@@ -238,7 +232,7 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateLauncherAbility()
 
 std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateServiceAbility()
 {
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     if (!curListManager) {
         return nullptr;
     }
@@ -255,7 +249,7 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateServiceAbility()
 
 std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateExtensionAbility()
 {
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     if (!curListManager) {
         return nullptr;
     }
@@ -273,7 +267,7 @@ std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateExtensionAbility(
 
 std::shared_ptr<AbilityRecord> AbilityTimeoutModuleTest::CreateCommonAbility()
 {
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     if (!curListManager) {
         return nullptr;
     }
@@ -310,8 +304,8 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
@@ -325,7 +319,7 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_001, TestSize.Level1)
     EXPECT_TRUE(rootLauncher->IsLauncherRoot());
 
     GTEST_LOG_(INFO) << "userId:" << abilityMs_->GetUserId();
-    GTEST_LOG_(INFO) << "currentmanager userId" << abilityMs_->currentMissionListManager_->userId_;
+    GTEST_LOG_(INFO) << "currentmanager userId" << abilityMs_->subManagersHelper_->currentMissionListManager_->userId_;
 
     // died rootlauncher ability
     rootLauncher->SetAbilityState(AbilityState::FOREGROUND);
@@ -350,8 +344,8 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
@@ -368,14 +362,14 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_002, TestSize.Level1)
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
     topAbility->SetAbilityState(AbilityState::FOREGROUND);
 
     // died rootlauncher ability
     abilityMs_->OnAbilityDied(rootLauncher);
     WaitUntilTaskFinishedByTimer();
-    topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_TRUE(topAbility != nullptr);
     EXPECT_EQ(topAbility, rootLauncher);
     EXPECT_TRUE(lauList->GetAbilityRecordByToken(rootLauncher->GetToken()) != nullptr);
@@ -395,8 +389,8 @@ HWTEST_F(AbilityTimeoutModuleTest, OnAbilityDied_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
     int maxRestart = -1;
@@ -436,9 +430,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto curListManager = abilityMs_->currentMissionListManager_;
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
 
@@ -466,9 +460,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -480,7 +474,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_002, TestSize.Level1)
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
@@ -502,9 +496,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -516,14 +510,14 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_003, TestSize.Level1)
 
     // add common ability to abilityMs as caller
     auto callerAbility = CreateCommonAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, callerAbility);
     callerAbility->SetAbilityState(AbilityState::FOREGROUND);
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
@@ -545,9 +539,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -559,14 +553,14 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_004, TestSize.Level1)
 
     // add launcher ability to abilityMs as caller
     auto callerAbility = CreateLauncherAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, callerAbility);
     callerAbility->SetAbilityState(AbilityState::FOREGROUND);
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
@@ -588,9 +582,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -606,8 +600,8 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_005, TestSize.Level1)
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    auto currentList = abilityMs_->currentMissionListManager_->currentMissionLists_;
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto currentList = abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_;
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
@@ -629,9 +623,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -647,8 +641,8 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_006, TestSize.Level1)
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    auto currentList = abilityMs_->currentMissionListManager_->currentMissionLists_;
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto currentList = abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_;
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
 
     // rootlauncher load timeout
@@ -670,9 +664,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -684,7 +678,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleLoadTimeOut_007, TestSize.Level1)
 
     // add common laucher ability to abilityMs
     auto commonLauncherAbility = CreateLauncherAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonLauncherAbility);
 
     // rootlauncher load timeout
@@ -706,9 +700,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_001, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto curListManager = abilityMs_->currentMissionListManager_;
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
     EXPECT_TRUE(lauList != nullptr);
 
 
@@ -737,9 +731,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_002, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -751,7 +745,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_002, TestSize.Level1)
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
@@ -774,9 +768,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_003, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -788,14 +782,14 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_003, TestSize.Level1)
 
     // add common ability to abilityMs as caller
     auto callerAbility = CreateCommonAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, callerAbility);
     callerAbility->SetAbilityState(AbilityState::FOREGROUND);
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
@@ -818,9 +812,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_004, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -832,14 +826,14 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_004, TestSize.Level1)
 
     // add launcher ability to abilityMs as caller
     auto callerAbility = CreateLauncherAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, callerAbility);
     callerAbility->SetAbilityState(AbilityState::FOREGROUND);
 
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
@@ -862,9 +856,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_005, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -880,8 +874,8 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_005, TestSize.Level1)
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    auto currentList = abilityMs_->currentMissionListManager_->currentMissionLists_;
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto currentList = abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_;
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
@@ -904,9 +898,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_006, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -922,8 +916,8 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_006, TestSize.Level1)
     // add common ability to abilityMs
     auto commonAbility = CreateCommonAbility();
     commonAbility->AddCallerRecord(callerAbility->GetToken(), -1);
-    auto currentList = abilityMs_->currentMissionListManager_->currentMissionLists_;
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto currentList = abilityMs_->subManagersHelper_->currentMissionListManager_->currentMissionLists_;
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonAbility);
     commonAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 
@@ -946,9 +940,9 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_007, TestSize.Level1)
 {
     // test config is success.
     EXPECT_TRUE(abilityMs_ != nullptr);
-    EXPECT_TRUE(abilityMs_->currentMissionListManager_ != nullptr);
-    auto lauList = abilityMs_->currentMissionListManager_->launcherList_;
-    auto curListManager = abilityMs_->currentMissionListManager_;
+    EXPECT_TRUE(abilityMs_->subManagersHelper_->currentMissionListManager_ != nullptr);
+    auto lauList = abilityMs_->subManagersHelper_->currentMissionListManager_->launcherList_;
+    auto curListManager = abilityMs_->subManagersHelper_->currentMissionListManager_;
     EXPECT_TRUE(lauList != nullptr);
 
     // add rootlauncher to abilityMs.
@@ -960,7 +954,7 @@ HWTEST_F(AbilityTimeoutModuleTest, HandleForegroundTimeOut_007, TestSize.Level1)
 
     // add common laucher ability to abilityMs
     auto commonLauncherAbility = CreateLauncherAbility();
-    auto topAbility = abilityMs_->currentMissionListManager_->GetCurrentTopAbilityLocked();
+    auto topAbility = abilityMs_->subManagersHelper_->currentMissionListManager_->GetCurrentTopAbilityLocked();
     EXPECT_EQ(topAbility, commonLauncherAbility);
     commonLauncherAbility->SetAbilityState(AbilityState::FOREGROUNDING);
 

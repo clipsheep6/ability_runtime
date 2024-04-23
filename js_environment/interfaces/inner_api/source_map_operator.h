@@ -19,6 +19,7 @@
 #include <set>
 #include <string>
 
+#include "ffrt.h"
 #include "js_env_logger.h"
 #include "source_map.h"
 
@@ -27,7 +28,7 @@ namespace JsEnv {
 namespace {
 enum InitStatus { NOT_EXECUTED, EXECUTED_SUCCESSFULLY };
 }
-class SourceMapOperator {
+class SourceMapOperator : public std::enable_shared_from_this<SourceMapOperator> {
 public:
     SourceMapOperator(const std::string bundleName, bool isModular, bool isDebugVersion)
         : bundleName_(bundleName), isModular_(isModular), isDebugVersion_(isDebugVersion), initStatus_(NOT_EXECUTED) {}
@@ -37,14 +38,22 @@ public:
     void InitSourceMap()
     {
         sourceMapObj_ = std::make_shared<SourceMap>();
-        std::vector<std::string> hapList;
-        sourceMapObj_->GetHapPath(bundleName_, hapList);
-        for (auto &hapInfo : hapList) {
-            if (!hapInfo.empty()) {
-                sourceMapObj_->Init(isModular_, hapInfo);
+
+        auto init = [weak = weak_from_this()]() {
+            auto sourceMapOperator = weak.lock();
+            if (sourceMapOperator != nullptr && sourceMapOperator->sourceMapObj_ != nullptr) {
+                std::vector<std::string> hapList;
+                sourceMapOperator->sourceMapObj_->GetHapPath(sourceMapOperator->bundleName_, hapList);
+                for (auto &hapInfo : hapList) {
+                    if (!hapInfo.empty()) {
+                        sourceMapOperator->sourceMapObj_->Init(sourceMapOperator->isModular_, hapInfo);
+                    }
+                }
+                sourceMapOperator->initStatus_ = EXECUTED_SUCCESSFULLY;
             }
-        }
-        initStatus_ = EXECUTED_SUCCESSFULLY;
+        };
+
+        ffrt::submit(init, {}, {}, ffrt::task_attr().qos(ffrt::qos_user_initiated));
     }
 
     std::string TranslateBySourceMap(const std::string& stackStr)

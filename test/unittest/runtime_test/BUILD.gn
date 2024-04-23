@@ -95,6 +95,7 @@ ohos_unittest("js_runtime_test") {
     "c_utils:utils",
     "ets_runtime:libark_jsruntime",
     "eventhandler:libeventhandler",
+    "ffrt:libffrt",
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",

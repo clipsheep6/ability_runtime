@@ -87,14 +87,14 @@ private:
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
             TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: The input want is invalid.");
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> callerToken = want.GetRemoteObject(RequestConstants::REQUEST_TOKEN_KEY);
         if (!callerToken) {
             TAG_LOGE(AAFwkTag::DIALOG, "Can not get token from target want.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Can not get token from target want.");
             return CreateJsUndefined(env);
         }
         int32_t left = want.GetIntParam(RequestConstants::WINDOW_RECTANGLE_LEFT_KEY, 0);
@@ -106,7 +106,7 @@ private:
         auto jsRequestInfo = RequestInfo::WrapRequestInfo(env, requestInfo);
         if (jsRequestInfo == nullptr) {
             TAG_LOGE(AAFwkTag::DIALOG, "Can not wrap requestinfo from target request.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Can not wrap requestinfo from target request.");
             return CreateJsUndefined(env);
         }
 
@@ -125,14 +125,14 @@ private:
         OHOS::AAFwk::Want want;
         if (!OHOS::AppExecFwk::UnwrapWant(env, info.argv[0], want)) {
             TAG_LOGE(AAFwkTag::DIALOG, "The input want is invalid.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: The input want is invalid.");
             return CreateJsUndefined(env);
         }
 
         sptr<IRemoteObject> remoteObj = want.GetRemoteObject(RequestConstants::REQUEST_CALLBACK_KEY);
         if (!remoteObj) {
             TAG_LOGE(AAFwkTag::DIALOG, "Can not get callback from target want.");
-            ThrowError(env, AbilityErrorCode::ERROR_CODE_INVALID_PARAM);
+            ThrowInvalidParamError(env, "Parameter error: Can not get callback from target want.");
             return CreateJsUndefined(env);
         }
 

@@ -59,7 +59,7 @@ const std::string METHOD_NAME = "WindowScene::GoForeground";
 #endif
 // Numerical base (radix) that determines the valid characters and their interpretation.
 const int32_t BASE_DISPLAY_ID_NUM (10);
-constexpr const int32_t API12 = 12;
+constexpr const int32_t API13 = 13;
 constexpr const int32_t API_VERSION_MOD = 100;
 
 napi_value PromiseCallback(napi_env env, napi_callback_info info)
@@ -503,6 +503,22 @@ void JsUIAbility::OnSceneRestored()
     }
 
     jsWindowStageObj_ = std::shared_ptr<NativeReference>(jsAppWindowStage.release());
+}
+
+void JsUIAbility::OnSceneWillDestroy()
+{
+    TAG_LOGD(AAFwkTag::UIABILITY, "Begin ability is %{public}s.", GetAbilityName().c_str());
+    HandleScope handleScope(jsRuntime_);
+    if (jsWindowStageObj_ == nullptr) {
+        TAG_LOGE(AAFwkTag::UIABILITY, "jsWindowStageObj_ is nullptr.");
+        return;
+    }
+    napi_value argv[] = {jsWindowStageObj_->GetNapiValue()};
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "onWindowStageWillDestroy");
+        std::string methodName = "onWindowStageWillDestroy";
+        CallObjectMethod("onWindowStageWillDestroy", argv, ArraySize(argv));
+    }
 }
 
 void JsUIAbility::onSceneDestroyed()
@@ -1498,7 +1514,7 @@ bool JsUIAbility::CheckSatisfyTargetAPIVersion(int32_t version)
 
 bool JsUIAbility::BackPressDefaultValue()
 {
-    return CheckSatisfyTargetAPIVersion(API12) ? true : false;
+    return CheckSatisfyTargetAPIVersion(API13) ? true : false;
 }
 } // namespace AbilityRuntime
 } // namespace OHOS

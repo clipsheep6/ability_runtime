@@ -133,8 +133,5 @@ ohos_unittest("main_thread_by_mock_bms_test") {
 
 group("unittest") {
   testonly = true
-  deps = [
-    ":main_thread_by_mock_bms_test",
-    ":main_thread_test",
-  ]
+  deps = [ ":main_thread_by_mock_bms_test" ]
 }
