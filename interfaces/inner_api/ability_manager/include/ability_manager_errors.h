@@ -479,6 +479,11 @@ enum {
     ERR_CHECK_PRELOAD_CONDITIONS_FAILED,
 
     ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN,
+
+     /**
+     * Result(2097245) for size of uri list out of range.
+     */
+    ERR_URI_LIST_OUT_OF_RANGE,
 };
 
 enum {

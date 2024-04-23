@@ -3032,39 +3032,7 @@ void AbilityRecord::GrantUriPermission(Want &want, std::string targetBundleName,
         TAG_LOGI(AAFwkTag::ABILITYMGR, "permission to shell");
         return;
     }
-    if (AppUtils::GetInstance().IsGrantPersistUriPermission()) {
-        GrantUriPermissionFor2In1Inner(want, uriVec, targetBundleName, tokenId);
-        return;
-    }
     GrantUriPermissionInner(want, uriVec, targetBundleName, tokenId);
-}
-
-bool AbilityRecord::CheckUriPermission(Uri &uri, uint32_t callerTokenId, int32_t userId)
-{
-    auto bundleFlag = AppExecFwk::BundleFlag::GET_BUNDLE_WITH_EXTENSION_INFO;
-    auto &&authority = uri.GetAuthority();
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "uri authority is %{public}s.", authority.c_str());
-    if (authority == "media" || authority == "docs") {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "Authotity is media or docs, do not have permission.");
-        return false;
-    }
-    // uri of bundle name type
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-    if (bundleMgrHelper == nullptr) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "bundleMgrHelper is nullptr");
-        return false;
-    };
-    AppExecFwk::BundleInfo uriBundleInfo;
-    if (!IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfo(authority, bundleFlag, uriBundleInfo, userId))) {
-        TAG_LOGW(AAFwkTag::ABILITYMGR, "To fail to get bundle info according to uri.");
-        return false;
-    }
-    auto authorityAccessTokenId = uriBundleInfo.applicationInfo.accessTokenId;
-    if (authorityAccessTokenId != callerTokenId) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "the uri does not belong to caller, have not permission");
-        return false;
-    }
-    return true;
 }
 
 void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string> &uriVec,
@@ -3072,29 +3040,21 @@ void AbilityRecord::GrantUriPermissionInner(Want &want, std::vector<std::string>
 {
     auto callerTokenId = specifyTokenId_ > 0 ? specifyTokenId_ :
         static_cast<uint32_t>(want.GetIntParam(Want::PARAM_RESV_CALLER_TOKEN, tokenId));
-    auto permission = AAFwk::UriPermissionManagerClient::GetInstance().IsAuthorizationUriAllowed(callerTokenId);
-    auto userId = GetCurrentAccountId();
-    TAG_LOGD(AAFwkTag::ABILITYMGR,
-        "callerTokenId=%{public}u, tokenId=%{public}u, permission=%{public}i, specifyTokenId=%{public}u",
-        callerTokenId, tokenId, static_cast<int>(permission), specifyTokenId_);
+    TAG_LOGI(AAFwkTag::ABILITYMGR, "callerTokenId=%{public}u, tokenId=%{public}u, specifyTokenId=%{public}u",
+        callerTokenId, tokenId, specifyTokenId_);
     uint32_t flag = want.GetFlags();
     std::vector<Uri> validUriList = {};
     for (auto &&uriStr : uriVec) {
         Uri uri(uriStr);
         auto &&scheme = uri.GetScheme();
-        // only support file scheme
         if (scheme != "file") {
-            TAG_LOGW(AAFwkTag::ABILITYMGR, "only support file uri, scheme is %{public}s.", scheme.c_str());
-            continue;
-        }
-        if (!permission && !CheckUriPermission(uri, callerTokenId, userId)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "no permission to grant uri.");
+            TAG_LOGW(AAFwkTag::ABILITYMGR, "uri is invalid: %{private}s", uriStr.c_str());
             continue;
         }
         validUriList.emplace_back(uri);
     }
-    if (validUriList.size() == 0) {
-        TAG_LOGE(AAFwkTag::ABILITYMGR, "Size of valid uri list is zero.");
+    if (validUriList.empty()) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "valid uriVec is empty.");
         return;
     }
     auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(validUriList, flag,
@@ -3139,7 +3099,7 @@ void AbilityRecord::GrantUriPermissionFor2In1Inner(Want &want, std::vector<std::
     for (auto &&str : uriVec) {
         Uri uri(str);
         auto &&authority = uri.GetAuthority();
-        if (authority == "docs") {
+        if (authority == "docs" && str.find("?networkid=") == std::string::npos) {
             uri2In1Vec.emplace_back(uri);
         } else {
             uriOtherVec.emplace_back(str);
@@ -3176,46 +3136,24 @@ bool AbilityRecord::IsDmsCall(Want &want)
 
 void AbilityRecord::GrantDmsUriPermission(Want &want, std::string targetBundleName)
 {
-    std::vector<std::string> uriVec = want.GetStringArrayParam(PARAMS_URI);
-    TAG_LOGD(AAFwkTag::ABILITYMGR, "GrantDmsUriPermission uriVec size: %{public}zu", uriVec.size());
-    for (auto&& str : uriVec) {
-        Uri uri(str);
-        auto&& scheme = uri.GetScheme();
-        TAG_LOGI(AAFwkTag::ABILITYMGR, "uri scheme is %{public}s.", scheme.c_str());
-        // only support file scheme
-        if (scheme != "file") {
-            TAG_LOGW(AAFwkTag::ABILITYMGR, "only support file uri.");
-            continue;
-        }
-        std::string srcPath = uri.GetPath();
-        if (std::filesystem::exists(srcPath) && std::filesystem::is_symlink(srcPath)) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "soft links are not allowed.");
-            continue;
-        }
-        std::string absolutePath;
-        if (uri.IsRelative()) {
-            char path[PATH_MAX] = {0};
-            if (realpath(srcPath.c_str(), path) == nullptr) {
-                TAG_LOGE(AAFwkTag::ABILITYMGR, "realpath get failed, errno is %{public}d", errno);
-                continue;
-            }
-            absolutePath = path;
-        } else {
-            absolutePath = srcPath;
-        }
-        if (absolutePath.compare(0, DISTRIBUTED_FILES_PATH.size(), DISTRIBUTED_FILES_PATH) != 0) {
-            TAG_LOGE(AAFwkTag::ABILITYMGR, "uri is not distributed path");
-            continue;
-        }
-        uint32_t initiatorTokenId = IPCSkeleton::GetCallingTokenID();
-        auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermission(uri, want.GetFlags(),
-            targetBundleName, appIndex_, initiatorTokenId));
-        if (ret == 0) {
-            isGrantedUriPermission_ = true;
-        }
+    std::vector<std::string> uriStrVec = want.GetStringArrayParam(PARAMS_URI);
+    TAG_LOGD(AAFwkTag::ABILITYMGR, "GrantDmsUriPermission uriVec size: %{public}zu", uriStrVec.size());
+    if (uriStrVec.empty()) {
+        TAG_LOGW(AAFwkTag::ABILITYMGR, "No need to grant uri permission.");
+        return;
     }
-    uriVec.clear();
-    want.SetParam(PARAMS_URI, uriVec);
+    std::vector<Uri> uriVec;
+    for (auto &uriStr: uriVec) {
+        uriVec.emplace_back(uriStr);
+    }
+    auto ret = IN_PROCESS_CALL(UriPermissionManagerClient::GetInstance().GrantUriPermissionPrivileged(uriVec,
+        want.GetFlags(), targetBundleName, appIndex_));
+    if (ret == ERR_OK) {
+        TAG_LOGI(AAFwkTag::ABILITYMGR, "grant uri permission successfully.");
+        isGrantedUriPermission_ = true;
+    }
+    uriStrVec.clear();
+    want.SetParam(PARAMS_URI, uriStrVec);
 }
 
 void AbilityRecord::RevokeUriPermission()
