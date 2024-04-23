@@ -23,7 +23,6 @@
 #endif // WITH_DLP
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
-#include "hitrace_meter.h"
 #include "in_process_call_wrapper.h"
 #include "iremote_object.h"
 #include "permission_verification.h"
@@ -37,7 +36,6 @@ using Dlp = Security::DlpPermission::DlpPermissionKit;
 #endif // WITH_DLP
 [[maybe_unused]]static bool DlpAccessOtherAppsCheck(const sptr<IRemoteObject> &callerToken, const Want &want)
 {
-    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
 #ifdef WITH_DLP
     auto isSaCall = AAFwk::PermissionVerification::GetInstance()->IsSACall();
     if (isSaCall) {
