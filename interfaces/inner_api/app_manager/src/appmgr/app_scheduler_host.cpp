@@ -204,7 +204,8 @@ int32_t AppSchedulerHost::HandleScheduleCleanAbility(MessageParcel &data, Messag
 {
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
-    ScheduleCleanAbility(token);
+    bool isCacheProcess = data.ReadBool();
+    ScheduleCleanAbility(token, isCacheProcess);
     return NO_ERROR;
 }
 

@@ -96,6 +96,12 @@ enum class PreloadState {
     PRELOADING = 1,
     PRELOADED = 2,
 };
+
+enum class SupportProcessCacheState {
+    UNSPECIFIED = 0,
+    SUPPORT,
+    NOT_SUPPORT
+};
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_MGR_CONSTANTS_H

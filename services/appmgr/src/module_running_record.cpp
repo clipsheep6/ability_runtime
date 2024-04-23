@@ -19,6 +19,7 @@
 #include "hilog_tag_wrapper.h"
 #include "hitrace_meter.h"
 #include "ui_extension_utils.h"
+#include "cache_process_manager.h"
 
 namespace OHOS {
 namespace AppExecFwk {
@@ -247,7 +248,8 @@ void ModuleRunningRecord::TerminateAbility(const std::shared_ptr<AppRunningRecor
             SendEvent(AMSEventHandler::TERMINATE_ABILITY_TIMEOUT_MSG,
                 AMSEventHandler::TERMINATE_ABILITY_TIMEOUT, abilityRecord);
         }
-        appLifeCycleDeal_->ScheduleCleanAbility(token);
+        bool isCachedProcess = DelayedSingleton<CacheProcessManager>::GetInstance()->QueryEnableProcessCache();
+        appLifeCycleDeal_->ScheduleCleanAbility(token, isCachedProcess);
     } else {
         TAG_LOGW(AAFwkTag::APPMGR, "appLifeCycleDeal_ is null");
         auto serviceInner = appMgrServiceInner_.lock();

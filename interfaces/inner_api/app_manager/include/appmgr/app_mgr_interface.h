@@ -638,6 +638,8 @@ public:
     {
         return 0;
     }
+
+    virtual int32_t SetSupportedProcessCacheSelf(bool isSupport) = 0;
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

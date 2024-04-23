@@ -186,6 +186,8 @@ AppMgrStub::AppMgrStub()
         &AppMgrStub::HandleUpdateConfigurationByBundleName;
     memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::NOTIFY_MEMORY_SIZE_STATE_CHANGED)] =
         &AppMgrStub::HandleNotifyMemonySizeStateChanged;
+    memberFuncMap_[static_cast<uint32_t>(AppMgrInterfaceCode::SET_SUPPORTED_PROCESS_CACHE_SELF)] =
+        &AppMgrStub::HandleSetSupportedProcessCacheSelf;
 }
 
 AppMgrStub::~AppMgrStub()
@@ -1272,6 +1274,18 @@ int32_t AppMgrStub::HandleNotifyMemonySizeStateChanged(MessageParcel &data, Mess
     if (!reply.WriteInt32(result)) {
         TAG_LOGE(AAFwkTag::APPMGR, "Write result error.");
         return ERR_INVALID_VALUE;
+    }
+    return NO_ERROR;
+}
+
+int32_t AppMgrStub::HandleSetSupportedProcessCacheSelf(MessageParcel &data, MessageParcel &reply)
+{
+    TAG_LOGD(AAFwkTag::APPMGR, "Called.");
+    bool isSupport = data.ReadBool();
+    auto ret = SetSupportedProcessCacheSelf(isSupport);
+    if (!reply.WriteInt32(ret)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "Write ret error.");
+        return IPC_STUB_ERR;
     }
     return NO_ERROR;
 }

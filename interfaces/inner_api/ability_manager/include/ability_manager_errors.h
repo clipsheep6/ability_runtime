@@ -477,6 +477,8 @@ enum {
      * Native error(2097243) for check preload conditions failed.
      */
     ERR_CHECK_PRELOAD_CONDITIONS_FAILED,
+
+    ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN,
 };
 
 enum {

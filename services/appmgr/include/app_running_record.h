@@ -756,6 +756,9 @@ public:
     int DumpIpcStart(std::string& result);
     int DumpIpcStop(std::string& result);
     int DumpIpcStat(std::string& result);
+
+    bool SetSupportedProcessCache(bool isSupport);
+    SupportProcessCacheState GetSupportProcessCacheState();
 private:
     /**
      * SearchTheModuleInfoNeedToUpdated, Get an uninitialized abilityStage data.
@@ -903,7 +906,9 @@ private:
     bool isRestartApp_ = false; // Only app calling RestartApp can be set to true
     bool isAssertPause_ = false;
     bool isNativeStart_ = false;
+    SupportProcessCacheState procCacheSupportState_ = SupportProcessCacheState::UNSPECIFIED;
 };
+
 }  // namespace AppExecFwk
 }  // namespace OHOS
 #endif  // OHOS_ABILITY_RUNTIME_APP_RUNNING_RECORD_H
