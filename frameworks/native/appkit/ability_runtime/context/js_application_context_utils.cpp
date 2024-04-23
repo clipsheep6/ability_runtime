@@ -744,29 +744,9 @@ napi_value JsApplicationContextUtils::GetCurrentAppIndex(napi_env env, napi_call
 napi_value JsApplicationContextUtils::OnGetCurrentAppIndex(napi_env env, NapiCallbackInfo& info)
 {
     TAG_LOGD(AAFwkTag::APPKIT, "Get Process Info");
-    auto complete = [applicationContext = applicationContext_](napi_env env, NapiAsyncTask& task, int32_t status) {
-        auto context = applicationContext.lock();
-        if (!context) {
-            task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST,
-                "applicationContext if already released."));
-            return;
-        }
-        std::int32_t appIndex_;
-
-        auto ret = context->GetCurrentAppIndex(appIndex_);
-        if (ret == 0) {
-            task.ResolveWithNoError(env,CreateJsValue(env,appIndex_));
-        } else {
-            task.Reject(env, CreateJsError(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR,
-                "Get App  failed."));
-        }
-    };
-
-    napi_value lastParam = (info.argc == ARGC_ONE) ? info.argv[INDEX_ZERO] : nullptr;
-    napi_value result = nullptr;
-    NapiAsyncTask::Schedule("JsApplicationContextUtils::OnGetCurrentAppIndex",
-        env, CreateAsyncTaskWithLastParam(env, lastParam, nullptr, std::move(complete), &result));
-    return result;
+    std::int32_t appIndex_;
+    auto ret = context->GetCurrentAppIndex(appIndex_);
+    return CreateJsValue(env,ret);
 }
 
 void JsApplicationContextUtils::Finalizer(napi_env env, void *data, void *hint)
