@@ -81,6 +81,7 @@ constexpr int32_t U0_USER_ID = 0;
 constexpr int32_t INVALID_USER_ID = -1;
 using OHOS::AppExecFwk::IAbilityController;
 class PendingWantManager;
+struct StartAbilityInfo;
 /**
  * @class AbilityManagerService
  * AbilityManagerService provides a facility for managing ability life cycle.
@@ -1815,8 +1816,7 @@ private:
 
     int GenerateExtensionAbilityRequest(const Want &want, AbilityRequest &request,
         const sptr<IRemoteObject> &callerToken, int32_t userId);
-    int32_t InitialAbilityRequest(AbilityRequest &request,
-        const std::vector<AppExecFwk::ExtensionAbilityInfo> &extensionInfos) const;
+    int32_t InitialAbilityRequest(AbilityRequest &request, const StartAbilityInfo &abilityInfo) const;
     int CheckOptExtensionAbility(const Want &want, AbilityRequest &abilityRequest,
         int32_t validUserId, AppExecFwk::ExtensionAbilityType extensionType);
 

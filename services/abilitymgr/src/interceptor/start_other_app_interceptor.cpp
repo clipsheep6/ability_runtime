@@ -22,6 +22,7 @@
 #include "parameters.h"
 #include "permission_verification.h"
 #include "running_process_info.h"
+#include "start_ability_utils.h"
 #include "tokenid_kit.h"
 
 namespace OHOS {
@@ -36,6 +37,9 @@ const std::string OPEN_LINK_SCENE_IDENTIFICATION = "appLinkingOnly";
 
 ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
 {
+    if (StartAbilityUtils::skipStartOther) {
+        return ERR_OK;
+    }
     std::string supportStart = OHOS::system::GetParameter(ABILITY_SUPPORT_START_OTHER_APP, "false");
     if (supportStart == "true") {
         TAG_LOGD(AAFwkTag::ABILITYMGR, "Abilityms support start other app.");
@@ -49,7 +53,7 @@ ErrCode StartOtherAppInterceptor::DoProcess(AbilityInterceptorParam param)
         (param.abilityInfo != nullptr && CheckTargetIsSystemApp(param.abilityInfo->applicationInfo))) {
         return ERR_OK;
     }
-    
+
     if (!CheckStartOtherApp(param.want)) {
         return ERR_OK;
     }
