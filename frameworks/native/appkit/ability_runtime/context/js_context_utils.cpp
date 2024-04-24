@@ -59,6 +59,7 @@ public:
     napi_value OnGetPreferencesDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetGroupDir(napi_env env, NapiCallbackInfo& info);
     napi_value OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& info);
+    napi_value OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info);
 
     static napi_value GetCacheDir(napi_env env, napi_callback_info info);
     static napi_value GetTempDir(napi_env env, napi_callback_info info);
@@ -69,6 +70,7 @@ public:
     static napi_value GetPreferencesDir(napi_env env, napi_callback_info info);
     static napi_value GetGroupDir(napi_env env, napi_callback_info info);
     static napi_value GetBundleCodeDir(napi_env env, napi_callback_info info);
+    static napi_value GetCloudFileDir(napi_env env, napi_callback_info info);
 
 protected:
     std::weak_ptr<Context> context_;
@@ -140,6 +142,7 @@ napi_value JsBaseContext::OnSwitchArea(napi_env env, NapiCallbackInfo& info)
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", GetCloudFileDir);
     return CreateJsUndefined(env);
 }
 
@@ -496,6 +499,22 @@ napi_value JsBaseContext::OnGetBundleCodeDir(napi_env env, NapiCallbackInfo& inf
     return CreateJsValue(env, path);
 }
 
+napi_value JsBaseContext::GetCloudFileDir(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsBaseContext, OnGetCloudFileDir, BASE_CONTEXT_NAME);
+}
+
+napi_value JsBaseContext::OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info)
+{
+    auto context = context_.lock();
+    if (!context) {
+        HILOG_WARN("context is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = context->GetCloudFileDir();
+    return CreateJsValue(env, path);
+}
+
 napi_value JsBaseContext::OnCreateBundleContext(napi_env env, NapiCallbackInfo& info)
 {
     if (!CheckCallerIsSystemApp()) {
@@ -728,6 +747,7 @@ napi_value CreateJsBaseContext(napi_env env, std::shared_ptr<Context> context, b
     BindNativeProperty(env, object, "databaseDir", JsBaseContext::GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", JsBaseContext::GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", JsBaseContext::GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", JsBaseContext::GetCloudFileDir);
     BindNativeProperty(env, object, "area", JsBaseContext::GetArea);
     const char *moduleName = "JsBaseContext";
     BindNativeFunction(env, object, "createBundleContext", moduleName, JsBaseContext::CreateBundleContext);
