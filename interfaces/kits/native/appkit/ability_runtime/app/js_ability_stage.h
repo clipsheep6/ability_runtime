@@ -23,6 +23,7 @@
 
 #include "ability_stage.h"
 #include "configuration.h"
+#include "js_sendable_startup_task.h"
 #include "js_startup_task.h"
 #include "resource_manager.h"
 #include "nlohmann/json.hpp"
@@ -72,7 +73,7 @@ private:
     
     bool AnalyzeProfileInfoAndRegisterStartupTask(const std::vector<std::string> &profileInfo);
 
-    void SetOptionalParameters(const nlohmann::json &module, JsStartupTask &jsStartupTask);
+    void SetOptionalParameters(const nlohmann::json &module, std::shared_ptr<StartupTask> task);
     
     std::unique_ptr<NativeReference> LoadJsSrcEntry(const std::string &srcEntry);
 
@@ -86,6 +87,9 @@ private:
     bool IsFileExisted(const std::string &filePath);
     
     bool TransformFileToJsonString(const std::string &resPath, std::string &profile);
+
+    std::shared_ptr<StartupTask> CreateStartupTaskByModule(
+        const nlohmann::json &module, std::unique_ptr<NativeReference> &startupJsRef);
 
     JsRuntime& jsRuntime_;
     std::shared_ptr<NativeReference> jsAbilityStageObj_;

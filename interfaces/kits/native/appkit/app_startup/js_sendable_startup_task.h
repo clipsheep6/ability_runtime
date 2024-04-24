@@ -13,25 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
-#define OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
+#ifndef OHOS_ABILITY_RUNTIME_JS_SENDABLE_STARTUP_TASK_H
+#define OHOS_ABILITY_RUNTIME_JS_SENDABLE_STARTUP_TASK_H
 
 #include "js_runtime.h"
+#include "js_runtime_utils.h"
+#include "startup_task.h"
 #include "js_startup_task_executor.h"
 #include "js_startup_task_result.h"
-#include "startup_task.h"
 #include "startup_utils.h"
 
 namespace OHOS {
 namespace AbilityRuntime {
-class JsStartupTask : public StartupTask {
+class JsSendableStartupTask : public StartupTask {
 public:
-    JsStartupTask(const std::string &name, JsRuntime &jsRuntime,
-        std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef_);
+    JsSendableStartupTask(const std::string &name, JsRuntime &jsRuntime,
+        std::unique_ptr<NativeReference> &startupJsRef, std::shared_ptr<NativeReference> &contextJsRef);
 
-    JsStartupTask(const std::string &name, JsRuntime &jsRuntime);
-
-    ~JsStartupTask() override;
+    ~JsSendableStartupTask() override;
 
     int32_t Init();
 
@@ -40,14 +39,19 @@ public:
     int32_t RunTaskOnDependencyCompleted(const std::string &dependencyName,
         const std::shared_ptr<StartupTaskResult> &result) override;
 
+    static napi_value HandleInitComplete(napi_env env, napi_callback_info info);
+    napi_value OnHandleInitComplete(napi_env env, NapiCallbackInfo &info);
+
 private:
     JsRuntime &jsRuntime_;
     std::unique_ptr<NativeReference> startupJsRef_;
     std::shared_ptr<NativeReference> contextJsRef_;
+    std::unique_ptr<NativeReference> asynctaskexcutorJsRef_;
+    std::unique_ptr<StartupTaskResultCallback> startupTaskResultCallback_;
 
     static napi_value GetDependencyResult(napi_env env, const std::string &dependencyName,
         const std::shared_ptr<StartupTaskResult> &result);
 };
 } // namespace AbilityRuntime
 } // namespace OHOS
-#endif // OHOS_ABILITY_RUNTIME_JS_STARTUP_TASK_H
+#endif // OHOS_ABILITY_RUNTIME_JS_SENDABLE_STARTUP_TASK_H
