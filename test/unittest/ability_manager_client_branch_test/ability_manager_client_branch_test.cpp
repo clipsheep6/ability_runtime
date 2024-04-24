@@ -2554,5 +2554,20 @@ HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_StartShortcut_0100
     EXPECT_NE(client_, nullptr);
     GTEST_LOG_(INFO) << "AbilityManagerClient_StartShortcut_0100 end";
 }
+
+/**
+ * @tc.name: AbilityManagerClient_GetAbilityStateByPersistentId_0100
+ * @tc.desc: GetAbilityStateByPersistentId
+ * @tc.type: FUNC
+ */
+HWTEST_F(AbilityManagerClientBranchTest, AbilityManagerClient_GetAbilityStateByPersistentId_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "AbilityManagerClient_GetAbilityStateByPersistentId_0100 start";
+    int32_t persistentId = 100;
+    bool state;
+    client_->GetAbilityStateByPersistentId(persistentId, state);
+    EXPECT_NE(client_, nullptr);
+    GTEST_LOG_(INFO) << "AbilityManagerClient_GetAbilityStateByPersistentId_0100 end";
+}
 }  // namespace AAFwk
 }  // namespace OHOS
