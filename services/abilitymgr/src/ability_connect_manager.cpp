@@ -730,6 +730,7 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability: %{public}s", element.c_str());
     if (abilityRecord->IsSceneBoard()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Attach Ability: %{public}s", element.c_str());
+        sceneBoardTokenId_ = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
     }
     abilityRecord->SetScheduler(scheduler);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()) {
