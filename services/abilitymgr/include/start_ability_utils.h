@@ -29,6 +29,7 @@ struct StartAbilityInfo {
         AppExecFwk::AbilityInfo &abilityInfo);
     static std::shared_ptr<StartAbilityInfo> CreateStartAbilityInfo(const Want &want, int32_t userId,
         int32_t appIndex);
+    static std::shared_ptr<StartAbilityInfo> CreateCallerAbilityInfo(const sptr<IRemoteObject> &callerToken);
 
     std::string GetAppBundleName() const
     {
@@ -44,11 +45,15 @@ struct StartAbilityUtils {
     static int32_t GetAppIndex(const Want &want, sptr<IRemoteObject> callerToken);
     static bool GetApplicationInfo(const std::string &bundleName, int32_t userId,
         AppExecFwk::ApplicationInfo &appInfo);
+    static bool GetCallerAbilityInfo(const sptr<IRemoteObject> &callerToken,
+        AppExecFwk::AbilityInfo &abilityInfo);
     static thread_local std::shared_ptr<StartAbilityInfo> startAbilityInfo;
+    static thread_local std::shared_ptr<StartAbilityInfo> callerAbilityInfo;
 };
 
 struct StartAbilityInfoWrap {
-    StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex);
+    StartAbilityInfoWrap(const Want &want, int32_t validUserId, int32_t appIndex,
+        const sptr<IRemoteObject> &callerToken);
     ~StartAbilityInfoWrap();
 };
 }
