@@ -730,6 +730,7 @@ int AbilityConnectManager::AttachAbilityThreadLocked(
     TAG_LOGD(AAFwkTag::ABILITYMGR, "Ability: %{public}s", element.c_str());
     if (abilityRecord->IsSceneBoard()) {
         TAG_LOGI(AAFwkTag::ABILITYMGR, "Attach Ability: %{public}s", element.c_str());
+        sceneBoardTokenId_ = abilityRecord->GetAbilityInfo().applicationInfo.accessTokenId;
     }
     abilityRecord->SetScheduler(scheduler);
     if (IsUIExtensionAbility(abilityRecord) && !abilityRecord->IsCreateByConnect()) {
@@ -1937,6 +1938,11 @@ void AbilityConnectManager::HandleAbilityDiedTask(
         if ((IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) && token != nullptr) {
             IN_PROCESS_CALL_WITHOUT_RET(DelayedSingleton<AppScheduler>::GetInstance()->ClearProcessByToken(
                 token->AsObject()));
+            if (abilityRecord->IsSceneBoard() && currentUserId != userId_) {
+                TAG_LOGD(AAFwkTag::ABILITYMGR, "Not the current user's SCB, clear the user and do not restart");
+                KillProcessesByUserId();
+                return;
+            }
         }
         if (DelayedSingleton<AppScheduler>::GetInstance()->IsMemorySizeSufficent() ||
             IsLauncher(abilityRecord) || abilityRecord->IsSceneBoard()) {

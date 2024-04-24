@@ -3211,6 +3211,7 @@ int32_t AppMgrServiceInner::UnregisterAppForegroundStateObserver(const sptr<IApp
 int32_t AppMgrServiceInner::RegisterAbilityForegroundStateObserver(
     const sptr<IAbilityForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     CHECK_CALLER_IS_SYSTEM_APP;
     return DelayedSingleton<AppStateObserverManager>::GetInstance()->RegisterAbilityForegroundStateObserver(observer);
 }

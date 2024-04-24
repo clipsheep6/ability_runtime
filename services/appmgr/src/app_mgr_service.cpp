@@ -501,6 +501,7 @@ int32_t AppMgrService::UnregisterApplicationStateObserver(const sptr<IApplicatio
 
 int32_t AppMgrService::RegisterAbilityForegroundStateObserver(const sptr<IAbilityForegroundStateObserver> &observer)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPMGR, "Called.");
     if (!IsReady()) {
         TAG_LOGE(AAFwkTag::APPMGR, "Not ready.");

@@ -19,6 +19,7 @@
 #include "file_ex.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 #include "image_packer.h"
 #include "image_source.h"
 #include "media_errors.h"
@@ -138,6 +139,7 @@ void MissionDataStorage::DeleteMissionSnapshot(int32_t missionId)
 bool MissionDataStorage::GetMissionSnapshot(int32_t missionId, MissionSnapshot& missionSnapshot, bool isLowResolution)
 {
 #ifdef SUPPORT_GRAPHICS
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     if (GetCachedSnapshot(missionId, missionSnapshot)) {
         if (isLowResolution) {
             missionSnapshot.snapshot = GetReducedPixelMap(missionSnapshot.snapshot);

@@ -632,6 +632,7 @@ bool MissionInfoMgr::GetMissionSnapshot(int32_t missionId, const sptr<IRemoteObj
         return UpdateMissionSnapshot(missionId, abilityToken, missionSnapshot, isLowResolution);
     }
     {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
         std::unique_lock<ffrt::mutex> lock(savingSnapshotLock_);
         auto search = savingSnapshot_.find(missionId);
         if (search != savingSnapshot_.end()) {

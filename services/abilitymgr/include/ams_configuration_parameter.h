@@ -107,11 +107,6 @@ public:
     int GetAMSTimeOutTime() const;
 
     /**
-     * get device type.
-     */
-    std::string GetDeviceType() const;
-
-    /**
      * get boot animation stared timout time.
      */
     int GetBootAnimationTimeoutTime() const;
@@ -170,7 +165,6 @@ private:
     int anrTime_ {5000};
     int amsTime_ {5000};
     int bootAnimationTime_ {5};
-    std::string deviceType_ {""};
     int timeoutUnitTime_ {1000};
     std::string bundleName_ {""};
     std::string abilityName_ {""};

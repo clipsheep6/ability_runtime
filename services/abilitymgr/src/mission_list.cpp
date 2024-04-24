@@ -17,6 +17,7 @@
 
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
+#include "hitrace_meter.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -284,15 +285,17 @@ void MissionList::GetAbilityRecordsByName(
 
 sptr<IRemoteObject> MissionList::GetAbilityTokenByMissionId(int32_t missionId)
 {
-    for (auto mission : missions_) {
-        if (mission && mission->GetMissionId() == missionId) {
-            auto abilityRecord = mission->GetAbilityRecord();
-            if (abilityRecord) {
-                return abilityRecord->GetToken();
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "for (auto mission : missions_)");
+        for (auto mission : missions_) {
+            if (mission && mission->GetMissionId() == missionId) {
+                auto abilityRecord = mission->GetAbilityRecord();
+                if (abilityRecord) {
+                    return abilityRecord->GetToken();
+                }
             }
         }
     }
-
     return nullptr;
 }
 

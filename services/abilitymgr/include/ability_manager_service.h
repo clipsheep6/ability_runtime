@@ -1949,6 +1949,7 @@ private:
         int requestCode, int32_t userId);
 
     bool CheckCallingTokenId(const std::string &bundleName, int32_t userId = INVALID_USER_ID);
+    bool IsCallerSceneBoard();
 
     void ReleaseAbilityTokenMap(const sptr<IRemoteObject> &token);
 

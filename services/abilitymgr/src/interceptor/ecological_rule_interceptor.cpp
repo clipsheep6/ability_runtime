@@ -172,10 +172,13 @@ void EcologicalRuleInterceptor::InitErmsCallerInfo(Want &want, ErmsCallerInfo &c
     callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
     callerInfo.targetLinkFeature = want.GetStringParam("send_to_erms_targetLinkFeature");
     callerInfo.targetAppDistType = want.GetStringParam("send_to_erms_targetAppDistType");
+    callerInfo.targetLinkType = want.GetIntParam("send_to_erms_targetLinkType", 0);
     want.RemoveParam("send_to_erms_targetLinkFeature");
     want.RemoveParam("send_to_erms_targetAppDistType");
-    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
-        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
+    want.RemoveParam("send_to_erms_targetLinkType");
+    HILOG_INFO(
+        "get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s, targetLinkType is %{public}d",
+        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str(), callerInfo.targetLinkType);
     callerInfo.embedded = want.GetIntParam("send_to_erms_embedded", 0);
     callerInfo.targetAppProvisionType = want.GetStringParam("send_to_erms_targetAppProvisionType");
 
