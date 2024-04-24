@@ -39,7 +39,7 @@ private:
     ErrCode RunAsForceStop();
     ErrCode RunAsTestCommand();
 
-    ErrCode ParseStartAbilityArgsFromCmd(Want& want, StartOptions& startoptions);
+    ErrCode ParseStartAbilityArgsFromCmd(Want& want, StartOptions& startOptions);
     ErrCode ParseStopServiceArgsFromCmd(Want& want);
     ErrCode ParseTestArgsFromCmd(std::map<std::string, std::string>& params);
     bool GetKeyAndValueByOpt(int optind, std::string& key, std::string& value);

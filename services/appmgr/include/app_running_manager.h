@@ -282,6 +282,7 @@ public:
 
     int32_t AddUIExtensionLauncherItem(int32_t uiExtensionAbilityId, pid_t hostPid, pid_t providerPid);
     int32_t RemoveUIExtensionLauncherItem(pid_t pid);
+    int32_t RemoveUIExtensionLauncherItemById(int32_t uiExtensionAbilityId);
 
     int DumpIpcAllStart(std::string& result);
 

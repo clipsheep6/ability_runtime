@@ -120,6 +120,8 @@ void AmsMgrStub::CreateMemberFuncMap()
         &AmsMgrStub::HandleKillProcessesByPids;
     memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::ATTACH_PID_TO_PARENT)] =
         &AmsMgrStub::HandleAttachPidToParent;
+    memberFuncMap_[static_cast<uint32_t>(IAmsMgr::Message::IS_MEMORY_SIZE_SUFFICIENT)] =
+        &AmsMgrStub::HandleIsMemorySizeSufficent;
 }
 
 int AmsMgrStub::OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -651,6 +653,16 @@ int32_t AmsMgrStub::HandleClearProcessByToken(MessageParcel &data, MessageParcel
     HITRACE_METER(HITRACE_TAG_APP);
     sptr<IRemoteObject> token = data.ReadRemoteObject();
     ClearProcessByToken(token);
+    return NO_ERROR;
+}
+
+int32_t AmsMgrStub::HandleIsMemorySizeSufficent(MessageParcel &data, MessageParcel &reply)
+{
+    auto result = IsMemorySizeSufficent();
+    if (!reply.WriteBool(result)) {
+        HILOG_ERROR("Fail to write result.");
+        return ERR_INVALID_VALUE;
+    }
     return NO_ERROR;
 }
 }  // namespace AppExecFwk

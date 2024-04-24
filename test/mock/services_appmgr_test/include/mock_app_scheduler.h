@@ -35,7 +35,7 @@ public:
     MOCK_METHOD2(ScheduleLaunchApplication, void(const AppLaunchData&, const Configuration& config));
     MOCK_METHOD4(ScheduleLaunchAbility, void(const AbilityInfo&, const sptr<IRemoteObject>&,
         const std::shared_ptr<AAFwk::Want>&, int32_t));
-    MOCK_METHOD1(ScheduleCleanAbility, void(const sptr<IRemoteObject>&));
+    MOCK_METHOD2(ScheduleCleanAbility, void(const sptr<IRemoteObject>&, bool));
     MOCK_METHOD1(ScheduleProfileChanged, void(const Profile&));
     MOCK_METHOD1(ScheduleConfigurationUpdated, void(const Configuration& config));
     MOCK_METHOD1(ScheduleShrinkMemory, void(const int));
@@ -65,6 +65,7 @@ public:
     MOCK_METHOD1(ScheduleDumpIpcStart, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStop, int32_t(std::string &result));
     MOCK_METHOD1(ScheduleDumpIpcStat, int32_t(std::string &result));
+    MOCK_METHOD0(IsMemorySizeSufficent, bool());
 };
 }  // namespace AppExecFwk
 }  // namespace OHOS

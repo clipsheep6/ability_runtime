@@ -180,6 +180,12 @@ public:
      * @brief Called after ability stoped.
      * You can override this function to implement your own processing logic.
      */
+    void OnSceneWillDestroy() override;
+
+    /**
+     * @brief Called after ability stoped.
+     * You can override this function to implement your own processing logic.
+     */
     void onSceneDestroyed() override;
 
     /**

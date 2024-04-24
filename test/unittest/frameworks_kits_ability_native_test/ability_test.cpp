@@ -3175,5 +3175,170 @@ HWTEST_F(AbilityBaseTest, Ability_RegisterAbilityLifecycleObserver_0100, Functio
     EXPECT_EQ(LifeCycle::Event::ON_STOP, lifeCycle->GetLifecycleState());
     EXPECT_EQ(finalObservedState, observer->GetLifecycleState());
 }
+
+/**
+ * @tc.name: GetModuleName_0100
+ * @tc.desc: GetModuleName test
+ * @tc.desc: Verify function GetModuleName.
+ */
+HWTEST_F(AbilityBaseTest, Ability_GetModuleName_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    auto ret = ability_->GetModuleName();
+    ASSERT_EQ(ret, "");
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: RegisterAbilityLifecycleObserver_0100
+ * @tc.desc: RegisterAbilityLifecycleObserver test
+ * @tc.desc: Verify function RegisterAbilityLifecycleObserver.
+ */
+HWTEST_F(AbilityBaseTest, RegisterAbilityLifecycleObserver_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    ability_->RegisterAbilityLifecycleObserver(nullptr);
+    std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
+    EXPECT_EQ(nullptr, lifeCycle);
+    ability_->RegisterAbilityLifecycleObserver(observer);
+    EXPECT_EQ(ability_->GetLifecycle(), nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: UnregisterAbilityLifecycleObserver_0100
+ * @tc.desc: UnregisterAbilityLifecycleObserver test
+ * @tc.desc: Verify function UnregisterAbilityLifecycleObserver.
+ */
+HWTEST_F(AbilityBaseTest, UnregisterAbilityLifecycleObserver_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+
+    ability_->UnregisterAbilityLifecycleObserver(nullptr);
+    std::shared_ptr<MockLifecycleObserver> observer = std::make_shared<MockLifecycleObserver>();
+    std::shared_ptr<LifeCycle> lifeCycle = ability_->GetLifecycle();
+    EXPECT_EQ(nullptr, lifeCycle);
+    ability_->UnregisterAbilityLifecycleObserver(observer);
+    EXPECT_EQ(ability_->GetLifecycle(), nullptr);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: ExecuteOperation_0100
+ * @tc.desc: Ability ExecuteOperation test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, ExecuteOperation_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    std::shared_ptr<Uri> uri = std::make_shared<Uri>("dataability:///com.ohos.test");
+    std::shared_ptr<DataAbilityOperation> operation = DataAbilityOperation::NewUpdateBuilder(uri)->Build();;
+    std::vector<std::shared_ptr<DataAbilityOperation>> executeBatchOperations;
+    executeBatchOperations.push_back(operation);
+
+    // ability info is nullptr
+    auto result = ability->ExecuteBatch(executeBatchOperations);
+    std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>();
+    abilityInfo->name = "ability";
+    std::shared_ptr<OHOSApplication> application = std::make_shared<OHOSApplication>();
+    std::shared_ptr<EventRunner> eventRunner = EventRunner::Create(abilityInfo->name);
+    std::shared_ptr<AbilityHandler> handler = std::make_shared<AbilityHandler>(eventRunner);
+    sptr<IRemoteObject> token = nullptr;
+    abilityInfo->type = AbilityType::DATA;
+    ability->Init(abilityInfo, application, handler, token);
+    ability->ExecuteOperation(operation, result, -1);
+    auto ret = result.size();
+    EXPECT_EQ(ret, 0);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AbilityCheckAssertQueryResult_0200
+ * @tc.desc: Ability CheckAssertQueryResult test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0200, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    NativeRdb::ValueObject obj;
+    std::string key = "key";
+    NativeRdb::ValuesBucket retValueBucket;
+
+    ability_->ParseIntValue(obj, key, retValueBucket);
+    ability_->ParseDoubleValue(obj, key, retValueBucket);
+    ability_->ParseStringValue(obj, key, retValueBucket);
+    ability_->ParseBlobValue(obj, key, retValueBucket);
+    // valuesBucket is nullptr
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> queryResult =
+        std::make_shared<NativeRdb::AbsSharedResultSet>();
+    bool ret = ability->CheckAssertQueryResult(queryResult, nullptr);
+    EXPECT_EQ(ret, true);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: AbilityCheckAssertQueryResult_0300
+ * @tc.desc: Ability CheckAssertQueryResult test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, AbilityCheckAssertQueryResult_0300, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    std::shared_ptr<NativeRdb::AbsSharedResultSet> queryResult =
+        std::make_shared<NativeRdb::AbsSharedResultSet>();
+    std::shared_ptr<DataAbilityOperation> operation = std::make_shared<DataAbilityOperation>();
+    bool ret = ability->CheckAssertQueryResult(queryResult, operation->GetValuesBucket());
+    EXPECT_EQ(ret, true);
+
+    HILOG_INFO("%{public}s end.", __func__);
+}
+
+/**
+ * @tc.name: OnShare_0100
+ * @tc.desc: Ability OnShare test.
+ * @tc.type: FUNC
+ * @tc.require: issueI60B7N
+ */
+HWTEST_F(AbilityBaseTest, OnShare_0100, TestSize.Level1)
+{
+    HILOG_INFO("%{public}s start.", __func__);
+    std::shared_ptr<Ability> ability = std::make_shared<Ability>();
+    ASSERT_NE(ability, nullptr);
+
+    WantParams wantParams;
+    int32_t ret = ability->OnShare(wantParams);
+    EXPECT_EQ(ret, ERR_OK);
+    bool ret1 = ability->OnBackPress();
+    EXPECT_EQ(ret1, false);
+    bool ret2 = ability->OnPrepareTerminate();
+    EXPECT_EQ(ret2, false);
+    int32_t left = 1;
+    int32_t top = 1;
+    int32_t width = 1;
+    int32_t height = 1;
+    ability->GetWindowRect(left, top, width, height);
+    EXPECT_EQ(left, top);
+    HILOG_INFO("%{public}s end.", __func__);
+}
 }  // namespace AppExecFwk
 }  // namespace OHOS

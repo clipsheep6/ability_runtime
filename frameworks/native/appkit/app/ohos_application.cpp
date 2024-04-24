@@ -455,7 +455,6 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         configuration_->GetItem(AAFwk::GlobalConfigurationKey::COLORMODE_IS_SET_BY_SA);
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0) {
         TAG_LOGD(AAFwkTag::APPKIT, "colorMode is auto");
-        configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
         constexpr int buffSize = 64;
         char valueGet[buffSize] = { 0 };
         auto res = GetParameter(PERSIST_DARKMODE_KEY, colorMode.c_str(), valueGet, buffSize);
@@ -463,9 +462,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
             HILOG_ERROR("get parameter failed.");
             return;
         }
-        colorMode = valueGet;
-        HILOG_INFO("colorMode is: [%{public}s]", colorMode.c_str());
-        config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, colorMode);
+        config.AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, valueGet);
     }
     if (!colorMode.empty() && colorModeIsSetByApp.empty() && colorModeIsSetBySa.empty()) {
         if ((!globalColorModeIsSetByApp.empty() || !globalColorModeIsSetBySa.empty()) &&
@@ -496,9 +493,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         configuration_->CompareDifferent(changeKeyV, config);
         configuration_->Merge(changeKeyV, config);
     }
-    if (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty()) {
-        configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
-    }
+    TAG_LOGD(AAFwkTag::UIABILITY, "configuration_: %{public}s", configuration_->GetName().c_str());
 
     // Update resConfig of resource manager, which belongs to application context.
     UpdateAppContextResMgr(config);
@@ -535,6 +530,11 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
     }
 
     abilityRuntimeContext_->DispatchConfigurationUpdated(config);
+
+    if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0
+        || (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty())) {
+        configuration_->AddItem(AAFwk::GlobalConfigurationKey::SYSTEM_COLORMODE, ConfigurationInner::COLOR_MODE_AUTO);
+    }
 }
 
 /**
@@ -663,10 +663,10 @@ std::shared_ptr<AbilityRuntime::Context> OHOSApplication::AddAbilityStage(
         }
 
         abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *hapModuleInfo);
-        abilityStage->Init(stageContext);
-
         auto application = std::static_pointer_cast<OHOSApplication>(shared_from_this());
         std::weak_ptr<OHOSApplication> weak = application;
+        abilityStage->Init(stageContext, weak);
+
         auto autoStartupCallback = [weak, abilityStage, abilityRecord, moduleName, callback]() {
             auto ohosApplication = weak.lock();
             if (ohosApplication == nullptr) {
@@ -776,7 +776,9 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
     }
 
     auto abilityStage = AbilityRuntime::AbilityStage::Create(runtime_, *moduleInfo);
-    abilityStage->Init(stageContext);
+    auto application = std::static_pointer_cast<OHOSApplication>(shared_from_this());
+    std::weak_ptr<OHOSApplication> weak = application;
+    abilityStage->Init(stageContext, weak);
     Want want;
     abilityStage->OnCreate(want);
     abilityStages_[hapModuleInfo.moduleName] = abilityStage;
@@ -785,7 +787,7 @@ bool OHOSApplication::AddAbilityStage(const AppExecFwk::HapModuleInfo &hapModule
 }
 
 void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
-    const std::shared_ptr<AbilityInfo> &abilityInfo)
+    const std::shared_ptr<AbilityInfo> &abilityInfo, bool isCacheProcess)
 {
     if (abilityInfo == nullptr) {
         TAG_LOGE(AAFwkTag::APPKIT, "abilityInfo is nullptr");
@@ -800,7 +802,7 @@ void OHOSApplication::CleanAbilityStage(const sptr<IRemoteObject> &token,
     if (iterator != abilityStages_.end()) {
         auto abilityStage = iterator->second;
         abilityStage->RemoveAbility(token);
-        if (!abilityStage->ContainsAbility()) {
+        if (!abilityStage->ContainsAbility() && !isCacheProcess) {
             abilityStage->OnDestroy();
             abilityStages_.erase(moduleName);
         }

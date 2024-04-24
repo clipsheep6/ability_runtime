@@ -116,6 +116,7 @@ private:
     bool LoadRuntimeEnv(napi_env env, napi_value globalObject);
     static napi_value RequireNapi(napi_env env, napi_callback_info info);
     inline void SetHostResolveBufferTracker();
+    void LoadJsMock(const std::string &fileName);
 
     panda::ecmascript::EcmaVM *CreateJSVM();
     Options options_;
@@ -727,6 +728,21 @@ napi_value SimulatorImpl::RequireNapi(napi_env env, napi_callback_info info)
     return result;
 }
 
+void SimulatorImpl::LoadJsMock(const std::string &fileName)
+{
+    std::ifstream stream(fileName, std::ios::ate | std::ios::binary);
+    if (!stream.is_open()) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "Failed to open: %{public}s", fileName.c_str());
+        return;
+    }
+    size_t len = stream.tellg();
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(len);
+    stream.seekg(0);
+    stream.read(reinterpret_cast<char*>(buffer.get()), len);
+    stream.close();
+    panda::JSNApi::Execute(vm_, buffer.get(), len, "_GLOBAL::func_main_0");
+}
+
 bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
 {
     JsSysModule::Console::InitConsoleModule(env);
@@ -763,7 +779,7 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
     std::string fileName = options_.containerSdkPath + fileSeparator + "apiMock" + fileSeparator + "jsMockHmos.abc";
     TAG_LOGD(AAFwkTag::ABILITY_SIM, "file name: %{public}s", fileName.c_str());
     if (!fileName.empty() && AbilityStageContext::Access(fileName)) {
-        panda::JSNApi::Execute(vm_, fileName, "_GLOBAL::func_main_0");
+        LoadJsMock(fileName);
     }
 
     const char *moduleName = "SimulatorImpl";

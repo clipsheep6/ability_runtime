@@ -567,11 +567,12 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartDebugModeTest_0100, TestSize.Level0)
     TAG_LOGI(AAFwkTag::TEST, "StartDebugMode start");
 
     auto jsRuntime = std::make_unique<JsRuntime>();
-
-    bool needBreakPoint = true;
-    bool debugApp = true;
-    const std::string processName = "test";
-    jsRuntime->StartDebugMode(needBreakPoint, processName, debugApp, false);
+    AbilityRuntime::Runtime::DebugOption debugOption;
+    debugOption.isStartWithDebug = true;
+    debugOption.processName = "test";
+    debugOption.isDebugApp = true;
+    debugOption.isStartWithNative = false;
+    jsRuntime->StartDebugMode(debugOption);
     EXPECT_TRUE(jsRuntime != nullptr);
 
     jsRuntime.reset();
@@ -1073,10 +1074,13 @@ HWTEST_F(JsRuntimeTest, JsRuntimeStartProfilerTest_0100, TestSize.Level1)
     uint32_t instanceId = 1;
     jsRuntime->StartDebugger(needBreakPoint, instanceId);
 
-    const std::string perfCmd = "profile jsperf 100";
-    bool debugApp = true;
-    const std::string processName = "test";
-    jsRuntime->StartProfiler(perfCmd, needBreakPoint, processName, debugApp, false);
+    AbilityRuntime::Runtime::DebugOption debugOption;
+    debugOption.perfCmd = "profile jsperf 100";
+    debugOption.isStartWithDebug = false;
+    debugOption.processName = "test";
+    debugOption.isDebugApp = true;
+    debugOption.isStartWithNative = false;
+    jsRuntime->StartProfiler(debugOption);
     ASSERT_NE(jsRuntime, nullptr);
     jsRuntime.reset();
 }
@@ -1431,6 +1435,95 @@ HWTEST_F(JsRuntimeTest, CreateJsEnv_0100, TestSize.Level1)
     auto jsRuntime = std::make_unique<JsRuntime>();
     auto ret = jsRuntime->CreateJsEnv(options_);
     EXPECT_EQ(ret, true);
+}
+
+/**
+ * @tc.name: GetChildOptions_0100
+ * @tc.desc: JsRuntime test for GetChildOptions.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetChildOptions_0100, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    jsRuntime->GetChildOptions();
+    EXPECT_TRUE(jsRuntime != nullptr);
+}
+
+/**
+ * @tc.name: DumpCpuProfile_0100
+ * @tc.desc: JsRuntime test for DumpCpuProfile.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, DumpCpuProfile_0100, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    bool isPrivate = true;
+    jsRuntime->DumpCpuProfile(isPrivate);
+    EXPECT_TRUE(jsRuntime != nullptr);
+}
+
+/**
+ * @tc.name: DumpHeapSnapshot_0100
+ * @tc.desc: JsRuntime test for DumpHeapSnapshot.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, DumpHeapSnapshot_0100, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    bool isPrivate = true;
+    jsRuntime->DumpHeapSnapshot(isPrivate);
+    EXPECT_TRUE(jsRuntime != nullptr);
+}
+
+/**
+ * @tc.name: DumpHeapSnapshot_0200
+ * @tc.desc: JsRuntime test for DumpHeapSnapshot.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, DumpHeapSnapshot_0200, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    uint32_t tid = 1;
+    bool isFullGC = true;
+    jsRuntime->DumpHeapSnapshot(tid, isFullGC);
+    EXPECT_TRUE(jsRuntime != nullptr);
+}
+
+/**
+ * @tc.name: AllowCrossThreadExecution_0200
+ * @tc.desc: JsRuntime test for AllowCrossThreadExecution.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, AllowCrossThreadExecution_0200, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    jsRuntime->AllowCrossThreadExecution();
+    EXPECT_TRUE(jsRuntime != nullptr);
+}
+
+/**
+ * @tc.name: GetHeapPrepare_0200
+ * @tc.desc: JsRuntime test for GetHeapPrepare.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, GetHeapPrepare_0200, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    jsRuntime->GetHeapPrepare();
+    EXPECT_TRUE(jsRuntime != nullptr);
+}
+
+/**
+ * @tc.name: RegisterQuickFixQueryFunc_0200
+ * @tc.desc: JsRuntime test for RegisterQuickFixQueryFunc.
+ * @tc.type: FUNC
+ */
+HWTEST_F(JsRuntimeTest, RegisterQuickFixQueryFunc_0200, TestSize.Level1)
+{
+    auto jsRuntime = std::make_unique<JsRuntime>();
+    std::map<std::string, std::string> moduleAndPath;
+    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath);
+    EXPECT_TRUE(jsRuntime != nullptr);
 }
 } // namespace AbilityRuntime
 } // namespace OHOS
