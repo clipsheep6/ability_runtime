@@ -3650,7 +3650,7 @@ int32_t AppMgrServiceInner::UpdateConfiguration(const Configuration &config)
         return ERR_INVALID_VALUE;
     }
     {
-        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "configuration_->CompareDifferent");
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "configuration_->Merge");
         configuration_->Merge(changeKeyV, config);
     }
     // all app
