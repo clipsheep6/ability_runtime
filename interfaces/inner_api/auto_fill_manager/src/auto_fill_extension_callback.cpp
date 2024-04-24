@@ -16,6 +16,7 @@
 
 #include "auto_fill_error.h"
 #include "auto_fill_manager.h"
+#include "auto_fill_manager_util.h"
 #include "hilog_tag_wrapper.h"
 #include "hilog_wrapper.h"
 #include "view_data.h"
@@ -117,7 +118,12 @@ void AutoFillExtensionCallback::OnReceive(const AAFwk::WantParams &wantParams)
             popupConfig.placement =
                 static_cast<Ace::PopupPlacement>(wantParams.GetIntParam(WANT_PARAMS_UPDATE_POPUP_PLACEMENT, 0));
         }
+        Ace::CustomPopupUIExtensionConfig popupConfigToConvert;
+        AutoFillManagerUtil::ConvertToPopupUIExtensionConfig(autoFillCustomConfig_, popupConfigToConvert);
         popupConfig.nodeId = sessionId_;
+        popupConfig.isFocusable = popupConfigToConvert.isFocusable;
+        popupConfig.isShowInSubWindow = popupConfigToConvert.isShowInSubWindow;
+        popupConfig.isEnableArrow = popupConfigToConvert.isEnableArrow;
         auto updateResult = AutoFillManager::GetInstance().UpdateCustomPopupConfig(uiContent_, popupConfig);
         if (updateResult != AutoFill::AUTO_FILL_SUCCESS) {
             TAG_LOGE(AAFwkTag::AUTOFILLMGR, "Update custom popup config failed.");
@@ -193,6 +199,11 @@ void AutoFillExtensionCallback::SetWindowType(const AutoFill::AutoFillWindowType
 void AutoFillExtensionCallback::SetViewData(const AbilityBase::ViewData &viewData)
 {
     viewData_ = viewData;
+}
+
+void AutoFillExtensionCallback::SetAutoFillRequestConfig(const AutoFill::AutoFillCustomConfig &config)
+{
+    autoFillCustomConfig_ = config;
 }
 
 void AutoFillExtensionCallback::SetExtensionType(bool isSmartAutoFill)

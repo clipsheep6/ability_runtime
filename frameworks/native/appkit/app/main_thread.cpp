@@ -751,8 +751,10 @@ void MainThread::ScheduleLaunchAbility(const AbilityInfo &info, const sptr<IRemo
     HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
     TAG_LOGD(AAFwkTag::APPKIT, "ability %{public}s, type is %{public}d.", info.name.c_str(), info.type);
 
-    AAFwk::Want newWant(*want);
-    newWant.CloseAllFd();
+    if (want != nullptr) {
+        AAFwk::Want newWant(*want);
+        newWant.CloseAllFd();
+    }
     std::shared_ptr<AbilityInfo> abilityInfo = std::make_shared<AbilityInfo>(info);
     auto abilityRecord = std::make_shared<AbilityLocalRecord>(abilityInfo, token);
     abilityRecord->SetWant(want);

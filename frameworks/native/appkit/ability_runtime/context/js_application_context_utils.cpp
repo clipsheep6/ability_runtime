@@ -1283,12 +1283,14 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(applicationContext);
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachApplicationContext, workContext, nullptr);
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
-            delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
-        },
-        nullptr, nullptr);
+    if (workContext != nullptr) {
+        napi_wrap(env, contextObj, workContext,
+            [](napi_env, void *data, void *) {
+              TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
+              delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+            },
+            nullptr, nullptr);
+    }
     return contextObj;
 }
 

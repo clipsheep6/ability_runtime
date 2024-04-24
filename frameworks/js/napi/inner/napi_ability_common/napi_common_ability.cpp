@@ -3320,6 +3320,10 @@ void ConnectionCallback::Reset()
         return;
     }
     uv_work_t *work = new(std::nothrow) uv_work_t;
+    if (work == nullptr) {
+        TAG_LOGE(AAFwkTag::JSNAPI, "work == nullptr.");
+        return;
+    }
     ConnectionCallback *data = new(std::nothrow) ConnectionCallback(std::move(*this));
     work->data = data;
     auto ret = uv_queue_work(loop, work, [](uv_work_t*) {}, ClearCallbackWork);
@@ -3562,7 +3566,7 @@ void NAPIAbilityConnection::HandleOnAbilityDisconnectDone(ConnectionCallback &ca
 
     uv_work_t *work = new(std::nothrow) uv_work_t;
     if (work == nullptr) {
-        TAG_LOGE(AAFwkTag::JSNAPI, "%{public}s, work == nullptr.", __func__);
+        TAG_LOGE(AAFwkTag::JSNAPI, "work == nullptr.");
         return;
     }
 
