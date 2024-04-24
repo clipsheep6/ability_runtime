@@ -45,7 +45,8 @@ public:
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isImplicit = false) override
     {
         return 0;
     }
@@ -54,14 +55,16 @@ public:
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
         int requestCode = -1,
-        bool isSendDialogResult = false) override;
+        bool isSendDialogResult = false,
+        bool isImplicit = false) override;
     int StartAbilityAsCaller(
         const Want& want,
         const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken,
         sptr<IRemoteObject> asCallerSourceToken,
         int32_t userId = DEFAULT_INVAL_VALUE,
-        int requestCode = DEFAULT_INVAL_VALUE) override
+        int requestCode = DEFAULT_INVAL_VALUE,
+        bool isImplicit = false) override
     {
         return 0;
     }
@@ -123,8 +126,8 @@ public:
     MOCK_METHOD2(RegisterCancelListener, void(const sptr<IWantSender>& sender, const sptr<IWantReceiver>& receiver));
     MOCK_METHOD2(UnregisterCancelListener, void(const sptr<IWantSender>& sender, const sptr<IWantReceiver>& receiver));
     MOCK_METHOD2(GetPendingRequestWant, int(const sptr<IWantSender>& target, std::shared_ptr<Want>& want));
-    MOCK_METHOD5(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
-        const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
+    MOCK_METHOD6(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
+        const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode, bool isImplicit));
     MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint64_t intentId, int32_t userId));
     MOCK_METHOD1(GetPendinTerminateAbilityTestgRequestWant, void(int id));

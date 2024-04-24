@@ -32,18 +32,19 @@ public:
         int requestCode = DEFAULT_INVAL_VALUE) override;
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD6(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
-        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
-    MOCK_METHOD5(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
-        const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
+    MOCK_METHOD7(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult,
+        bool isImplicit));
+    MOCK_METHOD6(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
+        const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode, bool isImplicit));
     MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint64_t intentId, int32_t userId));
     int StartAbility(const Want& want, const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken, int requestCode = DEFAULT_INVAL_VALUE,
-        int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int32_t userId = DEFAULT_INVAL_VALUE, bool isImplicit = false) override;
     int StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
-        int requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE, bool isImplicit = false) override;
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override;
@@ -213,18 +214,19 @@ public:
     int StartAbility(const Want& want, int32_t userId = DEFAULT_INVAL_VALUE, int requestCode = -1) override;
     MOCK_METHOD4(StartAbility, int(const Want& want, const sptr<IRemoteObject>& callerToken,
         int32_t userId, int requestCode));
-    MOCK_METHOD6(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
-        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult));
-    MOCK_METHOD5(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
-        const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode));
+    MOCK_METHOD7(StartAbilityAsCaller, int(const Want& want, const sptr<IRemoteObject>& callerToken,
+        sptr<IRemoteObject> asCallerSourceToken, int32_t userId, int requestCode, bool isSendDialogResult,
+        bool isImplicit));
+    MOCK_METHOD6(StartAbility, int(const Want& want, const AbilityStartSetting& abilityStartSetting,
+        const sptr<IRemoteObject>& callerToken, int32_t userId, int requestCode, bool isImplicit));
     MOCK_METHOD4(StartAbilityByInsightIntent, int32_t(const Want& want, const sptr<IRemoteObject>& callerToken,
         uint64_t intentId, int32_t userId));
     int StartAbility(const Want& want, const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken, int requestCode = DEFAULT_INVAL_VALUE,
-        int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int32_t userId = DEFAULT_INVAL_VALUE, bool isImplicit = false) override;
     int StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
         const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
-        int requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE) override;
+        int requestCode = DEFAULT_INVAL_VALUE, int32_t userId = DEFAULT_INVAL_VALUE, bool isImplicit = false) override;
     MOCK_METHOD3(TerminateAbility, int(const sptr<IRemoteObject>& token, int resultCode, const Want* resultWant));
     int CloseAbility(const sptr<IRemoteObject>& token, int resultCode = DEFAULT_INVAL_VALUE,
         const Want* resultWant = nullptr) override;

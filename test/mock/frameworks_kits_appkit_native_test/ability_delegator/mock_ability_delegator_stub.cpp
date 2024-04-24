@@ -38,14 +38,14 @@ int MockAbilityDelegatorStub::CloseAbility(const sptr<IRemoteObject>& token, int
 }
 
 int MockAbilityDelegatorStub::StartAbility(const Want& want, const StartOptions& startOptions,
-    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId)
+    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId, bool isImplicit)
 {
     return 0;
 }
 
 int MockAbilityDelegatorStub::StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
     const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
-    int requestCode, int32_t userId)
+    int requestCode, int32_t userId, bool isImplicit)
 {
     return 0;
 }
@@ -236,14 +236,14 @@ int MockAbilityDelegatorStub2::StartAbility(const Want& want, int32_t userId, in
 }
 
 int MockAbilityDelegatorStub2::StartAbility(const Want& want, const StartOptions& startOptions,
-    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId)
+    const sptr<IRemoteObject>& callerToken, int requestCode, int32_t userId, bool isImplicit)
 {
     return 0;
 }
 
 int MockAbilityDelegatorStub2::StartAbilityAsCaller(const Want& want, const StartOptions& startOptions,
     const sptr<IRemoteObject>& callerToken, sptr<IRemoteObject> asCallerSourceToken,
-    int requestCode, int32_t userId)
+    int requestCode, int32_t userId, bool isImplicit)
 {
     return 0;
 }
