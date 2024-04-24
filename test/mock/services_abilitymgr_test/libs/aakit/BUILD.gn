@@ -22,7 +22,6 @@ config("aakit_mock_config") {
     "${ability_runtime_innerkits_path}/app_manager/include",
     "${ability_runtime_path}/interfaces/kits/native/ability/native/",
     "include/",
-
     "${ability_runtime_services_path}/common/include/",
   ]
 }
@@ -49,8 +48,8 @@ ohos_static_library("aakit_mock") {
     "c_utils:utils",
     "ffrt:libffrt",
     "hilog:libhilog",
+    "image_framework:image_native",
     "ipc:ipc_core",
-    "jsoncpp:jsoncpp",
     "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
