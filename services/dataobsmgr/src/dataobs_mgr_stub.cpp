@@ -72,6 +72,10 @@ int DataObsManagerStub::RegisterObserverInner(MessageParcel &data, MessageParcel
 
     auto remote = data.ReadRemoteObject();
     auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "observer is null.");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
     int32_t result = RegisterObserver(uri, observer);
     reply.WriteInt32(result);
     return NO_ERROR;
@@ -87,6 +91,10 @@ int DataObsManagerStub::UnregisterObserverInner(MessageParcel &data, MessageParc
 
     auto remote = data.ReadRemoteObject();
     auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "observer is null.");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
     int32_t result = UnregisterObserver(uri, observer);
     reply.WriteInt32(result);
     return NO_ERROR;
@@ -114,6 +122,10 @@ int32_t DataObsManagerStub::RegisterObserverExtInner(MessageParcel &data, Messag
     }
     auto remote = data.ReadRemoteObject();
     auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "observer is null.");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
     bool isDescendants = data.ReadBool();
     reply.WriteInt32(RegisterObserverExt(uri, observer, isDescendants));
     return SUCCESS;
@@ -128,6 +140,10 @@ int32_t DataObsManagerStub::UnregisterObserverExtInner(MessageParcel &data, Mess
     }
     auto remote = data.ReadRemoteObject();
     auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "observer is null.");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
 
     reply.WriteInt32(UnregisterObserverExt(uri, observer));
     return SUCCESS;
@@ -137,6 +153,10 @@ int32_t DataObsManagerStub::UnregisterObserverExtALLInner(MessageParcel &data, M
 {
     auto remote = data.ReadRemoteObject();
     auto observer = remote == nullptr ? nullptr : iface_cast<IDataAbilityObserver>(remote);
+    if (observer == nullptr) {
+        TAG_LOGE(AAFwkTag::DBOBSMGR, "observer is null.");
+        return IPC_STUB_INVALID_DATA_ERR;
+    }
     reply.WriteInt32(UnregisterObserverExt(observer));
     return SUCCESS;
 }

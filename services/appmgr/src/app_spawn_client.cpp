@@ -183,28 +183,27 @@ int32_t AppSpawnClient::AppspawnSetExtMsg(const AppSpawnStartMsg &startMsg, AppS
         return ret;
     }
 
-    if (!startMsg.hspList.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_HSP_LIST,
-            DumpHspListToJson(startMsg.hspList).c_str()))) {
+    ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_HSP_LIST, DumpHspListToJson(startMsg.hspList).c_str());
+    if (!startMsg.hspList.empty() && ret) {
         HILOG_ERROR("SetExtraHspList failed, ret: %{public}d", ret);
         return ret;
     }
 
-    if (!startMsg.dataGroupInfoList.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_DATA_GROUP,
-            DumpDataGroupInfoListToJson(startMsg.dataGroupInfoList).c_str()))) {
+    ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_DATA_GROUP,
+        DumpDataGroupInfoListToJson(startMsg.dataGroupInfoList).c_str());
+    if (!startMsg.dataGroupInfoList.empty() && ret) {
         HILOG_ERROR("SetExtraDataGroupInfo failed, ret: %{public}d", ret);
         return ret;
     }
 
-    if (!startMsg.overlayInfo.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_OVERLAY, startMsg.overlayInfo.c_str()))) {
+    ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_OVERLAY, startMsg.overlayInfo.c_str());
+    if (!startMsg.overlayInfo.empty() && ret) {
         HILOG_ERROR("SetExtraOverlayInfo failed, ret: %{public}d", ret);
         return ret;
     }
-    if (!startMsg.appEnv.empty() &&
-        (ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_ENV,
-            DumpAppEnvToJson(startMsg.appEnv).c_str()))) {
+    
+    ret = AppSpawnReqMsgAddStringInfo(reqHandle, MSG_EXT_NAME_APP_ENV, DumpAppEnvToJson(startMsg.appEnv).c_str());
+    if (!startMsg.appEnv.empty() && ret) {
         HILOG_ERROR("SetExtraEnv failed, ret: %{public}d", ret);
         return ret;
     }
