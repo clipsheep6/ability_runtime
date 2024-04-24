@@ -525,7 +525,7 @@ void OHOSApplication::OnConfigurationUpdated(Configuration config)
         }
     }
 
-    abilityRuntimeContext_->DispatchConfigurationUpdated(config);
+    abilityRuntimeContext_->DispatchConfigurationUpdated(*configuration_);
 
     if (colorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0
         || (globalColorMode.compare(ConfigurationInner::COLOR_MODE_AUTO) == 0 && colorModeIsSetByApp.empty())) {
