@@ -3880,13 +3880,13 @@ bool MissionListManager::UpdateAbilityRecordLaunchReason(
         return false;
     }
 
-    if (abilityRequest.IsContinuation()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
+    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
         return true;
     }
 
-    if (abilityRequest.IsAppRecovery() || abilityRecord->GetRecoveryInfo()) {
-        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_APP_RECOVERY);
+    if (abilityRequest.IsContinuation()) {
+        abilityRecord->SetLaunchReason(LaunchReason::LAUNCHREASON_CONTINUATION);
         return true;
     }
 
