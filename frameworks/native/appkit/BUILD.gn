@@ -134,6 +134,7 @@ ohos_shared_library("appkit_native") {
     "${ability_runtime_native_path}/appkit/app_startup/js_startup_task.cpp",
     "${ability_runtime_native_path}/appkit/app_startup/js_startup_task_executor.cpp",
     "${ability_runtime_native_path}/appkit/app_startup/js_startup_task_result.cpp",
+    "${ability_runtime_native_path}/appkit/app_startup/js_sendable_startup_task.cpp",
     "${ability_runtime_native_path}/appkit/app_startup/startup_config.cpp",
     "${ability_runtime_native_path}/appkit/app_startup/startup_listener.cpp",
     "${ability_runtime_native_path}/appkit/app_startup/startup_manager.cpp",
