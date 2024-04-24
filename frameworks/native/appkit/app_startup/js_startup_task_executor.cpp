@@ -27,6 +27,7 @@ int32_t JsStartupTaskExecutor::RunOnMainThread(JsRuntime &jsRuntime,
     const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
     std::unique_ptr<StartupTaskResultCallback> callback)
 {
+    HILOG_DEBUG("RunOnMainThread start.");
     HandleScope handleScope(jsRuntime);
     auto env = jsRuntime.GetNapiEnv();
 
@@ -42,7 +43,17 @@ int32_t JsStartupTaskExecutor::RunOnTaskPool(JsRuntime &jsRuntime,
     const std::unique_ptr<NativeReference> &startup, const std::shared_ptr<NativeReference> &context,
     std::unique_ptr<StartupTaskResultCallback> callback)
 {
-    return ERR_OK;
+    HILOG_DEBUG("RunOnTaskPool start.");
+    HandleScope handleScope(jsRuntime);
+    auto env = jsRuntime.GetNapiEnv();
+
+    napi_value returnVal = nullptr;
+    int32_t resultCode = CallStartupPushTask(env, startup, context, callback, returnVal);
+    if (resultCode != ERR_OK) {
+        return resultCode;
+    }
+    return HandleReturnVal(env, returnVal, callback);
+
 }
 
 int32_t JsStartupTaskExecutor::CallStartupInit(napi_env env, const std::unique_ptr<NativeReference> &startup,
@@ -76,6 +87,41 @@ int32_t JsStartupTaskExecutor::CallStartupInit(napi_env env, const std::unique_p
     }
     napi_value argv[1] = { context->GetNapiValue() };
     napi_call_function(env, startupValue, startupInit, 1, argv, &returnVal);
+    return ERR_OK;
+}
+
+int32_t JsStartupTaskExecutor::CallStartupPushTask(napi_env env, const std::unique_ptr<NativeReference> &startup,
+    const std::shared_ptr<NativeReference> &context, std::unique_ptr<StartupTaskResultCallback> &callback,
+    napi_value &returnVal)
+{
+    HILOG_DEBUG("enter");
+    if (startup == nullptr || context == nullptr) {
+        ReplyFailed(std::move(callback), ERR_STARTUP_INTERNAL_ERROR,
+            "startup task is null or context is null.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value startupValue = startup->GetNapiValue();
+    if (!CheckTypeForNapiValue(env, startupValue, napi_object)) {
+        ReplyFailed(std::move(callback), ERR_STARTUP_INTERNAL_ERROR,
+            "startup task is not napi object.");
+        return ERR_STARTUP_INTERNAL_ERROR;
+    }
+    napi_value startupPush = nullptr;
+    napi_get_named_property(env, startupValue, "AsyncPushTask", &startupPush);
+    if (startupPush == nullptr) {
+        ReplyFailed(std::move(callback), ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP,
+            "failed to get property AnsycPushTask from startup task.");
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+    }
+    bool isCallable = false;
+    napi_is_callable(env, startupPush, &isCallable);
+    if (!isCallable) {
+        ReplyFailed(std::move(callback), ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP,
+            "startup task init is not callable.");
+        return ERR_STARTUP_FAILED_TO_EXECUTE_STARTUP;
+    }
+    napi_value argv[1] = { context->GetNapiValue() };
+    napi_call_function(env, startupValue, startupPush, 1, argv, &returnVal);
     return ERR_OK;
 }
 

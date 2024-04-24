@@ -51,7 +51,12 @@ int32_t JsStartupTask::RunTaskInit(std::unique_ptr<StartupTaskResultCallback> ca
         startupTask->CallExtraCallback(result);
     });
     HILOG_DEBUG("%{public}s, RunOnMainThread", name_.c_str());
-    return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
+    if (callCreateOnMainThread_) {
+        return JsStartupTaskExecutor::RunOnMainThread(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
+    }
+    else {
+        return JsStartupTaskExecutor::RunOnTaskPool(jsRuntime_, startupJsRef_, contextJsRef_, std::move(callback));
+    }
 }
 
 int32_t JsStartupTask::RunTaskOnDependencyCompleted(const std::string &dependencyName,
