@@ -773,13 +773,24 @@ bool SimulatorImpl::LoadRuntimeEnv(napi_env env, napi_value globalObj)
 
 void SimulatorImpl::Run()
 {
+    TAG_LOGE(AAFwkTag::ABILITY_SIM, "lzz SimulatorImpl::Run 1.");
     uv_loop_t* uvLoop = nullptr;
     napi_get_uv_event_loop(nativeEngine_, &uvLoop);
-    if (uvLoop != nullptr) {
+    static bool hasPendingException = false;
+    if (uvLoop != nullptr && !hasPendingException) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "lzz SimulatorImpl::Run 2.");
+        hasPendingException = reinterpret_cast<NativeEngine*>(nativeEngine_)->HasPendingException();
+        if (hasPendingException) {
+            TAG_LOGI(AAFwkTag::ABILITY_SIM, "uv_run, hasPendingException: %{public}d.", hasPendingException);
+            return;
+        }
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "lzz SimulatorImpl::Run 3.");
         uv_run(uvLoop, UV_RUN_NOWAIT);
     }
+    TAG_LOGE(AAFwkTag::ABILITY_SIM, "lzz SimulatorImpl::Run 4.");
 
     if (postTask_ != nullptr) {
+        TAG_LOGE(AAFwkTag::ABILITY_SIM, "lzz SimulatorImpl::Run 5.");
         postTask_([this]() { Run(); }, 0);
     }
 }
