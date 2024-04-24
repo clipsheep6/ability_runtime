@@ -1461,6 +1461,10 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
 #ifdef SUPPORT_GRAPHICS
     if (ImplicitStartProcessor::IsImplicitStartAction(want)) {
         abilityRequest.Voluation(want, requestCode, callerToken);
+        if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
+            bool windowFocused = startOptions.GetWindowFocused();
+            abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
+        }
         if (startOptions.GetDisplayID() == 0) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_DISPLAY_ID,
                 static_cast<int32_t>(Rosen::DisplayManager::GetInstance().GetDefaultDisplayId()));
@@ -1595,6 +1599,11 @@ int AbilityManagerService::StartAbilityForOptionInner(const Want &want, const St
             abilityRecord->GetAbilityInfo().bundleName == abilityRequest.want.GetBundle()) {
             abilityRequest.want.SetParam(Want::PARAM_RESV_WITH_ANIMATION, withAnimation);
         }
+    }
+
+    if (PermissionVerification::GetInstance()->IsSystemAppCall()) {
+        bool windowFocused = startOptions.GetWindowFocused();
+        abilityRequest.want.SetParam(Want::PARAM_RESV_WINDOW_FOCUSED, windowFocused);
     }
 
     Want newWant = abilityRequest.want;
