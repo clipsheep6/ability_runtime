@@ -236,6 +236,32 @@ int32_t AppMgrProxy::GetAllRunningProcesses(std::vector<RunningProcessInfo> &inf
     return result;
 }
 
+int32_t AppMgrProxy::GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, const std::string bundleName)
+{
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option(MessageOption::TF_SYNC);
+    if (!WriteInterfaceToken(data)) {
+        return ERR_FLATTEN_OBJECT;
+    }
+    if (!data.WriteString(bundleName)) {
+        TAG_LOGE(AAFwkTag::APPMGR, "bundleName write failed.");
+        return ERR_INVALID_VALUE;
+    }
+    int32_t ret = SendRequest(AppMgrInterfaceCode::GET_RUNNING_MULTIAPP_INFO_By_BUNDLENAME, data, reply, option);
+    if (ret != NO_ERROR) {
+        TAG_LOGW(AAFwkTag::APPMGR, "SendRequest is failed, error code: %{public}d", ret);
+        return ret;
+    }
+    auto error = GetParcelableInfos<RunningMultiAppInfo>(reply, info);
+    if (error != NO_ERROR) {
+        TAG_LOGE(AAFwkTag::APPMGR, "GetParcelableInfos fail, error: %{public}d", error);
+        return error;
+    }
+    int result = reply.ReadInt32();
+    return result;
+}
+
 int32_t AppMgrProxy::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
 {
     MessageParcel data;

@@ -1396,6 +1396,28 @@ int32_t AppMgrServiceInner::GetProcessRunningInformation(RunningProcessInfo &inf
     return ERR_OK;
 }
 
+int32_t AppMgrServiceInner::GetRunningMultiAppInfoByBundleName(std::vector<RunningMultiAppInfo> &info, std::string bundleName)
+{
+    if (bundleName.empty()) {
+        TAG_LOGE(AAFwkTag::APPMGR, "bundlename is nullptr.");
+        return ERR_INVALID_VALUE;
+    }
+    auto multiAppInfoMap = appRunningManager_->GetRunningMultiAppInfoMap();
+    if (multiAppInfoMap.empty()) {
+        return ERR_INVALID_VALUE;
+    }
+    std::map<const std::string, const std::vector<RunningMultiAppInfo>>::iterator iter = multiAppInfoMap.find(bundleName);
+    if (iter != multiAppInfoMap.end()) {
+        const std::vector<RunningMultiAppInfo> vec = iter->second;
+        if (!vec.empty()) {
+            for (auto ele: vec) {
+                info.emplace_back(ele);
+            }
+        }
+    }
+    return ERR_OK;
+}
+
 int32_t AppMgrServiceInner::GetAllRenderProcesses(std::vector<RenderProcessInfo> &info)
 {
     auto isPerm = AAFwk::PermissionVerification::GetInstance()->VerifyRunningInfoPerm();
