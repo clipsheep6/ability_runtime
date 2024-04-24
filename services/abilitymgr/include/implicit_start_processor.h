@@ -97,6 +97,8 @@ private:
 
     bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
 
+    void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
+
 private:
     const static std::vector<std::string> blackList;
     const static std::unordered_set<AppExecFwk::ExtensionAbilityType> extensionWhiteList;

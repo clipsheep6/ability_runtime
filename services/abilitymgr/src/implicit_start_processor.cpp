@@ -37,6 +37,7 @@ const size_t IDENTITY_LIST_MAX_SIZE = 10;
 const int32_t BROKER_UID = 5557;
 
 const std::string BLACK_ACTION_SELECT_DATA = "ohos.want.action.select";
+const std::string ACTION_VIEW = "ohos.want.action.viewData";
 const std::string STR_PHONE = "phone";
 const std::string STR_DEFAULT = "default";
 const std::string TYPE_ONLY_MATCH_WILDCARD = "reserved/wildcard";
@@ -309,11 +310,7 @@ int ImplicitStartProcessor::GenerateAbilityRequestByAction(int32_t userId,
 
     if (abilityInfos.size() == 1) {
         auto skillUri =  abilityInfos.front().skillUri;
-        for (const auto& iter : skillUri) {
-            if (iter.isMatch) {
-                request.want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
-            }
-        }
+        SetTargetLinkInfo(skillUri, request.want);
     }
 
     if (abilityInfos.size() + extensionInfos.size() > 1) {
@@ -674,6 +671,26 @@ bool ImplicitStartProcessor::IsCallFromAncoShellOrBroker(const sptr<IRemoteObjec
         return true;
     }
     return false;
+}
+
+void ImplicitStartProcessor::SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri,
+    Want &want)
+{
+    for (const auto& iter : skillUri) {
+        if (iter.isMatch) {
+            want.RemoveParam("send_to_erms_targetLinkFeature");
+            want.SetParam("send_to_erms_targetLinkFeature", iter.linkFeature);
+            want.RemoveParam("send_to_erms_targetLinkType");
+            if (want.GetBoolParam(OPEN_LINK_APP_LINKING_ONLY, false)) {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_UNIVERSAL_LINK);
+            } else if ((iter.scheme == "https" || iter.scheme == "http") &&
+                want.GetAction().compare(ACTION_VIEW)) {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_WEB_LINK);
+            } else {
+                want.SetParam("send_to_erms_targetLinkType", AbilityCallerInfo::LINK_TYPE_DEEP_LINK);
+            }
+        }
+    }
 }
 }  // namespace AAFwk
 }  // namespace OHOS
