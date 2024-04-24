@@ -20,14 +20,14 @@ interface TipBtn {
 @Entry
 @Component
 struct JumpInterceptorDialog {
-  @State private deviceType: string = 'phone';
+  @State private isDefaultSelector: boolean = true;
   @State private btn: TipBtn = { color: '#FFFFFF' }
   private TAG = 'JumpInterceptorDialog_Page'
 
   aboutToAppear() {
     console.log(this.TAG, 'dialog page appears');
-    this.deviceType = globalThis.params.deviceType
-    if (this.deviceType == 'pc') {
+    this.isDefaultSelector = globalThis.params.isDefaultSelector
+    if (this.isDefaultSelector == false) {
       this.btn.color = '#F2F2F2';
     }
   }

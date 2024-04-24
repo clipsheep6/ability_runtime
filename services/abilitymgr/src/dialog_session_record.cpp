@@ -101,23 +101,6 @@ void DialogSessionRecord::ClearAllDialogContexts()
     dialogCallerInfoMap_.clear();
 }
 
-bool DialogSessionRecord::QueryDialogAppInfo(DialogAbilityInfo &dialogAbilityInfo, int32_t userId)
-{
-    std::string bundleName = dialogAbilityInfo.bundleName;
-    auto bundleMgrHelper = AbilityUtil::GetBundleManagerHelper();
-    CHECK_POINTER_AND_RETURN(bundleMgrHelper, ERR_INVALID_VALUE);
-    BundleInfo bundleInfo;
-    bool ret = IN_PROCESS_CALL(bundleMgrHelper->GetBundleInfoV9(bundleName,
-        static_cast<int32_t>(AppExecFwk::GetBundleInfoFlag::GET_BUNDLE_INFO_WITH_APPLICATION), bundleInfo, userId));
-    if (ret != ERR_OK) {
-        TAG_LOGE(AAFwkTag::DIALOG, "Get application info failed, err:%{public}d.", ret);
-        return false;
-    }
-    dialogAbilityInfo.bundleIconId = bundleInfo.applicationInfo.iconId;
-    dialogAbilityInfo.bundleLabelId = bundleInfo.applicationInfo.labelId;
-    return true;
-}
-
 bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityRequest, int32_t userId,
     std::string &dialogSessionId, std::vector<DialogAppInfo> &dialogAppInfos, bool isSelector)
 {
@@ -132,11 +115,8 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         dialogSessionInfo->callerAbilityInfo.abilityName = callerRecord->GetAbilityInfo().name;
         dialogSessionInfo->callerAbilityInfo.abilityIconId = callerRecord->GetAbilityInfo().iconId;
         dialogSessionInfo->callerAbilityInfo.abilityLabelId = callerRecord->GetAbilityInfo().labelId;
-        bool ret = QueryDialogAppInfo(dialogSessionInfo->callerAbilityInfo, userId);
-        if (!ret) {
-            TAG_LOGE(AAFwkTag::DIALOG, "query dialog app info failed");
-            return false;
-        }
+        dialogSessionInfo->callerAbilityInfo.bundleIconId = callerRecord->GetApplicationInfo().iconId;
+        dialogSessionInfo->callerAbilityInfo.bundleLabelId = callerRecord->GetApplicationInfo().labelId;
     }
     dialogSessionInfo->parameters.SetParam("deviceType", AAFwk::String::Box(OHOS::system::GetDeviceType()));
     dialogSessionInfo->parameters.SetParam("userId", AAFwk::Integer::Box(userId));
@@ -145,13 +125,10 @@ bool DialogSessionRecord::GenerateDialogSessionRecord(AbilityRequest &abilityReq
         targetDialogAbilityInfo.bundleName = dialogAppInfo.bundleName;
         targetDialogAbilityInfo.moduleName = dialogAppInfo.moduleName;
         targetDialogAbilityInfo.abilityName = dialogAppInfo.abilityName;
-        targetDialogAbilityInfo.abilityIconId = dialogAppInfo.iconId;
-        targetDialogAbilityInfo.abilityLabelId = dialogAppInfo.labelId;
-        int ret = QueryDialogAppInfo(targetDialogAbilityInfo, userId);
-        if (!ret) {
-            TAG_LOGE(AAFwkTag::DIALOG, "query dialog app infos failed");
-            return false;
-        }
+        targetDialogAbilityInfo.abilityIconId = dialogAppInfo.abilityIconId;
+        targetDialogAbilityInfo.abilityLabelId = dialogAppInfo.abilityLabelId;
+        targetDialogAbilityInfo.bundleIconId = dialogAppInfo.bundleIconId;
+        targetDialogAbilityInfo.bundleLabelId = dialogAppInfo.bundleLabelId;
         dialogSessionInfo->targetAbilityInfos.emplace_back(targetDialogAbilityInfo);
     }
     std::shared_ptr<DialogCallerInfo> dialogCallerInfo = std::make_shared<DialogCallerInfo>();
