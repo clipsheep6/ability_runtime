@@ -84,6 +84,13 @@ public:
         return 0;
     }
 
+    int32_t UpdateFormByHqf(const std::string &bundleName, const std::string &moduleName,
+                                    const int &patchVersion, const int32_t recordId,
+                                    const sptr<IQuickFixCallback> &callback)
+    {
+        return 0;
+    }
+
     /**
      * @brief Release forms with formIds, send formIds to form manager service.
      * @param formId The Id of the forms to release.

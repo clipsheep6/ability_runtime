@@ -156,6 +156,7 @@ napi_value JsApplicationContextUtils::OnSwitchArea(napi_env env, NapiCallbackInf
     BindNativeProperty(env, object, "databaseDir", GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", GetCloudFileDir);
     return CreateJsUndefined(env);
 }
 
@@ -416,6 +417,23 @@ napi_value JsApplicationContextUtils::OnGetDistributedFilesDir(napi_env env, Nap
         return CreateJsUndefined(env);
     }
     std::string path = applicationContext->GetDistributedFilesDir();
+    return CreateJsValue(env, path);
+}
+
+napi_value JsApplicationContextUtils::GetCloudFileDir(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnGetCloudFileDir, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnGetCloudFileDir(napi_env env, NapiCallbackInfo& info)
+{
+    auto applicationContext = applicationContext_.lock();
+    if (!applicationContext) {
+        HILOG_WARN("applicationContext is already released");
+        return CreateJsUndefined(env);
+    }
+    std::string path = applicationContext->GetCloudFileDir();
     return CreateJsValue(env, path);
 }
 
@@ -1283,12 +1301,14 @@ napi_value JsApplicationContextUtils::OnGetApplicationContext(napi_env env, Napi
     auto workContext = new (std::nothrow) std::weak_ptr<ApplicationContext>(applicationContext);
     napi_coerce_to_native_binding_object(
         env, contextObj, DetachCallbackFunc, AttachApplicationContext, workContext, nullptr);
-    napi_wrap(env, contextObj, workContext,
-        [](napi_env, void *data, void *) {
-            TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
-            delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
-        },
-        nullptr, nullptr);
+    if (workContext != nullptr) {
+        napi_wrap(env, contextObj, workContext,
+            [](napi_env, void *data, void *) {
+              TAG_LOGD(AAFwkTag::APPKIT, "Finalizer for weak_ptr application context is called");
+              delete static_cast<std::weak_ptr<ApplicationContext> *>(data);
+            },
+            nullptr, nullptr);
+    }
     return contextObj;
 }
 
@@ -1333,6 +1353,55 @@ napi_value JsApplicationContextUtils::CreateJsApplicationContext(napi_env env)
     return object;
 }
 
+napi_value JsApplicationContextUtils::SetSupportedProcessCacheSelf(napi_env env, napi_callback_info info)
+{
+    GET_NAPI_INFO_WITH_NAME_AND_CALL(env, info, JsApplicationContextUtils,
+        OnSetSupportedProcessCacheSelf, APPLICATION_CONTEXT_NAME);
+}
+
+napi_value JsApplicationContextUtils::OnSetSupportedProcessCacheSelf(napi_env env, NapiCallbackInfo& info)
+{
+    TAG_LOGD(AAFwkTag::APPKIT, "called");
+
+    if (!CheckCallerIsSystemApp()) {
+        TAG_LOGE(AAFwkTag::APPKIT, "This application is not system-app, can not use system-api.");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_NOT_SYSTEM_APP);
+        return CreateJsUndefined(env);
+    }
+    // only support one params
+    if (info.argc == ARGC_ZERO) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Not enough params");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INVALID_PARAMETER);
+        return CreateJsUndefined(env);
+    }
+    auto applicationContext = applicationContext_.lock();
+    if (applicationContext == nullptr) {
+        TAG_LOGW(AAFwkTag::APPKIT, "applicationContext is already released");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_CONTEXT_NOT_EXIST);
+        return CreateJsUndefined(env);
+    }
+
+    bool isSupport = false;
+    if (!ConvertFromJsValue(env, info.argv[INDEX_ZERO], isSupport)) {
+        TAG_LOGE(AAFwkTag::APPKIT, "Parse isSupport failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
+        return CreateJsUndefined(env);
+    }
+
+    int32_t errCode = applicationContext->SetSupportedProcessCacheSelf(isSupport);
+    if (errCode == AAFwk::CHECK_PERMISSION_FAILED) {
+        TAG_LOGE(AAFwkTag::APPKIT, "check permission failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_NO_ACCESS_PERMISSION);
+    } else if (errCode == AAFwk::ERR_SET_SUPPORTED_PROCESS_CACHE_AGAIN) {
+        TAG_LOGE(AAFwkTag::APPKIT, "cannot set more than once");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_SET_SUPPORTED_PROCESS_CACHE_AGAIN);
+    } else if (errCode != ERR_OK) {
+        TAG_LOGE(AAFwkTag::APPKIT, "set failed");
+        AbilityRuntimeErrorUtil::Throw(env, ERR_ABILITY_RUNTIME_EXTERNAL_INTERNAL_ERROR);
+    }
+    return CreateJsUndefined(env);
+}
+
 void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_value object)
 {
     BindNativeProperty(env, object, "cacheDir", JsApplicationContextUtils::GetCacheDir);
@@ -1343,6 +1412,7 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
     BindNativeProperty(env, object, "databaseDir", JsApplicationContextUtils::GetDatabaseDir);
     BindNativeProperty(env, object, "preferencesDir", JsApplicationContextUtils::GetPreferencesDir);
     BindNativeProperty(env, object, "bundleCodeDir", JsApplicationContextUtils::GetBundleCodeDir);
+    BindNativeProperty(env, object, "cloudFileDir", JsApplicationContextUtils::GetCloudFileDir);
     BindNativeFunction(env, object, "registerAbilityLifecycleCallback", MD_NAME,
         JsApplicationContextUtils::RegisterAbilityLifecycleCallback);
     BindNativeFunction(env, object, "unregisterAbilityLifecycleCallback", MD_NAME,
@@ -1376,6 +1446,8 @@ void JsApplicationContextUtils::BindNativeApplicationContext(napi_env env, napi_
         JsApplicationContextUtils::GetGroupDir);
     BindNativeFunction(env, object, "restartApp", MD_NAME,
         JsApplicationContextUtils::RestartApp);
+    BindNativeFunction(env, object, "setSupportedProcessCache", MD_NAME,
+        JsApplicationContextUtils::SetSupportedProcessCacheSelf);
 }
 
 JsAppProcessState JsApplicationContextUtils::ConvertToJsAppProcessState(

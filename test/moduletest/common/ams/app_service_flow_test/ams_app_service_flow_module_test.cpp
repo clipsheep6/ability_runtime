@@ -320,7 +320,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_004, TestSize.Level1)
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(2);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
 
     // simulate press back key
     serviceInner_->UpdateAbilityState(abilityB2Token, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -376,7 +376,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
 
     // simulate press back key, AppA to background and exit.
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_FOREGROUND);
@@ -395,7 +395,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_BackKey_005, TestSize.Level1)
 
     EXPECT_CALL(*(testappC.mockAppScheduler_), ScheduleForegroundApplication()).Times(1);
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
     // simulate press back key again
     serviceInner_->UpdateAbilityState(abilityC1Token, AbilityState::ABILITY_STATE_FOREGROUND);
     testappC.appRecord_->SetUpdateStateFromService(true);
@@ -432,9 +432,9 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_001, TestSize.Level1
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_FOREGROUND, abilityB1Token);
 
     EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -530,8 +530,8 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_003, TestSize.Level1
         AbilityState::ABILITY_STATE_FOREGROUND, ApplicationState::APP_STATE_BACKGROUND, abilityB1Token);
 
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(1);
+    EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(1);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);
@@ -586,7 +586,7 @@ HWTEST_F(AmsAppServiceFlowModuleTest, ServiceFlow_ScreenOff_004, TestSize.Level1
         ApplicationState::APP_STATE_BACKGROUND, abilityB2Token);
 
     EXPECT_CALL(*(testAppA.mockAppScheduler_), ScheduleBackgroundApplication()).Times(1);
-    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_)).Times(2);
+    EXPECT_CALL(*(testAppB.mockAppScheduler_), ScheduleCleanAbility(_, _)).Times(2);
 
     // simulate press screenOff key
     serviceInner_->UpdateAbilityState(abilityB1Token, AbilityState::ABILITY_STATE_BACKGROUND);

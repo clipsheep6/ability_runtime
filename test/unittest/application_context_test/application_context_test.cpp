@@ -23,7 +23,9 @@
 #include "running_process_info.h"
 #include "want.h"
 #include "configuration_convertor.h"
+#include "ability_manager_errors.h"
 using namespace testing::ext;
+
 
 namespace OHOS {
 namespace AbilityRuntime {
@@ -659,6 +661,35 @@ HWTEST_F(ApplicationContextTest, GetDistributedFilesDir_0200, TestSize.Level1)
 }
 
 /**
+ * @tc.number: GetCloudFileDir_0100
+ * @tc.name: GetCloudFileDir
+ * @tc.desc: Get Cloud File Dir failed
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0100, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 start";
+    std::shared_ptr<ContextImpl> contextImpl = nullptr;
+    context_->AttachContextImpl(contextImpl);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0100 end";
+}
+
+/**
+ * @tc.number: GetCloudFileDir_0200
+ * @tc.name: GetCloudFileDir
+ * @tc.desc:Get Cloud File Dir sucess
+ */
+HWTEST_F(ApplicationContextTest, GetCloudFileDir_0200, TestSize.Level1)
+{
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 start";
+    context_->AttachContextImpl(mock_);
+    auto ret = context_->GetCloudFileDir();
+    EXPECT_EQ(ret, "/data/service/el2/hmdfs/cloud/data/bundleName");
+    GTEST_LOG_(INFO) << "GetCloudFileDir_0200 end";
+}
+
+/**
  * @tc.number: GetToken_0100
  * @tc.name: GetToken
  * @tc.desc: Get Token failed
@@ -1238,6 +1269,18 @@ HWTEST_F(ApplicationContextTest, SetAppRunningUniqueId_0100, TestSize.Level1)
     std::string appRunningUniqueId;
     context_->SetAppRunningUniqueId(appRunningUniqueId);
     EXPECT_NE(context_, nullptr);
+}
+
+/**
+ * @tc.number: SetSupportedProcessCacheSelf_0100
+ * @tc.name: SetSupportedProcessCacheSelf
+ * @tc.desc: SetSupportedProcessCacheSelf fail with no permission
+ */
+HWTEST_F(ApplicationContextTest, SetSupportedProcessCacheSelf_0100, TestSize.Level1)
+{
+    bool isSupport = false;
+    int32_t res = context_->SetSupportedProcessCacheSelf(isSupport);
+    EXPECT_EQ(res, OHOS::ERR_INVALID_VALUE);
 }
 }  // namespace AbilityRuntime
 }  // namespace OHOS

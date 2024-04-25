@@ -48,6 +48,8 @@ constexpr const char* UIEATENSION = "uiextension";
 constexpr const char* UIEATENSION_TYPE = "type";
 constexpr const char* UIEATENSION_TYPE_PICKER = "typePicker";
 constexpr const char* MULTI_USER_TYPE = "multiUserType";
+constexpr const char* SAFE_URI_PERMISSION = "safe_uri_permission";
+
 }  // namespace AmsConfig
 
 enum class SatrtUiMode { STATUSBAR = 1, NAVIGATIONBAR = 2, STARTUIBOTH = 3 };
@@ -105,11 +107,6 @@ public:
     int GetAMSTimeOutTime() const;
 
     /**
-     * get device type.
-     */
-    std::string GetDeviceType() const;
-
-    /**
      * get boot animation stared timout time.
      */
     int GetBootAnimationTimeoutTime() const;
@@ -130,6 +127,8 @@ public:
     nlohmann::json GetPickerJsonObject() const;
 
     int MultiUserType() const;
+
+    bool SafeUriPermission() const;
 
     const std::map<std::string, std::string>& GetPickerMap() const;
 
@@ -154,6 +153,8 @@ private:
     void UpdatePickerConfigurationString(nlohmann::json& Object, const std::string &configName, std::string &value);
     void LoadUIExtensionPickerConfig(const std::string &filePath);
 
+    int LoadSafeUriPermission(nlohmann::json& Object);
+
 private:
     bool nonConfigFile_ {false};
     int maxRootLauncherRestartNum_ = 0;
@@ -164,7 +165,6 @@ private:
     int anrTime_ {5000};
     int amsTime_ {5000};
     int bootAnimationTime_ {5};
-    std::string deviceType_ {""};
     int timeoutUnitTime_ {1000};
     std::string bundleName_ {""};
     std::string abilityName_ {""};
@@ -172,6 +172,7 @@ private:
     nlohmann::json pickerJsonObject_ = nlohmann::json::object();
     std::map<std::string, std::string> picker_;
     int multiUserType_ {0};
+    bool safeUriPermission_{false};
 };
 }  // namespace AAFwk
 }  // namespace OHOS

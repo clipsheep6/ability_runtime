@@ -41,7 +41,7 @@ int UriPermissionManagerProxy::GrantUriPermission(const Uri &uri, unsigned int f
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
         return INNER_ERR;
     }
-    if (!data.WriteInt32(flag)) {
+    if (!data.WriteUint32(flag)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return INNER_ERR;
     }
@@ -71,6 +71,10 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
     const std::string targetBundleName, int32_t appIndex, uint32_t initiatorTokenId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermission is called.");
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
@@ -86,7 +90,7 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
             return INNER_ERR;
         }
     }
-    if (!data.WriteInt32(flag)) {
+    if (!data.WriteUint32(flag)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return INNER_ERR;
     }
@@ -112,17 +116,17 @@ int UriPermissionManagerProxy::GrantUriPermission(const std::vector<Uri> &uriVec
     return reply.ReadInt32();
 }
 
-int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
-    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
+int32_t UriPermissionManagerProxy::GrantUriPermissionPrivileged(const std::vector<Uri> &uriVec, uint32_t flag,
+    const std::string &targetBundleName, int32_t appIndex)
 {
-    TAG_LOGD(AAFwkTag::URIPERMMGR, "Called.");
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::GrantUriPermissionPrivileged is called.");
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
+    }
     MessageParcel data;
     if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
-        return INNER_ERR;
-    }
-    if (uriVec.size() > MAX_URI_COUNT) {
-        TAG_LOGE(AAFwkTag::URIPERMMGR, "Exceeded maximum uri count.");
         return INNER_ERR;
     }
     if (!data.WriteUint32(uriVec.size())) {
@@ -135,7 +139,52 @@ int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> 
             return INNER_ERR;
         }
     }
-    if (!data.WriteInt32(flag)) {
+    if (!data.WriteUint32(flag)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteString(targetBundleName)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write targetBundleName failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteInt32(appIndex)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write appIndex failed.");
+        return INNER_ERR;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_GRANT_URI_PERMISSION_PRIVILEGED, data, reply, option);
+    if (error != ERR_OK) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fial, error: %{public}d", error);
+        return INNER_ERR;
+    }
+    return reply.ReadInt32();
+}
+
+int UriPermissionManagerProxy::GrantUriPermissionFor2In1(const std::vector<Uri> &uriVec, unsigned int flag,
+    const std::string &targetBundleName, int32_t appIndex, bool isSystemAppCall)
+{
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "Called.");
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return ERR_URI_LIST_OUT_OF_RANGE;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
+        return INNER_ERR;
+    }
+    if (!data.WriteUint32(uriVec.size())) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write size of uriVec failed.");
+        return INNER_ERR;
+    }
+    for (const auto &uri : uriVec) {
+        if (!data.WriteParcelable(&uri)) {
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
+            return INNER_ERR;
+        }
+    }
+    if (!data.WriteUint32(flag)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return INNER_ERR;
     }
@@ -169,7 +218,7 @@ void UriPermissionManagerProxy::RevokeUriPermission(const Security::AccessToken:
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return;
     }
-    if (!data.WriteInt32(tokenId)) {
+    if (!data.WriteUint32(tokenId)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write AccessTokenID failed.");
         return;
     }
@@ -189,7 +238,7 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessTok
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return INNER_ERR;
     }
-    if (!data.WriteInt32(tokenId)) {
+    if (!data.WriteUint32(tokenId)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write AccessTokenID failed.");
         return INNER_ERR;
     }
@@ -200,7 +249,7 @@ int UriPermissionManagerProxy::RevokeAllUriPermissions(const Security::AccessTok
         TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fail, error: %{public}d", error);
         return INNER_ERR;
     }
-    return ERR_OK;
+    return reply.ReadInt32();
 }
 
 int UriPermissionManagerProxy::RevokeUriPermissionManually(const Uri &uri, const std::string bundleName)
@@ -241,11 +290,11 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
         return false;
     }
-    if (!data.WriteInt32(flag)) {
+    if (!data.WriteUint32(flag)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
         return false;
     }
-    if (!data.WriteInt32(tokenId)) {
+    if (!data.WriteUint32(tokenId)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write tokenId failed.");
         return false;
     }
@@ -259,6 +308,52 @@ bool UriPermissionManagerProxy::VerifyUriPermission(const Uri& uri, uint32_t fla
     return reply.ReadBool();
 }
 
+std::vector<bool> UriPermissionManagerProxy::CheckUriAuthorization(const std::vector<std::string> &uriVec,
+    uint32_t flag, uint32_t tokenId)
+{
+    TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::CheckUriAuthorization is called.");
+    std::vector<bool> result(uriVec.size(), false);
+    if (uriVec.empty() || uriVec.size() > MAX_URI_COUNT) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "uriVec is empty or exceed maximum size %{public}d.", MAX_URI_COUNT);
+        return result;
+    }
+    MessageParcel data;
+    if (!data.WriteInterfaceToken(IUriPermissionManager::GetDescriptor())) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
+        return result;
+    }
+    if (!data.WriteUint32(uriVec.size())) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write size of uriVec failed.");
+        return result;
+    }
+    for (const auto &uri : uriVec) {
+        if (!data.WriteString(uri)) {
+            TAG_LOGE(AAFwkTag::URIPERMMGR, "Write uri failed.");
+            return result;
+        }
+    }
+    if (!data.WriteUint32(flag)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write flag failed.");
+        return result;
+    }
+    if (!data.WriteUint32(tokenId)) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "Write tokenId failed.");
+        return result;
+    }
+    MessageParcel reply;
+    MessageOption option;
+    int error = SendTransactCmd(UriPermMgrCmd::ON_CHECK_URI_AUTHORIZATION, data, reply, option);
+    if (error != ERR_OK) {
+        TAG_LOGE(AAFwkTag::URIPERMMGR, "SendRequest fial, error: %{public}d", error);
+        return result;
+    }
+    auto size = reply.ReadUint32();
+    for (auto i = 0; i < size; i++) {
+        result[i] = reply.ReadBool();
+    }
+    return result;
+}
+
 bool UriPermissionManagerProxy::IsAuthorizationUriAllowed(uint32_t fromTokenId)
 {
     TAG_LOGD(AAFwkTag::URIPERMMGR, "UriPermissionManagerProxy::IsAuthorizationUriAllowed is called.");
@@ -267,7 +362,7 @@ bool UriPermissionManagerProxy::IsAuthorizationUriAllowed(uint32_t fromTokenId)
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write interface token failed.");
         return false;
     }
-    if (!data.WriteInt32(fromTokenId)) {
+    if (!data.WriteUint32(fromTokenId)) {
         TAG_LOGE(AAFwkTag::URIPERMMGR, "Write fromTokenId failed.");
         return false;
     }

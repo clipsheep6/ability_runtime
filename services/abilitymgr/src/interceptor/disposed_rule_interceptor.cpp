@@ -94,12 +94,14 @@ bool DisposedRuleInterceptor::CheckControl(const Want &want, int32_t userId,
         return false;
     }
     std::vector<AppExecFwk::DisposedRule> disposedRuleList;
-
-    auto ret = IN_PROCESS_CALL(appControlMgr->GetAbilityRunningControlRule(bundleName,
-        userId, disposedRuleList));
-    if (ret != ERR_OK || disposedRuleList.empty()) {
-        HILOG_DEBUG("Get No DisposedRule");
-        return false;
+    {
+        HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, "GetAbilityRunningControlRule");
+        auto ret = IN_PROCESS_CALL(appControlMgr->GetAbilityRunningControlRule(bundleName,
+            userId, disposedRuleList));
+        if (ret != ERR_OK || disposedRuleList.empty()) {
+            HILOG_DEBUG("Get No DisposedRule");
+            return false;
+        }
     }
 
     for (auto &rule:disposedRuleList) {

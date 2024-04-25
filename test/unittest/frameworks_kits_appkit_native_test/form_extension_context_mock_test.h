@@ -54,6 +54,13 @@ public:
         return 0;
     }
 
+    int32_t UpdateFormByHqf(const std::string &bundleName, const std::string &moduleName,
+                                    const int &patchVersion, const int32_t recordId,
+                                    const sptr<IQuickFixCallback> &callback) override
+    {
+        return 0;
+    }
+
     int UpdateForm(const int64_t formId, const FormProviderData &formProviderData) override
     {
         return 0;

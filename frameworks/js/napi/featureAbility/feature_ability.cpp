@@ -670,6 +670,10 @@ void CallOnAbilityResult(int requestCode, int resultCode, const Want &resultData
     onAbilityCB->resultData = resultData;
     onAbilityCB->cb = callbackInfo;
 
+    if (work == nullptr) {
+        TAG_LOGE(AAFwkTag::FA, "work == nullptr.");
+        return;
+    }
     work->data = static_cast<void *>(onAbilityCB);
 
     int rev = uv_queue_work(

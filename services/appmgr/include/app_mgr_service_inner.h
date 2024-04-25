@@ -1037,6 +1037,9 @@ public:
 
     virtual int DumpIpcStat(const int32_t pid, std::string& result);
 
+    int32_t SetSupportedProcessCacheSelf(bool isSupport);
+
+    void OnAppCacheStateChanged(const std::shared_ptr<AppRunningRecord> &appRecord);
 private:
 
     std::string FaultTypeToString(FaultDataType type);
@@ -1087,8 +1090,9 @@ private:
         const std::string& debugCmd, bool isSandboxApp) const;
 
     void StartProcessVerifyPermission(const BundleInfo &bundleInfo, bool &hasAccessBundleDirReq,
-        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids,
-        std::set<std::string> &permissions);
+        uint8_t &setAllowInternet, uint8_t &allowInternet, std::vector<int32_t> &gids);
+
+    void AddMountPermission(uint32_t accessTokenId, std::set<std::string> &permissions);
 
     /**
      * StartProcess, load the ability that needed to be started(Start on a new boot process).
@@ -1363,6 +1367,7 @@ private:
         bool appExistFlag,
         bool isPreload);
 
+    int32_t CheckSetProcessCachePermission() const;
 private:
     /**
      * Notify application status.
@@ -1427,6 +1432,7 @@ private:
     std::vector<std::string> serviceExtensionWhiteList_;
     std::shared_ptr<AdvancedSecurityModeManager> securityModeManager_;
     std::shared_ptr<AAFwk::TaskHandlerWrap> dfxTaskHandler_;
+    std::shared_ptr<AAFwk::TaskHandlerWrap> otherTaskHandler_;
     std::shared_ptr<AppPreloader> appPreloader_;
 };
 }  // namespace AppExecFwk

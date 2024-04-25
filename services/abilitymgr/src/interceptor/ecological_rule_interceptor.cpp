@@ -23,6 +23,7 @@
 #include "in_process_call_wrapper.h"
 #include "ipc_skeleton.h"
 #include "parameters.h"
+#include "start_ability_utils.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -32,6 +33,10 @@ const std::string BUNDLE_NAME_SCENEBOARD = "com.ohos.sceneboard";
 }
 ErrCode EcologicalRuleInterceptor::DoProcess(AbilityInterceptorParam param)
 {
+    HITRACE_METER_NAME(HITRACE_TAG_ABILITY_MANAGER, __PRETTY_FUNCTION__);
+    if (StartAbilityUtils::skipErms) {
+        return ERR_OK;
+    }
     if (param.want.GetStringParam(Want::PARAM_RESV_CALLER_BUNDLE_NAME) ==
         param.want.GetElement().GetBundleName()) {
         HILOG_DEBUG("The same bundle, do not intercept.");
@@ -171,10 +176,13 @@ void EcologicalRuleInterceptor::InitErmsCallerInfo(Want &want, ErmsCallerInfo &c
     callerInfo.callerAppType = ErmsCallerInfo::TYPE_INVALID;
     callerInfo.targetLinkFeature = want.GetStringParam("send_to_erms_targetLinkFeature");
     callerInfo.targetAppDistType = want.GetStringParam("send_to_erms_targetAppDistType");
+    callerInfo.targetLinkType = want.GetIntParam("send_to_erms_targetLinkType", 0);
     want.RemoveParam("send_to_erms_targetLinkFeature");
     want.RemoveParam("send_to_erms_targetAppDistType");
-    HILOG_DEBUG("get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s",
-        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str());
+    want.RemoveParam("send_to_erms_targetLinkType");
+    HILOG_INFO(
+        "get callerInfo targetLinkFeature is %{public}s, targetAppDistType is %{public}s, targetLinkType is %{public}d",
+        callerInfo.targetLinkFeature.c_str(), callerInfo.targetAppDistType.c_str(), callerInfo.targetLinkType);
     callerInfo.embedded = want.GetIntParam("send_to_erms_embedded", 0);
     callerInfo.targetAppProvisionType = want.GetStringParam("send_to_erms_targetAppProvisionType");
 

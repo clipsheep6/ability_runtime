@@ -94,6 +94,8 @@ struct VerificationInfo {
     bool IsSystemAppCall() const;
 
     bool VerifyPrepareTerminatePermission() const;
+
+    bool VerifySetProcessCachePermission() const;
 };
 }  // namespace AAFwk
 }  // namespace OHOS

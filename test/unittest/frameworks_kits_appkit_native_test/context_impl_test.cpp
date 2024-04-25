@@ -388,6 +388,24 @@ HWTEST_F(ContextImplTest, GetDistributedFilesDir_0100, TestSize.Level1)
 }
 
 /**
+ * @tc.name: GetCloudFileDir_0100
+ * @tc.desc: Get cloud directory basic test.
+ * @tc.type: FUNC
+ * @tc.require: issueI61P7Y
+ */
+HWTEST_F(ContextImplTest, GetCloudFileDir_0100, TestSize.Level1)
+{
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s start.", __func__);
+    auto contextImpl = std::make_shared<AbilityRuntime::ContextImpl>();
+    EXPECT_NE(contextImpl, nullptr);
+
+    auto cloudDir = contextImpl->GetCloudFileDir();
+    EXPECT_EQ(cloudDir, "/data/service/el2/0/hmdfs/cloud/data/");
+
+    TAG_LOGI(AAFwkTag::TEST, "%{public}s end.", __func__);
+}
+
+/**
  * @tc.name: GetBaseDir_0100
  * @tc.desc: Get base directory basic test.
  * @tc.type: FUNC

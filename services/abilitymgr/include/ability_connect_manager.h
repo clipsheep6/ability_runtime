@@ -216,6 +216,11 @@ public:
         return serviceMap_;
     }
 
+    uint32_t GetSceneBoardTokenId() const
+    {
+        return sceneBoardTokenId_;
+    }
+
     /**
      * OnAbilityDied.
      *
@@ -558,6 +563,7 @@ private:
     UIExtensionMapType uiExtensionMap_;
     WindowExtensionMapType windowExtensionMap_;
     std::unique_ptr<UIExtensionAbilityConnectManager> uiExtensionAbilityRecordMgr_ = nullptr;
+    uint32_t sceneBoardTokenId_ = 0;
 
     DISALLOW_COPY_AND_MOVE(AbilityConnectManager);
 };

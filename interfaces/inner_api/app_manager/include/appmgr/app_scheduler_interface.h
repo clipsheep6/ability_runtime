@@ -144,7 +144,7 @@ public:
      * @param The ability token.
      * @return
      */
-    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &) = 0;
+    virtual void ScheduleCleanAbility(const sptr<IRemoteObject> &, bool isCacheProcess = false) = 0;
 
     /**
      * ScheduleProfileChanged, call ScheduleProfileChanged() through proxy project,

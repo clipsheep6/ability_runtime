@@ -31,6 +31,7 @@
 #include "scene_board_judgement.h"
 #include "ui_extension_utils.h"
 #include "app_mgr_service_const.h"
+#include "cache_process_manager.h"
 #ifdef EFFICIENCY_MANAGER_ENABLE
 #include "suspend_manager_client.h"
 #endif
@@ -132,6 +133,7 @@ std::shared_ptr<AppRunningRecord> AppRunningManager::CheckAppRunningRecordIsExis
             };
             auto appInfoIter = std::find_if(appInfoList.begin(), appInfoList.end(), isExist);
             if (appInfoIter != appInfoList.end()) {
+                DelayedSingleton<CacheProcessManager>::GetInstance()->ReuseCachedProcess(appRecord);
                 return appRecord;
             }
         }
@@ -490,6 +492,13 @@ void AppRunningManager::PrepareTerminate(const sptr<IRemoteObject> &token)
 
     if (appRecord->IsLastAbilityRecord(token) && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent())) {
+        auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
+            cacheProcMgr->PenddingCacheProcess(appRecord);
+            TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s supports process cache, not terminate record.",
+                appRecord->GetBundleName().c_str());
+            return;
+        }
         TAG_LOGI(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
     }
@@ -543,6 +552,12 @@ void AppRunningManager::TerminateAbility(const sptr<IRemoteObject> &token, bool 
     auto isLauncherApp = appRecord->GetApplicationInfo()->isLauncherApp;
     if (isLastAbility && (!appRecord->IsKeepAliveApp() ||
         !ExitResidentProcessManager::GetInstance().IsMemorySizeSufficent()) && !isLauncherApp) {
+        auto cacheProcMgr = DelayedSingleton<CacheProcessManager>::GetInstance();
+        if (cacheProcMgr != nullptr && cacheProcMgr->IsAppShouldCache(appRecord)) {
+            TAG_LOGI(AAFwkTag::APPMGR, "App %{public}s is cached, not terminate app.",
+                appRecord->GetBundleName().c_str());
+            return;
+        }
         TAG_LOGD(AAFwkTag::APPMGR, "The ability is the last in the app:%{public}s.", appRecord->GetName().c_str());
         appRecord->SetTerminating();
         if (clearMissionFlag && appMgrServiceInner != nullptr) {

@@ -113,14 +113,14 @@ public:
         return true;
     }
     void RegisterQuickFixQueryFunc(const std::map<std::string, std::string>& moduleAndPath,
-                                   AbilityRuntime::RuntimeType type) override
+                                   AbilityRuntime::RuntimeType type, const std::string &bundleName) override
     {
         return;
     }
-    void LoadRepairFormPatch(const std::string& patchFile, const std::string& baseFile,
+    bool LoadRepairFormPatch(const std::string& patchFile, const std::string& baseFile,
                              const std::string &bundleName, const std::string &moduleName) override
     {
-        return;
+        return true;
     }
     void SetDeviceDisconnectCallback(const std::function<bool()> &cb) override
     {

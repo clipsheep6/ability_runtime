@@ -42,7 +42,6 @@ struct AddInfoParam {
     bool isExtension = false;
     bool isMoreHapList = false;
     bool withDefault = false;
-    std::string deviceType;
     std::string typeName;
     std::vector<std::string> infoNames;
 };
@@ -68,7 +67,7 @@ public:
 
 private:
     int GenerateAbilityRequestByAction(int32_t userId, AbilityRequest &request,
-        std::vector<DialogAppInfo> &dialogAppInfos, std::string &deviceType, bool isMoreHapList);
+        std::vector<DialogAppInfo> &dialogAppInfos, bool isMoreHapList);
     std::string MatchTypeAndUri(const AAFwk::Want &want);
     std::shared_ptr<AppExecFwk::BundleMgrHelper> GetBundleManagerHelper();
     std::vector<std::string> SplitStr(const std::string& str, char delimiter);
@@ -96,6 +95,8 @@ private:
     bool IsExistDefaultApp(int32_t userId, const std::string &typeName);
 
     bool IsCallFromAncoShellOrBroker(const sptr<IRemoteObject> &token);
+
+    void SetTargetLinkInfo(const std::vector<AppExecFwk::SkillUriForAbilityAndExtension> &skillUri, Want &want);
 
 private:
     const static std::vector<std::string> blackList;

@@ -1522,7 +1522,7 @@ HWTEST_F(JsRuntimeTest, RegisterQuickFixQueryFunc_0200, TestSize.Level1)
 {
     auto jsRuntime = std::make_unique<JsRuntime>();
     std::map<std::string, std::string> moduleAndPath;
-    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath);
+    jsRuntime->RegisterQuickFixQueryFunc(moduleAndPath, AbilityRuntime::RuntimeType::RUNTIME_APP);
     EXPECT_TRUE(jsRuntime != nullptr);
 }
 } // namespace AbilityRuntime

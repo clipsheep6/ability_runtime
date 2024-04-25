@@ -387,7 +387,10 @@ std::shared_ptr<WantAgent> WantAgentHelper::FromString(const std::string &jsonSt
         return nullptr;
     }
     nlohmann::json jsonObject = nlohmann::json::parse(jsonString);
-
+    if (jsonObject.is_discarded()) {
+        TAG_LOGE(AAFwkTag::WANTAGENT, "Failed to parse json string.");
+        return nullptr;
+    }
     int requestCode = -1;
     if (jsonObject.contains("requestCode") && jsonObject["requestCode"].is_number_integer()) {
         requestCode = jsonObject.at("requestCode").get<int>();

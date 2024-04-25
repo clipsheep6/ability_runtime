@@ -21,6 +21,7 @@
 #include "permission_constants.h"
 #include "support_system_ability_permission.h"
 #include "tokenid_kit.h"
+#include "hilog_tag_wrapper.h"
 
 namespace OHOS {
 namespace AAFwk {
@@ -443,6 +444,16 @@ bool PermissionVerification::VerifyPreloadApplicationPermission() const
         return true;
     }
     HILOG_ERROR("Verify permission %{public}s failed.", PermissionConstants::PERMISSION_PRELOAD_APPLICATION);
+    return false;
+}
+
+bool PermissionVerification::VerifySetProcessCachePermission() const
+{
+    if (VerifyCallingPermission(PermissionConstants::PERMISSION_SET_PROCESS_CACHE_STATE)) {
+        TAG_LOGD(AAFwkTag::APPMGR, "Permission verification succeeded.");
+        return true;
+    }
+    TAG_LOGW(AAFwkTag::APPMGR, "Permission verification failed");
     return false;
 }
 }  // namespace AAFwk

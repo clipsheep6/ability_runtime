@@ -443,6 +443,7 @@ ohos_shared_library("appkit_manager_helper") {
     "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "hilog:libhilog",
+    "hitrace:hitrace_meter",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
   ]

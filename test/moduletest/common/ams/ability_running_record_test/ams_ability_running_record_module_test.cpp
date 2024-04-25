@@ -111,7 +111,7 @@ public:
         scheduled_ |= LAUNCH_ABILITY_SCHEDULED;
         abilityLaunchTime++;
     }
-    void ScheduleCleanAbility(const sptr<IRemoteObject>&) override
+    void ScheduleCleanAbility(const sptr<IRemoteObject>&, bool isCacheProcess) override
     {
         scheduled_ |= CLEAN_ABILITY_SCHEDULED;
     }
@@ -153,6 +153,13 @@ public:
     }
 
     int32_t ScheduleNotifyHotReloadPage(const sptr<IQuickFixCallback>& callback, const int32_t recordId) override
+    {
+        return 0;
+    }
+
+    int32_t ScheduleNotifyLoadPatch(const std::string &bundleName, const std::string &moduleName,
+                                            const sptr<IQuickFixCallback> &callback,
+                                            const int32_t recordId, const int &patchVersion) override
     {
         return 0;
     }

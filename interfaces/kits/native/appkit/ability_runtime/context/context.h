@@ -182,6 +182,8 @@ public:
      */
     virtual std::string GetDistributedFilesDir() = 0;
 
+    virtual std::string GetCloudFileDir() = 0;
+
      /**
      * @brief Obtains token.
      *
